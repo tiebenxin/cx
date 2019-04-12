@@ -110,7 +110,7 @@ public class ImageHeadActivity extends AppActivity {
                     // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
 
 
-                    mSdImageHead.setImageResource(R.mipmap.ic_launcher);
+                    mSdImageHead.setImageResource(R.mipmap.ic_bc_select);
 
                     ToastUtil.show(context, file);
                     break;
