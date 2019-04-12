@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="black_a_20">#40000000</color>
+    <color name="transparent">#00000000</color>
+    <!-- gray -->
+    <!--用于大背景-->
+    <color name="gray_100">#f1f1f1</color>
+
+    <!--文字提示颜色-->
+    <!--    <color name="gray_200">#cccccc</color>-->
+    <!--分割线颜色-->
+    <color name="gray_200">#dcdddd</color>
+    <!--按钮按下颜色-->
+    <color name="gray_250">#B5B5B5</color>
+    <!--内容字体颜色-->
+    <color name="gray_300">#868686</color>
+    <!--首页三级标题颜色-->
+    <color name="gray_400">#63666a</color>
+
+
+
+    <!--二级标题,交互颜色-->
+    <!--    <color name="gray_400">#999999</color>-->
+    <!--三级标题-->
+    <!-- <color name="gray_500">#808080</color>-->
+    <!--二级标题-->
+    <!--    <color name="gray_600">#363636</color>-->
+    <!--最黑,一级标题-->
+    <!--    <color name="gray_700">#1a1a1a</color>-->
+
+    <!-- green-->
+    <color name="green_600">#31a156</color>
+    <color name="green_500">#32b053</color>
+    <color name="green_100">#00c0b8</color>
+    <color name="green_200">#67c257</color>
+
+    <!-- yellow-->
+    <!--金额颜色-->
+    <color name="yellow_500">#ee6c44</color>
+    <color name="yellow_200">#deb511</color>
+
+    <!-- red-->
+    <!--错误颜色-->
+    <color name="red_600">#ff0000</color>
+    <!--按钮红色-->
+    <color name="red_400">#e95f52</color>
+    <!--连接颜色-->
+    <color name="blue_600">#374882</color>
+
+
+</resources>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_main"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/actionbar_height"
+    android:addStatesFromChildren="true"
+    android:background="@drawable/bg_action"
+    android:gravity="center_vertical"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:addStatesFromChildren="true"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp" >
+
+        <TextView
+            android:id="@+id/txt_title"
+            style="@style/app_txt_title_1"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:ellipsize="end"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:maxWidth="175dp"
+            android:scrollHorizontally="true"
+            android:text="Text"
+            android:textColor="@color/white"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+
+             />
+
+        <LinearLayout
+            android:id="@+id/action_left"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/app_margin_main"
+            android:paddingRight="@dimen/app_margin_main" >
+
+            <ImageView
+                android:id="@+id/btn_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_back"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/txt_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/btn_icon"
+                android:textColor="@drawable/txt_actionbar"
+                android:textSize="13sp"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/action_right"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/app_margin_main"
+            android:paddingRight="@dimen/app_margin_main"
+            android:visibility="visible" >
+
+            <TextView
+                android:id="@+id/txt_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:textColor="@drawable/txt_actionbar"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/btn_icon_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:visibility="visible" />
+        </LinearLayout>
+    </RelativeLayout>
+<View
+    style="@style/app_line_action"
+    />
+</LinearLayout>

@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Library</string>
+    <string name="app_link_err">(づ￣3￣)づ服务器君打野去了!</string>
+    <string name="rmb">¥&#160;</string>
+    <!--中文留白-->
+    <string name="empty_cn">&#12288;</string>
+    <string name="empty">　</string>
+    <string name="emptyline">┃</string>
+
+    <string name="app_txt_load"></string>
+    <string name="app_city_1"></string>
+    <string name="app_city_2"></string>
+    <string name="app_city_3"></string>
+
+</resources>

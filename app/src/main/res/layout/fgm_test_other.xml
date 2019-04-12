@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <TextView
+       style="@style/app_txt_title_1"
+        android:text="分割线"/>
+    <View
+        style="@style/app_line"/>
+    <TextView
+        style="@style/app_txt_title_1"
+        android:text="qita"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <net.cb.cb.library.view.PySortView
+            android:id="@+id/pySort"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+           />
+    </FrameLayout>
+
+</LinearLayout>

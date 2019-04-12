@@ -1,0 +1,93 @@
+package com.yanlong.im.user.ui;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.yanlong.im.R;
+
+import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.HeadView;
+
+public class PasswordLoginActivity extends AppActivity implements View.OnClickListener {
+    private HeadView mHeadView;
+    private EditText mEtPhoneContent;
+    private EditText mEtPasswordContent;
+    private TextView mTvIdentifyingCode;
+    private Button mBtnLogin;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_passworfd_login);
+        initView();
+        initEvent();
+    }
+
+    private void initView(){
+        mHeadView =  findViewById(R.id.headView);
+        mEtPhoneContent = findViewById(R.id.et_phone_content);
+        mEtPasswordContent =  findViewById(R.id.et_password_content);
+        mTvIdentifyingCode =  findViewById(R.id.tv_identifying_code);
+        mBtnLogin =  findViewById(R.id.btn_login);
+        mHeadView.getActionbar().setTxtRight("注册");
+    }
+
+    private void initEvent(){
+        mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+                Intent intent = new Intent(PasswordLoginActivity.this,RegisterActivity.class);
+                startActivity(intent);
+                onBackPressed();
+            }
+        });
+        mTvIdentifyingCode.setOnClickListener(this);
+        mBtnLogin.setOnClickListener(this);
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.tv_identifying_code:
+                Intent intent = new Intent(this,IdentifyingCodeActivity.class);
+                startActivity(intent);
+                onBackPressed();
+                break;
+            case R.id.btn_login:
+                login();
+                break;
+        }
+    }
+
+
+    private void login(){
+        String phone = mEtPhoneContent.getText().toString();
+        String password = mEtPasswordContent.getText().toString();
+        if(TextUtils.isEmpty(phone)){
+            ToastUtil.show(this,"请输入账号");
+            return;
+        }
+        if(TextUtils.isEmpty(password)){
+            ToastUtil.show(this,"请输入密码");
+            return;
+        }
+
+
+    }
+
+
+}

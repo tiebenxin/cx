@@ -1,0 +1,189 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.yanlong.im">
+
+    <application
+        android:name="net.cb.cb.library.MainApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/MainAppThrme"
+        tools:replace="android:theme">
+
+        <activity-alias
+            android:name="test"
+            android:label="测试页面"
+            android:targetActivity=".user.ui.SelectLoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="main"
+            android:label="首页"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".test.TestActicity"
+            android:launchMode="standard">
+            <!-- <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>-->
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <!-- 新的朋友-->
+        <activity
+            android:name=".user.ui.FriendApplyAcitvity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"></activity>
+        <!-- 匹配朋友-->
+        <activity
+            android:name=".user.ui.FriendMatchActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <!-- 添加朋友-->
+        <activity
+            android:name=".user.ui.FriendAddAcitvity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <!-- 保存的群聊-->
+        <activity
+            android:name=".chat.ui.GroupSaveActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <!-- 创建群聊-->
+        <activity
+            android:name=".chat.ui.GroupCreateActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+        </activity>
+
+        <!--群信息-->
+        <activity
+            android:name=".chat.ui.GroupInfoActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"></activity>
+        <!--会话信息-->
+        <activity
+            android:name=".chat.ui.ChatInfoActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"></activity>
+        <!--聊天界面-->
+        <activity
+            android:name=".chat.ui.ChatActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <!--聊天戳一下界面-->
+        <activity
+            android:name=".chat.ui.ChatActionActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+        </activity>
+        <!--聊天字体设置-->
+        <activity
+            android:name=".chat.ui.ChatFontActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"></activity>
+
+        <!--选择登录注册-->
+        <activity
+            android:name=".user.ui.SelectLoginActivity"
+            android:screenOrientation="portrait" />
+
+        <!--密码登录-->
+        <activity
+            android:name=".user.ui.PasswordLoginActivity"
+            android:screenOrientation="portrait" />
+        <!--验证码登录-->
+        <activity
+            android:name=".user.ui.IdentifyingCodeActivity"
+            android:screenOrientation="portrait" />
+        <!--注册页面-->
+        <activity
+            android:name=".user.ui.RegisterActivity"
+            android:screenOrientation="portrait" />
+        <!--忘记密码-->
+        <activity
+            android:name=".user.ui.ForgotPasswordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".user.ui.ForgotPasswordNextActivity"
+            android:screenOrientation="portrait" />
+        <!--忘记密码 end-->
+
+        <!--安全隐私-->
+        <activity
+            android:name=".user.ui.SecurityPrivacyActivity"
+            android:screenOrientation="portrait" />
+
+        <!--个人信息-->
+        <activity
+            android:name=".user.ui.MyselfInfoActivity"
+            android:screenOrientation="portrait" />
+
+        <!--通用设置-->
+        <activity
+            android:name=".user.ui.CommonActivity"
+            android:screenOrientation="portrait" />
+
+        <!--新消息设置-->
+        <activity
+            android:name=".user.ui.NewMessageActivity"
+            android:screenOrientation="portrait" />
+
+        <!--账号绑定-->
+        <activity
+            android:name=".user.ui.AccountBindingActvity"
+            android:screenOrientation="portrait" />
+
+        <!--二维码-->
+        <activity
+            android:name=".user.ui.MyselfQRCodeActivity"
+            android:screenOrientation="portrait" />
+
+        <!--零钱-->
+        <activity
+            android:name=".pay.ui.LooseChangeActivity"
+            android:screenOrientation="portrait" />
+        <!--登录-->
+        <activity
+            android:name=".user.ui.LoginActivity"
+            android:screenOrientation="portrait" />
+        <!--公共设置页面-->
+        <activity
+            android:name=".user.ui.CommonSetingActivity"
+            android:screenOrientation="portrait" />
+        <!--个人头像-->
+        <activity
+            android:name=".user.ui.ImageHeadActivity"
+            android:screenOrientation="portrait" />
+
+
+    </application>
+
+</manifest>

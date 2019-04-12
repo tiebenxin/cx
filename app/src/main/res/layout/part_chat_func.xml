@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_func"
+    android:layout_width="match_parent"
+    android:layout_height="240dp"
+    android:columnCount="4"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:id="@+id/view_pic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_chat_pic" />
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginTop="2dp"
+            android:text="相册" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/view_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_chat_pt" />
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginTop="2dp"
+            android:text="拍摄" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_rb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_chat_rb" />
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginTop="2dp"
+            android:text="红包" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_rb_zfb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_chat_rb_zfb" />
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginTop="2dp"
+            android:text="第三方红包" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_chat_pic" />
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginTop="2dp"
+            android:text="戳一下" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_transfer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_chat_transfer" />
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginTop="2dp"
+            android:text="转账" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_rowWeight="1"
+        android:layout_columnWeight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_chat_newfrd" />
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginTop="2dp"
+            android:text="名片" />
+    </LinearLayout>
+
+
+</GridLayout>
