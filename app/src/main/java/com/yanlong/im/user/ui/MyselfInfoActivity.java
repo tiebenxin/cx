@@ -1,6 +1,9 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -11,6 +14,8 @@ import com.yanlong.im.R;
 import net.cb.cb.library.view.AppActivity;
 
 public class MyselfInfoActivity extends AppActivity implements View.OnClickListener {
+    private static final int NICENAME = 1000;
+    private static final int PRODUCT = 2000;
 
     private SimpleDraweeView mImgHead;
     private LinearLayout mViewBlacklist;
@@ -23,8 +28,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private TextView mTvSex;
     private LinearLayout mViewIdentity;
     private TextView mTvIdentity;
-
-
+    private LinearLayout mViewHead;
 
 
     @Override
@@ -38,6 +42,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private void initView(){
         mImgHead =  findViewById(R.id.img_head);
         mViewBlacklist =  findViewById(R.id.view_blacklist);
+        mViewHead =  findViewById(R.id.view_head);
         mTvPhone =  findViewById(R.id.tv_phone);
         mViewNickname =  findViewById(R.id.view_nickname);
         mTvNickname =  findViewById(R.id.tv_nickname);
@@ -56,7 +61,9 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         mViewProductNumber.setOnClickListener(this);
         mViewSex.setOnClickListener(this);
         mViewIdentity.setOnClickListener(this);
+        mViewHead.setOnClickListener(this);
     }
+
 
 
     @Override
@@ -66,10 +73,19 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
                 break;
             case R.id.view_nickname:
-
+                Intent nicknameIntent = new Intent(MyselfInfoActivity.this,CommonSetingActivity.class);
+                nicknameIntent.putExtra(CommonSetingActivity.TITLE,"昵称");
+                nicknameIntent.putExtra(CommonSetingActivity.REMMARK,"设置昵称");
+                nicknameIntent.putExtra(CommonSetingActivity.HINT,"昵称");
+                startActivityForResult(nicknameIntent,NICENAME);
                 break;
             case R.id.view_product_number:
-
+                Intent productIntent = new Intent(MyselfInfoActivity.this,CommonSetingActivity.class);
+                productIntent.putExtra(CommonSetingActivity.TITLE,"夸夸号");
+                productIntent.putExtra(CommonSetingActivity.REMMARK,"夸夸号");
+                productIntent.putExtra(CommonSetingActivity.HINT,"可以使用5~15个字符 数字(必须以字母开头)");
+                productIntent.putExtra(CommonSetingActivity.REMMARK1,"夸夸号只能设置一次");
+                startActivityForResult(productIntent,PRODUCT);
                 break;
             case R.id.view_sex:
 
@@ -77,6 +93,24 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             case R.id.view_identity:
 
                 break;
+            case R.id.view_head:
+                Intent headIntent = new Intent(MyselfInfoActivity.this, ImageHeadActivity.class);
+                startActivity(headIntent);
+                break;
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode  == RESULT_OK){
+            String content = data.getStringExtra(CommonSetingActivity.CONTENT);
+            switch (requestCode){
+                case NICENAME:
+                    mTvNickname.setText(content);
+                    break;
+            }
         }
     }
 }

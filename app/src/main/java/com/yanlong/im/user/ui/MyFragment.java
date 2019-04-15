@@ -51,7 +51,7 @@ public class MyFragment extends Fragment {
         viewHead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), ImageHeadActivity.class);
+                Intent intent = new Intent(getActivity(), MyselfInfoActivity.class);
                 startActivity(intent);
             }
         });

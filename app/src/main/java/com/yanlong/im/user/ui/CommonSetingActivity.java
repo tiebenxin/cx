@@ -14,7 +14,6 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
 public class CommonSetingActivity extends AppActivity {
-    public final static int SETING = 10000;
     public final static String TITLE = "title"; //标题栏
     public final static String HINT = "hint"; //提醒
     public final static String CONTENT = "content";//传回内容
