@@ -183,6 +183,12 @@
             android:name=".user.ui.ImageHeadActivity"
             android:screenOrientation="portrait" />
 
+        <!--上传身份证照片-->
+        <activity
+            android:name=".user.ui.UploadIdentityActivity"
+            android:screenOrientation="portrait" />
+
+
 
     </application>
 

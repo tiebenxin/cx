@@ -86,6 +86,5 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                 }
                 break;
         }
-
     }
 }

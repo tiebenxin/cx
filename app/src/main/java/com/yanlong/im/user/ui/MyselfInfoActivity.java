@@ -91,7 +91,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
                 break;
             case R.id.view_identity:
-
+                Intent identityIntent = new Intent(MyselfInfoActivity.this,UploadIdentityActivity.class);
+                startActivity(identityIntent);
                 break;
             case R.id.view_head:
                 Intent headIntent = new Intent(MyselfInfoActivity.this, ImageHeadActivity.class);
