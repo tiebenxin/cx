@@ -25,8 +25,12 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgBean;
 import com.yanlong.im.chat.ui.view.ChatItemView;
+import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.socket.SocketEvent;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -60,6 +64,47 @@ public class ChatActivity extends AppActivity {
     private View imgEmojiDel;
     private Button btnSend;
 
+    //消息监听事件
+    private SocketEvent msgEvent=new SocketEvent() {
+        @Override
+        public void onHeartbeat() {
+
+        }
+
+        @Override
+        public void onMsg(final com.yanlong.im.utils.socket.MsgBean.UniversalMessage msgBean) {
+            if(msgBean.getMsgType()==null)
+                return;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    MsgBean bean = new MsgBean();
+
+                    switch (msgBean.getMsgType()){
+                        case CHAT:
+                            bean.setType(1);
+                            bean.setMe(false);
+                            bean.setContext(msgBean.getChat().getMsg());
+
+                            break;
+                        case STAMP:
+
+                            break;
+                    }
+
+
+                    sendObj(bean);
+                }
+            });
+
+
+        }
+
+        @Override
+        public void onAck() {
+
+        }
+    };
     //自动寻找控件
     private void findViews() {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
@@ -86,6 +131,7 @@ public class ChatActivity extends AppActivity {
 
     //发送并滑动到列表底部
     private void sendObj(MsgBean bean){
+        
         msgListData.add(bean);
         mtListView.getListView().getAdapter().notifyDataSetChanged();
 
@@ -112,6 +158,8 @@ public class ChatActivity extends AppActivity {
 
             }
         });
+        //注册消息监听
+        SocketUtil.getSocketUtil().addEvent(msgEvent);
         //发送普通消息
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,6 +173,8 @@ public class ChatActivity extends AppActivity {
                 edtChat.getText().clear();
 
                 sendObj(bean);
+
+                SocketUtil.getSocketUtil().sendData(SocketData.msg4Chat(10000l,bean.getContext()));
             }
         });
         edtChat.addTextChangedListener(new TextWatcher() {
@@ -363,6 +413,13 @@ public class ChatActivity extends AppActivity {
             return;
         }
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //取消监听
+        SocketUtil.getSocketUtil().removeEvent(msgEvent);
     }
 
     @Override

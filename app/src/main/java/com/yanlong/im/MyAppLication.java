@@ -18,6 +18,8 @@ public class MyAppLication extends MainApplication {
         EmojiCompat.init(config);*/
       //初始化
         DaoUtil.get();
+
+
     }
 
 }

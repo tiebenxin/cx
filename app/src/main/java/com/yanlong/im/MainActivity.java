@@ -1,5 +1,6 @@
 package com.yanlong.im;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.ui.MyFragment;
@@ -23,6 +25,7 @@ public class MainActivity extends AppActivity {
     private String[] tabs;
     private int[] iconRes;
     private int[] iconHRes;
+
     //自动寻找控件
     private void findViews() {
         viewPage = (android.support.v4.view.ViewPager) findViewById(R.id.viewPage);
@@ -34,8 +37,8 @@ public class MainActivity extends AppActivity {
     private void initEvent() {
         fragments = new Fragment[]{MsgMainFragment.newInstance(), FriendMainFragment.newInstance(), MyFragment.newInstance()};
         tabs = new String[]{"消息", "通讯录", "我"};
-        iconRes=new int[]{R.mipmap.ic_msg,R.mipmap.ic_frend,R.mipmap.ic_me};
-        iconHRes=new int[]{R.mipmap.ic_msg_h,R.mipmap.ic_frend_h,R.mipmap.ic_me_h};
+        iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_me};
+        iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_me_h};
 
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -83,7 +86,7 @@ public class MainActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = (TextView) rootView.findViewById(R.id.txt);
             StrikeButton sb = (net.cb.cb.library.view.StrikeButton) rootView.findViewById(R.id.sb);
-            if(i==2){
+            if (i == 2) {
                 sb.setSktype(1);
             }
             //设置值
@@ -96,6 +99,9 @@ public class MainActivity extends AppActivity {
         //切换
         bottomTab.getTabAt(1).select();
         bottomTab.getTabAt(0).select();
+
+        //启动聊天服务
+        startService(new Intent(getContext(), ChatServer.class));
 
 
     }
