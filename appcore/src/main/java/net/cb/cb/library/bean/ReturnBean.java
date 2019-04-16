@@ -7,14 +7,16 @@ import com.google.gson.annotations.SerializedName;
  * @date 2016/12/20
  */
 public class ReturnBean<T> {
-    String code;
+    @SerializedName("err_code")
+    Long code;
+    @SerializedName("err_msg")
     String msg;
     T data;
 
     public Boolean isOk() {
-        return code.equals("000000");
+        return code.longValue()==0l;
     }
-    public String getCode() {
+    public Long getCode() {
         return code;
     }
 
@@ -26,7 +28,7 @@ public class ReturnBean<T> {
         return data;
     }
 
-    public void setCode(String code) {
+    public void setCode(Long code) {
         this.code = code;
     }
 

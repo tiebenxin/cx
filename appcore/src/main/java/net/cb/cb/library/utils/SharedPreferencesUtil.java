@@ -21,7 +21,8 @@ public class SharedPreferencesUtil {
     public enum SPName {
         //这里定义xml的名字,统一管理
         CACHE_DEF("chahe_default"),
-        USER_SETTING("user_setting"), //token
+        USER_SETTING("user_setting"),
+        TOKEN("token"), //token
         FONT_SCAN("font_scan"),//
 
         USER_INFO("user_info"),

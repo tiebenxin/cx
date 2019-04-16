@@ -31,29 +31,7 @@ public class MainApplication extends MultiDexApplication {
         AppConfig.APP_CONTEXT = context;
 
 
-       switch (BuildConfig.BUILD_TYPE) {
-            case "debug":
 
-                AppConfig.URL_HOST = "http://192.168.10.110:8080";
-
-                AppConfig.DEBUG = true;
-
-
-                break;
-            case "pre":
-                AppConfig.DEBUG = true;
-                AppConfig.URL_HOST = "https://baidu.net";
-
-                break;
-            case "release":
-			//test 后面这里改false
-                AppConfig.DEBUG = false;
-                AppConfig.URL_HOST = "https://baidu.com";
-
-                break;
-        }
-
-        LogUtil.getLog().init(AppConfig.DEBUG);
 
         Fresco.initialize(this);
 
