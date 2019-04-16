@@ -48,6 +48,8 @@
             android:screenOrientation="portrait">
 
         </activity>
+        <!--聊天服务-->
+        <service android:name=".chat.server.ChatServer"/>
         <!-- 新的朋友-->
         <activity
             android:name=".user.ui.FriendApplyAcitvity"

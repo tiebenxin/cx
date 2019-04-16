@@ -10,15 +10,68 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    signingConfigs {
+        debug {
+            storeFile file("../doc/key.jks")
+            storePassword "yanglong123"
+            keyAlias "IM"
+            keyPassword "yanglong456"
+
+        }
+
+        release {
+            storeFile file("../doc/key.jks")
+            storePassword "yanglong123"
+            keyAlias "IM"
+            keyPassword "yanglong456"
+
+        }
+
+    }
     buildTypes {
+
+        debug {
+            manifestPlaceholders = [UMENG_PUSH_KEY      : "580021f2"
+                                    , UMENG_PUSH_CHANNEL: "phone"
+                                    , UMENG_SECERT      : "f2c847847c"
+                                    , UMENG_WX_ID       : "wx99b23857b"
+                                    , UMENG_WX_KEY      : "5233d54a59b3f9681742b0e"
+
+            ]
+            signingConfig = signingConfigs.debug
+        }
+        pre {
+
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [UMENG_PUSH_KEY      : "581fc0021f2"
+                                    , UMENG_PUSH_CHANNEL: "phone"
+                                    , UMENG_SECERT      : "f2ce7847847c"
+                                    , UMENG_WX_ID       : "wx99b41b23857b"
+                                    , UMENG_WX_KEY      : "5233d81742b0e"
+
+            ]
+
+            signingConfig = signingConfigs.release
+        }
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            manifestPlaceholders = [UMENG_PUSH_KEY      : "581fc0021f2"
+                                    , UMENG_PUSH_CHANNEL: "phone"
+                                    , UMENG_SECERT      : "f2ce7847847c"
+                                    , UMENG_WX_ID       : "wx99b41b23857b"
+                                    , UMENG_WX_KEY      : "5233d81742b0e"
+
+            ]
+
+            signingConfig = signingConfigs.release
         }
     }
 
 
 }
+
 greendao {
     schemaVersion 1
     daoPackage "com.yanlong.im.gen"
