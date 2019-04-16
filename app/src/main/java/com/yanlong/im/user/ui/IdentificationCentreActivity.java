@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -56,10 +57,15 @@ public class IdentificationCentreActivity extends AppActivity implements View.On
         }
     }
 
-    private void hideName(String name){
+    private String hideName(String name){
+        String string = "";
+        if(!TextUtils.isEmpty(name)){
+
+        }
 
 
 
+        return string;
     }
 
 }
