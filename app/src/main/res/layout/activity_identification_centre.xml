@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/headView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:headview_title="实名认证中心">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginLeft="@dimen/app_margin_main"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="18dp"
+            android:textSize="15sp"
+            android:text="已认证信息" />
+
+
+        <LinearLayout
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:text="姓名"/>
+
+            <TextView
+                android:id="@+id/tv_name"
+                style="@style/app_txt_content_1"
+                android:text="*某"/>
+
+        </LinearLayout>
+
+        <View
+            style="@style/app_line"/>
+
+        <LinearLayout
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:text="证件类型"/>
+
+            <TextView
+                style="@style/app_txt_content_1"
+                android:text="身份证"/>
+
+        </LinearLayout>
+
+        <View
+            style="@style/app_line"/>
+
+        <LinearLayout
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:text="证件号"/>
+
+            <TextView
+                android:id="@+id/tv_identity_number"
+                style="@style/app_txt_content_1"
+                android:text="432222222222222222222"/>
+
+        </LinearLayout>
+
+
+        <TextView
+            style="@style/app_txt_content_1"
+            android:layout_marginLeft="@dimen/app_margin_main"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="18dp"
+            android:textSize="15sp"
+            android:text="完善身份信息" />
+
+        <LinearLayout
+            android:id="@+id/ll_profession"
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:text="职业类别"/>
+
+            <TextView
+                android:id="@+id/tv_profession"
+                style="@style/app_txt_content_1"
+                android:layout_marginRight="15dp"
+                android:text="其他"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto"/>
+
+        </LinearLayout>
+
+        <View
+            style="@style/app_line"/>
+
+        <LinearLayout
+            android:id="@+id/ll_identity_card"
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:text="身份证照片"/>
+
+            <TextView
+                android:id="@+id/tv_identity_card"
+                style="@style/app_txt_content_1"
+                android:layout_marginRight="15dp"
+                android:text="身份证"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto"/>
+
+        </LinearLayout>
+
+        <View
+            style="@style/app_line"/>
+
+        <LinearLayout
+            android:id="@+id/ll_period_validity"
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:text="身份证有效期"/>
+
+            <TextView
+                android:id="@+id/tv_period_validity"
+                style="@style/app_txt_content_1"
+                android:layout_marginRight="15dp"
+                android:text="待完善"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</net.cb.cb.library.view.HeadView>
