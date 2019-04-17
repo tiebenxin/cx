@@ -190,6 +190,8 @@ public class SocketUtil {
     public void sendData(final byte[] data) {
         if (!isRun)
             return;
+        if(data==null)
+            return;
 
         new Thread(new Runnable() {
             @Override
@@ -239,6 +241,8 @@ public class SocketUtil {
             LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
             receive();
             heartbeatThread();
+            //发送认证请求
+            sendData(SocketData.msg4Auth());
         }
 
     }

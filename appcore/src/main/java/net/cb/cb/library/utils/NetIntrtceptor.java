@@ -115,6 +115,26 @@ public class NetIntrtceptor implements Interceptor {
         }
 */
 
+        //post自动追加platform 参数
+        RequestBody reqbody = request.body();
+
+        if(request.method().equals("POST")){
+            FormBody gb = null;
+            if(reqbody instanceof FormBody){
+                gb=(FormBody)reqbody;
+            }
+            FormBody.Builder tpbd = new FormBody.Builder();
+
+
+            for(int i=0;gb!=null&&i<gb.size();i++){
+
+                tpbd.add(gb.name(i),gb.value(i));
+                //放在一个map里面,然后转json
+
+            }
+
+
+        }
 
         return request;
 

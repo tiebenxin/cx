@@ -1,6 +1,10 @@
 package com.yanlong.im.utils.socket;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.yanlong.im.user.bean.TokenBean;
+
+import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,6 +142,29 @@ public class SocketData {
     }
 
     /***
+     * 授权
+     * @return
+     */
+    public static byte[] msg4Auth() {
+
+        TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        tokenBean=new TokenBean();
+        tokenBean.setAccessToken("123156464");
+        if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
+            return null;
+        }
+        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
+        msg.setRequestId(System.currentTimeMillis())
+                .setMsgType(MsgBean.MessageType.AUTH_REQUEST);
+
+        MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
+                .setAccessToken(tokenBean.getAccessToken()).build();
+        msg.setAuthRequest(auth);
+        return SocketData.getPakage(DataType.PROTOBUF_MSG, msg.build().toByteArray());
+
+    }
+
+    /***
      * 消息转换
      * @param data
      * @return
@@ -145,7 +172,7 @@ public class SocketData {
     public static MsgBean.UniversalMessage msgConversion(byte[] data) {
         try {
 
-            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(bytesToLists(data,12).get(1));
+            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(bytesToLists(data, 12).get(1));
             return msg;
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
