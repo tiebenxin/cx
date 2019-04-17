@@ -20,7 +20,6 @@
     <color name="gray_400">#63666a</color>
 
 
-
     <!--二级标题,交互颜色-->
     <!--    <color name="gray_400">#999999</color>-->
     <!--三级标题-->
@@ -49,5 +48,7 @@
     <!--连接颜色-->
     <color name="blue_600">#374882</color>
 
-
+    <!--红包按钮-->
+    <color name="red_100">#fccac9</color>
+    <color name="red_200">#c85749</color>
 </resources>

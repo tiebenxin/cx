@@ -1,7 +1,9 @@
 package com.yanlong.im.chat.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -13,6 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.user.ui.CommonSetingActivity;
+import com.yanlong.im.user.ui.MyselfInfoActivity;
 
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -21,6 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GroupInfoActivity extends AppActivity {
+    public static final int GROUP_NAME = 1000;
+    public static final int GROUP_NICK = 2000;
+    public static final int GROUP_NOTE = 3000;
+
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private android.support.v7.widget.RecyclerView topListView;
@@ -43,11 +51,10 @@ public class GroupInfoActivity extends AppActivity {
     private Button btnDel;
 
 
-
     //自动寻找控件
-    private void findViews(){
+    private void findViews() {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
-        actionbar=headView.getActionbar();
+        actionbar = headView.getActionbar();
         topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
         btnAdd = (ImageView) findViewById(R.id.btn_add);
         btnRm = (ImageView) findViewById(R.id.btn_rm);
@@ -69,28 +76,65 @@ public class GroupInfoActivity extends AppActivity {
     }
 
 
-
     //自动生成的控件事件
-    private void initEvent(){
+    private void initEvent() {
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed(); }
+                onBackPressed();
+            }
+
             @Override
             public void onRight() {
 
-            } });
+            }
+        });
 
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-            }});
+            }
+        });
 
         //顶部处理
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         topListView.setLayoutManager(linearLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
+
+        viewGroupName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
+                intent.putExtra(CommonSetingActivity.TITLE, "群聊名称");
+                intent.putExtra(CommonSetingActivity.REMMARK, "群聊名称");
+                intent.putExtra(CommonSetingActivity.HINT, "群聊名称");
+                startActivityForResult(intent, GROUP_NAME);
+            }
+        });
+
+        viewGroupNick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
+                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
+                intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
+                intent.putExtra(CommonSetingActivity.HINT, "群昵称");
+                startActivityForResult(intent, GROUP_NICK);
+            }
+        });
+
+        viewGroupNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
+                intent.putExtra(CommonSetingActivity.TITLE, "修改群公告");
+                intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
+                intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
+                intent.putExtra(CommonSetingActivity.TYPE_LINE,1);
+                startActivityForResult(intent, GROUP_NOTE);
+            }
+        });
 
     }
 
@@ -103,8 +147,6 @@ public class GroupInfoActivity extends AppActivity {
     }
 
 
-
-
     private List<String> listDataTop = new ArrayList<>();
 
     //自动生成RecyclerViewAdapter
@@ -112,7 +154,7 @@ public class GroupInfoActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-           // return listDataTop == null ? 0 : listDataTop.size();
+            // return listDataTop == null ? 0 : listDataTop.size();
             return 10;
         }
 
@@ -139,9 +181,29 @@ public class GroupInfoActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
+                imgHead = convertView.findViewById(R.id.img_head);
             }
 
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            String content = data.getStringExtra(CommonSetingActivity.CONTENT);
+            switch (requestCode) {
+                case GROUP_NAME:
+                    txtGroupName.setText(content);
+                    break;
+                case GROUP_NICK:
+                    txtGroupNick.setText(content);
+                    break;
+                case GROUP_NOTE:
+                    txtGroupNote.setText(content);
+                    break;
+            }
         }
     }
 

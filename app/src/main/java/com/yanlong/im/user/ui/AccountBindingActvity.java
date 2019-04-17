@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 import net.cb.cb.library.view.LoadView;
@@ -50,6 +51,20 @@ public class AccountBindingActvity extends AppActivity {
         mBtnUnbound.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                AlertYesNo alertYesNo = new AlertYesNo();
+                alertYesNo.init(AccountBindingActvity.this, "提示", "确定要解除与该微信绑定吗?", "确定", "取消", new AlertYesNo.Event() {
+                     @Override
+                     public void onON() {
+
+                     }
+
+                     @Override
+                     public void onYes() {
+
+                     }
+                 });
+                alertYesNo.show();
 
             }
         });

@@ -190,7 +190,10 @@
             android:name=".user.ui.UploadIdentityActivity"
             android:screenOrientation="portrait" />
 
-
+        <!--实名认证-->
+        <activity
+            android:name=".user.ui.IdentificationCentreActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 

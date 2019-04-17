@@ -19,6 +19,8 @@ public class CommonSetingActivity extends AppActivity {
     public final static String CONTENT = "content";//传回内容
     public final static String REMMARK = "remark";
     public final static String REMMARK1 = "remark1";
+    public final static String SETING = "seting"; //设置输入栏的内容
+    public final static String TYPE_LINE = "type"; //默认0 单行 1 多行
 
     private HeadView mHeadView;
     private TextView mTvTitle;
@@ -29,9 +31,16 @@ public class CommonSetingActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_common_seting);
+        Intent intent = getIntent();
+        int type = intent.getIntExtra(TYPE_LINE,0);
+        if(type == 0){
+            setContentView(R.layout.activity_common_seting);
+        }else{
+            setContentView(R.layout.activity_common_seting_multi);
+        }
         initView();
         initEvent();
+
     }
 
     private void initView() {
@@ -64,6 +73,11 @@ public class CommonSetingActivity extends AppActivity {
         } else {
             mTvContent.setVisibility(View.GONE);
             mTvContent.setText(remark1);
+        }
+
+        String seting = intent.getStringExtra(SETING);
+        if (!TextUtils.isEmpty(seting)) {
+            mEdContent.setText(seting);
         }
     }
 
