@@ -1,5 +1,6 @@
 package net.cb.cb.library.view;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,8 +22,13 @@ public class AlertWait2 extends DialogFragment {
 
  private boolean show=false;
 
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
-    @Nullable
+        return super.onCreateDialog(savedInstanceState);
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);

@@ -14,6 +14,8 @@ import java.util.Locale;
  */
 public class AppConfig {
     public static String URL_HOST="http://127.0.0.1";
+    public static String SOCKET_IP="127.0.0.1";
+    public static int SOCKET_PORT=8090;
     public static Context APP_CONTEXT;
     public static boolean DEBUG=false;
     public static float FONT =1.0f;

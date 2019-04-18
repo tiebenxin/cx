@@ -3,6 +3,7 @@ package com.yanlong.im.utils.socket;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.user.bean.TokenBean;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -155,8 +156,10 @@ public class SocketData {
     public static byte[] msg4Auth() {
 
         TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-     //   tokenBean = new TokenBean();
-     //   tokenBean.setAccessToken("13000000000");
+      //  tokenBean = new TokenBean();
+       // tokenBean.setAccessToken("2N0qG3CHBxVNQfPjIbbCA/YUY48erDHVTBXZHK1JQAOfAxi86DKcvYKqLwxLfINN");
+        LogUtil.getLog().i("tag",">>>>发送token"+tokenBean.getAccessToken());
+
         if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
             return null;
         }

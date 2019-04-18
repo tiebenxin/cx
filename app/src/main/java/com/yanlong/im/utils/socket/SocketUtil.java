@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.io.IOException;
@@ -92,6 +93,7 @@ public class SocketUtil {
         try {
             if (socketChannel == null || !socketChannel.isConnected()) {
                 connect();
+
             }
 
         } catch (Exception e) {
@@ -100,6 +102,7 @@ public class SocketUtil {
             LogUtil.getLog().e(TAG, e.getMessage());
 
         }
+
     }
 
     /***
@@ -121,6 +124,8 @@ public class SocketUtil {
 
     }
 
+    //鉴权失败
+    private boolean isAuthFail=false;
     //重试3次
     private int recontNum = 30;
     //当前重试
@@ -160,6 +165,7 @@ public class SocketUtil {
      * 重连
      */
     public void reconnection() {
+        isAuthFail=false;
         try {
 
 
@@ -168,14 +174,19 @@ public class SocketUtil {
                 // return;
                 stop();
             }
-            while (reconIndex <= recontNum) {
+            //小于最大重连次数,或者非鉴权失败
+            while (reconIndex <= recontNum&&!isAuthFail) {
+                long time=System.currentTimeMillis();//执行时间
+
                 reconIndex++;
                 LogUtil.getLog().e(TAG, "重试次数" + reconIndex);
                 if (socketChannel != null && socketChannel.isConnected()) {
                     break;
                 }
                 run();
-                Thread.sleep(recontTime);
+                time =System.currentTimeMillis()-time;
+                time=time>=recontTime?0:recontTime-time;
+                Thread.sleep(time);
 
             }
         } catch (Exception e) {
@@ -229,7 +240,7 @@ public class SocketUtil {
 
 
         //---------------------------------------------链接中
-        if (!socketChannel.connect(new InetSocketAddress("192.168.10.110", 19991))) {
+        if (!socketChannel.connect(new InetSocketAddress(AppConfig.SOCKET_IP, AppConfig.SOCKET_PORT))) {
             //不断地轮询连接状态，直到完成连
             System.out.println(">>>链接中");
             while (!socketChannel.finishConnect()) {
@@ -240,12 +251,13 @@ public class SocketUtil {
 
             //----------------------------------------------------
             LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
+
+
             receive();
 
             //发送认证请求
             sendData(SocketData.msg4Auth());
-            //开始心跳
-            heartbeatThread();
+
         }
 
     }
@@ -365,7 +377,11 @@ public class SocketUtil {
                         MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(indexData, 12).get(1));
                         LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
                         if(!ruthmsg.getAccepted()){//鉴权失败直接停止
+                            isAuthFail=true;
                             stop();
+                        }else{
+                            //开始心跳
+                            heartbeatThread();
                         }
                     } catch (InvalidProtocolBufferException e) {
                         e.printStackTrace();

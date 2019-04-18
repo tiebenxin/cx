@@ -18,6 +18,7 @@ import com.yanlong.im.user.ui.MyFragment;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
@@ -108,22 +109,27 @@ public class MainActivity extends AppActivity {
         bottomTab.getTabAt(1).select();
         bottomTab.getTabAt(0).select();
 
-        //启动聊天服务
-        startService(new Intent(getContext(), ChatServer.class));
-
         //test
         taskLogin();
+
+        //启动聊天服务
+       // startService(new Intent(getContext(), ChatServer.class));
+
+
     }
 
 
     private UserAction userAction=new UserAction();
     private void taskLogin() {
-        userAction.login(13000000000l, "123456", new CallBack<ReturnBean<TokenBean>>() {
+        userAction.login(13000000000l, "123456","12345613", new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 String token=   response.body().getData().getAccessToken();
 
                 ToastUtil.show(getContext(),token);
+                LogUtil.getLog().i("tag",">>>>请求的token"+token);
+                //启动聊天服务
+                startService(new Intent(getContext(), ChatServer.class));
             }
         });
     }

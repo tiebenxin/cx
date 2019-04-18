@@ -35,7 +35,7 @@ public class UserAction {
     }*/
 
 
-    public void login(Long phone, String pwd, final CallBack<ReturnBean<TokenBean>> callback) {
+    public void login(Long phone, String pwd,String  devid, final CallBack<ReturnBean<TokenBean>> callback) {
  /*
         LoginBean bean = new LoginBean();
         bean.setPassword(pwd);
@@ -52,7 +52,7 @@ public class UserAction {
             }
         });*/
 
-        NetUtil.getNet().exec(server.login(pwd,phone), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login(pwd,phone,devid,"android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if(response.body().isOk()&& StringUtil.isNotNull(response.body().getData().getAccessToken())){//保存token

@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.yanlong.im.R;
-import com.yanlong.im.gen.Test2BeanDao;
+import com.yanlong.im.pay.ui.view.RedPacketDialog;
 import com.yanlong.im.test.bean.Test2Bean;
 
 import com.yanlong.im.utils.DaoUtil;
@@ -89,6 +89,23 @@ public class OtherFragment extends Fragment {
 
         List<Test2Bean> list = DaoUtil.get().getDaoSession().getTest2BeanDao().queryBuilder().list();
         list.size();
+
+
+        final RedPacketDialog redd=new RedPacketDialog();
+
+        redd.show4open(getFragmentManager(), "https://ss0.baidu.com/73x1bjeh1BF3odCf/it/u=2534985070,2613606008&fm=85&s=4B3481425B151BED4070FFBB03008003", "wow", "哒哒哒", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ToastUtil.show(getContext(),"走你");
+                redd.show4opened(getFragmentManager(), "", "xx", "ed", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ToastUtil.show(getContext(),"more");
+                    }
+                });
+            }
+        });
+
 
     }
 
