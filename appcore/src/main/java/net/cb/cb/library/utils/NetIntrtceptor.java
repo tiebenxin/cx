@@ -3,6 +3,8 @@ package net.cb.cb.library.utils;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.encrypt.AESEncrypt;
 
@@ -25,25 +27,24 @@ import okhttp3.Response;
  * @date 2016/11/29
  */
 public class NetIntrtceptor implements Interceptor {
-    private static final String TAG="NetIntrtceptor";
-
-
+    private static final String TAG = "NetIntrtceptor";
+    private static Gson gson = new Gson();
+    private static MediaType mediaType = MediaType.parse("application/json; charset=UTF-8");
 
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        if(AppConfig.DEBUG)
-            Log.i(TAG,"<<进入拦截器");
-        Request request=  chain.request().newBuilder()
-              //  .headers(headers)
+        if (AppConfig.DEBUG)
+            Log.i(TAG, "<<进入拦截器");
+        Request request = chain.request().newBuilder()
+                //  .headers(headers)
                 .build();
 
         request = interceptor4Front(chain, request);
 
-        Response resp=chain.proceed(request);
+        Response resp = chain.proceed(request);
 
         resp = interceptor4After(resp);
-
 
 
         return resp;
@@ -118,29 +119,37 @@ public class NetIntrtceptor implements Interceptor {
         //post自动追加platform 参数
         RequestBody reqbody = request.body();
 
-        if(request.method().equals("POST")){
-            FormBody gb = null;
-            if(reqbody instanceof FormBody){
-                gb=(FormBody)reqbody;
-            }
-            FormBody.Builder tpbd = new FormBody.Builder();
+        //  if(request.method().equals("POST")){
 
+        if (reqbody instanceof FormBody) {
+            FormBody gb = (FormBody) reqbody;
 
-            for(int i=0;gb!=null&&i<gb.size();i++){
+            Map<String, Object> objs = new HashMap<>();
 
-                tpbd.add(gb.name(i),gb.value(i));
+            for (int i = 0; gb != null && i < gb.size(); i++) {
                 //放在一个map里面,然后转json
+                objs.put(gb.name(i), gb.value(i));
 
             }
 
+            String json = gson.toJson(objs);
+
+
+            RequestBody nbody = RequestBody.create(mediaType, json);
+            request=  request.newBuilder()
+                    .method(request.method(), nbody)
+                    .build();
 
         }
+
+
+        //  }
 
         return request;
 
     }
 
-//后拦截
+    //后拦截
     private Response interceptor4After(Response resp) {
 
         switch (resp.code()) {
@@ -149,7 +158,7 @@ public class NetIntrtceptor implements Interceptor {
 
                 break;
             case 401:
-                Log.e(TAG, "<<拦截器:401 url:"+resp.request().url().url().toString());
+                Log.e(TAG, "<<拦截器:401 url:" + resp.request().url().url().toString());
              /*   SharedPreferencesUtil sp=new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN);
                 TokenBean token= sp.get4Json(TokenBean.class);
                 EventBus.getDefault().post(new EventLoginOut());*/
@@ -161,20 +170,18 @@ public class NetIntrtceptor implements Interceptor {
                 }*/
 
 
-
-
                 break;
 
             case 403:
-                Log.e(TAG, "<<拦截器:403 url:"+resp.request().url().url().toString());
+                Log.e(TAG, "<<拦截器:403 url:" + resp.request().url().url().toString());
 
 //                EventBus.getDefault().post(logOutBean);
                 break;
             case 404:
-                Log.e(TAG, "<<拦截器:404 url:"+resp.request().url().url().toString());
+                Log.e(TAG, "<<拦截器:404 url:" + resp.request().url().url().toString());
                 break;
             case 500:
-                Log.e(TAG, "<<拦截器:500 url:"+resp.request().url().url().toString());
+                Log.e(TAG, "<<拦截器:500 url:" + resp.request().url().url().toString());
                 break;
         }
 

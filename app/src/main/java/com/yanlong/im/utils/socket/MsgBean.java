@@ -91,22 +91,6 @@ public final class MsgBean {
          */
         ACCEPT_BE_FRIENDS(8),
         /**
-         * <pre>
-         * 连接认证请求
-         * </pre>
-         *
-         * <code>AUTH_REQUEST = 9;</code>
-         */
-        AUTH_REQUEST(9),
-        /**
-         * <pre>
-         * 连接认证响应
-         * </pre>
-         *
-         * <code>AUTH_RESPONSE = 10;</code>
-         */
-        AUTH_RESPONSE(10),
-        /**
          * <code>ACK = 100;</code>
          */
         ACK(100),
@@ -186,22 +170,6 @@ public final class MsgBean {
          */
         public static final int ACCEPT_BE_FRIENDS_VALUE = 8;
         /**
-         * <pre>
-         * 连接认证请求
-         * </pre>
-         *
-         * <code>AUTH_REQUEST = 9;</code>
-         */
-        public static final int AUTH_REQUEST_VALUE = 9;
-        /**
-         * <pre>
-         * 连接认证响应
-         * </pre>
-         *
-         * <code>AUTH_RESPONSE = 10;</code>
-         */
-        public static final int AUTH_RESPONSE_VALUE = 10;
-        /**
          * <code>ACK = 100;</code>
          */
         public static final int ACK_VALUE = 100;
@@ -234,8 +202,6 @@ public final class MsgBean {
                 case 6: return BUSINESS_CARD;
                 case 7: return REQUEST_FRIEND;
                 case 8: return ACCEPT_BE_FRIENDS;
-                case 9: return AUTH_REQUEST;
-                case 10: return AUTH_RESPONSE;
                 case 100: return ACK;
                 default: return null;
             }
@@ -6101,6 +6067,701 @@ public final class MsgBean {
 
     }
 
+    public interface AckMessageOrBuilder extends
+            // @@protoc_insertion_point(interface_extends:AckMessage)
+            com.google.protobuf.MessageOrBuilder {
+
+        /**
+         * <code>string request_id = 1;</code>
+         */
+        java.lang.String getRequestId();
+        /**
+         * <code>string request_id = 1;</code>
+         */
+        com.google.protobuf.ByteString
+        getRequestIdBytes();
+
+        /**
+         * <pre>
+         * 消息id
+         * </pre>
+         *
+         * <code>string msg_id = 2;</code>
+         */
+        java.lang.String getMsgId();
+        /**
+         * <pre>
+         * 消息id
+         * </pre>
+         *
+         * <code>string msg_id = 2;</code>
+         */
+        com.google.protobuf.ByteString
+        getMsgIdBytes();
+    }
+    /**
+     * <pre>
+     * ACK消息
+     * </pre>
+     *
+     * Protobuf type {@code AckMessage}
+     */
+    public  static final class AckMessage extends
+            com.google.protobuf.GeneratedMessageV3 implements
+            // @@protoc_insertion_point(message_implements:AckMessage)
+            AckMessageOrBuilder {
+        // Use AckMessage.newBuilder() to construct.
+        private AckMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+        private AckMessage() {
+            requestId_ = "";
+            msgId_ = "";
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
+        private AckMessage(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            int mutable_bitField0_ = 0;
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!input.skipField(tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 10: {
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            requestId_ = s;
+                            break;
+                        }
+                        case 18: {
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            msgId_ = s;
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(
+                        e).setUnfinishedMessage(this);
+            } finally {
+                makeExtensionsImmutable();
+            }
+        }
+        public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+            return MsgBean.internal_static_AckMessage_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return MsgBean.internal_static_AckMessage_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            MsgBean.AckMessage.class, MsgBean.AckMessage.Builder.class);
+        }
+
+        public static final int REQUEST_ID_FIELD_NUMBER = 1;
+        private volatile java.lang.Object requestId_;
+        /**
+         * <code>string request_id = 1;</code>
+         */
+        public java.lang.String getRequestId() {
+            java.lang.Object ref = requestId_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                requestId_ = s;
+                return s;
+            }
+        }
+        /**
+         * <code>string request_id = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+        getRequestIdBytes() {
+            java.lang.Object ref = requestId_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                requestId_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        public static final int MSG_ID_FIELD_NUMBER = 2;
+        private volatile java.lang.Object msgId_;
+        /**
+         * <pre>
+         * 消息id
+         * </pre>
+         *
+         * <code>string msg_id = 2;</code>
+         */
+        public java.lang.String getMsgId() {
+            java.lang.Object ref = msgId_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                msgId_ = s;
+                return s;
+            }
+        }
+        /**
+         * <pre>
+         * 消息id
+         * </pre>
+         *
+         * <code>string msg_id = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+        getMsgIdBytes() {
+            java.lang.Object ref = msgId_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                msgId_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        private byte memoizedIsInitialized = -1;
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1) return true;
+            if (isInitialized == 0) return false;
+
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            if (!getRequestIdBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 1, requestId_);
+            }
+            if (!getMsgIdBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 2, msgId_);
+            }
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (!getRequestIdBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, requestId_);
+            }
+            if (!getMsgIdBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, msgId_);
+            }
+            memoizedSize = size;
+            return size;
+        }
+
+        private static final long serialVersionUID = 0L;
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof MsgBean.AckMessage)) {
+                return super.equals(obj);
+            }
+            MsgBean.AckMessage other = (MsgBean.AckMessage) obj;
+
+            boolean result = true;
+            result = result && getRequestId()
+                    .equals(other.getRequestId());
+            result = result && getMsgId()
+                    .equals(other.getMsgId());
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptor().hashCode();
+            hash = (37 * hash) + REQUEST_ID_FIELD_NUMBER;
+            hash = (53 * hash) + getRequestId().hashCode();
+            hash = (37 * hash) + MSG_ID_FIELD_NUMBER;
+            hash = (53 * hash) + getMsgId().hashCode();
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public static MsgBean.AckMessage parseFrom(
+                java.nio.ByteBuffer data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static MsgBean.AckMessage parseFrom(
+                java.nio.ByteBuffer data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static MsgBean.AckMessage parseFrom(
+                com.google.protobuf.ByteString data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static MsgBean.AckMessage parseFrom(
+                com.google.protobuf.ByteString data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static MsgBean.AckMessage parseFrom(byte[] data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static MsgBean.AckMessage parseFrom(
+                byte[] data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static MsgBean.AckMessage parseFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static MsgBean.AckMessage parseFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static MsgBean.AckMessage parseDelimitedFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input);
+        }
+        public static MsgBean.AckMessage parseDelimitedFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static MsgBean.AckMessage parseFrom(
+                com.google.protobuf.CodedInputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static MsgBean.AckMessage parseFrom(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+        public static Builder newBuilder(MsgBean.AckMessage prototype) {
+            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        }
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE
+                    ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(
+                com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+        /**
+         * <pre>
+         * ACK消息
+         * </pre>
+         *
+         * Protobuf type {@code AckMessage}
+         */
+        public static final class Builder extends
+                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+                // @@protoc_insertion_point(builder_implements:AckMessage)
+                MsgBean.AckMessageOrBuilder {
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return MsgBean.internal_static_AckMessage_descriptor;
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return MsgBean.internal_static_AckMessage_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                MsgBean.AckMessage.class, MsgBean.AckMessage.Builder.class);
+            }
+
+            // Construct using MsgBean.AckMessage.newBuilder()
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
+
+            private Builder(
+                    com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3
+                        .alwaysUseFieldBuilders) {
+                }
+            }
+            public Builder clear() {
+                super.clear();
+                requestId_ = "";
+
+                msgId_ = "";
+
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+                return MsgBean.internal_static_AckMessage_descriptor;
+            }
+
+            public MsgBean.AckMessage getDefaultInstanceForType() {
+                return MsgBean.AckMessage.getDefaultInstance();
+            }
+
+            public MsgBean.AckMessage build() {
+                MsgBean.AckMessage result = buildPartial();
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
+
+            public MsgBean.AckMessage buildPartial() {
+                MsgBean.AckMessage result = new MsgBean.AckMessage(this);
+                result.requestId_ = requestId_;
+                result.msgId_ = msgId_;
+                onBuilt();
+                return result;
+            }
+
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+            public Builder setField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    Object value) {
+                return (Builder) super.setField(field, value);
+            }
+            public Builder clearField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+            public Builder clearOneof(
+                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+            public Builder setRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    int index, Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+            public Builder addRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+            public Builder mergeFrom(com.google.protobuf.Message other) {
+                if (other instanceof MsgBean.AckMessage) {
+                    return mergeFrom((MsgBean.AckMessage)other);
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
+
+            public Builder mergeFrom(MsgBean.AckMessage other) {
+                if (other == MsgBean.AckMessage.getDefaultInstance()) return this;
+                if (!other.getRequestId().isEmpty()) {
+                    requestId_ = other.requestId_;
+                    onChanged();
+                }
+                if (!other.getMsgId().isEmpty()) {
+                    msgId_ = other.msgId_;
+                    onChanged();
+                }
+                onChanged();
+                return this;
+            }
+
+            public final boolean isInitialized() {
+                return true;
+            }
+
+            public Builder mergeFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws java.io.IOException {
+                MsgBean.AckMessage parsedMessage = null;
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                    parsedMessage = (MsgBean.AckMessage) e.getUnfinishedMessage();
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            private java.lang.Object requestId_ = "";
+            /**
+             * <code>string request_id = 1;</code>
+             */
+            public java.lang.String getRequestId() {
+                java.lang.Object ref = requestId_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    requestId_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+            /**
+             * <code>string request_id = 1;</code>
+             */
+            public com.google.protobuf.ByteString
+            getRequestIdBytes() {
+                java.lang.Object ref = requestId_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    requestId_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <code>string request_id = 1;</code>
+             */
+            public Builder setRequestId(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                requestId_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>string request_id = 1;</code>
+             */
+            public Builder clearRequestId() {
+
+                requestId_ = getDefaultInstance().getRequestId();
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>string request_id = 1;</code>
+             */
+            public Builder setRequestIdBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                requestId_ = value;
+                onChanged();
+                return this;
+            }
+
+            private java.lang.Object msgId_ = "";
+            /**
+             * <pre>
+             * 消息id
+             * </pre>
+             *
+             * <code>string msg_id = 2;</code>
+             */
+            public java.lang.String getMsgId() {
+                java.lang.Object ref = msgId_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    msgId_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+            /**
+             * <pre>
+             * 消息id
+             * </pre>
+             *
+             * <code>string msg_id = 2;</code>
+             */
+            public com.google.protobuf.ByteString
+            getMsgIdBytes() {
+                java.lang.Object ref = msgId_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    msgId_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <pre>
+             * 消息id
+             * </pre>
+             *
+             * <code>string msg_id = 2;</code>
+             */
+            public Builder setMsgId(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                msgId_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 消息id
+             * </pre>
+             *
+             * <code>string msg_id = 2;</code>
+             */
+            public Builder clearMsgId() {
+
+                msgId_ = getDefaultInstance().getMsgId();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 消息id
+             * </pre>
+             *
+             * <code>string msg_id = 2;</code>
+             */
+            public Builder setMsgIdBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                msgId_ = value;
+                onChanged();
+                return this;
+            }
+            public final Builder setUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return this;
+            }
+
+            public final Builder mergeUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return this;
+            }
+
+
+            // @@protoc_insertion_point(builder_scope:AckMessage)
+        }
+
+        // @@protoc_insertion_point(class_scope:AckMessage)
+        private static final MsgBean.AckMessage DEFAULT_INSTANCE;
+        static {
+            DEFAULT_INSTANCE = new MsgBean.AckMessage();
+        }
+
+        public static MsgBean.AckMessage getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        private static final com.google.protobuf.Parser<AckMessage>
+                PARSER = new com.google.protobuf.AbstractParser<AckMessage>() {
+            public AckMessage parsePartialFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws com.google.protobuf.InvalidProtocolBufferException {
+                return new AckMessage(input, extensionRegistry);
+            }
+        };
+
+        public static com.google.protobuf.Parser<AckMessage> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<AckMessage> getParserForType() {
+            return PARSER;
+        }
+
+        public MsgBean.AckMessage getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+    }
+
     public interface AuthRequestMessageOrBuilder extends
             // @@protoc_insertion_point(interface_extends:AuthRequestMessage)
             com.google.protobuf.MessageOrBuilder {
@@ -7108,701 +7769,6 @@ public final class MsgBean {
 
     }
 
-    public interface AckMessageOrBuilder extends
-            // @@protoc_insertion_point(interface_extends:AckMessage)
-            com.google.protobuf.MessageOrBuilder {
-
-        /**
-         * <code>string request_id = 1;</code>
-         */
-        java.lang.String getRequestId();
-        /**
-         * <code>string request_id = 1;</code>
-         */
-        com.google.protobuf.ByteString
-        getRequestIdBytes();
-
-        /**
-         * <pre>
-         * 消息id
-         * </pre>
-         *
-         * <code>string msg_id = 2;</code>
-         */
-        java.lang.String getMsgId();
-        /**
-         * <pre>
-         * 消息id
-         * </pre>
-         *
-         * <code>string msg_id = 2;</code>
-         */
-        com.google.protobuf.ByteString
-        getMsgIdBytes();
-    }
-    /**
-     * <pre>
-     * ACK消息
-     * </pre>
-     *
-     * Protobuf type {@code AckMessage}
-     */
-    public  static final class AckMessage extends
-            com.google.protobuf.GeneratedMessageV3 implements
-            // @@protoc_insertion_point(message_implements:AckMessage)
-            AckMessageOrBuilder {
-        // Use AckMessage.newBuilder() to construct.
-        private AckMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-            super(builder);
-        }
-        private AckMessage() {
-            requestId_ = "";
-            msgId_ = "";
-        }
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-        private AckMessage(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            this();
-            int mutable_bitField0_ = 0;
-            try {
-                boolean done = false;
-                while (!done) {
-                    int tag = input.readTag();
-                    switch (tag) {
-                        case 0:
-                            done = true;
-                            break;
-                        default: {
-                            if (!input.skipField(tag)) {
-                                done = true;
-                            }
-                            break;
-                        }
-                        case 10: {
-                            java.lang.String s = input.readStringRequireUtf8();
-
-                            requestId_ = s;
-                            break;
-                        }
-                        case 18: {
-                            java.lang.String s = input.readStringRequireUtf8();
-
-                            msgId_ = s;
-                            break;
-                        }
-                    }
-                }
-            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                throw e.setUnfinishedMessage(this);
-            } catch (java.io.IOException e) {
-                throw new com.google.protobuf.InvalidProtocolBufferException(
-                        e).setUnfinishedMessage(this);
-            } finally {
-                makeExtensionsImmutable();
-            }
-        }
-        public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-            return MsgBean.internal_static_AckMessage_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return MsgBean.internal_static_AckMessage_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            MsgBean.AckMessage.class, MsgBean.AckMessage.Builder.class);
-        }
-
-        public static final int REQUEST_ID_FIELD_NUMBER = 1;
-        private volatile java.lang.Object requestId_;
-        /**
-         * <code>string request_id = 1;</code>
-         */
-        public java.lang.String getRequestId() {
-            java.lang.Object ref = requestId_;
-            if (ref instanceof java.lang.String) {
-                return (java.lang.String) ref;
-            } else {
-                com.google.protobuf.ByteString bs =
-                        (com.google.protobuf.ByteString) ref;
-                java.lang.String s = bs.toStringUtf8();
-                requestId_ = s;
-                return s;
-            }
-        }
-        /**
-         * <code>string request_id = 1;</code>
-         */
-        public com.google.protobuf.ByteString
-        getRequestIdBytes() {
-            java.lang.Object ref = requestId_;
-            if (ref instanceof java.lang.String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (java.lang.String) ref);
-                requestId_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
-        }
-
-        public static final int MSG_ID_FIELD_NUMBER = 2;
-        private volatile java.lang.Object msgId_;
-        /**
-         * <pre>
-         * 消息id
-         * </pre>
-         *
-         * <code>string msg_id = 2;</code>
-         */
-        public java.lang.String getMsgId() {
-            java.lang.Object ref = msgId_;
-            if (ref instanceof java.lang.String) {
-                return (java.lang.String) ref;
-            } else {
-                com.google.protobuf.ByteString bs =
-                        (com.google.protobuf.ByteString) ref;
-                java.lang.String s = bs.toStringUtf8();
-                msgId_ = s;
-                return s;
-            }
-        }
-        /**
-         * <pre>
-         * 消息id
-         * </pre>
-         *
-         * <code>string msg_id = 2;</code>
-         */
-        public com.google.protobuf.ByteString
-        getMsgIdBytes() {
-            java.lang.Object ref = msgId_;
-            if (ref instanceof java.lang.String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (java.lang.String) ref);
-                msgId_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
-        }
-
-        private byte memoizedIsInitialized = -1;
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized == 1) return true;
-            if (isInitialized == 0) return false;
-
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            if (!getRequestIdBytes().isEmpty()) {
-                com.google.protobuf.GeneratedMessageV3.writeString(output, 1, requestId_);
-            }
-            if (!getMsgIdBytes().isEmpty()) {
-                com.google.protobuf.GeneratedMessageV3.writeString(output, 2, msgId_);
-            }
-        }
-
-        public int getSerializedSize() {
-            int size = memoizedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (!getRequestIdBytes().isEmpty()) {
-                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, requestId_);
-            }
-            if (!getMsgIdBytes().isEmpty()) {
-                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, msgId_);
-            }
-            memoizedSize = size;
-            return size;
-        }
-
-        private static final long serialVersionUID = 0L;
-        @java.lang.Override
-        public boolean equals(final java.lang.Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof MsgBean.AckMessage)) {
-                return super.equals(obj);
-            }
-            MsgBean.AckMessage other = (MsgBean.AckMessage) obj;
-
-            boolean result = true;
-            result = result && getRequestId()
-                    .equals(other.getRequestId());
-            result = result && getMsgId()
-                    .equals(other.getMsgId());
-            return result;
-        }
-
-        @java.lang.Override
-        public int hashCode() {
-            if (memoizedHashCode != 0) {
-                return memoizedHashCode;
-            }
-            int hash = 41;
-            hash = (19 * hash) + getDescriptor().hashCode();
-            hash = (37 * hash) + REQUEST_ID_FIELD_NUMBER;
-            hash = (53 * hash) + getRequestId().hashCode();
-            hash = (37 * hash) + MSG_ID_FIELD_NUMBER;
-            hash = (53 * hash) + getMsgId().hashCode();
-            hash = (29 * hash) + unknownFields.hashCode();
-            memoizedHashCode = hash;
-            return hash;
-        }
-
-        public static MsgBean.AckMessage parseFrom(
-                java.nio.ByteBuffer data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-        public static MsgBean.AckMessage parseFrom(
-                java.nio.ByteBuffer data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-        public static MsgBean.AckMessage parseFrom(
-                com.google.protobuf.ByteString data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-        public static MsgBean.AckMessage parseFrom(
-                com.google.protobuf.ByteString data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-        public static MsgBean.AckMessage parseFrom(byte[] data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-        public static MsgBean.AckMessage parseFrom(
-                byte[] data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-        public static MsgBean.AckMessage parseFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-        public static MsgBean.AckMessage parseFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-        public static MsgBean.AckMessage parseDelimitedFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input);
-        }
-        public static MsgBean.AckMessage parseDelimitedFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-        }
-        public static MsgBean.AckMessage parseFrom(
-                com.google.protobuf.CodedInputStream input)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input);
-        }
-        public static MsgBean.AckMessage parseFrom(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return com.google.protobuf.GeneratedMessageV3
-                    .parseWithIOException(PARSER, input, extensionRegistry);
-        }
-
-        public Builder newBuilderForType() { return newBuilder(); }
-        public static Builder newBuilder() {
-            return DEFAULT_INSTANCE.toBuilder();
-        }
-        public static Builder newBuilder(MsgBean.AckMessage prototype) {
-            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-        }
-        public Builder toBuilder() {
-            return this == DEFAULT_INSTANCE
-                    ? new Builder() : new Builder().mergeFrom(this);
-        }
-
-        @java.lang.Override
-        protected Builder newBuilderForType(
-                com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-            Builder builder = new Builder(parent);
-            return builder;
-        }
-        /**
-         * <pre>
-         * ACK消息
-         * </pre>
-         *
-         * Protobuf type {@code AckMessage}
-         */
-        public static final class Builder extends
-                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-                // @@protoc_insertion_point(builder_implements:AckMessage)
-                MsgBean.AckMessageOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return MsgBean.internal_static_AckMessage_descriptor;
-            }
-
-            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return MsgBean.internal_static_AckMessage_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                MsgBean.AckMessage.class, MsgBean.AckMessage.Builder.class);
-            }
-
-            // Construct using MsgBean.AckMessage.newBuilder()
-            private Builder() {
-                maybeForceBuilderInitialization();
-            }
-
-            private Builder(
-                    com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-                super(parent);
-                maybeForceBuilderInitialization();
-            }
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessageV3
-                        .alwaysUseFieldBuilders) {
-                }
-            }
-            public Builder clear() {
-                super.clear();
-                requestId_ = "";
-
-                msgId_ = "";
-
-                return this;
-            }
-
-            public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-                return MsgBean.internal_static_AckMessage_descriptor;
-            }
-
-            public MsgBean.AckMessage getDefaultInstanceForType() {
-                return MsgBean.AckMessage.getDefaultInstance();
-            }
-
-            public MsgBean.AckMessage build() {
-                MsgBean.AckMessage result = buildPartial();
-                if (!result.isInitialized()) {
-                    throw newUninitializedMessageException(result);
-                }
-                return result;
-            }
-
-            public MsgBean.AckMessage buildPartial() {
-                MsgBean.AckMessage result = new MsgBean.AckMessage(this);
-                result.requestId_ = requestId_;
-                result.msgId_ = msgId_;
-                onBuilt();
-                return result;
-            }
-
-            public Builder clone() {
-                return (Builder) super.clone();
-            }
-            public Builder setField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return (Builder) super.setField(field, value);
-            }
-            public Builder clearField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field) {
-                return (Builder) super.clearField(field);
-            }
-            public Builder clearOneof(
-                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-                return (Builder) super.clearOneof(oneof);
-            }
-            public Builder setRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    int index, Object value) {
-                return (Builder) super.setRepeatedField(field, index, value);
-            }
-            public Builder addRepeatedField(
-                    com.google.protobuf.Descriptors.FieldDescriptor field,
-                    Object value) {
-                return (Builder) super.addRepeatedField(field, value);
-            }
-            public Builder mergeFrom(com.google.protobuf.Message other) {
-                if (other instanceof MsgBean.AckMessage) {
-                    return mergeFrom((MsgBean.AckMessage)other);
-                } else {
-                    super.mergeFrom(other);
-                    return this;
-                }
-            }
-
-            public Builder mergeFrom(MsgBean.AckMessage other) {
-                if (other == MsgBean.AckMessage.getDefaultInstance()) return this;
-                if (!other.getRequestId().isEmpty()) {
-                    requestId_ = other.requestId_;
-                    onChanged();
-                }
-                if (!other.getMsgId().isEmpty()) {
-                    msgId_ = other.msgId_;
-                    onChanged();
-                }
-                onChanged();
-                return this;
-            }
-
-            public final boolean isInitialized() {
-                return true;
-            }
-
-            public Builder mergeFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws java.io.IOException {
-                MsgBean.AckMessage parsedMessage = null;
-                try {
-                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                    parsedMessage = (MsgBean.AckMessage) e.getUnfinishedMessage();
-                    throw e.unwrapIOException();
-                } finally {
-                    if (parsedMessage != null) {
-                        mergeFrom(parsedMessage);
-                    }
-                }
-                return this;
-            }
-
-            private java.lang.Object requestId_ = "";
-            /**
-             * <code>string request_id = 1;</code>
-             */
-            public java.lang.String getRequestId() {
-                java.lang.Object ref = requestId_;
-                if (!(ref instanceof java.lang.String)) {
-                    com.google.protobuf.ByteString bs =
-                            (com.google.protobuf.ByteString) ref;
-                    java.lang.String s = bs.toStringUtf8();
-                    requestId_ = s;
-                    return s;
-                } else {
-                    return (java.lang.String) ref;
-                }
-            }
-            /**
-             * <code>string request_id = 1;</code>
-             */
-            public com.google.protobuf.ByteString
-            getRequestIdBytes() {
-                java.lang.Object ref = requestId_;
-                if (ref instanceof String) {
-                    com.google.protobuf.ByteString b =
-                            com.google.protobuf.ByteString.copyFromUtf8(
-                                    (java.lang.String) ref);
-                    requestId_ = b;
-                    return b;
-                } else {
-                    return (com.google.protobuf.ByteString) ref;
-                }
-            }
-            /**
-             * <code>string request_id = 1;</code>
-             */
-            public Builder setRequestId(
-                    java.lang.String value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-
-                requestId_ = value;
-                onChanged();
-                return this;
-            }
-            /**
-             * <code>string request_id = 1;</code>
-             */
-            public Builder clearRequestId() {
-
-                requestId_ = getDefaultInstance().getRequestId();
-                onChanged();
-                return this;
-            }
-            /**
-             * <code>string request_id = 1;</code>
-             */
-            public Builder setRequestIdBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                checkByteStringIsUtf8(value);
-
-                requestId_ = value;
-                onChanged();
-                return this;
-            }
-
-            private java.lang.Object msgId_ = "";
-            /**
-             * <pre>
-             * 消息id
-             * </pre>
-             *
-             * <code>string msg_id = 2;</code>
-             */
-            public java.lang.String getMsgId() {
-                java.lang.Object ref = msgId_;
-                if (!(ref instanceof java.lang.String)) {
-                    com.google.protobuf.ByteString bs =
-                            (com.google.protobuf.ByteString) ref;
-                    java.lang.String s = bs.toStringUtf8();
-                    msgId_ = s;
-                    return s;
-                } else {
-                    return (java.lang.String) ref;
-                }
-            }
-            /**
-             * <pre>
-             * 消息id
-             * </pre>
-             *
-             * <code>string msg_id = 2;</code>
-             */
-            public com.google.protobuf.ByteString
-            getMsgIdBytes() {
-                java.lang.Object ref = msgId_;
-                if (ref instanceof String) {
-                    com.google.protobuf.ByteString b =
-                            com.google.protobuf.ByteString.copyFromUtf8(
-                                    (java.lang.String) ref);
-                    msgId_ = b;
-                    return b;
-                } else {
-                    return (com.google.protobuf.ByteString) ref;
-                }
-            }
-            /**
-             * <pre>
-             * 消息id
-             * </pre>
-             *
-             * <code>string msg_id = 2;</code>
-             */
-            public Builder setMsgId(
-                    java.lang.String value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-
-                msgId_ = value;
-                onChanged();
-                return this;
-            }
-            /**
-             * <pre>
-             * 消息id
-             * </pre>
-             *
-             * <code>string msg_id = 2;</code>
-             */
-            public Builder clearMsgId() {
-
-                msgId_ = getDefaultInstance().getMsgId();
-                onChanged();
-                return this;
-            }
-            /**
-             * <pre>
-             * 消息id
-             * </pre>
-             *
-             * <code>string msg_id = 2;</code>
-             */
-            public Builder setMsgIdBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                checkByteStringIsUtf8(value);
-
-                msgId_ = value;
-                onChanged();
-                return this;
-            }
-            public final Builder setUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return this;
-            }
-
-            public final Builder mergeUnknownFields(
-                    final com.google.protobuf.UnknownFieldSet unknownFields) {
-                return this;
-            }
-
-
-            // @@protoc_insertion_point(builder_scope:AckMessage)
-        }
-
-        // @@protoc_insertion_point(class_scope:AckMessage)
-        private static final MsgBean.AckMessage DEFAULT_INSTANCE;
-        static {
-            DEFAULT_INSTANCE = new MsgBean.AckMessage();
-        }
-
-        public static MsgBean.AckMessage getDefaultInstance() {
-            return DEFAULT_INSTANCE;
-        }
-
-        private static final com.google.protobuf.Parser<AckMessage>
-                PARSER = new com.google.protobuf.AbstractParser<AckMessage>() {
-            public AckMessage parsePartialFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws com.google.protobuf.InvalidProtocolBufferException {
-                return new AckMessage(input, extensionRegistry);
-            }
-        };
-
-        public static com.google.protobuf.Parser<AckMessage> parser() {
-            return PARSER;
-        }
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<AckMessage> getParserForType() {
-            return PARSER;
-        }
-
-        public MsgBean.AckMessage getDefaultInstanceForType() {
-            return DEFAULT_INSTANCE;
-        }
-
-    }
-
     public interface UniversalMessageOrBuilder extends
             // @@protoc_insertion_point(interface_extends:UniversalMessage)
             com.google.protobuf.MessageOrBuilder {
@@ -7966,24 +7932,6 @@ public final class MsgBean {
         MsgBean.AcceptBeFriendsMessageOrBuilder getAcceptBeFriendsOrBuilder();
 
         /**
-         * <code>.AuthRequestMessage auth_request = 10110;</code>
-         */
-        MsgBean.AuthRequestMessage getAuthRequest();
-        /**
-         * <code>.AuthRequestMessage auth_request = 10110;</code>
-         */
-        MsgBean.AuthRequestMessageOrBuilder getAuthRequestOrBuilder();
-
-        /**
-         * <code>.AuthResponseMessage auth_response = 10111;</code>
-         */
-        MsgBean.AuthResponseMessage getAuthResponse();
-        /**
-         * <code>.AuthResponseMessage auth_response = 10111;</code>
-         */
-        MsgBean.AuthResponseMessageOrBuilder getAuthResponseOrBuilder();
-
-        /**
          * <code>.AckMessage ack = 10112;</code>
          */
         MsgBean.AckMessage getAck();
@@ -7998,7 +7946,7 @@ public final class MsgBean {
     }
     /**
      * <pre>
-     * 最终使用的消息
+     * 普通消息
      * </pre>
      *
      * Protobuf type {@code UniversalMessage}
@@ -8208,34 +8156,6 @@ public final class MsgBean {
                             realMsgCase_ = 10109;
                             break;
                         }
-                        case 80882: {
-                            MsgBean.AuthRequestMessage.Builder subBuilder = null;
-                            if (realMsgCase_ == 10110) {
-                                subBuilder = ((MsgBean.AuthRequestMessage) realMsg_).toBuilder();
-                            }
-                            realMsg_ =
-                                    input.readMessage(MsgBean.AuthRequestMessage.parser(), extensionRegistry);
-                            if (subBuilder != null) {
-                                subBuilder.mergeFrom((MsgBean.AuthRequestMessage) realMsg_);
-                                realMsg_ = subBuilder.buildPartial();
-                            }
-                            realMsgCase_ = 10110;
-                            break;
-                        }
-                        case 80890: {
-                            MsgBean.AuthResponseMessage.Builder subBuilder = null;
-                            if (realMsgCase_ == 10111) {
-                                subBuilder = ((MsgBean.AuthResponseMessage) realMsg_).toBuilder();
-                            }
-                            realMsg_ =
-                                    input.readMessage(MsgBean.AuthResponseMessage.parser(), extensionRegistry);
-                            if (subBuilder != null) {
-                                subBuilder.mergeFrom((MsgBean.AuthResponseMessage) realMsg_);
-                                realMsg_ = subBuilder.buildPartial();
-                            }
-                            realMsgCase_ = 10111;
-                            break;
-                        }
                         case 80898: {
                             MsgBean.AckMessage.Builder subBuilder = null;
                             if (realMsgCase_ == 10112) {
@@ -8324,8 +8244,6 @@ public final class MsgBean {
             BUSINESS_CARD(10107),
             REQUEST_FRIEND(10108),
             ACCEPT_BE_FRIENDS(10109),
-            AUTH_REQUEST(10110),
-            AUTH_RESPONSE(10111),
             ACK(10112),
             REALMSG_NOT_SET(0);
             private final int value;
@@ -8351,8 +8269,6 @@ public final class MsgBean {
                     case 10107: return BUSINESS_CARD;
                     case 10108: return REQUEST_FRIEND;
                     case 10109: return ACCEPT_BE_FRIENDS;
-                    case 10110: return AUTH_REQUEST;
-                    case 10111: return AUTH_RESPONSE;
                     case 10112: return ACK;
                     case 0: return REALMSG_NOT_SET;
                     default: return null;
@@ -8708,46 +8624,6 @@ public final class MsgBean {
             return MsgBean.AcceptBeFriendsMessage.getDefaultInstance();
         }
 
-        public static final int AUTH_REQUEST_FIELD_NUMBER = 10110;
-        /**
-         * <code>.AuthRequestMessage auth_request = 10110;</code>
-         */
-        public MsgBean.AuthRequestMessage getAuthRequest() {
-            if (realMsgCase_ == 10110) {
-                return (MsgBean.AuthRequestMessage) realMsg_;
-            }
-            return MsgBean.AuthRequestMessage.getDefaultInstance();
-        }
-        /**
-         * <code>.AuthRequestMessage auth_request = 10110;</code>
-         */
-        public MsgBean.AuthRequestMessageOrBuilder getAuthRequestOrBuilder() {
-            if (realMsgCase_ == 10110) {
-                return (MsgBean.AuthRequestMessage) realMsg_;
-            }
-            return MsgBean.AuthRequestMessage.getDefaultInstance();
-        }
-
-        public static final int AUTH_RESPONSE_FIELD_NUMBER = 10111;
-        /**
-         * <code>.AuthResponseMessage auth_response = 10111;</code>
-         */
-        public MsgBean.AuthResponseMessage getAuthResponse() {
-            if (realMsgCase_ == 10111) {
-                return (MsgBean.AuthResponseMessage) realMsg_;
-            }
-            return MsgBean.AuthResponseMessage.getDefaultInstance();
-        }
-        /**
-         * <code>.AuthResponseMessage auth_response = 10111;</code>
-         */
-        public MsgBean.AuthResponseMessageOrBuilder getAuthResponseOrBuilder() {
-            if (realMsgCase_ == 10111) {
-                return (MsgBean.AuthResponseMessage) realMsg_;
-            }
-            return MsgBean.AuthResponseMessage.getDefaultInstance();
-        }
-
         public static final int ACK_FIELD_NUMBER = 10112;
         /**
          * <code>.AckMessage ack = 10112;</code>
@@ -8829,12 +8705,6 @@ public final class MsgBean {
             if (realMsgCase_ == 10109) {
                 output.writeMessage(10109, (MsgBean.AcceptBeFriendsMessage) realMsg_);
             }
-            if (realMsgCase_ == 10110) {
-                output.writeMessage(10110, (MsgBean.AuthRequestMessage) realMsg_);
-            }
-            if (realMsgCase_ == 10111) {
-                output.writeMessage(10111, (MsgBean.AuthResponseMessage) realMsg_);
-            }
             if (realMsgCase_ == 10112) {
                 output.writeMessage(10112, (MsgBean.AckMessage) realMsg_);
             }
@@ -8907,14 +8777,6 @@ public final class MsgBean {
             if (realMsgCase_ == 10109) {
                 size += com.google.protobuf.CodedOutputStream
                         .computeMessageSize(10109, (MsgBean.AcceptBeFriendsMessage) realMsg_);
-            }
-            if (realMsgCase_ == 10110) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeMessageSize(10110, (MsgBean.AuthRequestMessage) realMsg_);
-            }
-            if (realMsgCase_ == 10111) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeMessageSize(10111, (MsgBean.AuthResponseMessage) realMsg_);
             }
             if (realMsgCase_ == 10112) {
                 size += com.google.protobuf.CodedOutputStream
@@ -9000,14 +8862,6 @@ public final class MsgBean {
                     result = result && getAcceptBeFriends()
                             .equals(other.getAcceptBeFriends());
                     break;
-                case 10110:
-                    result = result && getAuthRequest()
-                            .equals(other.getAuthRequest());
-                    break;
-                case 10111:
-                    result = result && getAuthResponse()
-                            .equals(other.getAuthResponse());
-                    break;
                 case 10112:
                     result = result && getAck()
                             .equals(other.getAck());
@@ -9087,14 +8941,6 @@ public final class MsgBean {
                 case 10109:
                     hash = (37 * hash) + ACCEPT_BE_FRIENDS_FIELD_NUMBER;
                     hash = (53 * hash) + getAcceptBeFriends().hashCode();
-                    break;
-                case 10110:
-                    hash = (37 * hash) + AUTH_REQUEST_FIELD_NUMBER;
-                    hash = (53 * hash) + getAuthRequest().hashCode();
-                    break;
-                case 10111:
-                    hash = (37 * hash) + AUTH_RESPONSE_FIELD_NUMBER;
-                    hash = (53 * hash) + getAuthResponse().hashCode();
                     break;
                 case 10112:
                     hash = (37 * hash) + ACK_FIELD_NUMBER;
@@ -9198,7 +9044,7 @@ public final class MsgBean {
         }
         /**
          * <pre>
-         * 最终使用的消息
+         * 普通消息
          * </pre>
          *
          * Protobuf type {@code UniversalMessage}
@@ -9346,20 +9192,6 @@ public final class MsgBean {
                         result.realMsg_ = acceptBeFriendsBuilder_.build();
                     }
                 }
-                if (realMsgCase_ == 10110) {
-                    if (authRequestBuilder_ == null) {
-                        result.realMsg_ = realMsg_;
-                    } else {
-                        result.realMsg_ = authRequestBuilder_.build();
-                    }
-                }
-                if (realMsgCase_ == 10111) {
-                    if (authResponseBuilder_ == null) {
-                        result.realMsg_ = realMsg_;
-                    } else {
-                        result.realMsg_ = authResponseBuilder_.build();
-                    }
-                }
                 if (realMsgCase_ == 10112) {
                     if (ackBuilder_ == null) {
                         result.realMsg_ = realMsg_;
@@ -9476,14 +9308,6 @@ public final class MsgBean {
                     }
                     case ACCEPT_BE_FRIENDS: {
                         mergeAcceptBeFriends(other.getAcceptBeFriends());
-                        break;
-                    }
-                    case AUTH_REQUEST: {
-                        mergeAuthRequest(other.getAuthRequest());
-                        break;
-                    }
-                    case AUTH_RESPONSE: {
-                        mergeAuthResponse(other.getAuthResponse());
                         break;
                     }
                     case ACK: {
@@ -11098,266 +10922,6 @@ public final class MsgBean {
             }
 
             private com.google.protobuf.SingleFieldBuilderV3<
-                    MsgBean.AuthRequestMessage, MsgBean.AuthRequestMessage.Builder, MsgBean.AuthRequestMessageOrBuilder> authRequestBuilder_;
-            /**
-             * <code>.AuthRequestMessage auth_request = 10110;</code>
-             */
-            public MsgBean.AuthRequestMessage getAuthRequest() {
-                if (authRequestBuilder_ == null) {
-                    if (realMsgCase_ == 10110) {
-                        return (MsgBean.AuthRequestMessage) realMsg_;
-                    }
-                    return MsgBean.AuthRequestMessage.getDefaultInstance();
-                } else {
-                    if (realMsgCase_ == 10110) {
-                        return authRequestBuilder_.getMessage();
-                    }
-                    return MsgBean.AuthRequestMessage.getDefaultInstance();
-                }
-            }
-            /**
-             * <code>.AuthRequestMessage auth_request = 10110;</code>
-             */
-            public Builder setAuthRequest(MsgBean.AuthRequestMessage value) {
-                if (authRequestBuilder_ == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    realMsg_ = value;
-                    onChanged();
-                } else {
-                    authRequestBuilder_.setMessage(value);
-                }
-                realMsgCase_ = 10110;
-                return this;
-            }
-            /**
-             * <code>.AuthRequestMessage auth_request = 10110;</code>
-             */
-            public Builder setAuthRequest(
-                    MsgBean.AuthRequestMessage.Builder builderForValue) {
-                if (authRequestBuilder_ == null) {
-                    realMsg_ = builderForValue.build();
-                    onChanged();
-                } else {
-                    authRequestBuilder_.setMessage(builderForValue.build());
-                }
-                realMsgCase_ = 10110;
-                return this;
-            }
-            /**
-             * <code>.AuthRequestMessage auth_request = 10110;</code>
-             */
-            public Builder mergeAuthRequest(MsgBean.AuthRequestMessage value) {
-                if (authRequestBuilder_ == null) {
-                    if (realMsgCase_ == 10110 &&
-                            realMsg_ != MsgBean.AuthRequestMessage.getDefaultInstance()) {
-                        realMsg_ = MsgBean.AuthRequestMessage.newBuilder((MsgBean.AuthRequestMessage) realMsg_)
-                                .mergeFrom(value).buildPartial();
-                    } else {
-                        realMsg_ = value;
-                    }
-                    onChanged();
-                } else {
-                    if (realMsgCase_ == 10110) {
-                        authRequestBuilder_.mergeFrom(value);
-                    }
-                    authRequestBuilder_.setMessage(value);
-                }
-                realMsgCase_ = 10110;
-                return this;
-            }
-            /**
-             * <code>.AuthRequestMessage auth_request = 10110;</code>
-             */
-            public Builder clearAuthRequest() {
-                if (authRequestBuilder_ == null) {
-                    if (realMsgCase_ == 10110) {
-                        realMsgCase_ = 0;
-                        realMsg_ = null;
-                        onChanged();
-                    }
-                } else {
-                    if (realMsgCase_ == 10110) {
-                        realMsgCase_ = 0;
-                        realMsg_ = null;
-                    }
-                    authRequestBuilder_.clear();
-                }
-                return this;
-            }
-            /**
-             * <code>.AuthRequestMessage auth_request = 10110;</code>
-             */
-            public MsgBean.AuthRequestMessage.Builder getAuthRequestBuilder() {
-                return getAuthRequestFieldBuilder().getBuilder();
-            }
-            /**
-             * <code>.AuthRequestMessage auth_request = 10110;</code>
-             */
-            public MsgBean.AuthRequestMessageOrBuilder getAuthRequestOrBuilder() {
-                if ((realMsgCase_ == 10110) && (authRequestBuilder_ != null)) {
-                    return authRequestBuilder_.getMessageOrBuilder();
-                } else {
-                    if (realMsgCase_ == 10110) {
-                        return (MsgBean.AuthRequestMessage) realMsg_;
-                    }
-                    return MsgBean.AuthRequestMessage.getDefaultInstance();
-                }
-            }
-            /**
-             * <code>.AuthRequestMessage auth_request = 10110;</code>
-             */
-            private com.google.protobuf.SingleFieldBuilderV3<
-                    MsgBean.AuthRequestMessage, MsgBean.AuthRequestMessage.Builder, MsgBean.AuthRequestMessageOrBuilder>
-            getAuthRequestFieldBuilder() {
-                if (authRequestBuilder_ == null) {
-                    if (!(realMsgCase_ == 10110)) {
-                        realMsg_ = MsgBean.AuthRequestMessage.getDefaultInstance();
-                    }
-                    authRequestBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-                            MsgBean.AuthRequestMessage, MsgBean.AuthRequestMessage.Builder, MsgBean.AuthRequestMessageOrBuilder>(
-                            (MsgBean.AuthRequestMessage) realMsg_,
-                            getParentForChildren(),
-                            isClean());
-                    realMsg_ = null;
-                }
-                realMsgCase_ = 10110;
-                onChanged();;
-                return authRequestBuilder_;
-            }
-
-            private com.google.protobuf.SingleFieldBuilderV3<
-                    MsgBean.AuthResponseMessage, MsgBean.AuthResponseMessage.Builder, MsgBean.AuthResponseMessageOrBuilder> authResponseBuilder_;
-            /**
-             * <code>.AuthResponseMessage auth_response = 10111;</code>
-             */
-            public MsgBean.AuthResponseMessage getAuthResponse() {
-                if (authResponseBuilder_ == null) {
-                    if (realMsgCase_ == 10111) {
-                        return (MsgBean.AuthResponseMessage) realMsg_;
-                    }
-                    return MsgBean.AuthResponseMessage.getDefaultInstance();
-                } else {
-                    if (realMsgCase_ == 10111) {
-                        return authResponseBuilder_.getMessage();
-                    }
-                    return MsgBean.AuthResponseMessage.getDefaultInstance();
-                }
-            }
-            /**
-             * <code>.AuthResponseMessage auth_response = 10111;</code>
-             */
-            public Builder setAuthResponse(MsgBean.AuthResponseMessage value) {
-                if (authResponseBuilder_ == null) {
-                    if (value == null) {
-                        throw new NullPointerException();
-                    }
-                    realMsg_ = value;
-                    onChanged();
-                } else {
-                    authResponseBuilder_.setMessage(value);
-                }
-                realMsgCase_ = 10111;
-                return this;
-            }
-            /**
-             * <code>.AuthResponseMessage auth_response = 10111;</code>
-             */
-            public Builder setAuthResponse(
-                    MsgBean.AuthResponseMessage.Builder builderForValue) {
-                if (authResponseBuilder_ == null) {
-                    realMsg_ = builderForValue.build();
-                    onChanged();
-                } else {
-                    authResponseBuilder_.setMessage(builderForValue.build());
-                }
-                realMsgCase_ = 10111;
-                return this;
-            }
-            /**
-             * <code>.AuthResponseMessage auth_response = 10111;</code>
-             */
-            public Builder mergeAuthResponse(MsgBean.AuthResponseMessage value) {
-                if (authResponseBuilder_ == null) {
-                    if (realMsgCase_ == 10111 &&
-                            realMsg_ != MsgBean.AuthResponseMessage.getDefaultInstance()) {
-                        realMsg_ = MsgBean.AuthResponseMessage.newBuilder((MsgBean.AuthResponseMessage) realMsg_)
-                                .mergeFrom(value).buildPartial();
-                    } else {
-                        realMsg_ = value;
-                    }
-                    onChanged();
-                } else {
-                    if (realMsgCase_ == 10111) {
-                        authResponseBuilder_.mergeFrom(value);
-                    }
-                    authResponseBuilder_.setMessage(value);
-                }
-                realMsgCase_ = 10111;
-                return this;
-            }
-            /**
-             * <code>.AuthResponseMessage auth_response = 10111;</code>
-             */
-            public Builder clearAuthResponse() {
-                if (authResponseBuilder_ == null) {
-                    if (realMsgCase_ == 10111) {
-                        realMsgCase_ = 0;
-                        realMsg_ = null;
-                        onChanged();
-                    }
-                } else {
-                    if (realMsgCase_ == 10111) {
-                        realMsgCase_ = 0;
-                        realMsg_ = null;
-                    }
-                    authResponseBuilder_.clear();
-                }
-                return this;
-            }
-            /**
-             * <code>.AuthResponseMessage auth_response = 10111;</code>
-             */
-            public MsgBean.AuthResponseMessage.Builder getAuthResponseBuilder() {
-                return getAuthResponseFieldBuilder().getBuilder();
-            }
-            /**
-             * <code>.AuthResponseMessage auth_response = 10111;</code>
-             */
-            public MsgBean.AuthResponseMessageOrBuilder getAuthResponseOrBuilder() {
-                if ((realMsgCase_ == 10111) && (authResponseBuilder_ != null)) {
-                    return authResponseBuilder_.getMessageOrBuilder();
-                } else {
-                    if (realMsgCase_ == 10111) {
-                        return (MsgBean.AuthResponseMessage) realMsg_;
-                    }
-                    return MsgBean.AuthResponseMessage.getDefaultInstance();
-                }
-            }
-            /**
-             * <code>.AuthResponseMessage auth_response = 10111;</code>
-             */
-            private com.google.protobuf.SingleFieldBuilderV3<
-                    MsgBean.AuthResponseMessage, MsgBean.AuthResponseMessage.Builder, MsgBean.AuthResponseMessageOrBuilder>
-            getAuthResponseFieldBuilder() {
-                if (authResponseBuilder_ == null) {
-                    if (!(realMsgCase_ == 10111)) {
-                        realMsg_ = MsgBean.AuthResponseMessage.getDefaultInstance();
-                    }
-                    authResponseBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-                            MsgBean.AuthResponseMessage, MsgBean.AuthResponseMessage.Builder, MsgBean.AuthResponseMessageOrBuilder>(
-                            (MsgBean.AuthResponseMessage) realMsg_,
-                            getParentForChildren(),
-                            isClean());
-                    realMsg_ = null;
-                }
-                realMsgCase_ = 10111;
-                onChanged();;
-                return authResponseBuilder_;
-            }
-
-            private com.google.protobuf.SingleFieldBuilderV3<
                     MsgBean.AckMessage, MsgBean.AckMessage.Builder, MsgBean.AckMessageOrBuilder> ackBuilder_;
             /**
              * <code>.AckMessage ack = 10112;</code>
@@ -11581,6 +11145,11 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internal_static_AcceptBeFriendsMessage_fieldAccessorTable;
     private static final com.google.protobuf.Descriptors.Descriptor
+            internal_static_AckMessage_descriptor;
+    private static final
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internal_static_AckMessage_fieldAccessorTable;
+    private static final com.google.protobuf.Descriptors.Descriptor
             internal_static_AuthRequestMessage_descriptor;
     private static final
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -11590,11 +11159,6 @@ public final class MsgBean {
     private static final
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internal_static_AuthResponseMessage_fieldAccessorTable;
-    private static final com.google.protobuf.Descriptors.Descriptor
-            internal_static_AckMessage_descriptor;
-    private static final
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-            internal_static_AckMessage_fieldAccessorTable;
     private static final com.google.protobuf.Descriptors.Descriptor
             internal_static_UniversalMessage_descriptor;
     private static final
@@ -11621,10 +11185,10 @@ public final class MsgBean {
                         "H\n\023BusinessCardMessage\022\016\n\006avatar\030\001 \001(\t\022\020",
                 "\n\010nickname\030\002 \001(\t\022\017\n\007comment\030\003 \001(\t\"&\n\024Req" +
                         "uestFriendMessage\022\016\n\006say_hi\030\001 \001(\t\"\030\n\026Acc" +
-                        "eptBeFriendsMessage\"*\n\022AuthRequestMessag" +
-                        "e\022\024\n\014access_token\030\001 \001(\t\"\'\n\023AuthResponseM" +
-                        "essage\022\020\n\010accepted\030\001 \001(\010\"0\n\nAckMessage\022\022" +
-                        "\n\nrequest_id\030\001 \001(\t\022\016\n\006msg_id\030\002 \001(\t\"\274\005\n\020U" +
+                        "eptBeFriendsMessage\"0\n\nAckMessage\022\022\n\nreq" +
+                        "uest_id\030\001 \001(\t\022\016\n\006msg_id\030\002 \001(\t\"*\n\022AuthReq" +
+                        "uestMessage\022\024\n\014access_token\030\001 \001(\t\"\'\n\023Aut" +
+                        "hResponseMessage\022\020\n\010accepted\030\001 \001(\010\"\336\004\n\020U" +
                         "niversalMessage\022\022\n\nrequest_id\030\001 \001(\004\022\020\n\010f" +
                         "rom_uid\030\002 \001(\004\022\020\n\006to_uid\030e \001(\004H\000\022\020\n\006to_gi" +
                         "d\030f \001(\tH\000\022\036\n\010msg_type\030\003 \001(\0162\014.MessageTyp" +
@@ -11638,17 +11202,13 @@ public final class MsgBean {
                         ".\n\rbusiness_card\030\373N \001(\0132\024.BusinessCardMe" +
                         "ssageH\001\0220\n\016request_friend\030\374N \001(\0132\025.Reque" +
                         "stFriendMessageH\001\0225\n\021accept_be_friends\030\375" +
-                        "N \001(\0132\027.AcceptBeFriendsMessageH\001\022,\n\014auth",
-                "_request\030\376N \001(\0132\023.AuthRequestMessageH\001\022." +
-                        "\n\rauth_response\030\377N \001(\0132\024.AuthResponseMes" +
-                        "sageH\001\022\033\n\003ack\030\200O \001(\0132\013.AckMessageH\001B\010\n\006t" +
-                        "argetB\n\n\010real_msg*\325\001\n\013MessageType\022\010\n\004CHA" +
-                        "T\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025REC" +
-                        "EIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005ST" +
-                        "AMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\022\n\016REQUEST_FRIE" +
-                        "ND\020\007\022\025\n\021ACCEPT_BE_FRIENDS\020\010\022\020\n\014AUTH_REQU" +
-                        "EST\020\t\022\021\n\rAUTH_RESPONSE\020\n\022\007\n\003ACK\020db\006proto" +
-                        "3"
+                        "N \001(\0132\027.AcceptBeFriendsMessageH\001\022\033\n\003ack\030",
+                "\200O \001(\0132\013.AckMessageH\001B\010\n\006targetB\n\n\010real_" +
+                        "msg*\260\001\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001" +
+                        "\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVEL" +
+                        "OPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSIN" +
+                        "ESS_CARD\020\006\022\022\n\016REQUEST_FRIEND\020\007\022\025\n\021ACCEPT" +
+                        "_BE_FRIENDS\020\010\022\007\n\003ACK\020db\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -11716,30 +11276,30 @@ public final class MsgBean {
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AcceptBeFriendsMessage_descriptor,
                 new java.lang.String[] { });
-        internal_static_AuthRequestMessage_descriptor =
+        internal_static_AckMessage_descriptor =
                 getDescriptor().getMessageTypes().get(9);
+        internal_static_AckMessage_fieldAccessorTable = new
+                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_AckMessage_descriptor,
+                new java.lang.String[] { "RequestId", "MsgId", });
+        internal_static_AuthRequestMessage_descriptor =
+                getDescriptor().getMessageTypes().get(10);
         internal_static_AuthRequestMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AuthRequestMessage_descriptor,
                 new java.lang.String[] { "AccessToken", });
         internal_static_AuthResponseMessage_descriptor =
-                getDescriptor().getMessageTypes().get(10);
+                getDescriptor().getMessageTypes().get(11);
         internal_static_AuthResponseMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AuthResponseMessage_descriptor,
                 new java.lang.String[] { "Accepted", });
-        internal_static_AckMessage_descriptor =
-                getDescriptor().getMessageTypes().get(11);
-        internal_static_AckMessage_fieldAccessorTable = new
-                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-                internal_static_AckMessage_descriptor,
-                new java.lang.String[] { "RequestId", "MsgId", });
         internal_static_UniversalMessage_descriptor =
                 getDescriptor().getMessageTypes().get(12);
         internal_static_UniversalMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_descriptor,
-                new java.lang.String[] { "RequestId", "FromUid", "ToUid", "ToGid", "MsgType", "MsgId", "Timestamp", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "RequestFriend", "AcceptBeFriends", "AuthRequest", "AuthResponse", "Ack", "Target", "RealMsg", });
+                new java.lang.String[] { "RequestId", "FromUid", "ToUid", "ToGid", "MsgType", "MsgId", "Timestamp", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "RequestFriend", "AcceptBeFriends", "Ack", "Target", "RealMsg", });
     }
 
     // @@protoc_insertion_point(outer_class_scope)

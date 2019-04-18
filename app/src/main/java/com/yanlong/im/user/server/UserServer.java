@@ -27,4 +27,8 @@ public interface UserServer {
     Call<ReturnBean<TokenBean>> login(@Body LoginBean loginBean);
 
 
+    @POST("/pub/login-by-phone-password")
+    @FormUrlEncoded
+    Call<ReturnBean<TokenBean>> login(@Field("password") String password,@Field("phone")Long phone);
+
 }

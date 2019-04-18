@@ -42,6 +42,10 @@ public class TimeToString {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         return dateFormat.format(new Date(time));
     }
+    public static String YYYY_MM_DD_HH_MM_SS(Long time) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return dateFormat.format(new Date(time));
+    }
 
     public static String A_DD_HH_MM(Long time) {
        long day= time/86400000;

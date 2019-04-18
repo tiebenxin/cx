@@ -3,7 +3,7 @@
     package="com.yanlong.im">
 
     <application
-        android:name="net.cb.cb.library.MainApplication"
+        android:name=".MyAppLication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -193,6 +193,11 @@
         <!--实名认证-->
         <activity
             android:name=".user.ui.IdentificationCentreActivity"
+            android:screenOrientation="portrait" />
+
+        <!--支付宝网页支付-->
+        <activity
+            android:name=".utils.pay.H5PayActivity"
             android:screenOrientation="portrait" />
 
     </application>

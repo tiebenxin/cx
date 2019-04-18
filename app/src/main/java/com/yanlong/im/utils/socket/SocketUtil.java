@@ -2,6 +2,7 @@ package com.yanlong.im.utils.socket;
 
 import android.util.Log;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 
 import net.cb.cb.library.utils.LogUtil;
@@ -190,7 +191,7 @@ public class SocketUtil {
     public void sendData(final byte[] data) {
         if (!isRun)
             return;
-        if(data==null)
+        if (data == null)
             return;
 
         new Thread(new Runnable() {
@@ -228,7 +229,7 @@ public class SocketUtil {
 
 
         //---------------------------------------------链接中
-        if (!socketChannel.connect(new InetSocketAddress("192.168.10.88", 21))) {
+        if (!socketChannel.connect(new InetSocketAddress("192.168.10.110", 19991))) {
             //不断地轮询连接状态，直到完成连
             System.out.println(">>>链接中");
             while (!socketChannel.finishConnect()) {
@@ -240,9 +241,11 @@ public class SocketUtil {
             //----------------------------------------------------
             LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
             receive();
-            heartbeatThread();
+
             //发送认证请求
             sendData(SocketData.msg4Auth());
+            //开始心跳
+            heartbeatThread();
         }
 
     }
@@ -355,9 +358,19 @@ public class SocketUtil {
                 case PROTOBUF_HEARTBEAT:
                     LogUtil.getLog().i(TAG, ">>>-----<收到心跳" + testindex);
                     testindex++;
+                    break;
+                case AUTH:
+                    LogUtil.getLog().i(TAG, ">>>-----<收到鉴权");
+                    try {
+                        MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(indexData, 12).get(1));
+                        LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
+                        if(!ruthmsg.getAccepted()){//鉴权失败直接停止
+                            stop();
+                        }
+                    } catch (InvalidProtocolBufferException e) {
+                        e.printStackTrace();
+                    }
 
-
-                    // event.onHeartbeat();
                     break;
                 case OTHER:
                     LogUtil.getLog().i(TAG, ">>>-----<收到其他数据包");

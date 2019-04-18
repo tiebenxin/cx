@@ -36,12 +36,23 @@ public class UserAction {
 
 
     public void login(Long phone, String pwd, final CallBack<ReturnBean<TokenBean>> callback) {
-
+ /*
         LoginBean bean = new LoginBean();
         bean.setPassword(pwd);
         bean.setPhone(phone);
 
-        NetUtil.getNet().exec(server.login(bean), new CallBack<ReturnBean<TokenBean>>() {
+      NetUtil.getNet().exec(server.login(bean), new CallBack<ReturnBean<TokenBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                if(response.body().isOk()&& StringUtil.isNotNull(response.body().getData().getAccessToken())){//保存token
+                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(response.body().getData());
+                }
+
+                callback.onResponse(call,response);
+            }
+        });*/
+
+        NetUtil.getNet().exec(server.login(pwd,phone), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if(response.body().isOk()&& StringUtil.isNotNull(response.body().getData().getAccessToken())){//保存token

@@ -103,7 +103,11 @@ dependencies {
    // api 'com.android.support:support-emoji-appcompat:28.+'
   //  api 'com.android.support:support-emoji-bundled:28.+'
 
+    //推送
     api 'com.umeng.umsdk:common:+'
     api 'com.umeng.umsdk:utdid:+'
     api 'com.umeng.umsdk:push:+'
+
+
+
 }

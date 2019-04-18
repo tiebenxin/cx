@@ -14,7 +14,7 @@ public class SocketData {
     private static final byte[] P_HEAD = {0x20, 0x19};
     //长度2位
     //   private byte[] p_length = new byte[2];
-    //校验位4位
+    //校验位4位(未使用)
     private static byte[] P_CHECK = new byte[4];
     //版本2位,第一字节为大版本,第二位小版本
     private static byte[] P_VERSION = {0x01, 0x00};
@@ -23,7 +23,7 @@ public class SocketData {
 
 
     public enum DataType {
-        PROTOBUF_MSG, PROTOBUF_HEARTBEAT, OTHER;
+        PROTOBUF_MSG, PROTOBUF_HEARTBEAT, AUTH, OTHER;
     }
 
     public static byte[] getPakage(DataType type, byte[] context) {
@@ -36,14 +36,18 @@ public class SocketData {
 
         //类型
         byte[] d_type = new byte[2];
-        ;
+
         switch (type) {
             case PROTOBUF_MSG://普通消息
-                d_type = new byte[]{0xffffffff, tobyte(1, 0)};
+                d_type = new byte[]{0x00, tobyte(1, 0)};
                 break;
             case PROTOBUF_HEARTBEAT://心跳
-                d_type = new byte[]{0xffffffff, tobyte(1, 1)};
+                d_type = new byte[]{0x00, tobyte(1, 1)};
                 break;
+            case AUTH://鉴权
+                d_type = new byte[]{0x00, tobyte(1, 2)};
+                break;
+
         }
 
         //包大小
@@ -110,7 +114,10 @@ public class SocketData {
             } else if (h == 1 && l == 1) {
 
                 return DataType.PROTOBUF_HEARTBEAT;
-            }
+            } else if (h == 1 && l == 2) {
+
+            return DataType.AUTH;
+        }
         }
 
 
@@ -148,19 +155,17 @@ public class SocketData {
     public static byte[] msg4Auth() {
 
         TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        tokenBean=new TokenBean();
-        tokenBean.setAccessToken("123156464");
+     //   tokenBean = new TokenBean();
+     //   tokenBean.setAccessToken("13000000000");
         if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
             return null;
         }
-        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
-        msg.setRequestId(System.currentTimeMillis())
-                .setMsgType(MsgBean.MessageType.AUTH_REQUEST);
+
 
         MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
                 .setAccessToken(tokenBean.getAccessToken()).build();
-        msg.setAuthRequest(auth);
-        return SocketData.getPakage(DataType.PROTOBUF_MSG, msg.build().toByteArray());
+
+        return SocketData.getPakage(DataType.AUTH, auth.toByteArray());
 
     }
 
