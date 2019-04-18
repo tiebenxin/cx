@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/app_layout_list2_item"
+    android:layout_height="60dp"
+    android:orientation="horizontal">
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/sd_image_head"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        app:placeholderImage="@mipmap/ic_info_head"
+        app:roundAsCircle="true" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_user_name"
+            style="@style/app_txt_title_2"
+            android:text="单号记得哈" />
+
+        <TextView
+            android:id="@+id/tv_dete"
+            style="@style/app_txt_content_1"
+            android:layout_marginTop="8dp"
+            android:text="10:00" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_money"
+        style="@style/app_txt_title_2"
+        android:layout_gravity="top"
+        android:layout_marginTop="8dp"
+        android:text="88.88元" />
+
+</LinearLayout>
