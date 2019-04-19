@@ -15,7 +15,7 @@
         <activity-alias
             android:name="test"
             android:label="测试页面"
-            android:targetActivity=".user.ui.SelectLoginActivity">
+            android:targetActivity=".user.ui.UserInfoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -193,10 +193,19 @@
         <activity
             android:name=".user.ui.ImageHeadActivity"
             android:screenOrientation="portrait" />
+        <!--用户资料-->
+        <activity
+            android:name=".user.ui.UserInfoActivity"
+            android:screenOrientation="portrait" />
 
         <!--上传身份证照片-->
         <activity
             android:name=".user.ui.UploadIdentityActivity"
+            android:screenOrientation="portrait" />
+
+        <!--投诉-->
+        <activity
+            android:name=".user.ui.ComplaintActivity"
             android:screenOrientation="portrait" />
 
         <!--实名认证-->
@@ -227,6 +236,8 @@
         <activity
             android:name=".utils.pay.H5PayActivity"
             android:screenOrientation="portrait" />
+
+
 
     </application>
 
