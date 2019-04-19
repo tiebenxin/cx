@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/headView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_100"
+    app:headview_title="关于">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/iv_logo"
+            android:layout_width="82dp"
+            android:layout_height="82dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="21dp"
+            android:src="@mipmap/ic_launcher"/>
+
+        <TextView
+            android:id="@+id/tv_version_number"
+            style="@style/app_txt_title_2"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="21dp"
+            android:text="夸夸聊    V1.0.0" />
+
+        <LinearLayout
+            android:id="@+id/ll_check_versions"
+            android:layout_marginTop="29dp"
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="检查新版本"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto"/>
+
+        </LinearLayout>
+
+        <View
+            style="@style/app_line"/>
+
+        <LinearLayout
+            android:id="@+id/ll_service"
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="联系客服"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</net.cb.cb.library.view.HeadView>

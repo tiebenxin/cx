@@ -25,6 +25,8 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgBean;
 import com.yanlong.im.chat.ui.view.ChatItemView;
+import com.yanlong.im.pay.ui.RedPacketDetailsActivity;
+import com.yanlong.im.pay.ui.SingleRedPacketActivity;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -291,6 +293,9 @@ public class ChatActivity extends AppActivity {
 
 
                         sendObj(bean);
+
+                        Intent intent = new Intent(ChatActivity.this, SingleRedPacketActivity.class);
+                        startActivity(intent);
                     }
                 });
         //戳一下

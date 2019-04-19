@@ -130,6 +130,35 @@
 
         <View style="@style/app_line" />
 
+        version
+        <View
+            style="@style/app_line"
+            android:layout_marginTop="@dimen/app_margin_item_top" />
+
+        <LinearLayout
+            android:id="@+id/view_about_as"
+            style="@style/app_layout_list2_item">
+
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_weight="1"
+                android:text="关于" />
+
+            <TextView
+                android:id="@+id/tv_version"
+                style="@style/app_txt_title_2" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="14dp"
+                android:src="@mipmap/ic_btn_goto" />
+        </LinearLayout>
+
+        <View style="@style/app_line" />
+
 
         <Button
             android:id="@+id/btn_exit"

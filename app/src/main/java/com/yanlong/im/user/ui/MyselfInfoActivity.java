@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ import net.cb.cb.library.view.HeadView;
 public class MyselfInfoActivity extends AppActivity implements View.OnClickListener {
     private static final int NICENAME = 1000;
     private static final int PRODUCT = 2000;
+    private static final int SEX = 3000;
 
     private SimpleDraweeView mImgHead;
     private LinearLayout mViewBlacklist;
@@ -101,7 +103,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 startActivityForResult(productIntent, PRODUCT);
                 break;
             case R.id.view_sex:
-
+                Intent sexIntent = new Intent(MyselfInfoActivity.this,SelectSexActivity.class);
+                startActivityForResult(sexIntent,SEX);
                 break;
             case R.id.view_identity:
                 Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentificationCentreActivity.class);
@@ -123,6 +126,11 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             switch (requestCode) {
                 case NICENAME:
                     mTvNickname.setText(content);
+                    break;
+                case SEX:
+                    if(!TextUtils.isEmpty(content)){
+                        mTvSex.setText(content);
+                    }
                     break;
             }
         }

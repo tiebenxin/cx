@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatFontActivity;
 
+import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -22,8 +24,8 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private LinearLayout mViewClear;
     private Button mBtnExit;
     private HeadView mHeadView;
-
-
+    private LinearLayout mViewAboutAs;
+    private TextView mTvVersion;
 
 
     @Override
@@ -35,14 +37,16 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     }
 
     private void initView() {
-        mHeadView =  findViewById(R.id.headView);
+        mHeadView = findViewById(R.id.headView);
         mViewAccountBinding = findViewById(R.id.view_account_binding);
         mViewNewMessage = findViewById(R.id.view_new_message);
         mViewSecurityPrivacy = findViewById(R.id.view_security_privacy);
         mViewSetingFont = findViewById(R.id.view_seting_font);
         mViewClear = findViewById(R.id.view_clear);
         mBtnExit = findViewById(R.id.btn_exit);
-
+        mViewAboutAs =  findViewById(R.id.view_about_as);
+        mTvVersion =  findViewById(R.id.tv_version);
+        mTvVersion.setText(VersionUtil.getVerName(this));
     }
 
     private void initEvent() {
@@ -52,6 +56,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         mViewSetingFont.setOnClickListener(this);
         mViewClear.setOnClickListener(this);
         mBtnExit.setOnClickListener(this);
+        mViewAboutAs.setOnClickListener(this);
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -90,11 +95,14 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
 
                 break;
             case R.id.btn_exit:
-                Intent loginIntent = new Intent(this,LoginActivity.class);
+                Intent loginIntent = new Intent(this, LoginActivity.class);
                 startActivity(loginIntent);
                 onBackPressed();
                 break;
-
+            case R.id.view_about_as:
+                Intent aboutIntent = new Intent(this, AboutAsActivity.class);
+                startActivity(aboutIntent);
+                break;
         }
     }
 }

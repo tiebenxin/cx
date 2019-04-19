@@ -49,7 +49,7 @@
 
         </activity>
         <!--聊天服务-->
-        <service android:name=".chat.server.ChatServer"/>
+        <service android:name=".chat.server.ChatServer" />
         <!-- 新的朋友-->
         <activity
             android:name=".user.ui.FriendApplyAcitvity"
@@ -176,9 +176,18 @@
         <activity
             android:name=".user.ui.LoginActivity"
             android:screenOrientation="portrait" />
+        <!--关于-->
+        <activity
+            android:name=".user.ui.AboutAsActivity"
+            android:screenOrientation="portrait" />
         <!--公共设置页面-->
         <activity
             android:name=".user.ui.CommonSetingActivity"
+            android:screenOrientation="portrait" />
+
+        <!--选择性别-->
+        <activity
+            android:name=".user.ui.SelectSexActivity"
             android:screenOrientation="portrait" />
         <!--个人头像-->
         <activity
@@ -194,6 +203,25 @@
         <activity
             android:name=".user.ui.IdentificationCentreActivity"
             android:screenOrientation="portrait" />
+
+        <!--单个红包-->
+        <activity
+            android:name=".pay.ui.SingleRedPacketActivity"
+            android:screenOrientation="portrait" />
+        <!--群红包-->
+        <activity
+            android:name=".pay.ui.MultiRedPacketActivity"
+            android:screenOrientation="portrait" />
+        <!--红包详情-->
+        <activity
+            android:name=".pay.ui.RedPacketDetailsActivity"
+            android:screenOrientation="portrait" />
+
+        <!--红包记录-->
+        <activity
+            android:name=".pay.ui.RedpacketRecordActivity"
+            android:screenOrientation="portrait" />
+
 
         <!--支付宝网页支付-->
         <activity

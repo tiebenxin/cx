@@ -1,5 +1,6 @@
 package com.yanlong.im.pay.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -107,8 +108,8 @@ public class SingleRedPacketActivity extends AppActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-
-
+                        Intent intent = new Intent(SingleRedPacketActivity.this,RedpacketRecordActivity.class);
+                        startActivity(intent);
                         break;
                 }
                 popupSelectView.dismiss();

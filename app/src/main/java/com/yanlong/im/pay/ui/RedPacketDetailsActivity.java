@@ -3,6 +3,7 @@ package com.yanlong.im.pay.ui;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import com.yanlong.im.R;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.view.PopupSelectView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,9 @@ public class RedPacketDetailsActivity extends AppActivity {
     private TextView mTvHint;
     private MultiListView mMtListView;
     private List<String> list = new ArrayList<>();
+
+    private String [] strings = {"查看支付宝红包记录","取消"};
+    private PopupSelectView popupSelectView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +54,18 @@ public class RedPacketDetailsActivity extends AppActivity {
         mActionBar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mMtListView.init(new RedPacketAdapter());
         mMtListView.getLoadView().setStateNormal();
+        initData();
     }
+
+
+    private void initData(){
+        for (int i = 0; i < 30; i++) {
+            list.add("1111");
+        }
+        mMtListView.getListView().getAdapter().notifyDataSetChanged();
+
+    }
+
 
     private void initEvent() {
         mActionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -60,10 +76,28 @@ public class RedPacketDetailsActivity extends AppActivity {
 
             @Override
             public void onRight() {
-
+                initPopup();
             }
         });
     }
+
+    private void initPopup() {
+        popupSelectView = new PopupSelectView(this, strings);
+        popupSelectView.showAtLocation(mActionBar, Gravity.BOTTOM, 0, 0);
+        popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
+            @Override
+            public void onItem(String string, int postsion) {
+                switch (postsion) {
+                    case 0:
+
+
+                        break;
+                }
+                popupSelectView.dismiss();
+            }
+        });
+    }
+
 
 
     class RedPacketAdapter extends RecyclerView.Adapter<RedPacketAdapter.ViewHodler> {
@@ -105,6 +139,8 @@ public class RedPacketDetailsActivity extends AppActivity {
             }
         }
     }
+
+
 
 
 }
