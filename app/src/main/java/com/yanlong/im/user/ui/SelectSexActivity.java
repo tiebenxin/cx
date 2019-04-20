@@ -37,8 +37,6 @@ public class SelectSexActivity extends AppActivity implements View.OnClickListen
         mIvWoman =  findViewById(R.id.iv_woman);
 
         mHeadView.getActionbar().setTxtRight("完成");
-
-
     }
 
     private void initEvent() {

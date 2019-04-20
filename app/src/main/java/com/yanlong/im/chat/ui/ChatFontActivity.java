@@ -6,6 +6,8 @@ import android.widget.SeekBar;
 
 import com.yanlong.im.R;
 
+import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -61,29 +63,42 @@ public class ChatFontActivity extends AppActivity {
         seekBar.setChangeCallbackListener(new FontSizeView.OnChangeCallbackListener() {
             @Override
             public void onChangeListener(int position) {
-
+                SharedPreferencesUtil util = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT);
+                switch (position){
+                    case 0:
+                        setTextSize(13);
+                        util.save2Json(13);
+                        break;
+                    case 1:
+                        setTextSize(14);
+                        util.save2Json(14);
+                        break;
+                    case 2:
+                        setTextSize(15);
+                        util.save2Json(15);
+                        break;
+                    case 3:
+                        setTextSize(16);
+                        util.save2Json(16);
+                        break;
+                    case 4:
+                        setTextSize(17);
+                        util.save2Json(17);
+                        break;
+                }
                 ToastUtil.show(ChatFontActivity.this, position + "");
             }
         });
 
-//        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-////            @Override
-////            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-////
-////            }
-////
-////            @Override
-////            public void onStartTrackingTouch(SeekBar seekBar) {
-////
-////            }
-////
-////            @Override
-////            public void onStopTrackingTouch(SeekBar seekBar) {
-////
-////            }
-////        });
-
     }
+
+
+    private void setTextSize(int size){
+        txtMe1.setTextSize(size);
+        txtOt1.setTextSize(size);
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

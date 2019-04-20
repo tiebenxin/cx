@@ -23,7 +23,7 @@ public class SharedPreferencesUtil {
         CACHE_DEF("chahe_default"),
         USER_SETTING("user_setting"),
         TOKEN("token"), //token
-        FONT_SCAN("font_scan"),//
+        FONT_CHAT("font_chat"),//
 
         USER_INFO("user_info"),
         PUSH("push");
