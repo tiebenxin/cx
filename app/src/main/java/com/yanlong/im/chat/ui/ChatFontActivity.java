@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui;
 
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
@@ -48,6 +49,7 @@ public class ChatFontActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
+
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -66,24 +68,24 @@ public class ChatFontActivity extends AppActivity {
                 SharedPreferencesUtil util = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT);
                 switch (position){
                     case 0:
-                        setTextSize(13);
-                        util.save2Json(13);
+                        setTextSize(12);
+                        util.save2Json(12);
                         break;
                     case 1:
-                        setTextSize(14);
-                        util.save2Json(14);
-                        break;
-                    case 2:
                         setTextSize(15);
                         util.save2Json(15);
                         break;
+                    case 2:
+                        setTextSize(18);
+                        util.save2Json(18);
+                        break;
                     case 3:
-                        setTextSize(16);
-                        util.save2Json(16);
+                        setTextSize(21);
+                        util.save2Json(21);
                         break;
                     case 4:
-                        setTextSize(17);
-                        util.save2Json(17);
+                        setTextSize(24);
+                        util.save2Json(24);
                         break;
                 }
                 ToastUtil.show(ChatFontActivity.this, position + "");
@@ -94,8 +96,10 @@ public class ChatFontActivity extends AppActivity {
 
 
     private void setTextSize(int size){
-        txtMe1.setTextSize(size);
-        txtOt1.setTextSize(size);
+        txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP,size);
+        txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP,size);
+
+
     }
 
 

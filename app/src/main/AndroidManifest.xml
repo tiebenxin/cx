@@ -15,7 +15,7 @@
         <activity-alias
             android:name="test"
             android:label="测试页面"
-            android:targetActivity=".user.ui.UserInfoActivity">
+            android:targetActivity=".chat.ui.ChatFontActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
