@@ -66,42 +66,34 @@ public class ChatFontActivity extends AppActivity {
             @Override
             public void onChangeListener(int position) {
                 SharedPreferencesUtil util = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT);
-                switch (position){
-                    case 0:
-                        setTextSize(12);
-                        util.save2Json(12);
-                        break;
-                    case 1:
-                        setTextSize(15);
-                        util.save2Json(15);
-                        break;
-                    case 2:
-                        setTextSize(18);
-                        util.save2Json(18);
-                        break;
-                    case 3:
-                        setTextSize(21);
-                        util.save2Json(21);
-                        break;
-                    case 4:
-                        setTextSize(24);
-                        util.save2Json(24);
-                        break;
-                }
-                ToastUtil.show(ChatFontActivity.this, position + "");
+                Float size = 12 + (position * 3f);
+
+
+                setTextSize(size.intValue());
+                util.save2Json(size.intValue());
+
+              //  ToastUtil.show(ChatFontActivity.this, position + "");
             }
         });
 
+        Integer font_size = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        if (font_size != null) {
+            int p=(font_size-12)/3;
+
+            seekBar.setDefaultPosition(p);
+
+
+        }
+
     }
 
 
-    private void setTextSize(int size){
-        txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP,size);
-        txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP,size);
+    private void setTextSize(int size) {
+        txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+        txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
 
 
     }
-
 
 
     @Override

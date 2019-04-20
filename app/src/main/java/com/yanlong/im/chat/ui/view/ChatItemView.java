@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.Html;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -258,6 +259,11 @@ public class ChatItemView extends LinearLayout {
         txtOtRpBt.setText(typeName);
         imgOtRbIcon.setImageResource(typeIconRes);
 
+    }
+
+    public void setFont(Integer size) {
+        txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+        txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
     }
 
     public interface EventRP {

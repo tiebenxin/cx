@@ -33,6 +33,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.RunUtils;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -66,6 +67,7 @@ public class ChatActivity extends AppActivity {
     private View imgEmojiDel;
     private Button btnSend;
 
+    private Integer font_size;
     //消息监听事件
     private SocketEvent msgEvent=new SocketEvent() {
         @Override
@@ -160,6 +162,10 @@ public class ChatActivity extends AppActivity {
 
             }
         });
+
+        //设置字体大小
+         font_size= new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+
         //注册消息监听
         SocketUtil.getSocketUtil().addEvent(msgEvent);
         //发送普通消息
@@ -610,6 +616,8 @@ public class ChatActivity extends AppActivity {
         @Override
         public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
             RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_chat_com, view, false));
+            if(font_size!=null)
+            holder.viewChatItem.setFont(font_size);
             return holder;
         }
 
