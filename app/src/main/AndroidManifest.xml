@@ -137,7 +137,10 @@
             android:name=".user.ui.ForgotPasswordNextActivity"
             android:screenOrientation="portrait" />
         <!--忘记密码 end-->
-
+        <!--设置登录密码-->
+        <activity
+            android:name=".user.ui.SetingPasswordActivity"
+            android:screenOrientation="portrait" />
         <!--安全隐私-->
         <activity
             android:name=".user.ui.SecurityPrivacyActivity"
@@ -157,7 +160,10 @@
         <activity
             android:name=".user.ui.NewMessageActivity"
             android:screenOrientation="portrait" />
-
+        <!--选择职业-->
+        <activity
+            android:name=".user.ui.SelectProfessionActivity"
+            android:screenOrientation="portrait" />
         <!--账号绑定-->
         <activity
             android:name=".user.ui.AccountBindingActvity"

@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -11,7 +12,10 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
+import static com.yanlong.im.user.ui.SelectProfessionActivity.SELECT_PROFEESION;
+
 public class IdentificationCentreActivity extends AppActivity implements View.OnClickListener {
+    private static final int PROFESSION = 1000;
 
     private HeadView mHeadView;
     private TextView mTvName;
@@ -67,8 +71,29 @@ public class IdentificationCentreActivity extends AppActivity implements View.On
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-
+            case R.id.ll_profession:
+                Intent professionIntent = new Intent(this,SelectProfessionActivity.class);
+                startActivityForResult(professionIntent,PROFESSION);
+                break;
         }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            switch (requestCode){
+                case PROFESSION:
+                    String string = data.getStringExtra(SELECT_PROFEESION);
+                    if(!TextUtils.isEmpty(string)){
+                        mTvProfession.setText(string);
+                    }
+                    break;
+
+            }
+        }
+
     }
 
     private String hideName(String name) {

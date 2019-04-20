@@ -2,6 +2,7 @@ package com.yanlong.im.user.ui;
 
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -35,10 +36,12 @@ public class MyselfQRCodeActivity extends AppActivity {
         mImgHead = findViewById(R.id.img_head);
         mTvUserName = findViewById(R.id.tv_user_name);
         mCrCode = findViewById(R.id.cr_code);
+        mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
+        mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
     }
 
     private void initEvent() {
-        mHeadView.getActionbar().setTxtRight("---");
+
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
