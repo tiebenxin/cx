@@ -47,11 +47,11 @@ public class MainApplication extends MultiDexApplication {
      * 初始化字体，可以放到启动页中
      */
     private void initFont() {
-        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_SCAN);
+      /*  SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_SCAN);
         Float font = sharedPreferencesUtil.get4Json(Float.class);
         if (font != null) {
             AppConfig.setFont(font);
-        }
+        }*/
     }
 
     private void initOther() {

@@ -65,9 +65,9 @@ public class AppActivity extends AppCompatActivity {
         resources.updateConfiguration(resources.getConfiguration(), resources.getDisplayMetrics());
        // this.recreate();
 
-        SharedPreferencesUtil sharedPreferencesUtil=new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_SCAN);
+      //  SharedPreferencesUtil sharedPreferencesUtil=new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_SCAN);
 
-        sharedPreferencesUtil.save2Json(fontSize);
+      //  sharedPreferencesUtil.save2Json(fontSize);
     }
 
   public Context getContext() {
