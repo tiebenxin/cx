@@ -28,11 +28,16 @@ public class CheckPermissionUtils {
      * 权限申请
      * @param act
      * @param prm
+     * 如果已经有了权限,就返回true
      */
-    public static void requestPermissions(Activity act, String[] prm){
+    public static boolean requestPermissions(Activity act, String[] prm){
         String[] prming=   getNeededPermission(act,prm);
-        if(prming!=null&&prming.length>0)
+        if(prming!=null&&prming.length>0){
             ActivityCompat.requestPermissions(act,prming,1);
+            return false;
+        }
+        return true;
+
     }
     /**
      * check this permission is need to request

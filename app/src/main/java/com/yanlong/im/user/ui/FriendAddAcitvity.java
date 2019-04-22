@@ -2,6 +2,7 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +11,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.utils.PhoneListUtil;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import java.util.List;
 
 /***
  * 添加朋友
@@ -30,9 +34,9 @@ public class FriendAddAcitvity extends AppActivity {
 
 
     //自动寻找控件
-    private void findViews(){
+    private void findViews() {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
-        actionbar=headView.getActionbar();
+        actionbar = headView.getActionbar();
         viewSearch = (LinearLayout) findViewById(R.id.view_search);
         viewMatch = (LinearLayout) findViewById(R.id.view_match);
         viewQr = (LinearLayout) findViewById(R.id.view_qr);
@@ -40,17 +44,19 @@ public class FriendAddAcitvity extends AppActivity {
     }
 
 
-
     //自动生成的控件事件
-    private void initEvent(){
+    private void initEvent() {
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed(); }
+                onBackPressed();
+            }
+
             @Override
             public void onRight() {
 
-            } });
+            }
+        });
 
         viewMatch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,19 +67,19 @@ public class FriendAddAcitvity extends AppActivity {
         });
 
         viewQr.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                       // ToastUtil.show(getContext(),"erwm");
-                    }
-                });
+            @Override
+            public void onClick(View v) {
+                // ToastUtil.show(getContext(),"erwm");
+            }
+        });
         viewWc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // ToastUtil.show(getContext(),"wx");
+                // ToastUtil.show(getContext(),"wx");
             }
         });
-    }
 
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

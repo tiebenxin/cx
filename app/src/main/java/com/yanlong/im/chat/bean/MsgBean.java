@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.bean;
 
 public class MsgBean {
+
     private int type;
     private boolean isMe;
     private String context;

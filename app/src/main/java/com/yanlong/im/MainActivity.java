@@ -110,7 +110,7 @@ public class MainActivity extends AppActivity {
         bottomTab.getTabAt(0).select();
 
         //test
-      //  taskLogin();
+        taskLogin();
 
         //启动聊天服务
        // startService(new Intent(getContext(), ChatServer.class));
