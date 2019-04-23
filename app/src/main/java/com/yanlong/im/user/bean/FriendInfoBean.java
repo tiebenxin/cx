@@ -1,10 +1,22 @@
 package com.yanlong.im.user.bean;
 
-public class FriendInfoBean {
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class FriendInfoBean implements Comparable<FriendInfoBean>{
     private String name;
     private String id;
     private String head;
     private String tag;
+    private String phone;
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
     public String getName() {
         return name;
@@ -35,6 +47,25 @@ public class FriendInfoBean {
     }
 
     public void setTag(String tag) {
+            Pattern pattern = Pattern.compile("[0-9]");
+            Matcher isNum = pattern.matcher(tag);
+            if( isNum.matches() ){
+                tag="#";
+            }
+
         this.tag = tag;
+    }
+
+    @Override
+    public int compareTo(FriendInfoBean o) {
+        int last=getTag().charAt(0);
+        if(getTag().equals("#")){
+            return 1;
+        }
+        if (last>o.getTag().charAt(0)){
+            return 1;
+        }
+        return -1;
+
     }
 }

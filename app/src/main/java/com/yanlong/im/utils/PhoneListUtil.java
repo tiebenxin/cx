@@ -38,7 +38,8 @@ public class PhoneListUtil {
         ArrayList<PhoneBean> contacts = new ArrayList<PhoneBean>();
 
         Cursor cursor = context.getContentResolver().query(
-                ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+                ContactsContract.Contacts.CONTENT_URI, null, null, null,
+                ContactsContract.Contacts.DISPLAY_NAME+" DESC");
         while (cursor.moveToNext()) {
             //新建一个联系人实例
             PhoneBean temp = new PhoneBean();

@@ -139,7 +139,7 @@ public class SocketData {
 
         MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
         msg.setToUid(toId)
-                .setRequestId(System.currentTimeMillis())
+                .setRequestId(""+System.currentTimeMillis())
                 .setMsgType(MsgBean.MessageType.CHAT);
         MsgBean.ChatMessage chat = MsgBean.ChatMessage.newBuilder()
                 .setMsg(txt)

@@ -30,7 +30,7 @@ import com.yanlong.im.gen.MsgAllBeanDao;
 @Entity
 public class MsgAllBean {
     @Id
-    private Long request_id;
+    private String request_id;
     private Long from_uid;
     private Long to_uid;
     private Long to_gid;
@@ -81,9 +81,8 @@ public class MsgAllBean {
     /** Used for active entity operations. */
     @Generated(hash = 948226185)
     private transient MsgAllBeanDao myDao;
-
-    @Generated(hash = 74177729)
-    public MsgAllBean(Long request_id, Long from_uid, Long to_uid, Long to_gid,
+    @Generated(hash = 764894066)
+    public MsgAllBean(String request_id, Long from_uid, Long to_uid, Long to_gid,
             Integer msg_type, String msg_id, Long timestamp) {
         this.request_id = request_id;
         this.from_uid = from_uid;
@@ -93,11 +92,9 @@ public class MsgAllBean {
         this.msg_id = msg_id;
         this.timestamp = timestamp;
     }
-
     @Generated(hash = 33999264)
     public MsgAllBean() {
     }
-
     @Generated(hash = 1265534083)
     private transient String chat__resolvedKey;
     @Generated(hash = 1328453487)
@@ -118,7 +115,6 @@ public class MsgAllBean {
     private transient String accept_be_friends__resolvedKey;
     @Generated(hash = 1248362357)
     private transient String ack__resolvedKey;
-
     @Keep
     public static MsgAllBean ToBean(MsgBean.UniversalMessage bean) {
         try {
@@ -132,63 +128,48 @@ public class MsgAllBean {
 
 
     }
-
-    public Long getRequest_id() {
+    public String getRequest_id() {
         return this.request_id;
     }
-
-    public void setRequest_id(Long request_id) {
+    public void setRequest_id(String request_id) {
         this.request_id = request_id;
     }
-
     public Long getFrom_uid() {
         return this.from_uid;
     }
-
     public void setFrom_uid(Long from_uid) {
         this.from_uid = from_uid;
     }
-
     public Long getTo_uid() {
         return this.to_uid;
     }
-
     public void setTo_uid(Long to_uid) {
         this.to_uid = to_uid;
     }
-
     public Long getTo_gid() {
         return this.to_gid;
     }
-
     public void setTo_gid(Long to_gid) {
         this.to_gid = to_gid;
     }
-
     public Integer getMsg_type() {
         return this.msg_type;
     }
-
     public void setMsg_type(Integer msg_type) {
         this.msg_type = msg_type;
     }
-
     public String getMsg_id() {
         return this.msg_id;
     }
-
     public void setMsg_id(String msg_id) {
         this.msg_id = msg_id;
     }
-
     public Long getTimestamp() {
         return this.timestamp;
     }
-
     public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 219783752)
     public ChatMessage getChat() {
@@ -207,7 +188,6 @@ public class MsgAllBean {
         }
         return chat;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 281342823)
     public void setChat(ChatMessage chat) {
@@ -217,7 +197,6 @@ public class MsgAllBean {
             chat__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 1061520506)
     public ImageMessage getImage() {
@@ -236,7 +215,6 @@ public class MsgAllBean {
         }
         return image;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 30544223)
     public void setImage(ImageMessage image) {
@@ -246,7 +224,6 @@ public class MsgAllBean {
             image__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 1663765722)
     public RedEnvelopeMessage getRed_envelope() {
@@ -266,7 +243,6 @@ public class MsgAllBean {
         }
         return red_envelope;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 476487924)
     public void setRed_envelope(RedEnvelopeMessage red_envelope) {
@@ -276,7 +252,6 @@ public class MsgAllBean {
             red_envelope__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 731567080)
     public ReceiveRedEnvelopeMessage getReceive_red_envelope() {
@@ -298,7 +273,6 @@ public class MsgAllBean {
         }
         return receive_red_envelope;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 2011515503)
     public void setReceive_red_envelope(
@@ -310,7 +284,6 @@ public class MsgAllBean {
             receive_red_envelope__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 290303424)
     public TransferMessage getTransfer() {
@@ -329,7 +302,6 @@ public class MsgAllBean {
         }
         return transfer;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1650706626)
     public void setTransfer(TransferMessage transfer) {
@@ -339,7 +311,6 @@ public class MsgAllBean {
             transfer__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 281441431)
     public StampMessage getStamp() {
@@ -358,7 +329,6 @@ public class MsgAllBean {
         }
         return stamp;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1575864265)
     public void setStamp(StampMessage stamp) {
@@ -368,7 +338,6 @@ public class MsgAllBean {
             stamp__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 474395172)
     public BusinessCardMessage getBusiness_card() {
@@ -389,7 +358,6 @@ public class MsgAllBean {
         }
         return business_card;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 965893684)
     public void setBusiness_card(BusinessCardMessage business_card) {
@@ -399,7 +367,6 @@ public class MsgAllBean {
             business_card__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 1464790880)
     public RequestFriendMessage getRequest_friend() {
@@ -420,7 +387,6 @@ public class MsgAllBean {
         }
         return request_friend;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 959736715)
     public void setRequest_friend(RequestFriendMessage request_friend) {
@@ -430,7 +396,6 @@ public class MsgAllBean {
             request_friend__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 124582654)
     public AcceptBeFriendsMessage getAccept_be_friends() {
@@ -451,7 +416,6 @@ public class MsgAllBean {
         }
         return accept_be_friends;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1700591528)
     public void setAccept_be_friends(AcceptBeFriendsMessage accept_be_friends) {
@@ -461,7 +425,6 @@ public class MsgAllBean {
             accept_be_friends__resolvedKey = msg_id;
         }
     }
-
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 154410888)
     public AckMessage getAck() {
@@ -480,7 +443,6 @@ public class MsgAllBean {
         }
         return ack;
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 888711270)
     public void setAck(AckMessage ack) {
@@ -490,7 +452,6 @@ public class MsgAllBean {
             ack__resolvedKey = msg_id;
         }
     }
-
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
@@ -502,7 +463,6 @@ public class MsgAllBean {
         }
         myDao.delete(this);
     }
-
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
      * Entity must attached to an entity context.
@@ -514,7 +474,6 @@ public class MsgAllBean {
         }
         myDao.refresh(this);
     }
-
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
      * Entity must attached to an entity context.
@@ -526,7 +485,6 @@ public class MsgAllBean {
         }
         myDao.update(this);
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 658827802)
     public void __setDaoSession(DaoSession daoSession) {

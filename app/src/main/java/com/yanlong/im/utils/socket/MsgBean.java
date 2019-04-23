@@ -7778,9 +7778,18 @@ public final class MsgBean {
          * 请求id
          * </pre>
          *
-         * <code>uint64 request_id = 1;</code>
+         * <code>string request_id = 1;</code>
          */
-        long getRequestId();
+        java.lang.String getRequestId();
+        /**
+         * <pre>
+         * 请求id
+         * </pre>
+         *
+         * <code>string request_id = 1;</code>
+         */
+        com.google.protobuf.ByteString
+        getRequestIdBytes();
 
         /**
          * <pre>
@@ -7960,7 +7969,7 @@ public final class MsgBean {
             super(builder);
         }
         private UniversalMessage() {
-            requestId_ = 0L;
+            requestId_ = "";
             fromUid_ = 0L;
             msgType_ = 0;
             msgId_ = "";
@@ -7992,9 +8001,10 @@ public final class MsgBean {
                             }
                             break;
                         }
-                        case 8: {
+                        case 10: {
+                            java.lang.String s = input.readStringRequireUtf8();
 
-                            requestId_ = input.readUInt64();
+                            requestId_ = s;
                             break;
                         }
                         case 16: {
@@ -8286,16 +8296,45 @@ public final class MsgBean {
         }
 
         public static final int REQUEST_ID_FIELD_NUMBER = 1;
-        private long requestId_;
+        private volatile java.lang.Object requestId_;
         /**
          * <pre>
          * 请求id
          * </pre>
          *
-         * <code>uint64 request_id = 1;</code>
+         * <code>string request_id = 1;</code>
          */
-        public long getRequestId() {
-            return requestId_;
+        public java.lang.String getRequestId() {
+            java.lang.Object ref = requestId_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                requestId_ = s;
+                return s;
+            }
+        }
+        /**
+         * <pre>
+         * 请求id
+         * </pre>
+         *
+         * <code>string request_id = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+        getRequestIdBytes() {
+            java.lang.Object ref = requestId_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                requestId_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
         }
 
         public static final int FROM_UID_FIELD_NUMBER = 2;
@@ -8656,8 +8695,8 @@ public final class MsgBean {
 
         public void writeTo(com.google.protobuf.CodedOutputStream output)
                 throws java.io.IOException {
-            if (requestId_ != 0L) {
-                output.writeUInt64(1, requestId_);
+            if (!getRequestIdBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 1, requestId_);
             }
             if (fromUid_ != 0L) {
                 output.writeUInt64(2, fromUid_);
@@ -8715,9 +8754,8 @@ public final class MsgBean {
             if (size != -1) return size;
 
             size = 0;
-            if (requestId_ != 0L) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(1, requestId_);
+            if (!getRequestIdBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, requestId_);
             }
             if (fromUid_ != 0L) {
                 size += com.google.protobuf.CodedOutputStream
@@ -8798,8 +8836,8 @@ public final class MsgBean {
             MsgBean.UniversalMessage other = (MsgBean.UniversalMessage) obj;
 
             boolean result = true;
-            result = result && (getRequestId()
-                    == other.getRequestId());
+            result = result && getRequestId()
+                    .equals(other.getRequestId());
             result = result && (getFromUid()
                     == other.getFromUid());
             result = result && msgType_ == other.msgType_;
@@ -8880,8 +8918,7 @@ public final class MsgBean {
             int hash = 41;
             hash = (19 * hash) + getDescriptor().hashCode();
             hash = (37 * hash) + REQUEST_ID_FIELD_NUMBER;
-            hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-                    getRequestId());
+            hash = (53 * hash) + getRequestId().hashCode();
             hash = (37 * hash) + FROM_UID_FIELD_NUMBER;
             hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
                     getFromUid());
@@ -9082,7 +9119,7 @@ public final class MsgBean {
             }
             public Builder clear() {
                 super.clear();
-                requestId_ = 0L;
+                requestId_ = "";
 
                 fromUid_ = 0L;
 
@@ -9242,8 +9279,9 @@ public final class MsgBean {
 
             public Builder mergeFrom(MsgBean.UniversalMessage other) {
                 if (other == MsgBean.UniversalMessage.getDefaultInstance()) return this;
-                if (other.getRequestId() != 0L) {
-                    setRequestId(other.getRequestId());
+                if (!other.getRequestId().isEmpty()) {
+                    requestId_ = other.requestId_;
+                    onChanged();
                 }
                 if (other.getFromUid() != 0L) {
                     setFromUid(other.getFromUid());
@@ -9374,25 +9412,58 @@ public final class MsgBean {
             }
 
 
-            private long requestId_ ;
+            private java.lang.Object requestId_ = "";
             /**
              * <pre>
              * 请求id
              * </pre>
              *
-             * <code>uint64 request_id = 1;</code>
+             * <code>string request_id = 1;</code>
              */
-            public long getRequestId() {
-                return requestId_;
+            public java.lang.String getRequestId() {
+                java.lang.Object ref = requestId_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    requestId_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
             }
             /**
              * <pre>
              * 请求id
              * </pre>
              *
-             * <code>uint64 request_id = 1;</code>
+             * <code>string request_id = 1;</code>
              */
-            public Builder setRequestId(long value) {
+            public com.google.protobuf.ByteString
+            getRequestIdBytes() {
+                java.lang.Object ref = requestId_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    requestId_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <pre>
+             * 请求id
+             * </pre>
+             *
+             * <code>string request_id = 1;</code>
+             */
+            public Builder setRequestId(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
 
                 requestId_ = value;
                 onChanged();
@@ -9403,11 +9474,29 @@ public final class MsgBean {
              * 请求id
              * </pre>
              *
-             * <code>uint64 request_id = 1;</code>
+             * <code>string request_id = 1;</code>
              */
             public Builder clearRequestId() {
 
-                requestId_ = 0L;
+                requestId_ = getDefaultInstance().getRequestId();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 请求id
+             * </pre>
+             *
+             * <code>string request_id = 1;</code>
+             */
+            public Builder setRequestIdBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                requestId_ = value;
                 onChanged();
                 return this;
             }
@@ -11189,7 +11278,7 @@ public final class MsgBean {
                         "uest_id\030\001 \001(\t\022\016\n\006msg_id\030\002 \001(\t\"*\n\022AuthReq" +
                         "uestMessage\022\024\n\014access_token\030\001 \001(\t\"\'\n\023Aut" +
                         "hResponseMessage\022\020\n\010accepted\030\001 \001(\010\"\336\004\n\020U" +
-                        "niversalMessage\022\022\n\nrequest_id\030\001 \001(\004\022\020\n\010f" +
+                        "niversalMessage\022\022\n\nrequest_id\030\001 \001(\t\022\020\n\010f" +
                         "rom_uid\030\002 \001(\004\022\020\n\006to_uid\030e \001(\004H\000\022\020\n\006to_gi" +
                         "d\030f \001(\tH\000\022\036\n\010msg_type\030\003 \001(\0162\014.MessageTyp" +
                         "e\022\016\n\006msg_id\030\004 \001(\t\022\021\n\ttimestamp\030\005 \001(\004\022\035\n\004",

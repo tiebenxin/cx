@@ -21,7 +21,7 @@ import java.util.HashMap;
 public class PySortView extends LinearLayout {
     private TextView txtSelectView;
     private LinearLayout txtPyIptView;
-    private int maxSize = 27;
+    private int maxSize = 28;
     private RecyclerView listview;
     //标签,和列号
     private HashMap<String,Integer> tagIndex=new HashMap<>();
@@ -121,7 +121,9 @@ public class PySortView extends LinearLayout {
 
             if (i == 0) {
                 textView.setText("↑");
-            } else {
+            }else if(i==(maxSize-1)){
+                textView.setText("#");
+            }else {
                 textView.setText("" + (char) (64 + i));
             }
             textView.setTag(textView.getText().toString());
