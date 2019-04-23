@@ -3,13 +3,8 @@ package com.yanlong.im.chat.ui;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
-
 import com.yanlong.im.R;
-
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.FontSizeView;
@@ -67,22 +62,15 @@ public class ChatFontActivity extends AppActivity {
             public void onChangeListener(int position) {
                 SharedPreferencesUtil util = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT);
                 Float size = 12 + (position * 3f);
-
-
                 setTextSize(size.intValue());
                 util.save2Json(size.intValue());
-
-              //  ToastUtil.show(ChatFontActivity.this, position + "");
             }
         });
 
         Integer font_size = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
         if (font_size != null) {
             int p=(font_size-12)/3;
-
             seekBar.setDefaultPosition(p);
-
-
         }
 
     }
@@ -91,8 +79,6 @@ public class ChatFontActivity extends AppActivity {
     private void setTextSize(int size) {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
         txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
-
-
     }
 
 

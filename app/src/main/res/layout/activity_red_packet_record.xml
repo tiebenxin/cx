@@ -43,7 +43,6 @@
                 android:layout_marginRight="14dp"
                 android:drawableBottom="@mipmap/ic_select_date"
                 android:drawablePadding="6dp"
-                android:text="2019年04月"
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 app:layout_constraintRight_toRightOf="parent"

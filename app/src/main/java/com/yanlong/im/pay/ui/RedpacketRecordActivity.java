@@ -8,6 +8,9 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.TextView;
 
+import com.bigkoo.pickerview.builder.TimePickerBuilder;
+import com.bigkoo.pickerview.listener.OnTimeSelectListener;
+import com.bigkoo.pickerview.view.TimePickerView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 
@@ -16,6 +19,8 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class RedpacketRecordActivity extends AppActivity {
@@ -30,6 +35,8 @@ public class RedpacketRecordActivity extends AppActivity {
     private ViewPager mViewPage;
     List<Fragment> fragments;
     String[] tabTiles = new String[]{"我收到的", "我发出的"};
+    private int year;
+    private int month;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +55,7 @@ public class RedpacketRecordActivity extends AppActivity {
         mTvMoney = findViewById(R.id.tv_money);
         mTabLayout = findViewById(R.id.tab_layout);
         mViewPage = findViewById(R.id.viewPage);
+        getSystemDate();
     }
 
     private void initViewpager() {
@@ -73,7 +81,7 @@ public class RedpacketRecordActivity extends AppActivity {
         mTabLayout.setupWithViewPager(mViewPage);
     }
 
-    private void initEvent(){
+    private void initEvent() {
         mActionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -88,9 +96,40 @@ public class RedpacketRecordActivity extends AppActivity {
         mTvSelectDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show(RedpacketRecordActivity.this,"选择时间");
+                initTimePicker();
             }
         });
+    }
+
+
+    private void getSystemDate() {
+        Calendar calendar = Calendar.getInstance();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH) + 1;
+        mTvSelectDate.setText(year + "年" + month + "月");
+    }
+
+
+    private void initTimePicker() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year,month-1,Calendar.DAY_OF_MONTH);
+
+        //时间选择器
+        TimePickerView pvTime = new TimePickerBuilder(RedpacketRecordActivity.this, new OnTimeSelectListener() {
+            @Override
+            public void onTimeSelect(Date date, View v) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                year = calendar.get(Calendar.YEAR);
+                month = calendar.get(Calendar.MONTH) + 1;
+                mTvSelectDate.setText(year + "年" + month + "月");
+            }
+        })
+                .setType(new boolean[]{true, true, false, false, false, false})
+                .setDate(calendar)
+                .build();
+
+        pvTime.show();
     }
 
 
