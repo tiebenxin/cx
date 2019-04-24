@@ -1,18 +1,15 @@
 package com.yanlong.im.utils;
 
-import android.database.sqlite.SQLiteDatabase;
+import java.util.List;
 
-
-import com.yanlong.im.gen.DaoMaster;
-import com.yanlong.im.gen.DaoSession;
-
-import net.cb.cb.library.AppConfig;
-
+import io.realm.Realm;
+import io.realm.RealmModel;
+import io.realm.RealmResults;
 
 
 public class DaoUtil {
     private static DaoUtil util;
-    private static DaoSession daoSession;
+
 
     private DaoUtil() {
     }
@@ -20,22 +17,57 @@ public class DaoUtil {
     public static DaoUtil get() {
         if (util == null) {
             util = new DaoUtil();
-            initGreenDao();
+
         }
 
         return util;
     }
 
-
-    private static void initGreenDao() {
-
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(AppConfig.APP_CONTEXT, "main.db");
-        SQLiteDatabase db = helper.getWritableDatabase();
-        DaoMaster daoMaster = new DaoMaster(db);
-        daoSession = daoMaster.newSession();
+    public static void save(RealmModel obj) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealm(obj);
+        realm.commitTransaction();
+        realm.close();
     }
 
-    public DaoSession getDaoSession() {
-        return daoSession;
+    public static <T extends RealmModel> List findAll(Class<T> clss) {
+        List beans;
+        Realm realm = Realm.getDefaultInstance();
+
+        RealmResults list = realm.where(clss).findAll();
+        beans = realm.copyFromRealm(list);
+        realm.close();
+        return beans;
     }
+
+    public static <T extends RealmModel> T findOne(Class<T> clss, String fieldName, Object value) {
+        RealmModel beans = null;
+        Realm realm = Realm.getDefaultInstance();
+        RealmModel res = null;
+        if (value instanceof Integer) {
+            res = realm.where(clss).equalTo(fieldName,(Integer) value).findFirst();
+        }else if(value instanceof String){
+            res = realm.where(clss).equalTo(fieldName,(String) value).findFirst();
+        }else if(value instanceof Float){
+            res = realm.where(clss).equalTo(fieldName,(Float) value).findFirst();
+        }else if(value instanceof Double){
+            res = realm.where(clss).equalTo(fieldName,(Double) value).findFirst();
+        }else if(value instanceof Long){
+            res = realm.where(clss).equalTo(fieldName,(Long) value).findFirst();
+        }else if(value instanceof Boolean){
+            res = realm.where(clss).equalTo(fieldName,(Boolean) value).findFirst();
+        }else if(value instanceof Byte){
+            res = realm.where(clss).equalTo(fieldName,(Byte) value).findFirst();
+        }
+
+
+
+        if (res != null)
+            beans = realm.copyFromRealm(res);
+        realm.close();
+        return (T) beans;
+    }
+
+
 }

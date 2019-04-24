@@ -196,7 +196,7 @@ public class SocketUtil {
     }
 
     /***
-     * 发送原始字节
+     * 发送原始字节,无事务处理,用来做心跳,鉴权之类的
      * @param data
      */
     public void sendData(final byte[] data) {
@@ -224,6 +224,15 @@ public class SocketUtil {
         }).start();
 
 
+    }
+
+    /***
+     * 发送消息,有事务处理,用来做普通消息,红包,等业务
+     * @param msg
+     */
+    public void sendData4Msg( MsgBean.UniversalMessage.Builder msg){
+
+      sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_MSG, msg.build().toByteArray()));
     }
 
 
@@ -362,9 +371,9 @@ public class SocketUtil {
             //数据处理
             switch (type) {
                 case PROTOBUF_MSG:
-
-                    LogUtil.getLog().i(TAG, ">>>-----<收到消息 长度:" + indexData.length);
                     MsgBean.UniversalMessage pmsg = SocketData.msgConversion(indexData);
+                    LogUtil.getLog().i(TAG, ">>>-----<收到消息 长度:" + indexData.length+" mid:"+pmsg.getMsgId());
+
                     event.onMsg(pmsg);
                     break;
                 case PROTOBUF_HEARTBEAT:
@@ -376,7 +385,8 @@ public class SocketUtil {
                     try {
                         MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(indexData, 12).get(1));
                         LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
-                        if(!ruthmsg.getAccepted()){//鉴权失败直接停止
+                        //-------------------------------------------------------------------------test
+                        if(false){//!ruthmsg.getAccepted()){//鉴权失败直接停止
                             isAuthFail=true;
                             stop();
                         }else{

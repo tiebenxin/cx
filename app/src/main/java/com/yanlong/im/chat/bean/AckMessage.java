@@ -1,28 +1,14 @@
 package com.yanlong.im.chat.bean;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Generated;
+import io.realm.RealmObject;
 
-@Entity
-public class AckMessage {
-    @Id
-    private String mid;
+public class AckMessage extends RealmObject {
+
     private String request_id;
     private String msg_id; // 消息id
 
 
 
-    @Generated(hash = 83668412)
-    public AckMessage(String mid, String request_id, String msg_id) {
-        this.mid = mid;
-        this.request_id = request_id;
-        this.msg_id = msg_id;
-    }
-
-    @Generated(hash = 788995535)
-    public AckMessage() {
-    }
 
 
 
@@ -42,12 +28,6 @@ public class AckMessage {
         this.msg_id = msg_id;
     }
 
-    public String getMid() {
-        return this.mid;
-    }
 
-    public void setMid(String mid) {
-        this.mid = mid;
-    }
 
 }

@@ -135,6 +135,7 @@ public class SocketData {
      * @param txt
      * @return
      */
+    @Deprecated
     public static byte[] msg4Chat(long toId, String txt) {
 
         MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
@@ -147,6 +148,16 @@ public class SocketData {
         msg.setChat(chat);
         return SocketData.getPakage(DataType.PROTOBUF_MSG, msg.build().toByteArray());
 
+    }
+
+    /***
+     * 处理一些统一的数据
+     * @return
+     */
+    public static MsgBean.UniversalMessage.Builder getMsgBuild(){
+        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
+        msg.setRequestId(""+System.currentTimeMillis());
+        return msg;
     }
 
     /***

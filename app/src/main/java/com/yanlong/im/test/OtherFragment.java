@@ -84,11 +84,6 @@ public class OtherFragment extends Fragment {
         testBean.setName(UUID.randomUUID().toString());
 
 
-        DaoUtil.get().getDaoSession().getTest2BeanDao().insert(testBean);
-        ToastUtil.show(getContext(),""+testBean.getId());
-
-        List<Test2Bean> list = DaoUtil.get().getDaoSession().getTest2BeanDao().queryBuilder().list();
-        list.size();
 
 
         final RedPacketDialog redd=new RedPacketDialog();

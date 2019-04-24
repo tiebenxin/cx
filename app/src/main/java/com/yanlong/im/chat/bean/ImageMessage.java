@@ -1,26 +1,14 @@
 package com.yanlong.im.chat.bean;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Generated;
+import io.realm.RealmObject;
 
-@Entity
-public class ImageMessage {
-    @Id
-    private String mid;
+public class ImageMessage extends RealmObject {
+
     private String url;
 
 
 
-    @Generated(hash = 1241603683)
-    public ImageMessage(String mid, String url) {
-        this.mid = mid;
-        this.url = url;
-    }
 
-    @Generated(hash = 48598060)
-    public ImageMessage() {
-    }
 
 
 
@@ -32,13 +20,7 @@ public class ImageMessage {
         this.url = url;
     }
 
-    public String getMid() {
-        return this.mid;
-    }
 
-    public void setMid(String mid) {
-        this.mid = mid;
-    }
 
 
 }

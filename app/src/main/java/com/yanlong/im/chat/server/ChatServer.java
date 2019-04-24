@@ -3,8 +3,11 @@ package com.yanlong.im.chat.server;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.test.bean.Test2Bean;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -12,7 +15,9 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.utils.LogUtil;
 
-import org.greenrobot.greendao.DbUtils;
+
+
+import java.util.List;
 
 /***
  * 聊天服务
@@ -33,9 +38,13 @@ public class ChatServer extends Service {
 
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
-            MsgAllBean saveBean = MsgAllBean.ToBean(bean);
+            MsgAllBean saveBean = MsgConversionBean.ToBean(bean);
+            Log.d(TAG, "onMsgDB: " + bean.getMsgId());
             //收到直接存表
-            DaoUtil.get().getDaoSession().getMsgAllBeanDao().save(saveBean);
+            //先存外再存里
+            DaoUtil.save(saveBean);
+
+          //  Log.d(TAG, "onMsgDB: " + list.size());
 
         }
 
