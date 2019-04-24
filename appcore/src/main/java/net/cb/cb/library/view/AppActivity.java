@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.inputmethod.InputMethodManager;
 
 import com.umeng.message.PushAgent;
 
@@ -81,4 +82,14 @@ public class AppActivity extends AppCompatActivity {
     public void go(Class c){
         startActivity(new Intent(context, c));
     }
+
+
+    public void hideKeyboard(){
+        InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(im != null){
+            im.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(),0);
+        }
+    }
+
+
 }

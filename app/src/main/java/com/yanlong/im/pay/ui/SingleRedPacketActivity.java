@@ -1,5 +1,6 @@
 package com.yanlong.im.pay.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -8,6 +9,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -101,6 +103,7 @@ public class SingleRedPacketActivity extends AppActivity {
     }
 
     private void initPopup() {
+        hideKeyboard();
         popupSelectView = new PopupSelectView(this, strings);
         popupSelectView.showAtLocation(mActionBar, Gravity.BOTTOM, 0, 0);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {

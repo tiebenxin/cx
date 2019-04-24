@@ -77,7 +77,7 @@ public class NumRangeInputFilter implements InputFilter {
         }
 
         double sumText = Double.parseDouble(temp);
-        if (sumText >= MAX_VALUE) {
+        if (sumText > MAX_VALUE) {
             // 超出最大值
             Log.d("TAG", "超出最大值");
             return dest.subSequence(dstart, dend);

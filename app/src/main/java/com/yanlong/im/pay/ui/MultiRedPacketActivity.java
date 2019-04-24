@@ -133,6 +133,7 @@ public class MultiRedPacketActivity extends AppActivity implements View.OnClickL
 
 
     private void initPopup() {
+        hideKeyboard();
         popupSelectView = new PopupSelectView(this, strings);
         popupSelectView.showAtLocation(mActionBar, Gravity.BOTTOM, 0, 0);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {

@@ -25,12 +25,13 @@
             android:layout_weight="1"
             android:text="单个金额" />
 
-        <EditText
+        <net.cb.cb.library.view.CursorEditText
             android:id="@+id/ed_money"
             style="@style/app_edt1"
             android:layout_width="wrap_content"
             android:layout_marginRight="5dp"
             android:hint="0.00"
+            android:gravity="right|center_vertical"
             android:inputType="numberDecimal" />
 
         <TextView
@@ -71,12 +72,13 @@
             android:layout_weight="1"
             android:text="红包个数" />
 
-        <EditText
+        <net.cb.cb.library.view.CursorEditText
             android:id="@+id/ed_red_packet_num"
             style="@style/app_edt1"
             android:layout_width="wrap_content"
             android:layout_marginRight="5dp"
             android:hint="填写个数"
+            android:gravity="right|center_vertical"
             android:inputType="number" />
 
         <TextView
@@ -104,7 +106,7 @@
         <EditText
             android:id="@+id/ed_content"
             style="@style/app_edt1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_marginRight="5dp"
             android:hint="恭喜发财,大吉大利" />
 
