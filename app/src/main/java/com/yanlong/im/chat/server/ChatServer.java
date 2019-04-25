@@ -49,7 +49,7 @@ public class ChatServer extends Service {
         }
 
         @Override
-        public void onAck() {
+        public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
 
         }
     };

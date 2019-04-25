@@ -100,7 +100,7 @@ public class ChatActivity extends AppActivity {
         }
 
         @Override
-        public void onAck() {
+        public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
 
         }
     };
@@ -465,6 +465,7 @@ public class ChatActivity extends AppActivity {
                     bean.setType(4);
                     bean.setMe(true);
                     bean.setContext(Uri.fromFile(new File(file)).toString());
+                    ToastUtil.show(getContext(),"选好图片了");
 
                     sendObj(bean);
 
@@ -598,6 +599,7 @@ public class ChatActivity extends AppActivity {
                                     showBigPic(uri);
                                 }
                             });
+                            break;
                         case 5:
                             holder.viewChatItem.setShowType(5, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
                             holder.viewChatItem.setData5(msgbean.getContext(), "xxx", "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3257916220,1170341024&fm=27&gp=0.jpg", null, new View.OnClickListener() {

@@ -29,6 +29,12 @@ public class SocketUtil {
 
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
+            //如果是ack ,则从队列中移除-------------------------------------------
+              if(bean.getMsgType()== MsgBean.MessageType.ACK){
+                  SendList.removeSendListJust(bean.getRequestId());
+                  return;
+             }
+
 
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
@@ -38,11 +44,19 @@ public class SocketUtil {
 
             }
 
+
         }
 
         @Override
-        public void onAck() {
+        public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
+            LogUtil.getLog().e(TAG, ">>>>>发送失败了" + bean.getRequestId());
+            for (SocketEvent ev : eventLists) {
+                if (ev != null) {
+                    ev.onSendMsgFailure(bean);
+                }
+                //这里可以做为空,自动移除
 
+            }
         }
     };
     //正在运行
@@ -52,6 +66,10 @@ public class SocketUtil {
 
     public boolean isRun() {
         return isRun;
+    }
+
+    public static SocketEvent getEvent() {
+        return event;
     }
 
     /**
@@ -125,7 +143,7 @@ public class SocketUtil {
     }
 
     //鉴权失败
-    private boolean isAuthFail=false;
+    private boolean isAuthFail = false;
     //重试3次
     private int recontNum = 30;
     //当前重试
@@ -138,6 +156,7 @@ public class SocketUtil {
      * 心跳线程
      */
     private void heartbeatThread() {
+        LogUtil.getLog().d(TAG, ">>>心跳线程启动---------------");
         new Thread(new Runnable() {
             //限制版本控制
             private long indexVer = threadVer;
@@ -146,7 +165,7 @@ public class SocketUtil {
             public void run() {
                 try {
                     while (isRun && indexVer == threadVer) {
-                        sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_HEARTBEAT, null));
+                        sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_HEARTBEAT, null), null);
 
                         Thread.sleep(heartbeatStep);
 
@@ -161,11 +180,42 @@ public class SocketUtil {
 
     }
 
+    //队列遍历步长:必须小于每条消息重发时长
+    private long sendListStep = 2 * 1000;
+
+    /***
+     * 发送队列线程
+     */
+    private void sendListThread() {
+        LogUtil.getLog().d(TAG, ">>>发送队列线程启动---------------");
+        new Thread(new Runnable() {
+            //限制版本控制
+            private long indexVer = threadVer;
+
+            @Override
+            public void run() {
+                try {
+                    while (isRun && indexVer == threadVer) {
+                        SendList.loopList();
+
+                        Thread.sleep(sendListStep);
+
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, ">>>队列异常run: " + e.getMessage());
+                }
+            }
+        }).start();
+
+
+    }
+
     /***
      * 重连
      */
     public void reconnection() {
-        isAuthFail=false;
+        isAuthFail = false;
         try {
 
 
@@ -175,8 +225,8 @@ public class SocketUtil {
                 stop();
             }
             //小于最大重连次数,或者非鉴权失败
-            while (reconIndex <= recontNum&&!isAuthFail) {
-                long time=System.currentTimeMillis();//执行时间
+            while (reconIndex <= recontNum && !isAuthFail) {
+                long time = System.currentTimeMillis();//执行时间
 
                 reconIndex++;
                 LogUtil.getLog().e(TAG, "重试次数" + reconIndex);
@@ -184,8 +234,8 @@ public class SocketUtil {
                     break;
                 }
                 run();
-                time =System.currentTimeMillis()-time;
-                time=time>=recontTime?0:recontTime-time;
+                time = System.currentTimeMillis() - time;
+                time = time >= recontTime ? 0 : recontTime - time;
                 Thread.sleep(time);
 
             }
@@ -199,7 +249,7 @@ public class SocketUtil {
      * 发送原始字节,无事务处理,用来做心跳,鉴权之类的
      * @param data
      */
-    public void sendData(final byte[] data) {
+    public void sendData(final byte[] data, final MsgBean.UniversalMessage.Builder msgTag) {
         if (!isRun)
             return;
         if (data == null)
@@ -218,6 +268,8 @@ public class SocketUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                     LogUtil.getLog().e(TAG, ">>>发送失败" + SocketData.bytesToHex(data));
+                    //取消发送队列,返回失败
+                    SendList.removeSendList(msgTag.getRequestId());
                     reconnection();
                 }
             }
@@ -230,9 +282,10 @@ public class SocketUtil {
      * 发送消息,有事务处理,用来做普通消息,红包,等业务
      * @param msg
      */
-    public void sendData4Msg( MsgBean.UniversalMessage.Builder msg){
-
-      sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_MSG, msg.build().toByteArray()));
+    public void sendData4Msg(MsgBean.UniversalMessage.Builder msg) {
+        //添加到消息队中监听
+        SendList.addSendList(msg.getRequestId(),msg);
+        sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg);
     }
 
 
@@ -265,7 +318,7 @@ public class SocketUtil {
             receive();
 
             //发送认证请求
-            sendData(SocketData.msg4Auth());
+            sendData(SocketData.msg4Auth(), null);
 
         }
 
@@ -372,7 +425,7 @@ public class SocketUtil {
             switch (type) {
                 case PROTOBUF_MSG:
                     MsgBean.UniversalMessage pmsg = SocketData.msgConversion(indexData);
-                    LogUtil.getLog().i(TAG, ">>>-----<收到消息 长度:" + indexData.length+" mid:"+pmsg.getMsgId());
+                    LogUtil.getLog().i(TAG, ">>>-----<收到消息 长度:" + indexData.length + " mid:" + pmsg.getMsgId());
 
                     event.onMsg(pmsg);
                     break;
@@ -386,12 +439,14 @@ public class SocketUtil {
                         MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(indexData, 12).get(1));
                         LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
                         //-------------------------------------------------------------------------test
-                        if(false){//!ruthmsg.getAccepted()){//鉴权失败直接停止
-                            isAuthFail=true;
+                        if (false) {//!ruthmsg.getAccepted()){//鉴权失败直接停止
+                            isAuthFail = true;
                             stop();
-                        }else{
+                        } else {
                             //开始心跳
                             heartbeatThread();
+                            //开始启动消息重发队列
+                            sendListThread();
                         }
                     } catch (InvalidProtocolBufferException e) {
                         e.printStackTrace();
