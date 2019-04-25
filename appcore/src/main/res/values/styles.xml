@@ -27,6 +27,14 @@
         <item name="android:statusBarColor">@color/white</item>
     </style>
 
+    <style name="RedAppThrme" parent="MainAppThrme">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="colorAccent">@color/green_600</item>
+        <item name="android:windowSoftInputMode">adjustPan</item>
+        <item name="android:statusBarColor">@color/red_200</item>
+    </style>
+
+
 
     <style name="FullScreenThrme" parent="@style/Theme.AppCompat.Light">
         <!-- <item name="android:windowIsTranslucent">true</item>-->

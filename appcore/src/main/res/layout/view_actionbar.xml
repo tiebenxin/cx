@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/btn_icon"
                 android:textColor="@drawable/txt_actionbar"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 android:visibility="visible" />
         </LinearLayout>
 

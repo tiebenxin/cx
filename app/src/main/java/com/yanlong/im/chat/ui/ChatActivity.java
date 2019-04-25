@@ -24,6 +24,8 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgTestBean;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.ui.SingleRedPacketActivity;
+import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -595,7 +597,7 @@ public class ChatActivity extends AppActivity {
                             holder.viewChatItem.setData4(msgbean.getContext(), new ChatItemView.EventPic() {
                                 @Override
                                 public void onClick(String uri) {
-                                    // ToastUtil.show(getContext(), "大图:" + uri);
+                                     ToastUtil.show(getContext(), "大图:" + uri);
                                     showBigPic(uri);
                                 }
                             });
@@ -606,6 +608,7 @@ public class ChatActivity extends AppActivity {
                                 @Override
                                 public void onClick(View v) {
                                     ToastUtil.show(getContext(), "添加好友需要详情页面");
+                                    go(UserInfoActivity.class);
                                 }
                             });
                             break;

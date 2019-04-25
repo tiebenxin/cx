@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:elevation="0dp"
-        android:background="@mipmap/bg_nav_main"
+        android:background="@drawable/bg_action"
         android:fitsSystemWindows="true"
         android:orientation="vertical">
 
