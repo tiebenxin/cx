@@ -112,7 +112,7 @@
                 android:layout_marginLeft="40dp"
                 android:layout_marginRight="40dp"
                 android:background="@color/white"
-                app:circleRadius="11dp"
+                app:circleRadius="10dp"
                 app:lineColor="@color/gray_300"
                 app:standerSize="16"/>
 

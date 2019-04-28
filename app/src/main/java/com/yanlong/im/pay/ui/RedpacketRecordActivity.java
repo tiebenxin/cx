@@ -99,6 +99,8 @@ public class RedpacketRecordActivity extends AppActivity {
                 initTimePicker();
             }
         });
+
+
     }
 
 

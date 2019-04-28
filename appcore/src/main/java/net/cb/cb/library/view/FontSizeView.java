@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -158,7 +159,7 @@ public class FontSizeView extends View {
             standerSize = typedArray.getInteger(attr, standerSize);
         } else if (attr == R.styleable.FontSizeView_bigSize) {
             bigSize = typedArray.getInteger(attr, bigSize);
-        }else if (attr == R.styleable.FontSizeView_defaultPosition) {
+        } else if (attr == R.styleable.FontSizeView_defaultPosition) {
             defaultPosition = typedArray.getInteger(attr, defaultPosition);
         }
     }
@@ -186,7 +187,7 @@ public class FontSizeView extends View {
         canvas.drawText("A", points.get(0).x - textScaleX / 2, height / 2 - 50, mTextPaint);
 
         //画字
-    //    canvas.drawText("标准", points.get(1).x - text2ScaleX / 2, height / 2 - 50, mText2Paint);
+        //    canvas.drawText("标准", points.get(1).x - text2ScaleX / 2, height / 2 - 50, mText2Paint);
 
         //画字
         canvas.drawText("A", points.get(points.size() - 1).x - text1ScaleX / 2, height / 2 - 50, mText1Paint);
@@ -207,7 +208,12 @@ public class FontSizeView extends View {
         }
 
         // 实体圆
-        canvas.drawCircle(currentX + 1, circleY, circleRadius, mCirclePaint);
+        if(currentProgress == 0){
+            canvas.drawCircle(currentX +1, circleY, circleRadius, mCirclePaint);
+        }else{
+            canvas.drawCircle(currentX -1, circleY, circleRadius, mCirclePaint);
+        }
+
     }
 
     @Override
@@ -222,15 +228,13 @@ public class FontSizeView extends View {
                 break;
             case MotionEvent.ACTION_UP:
                 //回到最近的一个刻度点
-                Point targetPoint = getNearestPoint(currentX);
-                if (targetPoint != null) {
-                    // 最终
-                    currentX = points.get(currentProgress).x;
-                    invalidate();
-                }
+                getNearestPoint(currentX);
+                // 最终
+                currentX = points.get(currentProgress).x;
                 if (onChangeCallbackListener != null) {
                     onChangeCallbackListener.onChangeListener(currentProgress);
                 }
+                invalidate();
                 break;
         }
         return true;
@@ -242,7 +246,8 @@ public class FontSizeView extends View {
     private Point getNearestPoint(float x) {
         for (int i = 0; i < points.size(); i++) {
             Point point = points.get(i);
-            if (Math.abs(point.x - x) < itemWidth / 2) {
+            Log.v("ssss", Math.abs(point.x - x) + "-----" + itemWidth / 2);
+            if (Math.abs(point.x - x) <= itemWidth / 2) {
                 currentProgress = i;
                 return point;
             }
@@ -260,8 +265,8 @@ public class FontSizeView extends View {
         void onChangeListener(int position);
     }
 
-    public void setDefaultPosition(int position){
-        defaultPosition=position;
+    public void setDefaultPosition(int position) {
+        defaultPosition = position;
         if (onChangeCallbackListener != null) {
             onChangeCallbackListener.onChangeListener(defaultPosition);
         }
