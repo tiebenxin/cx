@@ -1,7 +1,11 @@
 package com.yanlong.im.utils.socket;
 
+import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -9,8 +13,10 @@ import net.cb.cb.library.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SocketData {
+    private static final String TAG = "SocketData";
     //包头2位
     private static final byte[] P_HEAD = {0x20, 0x19};
     //长度2位
@@ -23,8 +29,9 @@ public class SocketData {
     private static byte[] P_TYPE = new byte[2];
 
 
+    //数据类型枚举
     public enum DataType {
-        PROTOBUF_MSG, PROTOBUF_HEARTBEAT, AUTH, OTHER;
+        PROTOBUF_MSG, PROTOBUF_HEARTBEAT, AUTH, ACK, OTHER;
     }
 
     public static byte[] getPakage(DataType type, byte[] context) {
@@ -47,6 +54,9 @@ public class SocketData {
                 break;
             case AUTH://鉴权
                 d_type = new byte[]{0x00, tobyte(1, 2)};
+                break;
+            case ACK://回馈
+                d_type = new byte[]{0x00, tobyte(1, 3)};
                 break;
 
         }
@@ -115,10 +125,11 @@ public class SocketData {
             } else if (h == 1 && l == 1) {
 
                 return DataType.PROTOBUF_HEARTBEAT;
+            }else if(h == 1 && l == 3){
+                return DataType.ACK;
             } else if (h == 1 && l == 2) {
-
-            return DataType.AUTH;
-        }
+                return DataType.AUTH;
+            }
         }
 
 
@@ -128,6 +139,63 @@ public class SocketData {
     }
 
     //------------消息内容处理----------------
+    private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
+        if (toId != null) {//给个人发
+            msg.setToUid(toId);
+        }
+
+
+        MsgBean.UniversalMessage.WrapMessage.Builder wmsg = msg.getWrapMsgBuilder(0);
+
+        if (toGid != null) {//给群发
+            wmsg.setGid(toGid);
+        }
+
+        wmsg.setMsgType(type);
+        switch (type){
+            case CHAT:
+                wmsg.setChat((MsgBean.ChatMessage) value);
+                break;
+            case IMAGE:
+                wmsg.setImage((MsgBean.ImageMessage) value);
+                break;
+            case RED_ENVELOPER:
+                wmsg.setRedEnvelope((MsgBean.RedEnvelopeMessage) value);
+                break;
+            case RECEIVE_RED_ENVELOPER:
+                wmsg.setReceiveRedEnvelope((MsgBean.ReceiveRedEnvelopeMessage) value);
+                break;
+            case TRANSFER:
+                wmsg.setTransfer((MsgBean.TransferMessage) value);
+                break;
+            case STAMP:
+                wmsg.setStamp((MsgBean.StampMessage) value);
+                break;
+            case BUSINESS_CARD:
+                wmsg.setBusinessCard((MsgBean.BusinessCardMessage) value);
+                break;
+            case ACCEPT_BE_FRIENDS:
+                wmsg.setAcceptBeFriends((MsgBean.AcceptBeFriendsMessage) value);
+                break;
+            case REQUEST_FRIEND:
+                wmsg.setRequestFriend((MsgBean.RequestFriendMessage) value);
+                break;
+            case UNRECOGNIZED:
+                break;
+        }
+
+
+
+                //这里设置自己的id从配置中获取
+        wmsg.setFromUid(100102l)
+                //test
+                .setMsgId(UUID.randomUUID().toString());
+        MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
+        msg.setWrapMsg(0,wm);
+        SocketUtil.getSocketUtil().sendData4Msg(msg);
+        return MsgConversionBean.ToBean(wm);
+    }
 
     /***
      * 普通消息
@@ -135,28 +203,79 @@ public class SocketData {
      * @param txt
      * @return
      */
-    @Deprecated
-    public static byte[] msg4Chat(long toId, String txt) {
+    public static MsgAllBean send4Chat(Long toId, String toGid, String txt) {
 
-        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
-        msg.setToUid(toId)
-                .setRequestId(""+System.currentTimeMillis())
-                .setMsgType(MsgBean.MessageType.CHAT);
+
         MsgBean.ChatMessage chat = MsgBean.ChatMessage.newBuilder()
                 .setMsg(txt)
                 .build();
-        msg.setChat(chat);
-        return SocketData.getPakage(DataType.PROTOBUF_MSG, msg.build().toByteArray());
+
+        return send4Base(toId,toGid, MsgBean.MessageType.CHAT,chat);
+
+    }
+
+    /**
+     * 戳一戳消息
+     * @param toId
+     * @param toGid
+     * @param txt
+     * @return
+     */
+    public static MsgAllBean send4action(Long toId, String toGid, String txt) {
+
+
+        MsgBean.StampMessage action = MsgBean.StampMessage.newBuilder()
+                .setComment(txt)
+                .build();
+
+        return send4Base(toId,toGid, MsgBean.MessageType.STAMP,action);
 
     }
 
     /***
-     * 处理一些统一的数据
+     * 发送图片
+     * @param toId
+     * @param toGid
+     * @param url
      * @return
      */
-    public static MsgBean.UniversalMessage.Builder getMsgBuild(){
+    public static MsgAllBean send4Image(Long toId, String toGid, String url) {
+        MsgBean.ImageMessage  msg = MsgBean.ImageMessage .newBuilder()
+                .setUrl(url)
+                .build();
+        return send4Base(toId,toGid, MsgBean.MessageType.IMAGE,msg);
+    }
+
+    /****
+     * 发送名片
+     * @param toId
+     * @param toGid
+     * @param iconUrl
+     * @param nkName
+     * @param info
+     * @return
+     */
+    public static MsgAllBean send4card(Long toId, String toGid, String iconUrl,String nkName,String info) {
+        MsgBean.BusinessCardMessage   msg = MsgBean.BusinessCardMessage  .newBuilder()
+                .setAvatar(iconUrl)
+                .setNickname(nkName)
+                .setComment(info)
+                .build();
+        return send4Base(toId,toGid, MsgBean.MessageType.BUSINESS_CARD,msg);
+    }
+
+
+
+    /***
+     * 处理一些统一的数据,用于发送消息时获取
+     * @return
+     */
+    public static MsgBean.UniversalMessage.Builder getMsgBuild() {
         MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
-        msg.setRequestId(""+System.currentTimeMillis());
+        MsgBean.UniversalMessage.WrapMessage.Builder wp = MsgBean.UniversalMessage.WrapMessage.newBuilder();
+        msg.setRequestId("" + System.currentTimeMillis());
+        msg.addWrapMsg(0, wp.build());
+
         return msg;
     }
 
@@ -167,9 +286,9 @@ public class SocketData {
     public static byte[] msg4Auth() {
 
         TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-      //  tokenBean = new TokenBean();
-       // tokenBean.setAccessToken("2N0qG3CHBxVNQfPjIbbCA/YUY48erDHVTBXZHK1JQAOfAxi86DKcvYKqLwxLfINN");
-        LogUtil.getLog().i("tag",">>>>发送token"+tokenBean.getAccessToken());
+        //  tokenBean = new TokenBean();
+        // tokenBean.setAccessToken("2N0qG3CHBxVNQfPjIbbCA/YUY48erDHVTBXZHK1JQAOfAxi86DKcvYKqLwxLfINN");
+        LogUtil.getLog().i("tag", ">>>>发送token" + tokenBean.getAccessToken());
 
         if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
             return null;
@@ -182,6 +301,21 @@ public class SocketData {
         return SocketData.getPakage(DataType.AUTH, auth.toByteArray());
 
     }
+
+    /***
+     * 回执
+     * @return
+     */
+    public static byte[] msg4ACK(String rid) {
+
+
+        MsgBean.AckMessage ack = MsgBean.AckMessage.newBuilder()
+                .setRequestId(rid).build();
+
+        return SocketData.getPakage(DataType.ACK, ack.toByteArray());
+
+    }
+//------------------------收-----------------------------
 
     /***
      * 消息转换
@@ -197,6 +331,62 @@ public class SocketData {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /***
+     * ack转换
+     * @param data
+     * @return
+     */
+    public static MsgBean.AckMessage ackConversion(byte[] data) {
+        try {
+
+            MsgBean.AckMessage msg = MsgBean.AckMessage.parseFrom(bytesToLists(data, 12).get(1));
+            return msg;
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /***
+     * 鉴权消息转换
+     * @param data
+     * @return
+     */
+    public static MsgBean.AuthResponseMessage authConversion(byte[] data) {
+        try {
+            MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(data, 12).get(1));
+
+
+            return ruthmsg;
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /***
+     * 保存消息和发送消息回执
+     */
+    public static void magSaveAndACQ(MsgBean.UniversalMessage bean) {
+        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
+
+
+        //1.先进行数据分割
+        for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
+            //2.存库
+            MsgAllBean saveBean = MsgConversionBean.ToBean(wmsg);
+            LogUtil.getLog().d(TAG, ">>>>>magSaveAndACQ: " + wmsg.getMsgId());
+            //收到直接存表
+            DaoUtil.save(saveBean);
+        }
+
+
+        //3.发送回执
+        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId()), null);
+
+
     }
 //---------------------------------
 

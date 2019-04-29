@@ -2,15 +2,18 @@ package com.yanlong.im.chat.bean;
 
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
 
 public class MsgAllBean extends RealmObject {
-    @PrimaryKey
+
     private String request_id;
     private Long from_uid;
+    private MsgUserInfo from_user;
     private Long to_uid;
-    private String to_gid;
+    private MsgUserInfo to_user;
+    private String gid;
     /***
      *  CHAT = 0; // 普通聊天消息
      *   IMAGE = 1; // 图片消息
@@ -24,7 +27,7 @@ public class MsgAllBean extends RealmObject {
      *   ACK = 100;
      */
     private Integer msg_type;
-    @Required
+    @PrimaryKey
     private String msg_id;
     private Long timestamp;
 
@@ -48,6 +51,21 @@ public class MsgAllBean extends RealmObject {
 
     private AckMessage ack;
 
+    public MsgUserInfo getFrom_user() {
+        return from_user;
+    }
+
+    public void setFrom_user(MsgUserInfo from_user) {
+        this.from_user = from_user;
+    }
+
+    public MsgUserInfo getTo_user() {
+        return to_user;
+    }
+
+    public void setTo_user(MsgUserInfo to_user) {
+        this.to_user = to_user;
+    }
 
     public String getRequest_id() {
         return this.request_id;
@@ -73,12 +91,12 @@ public class MsgAllBean extends RealmObject {
         this.to_uid = to_uid;
     }
 
-    public String getTo_gid() {
-        return this.to_gid;
+    public String getGid() {
+        return gid;
     }
 
-    public void setTo_gid(String to_gid) {
-        this.to_gid = to_gid;
+    public void setGid(String gid) {
+        this.gid = gid;
     }
 
     public Integer getMsg_type() {
@@ -183,6 +201,16 @@ public class MsgAllBean extends RealmObject {
 
     public void setAck(AckMessage ack) {
         this.ack = ack;
+    }
+
+    /***
+     * 是否为自己
+     * @return
+     */
+    public boolean isMe() {
+      /*  if(to_uid.equals(100102l))
+            return true;*/
+        return false;
     }
 }
 

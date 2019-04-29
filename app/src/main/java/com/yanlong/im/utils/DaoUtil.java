@@ -26,7 +26,8 @@ public class DaoUtil {
     public static void save(RealmModel obj) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        realm.copyToRealm(obj);
+        realm.insertOrUpdate(obj);
+        //realm.copyToRealm(obj);
         realm.commitTransaction();
         realm.close();
     }

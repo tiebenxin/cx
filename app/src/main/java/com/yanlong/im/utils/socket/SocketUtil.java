@@ -4,6 +4,9 @@ import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
@@ -21,6 +24,7 @@ public class SocketUtil {
     private static SocketUtil socketUtil;
 
     private static List<SocketEvent> eventLists = new CopyOnWriteArrayList<>();
+    //事件分发
     private static SocketEvent event = new SocketEvent() {
         @Override
         public void onHeartbeat() {
@@ -28,13 +32,35 @@ public class SocketUtil {
         }
 
         @Override
-        public void onMsg(MsgBean.UniversalMessage bean) {
-            //如果是ack ,则从队列中移除-------------------------------------------
-              if(bean.getMsgType()== MsgBean.MessageType.ACK){
-                  SendList.removeSendListJust(bean.getRequestId());
-                  return;
-             }
+        public void onACK(MsgBean.AckMessage bean) {
 
+           if(!bean.getAccepted()) {
+               LogUtil.getLog().d(TAG, ">>>>>ack抛弃: " + bean.getRequestId());
+               return;
+           }
+
+            //普通消息
+            MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
+            if(msg!=null){
+                //存库处理
+                MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0).setMsgId(bean.getMsgId()).build();
+                MsgAllBean saveBean = MsgConversionBean.ToBean(wmsg);
+                LogUtil.getLog().d(TAG, ">>>>>magSave4ack: " + wmsg.getMsgId());
+                //收到直接存表
+                DaoUtil.save(saveBean);
+
+                //移除重发列队
+                SendList.removeSendListJust(bean.getRequestId());
+            }
+
+
+
+        }
+
+        @Override
+        public void onMsg(MsgBean.UniversalMessage bean) {
+            //保存消息和处理回执
+            SocketData.magSaveAndACQ(bean);
 
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
@@ -229,10 +255,11 @@ public class SocketUtil {
                 long time = System.currentTimeMillis();//执行时间
 
                 reconIndex++;
-                LogUtil.getLog().e(TAG, "重试次数" + reconIndex);
+
                 if (socketChannel != null && socketChannel.isConnected()) {
                     break;
                 }
+                LogUtil.getLog().e(TAG, "重试次数" + reconIndex);
                 run();
                 time = System.currentTimeMillis() - time;
                 time = time >= recontTime ? 0 : recontTime - time;
@@ -262,6 +289,7 @@ public class SocketUtil {
                 try {
                     ByteBuffer writeBuf = ByteBuffer.wrap(data);
                     //    while (writeBuf.hasRemaining()) {
+                    LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
                     LogUtil.getLog().i(TAG, ">>>发送:" + SocketData.bytesToHex(data));
                     socketChannel.write(writeBuf);
                     //  }
@@ -269,7 +297,10 @@ public class SocketUtil {
                     e.printStackTrace();
                     LogUtil.getLog().e(TAG, ">>>发送失败" + SocketData.bytesToHex(data));
                     //取消发送队列,返回失败
-                    SendList.removeSendList(msgTag.getRequestId());
+                    if (msgTag != null) {
+                        SendList.removeSendList(msgTag.getRequestId());
+                    }
+
                     reconnection();
                 }
             }
@@ -284,7 +315,7 @@ public class SocketUtil {
      */
     public void sendData4Msg(MsgBean.UniversalMessage.Builder msg) {
         //添加到消息队中监听
-        SendList.addSendList(msg.getRequestId(),msg);
+        SendList.addSendList(msg.getRequestId(), msg);
         sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg);
     }
 
@@ -294,7 +325,6 @@ public class SocketUtil {
 
     /***
      * 链接
-     * @throws Exception
      */
     public void connect() throws Exception {
         socketChannel = SocketChannel.open();
@@ -425,7 +455,7 @@ public class SocketUtil {
             switch (type) {
                 case PROTOBUF_MSG:
                     MsgBean.UniversalMessage pmsg = SocketData.msgConversion(indexData);
-                    LogUtil.getLog().i(TAG, ">>>-----<收到消息 长度:" + indexData.length + " mid:" + pmsg.getMsgId());
+                    LogUtil.getLog().i(TAG, ">>>-----<收到消息 长度:" + indexData.length + " rid:" + pmsg.getRequestId());
 
                     event.onMsg(pmsg);
                     break;
@@ -435,23 +465,28 @@ public class SocketUtil {
                     break;
                 case AUTH:
                     LogUtil.getLog().i(TAG, ">>>-----<收到鉴权");
-                    try {
-                        MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(indexData, 12).get(1));
-                        LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
-                        //-------------------------------------------------------------------------test
-                        if (false) {//!ruthmsg.getAccepted()){//鉴权失败直接停止
-                            isAuthFail = true;
-                            stop();
-                        } else {
-                            //开始心跳
-                            heartbeatThread();
-                            //开始启动消息重发队列
-                            sendListThread();
-                        }
-                    } catch (InvalidProtocolBufferException e) {
-                        e.printStackTrace();
+
+                    MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
+                    LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
+                    //-------------------------------------------------------------------------test
+                    if (!ruthmsg.getAccepted()){//鉴权失败直接停止
+                        isAuthFail = true;
+                        stop();
+                    } else {
+                        //开始心跳
+                        heartbeatThread();
+                        //开始启动消息重发队列
+                        sendListThread();
                     }
 
+
+                    break;
+                case ACK:
+
+                    MsgBean.AckMessage ackmsg = SocketData.ackConversion(indexData);
+                    LogUtil.getLog().i(TAG, ">>>-----<收到回执"+ackmsg.getRequestId());
+                    event.onACK(ackmsg);
+                    //这里处理回执的事情
                     break;
                 case OTHER:
                     LogUtil.getLog().i(TAG, ">>>-----<收到其他数据包");

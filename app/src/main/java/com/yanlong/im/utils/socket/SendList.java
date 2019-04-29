@@ -2,8 +2,6 @@ package com.yanlong.im.utils.socket;
 
 import net.cb.cb.library.utils.LogUtil;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +18,12 @@ public class SendList {
 
     public static Map<String, SendListBean> SEND_LIST = new ConcurrentHashMap<>();
 
-
+public static MsgBean.UniversalMessage.Builder findMsgById(String keyId){
+    if(SEND_LIST.containsKey(keyId)){
+        return SEND_LIST.get(keyId).getMsg();
+    }
+    return null;
+}
     /***
      * 添加到列队中监听
      * @param keyId
@@ -41,6 +44,8 @@ public class SendList {
         }
 
     }
+
+
 
     /***
      * 移除列队,返回发送失败

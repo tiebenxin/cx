@@ -112,8 +112,8 @@ public class MainActivity extends AppActivity {
         //test
         taskLogin();
 
-        //启动聊天服务
-       // startService(new Intent(getContext(), ChatServer.class));
+        //test 启动聊天服务
+      //  startService(new Intent(getContext(), ChatServer.class));
 
 
     }
@@ -121,7 +121,7 @@ public class MainActivity extends AppActivity {
 
     private UserAction userAction=new UserAction();
     private void taskLogin() {
-        userAction.login(13000000000l, "123456","12345613", new CallBack<ReturnBean<TokenBean>>() {
+        userAction.login(13000000000l, "asdfasfd","12345613", new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 String token=  response.body().getData().getAccessToken();

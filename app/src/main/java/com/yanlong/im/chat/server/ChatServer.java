@@ -37,14 +37,13 @@ public class ChatServer extends Service {
         }
 
         @Override
-        public void onMsg(MsgBean.UniversalMessage bean) {
-            MsgAllBean saveBean = MsgConversionBean.ToBean(bean);
-            Log.d(TAG, "onMsgDB: " + bean.getMsgId());
-            //收到直接存表
-            //先存外再存里
-            DaoUtil.save(saveBean);
+        public void onACK(MsgBean.AckMessage bean) {
 
-          //  Log.d(TAG, "onMsgDB: " + list.size());
+        }
+
+        @Override
+        public void onMsg(MsgBean.UniversalMessage bean) {
+
 
         }
 

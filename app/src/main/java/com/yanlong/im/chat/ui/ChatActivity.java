@@ -21,10 +21,11 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgTestBean;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.ui.SingleRedPacketActivity;
-import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -32,6 +33,7 @@ import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.ToastUtil;
@@ -41,7 +43,6 @@ import net.cb.cb.library.view.AppActivity;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class ChatActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
@@ -73,28 +74,17 @@ public class ChatActivity extends AppActivity {
         }
 
         @Override
+        public void onACK(MsgBean.AckMessage bean) {
+
+        }
+
+        @Override
         public void onMsg(final com.yanlong.im.utils.socket.MsgBean.UniversalMessage msgBean) {
-            if (msgBean.getMsgType() == null)
-                return;
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    MsgTestBean bean = new MsgTestBean();
-
-                    switch (msgBean.getMsgType()) {
-                        case CHAT:
-                            bean.setType(1);
-                            bean.setMe(false);
-                            bean.setContext(msgBean.getChat().getMsg());
-
-                            break;
-                        case STAMP:
-
-                            break;
-                    }
-
-
-                    sendObj(bean);
+                    //从数据库读取消息
+                    taskRefreshMessage();
                 }
             });
 
@@ -102,8 +92,15 @@ public class ChatActivity extends AppActivity {
         }
 
         @Override
-        public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
+        public void onSendMsgFailure(final MsgBean.UniversalMessage.Builder bean) {
+            LogUtil.getLog().e("TAG", "发送失败" + bean.getRequestId());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ToastUtil.show(context, "发送失败" + bean.getRequestId());
 
+                }
+            });
         }
     };
 
@@ -132,9 +129,9 @@ public class ChatActivity extends AppActivity {
     }
 
     //发送并滑动到列表底部
-    private void sendObj(MsgTestBean bean) {
+    private void showSendObj(MsgAllBean msgAllbean) {
 
-        msgListData.add(bean);
+        msgListData.add(msgAllbean);
         mtListView.getListView().getAdapter().notifyDataSetChanged();
 
         mtListView.getListView().smoothScrollToPosition(msgListData.size());
@@ -170,29 +167,11 @@ public class ChatActivity extends AppActivity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //test
-                MsgTestBean bean = new MsgTestBean();
-                bean.setType(1);
-                bean.setMe(true);
-                bean.setContext(edtChat.getText().toString());
 
-                edtChat.getText().clear();
+                //发送普通消息
+                MsgAllBean msgAllbean = SocketData.send4Chat(100102l, null, edtChat.getText().toString());
+                showSendObj(msgAllbean);
 
-                sendObj(bean);
-
-                MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
-                msg.setToUid(10000l)
-                        .setMsgType(MsgBean.MessageType.CHAT)
-                        //test MSGID
-                        .setMsgId(UUID.randomUUID().toString())
-                ;
-                MsgBean.ChatMessage chat = MsgBean.ChatMessage.newBuilder()
-                        .setMsg(bean.getContext())
-                        .build();
-                msg.setChat(chat);
-
-
-                SocketUtil.getSocketUtil().sendData4Msg(msg);
             }
         });
         edtChat.addTextChangedListener(new TextWatcher() {
@@ -302,13 +281,8 @@ public class ChatActivity extends AppActivity {
         viewRbZfb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MsgTestBean bean = new MsgTestBean();
-                bean.setType(3);
-                bean.setMe(true);
-                bean.setContext("zhifubao");
 
-
-                sendObj(bean);
+                ToastUtil.show(getContext(), "显示红包");
 
                 Intent intent = new Intent(ChatActivity.this, SingleRedPacketActivity.class);
                 startActivity(intent);
@@ -319,26 +293,17 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onClick(View v) {
 
-                MsgTestBean bean = new MsgTestBean();
-                bean.setType(2);
-                bean.setMe(true);
-                bean.setContext("nihao");
-
-
-                sendObj(bean);
+                //发送普通消息
+                MsgAllBean msgAllbean = SocketData.send4action(100000l, null, edtChat.getText().toString());
+                showSendObj(msgAllbean);
             }
         });
         //名片
         viewCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MsgTestBean bean = new MsgTestBean();
-                bean.setType(5);
-                bean.setMe(true);
-                bean.setContext("名片");
-
-
-                sendObj(bean);
+                MsgAllBean msgAllbean = SocketData.send4card(100000l, null, "http://baidu.com", "昵称", "其他资料");
+                showSendObj(msgAllbean);
             }
         });
 
@@ -379,7 +344,7 @@ public class ChatActivity extends AppActivity {
             }
         });
 
-
+taskRefreshMessage();
     }
 
     /***
@@ -457,19 +422,12 @@ public class ChatActivity extends AppActivity {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
                     String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
-                    // 例如 LocalMedia 里面返回两种path
-                    // 1.media.getPath(); 为原图path
-                    // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
-                    //  ToastUtil.show(context, file);
+                    //1.上传图片
 
-                    //发送图片
-                    MsgTestBean bean = new MsgTestBean();
-                    bean.setType(4);
-                    bean.setMe(true);
-                    bean.setContext(Uri.fromFile(new File(file)).toString());
-                    ToastUtil.show(getContext(),"选好图片了");
+                    //2.发送图片
 
-                    sendObj(bean);
+                    MsgAllBean msgAllbean = SocketData.send4Image(100000l, null, "https://flutter-io.cn/asset/flutter-red-square-100.png");
+                    showSendObj(msgAllbean);
 
                     break;
             }
@@ -486,18 +444,8 @@ public class ChatActivity extends AppActivity {
 
     }
 
-    private List<MsgTestBean> msgListData = new ArrayList<>();
+    private List<MsgAllBean> msgListData = new ArrayList<>();
 
-    //test
-    {
-        for (int i = 0; i < 30; i++) {
-            MsgTestBean bean = new MsgTestBean();
-            bean.setContext("魔我劳动法是动大家啊黑哦发卷哦哎多1111111大家哦家的那节基督教啊你喝酒消息");
-            bean.setMe(false);
-            bean.setType(1);
-            msgListData.add(bean);
-        }
-    }
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -510,91 +458,31 @@ public class ChatActivity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            MsgTestBean msgbean = msgListData.get(position);
+            MsgAllBean msgbean = msgListData.get(position);
 
-            switch (position) {
+
+            switch (msgbean.getMsg_type()) {
                 case 0:
-                    holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
-                    holder.viewChatItem.setData0("这个是公告wenzhidhengdnndnfndadnnafndakerldjafldjlkajfeljraskjklejkarle消息");
+                   // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
+                  //  holder.viewChatItem.setData0(msgbean.getChat().getMsg());
                     break;
-                case 1:
-                    holder.viewChatItem.setShowType(1, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                    holder.viewChatItem.setData1("对方发来一条消息wenzhidhengdnndnfndadnnafndakerldjafldjlkajfeljraskjklejkarle消息");
-                    break;
-                case 2:
-                    holder.viewChatItem.setShowType(2, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", null);
-                    holder.viewChatItem.setData2("干嘛这是一套很长很长很长的很长很长很长的很长很长很长的消息消息");
-                    break;
-
-                case 3:
-                    holder.viewChatItem.setShowType(3, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", null);
-                    holder.viewChatItem.setData3(true, "红包哦wenzhidhengdnndnfndadnnafndakerldjafldjlkajfeljraskjklejkarle消息", "这哦没打wenzhidhengdnndnfndadnnafndakerldjafldjlkajfeljraskjklejkarle消息", "", 0, new ChatItemView.EventRP() {
-                        @Override
-                        public void onClick(boolean isInvalid) {
-                            ToastUtil.show(getContext(), "拆红包:" + isInvalid);
-                        }
-                    });
-                    break;
-                case 4:
-                    holder.viewChatItem.setShowType(4, false, null, "昵称", null);
-                    holder.viewChatItem.setData4("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", new ChatItemView.EventPic() {
-                        @Override
-                        public void onClick(String uri) {
-                            //  ToastUtil.show(getContext(), "大图:" + uri);
-                            showBigPic(uri);
-                        }
-                    });
-                    break;
-                case 5:
-                    holder.viewChatItem.setShowType(1, true, "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                    holder.viewChatItem.setData1("对方发来一条消息wenzhidhengdnndnfndadnnafndakerldjafldjlkajfeljraskjklejkarle消息");
-                    break;
-                case 6:
-                    holder.viewChatItem.setShowType(2, true, "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", null);
-                    holder.viewChatItem.setData2("干嘛这是一套很长很长很长的很长很长很长的很长很长很长的消息消息");
-                    break;
-
-                case 7:
-                    holder.viewChatItem.setShowType(3, true, "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", null);
-                    holder.viewChatItem.setData3(true, "红包哦wenzhidhengdnndnfndadnnafndakerldjafldjlkajfeljraskjklejkarle消息", "这哦没打wenzhidhengdnndnfndadnnafndakerldjafldjlkajfeljraskjklejkarle消息", "", 0, null);
-                    break;
-                case 8:
-                    holder.viewChatItem.setShowType(4, true, null, "昵称", null);
-                    holder.viewChatItem.setData4("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", null);
-                    break;
-                case 9:
-                    holder.viewChatItem.setShowType(5, false, "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", null);
-                    holder.viewChatItem.setData5("推荐人", "信息", "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", null, null);
-                    break;
-                case 10:
-                    holder.viewChatItem.setShowType(5, true, "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", null);
-                    holder.viewChatItem.setData5("推荐人", "信息", "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "xxxx", null);
-                    break;
-
-                default:
-
-                    switch (msgbean.getType()) {
-                        case 0:
-                            holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
-                            holder.viewChatItem.setData0(msgbean.getContext());
-                            break;
-                        case 1:
+                       case 1:
                             holder.viewChatItem.setShowType(1, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData1(msgbean.getContext());
+                            holder.viewChatItem.setData1(msgbean.getChat().getMsg());
                             break;
                         case 2:
                             holder.viewChatItem.setShowType(2, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData2(msgbean.getContext());
+                            holder.viewChatItem.setData2(msgbean.getStamp().getComment());
                             break;
 
                         case 3:
                             holder.viewChatItem.setShowType(3, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData3(false, "test红包", msgbean.getContext(), null, 0, null);
+                            holder.viewChatItem.setData3(false, "test红包", msgbean.getRed_envelope().getComment(), null, 0, null);
                             break;
 
                         case 4:
                             holder.viewChatItem.setShowType(4, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData4(msgbean.getContext(), new ChatItemView.EventPic() {
+                            holder.viewChatItem.setData4(msgbean.getImage().getUrl(), new ChatItemView.EventPic() {
                                 @Override
                                 public void onClick(String uri) {
                                      ToastUtil.show(getContext(), "大图:" + uri);
@@ -604,7 +492,9 @@ public class ChatActivity extends AppActivity {
                             break;
                         case 5:
                             holder.viewChatItem.setShowType(5, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData5(msgbean.getContext(), "xxx", "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3257916220,1170341024&fm=27&gp=0.jpg", null, new View.OnClickListener() {
+                            holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
+                                    msgbean.getBusiness_card().getComment(),
+                                    msgbean.getBusiness_card().getAvatar(), null, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     ToastUtil.show(getContext(), "添加好友需要详情页面");
@@ -613,10 +503,6 @@ public class ChatActivity extends AppActivity {
                             });
                             break;
 
-                    }
-
-
-                    break;
 
             }
 
@@ -644,6 +530,14 @@ public class ChatActivity extends AppActivity {
                 viewChatItem = (com.yanlong.im.chat.ui.view.ChatItemView) convertView.findViewById(R.id.view_chat_item);
             }
         }
+    }
+
+
+    private MsgAction msgAction = new MsgAction();
+
+    private void taskRefreshMessage() {
+         msgListData = msgAction.getMsg4User(100102l);
+         mtListView.getListView().getAdapter().notifyDataSetChanged();
     }
 
 }
