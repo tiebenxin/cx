@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.pay.ui.LooseChangeActivity;
 
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.AlertTouch;
 
 /***
  * 我
@@ -72,8 +74,23 @@ public class MyFragment extends Fragment {
         viewMoney.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent moneyIntent = new Intent(getActivity(), LooseChangeActivity.class);
-                startActivity(moneyIntent);
+                AlertTouch alertTouch = new AlertTouch();
+                alertTouch.init(getActivity(),"一个标题","确定", R.mipmap.ic_weixin_login,new AlertTouch.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes(String content) {
+                        if(!TextUtils.isEmpty(content)){
+                            ToastUtil.show(getActivity(),content);
+                        }
+                    }
+                });
+                alertTouch.show();
+//                Intent moneyIntent = new Intent(getActivity(), LooseChangeActivity.class);
+//                startActivity(moneyIntent);
             }
         });
     }

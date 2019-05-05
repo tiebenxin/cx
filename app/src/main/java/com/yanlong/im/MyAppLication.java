@@ -55,6 +55,7 @@ public class MyAppLication extends MainApplication {
 
 
         initUPush();
+        initUAnalytics();
     }
 
     private void initUPush(){
@@ -78,5 +79,10 @@ public class MyAppLication extends MainApplication {
             }
         });
     }
+
+    private void initUAnalytics(){
+        UMConfigure.init(this, "5cad45f33fc195e947000b4d","1", UMConfigure.DEVICE_TYPE_PHONE, "f731980514bd5a9ad50eee9a1fbc8907");
+    }
+
 
 }

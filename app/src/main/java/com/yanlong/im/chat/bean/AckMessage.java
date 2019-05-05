@@ -7,11 +7,6 @@ public class AckMessage extends RealmObject {
     private String request_id;
     private String msg_id; // 消息id
 
-
-
-
-
-
     public String getRequest_id() {
         return request_id;
     }

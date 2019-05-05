@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 import net.cb.cb.library.AppConfig;
@@ -35,6 +36,18 @@ public class AppActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //友盟Push后台进行日活统计及多维度推送的必调用方法
         PushAgent.getInstance(context).onAppStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 
     @Override

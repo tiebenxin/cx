@@ -22,6 +22,7 @@ android {
             google()
             jcenter()
             maven { url 'https://dl.bintray.com/umsdk/release' }
+            maven { url 'https://dl.bintray.com/umsdk/release' }
         }
 
     }
@@ -30,6 +31,7 @@ android {
             google()
             jcenter()
             mavenCentral()
+            maven { url 'https://dl.bintray.com/umsdk/release' }
             maven { url 'https://dl.bintray.com/umsdk/release' }
         }
     }
@@ -103,11 +105,10 @@ dependencies {
     //二维码
     api 'com.google.zxing:core:3.3.0'
 
-    //推送
+    //友盟
     api 'com.umeng.umsdk:common:+'
     api 'com.umeng.umsdk:utdid:+'
     api 'com.umeng.umsdk:push:+'
-
-
+    api 'com.umeng.umsdk:analytics:+'
 
 }
