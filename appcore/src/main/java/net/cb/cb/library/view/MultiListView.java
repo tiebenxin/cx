@@ -257,7 +257,10 @@ public class MultiListView extends LinearLayout {
     }
 
     int lastDataCount = 0;
-
+    public void notifyDataSetChange() {
+        Response response=Response.success(null);
+        notifyDataSetChange(response);
+    }
     /***
      * 2.改变数据,无论数据是否有变化都得调用
      *
