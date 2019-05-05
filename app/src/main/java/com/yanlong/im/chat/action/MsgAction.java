@@ -9,6 +9,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.NetUtil;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.realm.Realm;
@@ -32,9 +33,8 @@ public class MsgAction {
      * 获取
      * @return
      */
-    public List<MsgAllBean> getMsg4User(Long uid){
-
-        return dao.getMsg4User(uid);
+    public List<MsgAllBean> getMsg4User(Long uid,Integer page){
+        return dao.getMsg4User(uid,page);
     }
 
 }

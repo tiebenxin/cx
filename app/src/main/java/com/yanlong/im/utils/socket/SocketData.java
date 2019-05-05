@@ -12,6 +12,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ public class SocketData {
     private static byte[] P_VERSION = {0x01, 0x00};
     //类型2位
     private static byte[] P_TYPE = new byte[2];
+
 
 
     //数据类型枚举
@@ -138,8 +140,38 @@ public class SocketData {
 
     }
 
-    //------------消息内容处理----------------
+    //------------消息内容发送处理----------------
+
+    /***
+     * 在服务器接收到自己发送的消息后,本地保存
+     * @param bean
+     */
+    public static void msgSave4Me(MsgBean.AckMessage bean) {
+        //普通消息
+        MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
+        if(msg!=null){
+            //存库处理
+            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
+                    .setMsgId(bean.getMsgId())
+                    //时间要和ack一起返回
+                    .setTimestamp(System.currentTimeMillis())
+                    .build();
+            MsgAllBean saveBean = MsgConversionBean.ToBean(wmsg,msg);
+            saveBean.setMsg_id(saveBean.getMsg_id());
+
+            //收到直接存表
+            DaoUtil.save(saveBean);
+
+            //移除重发列队
+            SendList.removeSendListJust(bean.getRequestId());
+
+
+
+        }
+    }
+
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        LogUtil.getLog().i(TAG,">>>---发送到toid"+toId+"--gid"+toGid);
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
         if (toId != null) {//给个人发
             msg.setToUid(toId);
@@ -187,10 +219,11 @@ public class SocketData {
 
 
 
-                //这里设置自己的id从配置中获取
+        //test
         wmsg.setFromUid(100102l)
-                //test
-                .setMsgId(UUID.randomUUID().toString());
+                .setTimestamp(System.currentTimeMillis());
+
+          //      .setMsgId(UUID.randomUUID().toString());
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
         msg.setWrapMsg(0,wm);
         SocketUtil.getSocketUtil().sendData4Msg(msg);
@@ -369,7 +402,7 @@ public class SocketData {
     /***
      * 保存消息和发送消息回执
      */
-    public static void magSaveAndACQ(MsgBean.UniversalMessage bean) {
+    public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 
 
@@ -377,7 +410,8 @@ public class SocketData {
         for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
             //2.存库
             MsgAllBean saveBean = MsgConversionBean.ToBean(wmsg);
-            LogUtil.getLog().d(TAG, ">>>>>magSaveAndACQ: " + wmsg.getMsgId());
+            saveBean.setTo_uid(bean.getToUid());
+            LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
             //收到直接存表
             DaoUtil.save(saveBean);
         }

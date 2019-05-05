@@ -3,9 +3,11 @@ package com.yanlong.im.chat.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +34,16 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.MultiListView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -66,6 +71,7 @@ public class ChatActivity extends AppActivity {
     private Button btnSend;
 
     private Integer font_size;
+
     //消息监听事件
     private SocketEvent msgEvent = new SocketEvent() {
         @Override
@@ -75,7 +81,12 @@ public class ChatActivity extends AppActivity {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
-
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    taskRefreshMessage();
+                }
+            });
         }
 
         @Override
@@ -103,6 +114,19 @@ public class ChatActivity extends AppActivity {
             });
         }
     };
+    //private Long meID=100104l;
+    //private Long toId=100102l;
+    private Long meID = 100102l;
+    private Long toId = 100104l;
+    private String toGid = null;
+
+
+    //当前页
+    private int indexPage=0;
+
+    private boolean isGroup() {
+        return toGid != null;
+    }
 
     //自动寻找控件
     private void findViews() {
@@ -131,10 +155,10 @@ public class ChatActivity extends AppActivity {
     //发送并滑动到列表底部
     private void showSendObj(MsgAllBean msgAllbean) {
 
-        msgListData.add(msgAllbean);
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        //    msgListData.add(msgAllbean);
+        //    mtListView.getListView().getAdapter().notifyDataSetChanged();
 
-        mtListView.getListView().smoothScrollToPosition(msgListData.size());
+        //   mtListView.getListView().smoothScrollToPosition(msgListData.size());
     }
 
     //自动生成的控件事件
@@ -169,8 +193,9 @@ public class ChatActivity extends AppActivity {
             public void onClick(View v) {
 
                 //发送普通消息
-                MsgAllBean msgAllbean = SocketData.send4Chat(100102l, null, edtChat.getText().toString());
+                MsgAllBean msgAllbean = SocketData.send4Chat(toId, toGid, edtChat.getText().toString());
                 showSendObj(msgAllbean);
+                edtChat.getText().clear();
 
             }
         });
@@ -294,7 +319,7 @@ public class ChatActivity extends AppActivity {
             public void onClick(View v) {
 
                 //发送普通消息
-                MsgAllBean msgAllbean = SocketData.send4action(100000l, null, edtChat.getText().toString());
+                MsgAllBean msgAllbean = SocketData.send4action(toId, toGid, "戳一下消息");
                 showSendObj(msgAllbean);
             }
         });
@@ -302,7 +327,7 @@ public class ChatActivity extends AppActivity {
         viewCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MsgAllBean msgAllbean = SocketData.send4card(100000l, null, "http://baidu.com", "昵称", "其他资料");
+                MsgAllBean msgAllbean = SocketData.send4card(toId, toGid, "http://wx3.sinaimg.cn/mw600/0062mN6Rly1g2khyv79yuj30k20m8mz2.jpg", "昵称", "其他资料");
                 showSendObj(msgAllbean);
             }
         });
@@ -310,6 +335,25 @@ public class ChatActivity extends AppActivity {
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
+        mtListView.setEvent(new MultiListView.Event() {
+
+
+            @Override
+            public void onRefresh() {
+                indexPage++;
+                taskMoreMessage(indexPage);
+            }
+
+            @Override
+            public void onLoadMore() {
+
+            }
+
+            @Override
+            public void onLoadFail() {
+
+            }
+        });
 
        /* mtListView.getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -344,7 +388,7 @@ public class ChatActivity extends AppActivity {
             }
         });
 
-taskRefreshMessage();
+        taskRefreshMessage();
     }
 
     /***
@@ -426,7 +470,7 @@ taskRefreshMessage();
 
                     //2.发送图片
 
-                    MsgAllBean msgAllbean = SocketData.send4Image(100000l, null, "https://flutter-io.cn/asset/flutter-red-square-100.png");
+                    MsgAllBean msgAllbean = SocketData.send4Image(toId, toGid, "https://gss0.bdstatic.com/94o3dSag_xI4khGkpoWK1HF6hhy/baike/w%3D268%3Bg%3D0/sign=291e80bcd02a60595210e61c100f53a6/1ad5ad6eddc451daf9da609eb1fd5266d0163292.jpg");
                     showSendObj(msgAllbean);
 
                     break;
@@ -460,48 +504,73 @@ taskRefreshMessage();
         public void onBindViewHolder(RCViewHolder holder, int position) {
             MsgAllBean msgbean = msgListData.get(position);
 
+            //时间戳合并
+            String time = null;
+            if (position > 0 && (msgbean.getTimestamp() - msgListData.get(position - 1).getTimestamp()) < (5 * 1000)) { //小于5秒隐藏时间
+                time = null;
+            } else {
+                time = TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp());
+            }
+            //----------------------------------------
+            //昵称处理
+            String nikeName = null;
+            if (isGroup()) {//群聊显示昵称
+                nikeName = msgbean.getFrom_user().getName();
+            } else {//单聊不显示昵称
+                nikeName = null;
+            }
+            //------------------------------------------
+
+            String headico = null;
+            if (msgbean.isMe()) {
+                headico = "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3361407478,1887313988&fm=26&gp=0.jpg";
+            } else {
+                //msgbean.getFrom_user().getHead();
+                headico = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1327564550,2587085231&fm=26&gp=0.jpg";
+            }
 
             switch (msgbean.getMsg_type()) {
                 case 0:
-                   // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
-                  //  holder.viewChatItem.setData0(msgbean.getChat().getMsg());
+                    // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
+                    //  holder.viewChatItem.setData0(msgbean.getChat().getMsg());
                     break;
-                       case 1:
-                            holder.viewChatItem.setShowType(1, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData1(msgbean.getChat().getMsg());
-                            break;
-                        case 2:
-                            holder.viewChatItem.setShowType(2, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData2(msgbean.getStamp().getComment());
-                            break;
+                case 1:
 
-                        case 3:
-                            holder.viewChatItem.setShowType(3, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData3(false, "test红包", msgbean.getRed_envelope().getComment(), null, 0, null);
-                            break;
+                    holder.viewChatItem.setShowType(1, msgbean.isMe(), headico, nikeName, time);
+                    holder.viewChatItem.setData1(msgbean.getChat().getMsg());
+                    break;
+                case 2:
+                    holder.viewChatItem.setShowType(2, msgbean.isMe(), headico, nikeName, time);
+                    holder.viewChatItem.setData2(msgbean.getStamp().getComment());
+                    break;
 
-                        case 4:
-                            holder.viewChatItem.setShowType(4, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData4(msgbean.getImage().getUrl(), new ChatItemView.EventPic() {
-                                @Override
-                                public void onClick(String uri) {
-                                     ToastUtil.show(getContext(), "大图:" + uri);
-                                    showBigPic(uri);
-                                }
-                            });
-                            break;
-                        case 5:
-                            holder.viewChatItem.setShowType(5, msgbean.isMe(), "https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3366592641,3460284008&fm=58&bpow=1280&bpoh=853", "昵称", "2019-8-6");
-                            holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
-                                    msgbean.getBusiness_card().getComment(),
-                                    msgbean.getBusiness_card().getAvatar(), null, new View.OnClickListener() {
+                case 3:
+                    holder.viewChatItem.setShowType(3, msgbean.isMe(), headico, nikeName, time);
+                    holder.viewChatItem.setData3(false, "test红包", msgbean.getRed_envelope().getComment(), null, 0, null);
+                    break;
+
+                case 4:
+                    holder.viewChatItem.setShowType(4, msgbean.isMe(), headico, nikeName, time);
+                    holder.viewChatItem.setData4(msgbean.getImage().getUrl(), new ChatItemView.EventPic() {
+                        @Override
+                        public void onClick(String uri) {
+                            ToastUtil.show(getContext(), "大图:" + uri);
+                            showBigPic(uri);
+                        }
+                    });
+                    break;
+                case 5:
+                    holder.viewChatItem.setShowType(5, msgbean.isMe(), headico, nikeName, time);
+                    holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
+                            msgbean.getBusiness_card().getComment(),
+                            msgbean.getBusiness_card().getAvatar(), null, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     ToastUtil.show(getContext(), "添加好友需要详情页面");
                                     go(UserInfoActivity.class);
                                 }
                             });
-                            break;
+                    break;
 
 
             }
@@ -535,9 +604,35 @@ taskRefreshMessage();
 
     private MsgAction msgAction = new MsgAction();
 
+    /***
+     * 获取最新的
+     */
     private void taskRefreshMessage() {
-         msgListData = msgAction.getMsg4User(100102l);
-         mtListView.getListView().getAdapter().notifyDataSetChanged();
+        indexPage=0;
+        msgListData = msgAction.getMsg4User(toId, indexPage);
+        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        mtListView.getListView().smoothScrollToPosition(msgListData.size());
     }
+
+    /***
+     * 加载更多
+     * @param page
+     */
+    private void taskMoreMessage(final int page) {
+
+        int addItem=msgListData.size();
+
+        msgListData.addAll(0, msgAction.getMsg4User(toId, page));
+
+        addItem=msgListData.size()-addItem;
+
+        mtListView.notifyDataSetChange();
+
+        ((LinearLayoutManager)mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context,20f));
+
+
+    }
+
+
 
 }

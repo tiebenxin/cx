@@ -2,8 +2,6 @@ package com.yanlong.im.utils.socket;
 
 import android.util.Log;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.utils.DaoUtil;
@@ -11,7 +9,6 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -38,21 +35,16 @@ public class SocketUtil {
                LogUtil.getLog().d(TAG, ">>>>>ack抛弃: " + bean.getRequestId());
                return;
            }
+            LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 " );
+            SocketData.msgSave4Me(bean);
 
-            //普通消息
-            MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
-            if(msg!=null){
-                //存库处理
-                MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0).setMsgId(bean.getMsgId()).build();
-                MsgAllBean saveBean = MsgConversionBean.ToBean(wmsg);
-                LogUtil.getLog().d(TAG, ">>>>>magSave4ack: " + wmsg.getMsgId());
-                //收到直接存表
-                DaoUtil.save(saveBean);
+            for (SocketEvent ev : eventLists) {
+                if (ev != null) {
+                    ev.onACK(bean);
+                }
+                //这里可以做为空,自动移除
 
-                //移除重发列队
-                SendList.removeSendListJust(bean.getRequestId());
             }
-
 
 
         }
@@ -60,7 +52,8 @@ public class SocketUtil {
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
             //保存消息和处理回执
-            SocketData.magSaveAndACQ(bean);
+            LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 "+bean.getToUid());
+            SocketData.magSaveAndACK(bean);
 
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
@@ -332,6 +325,7 @@ public class SocketUtil {
 
 
         //---------------------------------------------链接中
+        LogUtil.getLog().d(TAG, "\n>>>>socket" + AppConfig.SOCKET_IP+":"+AppConfig.SOCKET_PORT);
         if (!socketChannel.connect(new InetSocketAddress(AppConfig.SOCKET_IP, AppConfig.SOCKET_PORT))) {
             //不断地轮询连接状态，直到完成连
             System.out.println(">>>链接中");

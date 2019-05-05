@@ -8,30 +8,30 @@
     android:visibility="gone"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😀" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😁" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😂" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="🤣" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😃" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😄" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😅" />
-
-
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😆" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😉" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😊" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😊" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😋" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😎" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😄" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😊" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😀" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="☺" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😉" />
     <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😍" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😘" />
 
 
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="x" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="x" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="x" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="x" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="x" />
-    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="x" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😚" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😳" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😌" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😬" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😜" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😝" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😒" />
+
+
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1"  android:gravity="center" style="@style/app_txt_content_emoji" android:text="😏" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😓" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😔" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😞" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😖" />
+    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😥" />
    <ImageView android:id="@+id/img_emoji_del" android:layout_columnWeight="1" android:layout_rowWeight="1" android:src="@mipmap/ic_emoj_del"  android:scaleType="center"/>
 
 

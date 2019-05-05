@@ -1,6 +1,8 @@
 package com.yanlong.im.chat.bean;
 
 
+import net.cb.cb.library.utils.StringUtil;
+
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -116,6 +118,8 @@ public class MsgAllBean extends RealmObject {
     }
 
     public Long getTimestamp() {
+        if(timestamp==null)
+            return 0l;
         return this.timestamp;
     }
 
@@ -208,9 +212,8 @@ public class MsgAllBean extends RealmObject {
      * @return
      */
     public boolean isMe() {
-      /*  if(to_uid.equals(100102l))
-            return true;*/
-        return false;
+
+        return from_uid==100102l;
     }
 }
 

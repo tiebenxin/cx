@@ -1,7 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
-
 
 
 public class MsgConversionBean {
@@ -13,37 +13,46 @@ public class MsgConversionBean {
      * @return
      */
     public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean) {
+        return ToBean(bean, null);
+    }
+
+    public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean, MsgBean.UniversalMessage.Builder msg) {
 
         //手动处理转换
-        MsgAllBean msgAllBean=new MsgAllBean();
-     //   msgAllBean.setRequest_id(bean.getRequestId());
+        MsgAllBean msgAllBean = new MsgAllBean();
+        //   msgAllBean.setRequest_id(bean.getRequestId());
         msgAllBean.setTimestamp(bean.getTimestamp());
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setGid(bean.getGid());
-      //  msgAllBean.setTo_uid(bean.getToUid());
+        if (msg != null) {
+            msgAllBean.setTo_uid(msg.getToUid());
+        }
+
         //这里需要处理用户信息
-
+        MsgUserInfo userInfo = DaoUtil.findOne(MsgUserInfo.class, "uid", bean.getFromUid());
+        if (userInfo != null){
+            msgAllBean.setFrom_user(userInfo);
+        }
         //---------------------
-
 
 
         msgAllBean.setMsg_id(bean.getMsgId());
 
 
-
-        switch (bean.getMsgType()){
+        switch (bean.getMsgType()) {
             case CHAT:
-                ChatMessage chat=new ChatMessage();
+                ChatMessage chat = new ChatMessage();
                 chat.setMsg(bean.getChat().getMsg());
                 msgAllBean.setChat(chat);
                 msgAllBean.setMsg_type(1);
                 break;
             case IMAGE:
-                ImageMessage image=new ImageMessage();
+                ImageMessage image = new ImageMessage();
 
                 image.setUrl(bean.getImage().getUrl());
                 msgAllBean.setImage(image);
                 msgAllBean.setMsg_type(4);
+                break;
             case REQUEST_FRIEND:
                 msgAllBean.setMsg_type(0);
                 break;
@@ -54,7 +63,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(0);
                 break;
             case STAMP:// 戳一下消息
-                StampMessage stamp=new StampMessage();
+                StampMessage stamp = new StampMessage();
                 stamp.setComment(bean.getStamp().getComment());
                 msgAllBean.setStamp(stamp);
                 msgAllBean.setMsg_type(2);
@@ -62,7 +71,7 @@ public class MsgConversionBean {
             case TRANSFER:
                 break;
             case BUSINESS_CARD:
-                BusinessCardMessage businessCard=new BusinessCardMessage();
+                BusinessCardMessage businessCard = new BusinessCardMessage();
                 businessCard.setAvatar(bean.getBusinessCard().getAvatar());
                 businessCard.setComment(bean.getBusinessCard().getComment());
                 businessCard.setNickname(bean.getBusinessCard().getNickname());
@@ -70,7 +79,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(5);
                 break;
             case RED_ENVELOPER:
-                RedEnvelopeMessage envelopeMessage=new RedEnvelopeMessage();
+                RedEnvelopeMessage envelopeMessage = new RedEnvelopeMessage();
                 envelopeMessage.setComment(bean.getRedEnvelope().getComment());
                 envelopeMessage.setId(bean.getRedEnvelope().getId());
                 envelopeMessage.setRe_type(bean.getRedEnvelope().getReTypeValue());
@@ -78,7 +87,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(3);
                 break;
             case RECEIVE_RED_ENVELOPER:
-                ReceiveRedEnvelopeMessage receiveRedEnvelopeMessage=new ReceiveRedEnvelopeMessage();
+                ReceiveRedEnvelopeMessage receiveRedEnvelopeMessage = new ReceiveRedEnvelopeMessage();
                 receiveRedEnvelopeMessage.setId(bean.getReceiveRedEnvelope().getId());
                 msgAllBean.setReceive_red_envelope(receiveRedEnvelopeMessage);
                 msgAllBean.setMsg_type(3);
