@@ -51,6 +51,11 @@ public class ChatServer extends Service {
         public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
 
         }
+
+        @Override
+        public void onLine(boolean state) {
+
+        }
     };
 
     @Override

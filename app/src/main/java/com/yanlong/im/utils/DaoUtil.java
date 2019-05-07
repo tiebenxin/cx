@@ -35,13 +35,20 @@ public class DaoUtil {
         return util;
     }
 
+    /***
+     * 获取数据库实例
+     * @return
+     */
     public static Realm open() {
         //  return Realm.getDefaultInstance();
         return Realm.getInstance(config);
     }
 
 
+    //保存对象到表中
     public static void save(RealmModel obj) {
+        if(obj==null)
+            return;
         try {
             Realm realm = open();
             realm.beginTransaction();
@@ -54,6 +61,21 @@ public class DaoUtil {
         }
     }
 
+    public static void update(RealmModel obj) {
+        if(obj==null)
+            return;
+        try {
+            Realm realm = open();
+            realm.beginTransaction();
+            realm.insertOrUpdate(obj);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //查找所有数据
     public static <T extends RealmModel> List findAll(Class<T> clss) {
         List beans;
         Realm realm = open();
@@ -64,6 +86,14 @@ public class DaoUtil {
         return beans;
     }
 
+    /***
+     * 简单查询某一条
+     * @param clss
+     * @param fieldName
+     * @param value
+     * @param <T>
+     * @return
+     */
     public static <T extends RealmModel> T findOne(Class<T> clss, String fieldName, Object value) {
         RealmModel beans = null;
         Realm realm = open();
@@ -89,6 +119,53 @@ public class DaoUtil {
             beans = realm.copyFromRealm(res);
         realm.close();
         return (T) beans;
+    }
+
+    public static <T extends RealmModel> void deleteOne(Class<T> clss, String fieldName, Object value) {
+        RealmModel beans = null;
+        Realm realm = open();
+        realm.beginTransaction();
+        RealmResults<T> res = null;
+        if (value instanceof Integer) {
+            res = realm.where(clss).equalTo(fieldName, (Integer) value).findAll();
+        } else if (value instanceof String) {
+            res = realm.where(clss).equalTo(fieldName, (String) value).findAll();
+        } else if (value instanceof Float) {
+            res = realm.where(clss).equalTo(fieldName, (Float) value).findAll();
+        } else if (value instanceof Double) {
+            res = realm.where(clss).equalTo(fieldName, (Double) value).findAll();
+        } else if (value instanceof Long) {
+            res = realm.where(clss).equalTo(fieldName, (Long) value).findAll();
+        } else if (value instanceof Boolean) {
+            res = realm.where(clss).equalTo(fieldName, (Boolean) value).findAll();
+        } else if (value instanceof Byte) {
+            res = realm.where(clss).equalTo(fieldName, (Byte) value).findAll();
+        }
+
+
+        if (res != null){
+            res.deleteAllFromRealm();
+        }
+
+        realm.commitTransaction();
+
+        realm.close();
+    }
+
+    public static  List page(int page, RealmResults list, Realm realm ){
+       return page(10, page,  list,  realm );
+    }
+    /***
+     * 分页处理
+     */
+    public static  List page(int pSize,int page, RealmResults list, Realm realm ){
+        int from = pSize * page;
+        int to = from + pSize;
+        to = to < list.size() ? to : list.size();
+        from=from>to?to:from;
+
+
+        return realm.copyFromRealm(list.subList(from, to));
     }
 
 

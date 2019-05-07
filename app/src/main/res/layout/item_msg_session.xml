@@ -8,10 +8,22 @@
 
         <LinearLayout style="@style/app_layout_list1_item">
 
+            <FrameLayout
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="6dp"
+                >
             <com.facebook.drawee.view.SimpleDraweeView
+                android:layout_gravity="center|left"
                 android:id="@+id/img_head"
                 style="@style/app_img_head"
-                android:layout_marginRight="@dimen/app_margin_item" />
+                />
+                <net.cb.cb.library.view.StrikeButton
+                    android:id="@+id/sb"
+                    android:layout_gravity="right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_marginRight="@dimen/app_margin_item"
@@ -23,11 +35,13 @@
                 <TextView
                     android:id="@+id/txt_name"
                     style="@style/app_txt_title_2"
+                    android:fontFamily="@font/emoji_font"
                     android:text="xxxx" />
 
                 <TextView
                     android:id="@+id/txt_info"
                     style="@style/app_txt_content_1"
+                    android:fontFamily="@font/emoji_font"
                     android:text="xxxx" />
 
             </LinearLayout>

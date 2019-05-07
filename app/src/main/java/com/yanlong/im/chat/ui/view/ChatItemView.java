@@ -41,6 +41,7 @@ public class ChatItemView extends LinearLayout {
     private TextView txtMeRbInfo;
     private TextView txtMeRpBt;
     private ImageView imgMeRbIcon;
+    private ImageView imgMeErr;
     private com.facebook.drawee.view.SimpleDraweeView imgMeHead;
 
     private LinearLayout viewMe4;
@@ -92,6 +93,7 @@ public class ChatItemView extends LinearLayout {
         txtMeRpBt = (TextView) rootView.findViewById(R.id.txt_me_rp_bt);
         imgMeRbIcon = (ImageView) rootView.findViewById(R.id.img_me_rb_icon);
         imgMeHead = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_me_head);
+        imgMeErr = (ImageView) rootView.findViewById(R.id.img_me_err);
 
         viewOt4 = (LinearLayout) rootView.findViewById(R.id.view_ot_4);
         imgOt4 = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_4);
@@ -136,6 +138,7 @@ public class ChatItemView extends LinearLayout {
             viewOt.setVisibility(VISIBLE);
         }
         txtBroadcast.setVisibility(GONE);
+      //  imgMeErr.setVisibility(GONE);
         viewMe1.setVisibility(GONE);
         viewOt1.setVisibility(GONE);
         viewMe2.setVisibility(GONE);
@@ -331,6 +334,28 @@ public class ChatItemView extends LinearLayout {
         findViews(viewRoot);
         initEvent();
     }
+
+    public void setErr(int state){
+        switch (state){
+            case 0://正常
+                imgMeErr.setVisibility(GONE);
+               break;
+            case 1://失败
+                imgMeErr.setVisibility(VISIBLE);
+                break;
+            case 2://等待
+                imgMeErr.setVisibility(VISIBLE);
+                imgMeErr.setImageResource(R.mipmap.ic_chat_more);
+                break;
+
+        }
+
+    }
+    public void setOnErr(OnClickListener onk){
+        imgMeErr.setOnClickListener(onk);
+    }
+
+
 
 
 }

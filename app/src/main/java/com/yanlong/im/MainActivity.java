@@ -9,9 +9,11 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.ui.MyFragment;
@@ -34,6 +36,7 @@ public class MainActivity extends AppActivity {
     private String[] tabs;
     private int[] iconRes;
     private int[] iconHRes;
+    private StrikeButton msgsb;
 
     //自动寻找控件
     private void findViews() {
@@ -97,9 +100,19 @@ public class MainActivity extends AppActivity {
             StrikeButton sb = (net.cb.cb.library.view.StrikeButton) rootView.findViewById(R.id.sb);
             if (i == 2) {
                 sb.setSktype(1);
+                //设置值
+                sb.setNum(0);
             }
-            //设置值
-            sb.setNum(1);
+            if(i==1){
+                sb.setNum(0);
+            }
+
+            if(i==0){//消息数量
+
+                msgsb=sb;
+            }
+
+
 
 
             txt.setText(tabs[i]);
@@ -114,7 +127,8 @@ public class MainActivity extends AppActivity {
 
         //test 启动聊天服务
         //startService(new Intent(getContext(), ChatServer.class));
-
+        //写入通讯录
+        taskAddUser();
 
     }
 
@@ -135,6 +149,27 @@ public class MainActivity extends AppActivity {
         });
     }
 
+    private void  taskAddUser(){
+        UserInfo me=new UserInfo();
+        me.setHead("http://pics4.baidu.com/feed/8644ebf81a4c510f435a13a74701ed29d52aa54a.jpeg?token=5f8c39ca8c4b5dd009b42465d81501cd&s=C10340B286A38BF11D10A5160300C0EA");
+        me.setMkName("本人昵称");
+        me.setName("本人");
+        me.setUid(100102l);
+        me.setuType(1);
+        userAction.updateUserinfo(me);
+
+
+        UserInfo o1=new UserInfo();
+        o1.setHead("https://gss0.bdstatic.com/-4o3dSag_xI4khGkpoWK1HF6hhy/baike/w%3D268%3Bg%3D0/sign=319c40413101213fcf3349da6cdc51ec/8b82b9014a90f603cf01e8df3112b31bb151edf1.jpg");
+        o1.setMkName("迅捷斥候");
+        o1.setName("提莫");
+        o1.setUid(100104l);
+        me.setuType(0);
+        userAction.updateUserinfo(o1);
+    }
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,5 +179,23 @@ public class MainActivity extends AppActivity {
         initEvent();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        taskGetMsgNum();
+    }
+
+    private MsgDao msgDao=new MsgDao();
+
+    /***
+     * 未读消息
+     * @return
+     */
+    private void  taskGetMsgNum(){
+        if(msgsb==null)
+            return;
+
+        msgsb.setNum( msgDao.sessionReadGetAll());
+    }
 
 }

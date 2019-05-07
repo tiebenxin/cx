@@ -1,20 +1,22 @@
 package com.yanlong.im.chat.bean;
 
 
-import net.cb.cb.library.utils.StringUtil;
+import com.yanlong.im.user.bean.UserInfo;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.Required;
 
 public class MsgAllBean extends RealmObject {
-
+    //0:正常,1:错误,2:发送中
+    private int send_state = 0;
+    //重发的数据对象
+    private byte[] send_data;
     private String request_id;
     private Long from_uid;
-    private MsgUserInfo from_user;
+    private UserInfo from_user;
     private Long to_uid;
-    private MsgUserInfo to_user;
+    private UserInfo to_user;
     private String gid;
     /***
      *  CHAT = 0; // 普通聊天消息
@@ -53,19 +55,19 @@ public class MsgAllBean extends RealmObject {
 
     private AckMessage ack;
 
-    public MsgUserInfo getFrom_user() {
+    public UserInfo getFrom_user() {
         return from_user;
     }
 
-    public void setFrom_user(MsgUserInfo from_user) {
+    public void setFrom_user(UserInfo from_user) {
         this.from_user = from_user;
     }
 
-    public MsgUserInfo getTo_user() {
+    public UserInfo getTo_user() {
         return to_user;
     }
 
-    public void setTo_user(MsgUserInfo to_user) {
+    public void setTo_user(UserInfo to_user) {
         this.to_user = to_user;
     }
 
@@ -105,6 +107,40 @@ public class MsgAllBean extends RealmObject {
         return this.msg_type;
     }
 
+
+    /***
+     * 把类型转换为消息
+     * @return
+     */
+    public String getMsg_typeStr() {
+        String str = "";
+        if (msg_type == 0) {
+            str = "公告";
+
+        }
+        if (msg_type == 1) {//普通消息
+            str = getChat().getMsg();
+
+        }
+        if (msg_type == 2) {
+            str = " 戳一下:" + getStamp().getComment();
+
+        }
+        if (msg_type == 3) {
+            str = "发来了一个红包";
+        }
+        if (msg_type == 4) {
+            str = "发来了一张图片";
+        }
+        if (msg_type == 5) {
+            str = "名片:" + getBusiness_card().getNickname();
+        }
+
+
+        return str;
+    }
+
+
     public void setMsg_type(Integer msg_type) {
         this.msg_type = msg_type;
     }
@@ -118,7 +154,7 @@ public class MsgAllBean extends RealmObject {
     }
 
     public Long getTimestamp() {
-        if(timestamp==null)
+        if (timestamp == null)
             return 0l;
         return this.timestamp;
     }
@@ -207,13 +243,29 @@ public class MsgAllBean extends RealmObject {
         this.ack = ack;
     }
 
+    public int getSend_state() {
+        return send_state;
+    }
+
+    public void setSend_state(int send_state) {
+        this.send_state = send_state;
+    }
+
+    public byte[] getSend_data() {
+        return send_data;
+    }
+
+    public void setSend_data(byte[] send_data) {
+        this.send_data = send_data;
+    }
+
     /***
      * 是否为自己
      * @return
      */
     public boolean isMe() {
 
-        return from_uid==100102l;
+        return from_uid == 100102l;
     }
 }
 

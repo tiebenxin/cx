@@ -1,25 +1,31 @@
-package com.yanlong.im.chat.bean;
+package com.yanlong.im.user.bean;
+
+import com.yanlong.im.chat.bean.MsgAllBean;
 
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class MsgUserInfo extends RealmObject {
+public class UserInfo extends RealmObject {
     @PrimaryKey
     private Long uid;
     private String name;
     private String head;
     private String mkName;
-    private RealmList<MsgAllBean> msgs;
+ //   private RealmList<MsgAllBean> msgs;
 
-    public RealmList<MsgAllBean> getMsgs() {
-        return msgs;
+    //用户类型 0:陌生人或者群友,1:自己,2:通讯录
+    private Integer uType;
+
+    public Integer getuType() {
+        return uType;
     }
 
-    public void setMsgs(RealmList<MsgAllBean> msgs) {
-        this.msgs = msgs;
+    public void setuType(Integer uType) {
+        this.uType = uType;
     }
+
 
     public Long getUid() {
         return uid;

@@ -36,6 +36,8 @@ public class SocketUtil {
                return;
            }
             LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 " );
+
+
             SocketData.msgSave4Me(bean);
 
             for (SocketEvent ev : eventLists) {
@@ -77,6 +79,17 @@ public class SocketUtil {
 
             }
         }
+
+        @Override
+        public void onLine(boolean state) {
+            LogUtil.getLog().e(TAG, ">>>>>在线状态" + state);
+            for (SocketEvent ev : eventLists) {
+                if (ev != null) {
+                    ev.onLine(state);
+                }
+            }
+
+        }
     };
     //正在运行
     private boolean isRun = false;
@@ -85,6 +98,15 @@ public class SocketUtil {
 
     public boolean isRun() {
         return isRun;
+    }
+
+    /***
+     * 改变运行状态
+     * @param state
+     */
+    private void setRunState(boolean state){
+        isRun=state;
+        event.onLine(state);
     }
 
     public static SocketEvent getEvent() {
@@ -126,7 +148,7 @@ public class SocketUtil {
             return;
         //线程版本+1
         threadVer++;
-        isRun = true;
+        setRunState(true) ;
         try {
             if (socketChannel == null || !socketChannel.isConnected()) {
                 connect();
@@ -134,7 +156,7 @@ public class SocketUtil {
             }
 
         } catch (Exception e) {
-            isRun = false;
+            setRunState(false);
             e.printStackTrace();
             LogUtil.getLog().e(TAG, e.getMessage());
 
@@ -149,7 +171,7 @@ public class SocketUtil {
         if (!isRun)
             return;
 
-        isRun = false;
+        setRunState(false) ;
         //关闭信道
         try {
             socketChannel.close();
@@ -191,7 +213,7 @@ public class SocketUtil {
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    Log.d(TAG, ">>>心跳异常run: " + e.getMessage());
+                    LogUtil.getLog().d(TAG, ">>>心跳异常run: " + e.getMessage());
                 }
             }
         }).start();
@@ -222,7 +244,7 @@ public class SocketUtil {
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    Log.d(TAG, ">>>队列异常run: " + e.getMessage());
+                    LogUtil.getLog().d(TAG, ">>>队列异常run: " + e.getMessage());
                 }
             }
         }).start();
@@ -325,7 +347,7 @@ public class SocketUtil {
 
 
         //---------------------------------------------链接中
-        LogUtil.getLog().d(TAG, "\n>>>>socket" + AppConfig.SOCKET_IP+":"+AppConfig.SOCKET_PORT);
+        LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppConfig.SOCKET_IP+":"+AppConfig.SOCKET_PORT+"\n\n");
         if (!socketChannel.connect(new InetSocketAddress(AppConfig.SOCKET_IP, AppConfig.SOCKET_PORT))) {
             //不断地轮询连接状态，直到完成连
             System.out.println(">>>链接中");
@@ -372,22 +394,22 @@ public class SocketUtil {
                             byte[] data = new byte[data_size];
                             readBuf.get(data, 0, data_size);
 
-                            Log.d(TAG, ">>>接收数据: " + SocketData.bytesToHex(data));
+                            LogUtil.getLog().d(TAG, ">>>接收数据: " + SocketData.bytesToHex(data));
 
                             if (SocketData.isHead(data)) {//收到包头
-                                Log.d(TAG, ">>>接收数据: 是包头");
+                                LogUtil.getLog().d(TAG, ">>>接收数据: 是包头");
                                 temp.clear();//每次收到包头把之前的缓存清理
                                 byte[] ex = doPackage(data);//没处理完的断包
                                 if (ex != null) {
                                     if (!SocketData.isHead(ex)) {//下个断包是否是包头不是就抛掉
-                                        Log.d(TAG, ">>抛掉错误数据" + SocketData.bytesToHex(ex));
+                                        LogUtil.getLog().d(TAG, ">>抛掉错误数据" + SocketData.bytesToHex(ex));
                                     }
 
                                     temp.add(ex);
                                 }
 
                             } else {//收到包体
-                                Log.d(TAG, ">>>接收数据: 是包体");
+                                LogUtil.getLog().d(TAG, ">>>接收数据: 是包体");
                                 if (temp.size() > 0) {
                                     byte[] oldpk = SocketData.listToBytes(temp);
                                     temp.clear();
@@ -398,13 +420,13 @@ public class SocketUtil {
                                         temp.add(ex);
                                     }
                                 } else {//如果没有包头缓存,同样抛掉包体
-                                    Log.d(TAG, ">>>抛掉包体错误数据" + SocketData.bytesToHex(data));
+                                    LogUtil.getLog().d(TAG, ">>>抛掉包体错误数据" + SocketData.bytesToHex(data));
                                 }
 
 
                             }
 
-                            Log.d(TAG, ">>>当前缓冲区数: " + temp.size());
+                            LogUtil.getLog().d(TAG, ">>>当前缓冲区数: " + temp.size());
 
                             readBuf.clear();
                         }
@@ -412,10 +434,10 @@ public class SocketUtil {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Log.d(TAG, ">>>接收异常run: " + e.getMessage());
+                    LogUtil.getLog().d(TAG, ">>>接收异常run: " + e.getMessage());
                     reconnection();
                 }
-                Log.d(TAG, ">>>接收结束");
+                LogUtil.getLog().d(TAG, ">>>接收结束");
 
             }
         }).start();

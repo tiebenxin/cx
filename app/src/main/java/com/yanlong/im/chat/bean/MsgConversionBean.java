@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.bean;
 
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
@@ -20,19 +21,29 @@ public class MsgConversionBean {
 
         //手动处理转换
         MsgAllBean msgAllBean = new MsgAllBean();
-        //   msgAllBean.setRequest_id(bean.getRequestId());
+
         msgAllBean.setTimestamp(bean.getTimestamp());
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setGid(bean.getGid());
         if (msg != null) {
+            msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());
+            UserInfo toInfo = DaoUtil.findOne(UserInfo.class, "uid", msg.getToUid());
+            if (toInfo != null){
+                msgAllBean.setTo_user(toInfo);
+            }else{
+                //从网路缓存
+            }
         }
 
         //这里需要处理用户信息
-        MsgUserInfo userInfo = DaoUtil.findOne(MsgUserInfo.class, "uid", bean.getFromUid());
+        UserInfo userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
         if (userInfo != null){
             msgAllBean.setFrom_user(userInfo);
+        }else{
+            //从网路缓存
         }
+
         //---------------------
 
 

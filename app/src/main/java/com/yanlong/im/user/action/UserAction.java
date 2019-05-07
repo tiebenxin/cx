@@ -1,9 +1,8 @@
 package com.yanlong.im.user.action;
 
-import com.yanlong.im.test.bean.Test2Bean;
-import com.yanlong.im.test.server.TestServer;
-import com.yanlong.im.user.bean.LoginBean;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -21,6 +20,7 @@ import retrofit2.Response;
  */
 public class UserAction {
     private UserServer server;
+    private UserDao dao=new UserDao();
 
     public UserAction() {
         server = NetUtil.getNet().create(UserServer.class);
@@ -33,6 +33,15 @@ public class UserAction {
         bean.setPhone(phone);
         NetUtil.getNet().exec(server.login(bean), callback);
     }*/
+
+    public UserInfo getMyInfo(){
+       return dao.myInfo();
+    }
+
+    public void updateUserinfo(UserInfo userInfo){
+        dao.updateUserinfo(userInfo);
+    }
+
 
 
     public void login(Long phone, String pwd,String  devid, final CallBack<ReturnBean<TokenBean>> callback) {

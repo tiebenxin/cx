@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -25,10 +26,13 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgTestBean;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.ui.SingleRedPacketActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -39,6 +43,7 @@ import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -47,6 +52,7 @@ import net.cb.cb.library.view.MultiListView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ChatActivity extends AppActivity {
@@ -108,21 +114,46 @@ public class ChatActivity extends AppActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+
+
                     ToastUtil.show(context, "发送失败" + bean.getRequestId());
+                    MsgAllBean msgAllBean= MsgConversionBean.ToBean(bean.getWrapMsg(0),bean);
+                    msgAllBean.setSend_state(1);
+                    msgAllBean.setMsg_id("重发"+msgAllBean.getRequest_id());
+                    ///这里写库
+                    msgAllBean.setSend_data(bean.build().toByteArray());
+                    DaoUtil.update(msgAllBean);
+
+
+                    taskRefreshMessage();
+
 
                 }
             });
         }
+
+        @Override
+        public void onLine(boolean state) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //离线就禁止发送之类的
+                    ToastUtil.show(getContext(),"离线就禁止发送之类的");
+          //  btnSend.setEnabled(state);
+                }
+            });
+        }
     };
-    //private Long meID=100104l;
-    //private Long toId=100102l;
+
+
+
     private Long meID = 100102l;
     private Long toId = 100104l;
     private String toGid = null;
 
 
     //当前页
-    private int indexPage=0;
+    private int indexPage = 0;
 
     private boolean isGroup() {
         return toGid != null;
@@ -156,9 +187,9 @@ public class ChatActivity extends AppActivity {
     private void showSendObj(MsgAllBean msgAllbean) {
 
         //    msgListData.add(msgAllbean);
-        //    mtListView.getListView().getAdapter().notifyDataSetChanged();
+        //    notifyData2Buttom();
 
-        //   mtListView.getListView().smoothScrollToPosition(msgListData.size());
+
     }
 
     //自动生成的控件事件
@@ -389,6 +420,8 @@ public class ChatActivity extends AppActivity {
         });
 
         taskRefreshMessage();
+
+
     }
 
     /***
@@ -448,6 +481,8 @@ public class ChatActivity extends AppActivity {
         super.onDestroy();
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
+        //清理会话
+        taskCleanRead();
     }
 
     @Override
@@ -457,6 +492,7 @@ public class ChatActivity extends AppActivity {
         findViews();
         initEvent();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -502,7 +538,7 @@ public class ChatActivity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            MsgAllBean msgbean = msgListData.get(position);
+            final MsgAllBean msgbean = msgListData.get(position);
 
             //时间戳合并
             String time = null;
@@ -519,16 +555,18 @@ public class ChatActivity extends AppActivity {
             } else {//单聊不显示昵称
                 nikeName = null;
             }
-            //------------------------------------------
+            //----------------------------------------
 
-            String headico = null;
+
+            //显示数据集
+            String headico =  msgbean.getFrom_user().getHead();
             if (msgbean.isMe()) {
-                headico = "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3361407478,1887313988&fm=26&gp=0.jpg";
+               // headico =
             } else {
                 //msgbean.getFrom_user().getHead();
-                headico = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1327564550,2587085231&fm=26&gp=0.jpg";
+              //  headico = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1327564550,2587085231&fm=26&gp=0.jpg";
             }
-
+            holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             switch (msgbean.getMsg_type()) {
                 case 0:
                     // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
@@ -536,21 +574,19 @@ public class ChatActivity extends AppActivity {
                     break;
                 case 1:
 
-                    holder.viewChatItem.setShowType(1, msgbean.isMe(), headico, nikeName, time);
+
                     holder.viewChatItem.setData1(msgbean.getChat().getMsg());
                     break;
                 case 2:
-                    holder.viewChatItem.setShowType(2, msgbean.isMe(), headico, nikeName, time);
+
                     holder.viewChatItem.setData2(msgbean.getStamp().getComment());
                     break;
 
                 case 3:
-                    holder.viewChatItem.setShowType(3, msgbean.isMe(), headico, nikeName, time);
                     holder.viewChatItem.setData3(false, "test红包", msgbean.getRed_envelope().getComment(), null, 0, null);
                     break;
 
                 case 4:
-                    holder.viewChatItem.setShowType(4, msgbean.isMe(), headico, nikeName, time);
                     holder.viewChatItem.setData4(msgbean.getImage().getUrl(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
@@ -560,7 +596,6 @@ public class ChatActivity extends AppActivity {
                     });
                     break;
                 case 5:
-                    holder.viewChatItem.setShowType(5, msgbean.isMe(), headico, nikeName, time);
                     holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
                             msgbean.getBusiness_card().getComment(),
                             msgbean.getBusiness_card().getAvatar(), null, new View.OnClickListener() {
@@ -574,6 +609,33 @@ public class ChatActivity extends AppActivity {
 
 
             }
+
+            //------------------------------------------
+
+            //发送状态处理
+            holder.viewChatItem.setErr(msgbean.getSend_state());//
+            holder.viewChatItem.setOnErr(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    //从数据拉出来,然后再发送
+                    MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "request_id", msgbean.getRequest_id());
+
+                    try {
+                        MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
+                        SocketUtil.getSocketUtil().sendData4Msg(bean);
+                        //点击发送的时候如果要改变成发送中的状态
+                     //   remsg.setSend_state(2);
+                    //    DaoUtil.update(remsg);
+
+                        taskRefreshMessage();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+            //----------------------------------------
 
 
         }
@@ -602,16 +664,19 @@ public class ChatActivity extends AppActivity {
     }
 
 
+    private void notifyData2Buttom(){
+        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        mtListView.getListView().smoothScrollToPosition(msgListData.size());
+    }
     private MsgAction msgAction = new MsgAction();
 
     /***
      * 获取最新的
      */
     private void taskRefreshMessage() {
-        indexPage=0;
+        indexPage = 0;
         msgListData = msgAction.getMsg4User(toId, indexPage);
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
-        mtListView.getListView().smoothScrollToPosition(msgListData.size());
+        notifyData2Buttom();
     }
 
     /***
@@ -620,19 +685,28 @@ public class ChatActivity extends AppActivity {
      */
     private void taskMoreMessage(final int page) {
 
-        int addItem=msgListData.size();
+        int addItem = msgListData.size();
 
         msgListData.addAll(0, msgAction.getMsg4User(toId, page));
 
-        addItem=msgListData.size()-addItem;
+        addItem = msgListData.size() - addItem;
 
         mtListView.notifyDataSetChange();
 
-        ((LinearLayoutManager)mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context,20f));
+        ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context, 20f));
 
 
     }
 
+    private MsgDao dao=new MsgDao();
+    private void taskCleanRead(){
+        if(isGroup()){
+            dao.sessionReadClean(toGid,null);
+        }else{
+            dao.sessionReadClean(null,toId);
+        }
+
+    }
 
 
 }

@@ -19,16 +19,23 @@ import android.widget.TextView;
 
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertSelectView;
 import net.cb.cb.library.view.PopView;
+import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -133,7 +140,7 @@ public class MsgMainFragment extends Fragment {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
             //将扫描出的信息显示出来
-            ToastUtil.show(getActivityMe(),scanResult);
+            ToastUtil.show(getActivityMe(), scanResult);
         }
     }
 
@@ -185,6 +192,12 @@ public class MsgMainFragment extends Fragment {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        taskListData();
+    }
+
     private MainActivity getActivityMe() {
         return (MainActivity) getActivity();
     }
@@ -195,18 +208,36 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return null == null ? 10 : 0;
+            return listData == null ? 0 : listData.size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            holder.imgHead.setImageURI(Uri.parse("https://gss2.bdstatic.com/-fo3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D220/sign=181c8583082442a7aa0efaa7e143ad95/a08b87d6277f9e2f8145a2081830e924b899f3ba.jpg"));
-            holder.txtName.setText("曼舞手雷");
+            Session bean = listData.get(position);
 
-            holder.txtInfo.setText("烬朝着目标敌人扔出一颗手雷");
+            String icon = "";
+            String title = "";
+            String info = "";
+            MsgAllBean msginfo;
+            if (bean.getType() == 0) {//单人
+                 msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+                icon = msginfo.getFrom_user().getHead();
+                title=msginfo.getFrom_user().getName();
+                info=msginfo.getMsg_typeStr();
+            } else if (bean.getType() == 1) {//群
+                msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+                title="群"+bean.getGid();
+                info=msginfo.getMsg_typeStr();
+            }
 
-            holder.txtTime.setText("7:30");
+            holder.imgHead.setImageURI(Uri.parse(icon));
+            holder.txtName.setText(title);
+            holder.txtInfo.setText(info);
+            holder.sb.setButtonBackground(R.color.transparent);
+            holder.sb.setNum(bean.getUnread_count());
+
+            holder.txtTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getUp_time()));
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -229,6 +260,7 @@ public class MsgMainFragment extends Fragment {
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private StrikeButton sb;
             private TextView txtName;
             private TextView txtInfo;
             private TextView txtTime;
@@ -237,12 +269,21 @@ public class MsgMainFragment extends Fragment {
             public RCViewHolder(View convertView) {
                 super(convertView);
                 imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
+                sb=convertView.findViewById(R.id.sb);
                 txtName = (TextView) convertView.findViewById(R.id.txt_name);
                 txtInfo = (TextView) convertView.findViewById(R.id.txt_info);
                 txtTime = (TextView) convertView.findViewById(R.id.txt_time);
             }
 
         }
+    }
+
+    private MsgDao msgDao = new MsgDao();
+    private List<Session> listData = new ArrayList<>();
+
+    private void taskListData() {
+        listData = msgDao.sessionGetAll();
+        mtListView.notifyDataSetChange();
     }
 
 

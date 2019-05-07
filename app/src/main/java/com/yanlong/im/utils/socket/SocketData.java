@@ -4,6 +4,8 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -28,7 +30,6 @@ public class SocketData {
     private static byte[] P_VERSION = {0x01, 0x00};
     //类型2位
     private static byte[] P_TYPE = new byte[2];
-
 
 
     //数据类型枚举
@@ -127,7 +128,7 @@ public class SocketData {
             } else if (h == 1 && l == 1) {
 
                 return DataType.PROTOBUF_HEARTBEAT;
-            }else if(h == 1 && l == 3){
+            } else if (h == 1 && l == 3) {
                 return DataType.ACK;
             } else if (h == 1 && l == 2) {
                 return DataType.AUTH;
@@ -149,29 +150,35 @@ public class SocketData {
     public static void msgSave4Me(MsgBean.AckMessage bean) {
         //普通消息
         MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
-        if(msg!=null){
+        if (msg != null) {
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgId())
                     //时间要和ack一起返回
                     .setTimestamp(System.currentTimeMillis())
                     .build();
-            MsgAllBean saveBean = MsgConversionBean.ToBean(wmsg,msg);
-            saveBean.setMsg_id(saveBean.getMsg_id());
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
-            //收到直接存表
-            DaoUtil.save(saveBean);
+            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
+            //?时间戳
+            //移除旧消息
+            DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
+
+            //收到直接存表,创建会话
+            DaoUtil.update(msgAllBean);
+            MsgDao msgDao=new MsgDao();
+
+            msgDao.sessionCreate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
 
             //移除重发列队
             SendList.removeSendListJust(bean.getRequestId());
-
 
 
         }
     }
 
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        LogUtil.getLog().i(TAG,">>>---发送到toid"+toId+"--gid"+toGid);
+        LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
         if (toId != null) {//给个人发
             msg.setToUid(toId);
@@ -185,7 +192,7 @@ public class SocketData {
         }
 
         wmsg.setMsgType(type);
-        switch (type){
+        switch (type) {
             case CHAT:
                 wmsg.setChat((MsgBean.ChatMessage) value);
                 break;
@@ -218,17 +225,17 @@ public class SocketData {
         }
 
 
-
         //test
         wmsg.setFromUid(100102l)
                 .setTimestamp(System.currentTimeMillis());
 
-          //      .setMsgId(UUID.randomUUID().toString());
+        //      .setMsgId(UUID.randomUUID().toString());
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
-        msg.setWrapMsg(0,wm);
+        msg.setWrapMsg(0, wm);
         SocketUtil.getSocketUtil().sendData4Msg(msg);
         return MsgConversionBean.ToBean(wm);
     }
+
 
     /***
      * 普通消息
@@ -243,12 +250,13 @@ public class SocketData {
                 .setMsg(txt)
                 .build();
 
-        return send4Base(toId,toGid, MsgBean.MessageType.CHAT,chat);
+        return send4Base(toId, toGid, MsgBean.MessageType.CHAT, chat);
 
     }
 
     /**
      * 戳一戳消息
+     *
      * @param toId
      * @param toGid
      * @param txt
@@ -261,7 +269,7 @@ public class SocketData {
                 .setComment(txt)
                 .build();
 
-        return send4Base(toId,toGid, MsgBean.MessageType.STAMP,action);
+        return send4Base(toId, toGid, MsgBean.MessageType.STAMP, action);
 
     }
 
@@ -273,10 +281,10 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4Image(Long toId, String toGid, String url) {
-        MsgBean.ImageMessage  msg = MsgBean.ImageMessage .newBuilder()
+        MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
                 .setUrl(url)
                 .build();
-        return send4Base(toId,toGid, MsgBean.MessageType.IMAGE,msg);
+        return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
 
     /****
@@ -288,15 +296,14 @@ public class SocketData {
      * @param info
      * @return
      */
-    public static MsgAllBean send4card(Long toId, String toGid, String iconUrl,String nkName,String info) {
-        MsgBean.BusinessCardMessage   msg = MsgBean.BusinessCardMessage  .newBuilder()
+    public static MsgAllBean send4card(Long toId, String toGid, String iconUrl, String nkName, String info) {
+        MsgBean.BusinessCardMessage msg = MsgBean.BusinessCardMessage.newBuilder()
                 .setAvatar(iconUrl)
                 .setNickname(nkName)
                 .setComment(info)
                 .build();
-        return send4Base(toId,toGid, MsgBean.MessageType.BUSINESS_CARD,msg);
+        return send4Base(toId, toGid, MsgBean.MessageType.BUSINESS_CARD, msg);
     }
-
 
 
     /***
@@ -405,15 +412,17 @@ public class SocketData {
     public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 
-
+        MsgDao msgDao=new MsgDao();
         //1.先进行数据分割
         for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
-            //2.存库
-            MsgAllBean saveBean = MsgConversionBean.ToBean(wmsg);
-            saveBean.setTo_uid(bean.getToUid());
+            //2.存库:1.存消息表,存会话表
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
+            msgAllBean.setTo_uid(bean.getToUid());
             LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
             //收到直接存表
-            DaoUtil.save(saveBean);
+            DaoUtil.update(msgAllBean);
+            msgDao.sessionReadUpdate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
+
         }
 
 
@@ -423,6 +432,8 @@ public class SocketData {
 
     }
 //---------------------------------
+
+    //------------------------转换工具-------------------
 
     /***
      * 合并数组
