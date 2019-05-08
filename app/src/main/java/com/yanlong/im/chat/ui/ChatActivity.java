@@ -207,7 +207,7 @@ public class ChatActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                if (true) {//群聊,单聊
+                if (isGroup()) {//群聊,单聊
                     go(GroupInfoActivity.class);
                 } else {
                     go(ChatInfoActivity.class);
