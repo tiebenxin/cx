@@ -49,9 +49,9 @@ public class MsgDao {
     /***
      * 创建会话数量
      * @param gid
-     * @param from_uid
+     * @param toUid
      */
-    public void sessionCreate(String gid, Long from_uid) {
+    public void sessionCreate(String gid, Long toUid) {
         Session session;
 
         if (StringUtil.isNotNull(gid)) {//群消息
@@ -64,11 +64,11 @@ public class MsgDao {
             }
 
         } else {//个人消息
-            session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
+            session = DaoUtil.findOne(Session.class, "from_uid", toUid);
             if (session == null) {
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
-                session.setFrom_uid(from_uid);
+                session.setFrom_uid(toUid);
                 session.setType(0);
             }
         }
@@ -130,9 +130,10 @@ public class MsgDao {
                 DaoUtil.findOne(Session.class, "from_uid", from_uid);
         if (session != null) {
             session.setUnread_count(0);
+          //  session.setUp_time(System.currentTimeMillis());
+            DaoUtil.update(session);
         }
-        session.setUp_time(System.currentTimeMillis());
-        DaoUtil.update(session);
+
     }
 
     /***
@@ -142,7 +143,7 @@ public class MsgDao {
     public int sessionReadGetAll() {
         int sum = 0;
         Realm realm = DaoUtil.open();
-        List<Session> list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+        List<Session> list = realm.where(Session.class).findAll();
 
         if (list != null) {
             for (Session s : list) {
@@ -177,7 +178,15 @@ public class MsgDao {
      * @return
      */
     public List<Session> sessionGetAll() {
-        return DaoUtil.findAll(Session.class);
+        List<Session> rts;
+        Realm realm = DaoUtil.open();
+        List<Session> list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+
+        rts=realm.copyFromRealm(list);
+
+        realm.close();
+
+        return rts;
     }
 
 

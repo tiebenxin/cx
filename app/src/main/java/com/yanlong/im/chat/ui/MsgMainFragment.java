@@ -22,8 +22,11 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 
+import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
@@ -32,6 +35,10 @@ import net.cb.cb.library.view.AlertSelectView;
 import net.cb.cb.library.view.PopView;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -165,6 +172,18 @@ public class MsgMainFragment extends Fragment {
 /*            mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);*/
         }
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefresh(EventRefreshMainMsg event) {
+        taskListData();
     }
 
     @Override
@@ -214,18 +233,25 @@ public class MsgMainFragment extends Fragment {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            Session bean = listData.get(position);
+            final Session bean = listData.get(position);
 
             String icon = "";
             String title = "";
             String info = "";
             MsgAllBean msginfo;
             if (bean.getType() == 0) {//单人
+
+
+                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+                icon =finfo.getHead();
+                title=finfo.getName();
+
+                //获取最后一条消息
                  msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-                icon = msginfo.getFrom_user().getHead();
-                title=msginfo.getFrom_user().getName();
                 info=msginfo.getMsg_typeStr();
             } else if (bean.getType() == 1) {//群
+                icon="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1557295193046&di=3078b122f0e9919363f1dc6b1ef69aa8&imgtype=0&src=http%3A%2F%2Fbpic.588ku.com%2Felement_origin_min_pic%2F00%2F91%2F20%2F7656f16057ce9da.jpg";
+                //获取最后一条群消息
                 msginfo = msgDao.msgGetLast4Gid(bean.getGid());
                 title="群"+bean.getGid();
                 info=msginfo.getMsg_typeStr();
@@ -241,7 +267,10 @@ public class MsgMainFragment extends Fragment {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(getContext(), ChatActivity.class));
+                    startActivity(new Intent(getContext(), ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOUID,bean.getFrom_uid())
+                            .putExtra(ChatActivity.AGM_TOGID,bean.getGid())
+                    );
 
                 }
             });
@@ -279,6 +308,7 @@ public class MsgMainFragment extends Fragment {
     }
 
     private MsgDao msgDao = new MsgDao();
+    private UserDao userDao=new UserDao();
     private List<Session> listData = new ArrayList<>();
 
     private void taskListData() {

@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.bean;
 
 
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 
 import io.realm.RealmObject;
@@ -265,7 +266,7 @@ public class MsgAllBean extends RealmObject {
      */
     public boolean isMe() {
 
-        return from_uid == 100102l;
+        return from_uid == UserAction.getMyInfo().getUid().longValue();
     }
 }
 

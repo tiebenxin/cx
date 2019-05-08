@@ -18,12 +18,17 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.ui.MyFragment;
 
+import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -134,14 +139,17 @@ public class MainActivity extends AppActivity {
 
 
     private UserAction userAction=new UserAction();
+private boolean testMe=true;
     private void taskLogin() {
-        userAction.login(13000000000l, "asdfasfd","12345613", new CallBack<ReturnBean<TokenBean>>() {
+        //13222222222l
+        //13000000000l
+        userAction.login(testMe?13000000000l:13222222222l, "asdfasfd","12345613", new CallBack<ReturnBean<TokenBean>>() {
        // userAction.login(13222222222l, "asdfasfd","1234511613", new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 String token=  response.body().getData().getAccessToken();
 
-                ToastUtil.show(getContext(),token);
+               // ToastUtil.show(getContext(),token);
                 LogUtil.getLog().i("tag",">>>>请求的token"+token);
                 //启动聊天服务
                 startService(new Intent(getContext(), ChatServer.class));
@@ -151,11 +159,12 @@ public class MainActivity extends AppActivity {
 
     private void  taskAddUser(){
         UserInfo me=new UserInfo();
-        me.setHead("http://pics4.baidu.com/feed/8644ebf81a4c510f435a13a74701ed29d52aa54a.jpeg?token=5f8c39ca8c4b5dd009b42465d81501cd&s=C10340B286A38BF11D10A5160300C0EA");
-        me.setMkName("本人昵称");
-        me.setName("本人");
+        me.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1212/20/c0/16744115_16744115_1355974000969.jpg");
+        me.setMkName("光辉女郎");
+        me.setName("拉克丝");
         me.setUid(100102l);
-        me.setuType(1);
+
+        me.setuType(testMe?1:2);
         userAction.updateUserinfo(me);
 
 
@@ -164,8 +173,91 @@ public class MainActivity extends AppActivity {
         o1.setMkName("迅捷斥候");
         o1.setName("提莫");
         o1.setUid(100104l);
-        me.setuType(0);
+        o1.setuType(testMe?2:1);
         userAction.updateUserinfo(o1);
+
+        UserInfo o2=new UserInfo();
+        o2.setHead("http://img0.pcgames.com.cn/pcgames/1406/04/3937651_5.jpg");
+        o2.setMkName("无极大师");
+        o2.setName("易");
+        o2.setUid(100105l);
+        o2.setuType(2);
+        userAction.updateUserinfo(o2);
+
+
+        UserInfo o3=new UserInfo();
+        o3.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1502/05/c0/2775914_1423120222550.jpg");
+        o3.setMkName("阿狸");
+        o3.setName("狐狸");
+        o3.setUid(100106l);
+        o3.setuType(2);
+        userAction.updateUserinfo(o3);
+
+        UserInfo o4=new UserInfo();
+        o4.setHead("http://img0.pcgames.com.cn/pcgames/1302/22/2754281_3.png");
+        o4.setMkName("德玛西亚之力");
+        o4.setName("奎因");
+        o4.setUid(100107l);
+        o4.setuType(2);
+        userAction.updateUserinfo(o4);
+
+        UserInfo o5=new UserInfo();
+        o5.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1212/20/c0/16744508_16744508_1355974570137.jpg");
+        o5.setMkName("武器大师");
+        o5.setName("贾克斯");
+        o5.setUid(100108l);
+        o5.setuType(2);
+        userAction.updateUserinfo(o5);
+
+        UserInfo o6=new UserInfo();
+        o6.setHead("http://img0.pcgames.com.cn/pcgames/1211/28/2661351_TwistedFate.png");
+        o6.setMkName("卡牌大师");
+        o6.setName("崔斯特");
+        o6.setUid(100109l);
+        o6.setuType(2);
+        userAction.updateUserinfo(o6);
+
+        UserInfo o7=new UserInfo();
+        o7.setHead("http://img0.pcgames.com.cn/pcgames/1107/06/2258212_Oriana_Square_0.png");
+        o7.setMkName("发条");
+        o7.setName("奥利安拉");
+        o7.setUid(100110l);
+        o7.setuType(2);
+        userAction.updateUserinfo(o7);
+
+        UserInfo o8=new UserInfo();
+        o8.setHead("http://wangyou.pcgames.com.cn/zhuanti/lol/hero/Lulu/Lulu.jpg");
+        o8.setMkName("仙灵女巫");
+        o8.setName("露露");
+        o8.setUid(100111l);
+        o8.setuType(2);
+        userAction.updateUserinfo(o8);
+
+        UserInfo o9=new UserInfo();
+        o9.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1212/20/c0/16744014_16744014_1355973835486.jpg");
+        o9.setMkName("金属大师");
+        o9.setName("莫德凯撒");
+        o9.setUid(100112l);
+        o9.setuType(2);
+        userAction.updateUserinfo(o9);
+
+        UserInfo o10=new UserInfo();
+        o10.setHead("http://wangyou.pcgames.com.cn/zhuanti/lol/hero/Ziggs/Ziggs.png");
+        o10.setMkName("爆破鬼才");
+        o10.setName("吉格斯");
+        o10.setUid(100113l);
+        o10.setuType(2);
+        userAction.updateUserinfo(o10);
+
+        UserInfo o11=new UserInfo();
+        o11.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1501/07/c0/1592065_1420622563160.png");
+        o11.setMkName("放逐之刃");
+        o11.setName("瑞文");
+        o11.setUid(100114l);
+        o11.setuType(2);
+        userAction.updateUserinfo(o11);
+
+
     }
 
 
@@ -175,13 +267,24 @@ public class MainActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        EventBus.getDefault().register(this);
         findViews();
         initEvent();
     }
 
     @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        taskGetMsgNum();
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefresh(EventRefreshMainMsg event) {
         taskGetMsgNum();
     }
 
@@ -197,5 +300,8 @@ public class MainActivity extends AppActivity {
 
         msgsb.setNum( msgDao.sessionReadGetAll());
     }
+
+
+
 
 }

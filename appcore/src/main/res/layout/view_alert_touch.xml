@@ -31,8 +31,8 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
-        android:paddingLeft="3dp"
-        android:paddingRight="3dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:background="@drawable/bg_touch_edit"/>
 
 

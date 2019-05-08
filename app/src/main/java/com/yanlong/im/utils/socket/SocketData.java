@@ -6,6 +6,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -168,7 +169,7 @@ public class SocketData {
             DaoUtil.update(msgAllBean);
             MsgDao msgDao=new MsgDao();
 
-            msgDao.sessionCreate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
+            msgDao.sessionCreate(msgAllBean.getGid(),msgAllBean.getTo_uid());
 
             //移除重发列队
             SendList.removeSendListJust(bean.getRequestId());
@@ -186,6 +187,8 @@ public class SocketData {
 
 
         MsgBean.UniversalMessage.WrapMessage.Builder wmsg = msg.getWrapMsgBuilder(0);
+        wmsg.setFromUid(UserAction.getMyId());
+        wmsg.setTimestamp(System.currentTimeMillis());
 
         if (toGid != null) {//给群发
             wmsg.setGid(toGid);
@@ -226,8 +229,7 @@ public class SocketData {
 
 
         //test
-        wmsg.setFromUid(100102l)
-                .setTimestamp(System.currentTimeMillis());
+       // wmsg.setFromUid(100102l).setTimestamp(System.currentTimeMillis());
 
         //      .setMsgId(UUID.randomUUID().toString());
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();

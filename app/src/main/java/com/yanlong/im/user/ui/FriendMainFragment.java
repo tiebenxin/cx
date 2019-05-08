@@ -14,8 +14,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
-import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -63,42 +66,9 @@ public class FriendMainFragment extends Fragment {
             }
         });
     }
-    private List<FriendInfoBean> listData=new ArrayList<>();
+    private List<UserInfo> listData=new ArrayList<>();
     private void initData() {
-        FriendInfoBean topBean=new FriendInfoBean();
-        topBean.setTag("↑");
-        listData.add(topBean);
-        for (int i=0;i<3;i++){
-            FriendInfoBean friendInfoBean=new FriendInfoBean();
-            friendInfoBean.setHead(UUID.randomUUID().toString());
-            friendInfoBean.setName(UUID.randomUUID().toString());
-            friendInfoBean.setTag("A");
-            listData.add(friendInfoBean);
-        }
-        for (int i=0;i<3;i++){
-            FriendInfoBean friendInfoBean=new FriendInfoBean();
-            friendInfoBean.setHead(UUID.randomUUID().toString());
-            friendInfoBean.setName(UUID.randomUUID().toString());
-            friendInfoBean.setTag("B");
-            listData.add(friendInfoBean);
-        }
-
-        for (int i=0;i<10;i++){
-            FriendInfoBean friendInfoBean=new FriendInfoBean();
-            friendInfoBean.setHead(UUID.randomUUID().toString());
-            friendInfoBean.setName(UUID.randomUUID().toString());
-            friendInfoBean.setTag("C");
-            listData.add(friendInfoBean);
-        }
-
-
-        //筛选
-
-        for (int i=0;i<listData.size();i++){
-            //FriendInfoBean infoBean:
-            viewType.putTag(listData.get(i).getTag(),i);
-        }
-
+        taskListData();
 
 
     }
@@ -195,18 +165,25 @@ public class FriendMainFragment extends Fragment {
                 });
             } else if (holder instanceof RCViewHolder) {
 
-                FriendInfoBean bean = listData.get(position );
+                final UserInfo bean = listData.get(position );
                 RCViewHolder hd = (RCViewHolder) holder;
                 hd.txtType.setText(bean.getTag());
-                hd.imgHead.setImageURI(Uri.parse("https://gss0.bdstatic.com/94o3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D220/sign=63b408bba11ea8d38e227306a70a30cf/0824ab18972bd40765b46cfd7c899e510fb309ba.jpg"));
+                hd.imgHead.setImageURI(Uri.parse(""+bean.getHead()));
                 hd.txtName.setText(bean.getName());
 
-                FriendInfoBean lastbean = listData.get(position-1 );
+                UserInfo lastbean = listData.get(position-1 );
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);
                 }else{
                     hd.viewType.setVisibility(View.VISIBLE);
                 }
+                hd.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getContext(), ChatActivity.class)
+                                .putExtra(ChatActivity.AGM_TOUID,bean.getUid()));
+                    }
+                });
             }
 
 
@@ -268,6 +245,27 @@ public class FriendMainFragment extends Fragment {
             }
 
         }
+    }
+
+    private UserDao userDao=new UserDao();
+    private void taskListData(){
+
+
+
+        listData=  userDao.friendGetAll();
+
+
+        UserInfo topBean=new UserInfo();
+        topBean.setTag("↑");
+        listData.add(0,topBean);
+        //筛选
+
+        for (int i=0;i<listData.size();i++){
+            //UserInfo infoBean:
+            viewType.putTag(listData.get(i).getTag(),i);
+        }
+
+
     }
 
 

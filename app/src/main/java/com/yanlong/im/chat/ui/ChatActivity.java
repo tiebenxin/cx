@@ -1,13 +1,12 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -27,8 +25,8 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
-import com.yanlong.im.chat.bean.MsgTestBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.ui.SingleRedPacketActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -47,12 +45,11 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class ChatActivity extends AppActivity {
@@ -77,6 +74,16 @@ public class ChatActivity extends AppActivity {
     private Button btnSend;
 
     private Integer font_size;
+
+    public static final String AGM_TOUID = "toUId";
+    public static final String AGM_TOGID = "toGId";
+
+    private Long toUId = null;
+    private String toGid = null;
+
+    private boolean isGroup() {
+        return StringUtil.isNotNull(toGid);
+    }
 
     //消息监听事件
     private SocketEvent msgEvent = new SocketEvent() {
@@ -117,9 +124,9 @@ public class ChatActivity extends AppActivity {
 
 
                     ToastUtil.show(context, "发送失败" + bean.getRequestId());
-                    MsgAllBean msgAllBean= MsgConversionBean.ToBean(bean.getWrapMsg(0),bean);
+                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
                     msgAllBean.setSend_state(1);
-                    msgAllBean.setMsg_id("重发"+msgAllBean.getRequest_id());
+                    msgAllBean.setMsg_id("重发" + msgAllBean.getRequest_id());
                     ///这里写库
                     msgAllBean.setSend_data(bean.build().toByteArray());
                     DaoUtil.update(msgAllBean);
@@ -138,26 +145,17 @@ public class ChatActivity extends AppActivity {
                 @Override
                 public void run() {
                     //离线就禁止发送之类的
-                    ToastUtil.show(getContext(),"离线就禁止发送之类的");
-          //  btnSend.setEnabled(state);
+                    ToastUtil.show(getContext(), "离线就禁止发送之类的");
+                    //  btnSend.setEnabled(state);
                 }
             });
         }
     };
 
 
-
-    private Long meID = 100102l;
-    private Long toId = 100104l;
-    private String toGid = null;
-
-
     //当前页
     private int indexPage = 0;
 
-    private boolean isGroup() {
-        return toGid != null;
-    }
 
     //自动寻找控件
     private void findViews() {
@@ -194,6 +192,11 @@ public class ChatActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
+
+        toGid = getIntent().getStringExtra(AGM_TOGID);
+        toUId = getIntent().getLongExtra(AGM_TOUID, 0);
+        toUId = toUId == 0 ? null : toUId;
+
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         actionbar.getBtnRight().setVisibility(View.VISIBLE);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -224,7 +227,7 @@ public class ChatActivity extends AppActivity {
             public void onClick(View v) {
 
                 //发送普通消息
-                MsgAllBean msgAllbean = SocketData.send4Chat(toId, toGid, edtChat.getText().toString());
+                MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, edtChat.getText().toString());
                 showSendObj(msgAllbean);
                 edtChat.getText().clear();
 
@@ -349,16 +352,32 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onClick(View v) {
 
-                //发送普通消息
-                MsgAllBean msgAllbean = SocketData.send4action(toId, toGid, "戳一下消息");
-                showSendObj(msgAllbean);
+                AlertTouch alertTouch = new AlertTouch();
+                alertTouch.init(ChatActivity.this, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes(String content) {
+                        if (!TextUtils.isEmpty(content)) {
+                            //发送普通消息
+                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
+                            showSendObj(msgAllbean);
+                        }
+                    }
+                });
+                alertTouch.show();
+
+
             }
         });
         //名片
         viewCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MsgAllBean msgAllbean = SocketData.send4card(toId, toGid, "http://wx3.sinaimg.cn/mw600/0062mN6Rly1g2khyv79yuj30k20m8mz2.jpg", "昵称", "其他资料");
+                MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, "http://wx3.sinaimg.cn/mw600/0062mN6Rly1g2khyv79yuj30k20m8mz2.jpg", "昵称", "其他资料");
                 showSendObj(msgAllbean);
             }
         });
@@ -473,16 +492,20 @@ public class ChatActivity extends AppActivity {
             btnEmj.setImageLevel(0);
             return;
         }
+
+        //清理会话数量
+        taskCleanRead();
         super.onBackPressed();
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
-        //清理会话
-        taskCleanRead();
+
+
+        super.onDestroy();
+
     }
 
     @Override
@@ -493,6 +516,25 @@ public class ChatActivity extends AppActivity {
         initEvent();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //激活当前会话
+        if (isGroup()) {
+            ChatServer.setSessionGroup(toGid);
+        } else {
+            ChatServer.setSessionSolo(toUId);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        //取消激活会话
+        ChatServer.setSessionNull();
+
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -506,7 +548,7 @@ public class ChatActivity extends AppActivity {
 
                     //2.发送图片
 
-                    MsgAllBean msgAllbean = SocketData.send4Image(toId, toGid, "https://gss0.bdstatic.com/94o3dSag_xI4khGkpoWK1HF6hhy/baike/w%3D268%3Bg%3D0/sign=291e80bcd02a60595210e61c100f53a6/1ad5ad6eddc451daf9da609eb1fd5266d0163292.jpg");
+                    MsgAllBean msgAllbean = SocketData.send4Image(toUId, toGid, "https://gss0.bdstatic.com/94o3dSag_xI4khGkpoWK1HF6hhy/baike/w%3D268%3Bg%3D0/sign=291e80bcd02a60595210e61c100f53a6/1ad5ad6eddc451daf9da609eb1fd5266d0163292.jpg");
                     showSendObj(msgAllbean);
 
                     break;
@@ -559,12 +601,12 @@ public class ChatActivity extends AppActivity {
 
 
             //显示数据集
-            String headico =  msgbean.getFrom_user().getHead();
+            String headico = msgbean.getFrom_user().getHead();
             if (msgbean.isMe()) {
-               // headico =
+                // headico =
             } else {
                 //msgbean.getFrom_user().getHead();
-              //  headico = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1327564550,2587085231&fm=26&gp=0.jpg";
+                //  headico = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1327564550,2587085231&fm=26&gp=0.jpg";
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             switch (msgbean.getMsg_type()) {
@@ -625,8 +667,8 @@ public class ChatActivity extends AppActivity {
                         MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
                         SocketUtil.getSocketUtil().sendData4Msg(bean);
                         //点击发送的时候如果要改变成发送中的状态
-                     //   remsg.setSend_state(2);
-                    //    DaoUtil.update(remsg);
+                        //   remsg.setSend_state(2);
+                        //    DaoUtil.update(remsg);
 
                         taskRefreshMessage();
                     } catch (Exception e) {
@@ -664,10 +706,11 @@ public class ChatActivity extends AppActivity {
     }
 
 
-    private void notifyData2Buttom(){
+    private void notifyData2Buttom() {
         mtListView.getListView().getAdapter().notifyDataSetChanged();
         mtListView.getListView().smoothScrollToPosition(msgListData.size());
     }
+
     private MsgAction msgAction = new MsgAction();
 
     /***
@@ -675,7 +718,7 @@ public class ChatActivity extends AppActivity {
      */
     private void taskRefreshMessage() {
         indexPage = 0;
-        msgListData = msgAction.getMsg4User(toId, indexPage);
+        msgListData = msgAction.getMsg4User(toUId, indexPage);
         notifyData2Buttom();
     }
 
@@ -687,7 +730,7 @@ public class ChatActivity extends AppActivity {
 
         int addItem = msgListData.size();
 
-        msgListData.addAll(0, msgAction.getMsg4User(toId, page));
+        msgListData.addAll(0, msgAction.getMsg4User(toUId, page));
 
         addItem = msgListData.size() - addItem;
 
@@ -698,12 +741,13 @@ public class ChatActivity extends AppActivity {
 
     }
 
-    private MsgDao dao=new MsgDao();
-    private void taskCleanRead(){
-        if(isGroup()){
-            dao.sessionReadClean(toGid,null);
-        }else{
-            dao.sessionReadClean(null,toId);
+    private MsgDao dao = new MsgDao();
+
+    private void taskCleanRead() {
+        if (isGroup()) {
+            dao.sessionReadClean(toGid, null);
+        } else {
+            dao.sessionReadClean(null, toUId);
         }
 
     }

@@ -21,6 +21,7 @@ import retrofit2.Response;
 public class UserAction {
     private UserServer server;
     private UserDao dao=new UserDao();
+    private static UserInfo myInfo;
 
     public UserAction() {
         server = NetUtil.getNet().create(UserServer.class);
@@ -34,8 +35,16 @@ public class UserAction {
         NetUtil.getNet().exec(server.login(bean), callback);
     }*/
 
-    public UserInfo getMyInfo(){
-       return dao.myInfo();
+    public static  UserInfo getMyInfo(){
+        if (myInfo == null) {
+            myInfo=  new UserDao().myInfo();
+        }
+
+        return myInfo;
+    }
+    public static Long getMyId(){
+
+        return getMyInfo().getUid();
     }
 
     public void updateUserinfo(UserInfo userInfo){
