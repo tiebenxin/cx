@@ -15,7 +15,7 @@
         <activity-alias
             android:name="test"
             android:label="测试页面"
-            android:targetActivity=".chat.ui.ChatFontActivity">
+            android:targetActivity=".user.ui.StartPageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -34,7 +34,7 @@
         </activity-alias>
 
         <activity
-            android:name=".test.TestActicity"
+            android:name=".user.ui.StartPageActivity"
             android:launchMode="standard">
             <!-- <intent-filter>
                  <action android:name="android.intent.action.MAIN" />

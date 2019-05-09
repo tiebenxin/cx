@@ -24,13 +24,9 @@ public class SharedPreferencesUtil {
         USER_SETTING("user_setting"),
         TOKEN("token"), //token
         FONT_CHAT("font_chat"),//
-
         USER_INFO("user_info"),
-        PUSH("push");
-
-
-
-
+        PUSH("push"),
+        FIRST_TIME("first_time");
 
         private String name;
 
