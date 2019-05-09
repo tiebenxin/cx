@@ -18,6 +18,7 @@ import net.cb.cb.library.utils.StringUtil;
 
 import okhttp3.Headers;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 /***
@@ -99,16 +100,35 @@ public class UserAction {
         });
     }
 
-    public void login4token(final CallBack<ReturnBean<TokenBean>> callback){
+    
+    public void login4token(final Callback<ReturnBean<TokenBean>> callback){
+        //判断有没有token信息
+        TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        if(!StringUtil.isNotNull(token.getAccessToken())){
+            callback.onFailure(null,null);
+            return;
+        }
+
+        //设置token
+        NetIntrtceptor.headers= Headers.of("X-Access-Token",token.getAccessToken());
+        //或者把token传给后端
 
         NetUtil.getNet().exec(server.login4token(), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     setToken(response.body().getData());
+                    callback.onResponse(call, response);
+                }else{
+                    callback.onFailure(call, null);
                 }
 
-                callback.onResponse(call, response);
+
+            }
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onFailure(call, t);
             }
         });
 
@@ -117,7 +137,7 @@ public class UserAction {
 
 
     /***
-     * 设置和保存token
+     * 应用和保存token
      */
     private void setToken(TokenBean token){
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
