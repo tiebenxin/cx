@@ -109,7 +109,7 @@ public class MainApplication extends MultiDexApplication {
                 }
                 driverInfo.setDeviceToken(deviceToken);
                 if (driverInfo.getMachineCode() == null || driverInfo.getMachineCode().length() < 1) {
-                    driverInfo.setMachineCode(UUID.randomUUID().toString());
+                    driverInfo.setMachineCode(DEV_ID.randomUUID().toString());
 
                 }
                 //注册成功会返回device token

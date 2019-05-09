@@ -13,6 +13,7 @@ import android.widget.ImageView;
 
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -88,8 +89,7 @@ public class StartPageActivity extends AppActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(StartPageActivity.this, MainActivity.class));
-                onBackPressed();
+                goActivity();
             }
         }, TIME);
     }
@@ -99,12 +99,19 @@ public class StartPageActivity extends AppActivity {
         mBtnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show(StartPageActivity.this,"跳转首页");
-                Intent intent = new Intent(StartPageActivity.this, MainActivity.class);
-                startActivity(intent);
+
+                goActivity();
             }
         });
 
+    }
+
+
+    private void goActivity(){
+
+
+        startActivity(new Intent(StartPageActivity.this, MainActivity.class));
+        onBackPressed();
     }
 
     private void showPage(){

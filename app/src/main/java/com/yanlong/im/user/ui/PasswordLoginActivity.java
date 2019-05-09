@@ -93,7 +93,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             ToastUtil.show(this,"请输入密码");
             return;
         }
-        userAction.login(Long.valueOf(phone), password, UserAction.getUid(this), new CallBack<ReturnBean<TokenBean>>() {
+        userAction.login(Long.valueOf(phone), password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 ToastUtil.show(PasswordLoginActivity.this,"登录成功");

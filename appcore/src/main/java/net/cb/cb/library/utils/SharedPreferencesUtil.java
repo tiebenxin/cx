@@ -27,7 +27,7 @@ public class SharedPreferencesUtil {
         USER_INFO("user_info"),
         PUSH("push"),
         FIRST_TIME("first_time"),
-        UUID("uid");
+        DEV_ID("uid");
 
         private String name;
 

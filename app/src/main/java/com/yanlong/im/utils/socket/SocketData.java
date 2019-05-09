@@ -231,7 +231,7 @@ public class SocketData {
         //test
        // wmsg.setFromUid(100102l).setTimestamp(System.currentTimeMillis());
 
-        //      .setMsgId(UUID.randomUUID().toString());
+        //      .setMsgId(DEV_ID.randomUUID().toString());
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
         msg.setWrapMsg(0, wm);
         SocketUtil.getSocketUtil().sendData4Msg(msg);
