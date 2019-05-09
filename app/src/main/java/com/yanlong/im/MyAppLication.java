@@ -28,12 +28,12 @@ public class MyAppLication extends MainApplication {
 
                 AppConfig.URL_HOST = "http://192.168.10.229:8080";
                 AppConfig.DEBUG = true;
-                AppConfig.SOCKET_IP = "192.168.10.110";
-                AppConfig.SOCKET_PORT = 19991;
+                //AppConfig.SOCKET_IP = "192.168.10.110";
+               // AppConfig.SOCKET_PORT = 19991;
                 //AppConfig.SOCKET_IP="192.168.10.88";
                 // AppConfig.SOCKET_PORT=21;
-                // AppConfig.SOCKET_IP="192.168.10.229";
-                // AppConfig.SOCKET_PORT=19991;
+                 AppConfig.SOCKET_IP="192.168.10.229";
+                 AppConfig.SOCKET_PORT=19991;
 
                 break;
             case "pre":
@@ -53,7 +53,7 @@ public class MyAppLication extends MainApplication {
         LogUtil.getLog().init(AppConfig.DEBUG);
         //初始化数据库
         Realm.init(getApplicationContext());
-        DaoUtil.get().initConfig("user122222");
+        DaoUtil.get().initConfig("user+122222");
         //--------------
 
         initUPush();

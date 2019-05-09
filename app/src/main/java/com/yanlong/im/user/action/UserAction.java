@@ -100,7 +100,7 @@ public class UserAction {
         });
     }
 
-    
+
     public void login4token(final Callback<ReturnBean<TokenBean>> callback){
         //判断有没有token信息
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
