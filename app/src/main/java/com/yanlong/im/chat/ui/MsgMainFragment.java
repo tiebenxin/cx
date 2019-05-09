@@ -25,6 +25,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
+import com.yanlong.im.user.ui.HelpActivity;
 
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.utils.DensityUtil;
@@ -133,7 +134,7 @@ public class MsgMainFragment extends Fragment {
         viewPopHelp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show(getContext(), "help");
+                startActivity(new Intent(getContext(), HelpActivity.class));
                 popView.dismiss();
             }
         });

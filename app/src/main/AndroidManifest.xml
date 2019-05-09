@@ -243,7 +243,15 @@
             android:name=".utils.pay.H5PayActivity"
             android:screenOrientation="portrait" />
 
+        <!--帮助-->
+        <activity
+            android:name=".user.ui.HelpActivity"
+            android:screenOrientation="portrait" />
 
+        <!--帮助详情-->
+        <activity
+            android:name=".user.ui.HelpInfoActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 
