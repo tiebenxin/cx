@@ -8,19 +8,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChatInfoActivity extends AppActivity {
+    public static final String AGM_FUID = "fuid";
+    private Long fuid;
+
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private android.support.v7.widget.RecyclerView topListView;
@@ -31,13 +41,14 @@ public class ChatInfoActivity extends AppActivity {
     private CheckBox ckDisturb;
     private LinearLayout viewLogClean;
     private LinearLayout viewFeedback;
-
+    private Session session;
+    private UserInfo fUserInfo;
 
 
     //自动寻找控件
-    private void findViews(){
+    private void findViews() {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
-        actionbar=headView.getActionbar();
+        actionbar = headView.getActionbar();
         topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
         viewLog = (LinearLayout) findViewById(R.id.view_log);
         viewTop = (LinearLayout) findViewById(R.id.view_top);
@@ -49,18 +60,22 @@ public class ChatInfoActivity extends AppActivity {
     }
 
 
-
     //自动生成的控件事件
-    private void initEvent(){
+    private void initEvent() {
+        fuid = getIntent().getLongExtra(AGM_FUID, 0);
+        taskGetInfo();
+
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed(); }
+                onBackPressed();
+            }
+
             @Override
             public void onRight() {
 
-            } });
-
+            }
+        });
 
 
         //顶部处理
@@ -68,6 +83,44 @@ public class ChatInfoActivity extends AppActivity {
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         topListView.setLayoutManager(linearLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
+
+        ckTop.setChecked(session.getIsTop() == 1);
+        ckTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                session.setIsTop(isChecked ? 1 : 0);
+                taskSaveInfo();
+            }
+        });
+        ckDisturb.setChecked(session.getIsMute() == 1);
+        ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                session.setIsMute(isChecked ? 1 : 0);
+                taskSaveInfo();
+            }
+        });
+        viewLogClean.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertYesNo alertYesNo=new AlertYesNo();
+                alertYesNo.init(ChatInfoActivity.this, "删除", "确定清除聊天记录吗?", "确定", "取消", new AlertYesNo.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes() {
+                        taskDelMsg();
+                    }
+                });
+                alertYesNo.show();
+
+            }
+        });
+
+
 
     }
 
@@ -77,9 +130,15 @@ public class ChatInfoActivity extends AppActivity {
         setContentView(R.layout.activity_chat_info);
         findViews();
         initEvent();
+        initData();
     }
 
+    private void initData() {
 
+
+
+
+    }
 
 
     private List<String> listDataTop = new ArrayList<>();
@@ -89,15 +148,32 @@ public class ChatInfoActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-           // return listDataTop == null ? 0 : listDataTop.size();
-            return 10;
+            // return listDataTop == null ? 0 : listDataTop.size();
+            return 2;
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
             //listDataTop.get(position)
-            holder.imgHead.setImageURI(Uri.parse("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3853320162,146397336&fm=173&app=25&f=JPEG?w=640&h=360&s=22A066A44A5674C2528F1F7603000054"));
+            UserInfo userInfo = null;
+            switch (position) {
+                case 0:
+                    userInfo = UserAction.getMyInfo();
+                    holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
+                    break;
+                case 1:
+                    userInfo = fUserInfo;
+
+                    holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
+                    break;
+                case 2:
+                    holder.imgHead.setImageURI(Uri.parse("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3853320162,146397336&fm=173&app=25&f=JPEG?w=640&h=360&s=22A066A44A5674C2528F1F7603000054"));
+
+                    break;
+            }
+
+
         }
 
 
@@ -121,5 +197,27 @@ public class ChatInfoActivity extends AppActivity {
 
         }
     }
+
+    private MsgDao msgDao = new MsgDao();
+
+    //获取会话和对方信息
+    private void taskGetInfo() {
+        session = DaoUtil.findOne(Session.class, "from_uid", fuid);
+        if(session==null){
+            session=  msgDao.sessionCreate(null,fuid);
+        }
+        fUserInfo = DaoUtil.findOne(UserInfo.class, "uid", fuid);
+    }
+
+    //更新配置
+    private void taskSaveInfo() {
+        DaoUtil.update(session);
+    }
+
+    private void taskDelMsg() {
+        msgDao.msgDel(fuid,null);
+    }
+
+
 
 }

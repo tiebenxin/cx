@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.test.bean.Test2Bean;
 import com.yanlong.im.utils.DaoUtil;
@@ -107,8 +108,16 @@ public class ChatServer extends Service {
             EventBus.getDefault().post(new EventRefreshMainMsg());
 
             MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
+            boolean isGroup=StringUtil.isNotNull(msg.getGid());
 
-            if (StringUtil.isNotNull(msg.getGid()) && SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
+            //会话已经静音
+            Session session =isGroup?DaoUtil.findOne(Session.class, "gid", msg.getGid()): DaoUtil.findOne(Session.class, "from_uid", msg.getFromUid());
+            if(session!=null&&session.getIsMute()==1){
+                return;
+            }
+            //-----------------
+
+            if ( isGroup&& SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
                 //当前会话是本群不提示
 
             } else if (SESSION_TYPE == 1 && SESSION_FUID.longValue() == msg.getFromUid()) {//单人

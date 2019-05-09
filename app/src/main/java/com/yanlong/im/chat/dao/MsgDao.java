@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -45,13 +46,33 @@ public class MsgDao {
         return beans;
     }
 
+    /***
+     * 删除聊天记录
+     * @param toUid
+     * @param gid
+     */
+    public void msgDel(Long toUid, String gid) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        if (StringUtil.isNotNull(gid)) {
+            realm.where(MsgAllBean.class).equalTo("gid",gid).findAll().deleteAllFromRealm();
+        } else {
+
+            realm.where(MsgAllBean.class).equalTo("from_uid",toUid).or().equalTo("to_uid",toUid).and().equalTo("gid","").findAll().deleteAllFromRealm();
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
 
     /***
      * 创建会话数量
      * @param gid
      * @param toUid
      */
-    public void sessionCreate(String gid, Long toUid) {
+    public Session sessionCreate(String gid, Long toUid) {
         Session session;
 
         if (StringUtil.isNotNull(gid)) {//群消息
@@ -76,6 +97,7 @@ public class MsgDao {
         session.setUnread_count(0);
         session.setUp_time(System.currentTimeMillis());
         DaoUtil.update(session);
+        return session;
     }
 
     /***
@@ -130,7 +152,7 @@ public class MsgDao {
                 DaoUtil.findOne(Session.class, "from_uid", from_uid);
         if (session != null) {
             session.setUnread_count(0);
-          //  session.setUp_time(System.currentTimeMillis());
+            //  session.setUp_time(System.currentTimeMillis());
             DaoUtil.update(session);
         }
 
@@ -180,9 +202,9 @@ public class MsgDao {
     public List<Session> sessionGetAll() {
         List<Session> rts;
         Realm realm = DaoUtil.open();
-        List<Session> list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
-
-        rts=realm.copyFromRealm(list);
+        RealmResults<Session> list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+        list = list.sort("isTop", Sort.DESCENDING);
+        rts = realm.copyFromRealm(list);
 
         realm.close();
 
@@ -196,13 +218,16 @@ public class MsgDao {
      * @return
      */
     public MsgAllBean msgGetLast4FUid(Long uid) {
-        MsgAllBean ret;
+        MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
         MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("from_uid", uid).or().equalTo("to_uid", uid)
                 .sort("timestamp", Sort.DESCENDING).findFirst();
-        ret= realm.copyFromRealm(bean);
+        if (bean != null) {
+            ret = realm.copyFromRealm(bean);
+        }
+
         realm.close();
-      return  ret;
+        return ret;
     }
 
     /***
@@ -215,9 +240,9 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", gid)
                 .sort("timestamp", Sort.DESCENDING).findFirst();
-        ret= realm.copyFromRealm(bean);
+        ret = realm.copyFromRealm(bean);
         realm.close();
-        return  ret;
+        return ret;
     }
 
 

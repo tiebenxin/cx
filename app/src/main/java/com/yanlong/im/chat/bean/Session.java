@@ -15,6 +15,26 @@ public class Session extends RealmObject {
     private String gid;
     private Long up_time;
     private int unread_count=0;
+    //是否置顶
+    private int isTop=0;
+    //时候静音
+    private int isMute=0;
+
+    public int getIsMute() {
+        return isMute;
+    }
+
+    public void setIsMute(int isMute) {
+        this.isMute = isMute;
+    }
+
+    public int getIsTop() {
+        return isTop;
+    }
+
+    public void setIsTop(int isTop) {
+        this.isTop = isTop;
+    }
 
     public String getSid() {
         return sid;

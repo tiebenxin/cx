@@ -25,6 +25,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.view.ChatItemView;
@@ -210,7 +211,11 @@ public class ChatActivity extends AppActivity {
                 if (isGroup()) {//群聊,单聊
                     go(GroupInfoActivity.class);
                 } else {
-                    go(ChatInfoActivity.class);
+
+                    startActivity(new Intent(getContext(),ChatInfoActivity.class)
+                            .putExtra(ChatInfoActivity.AGM_FUID,toUId)
+                    );
+
                 }
 
             }
@@ -521,10 +526,12 @@ public class ChatActivity extends AppActivity {
         super.onResume();
         //激活当前会话
         if (isGroup()) {
-            ChatServer.setSessionGroup(toGid);
+                ChatServer.setSessionGroup(toGid);
         } else {
-            ChatServer.setSessionSolo(toUId);
+                ChatServer.setSessionSolo(toUId);
         }
+        //刷新页面数据
+        taskRefreshMessage();
     }
 
     @Override
