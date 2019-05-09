@@ -26,7 +26,8 @@ public class SharedPreferencesUtil {
         FONT_CHAT("font_chat"),//
         USER_INFO("user_info"),
         PUSH("push"),
-        FIRST_TIME("first_time");
+        FIRST_TIME("first_time"),
+        UUID("uid");
 
         private String name;
 
