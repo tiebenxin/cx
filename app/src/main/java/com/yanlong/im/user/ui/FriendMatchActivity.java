@@ -98,6 +98,7 @@ public class FriendMatchActivity extends AppActivity {
                 }
 
                 initViewTypeData();
+                mtListView.notifyDataSetChange();
 
             }
         });
@@ -164,6 +165,7 @@ public class FriendMatchActivity extends AppActivity {
 
             holder.btnAdd.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                    ToastUtil.show(getContext(),"添加的接口");
 
                 }
             });

@@ -3,13 +3,13 @@ package com.yanlong.im.user.bean;
 import com.google.gson.annotations.SerializedName;
 
 public class TokenBean {
-    private String uid;
+    private Long uid;
     @SerializedName("access_token")
     private String accessToken;
-    public void setUid(String uid) {
+    public void setUid(Long uid) {
         this.uid = uid;
     }
-    public String getUid() {
+    public Long getUid() {
         return uid;
     }
 

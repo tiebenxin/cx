@@ -39,6 +39,10 @@ public interface UserServer {
     @POST("/user/get-user-info")
     Call<ReturnBean<UserInfo>> getMyInfo();
 
+    @POST("/user/get-user-info-by-uid")
+    @FormUrlEncoded
+    Call<ReturnBean<UserInfo>> getUserInfo(@Field("uid")Long uid);
+
     @POST("/pub/退出")
     Call<ReturnBean> loginOut();
 

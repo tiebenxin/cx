@@ -105,6 +105,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                // ToastUtil.show(PasswordLoginActivity.this,"登录成功");
                 if(response.body().isOk()){
                     go(MainActivity.class);
+                    finish();
                 }else{
                     ToastUtil.show(getContext(),response.body().getMsg());
                 }

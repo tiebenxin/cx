@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.dao;
 
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.utils.DaoUtil;
@@ -20,6 +21,10 @@ import io.realm.Sort;
 public class MsgDao {
     //分页数量
     private int pSize = 10;
+
+    public Group getGroup4Id(String gid){
+        return DaoUtil.findOne(Group.class,"gid",gid);
+    }
 
     /***
      * 单用户消息列表
@@ -236,11 +241,14 @@ public class MsgDao {
      * @return
      */
     public MsgAllBean msgGetLast4Gid(String gid) {
-        MsgAllBean ret;
+        MsgAllBean ret=null;
         Realm realm = DaoUtil.open();
         MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", gid)
                 .sort("timestamp", Sort.DESCENDING).findFirst();
-        ret = realm.copyFromRealm(bean);
+        if(bean!=null){
+            ret = realm.copyFromRealm(bean);
+        }
+
         realm.close();
         return ret;
     }

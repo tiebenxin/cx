@@ -1,5 +1,6 @@
 package com.yanlong.im.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -77,11 +78,14 @@ public class DaoUtil {
 
     //查找所有数据
     public static <T extends RealmModel> List findAll(Class<T> clss) {
-        List beans;
+        List beans=new ArrayList();
         Realm realm = open();
 
         RealmResults list = realm.where(clss).findAll();
-        beans = realm.copyFromRealm(list);
+        if(list!=null){
+            beans = realm.copyFromRealm(list);
+        }
+
         realm.close();
         return beans;
     }

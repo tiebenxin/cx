@@ -159,7 +159,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void taskAddUser() {
-        UserInfo me = new UserInfo();
+    /*    UserInfo me = new UserInfo();
         me.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1212/20/c0/16744115_16744115_1355974000969.jpg");
         me.setMkName("光辉女郎");
         me.setName("拉克丝");
@@ -175,7 +175,7 @@ public class MainActivity extends AppActivity {
         o1.setName("提莫");
         o1.setUid(100104l);
         o1.setuType(testMe ? 2 : 1);
-        userAction.updateUserinfo2DB(o1);
+        userAction.updateUserinfo2DB(o1);*/
 
         UserInfo o2 = new UserInfo();
         o2.setHead("http://img0.pcgames.com.cn/pcgames/1406/04/3937651_5.jpg");

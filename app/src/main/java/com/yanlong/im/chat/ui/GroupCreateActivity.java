@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,13 +13,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.user.ui.FriendMainFragment;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.PySortView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /***
  * 创建群聊
@@ -29,7 +42,7 @@ public class GroupCreateActivity extends AppActivity {
     private LinearLayout viewSearch;
     private android.support.v7.widget.RecyclerView topListView;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private View viewType;
+    private PySortView viewType;
 
     //自动寻找控件
     private void findViews() {
@@ -52,7 +65,7 @@ public class GroupCreateActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                ToastUtil.show(context,"确定");
+                taskCreate();
             }
         });
         actionbar.setTxtRight("确定");
@@ -73,6 +86,12 @@ public class GroupCreateActivity extends AppActivity {
         setContentView(R.layout.activity_group_create);
         findViews();
         initEvent();
+        initData();
+    }
+    private void initData() {
+        taskListData();
+
+
     }
 
     //自动生成RecyclerViewAdapter
@@ -80,31 +99,45 @@ public class GroupCreateActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return null == null ? 10 : 0;
+            return listData == null ? 0 :listData.size();
         }
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder holder, int position) {
+        public void onBindViewHolder(RCViewHolder hd, int position) {
 
-            holder.txtType.setText("A");
-            holder.imgHead.setImageURI(Uri.parse("https://gss0.bdstatic.com/94o3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D220/sign=63b408bba11ea8d38e227306a70a30cf/0824ab18972bd40765b46cfd7c899e510fb309ba.jpg"));
-            holder.txtName.setText("提莫队长");
+            final UserInfo bean = listData.get(position);
 
-            if (position > 3 && position < 8) {
-                holder.viewType.setVisibility(View.GONE);
+
+
+            hd.txtType.setText(bean.getTag());
+            hd.imgHead.setImageURI(Uri.parse(""+bean.getHead()));
+            hd.txtName.setText(bean.getName());
+
+            hd.viewType.setVisibility(View.VISIBLE);
+            if(position>0){
+                UserInfo lastbean = listData.get(position-1 );
+                if (lastbean.getTag().equals(bean.getTag())) {
+                    hd.viewType.setVisibility(View.GONE);
+                }
             }
-            holder.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            
+            
+            
+            hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-                        listDataTop.add("https://gss0.bdstatic.com/94o3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D220/sign=63b408bba11ea8d38e227306a70a30cf/0824ab18972bd40765b46cfd7c899e510fb309ba.jpg");
+                        listDataTop.add(bean);
                     } else {
-                        listDataTop.remove(0);
+                        listDataTop.remove(bean);
                     }
                     topListView.getAdapter().notifyDataSetChanged();
                 }
             });
+            
+            
+            
 
         }
 
@@ -138,7 +171,7 @@ public class GroupCreateActivity extends AppActivity {
         }
     }
 
-    private List<String> listDataTop = new ArrayList<>();
+    private List<UserInfo> listDataTop = new ArrayList<>();
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewTopAdapter extends RecyclerView.Adapter<RecyclerViewTopAdapter.RCViewTopHolder> {
@@ -152,7 +185,7 @@ public class GroupCreateActivity extends AppActivity {
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
 
-            holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position)));
+            holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
         }
 
 
@@ -175,6 +208,54 @@ public class GroupCreateActivity extends AppActivity {
             }
 
         }
+    }
+
+
+    private MsgAction msgACtion = new MsgAction();
+    private UserDao userDao=new UserDao();
+
+
+    private List<UserInfo> listData=new ArrayList<>();
+    private void taskListData(){
+
+
+
+        listData=  userDao.friendGetAll();
+
+
+        for (int i=0;i<listData.size();i++){
+            //UserInfo infoBean:
+            viewType.putTag(listData.get(i).getTag(),i);
+        }
+
+
+    }
+
+    private void taskCreate() {
+
+        String name = "";
+        String icon = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
+        for (UserInfo userInfo:listDataTop){
+            name+=userInfo.getName()+",";
+        }
+        name=name.length()>0?name.substring(0,name.length()-2):name;
+        name=name.length()>14?name.substring(0,14):name;
+        name+="的群";
+
+
+        msgACtion.groupCreate(UUID.randomUUID().toString(), name, icon, listDataTop, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body()==null)
+                    return;
+                if (response.body().isOk()) {
+                    finish();
+                } else {
+                    ToastUtil.show(getContext(), response.body().getMsg());
+                }
+
+            }
+        });
     }
 
 

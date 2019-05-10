@@ -12,6 +12,9 @@ import io.realm.annotations.PrimaryKey;
 public class Group  extends RealmObject {
     @PrimaryKey
     private String gid;
+    private String name;
+    private String avatar;
+
     private RealmList<UserInfo> users;
 
     public String getGid() {
@@ -28,5 +31,21 @@ public class Group  extends RealmObject {
 
     public void setUsers(RealmList<UserInfo> users) {
         this.users = users;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

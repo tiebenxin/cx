@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -254,10 +255,11 @@ public class MsgMainFragment extends Fragment {
                  }
 
             } else if (bean.getType() == 1) {//群
-                icon="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1557295193046&di=3078b122f0e9919363f1dc6b1ef69aa8&imgtype=0&src=http%3A%2F%2Fbpic.588ku.com%2Felement_origin_min_pic%2F00%2F91%2F20%2F7656f16057ce9da.jpg";
-                //获取最后一条群消息
+                Group ginfo=msgDao.getGroup4Id(bean.getGid());
+                icon=ginfo.getAvatar();
+                        //获取最后一条群消息
                 msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                title="群"+bean.getGid();
+                title=ginfo.getName();
                 if(msginfo!=null){
                     info=msginfo.getMsg_typeStr();
                 }

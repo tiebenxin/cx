@@ -96,9 +96,9 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body()!=null&&response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    initDB(response.body().getData().getUid());
+                    initDB(""+response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web();
+                    getMyInfo4Web(response.body().getData().getUid());
 
                     callback.onResponse(call, response);
                 } else {
@@ -119,15 +119,18 @@ public class UserAction {
     /***
      * 拉取服务器的自己的信息到数据库
      */
-    private void getMyInfo4Web() {
-        NetUtil.getNet().exec(server.getMyInfo(), new CallBack<ReturnBean<UserInfo>>() {
+    private void getMyInfo4Web(Long usrid) {
+        NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
 
-                UserInfo userInfo = response.body().getData();
-                userInfo.setName(userInfo.getName());
-                userInfo.setuType(1);
-                updateUserinfo2DB(userInfo);
+               if(response.body()!=null&&response.body().isOk()) {
+                   UserInfo userInfo = response.body().getData();
+                   userInfo.setName(userInfo.getName());
+                   userInfo.setuType(1);
+                   updateUserinfo2DB(userInfo);
+               }
+
 
             }
         });
@@ -151,10 +154,10 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body()!=null&&response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    initDB(response.body().getData().getUid());
+                    initDB(""+response.body().getData().getUid());
 
                     setToken(response.body().getData());
-                    getMyInfo4Web();
+                    getMyInfo4Web(response.body().getData().getUid());
                     callback.onResponse(call, response);
                 } else {
                     callback.onFailure(call, null);
