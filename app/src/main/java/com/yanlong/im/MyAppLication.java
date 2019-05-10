@@ -53,7 +53,7 @@ public class MyAppLication extends MainApplication {
         LogUtil.getLog().init(AppConfig.DEBUG);
         //初始化数据库
         Realm.init(getApplicationContext());
-        DaoUtil.get().initConfig("user+122222");
+
         //--------------
 
         initUPush();

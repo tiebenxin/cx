@@ -22,7 +22,6 @@ import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
 
@@ -164,7 +163,7 @@ public class MainActivity extends AppActivity {
         me.setUid(100102l);
 
         me.setuType(testMe ? 1 : 2);
-        userAction.updateUserinfo(me);
+        userAction.updateUserinfo2DB(me);
 
 
         UserInfo o1 = new UserInfo();
@@ -173,7 +172,7 @@ public class MainActivity extends AppActivity {
         o1.setName("提莫");
         o1.setUid(100104l);
         o1.setuType(testMe ? 2 : 1);
-        userAction.updateUserinfo(o1);
+        userAction.updateUserinfo2DB(o1);
 
         UserInfo o2 = new UserInfo();
         o2.setHead("http://img0.pcgames.com.cn/pcgames/1406/04/3937651_5.jpg");
@@ -181,7 +180,7 @@ public class MainActivity extends AppActivity {
         o2.setName("易");
         o2.setUid(100105l);
         o2.setuType(2);
-        userAction.updateUserinfo(o2);
+        userAction.updateUserinfo2DB(o2);
 
 
         UserInfo o3 = new UserInfo();
@@ -190,7 +189,7 @@ public class MainActivity extends AppActivity {
         o3.setName("狐狸");
         o3.setUid(100106l);
         o3.setuType(2);
-        userAction.updateUserinfo(o3);
+        userAction.updateUserinfo2DB(o3);
 
         UserInfo o4 = new UserInfo();
         o4.setHead("http://img0.pcgames.com.cn/pcgames/1302/22/2754281_3.png");
@@ -198,7 +197,7 @@ public class MainActivity extends AppActivity {
         o4.setName("奎因");
         o4.setUid(100107l);
         o4.setuType(2);
-        userAction.updateUserinfo(o4);
+        userAction.updateUserinfo2DB(o4);
 
         UserInfo o5 = new UserInfo();
         o5.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1212/20/c0/16744508_16744508_1355974570137.jpg");
@@ -206,7 +205,7 @@ public class MainActivity extends AppActivity {
         o5.setName("贾克斯");
         o5.setUid(100108l);
         o5.setuType(2);
-        userAction.updateUserinfo(o5);
+        userAction.updateUserinfo2DB(o5);
 
         UserInfo o6 = new UserInfo();
         o6.setHead("http://img0.pcgames.com.cn/pcgames/1211/28/2661351_TwistedFate.png");
@@ -214,7 +213,7 @@ public class MainActivity extends AppActivity {
         o6.setName("崔斯特");
         o6.setUid(100109l);
         o6.setuType(2);
-        userAction.updateUserinfo(o6);
+        userAction.updateUserinfo2DB(o6);
 
         UserInfo o7 = new UserInfo();
         o7.setHead("http://img0.pcgames.com.cn/pcgames/1107/06/2258212_Oriana_Square_0.png");
@@ -222,7 +221,7 @@ public class MainActivity extends AppActivity {
         o7.setName("奥利安拉");
         o7.setUid(100110l);
         o7.setuType(2);
-        userAction.updateUserinfo(o7);
+        userAction.updateUserinfo2DB(o7);
 
         UserInfo o8 = new UserInfo();
         o8.setHead("http://wangyou.pcgames.com.cn/zhuanti/lol/hero/Lulu/Lulu.jpg");
@@ -230,7 +229,7 @@ public class MainActivity extends AppActivity {
         o8.setName("露露");
         o8.setUid(100111l);
         o8.setuType(2);
-        userAction.updateUserinfo(o8);
+        userAction.updateUserinfo2DB(o8);
 
         UserInfo o9 = new UserInfo();
         o9.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1212/20/c0/16744014_16744014_1355973835486.jpg");
@@ -238,7 +237,7 @@ public class MainActivity extends AppActivity {
         o9.setName("莫德凯撒");
         o9.setUid(100112l);
         o9.setuType(2);
-        userAction.updateUserinfo(o9);
+        userAction.updateUserinfo2DB(o9);
 
         UserInfo o10 = new UserInfo();
         o10.setHead("http://wangyou.pcgames.com.cn/zhuanti/lol/hero/Ziggs/Ziggs.png");
@@ -246,7 +245,7 @@ public class MainActivity extends AppActivity {
         o10.setName("吉格斯");
         o10.setUid(100113l);
         o10.setuType(2);
-        userAction.updateUserinfo(o10);
+        userAction.updateUserinfo2DB(o10);
 
         UserInfo o11 = new UserInfo();
         o11.setHead("http://img.pcgames.com.cn/images/upload/upc/tx/gamedb/1501/07/c0/1592065_1420622563160.png");
@@ -254,7 +253,7 @@ public class MainActivity extends AppActivity {
         o11.setName("瑞文");
         o11.setUid(100114l);
         o11.setuType(2);
-        userAction.updateUserinfo(o11);
+        userAction.updateUserinfo2DB(o11);
 
 
     }

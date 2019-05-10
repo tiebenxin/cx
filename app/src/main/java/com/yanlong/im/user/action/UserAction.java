@@ -7,6 +7,7 @@ import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
+import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -81,8 +82,11 @@ public class UserAction {
     }
 
 
-    public void updateUserinfo(UserInfo userInfo) {
+    public void updateUserinfo2DB(UserInfo userInfo) {
+
         dao.updateUserinfo(userInfo);
+
+
     }
 
 
@@ -92,39 +96,73 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    initDB(response.body().getData().getUid());
                     setToken(response.body().getData());
+                    getMyInfo4Web();
+                    
+                    callback.onResponse(call, response);
+                } else {
+                    callback.onFailure(call, null);
                 }
 
-                callback.onResponse(call, response);
+
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onFailure(call, t);
             }
         });
     }
 
+    /***
+     * 拉取服务器的自己的信息到数据库
+     */
+    private void getMyInfo4Web() {
+        NetUtil.getNet().exec(server.getMyInfo(), new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
 
-    public void login4token(final Callback<ReturnBean<TokenBean>> callback){
+                UserInfo userInfo = response.body().getData();
+                userInfo.setName(userInfo.getName());
+                userInfo.setuType(1);
+                updateUserinfo2DB(userInfo);
+
+            }
+        });
+
+    }
+
+
+    public void login4token(final Callback<ReturnBean<TokenBean>> callback) {
         //判断有没有token信息
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        if(!StringUtil.isNotNull(token.getAccessToken())){
-            callback.onFailure(null,null);
+        if (token==null||!StringUtil.isNotNull(token.getAccessToken())) {
+            callback.onFailure(null, null);
             return;
         }
 
         //设置token
-        NetIntrtceptor.headers= Headers.of("X-Access-Token",token.getAccessToken());
+        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
         //或者把token传给后端
 
         NetUtil.getNet().exec(server.login4token(), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    initDB(response.body().getData().getUid());
+
                     setToken(response.body().getData());
+                    getMyInfo4Web();
                     callback.onResponse(call, response);
-                }else{
+                } else {
                     callback.onFailure(call, null);
                 }
 
 
             }
+
             @Override
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 super.onFailure(call, t);
@@ -134,14 +172,28 @@ public class UserAction {
 
     }
 
+    /***
+     * 登出
+     */
+    public void loginOut(){
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
+
+    }
 
 
     /***
      * 应用和保存token
      */
-    private void setToken(TokenBean token){
+    private void setToken(TokenBean token) {
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
-        NetIntrtceptor.headers= Headers.of("X-Access-Token",token.getAccessToken());
+        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+    }
+
+    /***
+     * 配置要使用的DB
+     */
+    private void initDB(String uuid){
+        DaoUtil.get().initConfig("db_user_"+uuid);
     }
 
 }

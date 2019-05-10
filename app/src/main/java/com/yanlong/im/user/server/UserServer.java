@@ -32,14 +32,15 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login(@Field("password") String password,@Field("phone")Long phone,@Field("devid")String devid,@Field("platform")String platform);
 
-    @POST("/pub/get-login")
+    @POST("/pub/换新token的操作")
     Call<ReturnBean<TokenBean>> login4token();
 
 
     @POST("/user/get-user-info")
-    Call<ReturnBean<UserInfo>> getUserinfo();
+    Call<ReturnBean<UserInfo>> getMyInfo();
 
-
+    @POST("/pub/退出")
+    Call<ReturnBean> loginOut();
 
 
 
