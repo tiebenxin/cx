@@ -12,6 +12,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -49,6 +50,10 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
     }
 
     private void initEvent(){
+        if(AppConfig.DEBUG){
+            mEtPhoneContent.setText("13000000000");
+            mEtPasswordContent.setText("asdfasfd");
+        }
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
