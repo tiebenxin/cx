@@ -7,9 +7,9 @@ import com.google.gson.annotations.SerializedName;
  * @date 2016/12/20
  */
 public class ReturnBean<T> {
-    @SerializedName("err_code")
+    @SerializedName("errCode")
     Long code;
-    @SerializedName("err_msg")
+    @SerializedName("errMsg")
     String msg;
     T data;
 

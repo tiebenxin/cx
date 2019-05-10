@@ -1,5 +1,6 @@
 package com.yanlong.im.user.bean;
 
+import com.google.gson.annotations.SerializedName;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -15,9 +16,14 @@ import io.realm.annotations.PrimaryKey;
 public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     @PrimaryKey
     private Long uid;
+    @SerializedName("nickname")
     private String name;
     private String mkName;
+    @SerializedName("gender")
+    private int sex;
+    private String imid;
     private String tag;
+    @SerializedName("avatar")
     private String head;
 
  //   private RealmList<MsgAllBean> msgs;

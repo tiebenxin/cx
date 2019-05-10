@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
@@ -101,7 +102,12 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         userAction.login(Long.valueOf(phone), password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                ToastUtil.show(PasswordLoginActivity.this,"登录成功");
+               // ToastUtil.show(PasswordLoginActivity.this,"登录成功");
+                if(response.body().isOk()){
+                    go(MainActivity.class);
+                }else{
+                    ToastUtil.show(getContext(),response.body().getMsg());
+                }
             }
         });
     }
