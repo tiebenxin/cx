@@ -125,12 +125,15 @@ public class MainActivity extends AppActivity {
         bottomTab.getTabAt(0).select();
 
         //test
-        taskLogin();
+      //  taskLogin();
 
-        //test 启动聊天服务
-        //startService(new Intent(getContext(), ChatServer.class));
         //写入通讯录
         taskAddUser();
+
+
+        // 启动聊天服务
+        startService(new Intent(getContext(), ChatServer.class));
+
 
     }
 

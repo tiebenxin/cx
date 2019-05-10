@@ -99,7 +99,7 @@ public class UserAction {
                     initDB(response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web();
-                    
+
                     callback.onResponse(call, response);
                 } else {
                     callback.onFailure(call, null);
@@ -150,7 +150,7 @@ public class UserAction {
         NetUtil.getNet().exec(server.login4token(), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                if (response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                if (response.body()!=null&&response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB(response.body().getData().getUid());
 
                     setToken(response.body().getData());

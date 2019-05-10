@@ -16,7 +16,7 @@ public class ToastUtil {
             if (toast != null)
                 toast.cancel();
             toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
+           // toast.setGravity(Gravity.CENTER, 0, 0);
 
             toast.show();
         }
@@ -27,7 +27,7 @@ public class ToastUtil {
         if (toast != null)
             toast.cancel();
         toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
+      //  toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 }

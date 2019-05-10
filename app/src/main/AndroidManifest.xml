@@ -25,7 +25,7 @@
         <activity-alias
             android:name="main"
             android:label="首页"
-            android:targetActivity=".MainActivity">
+            android:targetActivity=".user.ui.StartPageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,7 +35,7 @@
 
         <activity
             android:name=".user.ui.StartPageActivity"
-            android:launchMode="standard">
+            android:launchMode="singleTask">
             <!-- <intent-filter>
                  <action android:name="android.intent.action.MAIN" />
 

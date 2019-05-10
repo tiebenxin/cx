@@ -32,7 +32,7 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login(@Field("password") String password,@Field("phone")Long phone,@Field("devid")String devid,@Field("platform")String platform);
 
-    @POST("/pub/换新token的操作")
+    @POST("/user/refresh-access-token")
     Call<ReturnBean<TokenBean>> login4token();
 
 
