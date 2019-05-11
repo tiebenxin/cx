@@ -39,6 +39,7 @@
                     android:textSize="17sp" />
 
                 <TextView
+                    android:id="@+id/tv_info"
                     android:layout_marginTop="5dp"
                     style="@style/app_txt_content_1"
                     android:text="info"

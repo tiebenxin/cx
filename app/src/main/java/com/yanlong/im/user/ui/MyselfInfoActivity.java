@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
+import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -33,6 +34,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private TextView mTvIdentity;
     private LinearLayout mViewHead;
     private HeadView mHeadView;
+    private UserInfo userInfo;
 
 
     @Override
@@ -41,6 +43,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         setContentView(R.layout.activity_myself_info);
         initView();
         initEvent();
+        initData();
     }
 
     private void initView() {
@@ -78,6 +81,10 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
             }
         });
+    }
+
+    private void initData(){
+        userInfo = new UserInfo();
     }
 
 
@@ -135,6 +142,12 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             }
         }
     }
+
+
+
+
+
+
 }
 
 

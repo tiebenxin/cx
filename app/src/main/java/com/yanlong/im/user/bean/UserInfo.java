@@ -28,14 +28,25 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String tag;
     @SerializedName("avatar")
     private String head;
-
-
- //   private RealmList<MsgAllBean> msgs;
-
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单
     private Integer uType;
 
 
+    public int getSex() {
+        return sex;
+    }
+
+    public void setSex(int sex) {
+        this.sex = sex;
+    }
+
+    public String getImid() {
+        return imid;
+    }
+
+    public void setImid(String imid) {
+        this.imid = imid;
+    }
 
     public Integer getuType() {
         return uType;

@@ -23,6 +23,7 @@ import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.Field;
 
 /***
  * @author jyj
@@ -85,10 +86,7 @@ public class UserAction {
 
 
     public void updateUserinfo2DB(UserInfo userInfo) {
-
         dao.updateUserinfo(userInfo);
-
-
     }
 
 
@@ -137,6 +135,13 @@ public class UserAction {
             }
         });
 
+    }
+
+    /**
+     * 获取用户信息
+     * */
+    public void getUserInfo4Id(Long usrid,CallBack<ReturnBean<UserInfo>> callBack) {
+        NetUtil.getNet().exec(server.getUserInfo(usrid),callBack);
     }
 
 
@@ -295,6 +300,13 @@ public class UserAction {
      */
     public void friendGet4Black( CallBack<ReturnBean<List<UserInfo>>> callback){
         NetUtil.getNet().exec(server.friendGet(2),callback);
+    }
+
+    /**
+     *设置用户个人资料
+     * */
+    public void userInfoSet(long imid,String avatar,String nickname,int gender,CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.userInfoSet(imid,avatar,nickname,gender),callback);
     }
 
 

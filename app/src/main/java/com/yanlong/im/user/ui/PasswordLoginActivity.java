@@ -65,7 +65,6 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             public void onRight() {
                 Intent intent = new Intent(PasswordLoginActivity.this,RegisterActivity.class);
                 startActivity(intent);
-                onBackPressed();
             }
         });
         mTvIdentifyingCode.setOnClickListener(this);

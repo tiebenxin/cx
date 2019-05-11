@@ -66,6 +66,10 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<List<UserInfo>>> friendGet(@Field("opFlag") Integer opFlag);
 
+    @POST("/user/set-user-info")
+    @FormUrlEncoded
+    Call<ReturnBean> userInfoSet(@Field("imid") Long imid,@Field("avatar") String avatar,
+                                                   @Field("nickname") String nickname,@Field("gender") Integer gender);
 
 
 }

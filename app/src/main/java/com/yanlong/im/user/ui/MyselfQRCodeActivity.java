@@ -14,9 +14,10 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.zxing.WriterException;
 import com.yanlong.im.R;
+import com.yanlong.im.utils.QRCodeManage;
+
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.QRCodeManage;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;

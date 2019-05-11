@@ -1,27 +1,42 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatActivity;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.HeadView;
 
+import retrofit2.Call;
+import retrofit2.Response;
 /***
  * 资料界面
  */
 public class UserInfoActivity extends AppActivity {
-    private net.cb.cb.library.view.HeadView headView;
+    public static final int SETING_REMARK = 1000;
+    public static final String TYPE = "TYPE";
+    public static final String ID = "id";
+
+    private HeadView headView;
     private ActionbarView actionbar;
     private LinearLayout viewHead;
-    private com.facebook.drawee.view.SimpleDraweeView imgHead;
+    private SimpleDraweeView imgHead;
     private TextView txtMkname;
     private TextView txtNkname;
     private TextView txtPrNo;
@@ -29,32 +44,56 @@ public class UserInfoActivity extends AppActivity {
     private LinearLayout viewBlack;
     private LinearLayout viewDel;
     private LinearLayout viewComplaint;
+    private LinearLayout mLayoutMsg;
+    private Button mBtnAdd;
     private Button btnMsg;
+
+    private int type; //0.已经是好友 1.不是好友添加好友
+    private String id;
+    UserAction userAction;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_userinfo);
+        findViews();
+        initEvent();
+        initData();
+    }
 
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewHead = (LinearLayout) findViewById(R.id.view_head);
-        imgHead = (com.facebook.drawee.view.SimpleDraweeView) findViewById(R.id.img_head);
-        txtMkname = (TextView) findViewById(R.id.txt_mkname);
-        txtNkname = (TextView) findViewById(R.id.txt_nkname);
-        txtPrNo = (TextView) findViewById(R.id.txt_pr_no);
-        viewMkname = (LinearLayout) findViewById(R.id.view_mkname);
-        viewBlack = (LinearLayout) findViewById(R.id.view_black);
-        viewDel = (LinearLayout) findViewById(R.id.view_del);
-        viewComplaint = (LinearLayout) findViewById(R.id.view_complaint);
-        btnMsg = (Button) findViewById(R.id.btn_msg);
+        viewHead = findViewById(R.id.view_head);
+        imgHead = findViewById(R.id.img_head);
+        txtMkname = findViewById(R.id.txt_mkname);
+        txtNkname = findViewById(R.id.txt_nkname);
+        txtPrNo = findViewById(R.id.txt_pr_no);
+        viewMkname = findViewById(R.id.view_mkname);
+        viewBlack = findViewById(R.id.view_black);
+        viewDel = findViewById(R.id.view_del);
+        viewComplaint = findViewById(R.id.view_complaint);
+        btnMsg = findViewById(R.id.btn_msg);
+        mLayoutMsg = findViewById(R.id.layout_msg);
+        mBtnAdd = findViewById(R.id.btn_add);
+
+        type = getIntent().getIntExtra(TYPE, 0);
+        if (type == 0) {
+            mLayoutMsg.setVisibility(View.VISIBLE);
+            mBtnAdd.setVisibility(View.GONE);
+        } else if (type == 1) {
+            mLayoutMsg.setVisibility(View.GONE);
+            mBtnAdd.setVisibility(View.VISIBLE);
+        }
+
     }
 
 
     //自动生成的控件事件
     private void initEvent() {
-        imgHead.setImageURI(Uri.parse(""));
-        txtMkname.setText("备注名");
-        txtPrNo.append("wow");
-        txtNkname.append("nike");
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -76,8 +115,19 @@ public class UserInfoActivity extends AppActivity {
         viewBlack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final AlertYesNo alertYesNo = new AlertYesNo();
+                alertYesNo.init(UserInfoActivity.this, "拉入黑名单",
+                        "确定将此-好友拉入黑名单吗?", "确定", "取消", new AlertYesNo.Event() {
+                            @Override
+                            public void onON() {
 
-                ToastUtil.show(getContext(), "Black");
+                            }
+
+                            @Override
+                            public void onYes() {
+                                taskFriendBlack(id);
+                            }
+                        });
             }
         });
 
@@ -90,24 +140,122 @@ public class UserInfoActivity extends AppActivity {
         viewDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show(getContext(), "del");
+                final AlertYesNo alertYesNo = new AlertYesNo();
+                alertYesNo.init(UserInfoActivity.this, "删除好友",
+                        "确定删除此好友吗?", "确定", "取消", new AlertYesNo.Event() {
+                            @Override
+                            public void onON() {
+
+                            }
+
+                            @Override
+                            public void onYes() {
+                                taskDelFriend(id);
+                            }
+                        });
+
             }
         });
+
         viewMkname.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.show(getContext(), "mkname");
+                Intent intent = new Intent(UserInfoActivity.this, CommonSetingActivity.class);
+                intent.putExtra(CommonSetingActivity.TITLE, "设置备注和描述");
+                intent.putExtra(CommonSetingActivity.REMMARK, "设置备注和描述");
+                intent.putExtra(CommonSetingActivity.HINT, "设置备注和描述");
+                startActivityForResult(intent, SETING_REMARK);
+
             }
         });
 
+        mBtnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                taskAddFriend(id);
+            }
+        });
     }
 
+
+    private void initData() {
+        id = getIntent().getStringExtra(ID);
+        userAction = new UserAction();
+        taskUserInfo(id);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_userinfo);
-        findViews();
-        initEvent();
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            String content = data.getStringExtra(CommonSetingActivity.CONTENT);
+            switch (requestCode) {
+                case SETING_REMARK:
+
+                    break;
+            }
+        }
     }
+
+
+    private void taskUserInfo(String id) {
+        userAction.getUserInfo4Id(Long.valueOf(id), new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                UserInfo info = response.body().getData();
+                imgHead.setImageURI(Uri.parse("" + info.getHead()));
+                txtMkname.setText(info.getMkName());
+                txtPrNo.append(info.getImid());
+                txtNkname.append(info.getName());
+            }
+        });
+    }
+
+
+    private void taskAddFriend(String id) {
+        userAction.friendApply(Long.valueOf(id), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
+                if (response.body().isOk()) {
+                    finish();
+                }
+            }
+        });
+    }
+
+
+    private void taskFriendBlack(String id) {
+        userAction.friendBlack(Long.valueOf(id), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
+            }
+        });
+    }
+
+    private void taskDelFriend(String id) {
+        userAction.friendDel(Long.valueOf(id), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
+            }
+        });
+    }
+
+
+
+
 }

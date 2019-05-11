@@ -1,10 +1,14 @@
-package net.cb.cb.library.utils;
+package com.yanlong.im.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 
+import com.yanlong.im.user.ui.UserInfoActivity;
+
 import net.cb.cb.library.bean.QRCodeBean;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +19,9 @@ public class QRCodeManage {
     //YLIM://ADDGROUP?id=xxx
     public static final String HEAD = "YLIM:"; //二维码头部
     public static final String ID = "id";
+
+    public static final String ADD_FRIEND_FUNCHTION ="ADDFRIEND"; //添加好友
+    public static final String ADD_GROUP_FUNCHTION ="ADDGROUP"; //添加群
 
     /**
      * 扫描二维码转换bean
@@ -77,8 +84,13 @@ public class QRCodeManage {
      * */
     public static void goToActivity(Activity activity, QRCodeBean bean) {
         if (bean != null) {
-            ToastUtil.show(activity, "跳转" + bean.getFunction());
+            if(bean.getFunction().equals(ADD_FRIEND_FUNCHTION)){
+                Intent intent = new Intent(activity, UserInfoActivity.class);
+                activity.startActivity(intent);
 
+            }else if(bean.getFunction().equals(ADD_GROUP_FUNCHTION)){
+
+            }
         }
     }
 

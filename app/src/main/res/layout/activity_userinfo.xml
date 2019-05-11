@@ -76,68 +76,86 @@
 
         </LinearLayout>
 
-        <LinearLayout style="@style/app_layout_list2">
+        <LinearLayout
+            android:id="@+id/layout_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/view_black"
-                style="@style/app_layout_list2_item">
+            <LinearLayout style="@style/app_layout_list2">
 
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_weight="1"
-                    android:text="加入黑名单" />
+                <LinearLayout
+                    android:id="@+id/view_black"
+                    style="@style/app_layout_list2_item">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_btn_goto" />
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="加入黑名单" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/view_del"
+                    style="@style/app_layout_list2_item">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="删除联系人" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
+
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/view_del"
-                style="@style/app_layout_list2_item">
+            <LinearLayout style="@style/app_layout_list2">
 
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_weight="1"
-                    android:text="删除联系人" />
+                <LinearLayout
+                    android:id="@+id/view_complaint"
+                    style="@style/app_layout_list2_item">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_btn_goto" />
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="投诉" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
+
             </LinearLayout>
 
-        </LinearLayout>
-
-        <LinearLayout style="@style/app_layout_list2">
-
-            <LinearLayout
-                android:id="@+id/view_complaint"
-                style="@style/app_layout_list2_item">
-
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_weight="1"
-                    android:text="投诉" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_btn_goto" />
-            </LinearLayout>
+            <Button
+                android:id="@+id/btn_msg"
+                style="@style/app_btn_green"
+                android:layout_marginLeft="@dimen/app_margin_main"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="@dimen/app_margin_main"
+                android:text="发送消息" />
 
         </LinearLayout>
 
         <Button
-            android:id="@+id/btn_msg"
+            android:id="@+id/btn_add"
             style="@style/app_btn_green"
             android:layout_marginLeft="@dimen/app_margin_main"
             android:layout_marginTop="20dp"
             android:layout_marginRight="@dimen/app_margin_main"
-            android:text="发送消息" />
+            android:visibility="gone"
+            android:text="添加好友" />
+
     </LinearLayout>
 </net.cb.cb.library.view.HeadView>

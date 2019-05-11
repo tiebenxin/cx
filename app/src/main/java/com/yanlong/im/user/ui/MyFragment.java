@@ -5,18 +5,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
-import com.yanlong.im.pay.ui.LooseChangeActivity;
-
-import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.AlertTouch;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 
 /***
  * 我
@@ -24,14 +22,15 @@ import net.cb.cb.library.view.AlertTouch;
 public class MyFragment extends Fragment {
     private View rootView;
     private LinearLayout viewHead;
-    private com.facebook.drawee.view.SimpleDraweeView imgHead;
+    private SimpleDraweeView imgHead;
     private TextView txtName;
     private LinearLayout viewQr;
     private LinearLayout viewMoney;
     private LinearLayout viewWallet;
     private LinearLayout viewCollection;
     private LinearLayout viewSetting;
-
+    private UserAction userAction;
+    private TextView mTvInfo;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -43,13 +42,12 @@ public class MyFragment extends Fragment {
         viewWallet = rootView.findViewById(R.id.view_wallet);
         viewCollection = rootView.findViewById(R.id.view_collection);
         viewSetting = rootView.findViewById(R.id.view_setting);
+        mTvInfo =  rootView.findViewById(R.id.tv_info);
     }
 
 
     //自动生成的控件事件
     private void initEvent() {
-        imgHead.setImageURI("https://gss0.bdstatic.com/-4o3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D500/sign=6346256a71310a55c024def487444387/7af40ad162d9f2d3c35c9b76a1ec8a136227ccde.jpg");
-        txtName.setText("懒洋洋");
         viewHead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,26 +72,20 @@ public class MyFragment extends Fragment {
         viewMoney.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertTouch alertTouch = new AlertTouch();
-                alertTouch.init(getActivity(),"一个标题","确定", R.mipmap.ic_weixin_login,new AlertTouch.Event() {
-                    @Override
-                    public void onON() {
 
-                    }
-
-                    @Override
-                    public void onYes(String content) {
-                        if(!TextUtils.isEmpty(content)){
-                            ToastUtil.show(getActivity(),content);
-                        }
-                    }
-                });
-                alertTouch.show();
-//                Intent moneyIntent = new Intent(getActivity(), LooseChangeActivity.class);
-//                startActivity(moneyIntent);
             }
         });
     }
+
+
+    private void initData() {
+        userAction = new UserAction();
+        UserInfo userInfo = UserAction.getMyInfo();
+        imgHead.setImageURI(userInfo.getHead() + "");
+        txtName.setText(userInfo.getName());
+        mTvInfo.setText("待定...");
+    }
+
 
     public MyFragment() {
         // Required empty public constructor
@@ -103,8 +95,6 @@ public class MyFragment extends Fragment {
     public static MyFragment newInstance() {
         MyFragment fragment = new MyFragment();
         Bundle args = new Bundle();
-    /*    args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);*/
         fragment.setArguments(args);
         return fragment;
     }
@@ -128,11 +118,12 @@ public class MyFragment extends Fragment {
         return rootView;
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         initEvent();
+        initData();
     }
 
 
@@ -141,12 +132,5 @@ public class MyFragment extends Fragment {
         super.onDetach();
 
     }
-  /*
-   private MainActivity getActivityMe() {
-        return (MainActivity) getActivity();
-    }
-
-    */
-
 
 }

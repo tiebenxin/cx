@@ -4,28 +4,18 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.yanlong.im.R;
-import com.yanlong.im.utils.PhoneListUtil;
+import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.bean.QRCodeBean;
-import net.cb.cb.library.utils.QRCodeManage;
-import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
-
-import java.util.List;
 
 /***
  * 添加朋友
