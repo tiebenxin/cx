@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import net.cb.cb.library.utils.LogUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import io.realm.RealmResults;
 
 
 public class DaoUtil {
+    private static final String TAG = "DaoUtil";
     private static DaoUtil util;
     private static RealmConfiguration config;
 
@@ -42,6 +45,7 @@ public class DaoUtil {
      */
     public static Realm open() {
         //  return Realm.getDefaultInstance();
+        LogUtil.getLog().i(TAG,"---->数据库");
         return Realm.getInstance(config);
     }
 

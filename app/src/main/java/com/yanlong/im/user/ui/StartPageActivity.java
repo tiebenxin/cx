@@ -28,7 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class StartPageActivity extends AppActivity {
-    private final static long TIME = 2000; //启动页时间
+    private final static long TIME = 200; //启动页时间
     private ConstraintLayout mLayoutGuidance;
     private ViewPager mViewPager;
     private ImageView mBtnStart;

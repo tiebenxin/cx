@@ -128,7 +128,7 @@ public class MainActivity extends AppActivity {
       //  taskLogin();
 
         //写入通讯录
-        taskAddUser();
+      //  taskAddUser();
 
 
         // 启动聊天服务

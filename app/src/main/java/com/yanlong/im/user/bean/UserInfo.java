@@ -69,7 +69,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
         this.name = name;
 
-        toTag(name);
+        toTag();
 
     }
 
@@ -87,9 +87,15 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public void setMkName(String mkName) {
         this.mkName = mkName;
+        toTag();
     }
 
-    private void toTag(String name){
+    /***
+     * 重设tag
+
+     */
+    public void toTag(){
+        String name=StringUtil.isNotNull(this.mkName)?this.mkName:this.name;
         String[] n= PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
         if (n==null){
             setTag( ""+(name.toUpperCase()).charAt(0));

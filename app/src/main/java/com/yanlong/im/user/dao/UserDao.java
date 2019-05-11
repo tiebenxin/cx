@@ -47,4 +47,16 @@ public class UserDao {
         return res;
 
     }
+
+    /***
+     * 清除我的所有好友
+     */
+    public void friendMeDel(){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        RealmResults<UserInfo> ls = realm.where(UserInfo.class).equalTo("uType", 2).sort("tag", Sort.ASCENDING).findAll();
+        ls.deleteAllFromRealm();
+        realm.commitTransaction();
+        realm.close();
+    }
 }

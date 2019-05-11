@@ -262,16 +262,23 @@ public class UserAction {
                 if(response.body().isOk()){
                     List<UserInfo> list = response.body().getData();
                     //更新库
+                    dao.friendMeDel();
                     for (UserInfo userInfo:list){
                         userInfo.setName(userInfo.getName());
                         userInfo.setuType(2);
                         DaoUtil.update(userInfo);
                     }
 
-                    callback.onResponse(call,response);
+
                 }
+                callback.onResponse(call,response);
 
+            }
 
+            @Override
+            public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onResponse(call,null);
             }
         });
     }

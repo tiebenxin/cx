@@ -16,10 +16,13 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PySortView;
@@ -27,6 +30,9 @@ import net.cb.cb.library.view.PySortView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /***
  * 首页通讯录
@@ -44,7 +50,7 @@ public class FriendMainFragment extends Fragment {
         edtSearch = (net.cb.cb.library.view.ClearEditText) rootView.findViewById(R.id.edt_search);
         mtListView = (net.cb.cb.library.view.MultiListView) rootView.findViewById(R.id.mtListView);
         viewType = (PySortView) rootView.findViewById(R.id.view_type);
-        actionbar=rootView.findViewById(R.id.action_bar);
+        actionbar = rootView.findViewById(R.id.action_bar);
     }
 
     //自动生成的控件事件
@@ -62,13 +68,15 @@ public class FriendMainFragment extends Fragment {
 
             @Override
             public void onRight() {
-                startActivity(new Intent(getContext(),FriendAddAcitvity.class));
+                startActivity(new Intent(getContext(), FriendAddAcitvity.class));
             }
         });
     }
-    private List<UserInfo> listData=new ArrayList<>();
+
+    private List<UserInfo> listData = new ArrayList<>();
+
     private void initData() {
-        taskListData();
+        taskRefreshListData();
 
 
     }
@@ -116,7 +124,6 @@ public class FriendMainFragment extends Fragment {
     }
 
 
-
     @Override
     public void onDetach() {
         super.onDetach();
@@ -145,43 +152,43 @@ public class FriendMainFragment extends Fragment {
                 hd.viewAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                       // ToastUtil.show(getContext(), "添加朋友");
+                        // ToastUtil.show(getContext(), "添加朋友");
                         startActivity(new Intent(getContext(), FriendApplyAcitvity.class));
                     }
                 });
                 hd.viewGroup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                       // ToastUtil.show(getContext(), "群消息");
+                        // ToastUtil.show(getContext(), "群消息");
                         startActivity(new Intent(getContext(), GroupSaveActivity.class));
                     }
                 });
                 hd.viewMatch.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                       // ToastUtil.show(getContext(), "匹配");
+                        // ToastUtil.show(getContext(), "匹配");
                         startActivity(new Intent(getContext(), FriendMatchActivity.class));
                     }
                 });
             } else if (holder instanceof RCViewHolder) {
 
-                final UserInfo bean = listData.get(position );
+                final UserInfo bean = listData.get(position);
                 RCViewHolder hd = (RCViewHolder) holder;
                 hd.txtType.setText(bean.getTag());
-                hd.imgHead.setImageURI(Uri.parse(""+bean.getHead()));
-                hd.txtName.setText(bean.getName());
+                hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+                hd.txtName.setText(bean.getName4Show());
 
-                UserInfo lastbean = listData.get(position-1 );
+                UserInfo lastbean = listData.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);
-                }else{
+                } else {
                     hd.viewType.setVisibility(View.VISIBLE);
                 }
                 hd.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         startActivity(new Intent(getContext(), ChatActivity.class)
-                                .putExtra(ChatActivity.AGM_TOUID,bean.getUid()));
+                                .putExtra(ChatActivity.AGM_TOUID, bean.getUid()));
                     }
                 });
             }
@@ -247,25 +254,45 @@ public class FriendMainFragment extends Fragment {
         }
     }
 
-    private UserDao userDao=new UserDao();
-    private void taskListData(){
+    private UserDao userDao = new UserDao();
+    private UserAction userAction = new UserAction();
+
+    private void taskListData() {
 
 
+        listData = userDao.friendGetAll();
 
-        listData=  userDao.friendGetAll();
 
-
-        UserInfo topBean=new UserInfo();
+        UserInfo topBean = new UserInfo();
         topBean.setTag("↑");
-        listData.add(0,topBean);
+        listData.add(0, topBean);
         //筛选
 
-        for (int i=0;i<listData.size();i++){
+        for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:
-            viewType.putTag(listData.get(i).getTag(),i);
+            viewType.putTag(listData.get(i).getTag(), i);
         }
 
+        mtListView.notifyDataSetChange();
 
+
+    }
+
+    public void taskRefreshListData() {
+        userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
+                                    @Override
+                                    public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                                        taskListData();
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                                        super.onFailure(call, t);
+                                        taskListData();
+                                    }
+                                }
+
+        );
     }
 
 
