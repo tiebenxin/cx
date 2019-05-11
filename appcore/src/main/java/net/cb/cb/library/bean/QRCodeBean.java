@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class QRCodeBean {
-
+    //二维码头部
     private String head;
 
+    //功能选项
     private String function;
 
+    //参数集合
     private Map<String,String> parameter = new HashMap<>();
 
     public String getHead() {
@@ -35,6 +37,11 @@ public class QRCodeBean {
         this.parameter = parameter;
     }
 
+
+    /**
+     * 获取map中参数值
+     * @param key
+     * */
     public String getParameterValue(String key){
         if(parameter != null){
             for(Map.Entry<String, String> value: parameter.entrySet()){

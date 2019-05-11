@@ -94,9 +94,6 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
     private ActionbarView mActionBar;
 
 
-
-
-    //	private Button cancelScanButton;
     /**
      * Called when the activity is first created.
      */
@@ -104,8 +101,6 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
-        //ViewUtil.addTopView(getApplicationContext(), this, R.string.scan_card);
-
         initView();
         initEvent();
 
@@ -130,10 +125,6 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 
             @Override
             public void onRight() {
-                ToastUtil.show(CaptureActivity.this,"相册");
-//                Intent innerIntent = new Intent(Intent.ACTION_GET_CONTENT); //"android.intent.action.GET_CONTENT"
-//                innerIntent.setType("image/*");
-//                startActivityForResult(innerIntent, REQUEST_CODE_SCAN_GALLERY);
                 PictureSelector.create(CaptureActivity.this)
                         .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE

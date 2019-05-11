@@ -15,7 +15,7 @@
         <activity-alias
             android:name="test"
             android:label="测试页面"
-            android:targetActivity=".user.ui.PasswordLoginActivity">
+            android:targetActivity=".user.ui.MyselfQRCodeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -41,6 +41,12 @@
 
                  <category android:name="android.intent.category.LAUNCHER" />
              </intent-filter>-->
+        </activity>
+        <activity
+            android:name=".test.TestActicity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
         </activity>
         <activity
             android:name=".MainActivity"

@@ -1,8 +1,12 @@
 package com.yanlong.im.user.ui;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +17,13 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.PhoneListUtil;
 
+import net.cb.cb.library.bean.QRCodeBean;
+import net.cb.cb.library.utils.QRCodeManage;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import java.util.List;
 
@@ -69,7 +76,16 @@ public class FriendAddAcitvity extends AppActivity {
         viewQr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // ToastUtil.show(getContext(),"erwm");
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    // 申请权限
+                    ActivityCompat.requestPermissions(FriendAddAcitvity.this,
+                            new String[]{Manifest.permission.CAMERA},
+                            CaptureActivity.REQ_PERM_CAMERA);
+                    return;
+                }
+                // 二维码扫码
+                Intent intent = new Intent(FriendAddAcitvity.this, CaptureActivity.class);
+                startActivityForResult(intent, CaptureActivity.REQ_QR_CODE);
             }
         });
         viewWc.setOnClickListener(new View.OnClickListener() {
@@ -89,6 +105,16 @@ public class FriendAddAcitvity extends AppActivity {
         initEvent();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
+            Bundle bundle = data.getExtras();
+            String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
+            QRCodeBean bean = QRCodeManage.getQRCodeBean(this,scanResult);
+            QRCodeManage.goToActivity(this,bean);
+        }
+    }
 
 
 }

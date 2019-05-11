@@ -59,7 +59,6 @@ public class PopupSelectView extends PopupWindow {
         setTouchInterceptor(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-
                 /**
                  * 判断是不是点击了外部
                  */

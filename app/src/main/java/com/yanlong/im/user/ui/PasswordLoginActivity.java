@@ -85,6 +85,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                 login();
                 break;
         }
+
     }
 
 
@@ -102,7 +103,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         userAction.login(Long.valueOf(phone), password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-               // ToastUtil.show(PasswordLoginActivity.this,"登录成功");
+                // ToastUtil.show(PasswordLoginActivity.this,"登录成功");
                 if(response.body().isOk()){
                     go(MainActivity.class);
                     finish();
