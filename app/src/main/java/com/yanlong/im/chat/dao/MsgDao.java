@@ -105,6 +105,22 @@ public class MsgDao {
         return session;
     }
 
+    public void sessionDel(Long from_uid, String gid) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        if (StringUtil.isNotNull(gid)) {//群消息
+            realm.where(Session.class).equalTo("gid",gid).findAll().deleteAllFromRealm();
+
+        }else {
+            realm.where(Session.class).equalTo("from_uid",from_uid).findAll().deleteAllFromRealm();
+
+
+        }
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
     /***
      * 会话未读数量+1
      * @param gid 群id
@@ -252,6 +268,8 @@ public class MsgDao {
         realm.close();
         return ret;
     }
+
+
 
 
 }

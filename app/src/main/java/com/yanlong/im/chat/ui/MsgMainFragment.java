@@ -12,11 +12,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
@@ -86,6 +89,7 @@ public class MsgMainFragment extends Fragment {
     //自动生成的控件事件
     private void initEvent() {
         mtListView.init(new RecyclerViewAdapter());
+
         mtListView.getLoadView().setStateNormal();
 
 
@@ -103,6 +107,7 @@ public class MsgMainFragment extends Fragment {
 
             }
         });
+
         viewPopAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -227,6 +232,7 @@ public class MsgMainFragment extends Fragment {
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
+
         @Override
         public int getItemCount() {
             return listData == null ? 0 : listData.size();
@@ -234,7 +240,7 @@ public class MsgMainFragment extends Fragment {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder holder, int position) {
+        public void onBindViewHolder(final RCViewHolder holder, int position) {
             final Session bean = listData.get(position);
 
             String icon = "";
@@ -245,43 +251,55 @@ public class MsgMainFragment extends Fragment {
 
 
                 UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-                icon =finfo.getHead();
-                title=finfo.getName();
+                icon = finfo.getHead();
+                title = finfo.getName();
 
                 //获取最后一条消息
-                 msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-                 if(msginfo!=null){
-                     info=msginfo.getMsg_typeStr();
-                 }
+                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+                if (msginfo != null) {
+                    info = msginfo.getMsg_typeStr();
+                }
 
             } else if (bean.getType() == 1) {//群
-                Group ginfo=msgDao.getGroup4Id(bean.getGid());
-                icon=ginfo.getAvatar();
-                        //获取最后一条群消息
+                Group ginfo = msgDao.getGroup4Id(bean.getGid());
+                icon = ginfo.getAvatar();
+                //获取最后一条群消息
                 msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                title=ginfo.getName();
-                if(msginfo!=null){
-                    info=msginfo.getMsg_typeStr();
+                title = ginfo.getName();
+                if (msginfo != null) {
+                    info = msginfo.getMsg_typeStr();
                 }
             }
 
             holder.imgHead.setImageURI(Uri.parse(icon));
+
             holder.txtName.setText(title);
             holder.txtInfo.setText(info);
             holder.sb.setButtonBackground(R.color.transparent);
             holder.sb.setNum(bean.getUnread_count());
 
             holder.txtTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getUp_time()));
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
+
+
+            holder.viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     startActivity(new Intent(getContext(), ChatActivity.class)
-                            .putExtra(ChatActivity.AGM_TOUID,bean.getFrom_uid())
-                            .putExtra(ChatActivity.AGM_TOGID,bean.getGid())
+                            .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
+                            .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                     );
 
                 }
             });
+            holder.btnDel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    holder.swipeLayout.quickClose();
+                    taskDelSissen(bean.getFrom_uid(),bean.getGid());
+                }
+            });
+
+
 
         }
 
@@ -298,6 +316,9 @@ public class MsgMainFragment extends Fragment {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private com.facebook.drawee.view.SimpleDraweeView imgHead;
             private StrikeButton sb;
+            private View viewIt;
+            private Button btnDel;
+            private SwipeMenuLayout swipeLayout;
             private TextView txtName;
             private TextView txtInfo;
             private TextView txtTime;
@@ -306,7 +327,10 @@ public class MsgMainFragment extends Fragment {
             public RCViewHolder(View convertView) {
                 super(convertView);
                 imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                sb=convertView.findViewById(R.id.sb);
+                swipeLayout = convertView.findViewById(R.id.swipeLayout);
+                sb = convertView.findViewById(R.id.sb);
+                viewIt = convertView.findViewById(R.id.view_it);
+                btnDel = convertView.findViewById(R.id.btn_del);
                 txtName = (TextView) convertView.findViewById(R.id.txt_name);
                 txtInfo = (TextView) convertView.findViewById(R.id.txt_info);
                 txtTime = (TextView) convertView.findViewById(R.id.txt_time);
@@ -315,14 +339,22 @@ public class MsgMainFragment extends Fragment {
         }
     }
 
+
     private MsgDao msgDao = new MsgDao();
-    private UserDao userDao=new UserDao();
+    private UserDao userDao = new UserDao();
     private List<Session> listData = new ArrayList<>();
 
     private void taskListData() {
         listData = msgDao.sessionGetAll();
         mtListView.notifyDataSetChange();
     }
+
+    private void taskDelSissen(Long from_uid,String gid) {
+        msgDao.sessionDel(from_uid,gid);
+
+        taskListData();
+    }
+
 
 
 }

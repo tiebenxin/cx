@@ -22,7 +22,6 @@ android {
             google()
             jcenter()
             maven { url 'https://dl.bintray.com/umsdk/release' }
-            maven { url 'https://dl.bintray.com/umsdk/release' }
         }
 
     }
@@ -31,7 +30,6 @@ android {
             google()
             jcenter()
             mavenCentral()
-            maven { url 'https://dl.bintray.com/umsdk/release' }
             maven { url 'https://dl.bintray.com/umsdk/release' }
         }
     }
@@ -95,6 +93,8 @@ dependencies {
     //  api 'com.hyman:flowlayout-lib:1.1.2'
     api 'com.belerweb:pinyin4j:2.5.1'
     //  api 'com.ycjiang:VideoPlayModule-Lite:2.2.13'
+    //滑动删除
+    api 'com.github.mcxtzhang:SwipeDelMenuLayout:V1.3.0'
 
     //表情
    // api 'com.android.support:support-emoji-appcompat:28.+'

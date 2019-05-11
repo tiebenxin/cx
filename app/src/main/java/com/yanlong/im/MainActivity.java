@@ -24,6 +24,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
+import net.cb.cb.library.view.ViewPagerSlide;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -33,7 +34,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class MainActivity extends AppActivity {
-    private android.support.v4.view.ViewPager viewPage;
+    private ViewPagerSlide viewPage;
     private android.support.design.widget.TabLayout bottomTab;
 
     private Fragment[] fragments;
@@ -44,10 +45,13 @@ public class MainActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        viewPage = (android.support.v4.view.ViewPager) findViewById(R.id.viewPage);
+        viewPage =  findViewById(R.id.viewPage);
         bottomTab = (android.support.design.widget.TabLayout) findViewById(R.id.bottom_tab);
     }
 
+    public ViewPagerSlide getViewPage() {
+        return viewPage;
+    }
 
     //自动生成的控件事件
     private void initEvent() {

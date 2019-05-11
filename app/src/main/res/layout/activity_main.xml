@@ -48,11 +48,11 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <android.support.v4.view.ViewPager
+            <net.cb.cb.library.view.ViewPagerSlide
                 android:id="@+id/viewPage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"></android.support.v4.view.ViewPager>
+                android:layout_weight="1"></net.cb.cb.library.view.ViewPagerSlide>
 
             <View style="@style/app_line" />
 
