@@ -3,6 +3,7 @@ package com.yanlong.im.user.bean;
 import com.google.gson.annotations.SerializedName;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
+import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
 import java.util.regex.Matcher;
@@ -18,6 +19,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Long uid;
     @SerializedName("nickname")
     private String name;
+    @SerializedName("alias")
     private String mkName;
     @SerializedName("gender")
     private int sex;
@@ -28,7 +30,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
  //   private RealmList<MsgAllBean> msgs;
 
-    //用户类型 0:陌生人或者群友,1:自己,2:通讯录
+    //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单
     private Integer uType;
 
 
@@ -53,6 +55,15 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     public String getName() {
         return name;
     }
+
+    /***
+     * 显示的名称
+     * @return
+     */
+    public String getName4Show() {
+        return StringUtil.isNotNull(mkName)?mkName:name;
+    }
+
 
     public void setName(String name) {
 

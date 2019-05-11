@@ -7,6 +7,8 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
@@ -45,6 +47,24 @@ public interface UserServer {
 
     @POST("/pub/退出")
     Call<ReturnBean> loginOut();
+
+
+    @POST("/friends/set-friend-stat")
+    @FormUrlEncoded
+    Call<ReturnBean> friendStat(@Field("friend") Long uid,@Field("opFlag") Integer opFlag);
+
+    @POST("/friends/del-friend")
+    @FormUrlEncoded
+    Call<ReturnBean> friendDel(@Field("friend") Long uid);
+
+    @POST("/friends/set-friend-alias")
+    @FormUrlEncoded
+    Call<ReturnBean> friendMkName(@Field("friend") Long uid,@Field("alias")String mkName);
+
+
+    @POST("/friends/get-friends")
+    @FormUrlEncoded
+    Call<ReturnBean<List<UserInfo>>> friendGet(@Field("opFlag") Integer opFlag);
 
 
 

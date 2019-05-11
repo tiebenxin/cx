@@ -17,6 +17,8 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 
+import java.util.List;
+
 import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -95,8 +97,8 @@ public class UserAction {
         NetUtil.getNet().exec(server.login(pwd, phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                if (response.body()!=null&&response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    initDB(""+response.body().getData().getUid());
+                if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
 
@@ -124,12 +126,12 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
 
-               if(response.body()!=null&&response.body().isOk()) {
-                   UserInfo userInfo = response.body().getData();
-                   userInfo.setName(userInfo.getName());
-                   userInfo.setuType(1);
-                   updateUserinfo2DB(userInfo);
-               }
+                if (response.body() != null && response.body().isOk()) {
+                    UserInfo userInfo = response.body().getData();
+                    userInfo.setName(userInfo.getName());
+                    userInfo.setuType(1);
+                    updateUserinfo2DB(userInfo);
+                }
 
 
             }
@@ -141,7 +143,7 @@ public class UserAction {
     public void login4token(final Callback<ReturnBean<TokenBean>> callback) {
         //判断有没有token信息
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        if (token==null||!StringUtil.isNotNull(token.getAccessToken())) {
+        if (token == null || !StringUtil.isNotNull(token.getAccessToken())) {
             callback.onFailure(null, null);
             return;
         }
@@ -153,8 +155,8 @@ public class UserAction {
         NetUtil.getNet().exec(server.login4token(), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                if (response.body()!=null&&response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    initDB(""+response.body().getData().getUid());
+                if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    initDB("" + response.body().getData().getUid());
 
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
@@ -178,7 +180,7 @@ public class UserAction {
     /***
      * 登出
      */
-    public void loginOut(){
+    public void loginOut() {
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
 
     }
@@ -195,9 +197,100 @@ public class UserAction {
     /***
      * 配置要使用的DB
      */
-    private void initDB(String uuid){
-        DaoUtil.get().initConfig("db_user_"+uuid);
+    private void initDB(String uuid) {
+        DaoUtil.get().initConfig("db_user_" + uuid);
     }
+
+    /***
+     * 好友添加
+     */
+    public void friendApply(Long uid,CallBack<ReturnBean> callback) {
+
+        NetUtil.getNet().exec(server.friendStat(uid,1),callback);
+
+    }
+
+    /***
+     * 好友同意
+     */
+    public void friendAgree(Long uid,CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid,0),callback);
+
+    }
+
+    /***
+     * 加黑名单
+     */
+    public void friendBlack(Long uid,CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid,2),callback);
+
+    }
+
+    /***
+     * 移除黑名单
+     */
+    public void friendBlackRemove(Long uid,CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid,3),callback);
+    }
+
+    /***
+     * 删除好友
+     */
+    public void friendDel(Long uid,CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendDel(uid),callback);
+
+    }
+
+    /***
+     * 好友备注
+     */
+    public void friendMark(Long uid,String mkn,CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendMkName(uid,mkn),callback);
+    }
+
+    /**
+     * 通讯录
+     */
+    public void friendGet4Me(final CallBack<ReturnBean<List<UserInfo>>> callback){
+        NetUtil.getNet().exec(server.friendGet(0), new CallBack<ReturnBean<List<UserInfo>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+
+                if (response==null)
+                    return;
+
+                if(response.body().isOk()){
+                    List<UserInfo> list = response.body().getData();
+                    //更新库
+                    for (UserInfo userInfo:list){
+                        userInfo.setName(userInfo.getName());
+                        userInfo.setuType(2);
+                        DaoUtil.update(userInfo);
+                    }
+
+                    callback.onResponse(call,response);
+                }
+
+
+            }
+        });
+    }
+
+    /***
+     * 申请列表
+     */
+    public void friendGet4Apply( CallBack<ReturnBean<List<UserInfo>>> callback){
+        NetUtil.getNet().exec(server.friendGet(1),callback);
+    }
+
+    /***
+     * 黑名单
+     */
+    public void friendGet4Black( CallBack<ReturnBean<List<UserInfo>>> callback){
+        NetUtil.getNet().exec(server.friendGet(2),callback);
+    }
+
+
 
 }
 
