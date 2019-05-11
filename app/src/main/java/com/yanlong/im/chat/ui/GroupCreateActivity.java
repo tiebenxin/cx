@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendMainFragment;
@@ -233,7 +234,7 @@ public class GroupCreateActivity extends AppActivity {
 
     private void taskCreate() {
 
-        String name = "";
+        String name = "";//UserAction.getMyInfo().getName()+",";
         String icon = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
         for (UserInfo userInfo:listDataTop){
             name+=userInfo.getName()+",";

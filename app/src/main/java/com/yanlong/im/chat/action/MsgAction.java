@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.action;
 
+import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -25,6 +26,7 @@ import retrofit2.http.Field;
 public class MsgAction {
     private MsgServer server;
     private MsgDao dao;
+    private Gson gson=new Gson();
 
     public MsgAction() {
         server = NetUtil.getNet().create(MsgServer.class);
@@ -39,7 +41,7 @@ public class MsgAction {
             ulist.add(userInfo.getUid());
         }
 
-        NetUtil.getNet().exec(server.groupCreate(id,name,avatar,ulist), callback);
+        NetUtil.getNet().exec(server.groupCreate(id,name,avatar,gson.toJson(ulist)), callback);
         dao.sessionCreate(id,null);
         Group group=new Group();
         group.setAvatar(avatar);
@@ -54,7 +56,7 @@ public class MsgAction {
         NetUtil.getNet().exec(server.groupQuit(id), callback);
     }
     public void groupRemove(String id,List<Long> members, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupRemove(id,members), callback);
+        NetUtil.getNet().exec(server.groupRemove(id,gson.toJson(members)), callback);
     }
     public void groupDestroy(String id, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupDestroy(id), callback);

@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.encrypt.AESEncrypt;
@@ -64,13 +65,23 @@ public class NetIntrtceptor implements Interceptor {
         //  if(request.method().equals("POST")){
 
         if (reqbody instanceof FormBody) {
+            Gson gson= new GsonBuilder().create();
             FormBody gb = (FormBody) reqbody;
 
             Map<String, Object> objs = new HashMap<>();
 
-            for (int i = 0; gb != null && i < gb.size(); i++) {
+             for (int i = 0; gb != null && i < gb.size(); i++) {
                 //放在一个map里面,然后转json
-                objs.put(gb.name(i), gb.value(i));
+
+                 if(gb.name(i).startsWith("@")){//直接存对象
+                     objs.put(gb.name(i).substring(1), gson.fromJson(gb.value(i),Object.class));
+
+                 }else{
+                     objs.put(gb.name(i), gb.value(i));
+                 }
+
+
+
 
             }
 

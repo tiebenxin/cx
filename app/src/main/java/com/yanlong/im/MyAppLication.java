@@ -27,6 +27,7 @@ public class MyAppLication extends MainApplication {
             case "debug":
 
                 AppConfig.URL_HOST = "http://192.168.10.229:8080";
+                //AppConfig.URL_HOST = "http://192.168.10.110:8080";
                 AppConfig.DEBUG = true;
                 //AppConfig.SOCKET_IP = "192.168.10.110";
                // AppConfig.SOCKET_PORT = 19991;
@@ -42,7 +43,7 @@ public class MyAppLication extends MainApplication {
 
                 break;
             case "release":
-                //test 后面这里改false
+
                 AppConfig.DEBUG = false;
                 AppConfig.URL_HOST = "https://baidu.com";
 

@@ -14,7 +14,7 @@ import retrofit2.http.POST;
 public interface MsgServer {
     @POST("/group/create")
     @FormUrlEncoded
-    Call<ReturnBean> groupCreate(@Field("gid") String gid, @Field("name") String name, @Field("avatar") String avatar, @Field("members") List<Long> members);
+    Call<ReturnBean> groupCreate(@Field("gid") String gid, @Field("name") String name, @Field("avatar") String avatar, @Field("@members") String membersJson);
 
     @POST("/group/quit")
     @FormUrlEncoded
@@ -23,7 +23,7 @@ public interface MsgServer {
 
     @POST("/group/remove-members")
     @FormUrlEncoded
-    Call<ReturnBean> groupRemove(@Field("gid") String gid, @Field("members") List<Long> members);
+    Call<ReturnBean> groupRemove(@Field("gid") String gid, @Field("@members") String membersJson);
 
     @POST("/group/destroy")
     @FormUrlEncoded
