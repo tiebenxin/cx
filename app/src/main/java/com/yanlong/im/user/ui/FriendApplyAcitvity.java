@@ -8,10 +8,19 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /***
  * 新的朋友
@@ -20,6 +29,7 @@ public class FriendApplyAcitvity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
+    private List<UserInfo> listData;
 
 
     //自动寻找控件
@@ -45,8 +55,7 @@ public class FriendApplyAcitvity extends AppActivity {
         });
 
         mtListView.init(new RecyclerViewAdapter());
-        //test
-        mtListView.getLoadView().setStateNormal();
+
     }
 
     @Override
@@ -55,6 +64,11 @@ public class FriendApplyAcitvity extends AppActivity {
         setContentView(R.layout.activity_friend_apply);
         findViews();
         initEvent();
+        inttData();
+    }
+
+    private void inttData() {
+        taskGetList();
     }
 
     //自动生成RecyclerViewAdapter
@@ -62,26 +76,28 @@ public class FriendApplyAcitvity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return null == null ? 10 : 0;
+            return listData == null ? 0 :listData.size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            holder.txtName.setText("提莫队长");
-            holder.imgHead.setImageURI("https://gss0.bdstatic.com/-4o3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D500/sign=6346256a71310a55c024def487444387/7af40ad162d9f2d3c35c9b76a1ec8a136227ccde.jpg");
+            final UserInfo bean = listData.get(position);
+            holder.txtName.setText(bean.getName4Show());
+            holder.imgHead.setImageURI(bean.getHead());
 
-            holder.txtInfo.setText("只会放蘑菇");
+            holder.txtInfo.setText("想加你为好友");
 
-            holder.txtState.setText("已添加");
+
 
             holder.btnComit.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    ToastUtil.show(context, "准了");
+                  //  ToastUtil.show(context, "准了");
+                    taskFriendAgree(bean.getUid());
                 }
             });
-
-            if(position<3){
+            //  holder.txtState.setText("已添加");
+            if(true){
                 holder.btnComit.setVisibility(View.VISIBLE);
                 holder.txtState.setVisibility(View.GONE);
             }else{
@@ -120,5 +136,39 @@ public class FriendApplyAcitvity extends AppActivity {
 
         }
     }
+
+    private UserAction userAction=new UserAction();
+   private void taskGetList(){
+       userAction.friendGet4Apply(new CallBack<ReturnBean<List<UserInfo>>>(mtListView) {
+           @Override
+           public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+               if (response.body()==null||!response.body().isOk()){
+                   return;
+               }
+               listData=response.body().getData();
+               mtListView.notifyDataSetChange(response);
+           }
+       });
+   }
+
+   private void taskFriendAgree(Long uid){
+       userAction.friendAgree(uid, new CallBack<ReturnBean>() {
+           @Override
+           public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+               if (response.body()==null){
+                   return;
+               }
+
+               ToastUtil.show(getContext(),response.body().getMsg());
+               /*if(response.body().isOk()){
+
+               }else {
+                   ToastUtil.show(getContext(),response.body().getMsg());
+               }*/
+
+           }
+       });
+   }
+
 
 }

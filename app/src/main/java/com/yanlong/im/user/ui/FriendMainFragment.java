@@ -56,7 +56,7 @@ public class FriendMainFragment extends Fragment {
     //自动生成的控件事件
     private void initEvent() {
         mtListView.init(new RecyclerViewAdapter());
-        mtListView.getLoadView().setStateNormal();
+
         //联动
         viewType.setListView(mtListView.getListView());
 
@@ -274,6 +274,8 @@ public class FriendMainFragment extends Fragment {
         }
 
         mtListView.notifyDataSetChange();
+
+
 
 
     }

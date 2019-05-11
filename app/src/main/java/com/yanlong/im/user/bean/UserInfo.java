@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 public class UserInfo extends RealmObject implements Comparable<UserInfo> {
@@ -27,6 +28,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String tag;
     @SerializedName("avatar")
     private String head;
+
 
  //   private RealmList<MsgAllBean> msgs;
 
