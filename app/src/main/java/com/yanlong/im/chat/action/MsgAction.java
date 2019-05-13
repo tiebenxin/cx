@@ -35,13 +35,13 @@ public class MsgAction {
 
 
     public void groupCreate(String id,String name,String avatar,List<UserInfo> listDataTop, CallBack<ReturnBean> callback) {
-        List<Long> ulist = new ArrayList<>();
+        /*List<Long> ulist = new ArrayList<>();
 
         for (UserInfo userInfo:listDataTop){
             ulist.add(userInfo.getUid());
-        }
+        }*/
 
-        NetUtil.getNet().exec(server.groupCreate(id,name,avatar,gson.toJson(ulist)), callback);
+        NetUtil.getNet().exec(server.groupCreate(id,name,avatar,gson.toJson(listDataTop)), callback);
         dao.sessionCreate(id,null);
         Group group=new Group();
         group.setAvatar(avatar);
@@ -55,8 +55,16 @@ public class MsgAction {
     public void groupQuit(String id, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupQuit(id), callback);
     }
-    public void groupRemove(String id,List<Long> members, CallBack<ReturnBean> callback) {
+    public void groupRemove(String id,List<UserInfo> members, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupRemove(id,gson.toJson(members)), callback);
+    }
+    public void groupAdd(String id,List<UserInfo>  members, CallBack<ReturnBean> callback) {
+        List<Long> ulist = new ArrayList<>();
+
+        for (UserInfo userInfo:members){
+            ulist.add(userInfo.getUid());
+        }
+        NetUtil.getNet().exec(server.groupAdd(id,gson.toJson(ulist)), callback);
     }
     public void groupDestroy(String id, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupDestroy(id), callback);

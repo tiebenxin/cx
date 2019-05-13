@@ -14,6 +14,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -25,12 +26,13 @@ import net.cb.cb.library.view.HeadView;
 
 import retrofit2.Call;
 import retrofit2.Response;
+
 /***
  * 资料界面
  */
 public class UserInfoActivity extends AppActivity {
     public static final int SETING_REMARK = 1000;
-    public static final String TYPE = "TYPE";
+    //public static final String TYPE = "TYPE";
     public static final String ID = "id";
 
     private HeadView headView;
@@ -49,7 +51,7 @@ public class UserInfoActivity extends AppActivity {
     private Button btnMsg;
 
     private int type; //0.已经是好友 1.不是好友添加好友
-    private String id;
+    private Long id;
     UserAction userAction;
 
 
@@ -80,7 +82,8 @@ public class UserInfoActivity extends AppActivity {
         mLayoutMsg = findViewById(R.id.layout_msg);
         mBtnAdd = findViewById(R.id.btn_add);
 
-        type = getIntent().getIntExtra(TYPE, 0);
+      //  type = getIntent().getIntExtra(TYPE, 0);
+        taskFindExist();
         if (type == 0) {
             mLayoutMsg.setVisibility(View.VISIBLE);
             mBtnAdd.setVisibility(View.GONE);
@@ -179,7 +182,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void initData() {
-        id = getIntent().getStringExtra(ID);
+        id = getIntent().getLongExtra(ID,0);
         userAction = new UserAction();
         taskUserInfo(id);
     }
@@ -198,8 +201,8 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-    private void taskUserInfo(String id) {
-        userAction.getUserInfo4Id(Long.valueOf(id), new CallBack<ReturnBean<UserInfo>>() {
+    private void taskUserInfo(Long id) {
+        userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 if (response.body() == null) {
@@ -212,11 +215,12 @@ public class UserInfoActivity extends AppActivity {
                 txtNkname.append(info.getName());
             }
         });
+
     }
 
 
-    private void taskAddFriend(String id) {
-        userAction.friendApply(Long.valueOf(id), new CallBack<ReturnBean>() {
+    private void taskAddFriend(Long id) {
+        userAction.friendApply(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
@@ -231,8 +235,8 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-    private void taskFriendBlack(String id) {
-        userAction.friendBlack(Long.valueOf(id), new CallBack<ReturnBean>() {
+    private void taskFriendBlack(Long id) {
+        userAction.friendBlack(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
@@ -243,8 +247,8 @@ public class UserInfoActivity extends AppActivity {
         });
     }
 
-    private void taskDelFriend(String id) {
-        userAction.friendDel(Long.valueOf(id), new CallBack<ReturnBean>() {
+    private void taskDelFriend(Long id) {
+        userAction.friendDel(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
@@ -255,7 +259,14 @@ public class UserInfoActivity extends AppActivity {
         });
     }
 
+    private UserDao userDao = new UserDao();
+
+    /***
+     * 判断用户是否在好友里面
+     */
+    private void taskFindExist() {
+        type = userDao.findUserInfo4Friend(id) == null ? 1 : 0;
 
 
-
+    }
 }

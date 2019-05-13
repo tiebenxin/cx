@@ -209,7 +209,10 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onRight() {
                 if (isGroup()) {//群聊,单聊
-                    go(GroupInfoActivity.class);
+
+                    startActivity(new Intent(getContext(),GroupInfoActivity.class)
+                            .putExtra(GroupInfoActivity.AGM_GID,toGid)
+                    );
                 } else {
 
                     startActivity(new Intent(getContext(),ChatInfoActivity.class)
@@ -382,7 +385,8 @@ public class ChatActivity extends AppActivity {
         viewCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, "http://wx3.sinaimg.cn/mw600/0062mN6Rly1g2khyv79yuj30k20m8mz2.jpg", "昵称", "其他资料");
+                Long uid=100103l;
+                MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, uid,"http://wx3.sinaimg.cn/mw600/0062mN6Rly1g2khyv79yuj30k20m8mz2.jpg", "昵称", "其他资料");
                 showSendObj(msgAllbean);
             }
         });
@@ -651,7 +655,9 @@ public class ChatActivity extends AppActivity {
                                 @Override
                                 public void onClick(View v) {
                                     ToastUtil.show(getContext(), "添加好友需要详情页面");
-                                    go(UserInfoActivity.class);
+
+                                    startActivity(new Intent(getContext(),UserInfoActivity.class)
+                                            .putExtra(UserInfoActivity.ID,msgbean.getBusiness_card().getUid()));
                                 }
                             });
                     break;

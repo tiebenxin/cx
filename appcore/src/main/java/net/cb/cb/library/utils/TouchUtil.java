@@ -45,4 +45,30 @@ public class TouchUtil {
         });
     }
 
+
+    public static void expandTouch(final View view) {
+
+        ((View) view.getParent()).post(new Runnable() {
+            @Override
+            public void run() {
+                Rect bounds = new Rect();
+                view.setEnabled(true);
+                view.getHitRect(bounds);
+
+                bounds.top -=9999;
+                bounds.bottom +=9999;
+                bounds.left -=9999;
+                bounds.right += 9999;
+
+
+
+                TouchDelegate touchDelegate = new TouchDelegate(bounds, view);
+
+                if (View.class.isInstance(view.getParent())) {
+                    ((View) view.getParent()).setTouchDelegate(touchDelegate);
+                }
+            }
+        });
+    }
+
 }

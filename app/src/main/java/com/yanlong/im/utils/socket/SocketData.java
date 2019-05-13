@@ -298,11 +298,13 @@ public class SocketData {
      * @param info
      * @return
      */
-    public static MsgAllBean send4card(Long toId, String toGid, String iconUrl, String nkName, String info) {
+    public static MsgAllBean send4card(Long toId, String toGid,Long uid ,String iconUrl, String nkName, String info) {
         MsgBean.BusinessCardMessage msg = MsgBean.BusinessCardMessage.newBuilder()
                 .setAvatar(iconUrl)
                 .setNickname(nkName)
                 .setComment(info)
+                //uid
+                .setUid(uid)
                 .build();
         return send4Base(toId, toGid, MsgBean.MessageType.BUSINESS_CARD, msg);
     }

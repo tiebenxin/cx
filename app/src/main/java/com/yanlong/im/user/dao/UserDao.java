@@ -49,6 +49,24 @@ public class UserDao {
     }
 
     /***
+     * 查找是否在好友列表
+     * @param userid
+     * @return
+     */
+    public UserInfo findUserInfo4Friend(Long userid) {
+        UserInfo res=null;
+        Realm realm = DaoUtil.open();
+        UserInfo ls = realm.where(UserInfo.class).equalTo("uType", 2).equalTo("uid", userid).sort("tag", Sort.ASCENDING).findFirst();
+        if(ls!=null){
+            res=  realm.copyFromRealm(ls);
+        }
+
+        realm.close();
+
+        return res;
+    }
+
+    /***
      * 清除我的所有好友
      */
     public void friendMeDel(){

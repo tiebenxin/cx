@@ -4218,10 +4218,19 @@ public final class MsgBean {
 
         /**
          * <pre>
+         * 被推荐人uid
+         * </pre>
+         *
+         * <code>uint64 uid = 1;</code>
+         */
+        long getUid();
+
+        /**
+         * <pre>
          * 头像地址
          * </pre>
          *
-         * <code>string avatar = 1;</code>
+         * <code>string avatar = 2;</code>
          */
         java.lang.String getAvatar();
         /**
@@ -4229,7 +4238,7 @@ public final class MsgBean {
          * 头像地址
          * </pre>
          *
-         * <code>string avatar = 1;</code>
+         * <code>string avatar = 2;</code>
          */
         com.google.protobuf.ByteString
         getAvatarBytes();
@@ -4239,7 +4248,7 @@ public final class MsgBean {
          * 昵称
          * </pre>
          *
-         * <code>string nickname = 2;</code>
+         * <code>string nickname = 3;</code>
          */
         java.lang.String getNickname();
         /**
@@ -4247,7 +4256,7 @@ public final class MsgBean {
          * 昵称
          * </pre>
          *
-         * <code>string nickname = 2;</code>
+         * <code>string nickname = 3;</code>
          */
         com.google.protobuf.ByteString
         getNicknameBytes();
@@ -4257,7 +4266,7 @@ public final class MsgBean {
          * 备注
          * </pre>
          *
-         * <code>string comment = 3;</code>
+         * <code>string comment = 4;</code>
          */
         java.lang.String getComment();
         /**
@@ -4265,7 +4274,7 @@ public final class MsgBean {
          * 备注
          * </pre>
          *
-         * <code>string comment = 3;</code>
+         * <code>string comment = 4;</code>
          */
         com.google.protobuf.ByteString
         getCommentBytes();
@@ -4286,6 +4295,7 @@ public final class MsgBean {
             super(builder);
         }
         private BusinessCardMessage() {
+            uid_ = 0L;
             avatar_ = "";
             nickname_ = "";
             comment_ = "";
@@ -4316,19 +4326,24 @@ public final class MsgBean {
                             }
                             break;
                         }
-                        case 10: {
-                            java.lang.String s = input.readStringRequireUtf8();
+                        case 8: {
 
-                            avatar_ = s;
+                            uid_ = input.readUInt64();
                             break;
                         }
                         case 18: {
                             java.lang.String s = input.readStringRequireUtf8();
 
-                            nickname_ = s;
+                            avatar_ = s;
                             break;
                         }
                         case 26: {
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            nickname_ = s;
+                            break;
+                        }
+                        case 34: {
                             java.lang.String s = input.readStringRequireUtf8();
 
                             comment_ = s;
@@ -4357,14 +4372,27 @@ public final class MsgBean {
                             MsgBean.BusinessCardMessage.class, MsgBean.BusinessCardMessage.Builder.class);
         }
 
-        public static final int AVATAR_FIELD_NUMBER = 1;
+        public static final int UID_FIELD_NUMBER = 1;
+        private long uid_;
+        /**
+         * <pre>
+         * 被推荐人uid
+         * </pre>
+         *
+         * <code>uint64 uid = 1;</code>
+         */
+        public long getUid() {
+            return uid_;
+        }
+
+        public static final int AVATAR_FIELD_NUMBER = 2;
         private volatile java.lang.Object avatar_;
         /**
          * <pre>
          * 头像地址
          * </pre>
          *
-         * <code>string avatar = 1;</code>
+         * <code>string avatar = 2;</code>
          */
         public java.lang.String getAvatar() {
             java.lang.Object ref = avatar_;
@@ -4383,7 +4411,7 @@ public final class MsgBean {
          * 头像地址
          * </pre>
          *
-         * <code>string avatar = 1;</code>
+         * <code>string avatar = 2;</code>
          */
         public com.google.protobuf.ByteString
         getAvatarBytes() {
@@ -4399,14 +4427,14 @@ public final class MsgBean {
             }
         }
 
-        public static final int NICKNAME_FIELD_NUMBER = 2;
+        public static final int NICKNAME_FIELD_NUMBER = 3;
         private volatile java.lang.Object nickname_;
         /**
          * <pre>
          * 昵称
          * </pre>
          *
-         * <code>string nickname = 2;</code>
+         * <code>string nickname = 3;</code>
          */
         public java.lang.String getNickname() {
             java.lang.Object ref = nickname_;
@@ -4425,7 +4453,7 @@ public final class MsgBean {
          * 昵称
          * </pre>
          *
-         * <code>string nickname = 2;</code>
+         * <code>string nickname = 3;</code>
          */
         public com.google.protobuf.ByteString
         getNicknameBytes() {
@@ -4441,14 +4469,14 @@ public final class MsgBean {
             }
         }
 
-        public static final int COMMENT_FIELD_NUMBER = 3;
+        public static final int COMMENT_FIELD_NUMBER = 4;
         private volatile java.lang.Object comment_;
         /**
          * <pre>
          * 备注
          * </pre>
          *
-         * <code>string comment = 3;</code>
+         * <code>string comment = 4;</code>
          */
         public java.lang.String getComment() {
             java.lang.Object ref = comment_;
@@ -4467,7 +4495,7 @@ public final class MsgBean {
          * 备注
          * </pre>
          *
-         * <code>string comment = 3;</code>
+         * <code>string comment = 4;</code>
          */
         public com.google.protobuf.ByteString
         getCommentBytes() {
@@ -4495,14 +4523,17 @@ public final class MsgBean {
 
         public void writeTo(com.google.protobuf.CodedOutputStream output)
                 throws java.io.IOException {
+            if (uid_ != 0L) {
+                output.writeUInt64(1, uid_);
+            }
             if (!getAvatarBytes().isEmpty()) {
-                com.google.protobuf.GeneratedMessageV3.writeString(output, 1, avatar_);
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 2, avatar_);
             }
             if (!getNicknameBytes().isEmpty()) {
-                com.google.protobuf.GeneratedMessageV3.writeString(output, 2, nickname_);
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 3, nickname_);
             }
             if (!getCommentBytes().isEmpty()) {
-                com.google.protobuf.GeneratedMessageV3.writeString(output, 3, comment_);
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 4, comment_);
             }
         }
 
@@ -4511,14 +4542,18 @@ public final class MsgBean {
             if (size != -1) return size;
 
             size = 0;
+            if (uid_ != 0L) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(1, uid_);
+            }
             if (!getAvatarBytes().isEmpty()) {
-                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, avatar_);
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, avatar_);
             }
             if (!getNicknameBytes().isEmpty()) {
-                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, nickname_);
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, nickname_);
             }
             if (!getCommentBytes().isEmpty()) {
-                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, comment_);
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, comment_);
             }
             memoizedSize = size;
             return size;
@@ -4536,6 +4571,8 @@ public final class MsgBean {
             MsgBean.BusinessCardMessage other = (MsgBean.BusinessCardMessage) obj;
 
             boolean result = true;
+            result = result && (getUid()
+                    == other.getUid());
             result = result && getAvatar()
                     .equals(other.getAvatar());
             result = result && getNickname()
@@ -4552,6 +4589,9 @@ public final class MsgBean {
             }
             int hash = 41;
             hash = (19 * hash) + getDescriptor().hashCode();
+            hash = (37 * hash) + UID_FIELD_NUMBER;
+            hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+                    getUid());
             hash = (37 * hash) + AVATAR_FIELD_NUMBER;
             hash = (53 * hash) + getAvatar().hashCode();
             hash = (37 * hash) + NICKNAME_FIELD_NUMBER;
@@ -4691,6 +4731,8 @@ public final class MsgBean {
             }
             public Builder clear() {
                 super.clear();
+                uid_ = 0L;
+
                 avatar_ = "";
 
                 nickname_ = "";
@@ -4719,6 +4761,7 @@ public final class MsgBean {
 
             public MsgBean.BusinessCardMessage buildPartial() {
                 MsgBean.BusinessCardMessage result = new MsgBean.BusinessCardMessage(this);
+                result.uid_ = uid_;
                 result.avatar_ = avatar_;
                 result.nickname_ = nickname_;
                 result.comment_ = comment_;
@@ -4763,6 +4806,9 @@ public final class MsgBean {
 
             public Builder mergeFrom(MsgBean.BusinessCardMessage other) {
                 if (other == MsgBean.BusinessCardMessage.getDefaultInstance()) return this;
+                if (other.getUid() != 0L) {
+                    setUid(other.getUid());
+                }
                 if (!other.getAvatar().isEmpty()) {
                     avatar_ = other.avatar_;
                     onChanged();
@@ -4801,13 +4847,51 @@ public final class MsgBean {
                 return this;
             }
 
+            private long uid_ ;
+            /**
+             * <pre>
+             * 被推荐人uid
+             * </pre>
+             *
+             * <code>uint64 uid = 1;</code>
+             */
+            public long getUid() {
+                return uid_;
+            }
+            /**
+             * <pre>
+             * 被推荐人uid
+             * </pre>
+             *
+             * <code>uint64 uid = 1;</code>
+             */
+            public Builder setUid(long value) {
+
+                uid_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 被推荐人uid
+             * </pre>
+             *
+             * <code>uint64 uid = 1;</code>
+             */
+            public Builder clearUid() {
+
+                uid_ = 0L;
+                onChanged();
+                return this;
+            }
+
             private java.lang.Object avatar_ = "";
             /**
              * <pre>
              * 头像地址
              * </pre>
              *
-             * <code>string avatar = 1;</code>
+             * <code>string avatar = 2;</code>
              */
             public java.lang.String getAvatar() {
                 java.lang.Object ref = avatar_;
@@ -4826,7 +4910,7 @@ public final class MsgBean {
              * 头像地址
              * </pre>
              *
-             * <code>string avatar = 1;</code>
+             * <code>string avatar = 2;</code>
              */
             public com.google.protobuf.ByteString
             getAvatarBytes() {
@@ -4846,7 +4930,7 @@ public final class MsgBean {
              * 头像地址
              * </pre>
              *
-             * <code>string avatar = 1;</code>
+             * <code>string avatar = 2;</code>
              */
             public Builder setAvatar(
                     java.lang.String value) {
@@ -4863,7 +4947,7 @@ public final class MsgBean {
              * 头像地址
              * </pre>
              *
-             * <code>string avatar = 1;</code>
+             * <code>string avatar = 2;</code>
              */
             public Builder clearAvatar() {
 
@@ -4876,7 +4960,7 @@ public final class MsgBean {
              * 头像地址
              * </pre>
              *
-             * <code>string avatar = 1;</code>
+             * <code>string avatar = 2;</code>
              */
             public Builder setAvatarBytes(
                     com.google.protobuf.ByteString value) {
@@ -4896,7 +4980,7 @@ public final class MsgBean {
              * 昵称
              * </pre>
              *
-             * <code>string nickname = 2;</code>
+             * <code>string nickname = 3;</code>
              */
             public java.lang.String getNickname() {
                 java.lang.Object ref = nickname_;
@@ -4915,7 +4999,7 @@ public final class MsgBean {
              * 昵称
              * </pre>
              *
-             * <code>string nickname = 2;</code>
+             * <code>string nickname = 3;</code>
              */
             public com.google.protobuf.ByteString
             getNicknameBytes() {
@@ -4935,7 +5019,7 @@ public final class MsgBean {
              * 昵称
              * </pre>
              *
-             * <code>string nickname = 2;</code>
+             * <code>string nickname = 3;</code>
              */
             public Builder setNickname(
                     java.lang.String value) {
@@ -4952,7 +5036,7 @@ public final class MsgBean {
              * 昵称
              * </pre>
              *
-             * <code>string nickname = 2;</code>
+             * <code>string nickname = 3;</code>
              */
             public Builder clearNickname() {
 
@@ -4965,7 +5049,7 @@ public final class MsgBean {
              * 昵称
              * </pre>
              *
-             * <code>string nickname = 2;</code>
+             * <code>string nickname = 3;</code>
              */
             public Builder setNicknameBytes(
                     com.google.protobuf.ByteString value) {
@@ -4985,7 +5069,7 @@ public final class MsgBean {
              * 备注
              * </pre>
              *
-             * <code>string comment = 3;</code>
+             * <code>string comment = 4;</code>
              */
             public java.lang.String getComment() {
                 java.lang.Object ref = comment_;
@@ -5004,7 +5088,7 @@ public final class MsgBean {
              * 备注
              * </pre>
              *
-             * <code>string comment = 3;</code>
+             * <code>string comment = 4;</code>
              */
             public com.google.protobuf.ByteString
             getCommentBytes() {
@@ -5024,7 +5108,7 @@ public final class MsgBean {
              * 备注
              * </pre>
              *
-             * <code>string comment = 3;</code>
+             * <code>string comment = 4;</code>
              */
             public Builder setComment(
                     java.lang.String value) {
@@ -5041,7 +5125,7 @@ public final class MsgBean {
              * 备注
              * </pre>
              *
-             * <code>string comment = 3;</code>
+             * <code>string comment = 4;</code>
              */
             public Builder clearComment() {
 
@@ -5054,7 +5138,7 @@ public final class MsgBean {
              * 备注
              * </pre>
              *
-             * <code>string comment = 3;</code>
+             * <code>string comment = 4;</code>
              */
             public Builder setCommentBytes(
                     com.google.protobuf.ByteString value) {
@@ -11788,34 +11872,34 @@ public final class MsgBean {
                         "\n\002id\030\001 \001(\t\"J\n\017TransferMessage\022\n\n\002id\030\001 \001(" +
                         "\t\022\032\n\022transaction_amount\030\002 \001(\005\022\017\n\007comment" +
                         "\030\003 \001(\t\"\037\n\014StampMessage\022\017\n\007comment\030\001 \001(\t\"" +
-                        "H\n\023BusinessCardMessage\022\016\n\006avatar\030\001 \001(\t\022\020",
-                "\n\010nickname\030\002 \001(\t\022\017\n\007comment\030\003 \001(\t\"&\n\024Req" +
-                        "uestFriendMessage\022\016\n\006say_hi\030\001 \001(\t\"\030\n\026Acc" +
-                        "eptBeFriendsMessage\"B\n\nAckMessage\022\020\n\010acc" +
-                        "epted\030\001 \001(\010\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_i" +
-                        "d\030\003 \001(\t\"*\n\022AuthRequestMessage\022\024\n\014access_" +
-                        "token\030\001 \001(\t\"\'\n\023AuthResponseMessage\022\020\n\010ac" +
-                        "cepted\030\001 \001(\010\"\361\004\n\020UniversalMessage\022\022\n\nreq" +
-                        "uest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg" +
-                        "\030\221N \003(\0132\035.UniversalMessage.WrapMessage\032\207" +
-                        "\004\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg",
-                "_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(" +
-                        "\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\035\n\004chat" +
-                        "\030\365N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\366N \001(\0132" +
-                        "\r.ImageMessageH\000\022,\n\014red_envelope\030\367N \001(\0132" +
-                        "\023.RedEnvelopeMessageH\000\022;\n\024receive_red_en" +
-                        "velope\030\370N \001(\0132\032.ReceiveRedEnvelopeMessag" +
-                        "eH\000\022%\n\010transfer\030\371N \001(\0132\020.TransferMessage" +
-                        "H\000\022\037\n\005stamp\030\372N \001(\0132\r.StampMessageH\000\022.\n\rb" +
-                        "usiness_card\030\373N \001(\0132\024.BusinessCardMessag" +
-                        "eH\000\0220\n\016request_friend\030\374N \001(\0132\025.RequestFr",
-                "iendMessageH\000\0225\n\021accept_be_friends\030\375N \001(" +
-                        "\0132\027.AcceptBeFriendsMessageH\000B\n\n\010real_msg" +
-                        "*\247\001\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n" +
-                        "\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPE" +
-                        "R\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS" +
-                        "_CARD\020\006\022\022\n\016REQUEST_FRIEND\020\007\022\025\n\021ACCEPT_BE" +
-                        "_FRIENDS\020\010b\006proto3"
+                        "U\n\023BusinessCardMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006a",
+                "vatar\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\022\017\n\007comment" +
+                        "\030\004 \001(\t\"&\n\024RequestFriendMessage\022\016\n\006say_hi" +
+                        "\030\001 \001(\t\"\030\n\026AcceptBeFriendsMessage\"B\n\nAckM" +
+                        "essage\022\020\n\010accepted\030\001 \001(\010\022\022\n\nrequest_id\030\002" +
+                        " \001(\t\022\016\n\006msg_id\030\003 \001(\t\"*\n\022AuthRequestMessa" +
+                        "ge\022\024\n\014access_token\030\001 \001(\t\"\'\n\023AuthResponse" +
+                        "Message\022\020\n\010accepted\030\001 \001(\010\"\361\004\n\020UniversalM" +
+                        "essage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001" +
+                        "(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage." +
+                        "WrapMessage\032\207\004\n\013WrapMessage\022\021\n\ttimestamp",
+                "\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016" +
+                        "\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030" +
+                        "\005 \001(\t\022\035\n\004chat\030\365N \001(\0132\014.ChatMessageH\000\022\037\n\005" +
+                        "image\030\366N \001(\0132\r.ImageMessageH\000\022,\n\014red_env" +
+                        "elope\030\367N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024r" +
+                        "eceive_red_envelope\030\370N \001(\0132\032.ReceiveRedE" +
+                        "nvelopeMessageH\000\022%\n\010transfer\030\371N \001(\0132\020.Tr" +
+                        "ansferMessageH\000\022\037\n\005stamp\030\372N \001(\0132\r.StampM" +
+                        "essageH\000\022.\n\rbusiness_card\030\373N \001(\0132\024.Busin" +
+                        "essCardMessageH\000\0220\n\016request_friend\030\374N \001(",
+                "\0132\025.RequestFriendMessageH\000\0225\n\021accept_be_" +
+                        "friends\030\375N \001(\0132\027.AcceptBeFriendsMessageH" +
+                        "\000B\n\n\010real_msg*\247\001\n\013MessageType\022\010\n\004CHAT\020\000\022" +
+                        "\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE" +
+                        "_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020" +
+                        "\005\022\021\n\rBUSINESS_CARD\020\006\022\022\n\016REQUEST_FRIEND\020\007" +
+                        "\022\025\n\021ACCEPT_BE_FRIENDS\020\010b\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -11870,7 +11954,7 @@ public final class MsgBean {
         internal_static_BusinessCardMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_BusinessCardMessage_descriptor,
-                new java.lang.String[] { "Avatar", "Nickname", "Comment", });
+                new java.lang.String[] { "Uid", "Avatar", "Nickname", "Comment", });
         internal_static_RequestFriendMessage_descriptor =
                 getDescriptor().getMessageTypes().get(7);
         internal_static_RequestFriendMessage_fieldAccessorTable = new

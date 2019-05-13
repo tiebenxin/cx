@@ -8,7 +8,15 @@ public class BusinessCardMessage extends RealmObject {
    private String avatar; // 头像地址
     private String nickname; // 昵称
     private  String comment; // 备注
+    private Long uid;
 
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
 
     public String getAvatar() {
         return avatar;

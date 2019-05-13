@@ -14,10 +14,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.user.ui.CommonSetingActivity;
-import com.yanlong.im.user.ui.MyselfInfoActivity;
 
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -28,6 +33,8 @@ public class GroupInfoActivity extends AppActivity {
     public static final int GROUP_NAME = 1000;
     public static final int GROUP_NICK = 2000;
     public static final int GROUP_NOTE = 3000;
+    public static final String AGM_GID = "gid";
+    private String gid;
 
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
@@ -49,7 +56,7 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewGroupSave;
     private CheckBox ckGroupSave;
     private Button btnDel;
-
+    private Gson gson=new Gson();
 
     //自动寻找控件
     private void findViews() {
@@ -78,6 +85,7 @@ public class GroupInfoActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
+        gid = getIntent().getStringExtra(AGM_GID);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -90,8 +98,55 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                List<UserInfo> userInfos = taskGetNumbers();
+
+                List<UserInfo> friendsUser = taskGetFriends();
+
+                List<UserInfo> temp = new ArrayList<>();
+
+                for (UserInfo a : friendsUser) {
+                    boolean isEx = false;
+                    for (UserInfo u : userInfos) {
+                        if (u.getUid().longValue() == a.getUid().longValue()) {
+                            isEx = true;
+                        }
+                    }
+                    if (!isEx) {
+                        temp.add(a);
+                    }
+
+                }
+
+
+                String json = gson.toJson(temp);
+                startActivity(new Intent(getContext(), GroupNumbersActivity.class)
+                        .putExtra(GroupNumbersActivity.AGM_GID, gid)
+                        .putExtra(GroupNumbersActivity.AGM_TYPE, GroupNumbersActivity.TYPE_ADD)
+                        .putExtra(GroupNumbersActivity.AGM_NUMBERS_JSON, json)
+                );
+            }
+        });
+        btnRm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<UserInfo> userInfos = taskGetNumbers();
+                String json = gson.toJson(userInfos);
+                startActivity(new Intent(getContext(), GroupNumbersActivity.class)
+                        .putExtra(GroupNumbersActivity.AGM_GID, gid)
+                        .putExtra(GroupNumbersActivity.AGM_TYPE, GroupNumbersActivity.TYPE_DEL)
+                        .putExtra(GroupNumbersActivity.AGM_NUMBERS_JSON, json)
+                );
+
+            }
+        });
+
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                ToastUtil.show(getContext(), "删除会话");
 
             }
         });
@@ -131,12 +186,13 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "修改群公告");
                 intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
                 intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
-                intent.putExtra(CommonSetingActivity.TYPE_LINE,1);
+                intent.putExtra(CommonSetingActivity.TYPE_LINE, 1);
                 startActivityForResult(intent, GROUP_NOTE);
             }
         });
 
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,5 +262,33 @@ public class GroupInfoActivity extends AppActivity {
             }
         }
     }
+
+    private UserDao userDao = new UserDao();
+    private UserAction userAction = new UserAction();
+
+    /***
+     * 获取群成员
+     * @return
+     */
+    private List<UserInfo> taskGetNumbers() {
+        //进入这个信息的时候会统一给的
+        List<UserInfo> userInfos = null;
+
+        userInfos=userInfos==null?new ArrayList():userInfos;
+
+        return userInfos;
+    }
+
+    /***
+     * 获取通讯录
+     * @return
+     */
+    private List<UserInfo> taskGetFriends() {
+        List<UserInfo> userInfos = userDao.friendGetAll();
+        userInfos=userInfos==null?new ArrayList():userInfos;
+
+        return userInfos;
+    }
+
 
 }

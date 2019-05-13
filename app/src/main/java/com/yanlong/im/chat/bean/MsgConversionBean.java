@@ -4,7 +4,9 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
-
+/***
+ * 消息转换类
+ */
 public class MsgConversionBean {
 
 
@@ -86,6 +88,8 @@ public class MsgConversionBean {
                 businessCard.setAvatar(bean.getBusinessCard().getAvatar());
                 businessCard.setComment(bean.getBusinessCard().getComment());
                 businessCard.setNickname(bean.getBusinessCard().getNickname());
+
+                businessCard.setUid(bean.getBusinessCard().getUid());
                 msgAllBean.setBusiness_card(businessCard);
                 msgAllBean.setMsg_type(5);
                 break;

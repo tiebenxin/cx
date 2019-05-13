@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.ui;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,18 +10,20 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.ui.FriendMainFragment;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
@@ -35,13 +36,28 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 /***
- * 创建群聊
+ * 群成员操作
  */
-public class GroupCreateActivity extends AppActivity {
+public class GroupNumbersActivity extends AppActivity {
+    public static final String AGM_GID = "gid";
+
+    //成员列表
+    public static final String AGM_NUMBERS_JSON = "number_json";
+    //1:添加,2:删除
+    public static final String AGM_TYPE = "type";
+    public static final int TYPE_ADD =1 ;
+    public static final int TYPE_DEL =2 ;
+
+    private String gid;
+    private List<UserInfo> listData;
+    private Integer type;
+
+    private Gson gson=new Gson();
+
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private LinearLayout viewSearch;
-    private android.support.v7.widget.RecyclerView topListView;
+    private RecyclerView topListView;
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
 
@@ -50,7 +66,7 @@ public class GroupCreateActivity extends AppActivity {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         viewSearch = (LinearLayout) findViewById(R.id.view_search);
-        topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
+        topListView = (RecyclerView) findViewById(R.id.topListView);
         mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
     }
@@ -58,6 +74,11 @@ public class GroupCreateActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
+        listData=gson.fromJson(getIntent().getStringExtra(AGM_NUMBERS_JSON),new TypeToken<List<UserInfo>>(){}.getType());
+        type=getIntent().getIntExtra(AGM_TYPE,TYPE_ADD);
+        gid=getIntent().getStringExtra(AGM_GID);
+
+
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -66,10 +87,12 @@ public class GroupCreateActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                taskCreate();
+                taskOption();
             }
         });
         actionbar.setTxtRight("确定");
+
+        actionbar.setTitle(type==TYPE_ADD?"加入群":"移出群");
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
 
@@ -89,6 +112,7 @@ public class GroupCreateActivity extends AppActivity {
         initEvent();
         initData();
     }
+
     private void initData() {
         taskListData();
 
@@ -100,7 +124,7 @@ public class GroupCreateActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return listData == null ? 0 :listData.size();
+            return listData == null ? 0 : listData.size();
         }
 
         //自动生成控件事件
@@ -110,21 +134,19 @@ public class GroupCreateActivity extends AppActivity {
             final UserInfo bean = listData.get(position);
 
 
-
             hd.txtType.setText(bean.getTag());
-            hd.imgHead.setImageURI(Uri.parse(""+bean.getHead()));
+            hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
             hd.txtName.setText(bean.getName());
 
             hd.viewType.setVisibility(View.VISIBLE);
-            if(position>0){
-                UserInfo lastbean = listData.get(position-1 );
+            if (position > 0) {
+                UserInfo lastbean = listData.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);
                 }
             }
-            
-            
-            
+
+
             hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -136,9 +158,9 @@ public class GroupCreateActivity extends AppActivity {
                     topListView.getAdapter().notifyDataSetChanged();
                 }
             });
-            
-            
-            
+
+            TouchUtil.expandTouch(hd.ckSelect);
+
 
         }
 
@@ -213,50 +235,50 @@ public class GroupCreateActivity extends AppActivity {
 
 
     private MsgAction msgACtion = new MsgAction();
-    private UserDao userDao=new UserDao();
-
-
-    private List<UserInfo> listData=new ArrayList<>();
-    private void taskListData(){
+    private UserDao userDao = new UserDao();
 
 
 
-        listData=  userDao.friendGetAll();
+
+    private void taskListData() {
 
 
-        for (int i=0;i<listData.size();i++){
+
+
+
+        for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:
-            viewType.putTag(listData.get(i).getTag(),i);
+            viewType.putTag(listData.get(i).getTag(), i);
         }
 
 
     }
 
-    private void taskCreate() {
-
-        String name = UserAction.getMyInfo().getName()+",";
-        String icon = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
-        for (UserInfo userInfo:listDataTop){
-            name+=userInfo.getName()+",";
-        }
-        name=name.length()>0?name.substring(0,name.length()-2):name;
-        name=name.length()>14?name.substring(0,14):name;
-        name+="的群";
-
-
-        msgACtion.groupCreate(UUID.randomUUID().toString(), name, icon, listDataTop, new CallBack<ReturnBean>() {
+    /***
+     * 提交处理
+     */
+    private void taskOption() {
+        CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if(response.body()==null)
                     return;
-                if (response.body().isOk()) {
+                ToastUtil.show(getContext(),response.body().getMsg());
+                if(response.body().isOk()){
                     finish();
-                } else {
-                    ToastUtil.show(getContext(), response.body().getMsg());
                 }
 
             }
-        });
+        };
+        if(type==TYPE_ADD){
+            msgACtion.groupAdd(gid, listDataTop,callback);
+        }else{
+            msgACtion.groupRemove(gid, listDataTop,callback);
+
+
+
+        }
+
     }
 
 
