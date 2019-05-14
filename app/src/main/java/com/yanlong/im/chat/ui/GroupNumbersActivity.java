@@ -139,7 +139,7 @@ public class GroupNumbersActivity extends AppActivity {
             hd.txtName.setText(bean.getName());
 
             hd.viewType.setVisibility(View.VISIBLE);
-            if (position > 0) {
+            if (position > 0&&listData.size()>1) {
                 UserInfo lastbean = listData.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);

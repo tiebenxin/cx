@@ -24,6 +24,7 @@ import io.realm.RealmList;
 import io.realm.RealmModel;
 import io.realm.RealmResults;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.Field;
 
@@ -81,15 +82,16 @@ public class MsgAction {
         });
     }
     public void groupRemove(String id,List<UserInfo> members, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupRemove(id,gson.toJson(members)), callback);
-    }
-    public void groupAdd(String id,List<UserInfo>  members, CallBack<ReturnBean> callback) {
         List<Long> ulist = new ArrayList<>();
 
         for (UserInfo userInfo:members){
             ulist.add(userInfo.getUid());
         }
-        NetUtil.getNet().exec(server.groupAdd(id,gson.toJson(ulist)), callback);
+        NetUtil.getNet().exec(server.groupRemove(id,gson.toJson(ulist)), callback);
+    }
+    public void groupAdd(String id,List<UserInfo>  members, CallBack<ReturnBean> callback) {
+
+        NetUtil.getNet().exec(server.groupAdd(id,gson.toJson(members)), callback);
     }
     public void groupDestroy(final String id, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupDestroy(id), new CallBack<ReturnBean>() {
@@ -117,6 +119,32 @@ public class MsgAction {
             return dao.getMsg4Group(gid,page);
         }
         return dao.getMsg4User(uid,page);
+    }
+
+
+    /***
+     * 获取群信息
+     * @param gid
+     * @param callback
+     */
+    public void groupInfo(final String gid, final Callback<ReturnBean<ReturnGroupInfoBean>> callback) {
+
+
+         NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+             @Override
+             public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                 if (response.body()==null)
+                     return;
+                 if(response.body().isOk()){//保存群友信息到数据库
+                    dao.groupNumberSave(response.body().getData());
+
+                     response.body().getData().setMembers(DaoUtil.findOne(Group.class,"gid",gid).getUsers());
+                 }
+                 callback.onResponse(call,response);
+
+
+             }
+         });
     }
 
 }

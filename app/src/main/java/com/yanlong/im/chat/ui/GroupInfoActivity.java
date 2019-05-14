@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -67,6 +68,7 @@ public class GroupInfoActivity extends AppActivity {
     private CheckBox ckGroupSave;
     private Button btnDel;
     private Gson gson = new Gson();
+    private ReturnGroupInfoBean ginfo;
 
     //自动寻找控件
     private void findViews() {
@@ -90,12 +92,15 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupSave = (LinearLayout) findViewById(R.id.view_group_save);
         ckGroupSave = (CheckBox) findViewById(R.id.ck_group_save);
         btnDel = (Button) findViewById(R.id.btn_del);
+
+
     }
 
 
     //自动生成的控件事件
     private void initEvent() {
         gid = getIntent().getStringExtra(AGM_GID);
+        taskGetInfo();
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -161,11 +166,7 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
-        //顶部处理
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        topListView.setLayoutManager(linearLayoutManager);
-        topListView.setAdapter(new RecyclerViewTopAdapter());
+
 
         viewGroupName.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,8 +211,16 @@ public class GroupInfoActivity extends AppActivity {
         setContentView(R.layout.activity_group_info);
         findViews();
         initEvent();
-    }
 
+    }
+    private void initData() {
+        //顶部处理
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        topListView.setLayoutManager(linearLayoutManager);
+        topListView.setAdapter(new RecyclerViewTopAdapter());
+
+    }
 
     private List<String> listDataTop = new ArrayList<>();
 
@@ -221,14 +230,15 @@ public class GroupInfoActivity extends AppActivity {
         @Override
         public int getItemCount() {
             // return listDataTop == null ? 0 : listDataTop.size();
-            return 10;
+            return ginfo.getMembers()==null?0:ginfo.getMembers().size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
             //listDataTop.get(position)
-            holder.imgHead.setImageURI(Uri.parse("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3853320162,146397336&fm=173&app=25&f=JPEG?w=640&h=360&s=22A066A44A5674C2528F1F7603000054"));
+            UserInfo number = ginfo.getMembers().get(position);
+            holder.imgHead.setImageURI(Uri.parse(""+number.getHead()));
         }
 
 
@@ -283,7 +293,8 @@ public class GroupInfoActivity extends AppActivity {
      */
     private List<UserInfo> taskGetNumbers() {
         //进入这个信息的时候会统一给的
-        List<UserInfo> userInfos = null;
+        List<UserInfo> userInfos = ginfo.getMembers();
+
 
         userInfos = userInfos == null ? new ArrayList() : userInfos;
 
@@ -325,6 +336,20 @@ public class GroupInfoActivity extends AppActivity {
 
 
     }
+
+    private void taskGetInfo(){
+        msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                if(response.body().isOk()){
+                   ginfo= response.body().getData();
+                    initData();
+                }
+            }
+        });
+    }
+
+
 
 
 }

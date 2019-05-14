@@ -33,4 +33,8 @@ public interface MsgServer {
     @POST("/group/destroy")
     @FormUrlEncoded
     Call<ReturnBean> groupDestroy(@Field("gid") String gid);
+
+    @POST("/group/get-group-data")
+    @FormUrlEncoded
+    Call<ReturnBean<ReturnGroupInfoBean>> groupInfo(@Field("gid") String gid);
 }
