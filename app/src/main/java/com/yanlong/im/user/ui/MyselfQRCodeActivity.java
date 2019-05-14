@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.zxing.WriterException;
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.bean.QRCodeBean;
@@ -25,15 +28,25 @@ import net.cb.cb.library.view.PopupSelectView;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 import net.cb.cb.library.zxing.encoding.EncodingHandler;
 
+
 public class MyselfQRCodeActivity extends AppActivity {
+    public static final String TYPE = "type";
+    public static final String GROUP_ID = "groupId";
+    public static final String GROUP_HEAD = "groupHead";
+    public static final String GROUP_NAME = "groupName";
+
     private HeadView mHeadView;
     private SimpleDraweeView mImgHead;
+
     private TextView mTvUserName;
     private ImageView mCrCode;
     private PopupSelectView popupSelectView;
     private String[] strings = {"保存图片", "扫描二维码", "分享给好友", "分享给微信好友", "取消"};
-    private String QRCode = "YLIM://ADDFRIEND?id=123456&name=hahaha";
-
+    private String QRCode;
+    private int type;
+    private String groupId;
+    private String groupHead;
+    private String groupName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +64,8 @@ public class MyselfQRCodeActivity extends AppActivity {
         mCrCode = findViewById(R.id.cr_code);
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
+
+        type = getIntent().getIntExtra(TYPE,0);
     }
 
     private void initEvent() {
@@ -69,6 +84,28 @@ public class MyselfQRCodeActivity extends AppActivity {
 
 
     private void initData(){
+        QRCodeBean qrCodeBean = new QRCodeBean();
+        if(type == 0){
+            UserInfo userInfo = UserAction.getMyInfo();
+            String uid = userInfo.getUid()+"";
+            mImgHead.setImageURI(userInfo.getHead()+"");
+            mTvUserName.setText(userInfo.getName()+"");
+            qrCodeBean.setHead(QRCodeManage.HEAD);
+            qrCodeBean.setFunction(QRCodeManage.ADD_FRIEND_FUNCHTION);
+            qrCodeBean.setParameterValue(QRCodeManage.ID,uid);
+            QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
+        }else{
+            Intent intent = getIntent();
+            groupId = intent.getStringExtra(GROUP_ID);
+            groupHead = intent.getStringExtra(GROUP_HEAD);
+            groupName = intent.getStringExtra(GROUP_NAME);
+            mImgHead.setImageURI(groupHead+"");
+            mTvUserName.setText(groupName+"");
+            qrCodeBean.setHead(QRCodeManage.HEAD);
+            qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
+            qrCodeBean.setParameterValue(QRCodeManage.ID,groupId);
+            QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
+        }
         try {
             Bitmap bitmap = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(this,300));
             mCrCode.setImageBitmap(bitmap);

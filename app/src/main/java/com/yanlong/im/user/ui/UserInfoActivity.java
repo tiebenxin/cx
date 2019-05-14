@@ -32,7 +32,6 @@ import retrofit2.Response;
  */
 public class UserInfoActivity extends AppActivity {
     public static final int SETING_REMARK = 1000;
-    //public static final String TYPE = "TYPE";
     public static final String ID = "id";
 
     private HeadView headView;
@@ -82,7 +81,6 @@ public class UserInfoActivity extends AppActivity {
         mLayoutMsg = findViewById(R.id.layout_msg);
         mBtnAdd = findViewById(R.id.btn_add);
 
-      //  type = getIntent().getIntExtra(TYPE, 0);
         id = getIntent().getLongExtra(ID,0);
         taskFindExist();
         if (type == 0) {
@@ -186,8 +184,8 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void initData() {
-
         userAction = new UserAction();
+        id = getIntent().getLongExtra(ID,0);
         taskUserInfo(id);
     }
 

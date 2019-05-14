@@ -3,7 +3,6 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 
@@ -13,13 +12,18 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.EventMyUserInfo;
+import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 import net.cb.cb.library.view.PopupSelectView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 
@@ -47,7 +51,7 @@ public class ImageHeadActivity extends AppActivity {
         imageHead = getIntent().getStringExtra(IMAGE_HEAD);
         mHeadView = findViewById(R.id.headView);
         mSdImageHead = findViewById(R.id.sd_image_head);
-     //   mSdImageHead.setImageURI(imageHead + "");
+        mSdImageHead.setImageURI(imageHead + "");
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
     }
@@ -81,7 +85,6 @@ public class ImageHeadActivity extends AppActivity {
                                 .enableCrop(false)
                                 .withAspectRatio(1, 1)
                                 .freeStyleCropEnabled(false)
-                               // .cropWH(1, 1)
                                 .rotateEnabled(false)
                                 .forResult(PictureConfig.CHOOSE_REQUEST);
                         break;
@@ -95,7 +98,6 @@ public class ImageHeadActivity extends AppActivity {
                                 .enableCrop(true)
                                 .withAspectRatio(1, 1)
                                 .freeStyleCropEnabled(false)
-                               // .cropWH(600, 600)
                                 .rotateEnabled(false)
                                 .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
 
@@ -117,30 +119,28 @@ public class ImageHeadActivity extends AppActivity {
                 // 例如 LocalMedia 里面返回两种path
                 // 1.media.getPath(); 为原图path
                 // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
-
-
-
                 Uri uri = Uri.fromFile(new File(file));
                 mSdImageHead.setImageURI(uri);
-
-                Log.v("testuri", "file:" + file);
-                Log.v("testuri", "uri:" + Uri.fromFile(new File(file)));
-//                    taskUserInfoSet(null,
-//                            "https://gd3.alicdn.com/imgextra/i4/0/O1CN01abxzGk1J3fryfJVqz_!!0-item_pic.jpg_400x400.jpg",
-//                            null, null);
+                taskUserInfoSet(null,
+                        "http://pic40.nipic.com/20140412/18428321_144447597175_2.jpg",
+                        null, null);
                 break;
         }
     }
 
-
-    private void taskUserInfoSet(String imid, String avatar, String nickname, Integer gender) {
+    private void taskUserInfoSet(String imid, final String avatar, String nickname, Integer gender) {
         new UserAction().myInfoSet(imid, avatar, nickname, gender, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
                 }
-                //ToastUtil.show(ImageHeadActivity.this,response.body().getMsg());
+                if(avatar != null){
+                    UserInfo userInfo = new UserInfo();
+                    userInfo.setHead(avatar);
+                    EventBus.getDefault().post(new EventMyUserInfo(userInfo,EventMyUserInfo.ALTER_HEAD));
+                }
+                ToastUtil.show(ImageHeadActivity.this, response.body().getMsg());
             }
         });
     }

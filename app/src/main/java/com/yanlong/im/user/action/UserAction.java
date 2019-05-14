@@ -322,10 +322,7 @@ public class UserAction {
                     if(gender!=null)
                     myInfo.setSex(gender);
                     dao.updateUserinfo(myInfo);
-
-
                 }
-
                 callback.onResponse(call, response);
             }
         });

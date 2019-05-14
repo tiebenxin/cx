@@ -37,6 +37,11 @@ public class QRCodeBean {
         this.parameter = parameter;
     }
 
+    public void setParameterValue(String key,String value){
+        parameter.put(key,value);
+    }
+
+
 
     /**
      * 获取map中参数值

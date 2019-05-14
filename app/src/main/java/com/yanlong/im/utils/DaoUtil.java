@@ -81,19 +81,6 @@ public class DaoUtil {
     }
 
     //查找所有数据
-    public static <T extends RealmModel> List findAll(Class<T> clss) {
-        List beans=new ArrayList();
-        Realm realm = open();
-
-        RealmResults list = realm.where(clss).findAll();
-        if(list!=null){
-            beans = realm.copyFromRealm(list);
-        }
-
-        realm.close();
-        return beans;
-    }
-
     /***
      * 简单查询某一条
      * @param clss
@@ -127,6 +114,19 @@ public class DaoUtil {
             beans = realm.copyFromRealm(res);
         realm.close();
         return (T) beans;
+    }
+
+    public static <T extends RealmModel> List findAll(Class<T> clss) {
+        List beans=new ArrayList();
+        Realm realm = open();
+
+        RealmResults list = realm.where(clss).findAll();
+        if(list!=null){
+            beans = realm.copyFromRealm(list);
+        }
+
+        realm.close();
+        return beans;
     }
 
     public static <T extends RealmModel> void deleteOne(Class<T> clss, String fieldName, Object value) {

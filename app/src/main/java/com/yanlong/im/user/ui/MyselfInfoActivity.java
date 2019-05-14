@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -20,6 +21,10 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -62,6 +67,12 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
     private void initView() {
         mImgHead = findViewById(R.id.img_head);
         mViewBlacklist = findViewById(R.id.view_blacklist);
@@ -77,6 +88,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         mTvIdentity = findViewById(R.id.tv_identity);
         mHeadView = findViewById(R.id.headView);
         mIvProductNumber = findViewById(R.id.iv_product_number);
+
+        EventBus.getDefault().register(this);
     }
 
 
@@ -106,7 +119,6 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         imid = userInfo.getImid();
         nickName = userInfo.getName();
         sex = userInfo.getSex();
-
         mImgHead.setImageURI(imageHead + "");
         mTvNickname.setText(nickName);
         if (!TextUtils.isEmpty(imid)) {
@@ -126,7 +138,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 mTvSex.setText("女");
                 break;
             default:
-                mTvSex.setText("保密");
+                mTvSex.setText("未知");
                 break;
         }
     }
@@ -174,34 +186,23 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             String content = data.getStringExtra(CommonSetingActivity.CONTENT);
             switch (requestCode) {
                 case NICENAME:
-                    mTvNickname.setText(content);
-                    nickName = content;
-                    taskUserInfoSet(null,null,nickName,null);
+                    taskUserInfoSet(null,null,content,null);
                     break;
                 case SEX:
-                    if (!TextUtils.isEmpty(content)) {
-                        mTvSex.setText(content);
-                        if(content.equals("男")) {
-                            sex = 1;
-                        }else{
-                            sex = 2;
-                        }
+                    int contentSex;
+                    if(content.equals("男")) {
+                        contentSex = 1;
+                    }else{
+                        contentSex = 2;
                     }
-                    taskUserInfoSet(null,null,null,sex);
+                    taskUserInfoSet(null,null,null,contentSex);
                     break;
                 case PRODUCT:
-                    if(!TextUtils.isEmpty(content)){
-                        imid = content;
-                        mTvProductNumber.setText(imid);
-                        mIvProductNumber.setVisibility(View.GONE);
-                        mViewProductNumber.setClickable(false);
-                    }
-                    taskUserInfoSet(imid,null,null,null);
+                    taskUserInfoSet(content,null,null,null);
                     break;
                 case IMAGE_HEAD:
                     if(!TextUtils.isEmpty(content)){
                         imageHead = content;
-                        mImgHead.setImageURI(content);
                     }
                     break;
             }
@@ -210,16 +211,48 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     }
 
 
-    private void taskUserInfoSet(String imid,String avatar,String nickname,Integer gender){
+    private void taskUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender){
         userAction.myInfoSet(imid, avatar, nickname, gender, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if(response.body() == null){
                     return;
                 }
+                if(imid != null){
+                    MyselfInfoActivity.this.imid = imid;
+                    mTvProductNumber.setText(imid);
+                    mIvProductNumber.setVisibility(View.GONE);
+                    mViewProductNumber.setClickable(false);
+                }
+
+                if(nickname != null){
+                    MyselfInfoActivity.this.nickName = nickname;
+                    mTvNickname.setText(nickname);
+                }
+                if(gender != null){
+                    MyselfInfoActivity.this.sex = gender;
+                    if(gender == 1) {
+                        sex = 1;
+                        mTvSex.setText("男");
+                    }else if(gender == 2){
+                        sex = 2;
+                        mTvSex.setText("女");
+                    }else{
+                        mTvSex.setText("未知");
+                    }
+                }
                 ToastUtil.show(MyselfInfoActivity.this,response.body().getMsg());
             }
         });
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(EventMyUserInfo event){
+        if(event.type == 1){
+           UserInfo userInfo =  event.getUserInfo();
+            mImgHead.setImageURI(userInfo.getHead());
+        }
     }
 
 
