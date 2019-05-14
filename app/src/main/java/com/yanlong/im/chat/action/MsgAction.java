@@ -3,6 +3,7 @@ package com.yanlong.im.chat.action;
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.test.server.TestServer;
@@ -22,6 +23,8 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmModel;
 import io.realm.RealmResults;
+import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.Field;
 
 public class MsgAction {
@@ -35,26 +38,47 @@ public class MsgAction {
     }
 
 
-    public void groupCreate(String id,String name,String avatar,List<UserInfo> listDataTop, CallBack<ReturnBean> callback) {
+    public void groupCreate(final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<ReturnGroupInfoBean>> callback) {
         /*List<Long> ulist = new ArrayList<>();
 
         for (UserInfo userInfo:listDataTop){
             ulist.add(userInfo.getUid());
         }*/
 
-        NetUtil.getNet().exec(server.groupCreate(id,name,avatar,gson.toJson(listDataTop)), callback);
-        dao.sessionCreate(id,null);
-        Group group=new Group();
-        group.setAvatar(avatar);
-        group.setGid(id);
-        group.setName(name);
-        RealmList<UserInfo> users=new RealmList();
-        users.addAll(listDataTop);
-        group.setUsers(users);
-        DaoUtil.update(group);
+        NetUtil.getNet().exec(server.groupCreate(name, avatar, gson.toJson(listDataTop)), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                if(response.body()==null)
+                    return;
+                if(response.body().isOk()){//存库
+                    String id =response.body().getData().getGid();
+                    dao.sessionCreate(id,null);
+                    Group group=new Group();
+                    group.setAvatar(avatar);
+                    group.setGid(id);
+                    group.setName(name);
+                    RealmList<UserInfo> users=new RealmList();
+                    users.addAll(listDataTop);
+                    group.setUsers(users);
+                    DaoUtil.update(group);
+                }
+                callback.onResponse(call,response);
+            }
+        });
+
     }
-    public void groupQuit(String id, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupQuit(id), callback);
+    public void groupQuit(final String id, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupQuit(id), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body()==null)
+                    return;
+                if(response.body().isOk()){
+                    dao.sessionDel(null,id);
+                }
+                callback.onResponse(call,response);
+            }
+        });
     }
     public void groupRemove(String id,List<UserInfo> members, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupRemove(id,gson.toJson(members)), callback);
@@ -67,8 +91,19 @@ public class MsgAction {
         }
         NetUtil.getNet().exec(server.groupAdd(id,gson.toJson(ulist)), callback);
     }
-    public void groupDestroy(String id, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupDestroy(id), callback);
+    public void groupDestroy(final String id, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupDestroy(id), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body()==null)
+                    return;
+                if(response.body().isOk()){
+                    dao.sessionDel(null,id);
+                }
+                callback.onResponse(call,response);
+            }
+        });
+
     }
 
 

@@ -20,7 +20,12 @@ public class UserDao {
     }
 
     public void updateUserinfo(UserInfo userInfo){
-        DaoUtil.update(userInfo);
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(userInfo);
+
+                realm.commitTransaction();
+        realm.close();
     }
 
 

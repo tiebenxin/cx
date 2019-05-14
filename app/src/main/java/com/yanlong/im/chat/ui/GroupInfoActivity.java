@@ -16,18 +16,28 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.user.ui.CommonSetingActivity;
 
+import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class GroupInfoActivity extends AppActivity {
     public static final int GROUP_NAME = 1000;
@@ -56,7 +66,7 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewGroupSave;
     private CheckBox ckGroupSave;
     private Button btnDel;
-    private Gson gson=new Gson();
+    private Gson gson = new Gson();
 
     //自动寻找控件
     private void findViews() {
@@ -146,8 +156,8 @@ public class GroupInfoActivity extends AppActivity {
 
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                ToastUtil.show(getContext(), "删除会话");
-
+                // ToastUtil.show(getContext(), "删除会话");
+                taskExitGroup();
             }
         });
 
@@ -265,6 +275,7 @@ public class GroupInfoActivity extends AppActivity {
 
     private UserDao userDao = new UserDao();
     private UserAction userAction = new UserAction();
+    private MsgAction msgAction = new MsgAction();
 
     /***
      * 获取群成员
@@ -274,7 +285,7 @@ public class GroupInfoActivity extends AppActivity {
         //进入这个信息的时候会统一给的
         List<UserInfo> userInfos = null;
 
-        userInfos=userInfos==null?new ArrayList():userInfos;
+        userInfos = userInfos == null ? new ArrayList() : userInfos;
 
         return userInfos;
     }
@@ -285,9 +296,34 @@ public class GroupInfoActivity extends AppActivity {
      */
     private List<UserInfo> taskGetFriends() {
         List<UserInfo> userInfos = userDao.friendGetAll();
-        userInfos=userInfos==null?new ArrayList():userInfos;
+        userInfos = userInfos == null ? new ArrayList() : userInfos;
 
         return userInfos;
+    }
+
+    /***
+     * 退出群
+     */
+    private void taskExitGroup() {
+        CallBack callBack = new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body().isOk()) {
+                    EventBus.getDefault().post(new EventExitChat());
+                    finish();
+                } else {
+                    ToastUtil.show(getContext(), response.body().getMsg());
+                }
+            }
+        };
+
+        if (true) {//群主解散
+            msgAction.groupDestroy(gid, callBack);
+        } else {//成员退出
+            msgAction.groupQuit(gid, callBack);
+        }
+
+
     }
 
 

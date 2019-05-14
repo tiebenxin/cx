@@ -31,8 +31,8 @@ public class MsgConversionBean {
             msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());
             UserInfo toInfo = DaoUtil.findOne(UserInfo.class, "uid", msg.getToUid());
-            if (toInfo != null){
-                msgAllBean.setTo_user(toInfo);
+            if (toInfo != null){//更新用户信息
+              //  msgAllBean.setTo_user(toInfo);
             }else{
                 //从网路缓存
             }
@@ -40,10 +40,13 @@ public class MsgConversionBean {
 
         //这里需要处理用户信息
         UserInfo userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
-        if (userInfo != null){
-            msgAllBean.setFrom_user(userInfo);
+        if (userInfo != null){//更新用户信息
+         //   msgAllBean.setFrom_user(userInfo);
         }else{
             //从网路缓存
+            bean.getAvatar();
+            bean.getNickname();
+         //   bean.
         }
 
         //---------------------

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -89,6 +90,7 @@ public class GroupCreateActivity extends AppActivity {
         initEvent();
         initData();
     }
+
     private void initData() {
         taskListData();
 
@@ -100,7 +102,7 @@ public class GroupCreateActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return listData == null ? 0 :listData.size();
+            return listData == null ? 0 : listData.size();
         }
 
         //自动生成控件事件
@@ -110,21 +112,19 @@ public class GroupCreateActivity extends AppActivity {
             final UserInfo bean = listData.get(position);
 
 
-
             hd.txtType.setText(bean.getTag());
-            hd.imgHead.setImageURI(Uri.parse(""+bean.getHead()));
+            hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
             hd.txtName.setText(bean.getName());
 
             hd.viewType.setVisibility(View.VISIBLE);
-            if(position>0){
-                UserInfo lastbean = listData.get(position-1 );
+            if (position > 0) {
+                UserInfo lastbean = listData.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);
                 }
             }
-            
-            
-            
+
+
             hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -136,9 +136,7 @@ public class GroupCreateActivity extends AppActivity {
                     topListView.getAdapter().notifyDataSetChanged();
                 }
             });
-            
-            
-            
+
 
         }
 
@@ -213,20 +211,20 @@ public class GroupCreateActivity extends AppActivity {
 
 
     private MsgAction msgACtion = new MsgAction();
-    private UserDao userDao=new UserDao();
+    private UserDao userDao = new UserDao();
 
 
-    private List<UserInfo> listData=new ArrayList<>();
-    private void taskListData(){
+    private List<UserInfo> listData = new ArrayList<>();
+
+    private void taskListData() {
 
 
+        listData = userDao.friendGetAll();
 
-        listData=  userDao.friendGetAll();
 
-
-        for (int i=0;i<listData.size();i++){
+        for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:
-            viewType.putTag(listData.get(i).getTag(),i);
+            viewType.putTag(listData.get(i).getTag(), i);
         }
 
 
@@ -234,23 +232,26 @@ public class GroupCreateActivity extends AppActivity {
 
     private void taskCreate() {
 
-        String name = UserAction.getMyInfo().getName()+",";
+        String name = UserAction.getMyInfo().getName() + ",";
         String icon = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
-        for (UserInfo userInfo:listDataTop){
-            name+=userInfo.getName()+",";
+        for (UserInfo userInfo : listDataTop) {
+            name += userInfo.getName() + ",";
         }
-        name=name.length()>0?name.substring(0,name.length()-2):name;
-        name=name.length()>14?name.substring(0,14):name;
-        name+="的群";
+        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
+        name = name.length() > 14 ? name.substring(0, 14) : name;
+        name += "的群";
+        listDataTop.add(UserAction.getMyInfo());
 
-
-        msgACtion.groupCreate(UUID.randomUUID().toString(), name, icon, listDataTop, new CallBack<ReturnBean>() {
+        msgACtion.groupCreate(name, icon, listDataTop, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body()==null)
+            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
                     finish();
+                    startActivity(new Intent(getContext(), ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
+                    );
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }

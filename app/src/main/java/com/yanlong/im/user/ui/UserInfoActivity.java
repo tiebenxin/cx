@@ -16,6 +16,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
+import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -23,6 +24,8 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -110,7 +113,7 @@ public class UserInfoActivity extends AppActivity {
 
         btnMsg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
+                EventBus.getDefault().post(new EventExitChat());
                 startActivity(new Intent(getContext(), ChatActivity.class)
                         .putExtra(ChatActivity.AGM_TOUID, id));
                 finish();

@@ -42,6 +42,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -54,6 +55,10 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MultiListView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +89,7 @@ public class ChatActivity extends AppActivity {
     public static final String AGM_TOUID = "toUId";
     public static final String AGM_TOGID = "toGId";
 
-    private Gson gson=new Gson();
+    private Gson gson = new Gson();
 
 
     private Long toUId = null;
@@ -92,6 +97,8 @@ public class ChatActivity extends AppActivity {
     //当前页
     private int indexPage = 0;
     private List<MsgAllBean> msgListData = new ArrayList<>();
+
+
 
 /*    private void initChatInfo(){
         toUId = null;
@@ -172,9 +179,6 @@ public class ChatActivity extends AppActivity {
     };
 
 
-
-
-
     //自动寻找控件
     private void findViews() {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
@@ -212,7 +216,6 @@ public class ChatActivity extends AppActivity {
     private void initEvent() {
 
 
-
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         toUId = toUId == 0 ? null : toUId;
@@ -228,13 +231,13 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onRight() {
                 if (isGroup()) {//群聊,单聊
-                    startActivity(new Intent(getContext(),GroupInfoActivity.class)
-                            .putExtra(GroupInfoActivity.AGM_GID,toGid)
+                    startActivity(new Intent(getContext(), GroupInfoActivity.class)
+                            .putExtra(GroupInfoActivity.AGM_GID, toGid)
                     );
                 } else {
 
-                    startActivity(new Intent(getContext(),ChatInfoActivity.class)
-                            .putExtra(ChatInfoActivity.AGM_FUID,toUId)
+                    startActivity(new Intent(getContext(), ChatInfoActivity.class)
+                            .putExtra(ChatInfoActivity.AGM_FUID, toUId)
                     );
 
                 }
@@ -403,8 +406,8 @@ public class ChatActivity extends AppActivity {
         viewCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              // go(SelectUserActivity.class);
-               startActivityForResult(new Intent(getContext(),SelectUserActivity.class),SelectUserActivity.RET_CODE_SELECTUSR);
+                // go(SelectUserActivity.class);
+                startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
 
@@ -524,11 +527,16 @@ public class ChatActivity extends AppActivity {
         super.onBackPressed();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefresh(EventExitChat event) {
+        finish();
+    }
+
     @Override
     protected void onDestroy() {
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
-
+        EventBus.getDefault().unregister(this);
 
         super.onDestroy();
 
@@ -538,6 +546,7 @@ public class ChatActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        EventBus.getDefault().register(this);
         findViews();
         initEvent();
     }
@@ -548,9 +557,9 @@ public class ChatActivity extends AppActivity {
         super.onResume();
         //激活当前会话
         if (isGroup()) {
-                ChatServer.setSessionGroup(toGid);
+            ChatServer.setSessionGroup(toGid);
         } else {
-                ChatServer.setSessionSolo(toUId);
+            ChatServer.setSessionSolo(toUId);
         }
         //刷新页面数据
         taskRefreshMessage();
@@ -582,11 +591,11 @@ public class ChatActivity extends AppActivity {
 
                     break;
             }
-        }else if(resultCode==SelectUserActivity.RET_CODE_SELECTUSR){//选择通讯录中的某个人
-           String json= data.getStringExtra(SelectUserActivity.RET_JSON);
-            UserInfo userInfo=gson.fromJson(json,UserInfo.class);
+        } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
+            String json = data.getStringExtra(SelectUserActivity.RET_JSON);
+            UserInfo userInfo = gson.fromJson(json, UserInfo.class);
 
-            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(),userInfo.getHead(), userInfo.getName(), "向你推荐一个好人");
+            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), "向你推荐一个好人");
             showSendObj(msgAllbean);
         }
     }
@@ -600,8 +609,6 @@ public class ChatActivity extends AppActivity {
         PictureSelector.create(ChatActivity.this).themeStyle(R.style.picture_default_style).openExternalPreview(0, selectList);
 
     }
-
-
 
 
     //自动生成RecyclerViewAdapter
@@ -636,7 +643,7 @@ public class ChatActivity extends AppActivity {
 
 
             //显示数据集
-            String headico = msgbean.getFrom_user().getHead();
+            String headico = msgbean.getFrom_user() == null ? "" : msgbean.getFrom_user().getHead();
             if (msgbean.isMe()) {
                 // headico =
             } else {
@@ -678,10 +685,10 @@ public class ChatActivity extends AppActivity {
                             msgbean.getBusiness_card().getAvatar(), null, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                   // ToastUtil.show(getContext(), "添加好友需要详情页面");
+                                    // ToastUtil.show(getContext(), "添加好友需要详情页面");
 
-                                    startActivity(new Intent(getContext(),UserInfoActivity.class)
-                                            .putExtra(UserInfoActivity.ID,msgbean.getBusiness_card().getUid()));
+                                    startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                            .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
                                 }
                             });
                     break;
@@ -749,20 +756,20 @@ public class ChatActivity extends AppActivity {
     }
 
     private MsgAction msgAction = new MsgAction();
-    private UserDao userDao=new UserDao();
-    private MsgDao msgDao=new MsgDao();
+    private UserDao userDao = new UserDao();
+    private MsgDao msgDao = new MsgDao();
 
     /***
      * 获取会话信息
      */
-    private void taskSessionInfo(){
-        String title="";
-        if (isGroup()){
+    private void taskSessionInfo() {
+        String title = "";
+        if (isGroup()) {
             Group ginfo = msgDao.getGroup4Id(toGid);
-            title=ginfo.getName();
-        }else{
+            title = ginfo.getName();
+        } else {
             UserInfo finfo = userDao.findUserInfo(toUId);
-            title=finfo.getName4Show();
+            title = finfo.getName4Show();
         }
 
         actionbar.setTitle(title);
@@ -773,7 +780,7 @@ public class ChatActivity extends AppActivity {
      */
     private void taskRefreshMessage() {
         indexPage = 0;
-        msgListData = msgAction.getMsg4User(toGid,toUId, indexPage);
+        msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
         notifyData2Buttom();
     }
 
@@ -785,7 +792,7 @@ public class ChatActivity extends AppActivity {
 
         int addItem = msgListData.size();
 
-        msgListData.addAll(0, msgAction.getMsg4User(toGid,toUId, page));
+        msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
 
         addItem = msgListData.size() - addItem;
 

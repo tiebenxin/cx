@@ -3,6 +3,7 @@ package com.yanlong.im.chat.bean;
 
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.DaoUtil;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
@@ -15,9 +16,9 @@ public class MsgAllBean extends RealmObject {
     private byte[] send_data;
     private String request_id;
     private Long from_uid;
-    private UserInfo from_user;
+  //  private UserInfo from_user;
     private Long to_uid;
-    private UserInfo to_user;
+ //   private UserInfo to_user;
     private String gid;
     /***
      *  CHAT = 0; // 普通聊天消息
@@ -57,20 +58,20 @@ public class MsgAllBean extends RealmObject {
     private AckMessage ack;
 
     public UserInfo getFrom_user() {
-        return from_user;
+        return DaoUtil.findOne(UserInfo.class,"uid",from_uid);
+    }
+    public UserInfo getTo_user() {
+        return DaoUtil.findOne(UserInfo.class,"uid",to_uid);
     }
 
-    public void setFrom_user(UserInfo from_user) {
+  /*  public void setFrom_user(UserInfo from_user) {
         this.from_user = from_user;
     }
 
-    public UserInfo getTo_user() {
-        return to_user;
-    }
 
     public void setTo_user(UserInfo to_user) {
         this.to_user = to_user;
-    }
+    }*/
 
     public String getRequest_id() {
         return this.request_id;

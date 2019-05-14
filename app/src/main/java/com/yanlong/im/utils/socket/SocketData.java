@@ -8,6 +8,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.LogUtil;
@@ -187,7 +188,10 @@ public class SocketData {
 
 
         MsgBean.UniversalMessage.WrapMessage.Builder wmsg = msg.getWrapMsgBuilder(0);
-        wmsg.setFromUid(UserAction.getMyId());
+        UserInfo userInfo = UserAction.getMyInfo();
+        wmsg.setFromUid(userInfo.getUid());
+        wmsg.setAvatar(userInfo.getHead());
+        wmsg.setNickname(userInfo.getName());
         wmsg.setTimestamp(System.currentTimeMillis());
 
         if (toGid != null) {//给群发

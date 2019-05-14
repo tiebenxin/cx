@@ -86,6 +86,7 @@ public class UserAction {
 
 
     public void updateUserinfo2DB(UserInfo userInfo) {
+        userInfo.setuType(1);
         dao.updateUserinfo(userInfo);
     }
 
@@ -126,8 +127,8 @@ public class UserAction {
 
                 if (response.body() != null && response.body().isOk()) {
                     UserInfo userInfo = response.body().getData();
-                    userInfo.setName(userInfo.getName());
-                    userInfo.setuType(1);
+                    userInfo.toTag();
+
                     updateUserinfo2DB(userInfo);
                 }
 
@@ -271,7 +272,8 @@ public class UserAction {
                     for (UserInfo userInfo : list) {
                         userInfo.setName(userInfo.getName());
                         userInfo.setuType(2);
-                        DaoUtil.update(userInfo);
+                       // DaoUtil.update(userInfo);
+                        dao.updateUserinfo(userInfo);
                     }
 
 
@@ -321,7 +323,7 @@ public class UserAction {
                     myInfo.setName(nickname);
                     if(gender!=null)
                     myInfo.setSex(gender);
-                    dao.updateUserinfo(myInfo);
+                   updateUserinfo2DB(myInfo);
                 }
                 callback.onResponse(call, response);
             }
