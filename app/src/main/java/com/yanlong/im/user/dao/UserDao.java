@@ -56,7 +56,7 @@ public class UserDao {
     public UserInfo findUserInfo4Friend(Long userid) {
         UserInfo res=null;
         Realm realm = DaoUtil.open();
-        UserInfo ls = realm.where(UserInfo.class).equalTo("uType", 2).equalTo("uid", userid).sort("tag", Sort.ASCENDING).findFirst();
+        UserInfo ls = realm.where(UserInfo.class).equalTo("uType", 2).equalTo("uid", userid).findFirst();
         if(ls!=null){
             res=  realm.copyFromRealm(ls);
         }

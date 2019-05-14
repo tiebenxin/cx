@@ -52,6 +52,31 @@ public class MsgDao {
     }
 
     /***
+     * 获取群消息
+     * @param gid
+     * @param page
+     * @return
+     */
+    public List<MsgAllBean> getMsg4Group(String gid, int page) {
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+
+        RealmResults list = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid).and()
+                .notEqualTo("msg_type", 0)
+                .sort("timestamp", Sort.DESCENDING)
+                .findAll();
+
+        beans = DaoUtil.page(page, list, realm);
+
+
+        //翻转列表
+        Collections.reverse(beans);
+        realm.close();
+        return beans;
+    }
+
+    /***
      * 删除聊天记录
      * @param toUid
      * @param gid

@@ -52,7 +52,7 @@ public class UserInfoActivity extends AppActivity {
 
     private int type; //0.已经是好友 1.不是好友添加好友
     private Long id;
-    UserAction userAction;
+    private UserAction userAction;
 
 
     @Override
@@ -83,6 +83,7 @@ public class UserInfoActivity extends AppActivity {
         mBtnAdd = findViewById(R.id.btn_add);
 
       //  type = getIntent().getIntExtra(TYPE, 0);
+        id = getIntent().getLongExtra(ID,0);
         taskFindExist();
         if (type == 0) {
             mLayoutMsg.setVisibility(View.VISIBLE);
@@ -111,7 +112,10 @@ public class UserInfoActivity extends AppActivity {
 
         btnMsg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                go(ChatActivity.class);
+
+                startActivity(new Intent(getContext(), ChatActivity.class)
+                        .putExtra(ChatActivity.AGM_TOUID, id));
+                finish();
 
             }
         });
@@ -182,7 +186,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void initData() {
-        id = getIntent().getLongExtra(ID,0);
+
         userAction = new UserAction();
         taskUserInfo(id);
     }

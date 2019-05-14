@@ -187,8 +187,10 @@ public class FriendMainFragment extends Fragment {
                 hd.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startActivity(new Intent(getContext(), ChatActivity.class)
-                                .putExtra(ChatActivity.AGM_TOUID, bean.getUid()));
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, bean.getUid()));
+
+
                     }
                 });
             }

@@ -90,10 +90,10 @@ public class ImageHeadActivity extends AppActivity {
                         PictureSelector.create(ImageHeadActivity.this)
                                 .openCamera(PictureMimeType.ofImage())
                                 .compress(true)
-                                .enableCrop(true)
+                                .enableCrop(false)
                                 .withAspectRatio(1, 1)
-                                .freeStyleCropEnabled(true)
-                                .cropWH(1, 1)
+                                .freeStyleCropEnabled(false)
+                               // .cropWH(1, 1)
                                 .rotateEnabled(false)
                                 .forResult(PictureConfig.CHOOSE_REQUEST);
                         break;
@@ -106,8 +106,8 @@ public class ImageHeadActivity extends AppActivity {
                                 .compress(true)// 是否压缩 true or false
                                 .enableCrop(true)
                                 .withAspectRatio(1, 1)
-                                .freeStyleCropEnabled(true)
-                                .cropWH(1, 1)
+                                .freeStyleCropEnabled(false)
+                               // .cropWH(600, 600)
                                 .rotateEnabled(false)
                                 .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
 

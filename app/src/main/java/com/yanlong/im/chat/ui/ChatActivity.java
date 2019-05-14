@@ -17,12 +17,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
@@ -30,6 +32,9 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.ui.SingleRedPacketActivity;
+import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
@@ -79,8 +84,21 @@ public class ChatActivity extends AppActivity {
     public static final String AGM_TOUID = "toUId";
     public static final String AGM_TOGID = "toGId";
 
+    private Gson gson=new Gson();
+
+
     private Long toUId = null;
     private String toGid = null;
+    //当前页
+    private int indexPage = 0;
+    private List<MsgAllBean> msgListData = new ArrayList<>();
+
+/*    private void initChatInfo(){
+        toUId = null;
+        toGid = null;
+        indexPage = 0;
+        msgListData.clear();
+    }*/
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -154,8 +172,7 @@ public class ChatActivity extends AppActivity {
     };
 
 
-    //当前页
-    private int indexPage = 0;
+
 
 
     //自动寻找控件
@@ -194,10 +211,12 @@ public class ChatActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
 
+
+
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         toUId = toUId == 0 ? null : toUId;
-
+        taskSessionInfo();
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         actionbar.getBtnRight().setVisibility(View.VISIBLE);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -209,7 +228,6 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onRight() {
                 if (isGroup()) {//群聊,单聊
-
                     startActivity(new Intent(getContext(),GroupInfoActivity.class)
                             .putExtra(GroupInfoActivity.AGM_GID,toGid)
                     );
@@ -385,9 +403,8 @@ public class ChatActivity extends AppActivity {
         viewCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Long uid=100103l;
-                MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, uid,"http://wx3.sinaimg.cn/mw600/0062mN6Rly1g2khyv79yuj30k20m8mz2.jpg", "昵称", "其他资料");
-                showSendObj(msgAllbean);
+              // go(SelectUserActivity.class);
+               startActivityForResult(new Intent(getContext(),SelectUserActivity.class),SelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
 
@@ -525,6 +542,7 @@ public class ChatActivity extends AppActivity {
         initEvent();
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -564,6 +582,12 @@ public class ChatActivity extends AppActivity {
 
                     break;
             }
+        }else if(resultCode==SelectUserActivity.RET_CODE_SELECTUSR){//选择通讯录中的某个人
+           String json= data.getStringExtra(SelectUserActivity.RET_JSON);
+            UserInfo userInfo=gson.fromJson(json,UserInfo.class);
+
+            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(),userInfo.getHead(), userInfo.getName(), "向你推荐一个好人");
+            showSendObj(msgAllbean);
         }
     }
 
@@ -577,7 +601,7 @@ public class ChatActivity extends AppActivity {
 
     }
 
-    private List<MsgAllBean> msgListData = new ArrayList<>();
+
 
 
     //自动生成RecyclerViewAdapter
@@ -654,7 +678,7 @@ public class ChatActivity extends AppActivity {
                             msgbean.getBusiness_card().getAvatar(), null, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    ToastUtil.show(getContext(), "添加好友需要详情页面");
+                                   // ToastUtil.show(getContext(), "添加好友需要详情页面");
 
                                     startActivity(new Intent(getContext(),UserInfoActivity.class)
                                             .putExtra(UserInfoActivity.ID,msgbean.getBusiness_card().getUid()));
@@ -725,13 +749,31 @@ public class ChatActivity extends AppActivity {
     }
 
     private MsgAction msgAction = new MsgAction();
+    private UserDao userDao=new UserDao();
+    private MsgDao msgDao=new MsgDao();
+
+    /***
+     * 获取会话信息
+     */
+    private void taskSessionInfo(){
+        String title="";
+        if (isGroup()){
+            Group ginfo = msgDao.getGroup4Id(toGid);
+            title=ginfo.getName();
+        }else{
+            UserInfo finfo = userDao.findUserInfo(toUId);
+            title=finfo.getName4Show();
+        }
+
+        actionbar.setTitle(title);
+    }
 
     /***
      * 获取最新的
      */
     private void taskRefreshMessage() {
         indexPage = 0;
-        msgListData = msgAction.getMsg4User(toUId, indexPage);
+        msgListData = msgAction.getMsg4User(toGid,toUId, indexPage);
         notifyData2Buttom();
     }
 
@@ -743,7 +785,7 @@ public class ChatActivity extends AppActivity {
 
         int addItem = msgListData.size();
 
-        msgListData.addAll(0, msgAction.getMsg4User(toUId, page));
+        msgListData.addAll(0, msgAction.getMsg4User(toGid,toUId, page));
 
         addItem = msgListData.size() - addItem;
 
