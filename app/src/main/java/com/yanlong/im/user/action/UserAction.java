@@ -305,7 +305,7 @@ public class UserAction {
     /**
      *设置用户个人资料
      * */
-    public void userInfoSet(long imid,String avatar,String nickname,int gender,CallBack<ReturnBean> callback){
+    public void userInfoSet(String imid,String avatar,String nickname,Integer gender,CallBack<ReturnBean> callback){
         NetUtil.getNet().exec(server.userInfoSet(imid,avatar,nickname,gender),callback);
     }
 

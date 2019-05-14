@@ -52,7 +52,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
 
     private void initEvent(){
         if(AppConfig.DEBUG){
-            mEtPhoneContent.setText("13000000000");
+            mEtPhoneContent.setText("13111111111");
             mEtPasswordContent.setText("asdfasfd");
         }
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {

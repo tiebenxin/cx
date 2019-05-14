@@ -5,21 +5,30 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class MyselfInfoActivity extends AppActivity implements View.OnClickListener {
     private static final int NICENAME = 1000;
     private static final int PRODUCT = 2000;
     private static final int SEX = 3000;
+    private static final int IMAGE_HEAD = 4000;
 
     private SimpleDraweeView mImgHead;
     private LinearLayout mViewBlacklist;
@@ -35,6 +44,12 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private LinearLayout mViewHead;
     private HeadView mHeadView;
     private UserInfo userInfo;
+    private UserAction userAction;
+    private ImageView mIvProductNumber;
+    private int sex;
+    private String imageHead;
+    private String imid;
+    private String nickName;
 
 
     @Override
@@ -45,6 +60,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         initEvent();
         initData();
     }
+
 
     private void initView() {
         mImgHead = findViewById(R.id.img_head);
@@ -59,12 +75,12 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         mTvSex = findViewById(R.id.tv_sex);
         mViewIdentity = findViewById(R.id.view_identity);
         mTvIdentity = findViewById(R.id.tv_identity);
-        mHeadView =  findViewById(R.id.headView);
+        mHeadView = findViewById(R.id.headView);
+        mIvProductNumber = findViewById(R.id.iv_product_number);
     }
 
 
     private void initEvent() {
-        mViewBlacklist.setOnClickListener(this);
         mViewNickname.setOnClickListener(this);
         mViewProductNumber.setOnClickListener(this);
         mViewSex.setOnClickListener(this);
@@ -83,17 +99,42 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         });
     }
 
-    private void initData(){
-        userInfo = new UserInfo();
+    private void initData() {
+        userAction = new UserAction();
+        userInfo = UserAction.getMyInfo();
+        imageHead = userInfo.getHead();
+        imid = userInfo.getImid();
+        nickName = userInfo.getName();
+        sex = userInfo.getSex();
+
+        mImgHead.setImageURI(imageHead + "");
+        mTvNickname.setText(nickName);
+        if (!TextUtils.isEmpty(imid)) {
+            mTvProductNumber.setText(imid);
+            mIvProductNumber.setVisibility(View.GONE);
+            mViewProductNumber.setClickable(false);
+
+        } else {
+            mIvProductNumber.setVisibility(View.VISIBLE);
+            mViewProductNumber.setClickable(true);
+        }
+        switch (sex) {
+            case 1:
+                mTvSex.setText("男");
+                break;
+            case 2:
+                mTvSex.setText("女");
+                break;
+            default:
+                mTvSex.setText("保密");
+                break;
+        }
     }
 
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.view_blacklist:
-
-                break;
             case R.id.view_nickname:
                 Intent nicknameIntent = new Intent(MyselfInfoActivity.this, CommonSetingActivity.class);
                 nicknameIntent.putExtra(CommonSetingActivity.TITLE, "昵称");
@@ -110,8 +151,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 startActivityForResult(productIntent, PRODUCT);
                 break;
             case R.id.view_sex:
-                Intent sexIntent = new Intent(MyselfInfoActivity.this,SelectSexActivity.class);
-                startActivityForResult(sexIntent,SEX);
+                Intent sexIntent = new Intent(MyselfInfoActivity.this, SelectSexActivity.class);
+                startActivityForResult(sexIntent, SEX);
                 break;
             case R.id.view_identity:
                 Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentificationCentreActivity.class);
@@ -119,7 +160,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 break;
             case R.id.view_head:
                 Intent headIntent = new Intent(MyselfInfoActivity.this, ImageHeadActivity.class);
-                startActivity(headIntent);
+                headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD,imageHead);
+                startActivityForResult(headIntent,IMAGE_HEAD);
                 break;
         }
     }
@@ -133,19 +175,52 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             switch (requestCode) {
                 case NICENAME:
                     mTvNickname.setText(content);
+                    nickName = content;
+                    taskUserInfoSet(null,null,nickName,null);
                     break;
                 case SEX:
-                    if(!TextUtils.isEmpty(content)){
+                    if (!TextUtils.isEmpty(content)) {
                         mTvSex.setText(content);
+                        if(content.equals("男")) {
+                            sex = 1;
+                        }else{
+                            sex = 2;
+                        }
+                    }
+                    taskUserInfoSet(null,null,null,sex);
+                    break;
+                case PRODUCT:
+                    if(!TextUtils.isEmpty(content)){
+                        imid = content;
+                        mTvProductNumber.setText(imid);
+                        mIvProductNumber.setVisibility(View.GONE);
+                        mViewProductNumber.setClickable(false);
+                    }
+                    taskUserInfoSet(imid,null,null,null);
+                    break;
+                case IMAGE_HEAD:
+                    if(!TextUtils.isEmpty(content)){
+                        imageHead = content;
+                        mImgHead.setImageURI(content);
                     }
                     break;
             }
+
         }
     }
 
 
-
-
+    private void taskUserInfoSet(String imid,String avatar,String nickname,Integer gender){
+        userAction.userInfoSet(imid, avatar, nickname, gender, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    return;
+                }
+                ToastUtil.show(MyselfInfoActivity.this,response.body().getMsg());
+            }
+        });
+    }
 
 
 }

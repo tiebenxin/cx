@@ -68,7 +68,7 @@ public interface UserServer {
 
     @POST("/user/set-user-info")
     @FormUrlEncoded
-    Call<ReturnBean> userInfoSet(@Field("imid") Long imid,@Field("avatar") String avatar,
+    Call<ReturnBean> userInfoSet(@Field("imid") String imid,@Field("avatar") String avatar,
                                                    @Field("nickname") String nickname,@Field("gender") Integer gender);
 
 

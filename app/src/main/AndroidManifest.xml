@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.yanlong.im">
 
+
     <application
         android:name=".MyAppLication"
         android:allowBackup="true"
@@ -15,7 +16,7 @@
         <activity-alias
             android:name="test"
             android:label="测试页面"
-            android:targetActivity=".user.ui.MyselfQRCodeActivity">
+            android:targetActivity=".user.ui.ImageHeadActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
