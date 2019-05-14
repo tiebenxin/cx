@@ -139,9 +139,9 @@ public class UserAction {
 
     /**
      * 获取用户信息
-     * */
-    public void getUserInfo4Id(Long usrid,CallBack<ReturnBean<UserInfo>> callBack) {
-        NetUtil.getNet().exec(server.getUserInfo(usrid),callBack);
+     */
+    public void getUserInfo4Id(Long usrid, CallBack<ReturnBean<UserInfo>> callBack) {
+        NetUtil.getNet().exec(server.getUserInfo(usrid), callBack);
     }
 
 
@@ -209,66 +209,66 @@ public class UserAction {
     /***
      * 好友添加
      */
-    public void friendApply(Long uid,CallBack<ReturnBean> callback) {
+    public void friendApply(Long uid, CallBack<ReturnBean> callback) {
 
-        NetUtil.getNet().exec(server.friendStat(uid,1),callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 1), callback);
 
     }
 
     /***
      * 好友同意
      */
-    public void friendAgree(Long uid,CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid,0),callback);
+    public void friendAgree(Long uid, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid, 0), callback);
 
     }
 
     /***
      * 加黑名单
      */
-    public void friendBlack(Long uid,CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid,2),callback);
+    public void friendBlack(Long uid, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid, 2), callback);
 
     }
 
     /***
      * 移除黑名单
      */
-    public void friendBlackRemove(Long uid,CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid,3),callback);
+    public void friendBlackRemove(Long uid, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid, 3), callback);
     }
 
     /***
      * 删除好友
      */
-    public void friendDel(Long uid,CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendDel(uid),callback);
+    public void friendDel(Long uid, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendDel(uid), callback);
 
     }
 
     /***
      * 好友备注
      */
-    public void friendMark(Long uid,String mkn,CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendMkName(uid,mkn),callback);
+    public void friendMark(Long uid, String mkn, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendMkName(uid, mkn), callback);
     }
 
     /**
      * 通讯录
      */
-    public void friendGet4Me(final CallBack<ReturnBean<List<UserInfo>>> callback){
+    public void friendGet4Me(final CallBack<ReturnBean<List<UserInfo>>> callback) {
         NetUtil.getNet().exec(server.friendGet(0), new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
 
-                if (response==null)
+                if (response == null)
                     return;
 
-                if(response.body().isOk()){
+                if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
                     //更新库
                     dao.friendMeDel();
-                    for (UserInfo userInfo:list){
+                    for (UserInfo userInfo : list) {
                         userInfo.setName(userInfo.getName());
                         userInfo.setuType(2);
                         DaoUtil.update(userInfo);
@@ -276,14 +276,14 @@ public class UserAction {
 
 
                 }
-                callback.onResponse(call,response);
+                callback.onResponse(call, response);
 
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
                 super.onFailure(call, t);
-                callback.onResponse(call,null);
+                callback.onResponse(call, null);
             }
         });
     }
@@ -291,24 +291,46 @@ public class UserAction {
     /***
      * 申请列表
      */
-    public void friendGet4Apply( CallBack<ReturnBean<List<UserInfo>>> callback){
-        NetUtil.getNet().exec(server.friendGet(1),callback);
+    public void friendGet4Apply(CallBack<ReturnBean<List<UserInfo>>> callback) {
+        NetUtil.getNet().exec(server.friendGet(1), callback);
     }
 
     /***
      * 黑名单
      */
-    public void friendGet4Black( CallBack<ReturnBean<List<UserInfo>>> callback){
-        NetUtil.getNet().exec(server.friendGet(2),callback);
+    public void friendGet4Black(CallBack<ReturnBean<List<UserInfo>>> callback) {
+        NetUtil.getNet().exec(server.friendGet(2), callback);
     }
 
     /**
-     *设置用户个人资料
-     * */
-    public void userInfoSet(String imid,String avatar,String nickname,Integer gender,CallBack<ReturnBean> callback){
-        NetUtil.getNet().exec(server.userInfoSet(imid,avatar,nickname,gender),callback);
-    }
+     * 设置用户个人资料
+     */
+    public void myInfoSet(final String imid, final String avatar, final String nickname, final Integer gender, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.userInfoSet(imid, avatar, nickname, gender), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    myInfo = dao.findUserInfo(getMyId());
+                    if(imid!=null)
+                    myInfo.setImid(imid);
+                    if(avatar!=null)
+                    myInfo.setHead(avatar);
+                    if(nickname!=null)
+                    myInfo.setName(nickname);
+                    if(gender!=null)
+                    myInfo.setSex(gender);
+                    dao.updateUserinfo(myInfo);
 
+
+                }
+
+                callback.onResponse(call, response);
+            }
+        });
+
+    }
 
 
 }

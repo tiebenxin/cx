@@ -111,7 +111,7 @@
         <!--聊天界面-->
         <activity
             android:name=".chat.ui.ChatActivity"
-            android:launchMode="singleTask"
+            android:launchMode="standard"
             android:screenOrientation="portrait">
 
         </activity>
@@ -220,7 +220,10 @@
         <activity
             android:name=".user.ui.UserInfoActivity"
             android:screenOrientation="portrait" />
-
+        <!--选择用户-->
+        <activity
+            android:name=".user.ui.SelectUserActivity"
+            android:screenOrientation="portrait" />
         <!--上传身份证照片-->
         <activity
             android:name=".user.ui.UploadIdentityActivity"

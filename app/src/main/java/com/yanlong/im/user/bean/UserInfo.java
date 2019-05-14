@@ -87,7 +87,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public String getHead() {
-        return head;
+        return head==null?"":head;
     }
 
     public void setHead(String head) {
