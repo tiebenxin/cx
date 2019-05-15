@@ -136,6 +136,7 @@ public class UserInfoActivity extends AppActivity {
                                 taskFriendBlack(id);
                             }
                         });
+                alertYesNo.show();
             }
         });
 
@@ -161,7 +162,7 @@ public class UserInfoActivity extends AppActivity {
                                 taskDelFriend(id);
                             }
                         });
-
+                alertYesNo.show();
             }
         });
 
@@ -215,7 +216,7 @@ public class UserInfoActivity extends AppActivity {
                 }
                 UserInfo info = response.body().getData();
                 imgHead.setImageURI(Uri.parse("" + info.getHead()));
-                txtMkname.setText(info.getMkName());
+                txtMkname.setText(info.getName4Show());
                 txtPrNo.append(info.getImid());
                 txtNkname.append(info.getName());
             }

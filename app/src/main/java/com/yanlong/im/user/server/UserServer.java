@@ -2,6 +2,7 @@ package com.yanlong.im.user.server;
 
 import com.yanlong.im.test.bean.Test2Bean;
 import com.yanlong.im.user.bean.LoginBean;
+import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 
@@ -71,5 +72,12 @@ public interface UserServer {
     Call<ReturnBean> userInfoSet(@Field("imid") String imid,@Field("avatar") String avatar,
                                                    @Field("nickname") String nickname,@Field("gender") Integer gender);
 
+    @POST("user/set-user-mask")
+    @FormUrlEncoded
+    Call<ReturnBean> userMaskSet(@Field("switchval") Integer switchval,@Field("opFlag") Integer avatar);
+
+    @POST("pub/get-sms-captcha")
+    @FormUrlEncoded
+    Call<ReturnBean<SmsBean>> smsCaptchaGet(@Field("phone") Long phone, @Field("businessType") String businessType);
 
 }

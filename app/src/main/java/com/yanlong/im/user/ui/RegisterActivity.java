@@ -14,12 +14,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.SmsBean;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class RegisterActivity extends AppActivity implements View.OnClickListener {
 
@@ -29,6 +36,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     private TextView mTvMattersNeedAttention;
     private TextView mTvGetVerificationCode;
     private HeadView mHeadView;
+    private UserAction userAction;
 
 
     @Override
@@ -37,6 +45,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         setContentView(R.layout.activity_register);
         initView();
         initEvent();
+        initData();
     }
 
 
@@ -65,6 +74,10 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
 
             }
         });
+    }
+
+    private void initData(){
+        userAction = new UserAction();
     }
 
 
@@ -112,7 +125,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
 
 
     private void initCountDownUtil() {
-        String phone = mEtPhoneContent.getText().toString();
+        final String phone = mEtPhoneContent.getText().toString();
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(RegisterActivity.this, "请填写手机号码");
             return;
@@ -123,9 +136,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-
-
+                        taskGetSms(Long.valueOf(phone));
                     }
                 }).start();
     }
@@ -142,5 +153,24 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             return;
         }
     }
+
+
+    private void taskGetSms(Long phone){
+        userAction.smsCaptchaGet(phone, "register", new CallBack<ReturnBean<SmsBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SmsBean>> call, Response<ReturnBean<SmsBean>> response) {
+                if(response.body() != null){
+                    return;
+                }
+
+                mEtIdentifyingCodeContent.setText(response.body().getData().getCaptcha()+"");
+
+                ToastUtil.show(RegisterActivity.this,response.body().getMsg());
+            }
+        });
+
+    }
+
+
 
 }

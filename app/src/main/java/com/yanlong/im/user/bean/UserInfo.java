@@ -34,8 +34,42 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     private Integer disturb;///消息免打扰(0:关闭|1:打开)
     private Integer istop;//聊天置顶(0:关闭|1:打开)
+    private Integer phonefind;//通过手机号找到自己(0:关闭|1:打开)
+    private Integer imidfind;//通过产品号找到自己(0:关闭|1:打开)
+    private Integer friendvalid;//加我为朋友时需要验证(0:关闭|1:打开)
+    private Integer groupvalid; //允许被直接添加至群聊(0:关闭|1:打开)
 
+    public Integer getPhonefind() {
+        return phonefind;
+    }
 
+    public void setPhonefind(Integer phonefind) {
+        this.phonefind = phonefind;
+    }
+
+    public Integer getImidfind() {
+        return imidfind;
+    }
+
+    public void setImidfind(Integer imidfind) {
+        this.imidfind = imidfind;
+    }
+
+    public Integer getFriendvalid() {
+        return friendvalid;
+    }
+
+    public void setFriendvalid(Integer friendvalid) {
+        this.friendvalid = friendvalid;
+    }
+
+    public Integer getGroupvalid() {
+        return groupvalid;
+    }
+
+    public void setGroupvalid(Integer groupvalid) {
+        this.groupvalid = groupvalid;
+    }
 
     public Integer getDisturb() {
         return disturb;

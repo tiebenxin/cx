@@ -86,6 +86,9 @@ public class QRCodeManage {
         if (bean != null) {
             if(bean.getFunction().equals(ADD_FRIEND_FUNCHTION)){
                 Intent intent = new Intent(activity, UserInfoActivity.class);
+                if(!TextUtils.isEmpty(bean.getParameterValue(ID))){
+                    intent.putExtra(UserInfoActivity.ID,Long.valueOf(bean.getParameterValue(ID)));
+                }
                 activity.startActivity(intent);
 
             }else if(bean.getFunction().equals(ADD_GROUP_FUNCHTION)){

@@ -3,6 +3,7 @@ package com.yanlong.im.user.action;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -330,6 +331,22 @@ public class UserAction {
         });
 
     }
+
+    /**
+     * 修改用户组合开关
+     * */
+     public void userMaskSet(Integer switchval,Integer avatar,CallBack<ReturnBean> callback){
+         NetUtil.getNet().exec(server.userMaskSet(switchval, avatar), callback);
+     }
+
+
+    /**
+     * 获取短信验证码
+     * @param businessType  登录login  注册register  修改密码password
+     * */
+     public void smsCaptchaGet(Long phone,String businessType,CallBack<ReturnBean<SmsBean>> callback){
+        NetUtil.getNet().exec(server.smsCaptchaGet(phone,businessType),callback);
+     }
 
 
 }
