@@ -273,7 +273,7 @@ public class UserAction {
                     for (UserInfo userInfo : list) {
                         userInfo.setName(userInfo.getName());
                         userInfo.setuType(2);
-                       // DaoUtil.update(userInfo);
+                        // DaoUtil.update(userInfo);
                         dao.updateUserinfo(userInfo);
                     }
 
@@ -316,15 +316,15 @@ public class UserAction {
                     return;
                 if (response.body().isOk()) {
                     myInfo = dao.findUserInfo(getMyId());
-                    if(imid!=null)
-                    myInfo.setImid(imid);
-                    if(avatar!=null)
-                    myInfo.setHead(avatar);
-                    if(nickname!=null)
-                    myInfo.setName(nickname);
-                    if(gender!=null)
-                    myInfo.setSex(gender);
-                   updateUserinfo2DB(myInfo);
+                    if (imid != null)
+                        myInfo.setImid(imid);
+                    if (avatar != null)
+                        myInfo.setHead(avatar);
+                    if (nickname != null)
+                        myInfo.setName(nickname);
+                    if (gender != null)
+                        myInfo.setSex(gender);
+                    updateUserinfo2DB(myInfo);
                 }
                 callback.onResponse(call, response);
             }
@@ -334,19 +334,54 @@ public class UserAction {
 
     /**
      * 修改用户组合开关
-     * */
-     public void userMaskSet(Integer switchval,Integer avatar,CallBack<ReturnBean> callback){
-         NetUtil.getNet().exec(server.userMaskSet(switchval, avatar), callback);
-     }
+     */
+    public void userMaskSet(Integer switchval, Integer avatar, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.userMaskSet(switchval, avatar), callback);
+    }
 
 
     /**
      * 获取短信验证码
-     * @param businessType  登录login  注册register  修改密码password
-     * */
-     public void smsCaptchaGet(Long phone,String businessType,CallBack<ReturnBean<SmsBean>> callback){
-        NetUtil.getNet().exec(server.smsCaptchaGet(phone,businessType),callback);
-     }
+     *
+     * @param businessType 登录login  注册register  修改密码password
+     */
+    public void smsCaptchaGet(Long phone, String businessType, CallBack<ReturnBean<SmsBean>> callback) {
+        NetUtil.getNet().exec(server.smsCaptchaGet(phone, businessType), callback);
+    }
+
+
+    /**
+     * 用户注册
+     */
+    public void register(Long phone, String password, String captcha, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.register(phone, password, captcha), callback);
+    }
+
+
+    /**
+     * 手机号验证码登录
+     */
+    public void login4Captch(Long phone, String captcha, final CallBack<ReturnBean<TokenBean>> callback) {
+        NetUtil.getNet().exec(server.login4Captch(phone, captcha), new Callback<ReturnBean<TokenBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    initDB("" + response.body().getData().getUid());
+                    setToken(response.body().getData());
+                    getMyInfo4Web(response.body().getData().getUid());
+
+                    callback.onResponse(call, response);
+                } else {
+                    callback.onFailure(call, null);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                callback.onFailure(call, t);
+            }
+        });
+    }
 
 
 }

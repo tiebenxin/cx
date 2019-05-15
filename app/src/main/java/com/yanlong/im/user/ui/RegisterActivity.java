@@ -32,6 +32,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
 
     private EditText mEtPhoneContent;
     private EditText mEtIdentifyingCodeContent;
+    private EditText mEtPasswordContent;
+    private EditText mEtNextPasswordContent;
     private Button mBtnRegister;
     private TextView mTvMattersNeedAttention;
     private TextView mTvGetVerificationCode;
@@ -50,12 +52,14 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
 
 
     private void initView() {
-        mHeadView =  findViewById(R.id.headView);
+        mHeadView = findViewById(R.id.headView);
         mEtPhoneContent = findViewById(R.id.et_phone_content);
         mEtIdentifyingCodeContent = findViewById(R.id.et_identifying_code_content);
         mBtnRegister = findViewById(R.id.btn_register);
         mTvMattersNeedAttention = findViewById(R.id.tv_matters_need_attention);
         mTvGetVerificationCode = findViewById(R.id.tv_get_verification_code);
+        mEtPasswordContent =  findViewById(R.id.et_password_content);
+        mEtNextPasswordContent =  findViewById(R.id.et_next_password_content);
         initTvMNA();
     }
 
@@ -76,7 +80,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         });
     }
 
-    private void initData(){
+    private void initData() {
         userAction = new UserAction();
     }
 
@@ -95,7 +99,6 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
 
 
     private void initTvMNA() {
-
         final SpannableStringBuilder style = new SpannableStringBuilder();
         style.append("点击\"注册\"即表示已阅读并同意《用户使用协议》和《隐私权政策》");
 
@@ -143,32 +146,59 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
 
     private void register() {
         String phone = mEtPhoneContent.getText().toString();
-        String password = mEtIdentifyingCodeContent.getText().toString();
+        String code = mEtIdentifyingCodeContent.getText().toString();
+        String password = mEtPasswordContent.getText().toString();
+        String nextPassword = mEtNextPasswordContent.getText().toString();
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(this, "请输入手机号");
             return;
         }
-        if (TextUtils.isEmpty(password)) {
+        if(TextUtils.isEmpty(password)){
+            ToastUtil.show(this, "请输入密码");
+            return;
+        }
+        if(TextUtils.isEmpty(nextPassword)){
+            ToastUtil.show(this, "请再次输入密码");
+            return;
+        }
+        if(!password.equals(nextPassword)){
+            ToastUtil.show(this,"两次输入密码不一致");
+            return;
+        }
+        if (TextUtils.isEmpty(code)) {
             ToastUtil.show(this, "请输入验证码");
             return;
         }
+        taskRegister(Long.valueOf(phone),password,code);
+
     }
 
 
-    private void taskGetSms(Long phone){
+    private void taskGetSms(Long phone) {
         userAction.smsCaptchaGet(phone, "register", new CallBack<ReturnBean<SmsBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SmsBean>> call, Response<ReturnBean<SmsBean>> response) {
-                if(response.body() != null){
+                if (response.body() == null) {
                     return;
                 }
 
-                mEtIdentifyingCodeContent.setText(response.body().getData().getCaptcha()+"");
-
-                ToastUtil.show(RegisterActivity.this,response.body().getMsg());
+                mEtIdentifyingCodeContent.setText(response.body().getData().getCaptcha() + "");
+                ToastUtil.show(RegisterActivity.this, response.body().getMsg());
             }
         });
+    }
 
+    private void taskRegister(Long phone,String password,String captcha){
+        userAction.register(phone, password, captcha, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    return;
+                }
+
+                ToastUtil.show(RegisterActivity.this, response.body().getMsg());
+            }
+        });
     }
 
 

@@ -126,7 +126,7 @@
         <activity
             android:name=".chat.ui.ChatFontActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
 
         <!--选择登录注册-->
         <activity
@@ -136,7 +136,7 @@
         <!--密码登录-->
         <activity
             android:name=".user.ui.PasswordLoginActivity"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--验证码登录-->
         <activity

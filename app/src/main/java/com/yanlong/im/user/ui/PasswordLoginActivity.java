@@ -78,7 +78,6 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             case R.id.tv_identifying_code:
                 Intent intent = new Intent(this,IdentifyingCodeActivity.class);
                 startActivity(intent);
-                onBackPressed();
                 break;
             case R.id.btn_login:
                 login();
@@ -102,7 +101,6 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         userAction.login(Long.valueOf(phone), password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                // ToastUtil.show(PasswordLoginActivity.this,"登录成功");
                 if(response.body().isOk()){
                     go(MainActivity.class);
                     finish();

@@ -62,7 +62,6 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean> friendMkName(@Field("friend") Long uid,@Field("alias")String mkName);
 
-
     @POST("/friends/get-friends")
     @FormUrlEncoded
     Call<ReturnBean<List<UserInfo>>> friendGet(@Field("opFlag") Integer opFlag);
@@ -79,5 +78,13 @@ public interface UserServer {
     @POST("pub/get-sms-captcha")
     @FormUrlEncoded
     Call<ReturnBean<SmsBean>> smsCaptchaGet(@Field("phone") Long phone, @Field("businessType") String businessType);
+
+    @POST("pub/register")
+    @FormUrlEncoded
+    Call<ReturnBean> register(@Field("phone") Long phone,@Field("password") String password,@Field("captcha") String captcha);
+
+    @POST("pub/login-by-phone-captcha")
+    @FormUrlEncoded
+    Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") Long phone,@Field("captcha") String captcha);
 
 }

@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/headView"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     app:headview_title="手机号注册">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="17dp"
-        android:layout_marginRight="17dp"
-        android:layout_marginTop="37dp">
+        android:layout_marginTop="37dp"
+        android:layout_marginRight="17dp">
 
         <TextView
             android:id="@+id/tv_state_title"
+            style="@style/app_txt_title_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/app_txt_title_2"
-            android:text="国家/地区"/>
+            android:text="国家/地区" />
 
         <TextView
             android:id="@+id/tv_state_content"
+            style="@style/app_txt_title_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintLeft_toRightOf="@id/tv_state_title"
             android:layout_marginLeft="17dp"
-            style="@style/app_txt_title_2"
+            android:text="中国(china)(+86)"
             android:textColor="@color/green_600"
-            android:text="中国(china)(+86)"/>
+            app:layout_constraintLeft_toRightOf="@id/tv_state_title" />
 
         <View
             android:id="@+id/view_line1"
             style="@style/app_line"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_state_content"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_state_content" />
 
 
         <TextView
             android:id="@+id/tv_phone_title"
+            style="@style/app_txt_title_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="33dp"
-            app:layout_constraintTop_toBottomOf="@id/view_line1"
-            style="@style/app_txt_title_2"
-            android:text="手机号"/>
+            android:text="手机号"
+            app:layout_constraintTop_toBottomOf="@id/view_line1" />
 
 
         <EditText
@@ -52,83 +52,142 @@
             style="@style/app_txt_title_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="@id/tv_state_content"
-            app:layout_constraintTop_toTopOf="@id/tv_phone_title"
-            android:inputType="number"
-            android:hint="请输入手机号"
-            android:maxLength="11"
             android:background="@null"
-            android:textColorHint="@color/gray_300" />
+            android:hint="请输入手机号"
+            android:inputType="number"
+            android:maxLength="11"
+            android:textColorHint="@color/gray_300"
+            app:layout_constraintLeft_toLeftOf="@id/tv_state_content"
+            app:layout_constraintTop_toTopOf="@id/tv_phone_title" />
 
         <View
             style="@style/app_line"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_phone_title"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_phone_title" />
+
+
+        <TextView
+            android:id="@+id/tv_password"
+            style="@style/app_txt_title_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="密码"
+            app:layout_constraintTop_toBottomOf="@id/tv_phone_title" />
+
+
+        <EditText
+            android:id="@+id/et_password_content"
+            style="@style/app_txt_title_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="请输入密码"
+            android:inputType="textPassword"
+            android:maxLength="11"
+            android:textColorHint="@color/gray_300"
+            app:layout_constraintLeft_toLeftOf="@id/tv_state_content"
+            app:layout_constraintTop_toTopOf="@id/tv_password" />
+
+        <View
+            style="@style/app_line"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_password" />
+
+
+        <TextView
+            android:id="@+id/tv_next_password"
+            style="@style/app_txt_title_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="验证密码"
+            app:layout_constraintTop_toBottomOf="@id/tv_password" />
+
+
+        <EditText
+            android:id="@+id/et_next_password_content"
+            style="@style/app_txt_title_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:hint="再次请输入密码"
+            android:inputType="textPassword"
+            android:maxLength="11"
+            android:textColorHint="@color/gray_300"
+            app:layout_constraintLeft_toLeftOf="@id/tv_state_content"
+            app:layout_constraintTop_toTopOf="@id/tv_next_password" />
+
+        <View
+            style="@style/app_line"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_next_password" />
+
 
         <TextView
             android:id="@+id/tv_identifying_code_title"
+            style="@style/app_txt_title_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/app_txt_title_2"
             android:layout_marginTop="30dp"
+            android:text="验证码"
             app:layout_constraintLeft_toLeftOf="@id/tv_phone_title"
-            app:layout_constraintTop_toBottomOf="@id/tv_phone_title"
-            android:text="验证码"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_next_password" />
 
 
         <EditText
             android:id="@+id/et_identifying_code_content"
+            style="@style/app_txt_title_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            style="@style/app_txt_title_2"
+            android:hint="请输入验证码"
             android:inputType="number"
-            app:layout_constraintTop_toTopOf="@id/tv_identifying_code_title"
-            app:layout_constraintLeft_toLeftOf="@id/et_phone_content"
             android:textColorHint="@color/gray_300"
-            android:hint="请输入验证码"/>
+            app:layout_constraintLeft_toLeftOf="@id/et_phone_content"
+            app:layout_constraintTop_toTopOf="@id/tv_identifying_code_title" />
 
 
         <TextView
             android:id="@+id/tv_get_verification_code"
+            style="@style/app_txt_title_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/app_txt_title_2"
+            android:text="获取验证码"
             android:textColor="@color/green_600"
-            app:layout_constraintTop_toTopOf="@id/et_identifying_code_content"
             app:layout_constraintRight_toRightOf="parent"
-            android:text="获取验证码"/>
+            app:layout_constraintTop_toTopOf="@id/et_identifying_code_content" />
 
 
         <View
             android:id="@+id/view_line"
             style="@style/app_line"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_identifying_code_title"/>
+            app:layout_constraintTop_toBottomOf="@id/tv_identifying_code_title" />
 
 
         <Button
             android:id="@+id/btn_register"
+            style="@style/app_btn_green"
             android:layout_width="310dp"
             android:layout_height="38dp"
-            style="@style/app_btn_green"
             android:layout_marginTop="60dp"
+            android:text="注册"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/view_line"
-            android:text="注册"/>
-        
+            app:layout_constraintTop_toBottomOf="@id/view_line" />
+
         <TextView
             android:id="@+id/tv_matters_need_attention"
+            style="@style/app_txt_content_1"
             android:layout_width="273dp"
             android:layout_height="wrap_content"
-            style="@style/app_txt_content_1"
-            android:singleLine="false"
             android:layout_marginTop="7dp"
-            app:layout_constraintTop_toBottomOf="@id/btn_register"
+            android:singleLine="false"
+            android:text="点击'注册'即表示已阅读并同意《用户使用协议》和《隐私权政策》"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:text="点击'注册'即表示已阅读并同意《用户使用协议》和《隐私权政策》"/>
+            app:layout_constraintTop_toBottomOf="@id/btn_register" />
 
 
     </android.support.constraint.ConstraintLayout>

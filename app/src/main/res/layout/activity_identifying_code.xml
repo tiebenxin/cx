@@ -2,6 +2,7 @@
 <net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/headView"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:headview_title="验证码登录">
 
@@ -55,6 +56,7 @@
             app:layout_constraintTop_toTopOf="@id/tv_phone_title"
             android:inputType="number"
             android:hint="请输入手机号"
+            android:maxLength="11"
             android:background="@null"
             android:textColorHint="@color/gray_300" />
 
@@ -80,7 +82,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             style="@style/app_txt_title_2"
-            android:inputType="textPassword"
+            android:inputType="number"
             app:layout_constraintTop_toTopOf="@id/tv_identifying_code_title"
             app:layout_constraintLeft_toLeftOf="@id/et_phone_content"
             android:textColorHint="@color/gray_300"
