@@ -11,10 +11,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,10 +36,10 @@ import com.yanlong.im.user.ui.HelpActivity;
 
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AlertSelectView;
 import net.cb.cb.library.view.PopView;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
@@ -46,7 +49,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
@@ -144,7 +146,38 @@ public class MsgMainFragment extends Fragment {
                 popView.dismiss();
             }
         });
+
+        edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    taskSearch();
+                }
+                return false;
+            }
+        });
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (edtSearch.getText().toString().length() == 0) {
+                    isSearchMode =false;
+                    taskListData();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
     }
+
 
 
     @Override
@@ -295,10 +328,9 @@ public class MsgMainFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     holder.swipeLayout.quickClose();
-                    taskDelSissen(bean.getFrom_uid(),bean.getGid());
+                    taskDelSissen(bean.getFrom_uid(), bean.getGid());
                 }
             });
-
 
 
         }
@@ -345,16 +377,68 @@ public class MsgMainFragment extends Fragment {
     private List<Session> listData = new ArrayList<>();
 
     private void taskListData() {
+        if(isSearchMode){
+            return;
+        }
         listData = msgDao.sessionGetAll();
         mtListView.notifyDataSetChange();
     }
 
-    private void taskDelSissen(Long from_uid,String gid) {
-        msgDao.sessionDel(from_uid,gid);
+    /***
+     * 搜索模式
+     */
+    private boolean isSearchMode =false;
+    private void taskSearch() {
+        isSearchMode =true;
+        InputUtil.hideKeyboard(edtSearch);
+        String key=edtSearch.getText().toString();
+        if(key.length()<=0)
+            return;
+        List<Session> temp=new ArrayList<>();
+        for(Session bean:listData){
+            String title = "";
+            String info = "";
+            MsgAllBean msginfo;
+            if (bean.getType() == 0) {//单人
+
+
+                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+
+                title = finfo.getName();
+
+                //获取最后一条消息
+                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+                if (msginfo != null) {
+                    info = msginfo.getMsg_typeStr();
+                }
+
+            } else if (bean.getType() == 1) {//群
+                Group ginfo = msgDao.getGroup4Id(bean.getGid());
+
+                //获取最后一条群消息
+                msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+                title = ginfo.getName();
+                if (msginfo != null) {
+                    info = msginfo.getMsg_typeStr();
+                }
+            }
+
+            if(title.contains(key)||info.contains(key)){
+                bean.setUnread_count(0);
+                temp.add(bean);
+            }
+        }
+        listData=temp;
+
+        mtListView.notifyDataSetChange();
+    }
+
+
+    private void taskDelSissen(Long from_uid, String gid) {
+        msgDao.sessionDel(from_uid, gid);
 
         taskListData();
     }
-
 
 
 }

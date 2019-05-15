@@ -29,6 +29,7 @@
                 android:id="@+id/edt_search"
                 style="@style/app_edt1"
                 android:layout_marginRight="@dimen/app_margin_main"
+                android:imeOptions="actionSearch"
                 android:hint="搜索" />
 
 

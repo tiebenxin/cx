@@ -76,7 +76,7 @@ public class FriendApplyAcitvity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return listData == null ? 0 :listData.size();
+            return listData == null ? 0 : listData.size();
         }
 
         //自动生成控件事件
@@ -89,18 +89,17 @@ public class FriendApplyAcitvity extends AppActivity {
             holder.txtInfo.setText("想加你为好友");
 
 
-
             holder.btnComit.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                  //  ToastUtil.show(context, "准了");
+                    //  ToastUtil.show(context, "准了");
                     taskFriendAgree(bean.getUid());
                 }
             });
             //  holder.txtState.setText("已添加");
-            if(true){
+            if (true) {
                 holder.btnComit.setVisibility(View.VISIBLE);
                 holder.txtState.setVisibility(View.GONE);
-            }else{
+            } else {
                 holder.btnComit.setVisibility(View.GONE);
                 holder.txtState.setVisibility(View.VISIBLE);
             }
@@ -137,38 +136,39 @@ public class FriendApplyAcitvity extends AppActivity {
         }
     }
 
-    private UserAction userAction=new UserAction();
-   private void taskGetList(){
-       userAction.friendGet4Apply(new CallBack<ReturnBean<List<UserInfo>>>(mtListView) {
-           @Override
-           public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-               if (response.body()==null||!response.body().isOk()){
-                   return;
-               }
-               listData=response.body().getData();
-               mtListView.notifyDataSetChange(response);
-           }
-       });
-   }
+    private UserAction userAction = new UserAction();
 
-   private void taskFriendAgree(Long uid){
-       userAction.friendAgree(uid, new CallBack<ReturnBean>() {
-           @Override
-           public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-               if (response.body()==null){
-                   return;
-               }
+    private void taskGetList() {
+        userAction.friendGet4Apply(new CallBack<ReturnBean<List<UserInfo>>>(mtListView) {
+            @Override
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                if (response.body() == null || !response.body().isOk()) {
+                    return;
+                }
+                listData = response.body().getData();
+                mtListView.notifyDataSetChange(response);
+            }
+        });
+    }
 
-               ToastUtil.show(getContext(),response.body().getMsg());
-               /*if(response.body().isOk()){
+    private void taskFriendAgree(Long uid) {
+        userAction.friendAgree(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
 
-               }else {
-                   ToastUtil.show(getContext(),response.body().getMsg());
-               }*/
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
+                    taskGetList();
+                } else {
+                    // ToastUtil.show(getContext(),response.body().getMsg());
+                }
 
-           }
-       });
-   }
+            }
+        });
+    }
 
 
 }
