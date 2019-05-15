@@ -149,6 +149,12 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 List<UserInfo> userInfos = taskGetNumbers();
+                for (UserInfo u:userInfos){
+                    if (u.getUid().longValue()==UserAction.getMyId().longValue()){
+                        userInfos.remove(u);
+                        break;
+                    }
+                }
                 String json = gson.toJson(userInfos);
                 startActivity(new Intent(getContext(), GroupNumbersActivity.class)
                         .putExtra(GroupNumbersActivity.AGM_GID, gid)
@@ -210,9 +216,16 @@ public class GroupInfoActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
         findViews();
-        initEvent();
+
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initEvent();
+    }
+
     private void initData() {
         //顶部处理
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -328,7 +341,7 @@ public class GroupInfoActivity extends AppActivity {
             }
         };
 
-        if (true) {//群主解散
+        if (isAdmin()) {//群主解散
             msgAction.groupDestroy(gid, callBack);
         } else {//成员退出
             msgAction.groupQuit(gid, callBack);
@@ -337,12 +350,17 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
+    private boolean isAdmin(){
+        return ginfo.getMaster().equals(""+UserAction.getMyId());
+    }
+
     private void taskGetInfo(){
         msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
                 if(response.body().isOk()){
                    ginfo= response.body().getData();
+
                     initData();
                 }
             }

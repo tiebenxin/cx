@@ -258,6 +258,10 @@ public class GroupNumbersActivity extends AppActivity {
      * 提交处理
      */
     private void taskOption() {
+        if(listDataTop.size()<1){
+            ToastUtil.show(getContext(),"请至少选择一个用户");
+            return;
+        }
         CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
