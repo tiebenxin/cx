@@ -8,6 +8,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -434,18 +435,35 @@ public class ChatActivity extends AppActivity {
             }
         });
 
-       /* mtListView.getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mtListView.getListView().setOnTouchListener(new View.OnTouchListener() {
+            int isRun=0;
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if(true){
-                    hideBt();
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()){
+
+                    case MotionEvent.ACTION_DOWN:
+                        isRun=1;
+
+
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        isRun=0;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if(isRun==1){
+                            isRun=2;
+                            hideBt();
+                            InputUtil.hideKeyboard(edtChat);
+                            btnEmj.setImageLevel(0);
+                        }
+
+                        break;
+
                 }
-                if(true){
-                InputUtil.hideKeyboard(edtChat);
-                }
+
+                return false;
             }
-        });*/
+        });
 
         //处理键盘
         SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
