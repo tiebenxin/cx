@@ -16,6 +16,7 @@
     <LinearLayout style="@style/app_layout_list2">
 
         <LinearLayout
+            android:id="@+id/view_search"
             style="@style/app_layout_list2_item"
             android:paddingRight="0dp">
 
@@ -28,6 +29,7 @@
             <net.cb.cb.library.view.ClearEditText
                 android:id="@+id/edt_search"
                 style="@style/app_edt1"
+                android:enabled="false"
                 android:layout_marginRight="@dimen/app_margin_main"
                 android:hint="搜索" />
 
