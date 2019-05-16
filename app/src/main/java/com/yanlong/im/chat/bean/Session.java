@@ -20,6 +20,7 @@ public class Session extends RealmObject {
     //时候静音
     private int isMute=0;
 
+
     public int getIsMute() {
         return isMute;
     }

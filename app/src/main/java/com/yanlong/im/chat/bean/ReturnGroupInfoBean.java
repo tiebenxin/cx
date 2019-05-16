@@ -3,6 +3,7 @@ package com.yanlong.im.chat.bean;
 
 
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.DaoUtil;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public class ReturnGroupInfoBean {
     private Integer ceiling;
     private Integer saved;// 是否已保存
     private Integer notnotify;// 消息免打扰
+    private Integer needVerification;//是否需要群验证
+
 
     private List<UserInfo> members;
 
@@ -62,7 +65,7 @@ public class ReturnGroupInfoBean {
     }
 
     public Integer getSaved() {
-        return saved;
+        return saved==null?0:saved;
     }
 
     public void setSaved(Integer saved) {
@@ -70,7 +73,7 @@ public class ReturnGroupInfoBean {
     }
 
     public Integer getNotnotify() {
-        return notnotify;
+        return notnotify==null?0:notnotify;
     }
 
     public void setNotnotify(Integer notnotify) {
@@ -83,5 +86,20 @@ public class ReturnGroupInfoBean {
 
     public void setMembers(List<UserInfo> members) {
         this.members = members;
+    }
+
+    public Integer getNeedVerification() {
+        return needVerification==null?0:needVerification;
+    }
+
+    public void setNeedVerification(Integer needVerification) {
+        this.needVerification = needVerification;
+    }
+    public Integer getIsTop(){
+        Session session=   DaoUtil.findOne(Session.class,"gid",gid);
+        if(session==null)
+            return 0;
+
+       return session.getIsTop();
     }
 }

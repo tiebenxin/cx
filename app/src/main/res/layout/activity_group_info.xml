@@ -209,6 +209,21 @@
                         style="@style/app_check" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/view_group_verif"
+                    style="@style/app_layout_list2_item">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="加群验证" />
+
+                    <CheckBox
+                        android:id="@+id/ck_group_verif"
+                        style="@style/app_check" />
+                </LinearLayout>
+
 
             </LinearLayout>
 

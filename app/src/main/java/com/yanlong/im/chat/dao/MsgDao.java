@@ -86,27 +86,27 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         //更新信息到群成员列表
-        Group group=realm.where(Group.class).equalTo("gid", ginfo.getGid()).findFirst();
-        if(group==null){
-            group=new Group();
+        Group group = realm.where(Group.class).equalTo("gid", ginfo.getGid()).findFirst();
+        if (group == null) {
+            group = new Group();
             group.setGid(ginfo.getGid());
             group.setAvatar(ginfo.getAvatar());
             group.setName(ginfo.getName());
         }
 
 
-        RealmList<UserInfo> nums=new RealmList<>();
+        RealmList<UserInfo> nums = new RealmList<>();
         //更新信息到用户表
         for (UserInfo sv : ginfo.getMembers()) {
-          UserInfo ui=  realm.where(UserInfo.class).equalTo("uid", sv.getUid()).findFirst();
-          if(ui==null){
-              sv.toTag();
-              sv.setuType(0);
-              realm.copyToRealmOrUpdate(sv);
-              nums.add(sv);
-          }else {
-              nums.add(ui);
-          }
+            UserInfo ui = realm.where(UserInfo.class).equalTo("uid", sv.getUid()).findFirst();
+            if (ui == null) {
+                sv.toTag();
+                sv.setuType(0);
+                realm.copyToRealmOrUpdate(sv);
+                nums.add(sv);
+            } else {
+                nums.add(ui);
+            }
 
         }
 
@@ -335,6 +335,30 @@ public class MsgDao {
 
         realm.close();
         return ret;
+    }
+
+    /***
+     * 保存群状态
+     * @param gid
+     * @param notNotify
+     * @param saved
+     * @param needVerification
+     */
+    public void saveSession4Switch(String gid,Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Session session = DaoUtil.findOne(Session.class, "gid", gid);
+        if (notNotify != null)
+            session.setIsMute(notNotify);
+
+        if (isTop != null)
+            session.setIsTop(isTop);
+
+        realm.insertOrUpdate(session);
+
+        realm.commitTransaction();
+        realm.close();
     }
 
 

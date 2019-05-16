@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -66,6 +67,8 @@ public class GroupInfoActivity extends AppActivity {
     private CheckBox ckDisturb;
     private LinearLayout viewGroupSave;
     private CheckBox ckGroupSave;
+    private LinearLayout viewGroupVerif;
+    private CheckBox ckGroupVerif;
     private Button btnDel;
     private Gson gson = new Gson();
     private ReturnGroupInfoBean ginfo;
@@ -90,6 +93,10 @@ public class GroupInfoActivity extends AppActivity {
         viewDisturb = (LinearLayout) findViewById(R.id.view_disturb);
         ckDisturb = (CheckBox) findViewById(R.id.ck_disturb);
         viewGroupSave = (LinearLayout) findViewById(R.id.view_group_save);
+
+        ckGroupVerif = (CheckBox) findViewById(R.id.ck_group_verif);
+        viewGroupVerif = (LinearLayout) findViewById(R.id.view_group_verif);
+
         ckGroupSave = (CheckBox) findViewById(R.id.ck_group_save);
         btnDel = (Button) findViewById(R.id.btn_del);
 
@@ -149,8 +156,8 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 List<UserInfo> userInfos = taskGetNumbers();
-                for (UserInfo u:userInfos){
-                    if (u.getUid().longValue()==UserAction.getMyId().longValue()){
+                for (UserInfo u : userInfos) {
+                    if (u.getUid().longValue() == UserAction.getMyId().longValue()) {
                         userInfos.remove(u);
                         break;
                     }
@@ -171,7 +178,6 @@ public class GroupInfoActivity extends AppActivity {
                 taskExitGroup();
             }
         });
-
 
 
         viewGroupName.setOnClickListener(new View.OnClickListener() {
@@ -210,11 +216,12 @@ public class GroupInfoActivity extends AppActivity {
         viewLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(),SearchMsgActivity.class)
-                                            .putExtra(SearchMsgActivity.AGM_GID,gid)
-                                    );
+                startActivity(new Intent(getContext(), SearchMsgActivity.class)
+                        .putExtra(SearchMsgActivity.AGM_GID, gid)
+                );
             }
         });
+
 
     }
 
@@ -241,6 +248,42 @@ public class GroupInfoActivity extends AppActivity {
         topListView.setLayoutManager(linearLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
 
+
+        viewGroupVerif.setVisibility(isAdmin() ? View.VISIBLE : View.GONE);
+        // ginfo.getNotnotify()
+
+        ckGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
+        ckDisturb.setChecked(ginfo.getNotnotify() == 1);
+        ckGroupSave.setChecked(ginfo.getSaved() == 1);
+        ckTop.setChecked(ginfo.getSaved()==1);
+
+
+        ckGroupVerif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                taskSetState(gid, null, null, null, isChecked ? 1 : 0);
+            }
+        });
+        ckTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+            }
+        });
+        ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                taskSetState(gid, null, isChecked ? 1 : 0, null, null);
+            }
+        });
+        ckGroupSave.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                taskSetState(gid, null, null, isChecked ? 1 : 0, null);
+            }
+        });
+
+
     }
 
     private List<String> listDataTop = new ArrayList<>();
@@ -251,7 +294,7 @@ public class GroupInfoActivity extends AppActivity {
         @Override
         public int getItemCount() {
             // return listDataTop == null ? 0 : listDataTop.size();
-            return ginfo.getMembers()==null?0:ginfo.getMembers().size();
+            return ginfo.getMembers() == null ? 0 : ginfo.getMembers().size();
         }
 
         //自动生成控件事件
@@ -259,7 +302,7 @@ public class GroupInfoActivity extends AppActivity {
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
             //listDataTop.get(position)
             UserInfo number = ginfo.getMembers().get(position);
-            holder.imgHead.setImageURI(Uri.parse(""+number.getHead()));
+            holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
         }
 
 
@@ -358,16 +401,16 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-    private boolean isAdmin(){
-        return ginfo.getMaster().equals(""+UserAction.getMyId());
+    private boolean isAdmin() {
+        return ginfo.getMaster().equals("" + UserAction.getMyId());
     }
 
-    private void taskGetInfo(){
+    private void taskGetInfo() {
         msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
-                if(response.body().isOk()){
-                   ginfo= response.body().getData();
+                if (response.body().isOk()) {
+                    ginfo = response.body().getData();
 
                     initData();
                 }
@@ -375,7 +418,15 @@ public class GroupInfoActivity extends AppActivity {
         });
     }
 
+    private void taskSetState(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
 
+        msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                ToastUtil.show(getContext(), response.body().getMsg());
+            }
+        });
+    }
 
 
 }
