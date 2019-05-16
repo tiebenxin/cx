@@ -137,8 +137,6 @@ public class UserAction {
 
                     updateUserinfo2DB(userInfo);
                 }
-
-
             }
         });
 
@@ -405,6 +403,12 @@ public class UserAction {
     }
 
 
+    /**
+     * 
+     * */
+    public void getUserInfoByImid(String imid, CallBack<ReturnBean<UserInfo>> callback){
+        NetUtil.getNet().exec(server.getUserInfoByImid(imid), callback);
+    }
 
 }
 
