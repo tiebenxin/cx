@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -200,7 +201,9 @@ public class UserInfoActivity extends AppActivity {
             String content = data.getStringExtra(CommonSetingActivity.CONTENT);
             switch (requestCode) {
                 case SETING_REMARK:
-
+                    if(!TextUtils.isEmpty(content)){
+                        taskFriendMark(id,content);
+                    }
                     break;
             }
         }
@@ -265,6 +268,22 @@ public class UserInfoActivity extends AppActivity {
         });
     }
 
+    private void taskFriendMark(final Long id, String mark){
+        userAction.friendMark(id, mark, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                taskUserInfo(id);
+                ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
+            }
+        });
+
+    }
+
+
+
     private UserDao userDao = new UserDao();
 
     /***
@@ -272,7 +291,5 @@ public class UserInfoActivity extends AppActivity {
      */
     private void taskFindExist() {
         type = userDao.findUserInfo4Friend(id) == null ? 1 : 0;
-
-
     }
 }

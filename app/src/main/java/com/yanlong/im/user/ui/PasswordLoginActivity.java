@@ -2,8 +2,12 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.view.AsyncLayoutInflater;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -52,8 +56,8 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
 
     private void initEvent(){
         if(AppConfig.DEBUG){
-            mEtPhoneContent.setText("13000000000");
-            mEtPasswordContent.setText("asdfasfd");
+            mEtPhoneContent.setText("13111111111");
+            mEtPasswordContent.setText("123456");
         }
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override

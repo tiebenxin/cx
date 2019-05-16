@@ -23,12 +23,11 @@
                 android:layout_marginRight="12dp"
                 android:src="@mipmap/ic_msg_search" />
 
-            <net.cb.cb.library.view.ClearEditText
-
+            <TextView
                 style="@style/app_edt1"
+                android:gravity="center_vertical"
                 android:layout_marginRight="@dimen/app_margin_main"
                 android:hint="搜索" />
-
 
         </LinearLayout>
 

@@ -32,11 +32,11 @@ import retrofit2.http.Field;
 public class MsgAction {
     private MsgServer server;
     private MsgDao dao;
-    private Gson gson=new Gson();
+    private Gson gson = new Gson();
 
     public MsgAction() {
         server = NetUtil.getNet().create(MsgServer.class);
-        dao=new MsgDao();
+        dao = new MsgDao();
     }
 
 
@@ -50,76 +50,79 @@ public class MsgAction {
         NetUtil.getNet().exec(server.groupCreate(name, avatar, gson.toJson(listDataTop)), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
-                if(response.body()==null)
+                if (response.body() == null)
                     return;
-                if(response.body().isOk()){//存库
-                    String id =response.body().getData().getGid();
-                    dao.sessionCreate(id,null);
-                    Group group=new Group();
+                if (response.body().isOk()) {//存库
+                    String id = response.body().getData().getGid();
+                    dao.sessionCreate(id, null);
+                    Group group = new Group();
                     group.setAvatar(avatar);
                     group.setGid(id);
                     group.setName(name);
-                    RealmList<UserInfo> users=new RealmList();
+                    RealmList<UserInfo> users = new RealmList();
                     users.addAll(listDataTop);
                     group.setUsers(users);
                     DaoUtil.update(group);
                 }
-                callback.onResponse(call,response);
+                callback.onResponse(call, response);
             }
         });
 
     }
+
     public void groupQuit(final String id, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupQuit(id), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body()==null)
+                if (response.body() == null)
                     return;
-                if(response.body().isOk()){
-                    dao.sessionDel(null,id);
+                if (response.body().isOk()) {
+                    dao.sessionDel(null, id);
                 }
-                callback.onResponse(call,response);
+                callback.onResponse(call, response);
             }
         });
     }
-    public void groupRemove(String id,List<UserInfo> members, CallBack<ReturnBean> callback) {
+
+    public void groupRemove(String id, List<UserInfo> members, CallBack<ReturnBean> callback) {
         List<Long> ulist = new ArrayList<>();
 
-        for (UserInfo userInfo:members){
+        for (UserInfo userInfo : members) {
             ulist.add(userInfo.getUid());
         }
-        NetUtil.getNet().exec(server.groupRemove(id,gson.toJson(ulist)), callback);
+        NetUtil.getNet().exec(server.groupRemove(id, gson.toJson(ulist)), callback);
     }
-    public void groupAdd(String id,List<UserInfo>  members, CallBack<ReturnBean> callback) {
 
-        NetUtil.getNet().exec(server.groupAdd(id,gson.toJson(members)), callback);
+    public void groupAdd(String id, List<UserInfo> members, CallBack<ReturnBean> callback) {
+
+        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(members)), callback);
     }
+
     public void groupDestroy(final String id, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupDestroy(id), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body()==null)
+                if (response.body() == null)
                     return;
-                if(response.body().isOk()){
-                    dao.sessionDel(null,id);
+                if (response.body().isOk()) {
+                    dao.sessionDel(null, id);
                 }
-                callback.onResponse(call,response);
+                callback.onResponse(call, response);
             }
         });
 
     }
-
 
 
     /***
      * 获取某个用户的数据
      * @return
      */
-    public List<MsgAllBean> getMsg4User(String gid,Long uid,Integer page){
-        if(StringUtil.isNotNull(gid)){
-            return dao.getMsg4Group(gid,page);
+    public List<MsgAllBean> getMsg4User(String gid, Long uid, Integer page) {
+        if (StringUtil.isNotNull(gid)) {
+            return dao.getMsg4Group(gid, page);
         }
-        return dao.getMsg4User(uid,page);
+        return dao.getMsg4User(uid, page);
     }
 
 
@@ -131,27 +134,27 @@ public class MsgAction {
     public void groupInfo(final String gid, final Callback<ReturnBean<ReturnGroupInfoBean>> callback) {
 
 
-         NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
-             @Override
-             public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
-                 if (response.body()==null)
-                     return;
-                 if(response.body().isOk()){//保存群友信息到数据库
+        NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {//保存群友信息到数据库
                     dao.groupNumberSave(response.body().getData());
 
-                     response.body().getData().setMembers(DaoUtil.findOne(Group.class,"gid",gid).getUsers());
-                 }
-                 callback.onResponse(call,response);
+                    response.body().getData().setMembers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
+                }
+                callback.onResponse(call, response);
 
 
-             }
-         });
+            }
+        });
     }
 
     /***
      * 根据key查询群
      */
-    public List<Group> searchGroup4key(String key){
+    public List<Group> searchGroup4key(String key) {
         Realm realm = DaoUtil.open();
         List<Group> ret = new ArrayList<>();
         RealmResults<Group> users = realm.where(Group.class)
@@ -165,24 +168,22 @@ public class MsgAction {
     /***
      * 根据key查询消息
      */
-    public List<MsgAllBean> searchMsg4key(String key,String gid,Long uid){
-
-
+    public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
 
 
         Realm realm = DaoUtil.open();
         List<MsgAllBean> ret = new ArrayList<>();
         RealmResults<MsgAllBean> msg;
-        if(StringUtil.isNotNull(gid)){//群
+        if (StringUtil.isNotNull(gid)) {//群
             msg = realm.where(MsgAllBean.class)
-                    .equalTo("gid",gid).and()
+                    .equalTo("gid", gid).and()
                     .contains("chat.msg", key)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
-        }else{//单人
+        } else {//单人
             msg = realm.where(MsgAllBean.class)
-                    .equalTo("from_uid",uid).or().equalTo("to_uid",uid).and()
-                    .equalTo("gid","").and()
+                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid).and()
+                    .equalTo("gid", "").and()
                     .contains("chat.msg", key)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
@@ -193,5 +194,10 @@ public class MsgAction {
         realm.close();
         return ret;
     }
+
+    public void getMySaved(Callback<ReturnBean<ReturnGroupInfoBean>> callback){
+       // NetUtil
+    }
+
 
 }

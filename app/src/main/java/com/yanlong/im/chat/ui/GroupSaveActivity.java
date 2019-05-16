@@ -23,9 +23,9 @@ public class GroupSaveActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        mtListView = findViewById(R.id.mtListView);
     }
 
 
@@ -69,12 +69,12 @@ public class GroupSaveActivity extends AppActivity {
             holder.imgHead.setImageURI(Uri.parse("https://gss2.bdstatic.com/-fo3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D220/sign=181c8583082442a7aa0efaa7e143ad95/a08b87d6277f9e2f8145a2081830e924b899f3ba.jpg"));
             holder.txtName.setText("曼舞手雷");
             holder.itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            go(ChatActivity.class);
+                @Override
+                public void onClick(View v) {
+                    go(ChatActivity.class);
 
-                        }
-                    });
+                }
+            });
 
 
             if (getItemCount() == (position + 1)) {
@@ -105,9 +105,9 @@ public class GroupSaveActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                txtNum = (TextView) convertView.findViewById(R.id.txt_num);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                txtNum = convertView.findViewById(R.id.txt_num);
             }
 
         }

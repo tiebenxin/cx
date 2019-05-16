@@ -94,7 +94,6 @@ public class GroupCreateActivity extends AppActivity {
     private void initData() {
         taskListData();
 
-
     }
 
     //自动生成RecyclerViewAdapter

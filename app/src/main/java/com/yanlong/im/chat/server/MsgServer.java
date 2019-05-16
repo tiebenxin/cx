@@ -37,4 +37,7 @@ public interface MsgServer {
     @POST("/group/get-group-data")
     @FormUrlEncoded
     Call<ReturnBean<ReturnGroupInfoBean>> groupInfo(@Field("gid") String gid);
+
+    @POST("group/get-my-saved")
+    Call<ReturnBean<ReturnGroupInfoBean>> getMySaved();
 }

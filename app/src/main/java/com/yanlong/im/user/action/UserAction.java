@@ -404,7 +404,7 @@ public class UserAction {
 
 
     /**
-     * 
+     * 根据产品号获取个人资料
      * */
     public void getUserInfoByImid(String imid, CallBack<ReturnBean<UserInfo>> callback){
         NetUtil.getNet().exec(server.getUserInfoByImid(imid), callback);

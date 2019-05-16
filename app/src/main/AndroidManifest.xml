@@ -288,6 +288,11 @@
             android:name=".user.ui.HelpInfoActivity"
             android:screenOrientation="portrait" />
 
+        <!--查找好友-->
+        <activity
+            android:name=".user.ui.FindFriendActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

@@ -87,4 +87,8 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") Long phone,@Field("captcha") String captcha);
 
+    @POST("user/get-user-info-by-imid")
+    @FormUrlEncoded
+    Call<ReturnBean<UserInfo>> getUserInfoByImid(@Field("imid") String imid);
+
 }

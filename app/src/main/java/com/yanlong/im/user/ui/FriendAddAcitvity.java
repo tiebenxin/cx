@@ -85,6 +85,13 @@ public class FriendAddAcitvity extends AppActivity {
             }
         });
 
+        viewSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                go(FindFriendActivity.class);
+            }
+        });
+
     }
 
     @Override
