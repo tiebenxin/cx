@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
+import com.yanlong.im.chat.ui.SearchFriendGroupActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.UserInfo;
@@ -39,7 +40,8 @@ import retrofit2.Response;
  */
 public class FriendMainFragment extends Fragment {
     private View rootView;
-    private net.cb.cb.library.view.ClearEditText edtSearch;
+ //   private net.cb.cb.library.view.ClearEditText edtSearch;
+    private View viewSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
     private ActionbarView actionbar;
@@ -47,7 +49,8 @@ public class FriendMainFragment extends Fragment {
 
     //自动寻找控件
     private void findViews(View rootView) {
-        edtSearch = (net.cb.cb.library.view.ClearEditText) rootView.findViewById(R.id.edt_search);
+//        edtSearch = (net.cb.cb.library.view.ClearEditText) rootView.findViewById(R.id.edt_search);
+        viewSearch =  rootView.findViewById(R.id.view_search);
         mtListView = (net.cb.cb.library.view.MultiListView) rootView.findViewById(R.id.mtListView);
         viewType = (PySortView) rootView.findViewById(R.id.view_type);
         actionbar = rootView.findViewById(R.id.action_bar);
@@ -69,6 +72,12 @@ public class FriendMainFragment extends Fragment {
             @Override
             public void onRight() {
                 startActivity(new Intent(getContext(), FriendAddAcitvity.class));
+            }
+        });
+        viewSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), SearchFriendGroupActivity.class));
             }
         });
     }

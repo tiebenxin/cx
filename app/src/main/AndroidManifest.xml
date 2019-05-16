@@ -115,12 +115,27 @@
             android:screenOrientation="portrait">
 
         </activity>
+
+        <!--好友,群搜索-->
+        <activity
+            android:name=".chat.ui.SearchFriendGroupActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"></activity>
+
+        <!--搜索消息-->
+        <activity
+            android:name=".chat.ui.SearchMsgActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+        </activity>
+
+
         <!--聊天戳一下界面-->
         <activity
             android:name=".chat.ui.ChatActionActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
-
         </activity>
         <!--聊天字体设置-->
         <activity

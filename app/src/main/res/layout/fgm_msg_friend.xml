@@ -18,6 +18,7 @@
         <LinearLayout
             android:id="@+id/view_search"
             style="@style/app_layout_list2_item"
+
             android:paddingRight="0dp">
 
             <ImageView
@@ -26,7 +27,8 @@
                 android:layout_marginRight="12dp"
                 android:src="@mipmap/ic_msg_search" />
 
-            <net.cb.cb.library.view.ClearEditText
+            <TextView
+                android:gravity="center_vertical"
                 android:id="@+id/edt_search"
                 style="@style/app_edt1"
                 android:enabled="false"

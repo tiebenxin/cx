@@ -207,6 +207,14 @@ public class GroupInfoActivity extends AppActivity {
                 startActivityForResult(intent, GROUP_NOTE);
             }
         });
+        viewLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(),SearchMsgActivity.class)
+                                            .putExtra(SearchMsgActivity.AGM_GID,gid)
+                                    );
+            }
+        });
 
     }
 

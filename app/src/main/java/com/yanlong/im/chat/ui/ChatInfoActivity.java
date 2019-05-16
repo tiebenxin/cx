@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -117,6 +118,15 @@ public class ChatInfoActivity extends AppActivity {
                 });
                 alertYesNo.show();
 
+            }
+        });
+
+        viewLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(),SearchMsgActivity.class)
+                        .putExtra(SearchMsgActivity.AGM_FUID,fuid)
+                );
             }
         });
 

@@ -63,6 +63,14 @@ public class MsgAllBean extends RealmObject {
     public UserInfo getTo_user() {
         return DaoUtil.findOne(UserInfo.class,"uid",to_uid);
     }
+    public UserInfo getShow_user() {
+        if(from_uid.longValue()==UserAction.getMyId().longValue()){
+            return getTo_user();
+        }else{
+            return getFrom_user();
+        }
+
+    }
 
   /*  public void setFrom_user(UserInfo from_user) {
         this.from_user = from_user;
@@ -100,6 +108,10 @@ public class MsgAllBean extends RealmObject {
     public String getGid() {
         return gid;
     }
+    public Group getGroup(){
+        return DaoUtil.findOne(Group.class,"gid",gid);
+    }
+
 
     public void setGid(String gid) {
         this.gid = gid;

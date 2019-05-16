@@ -13,13 +13,18 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetIntrtceptor;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Case;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -205,6 +210,7 @@ public class UserAction {
      * 配置要使用的DB
      */
     private void initDB(String uuid) {
+        LogUtil.getLog().i("dbinfo",">>>>>>>>>>>>>>>>>>>初始数据库:"+"db_user_" +uuid);
         DaoUtil.get().initConfig("db_user_" + uuid);
     }
 
@@ -349,6 +355,21 @@ public class UserAction {
         NetUtil.getNet().exec(server.smsCaptchaGet(phone, businessType), callback);
     }
 
+    /***
+     * 根据key搜索所有的好友
+     */
+    public List<UserInfo> searchUser4key(String key) {
+        Realm realm = DaoUtil.open();
+        List<UserInfo> ret = new ArrayList<>();
+        RealmResults<UserInfo> users = realm.where(UserInfo.class).equalTo("uType", 2).and()
+                .contains("name", key).or()
+                .contains("mkName", key).findAll();
+        if (users != null)
+            ret = realm.copyFromRealm(users);
+        realm.close();
+        return ret;
+    }
+
 
     /**
      * 用户注册
@@ -382,6 +403,7 @@ public class UserAction {
             }
         });
     }
+
 
 
 }
