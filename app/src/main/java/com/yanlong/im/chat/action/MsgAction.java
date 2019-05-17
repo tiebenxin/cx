@@ -232,6 +232,14 @@ public class MsgAction {
 
     }
 
+    /***
+     * 清理所有的消息
+     */
+    public void msgDelAll(){
+        dao.msgDelAll();
+    }
+
+
 
     /**
      * 查询已保存的群聊

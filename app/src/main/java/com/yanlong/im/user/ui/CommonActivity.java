@@ -8,11 +8,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.ui.ChatFontActivity;
 import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
@@ -46,8 +48,8 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         mViewSetingFont = findViewById(R.id.view_seting_font);
         mViewClear = findViewById(R.id.view_clear);
         mBtnExit = findViewById(R.id.btn_exit);
-        mViewAboutAs =  findViewById(R.id.view_about_as);
-        mTvVersion =  findViewById(R.id.tv_version);
+        mViewAboutAs = findViewById(R.id.view_about_as);
+        mTvVersion = findViewById(R.id.tv_version);
         mTvVersion.setText(VersionUtil.getVerName(this));
     }
 
@@ -93,14 +95,15 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 startActivity(fontInent);
                 break;
             case R.id.view_clear:
-
+                taskClearMsg();
 
                 break;
             case R.id.btn_exit:
-                userAction.loginOut();
+                taskExit();
                 Intent loginIntent = new Intent(this, LoginActivity.class);
                 startActivity(loginIntent);
                 finish();
+
                 break;
             case R.id.view_about_as:
                 Intent aboutIntent = new Intent(this, AboutAsActivity.class);
@@ -108,4 +111,35 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 break;
         }
     }
+
+
+    /***
+     * 退出
+     */
+    private void taskExit() {
+
+        userAction.loginOut();
+    }
+
+    private MsgAction msgAction = new MsgAction();
+
+    /***
+     * 清理消息
+     */
+    private void taskClearMsg() {
+        AlertYesNo alertYesNo=new AlertYesNo();
+        alertYesNo.init(this, "清理", "确定清理所有消息?", "确定", "取消", new AlertYesNo.Event() {
+            @Override
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes() {
+                msgAction.msgDelAll();
+            }
+        });
+        alertYesNo.show();
+    }
+
 }

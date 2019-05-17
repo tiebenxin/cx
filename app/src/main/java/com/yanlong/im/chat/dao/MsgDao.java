@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.dao;
 
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
@@ -139,6 +140,18 @@ public class MsgDao {
         realm.close();
     }
 
+    /***
+     * 清除所有的聊天记录
+     */
+    public void msgDelAll(){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        realm.where(MsgAllBean.class).findAll().deleteAllFromRealm();
+        realm.commitTransaction();
+        realm.close();
+
+    }
+
 
     /***
      * 创建会话数量
@@ -173,6 +186,11 @@ public class MsgDao {
         return session;
     }
 
+    /***
+     * 删除单个或者群会话
+     * @param from_uid
+     * @param gid
+     */
     public void sessionDel(Long from_uid, String gid) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
