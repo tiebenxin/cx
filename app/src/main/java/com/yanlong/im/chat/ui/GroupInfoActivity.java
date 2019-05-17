@@ -24,6 +24,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.user.ui.CommonSetingActivity;
+import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.ReturnBean;
@@ -251,23 +252,19 @@ public class GroupInfoActivity extends AppActivity {
 
         viewGroupVerif.setVisibility(isAdmin() ? View.VISIBLE : View.GONE);
         // ginfo.getNotnotify()
-
+        txtGroupName.setText(ginfo.getName());
+        //txtGroupNick.setText();
+        //txtGroupNote.setText();
         ckGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
         ckDisturb.setChecked(ginfo.getNotnotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
-        ckTop.setChecked(ginfo.getSaved()==1);
+        ckTop.setChecked(ginfo.getIsTop() == 1);
 
 
-        ckGroupVerif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                taskSetState(gid, null, null, null, isChecked ? 1 : 0);
-            }
-        });
         ckTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+                taskSetState(gid, isChecked ? 1 : 0, null, null, null);
             }
         });
         ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -280,6 +277,24 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 taskSetState(gid, null, null, isChecked ? 1 : 0, null);
+            }
+        });
+        ckGroupVerif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                taskSetState(gid, null, null, null, isChecked ? 1 : 0);
+            }
+        });
+
+        viewGroupQr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), MyselfQRCodeActivity.class)
+                        .putExtra(MyselfQRCodeActivity.TYPE, 1)
+                        .putExtra(MyselfQRCodeActivity.GROUP_NAME,ginfo.getName() )
+                        .putExtra(MyselfQRCodeActivity.GROUP_HEAD,ginfo.getAvatar())
+                        .putExtra(MyselfQRCodeActivity.GROUP_ID,ginfo.getGid())
+                );
             }
         });
 

@@ -18,7 +18,7 @@ public class ReturnGroupInfoBean {
 
     private Integer ceiling;
     private Integer saved;// 是否已保存
-    private Integer notnotify;// 消息免打扰
+    private Integer notNotify;// 消息免打扰
     private Integer needVerification;//是否需要群验证
 
 
@@ -73,11 +73,11 @@ public class ReturnGroupInfoBean {
     }
 
     public Integer getNotnotify() {
-        return notnotify==null?0:notnotify;
+        return notNotify==null?0:notNotify;
     }
 
     public void setNotnotify(Integer notnotify) {
-        this.notnotify = notnotify;
+        this.notNotify = notnotify;
     }
 
     public List<UserInfo> getMembers() {
