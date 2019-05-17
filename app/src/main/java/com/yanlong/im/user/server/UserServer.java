@@ -91,4 +91,12 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<UserInfo>> getUserInfoByImid(@Field("imid") String imid);
 
+    @POST("user/get-user-info-by-keyword")
+    @FormUrlEncoded
+    Call<ReturnBean<List<UserInfo>>> getUserInfoByKeyword(@Field("keyWord") String keyWord);
+
+    @POST("user/set-user-password")
+    @FormUrlEncoded
+    Call<ReturnBean> setUserPassword(@Field("newPassword") String newPassword,@Field("oldPassword") String oldPassword);
+
 }

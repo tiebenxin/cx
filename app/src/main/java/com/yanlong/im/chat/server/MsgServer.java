@@ -38,8 +38,6 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<ReturnGroupInfoBean>> groupInfo(@Field("gid") String gid);
 
-
-
     @POST("/group/change-member-switch")
     @FormUrlEncoded
     Call<ReturnBean> groupSwitch(@Field("gid") String gid,@Field("notNotify") Integer notNotify,@Field("saved") Integer saved);
@@ -50,6 +48,6 @@ public interface MsgServer {
 
 
     @POST("group/get-my-saved")
-    Call<ReturnBean<ReturnGroupInfoBean>> getMySaved();
+    Call<ReturnBean<List<ReturnGroupInfoBean>>> getMySaved();
 
 }
