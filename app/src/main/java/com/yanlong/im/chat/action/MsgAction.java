@@ -195,7 +195,6 @@ public class MsgAction {
         return ret;
     }
 
-
     /***
      * 群详情开关
      * @param gid
@@ -203,41 +202,43 @@ public class MsgAction {
      * @param saved
      * @param needVerification
      */
-    public void groupSwitch(final String gid, final Integer istop, final Integer notNotify, final Integer saved, final Integer needVerification, final Callback<ReturnBean> cb){
+    public void groupSwitch(final String gid, final Integer istop, final Integer notNotify, final Integer saved, final Integer needVerification, final Callback<ReturnBean> cb) {
 
-        if(istop!=null){
-            dao. saveSession4Switch(gid,istop,notNotify,saved,needVerification);
+        if (istop != null) {
+            dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
             return;
         }
 
-        Callback<ReturnBean> callback=new CallBack<ReturnBean>() {
+        Callback<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body()==null)
+                if (response.body() == null)
                     return;
-                if(response.body().isOk()){//存库
-                   dao. saveSession4Switch(gid,istop,notNotify,saved,needVerification);
+                if (response.body().isOk()) {//存库
+                    dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
                 }
 
-                cb.onResponse(call,response);
+                cb.onResponse(call, response);
 
             }
         };
 
-        if(needVerification!=null){
-            NetUtil.getNet().exec(server.groupSwitch(gid,needVerification),callback);
-        }else {
-            NetUtil.getNet().exec(server.groupSwitch(gid,notNotify,saved),callback);
+        if (needVerification != null) {
+            NetUtil.getNet().exec(server.groupSwitch(gid, needVerification), callback);
+        } else {
+            NetUtil.getNet().exec(server.groupSwitch(gid, notNotify, saved), callback);
         }
 
 
     }
 
 
-    public void getMySaved(Callback<ReturnBean<ReturnGroupInfoBean>> callback){
-       // NetUtil
+    /**
+     * 查询已保存的群聊
+     */
+    public void getMySaved(Callback<ReturnBean<List<ReturnGroupInfoBean>>> callback) {
+        NetUtil.getNet().exec(server.getMySaved(), callback);
     }
-
 
 
 }

@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatFontActivity;
+import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -26,6 +27,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private HeadView mHeadView;
     private LinearLayout mViewAboutAs;
     private TextView mTvVersion;
+    private UserAction userAction = new UserAction();
 
 
     @Override
@@ -95,9 +97,10 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
 
                 break;
             case R.id.btn_exit:
+                userAction.loginOut();
                 Intent loginIntent = new Intent(this, LoginActivity.class);
                 startActivity(loginIntent);
-                onBackPressed();
+                finish();
                 break;
             case R.id.view_about_as:
                 Intent aboutIntent = new Intent(this, AboutAsActivity.class);
