@@ -3,6 +3,7 @@ package com.yanlong.im.user.dao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -81,5 +82,20 @@ public class UserDao {
         ls.deleteAllFromRealm();
         realm.commitTransaction();
         realm.close();
+    }
+
+    /***
+     * 根据key搜索所有的好友
+     */
+    public List<UserInfo> searchUser4key(String key) {
+        Realm realm = DaoUtil.open();
+        List<UserInfo> ret = new ArrayList<>();
+        RealmResults<UserInfo> users = realm.where(UserInfo.class).equalTo("uType", 2).and()
+                .contains("name", key).or()
+                .contains("mkName", key).findAll();
+        if (users != null)
+            ret = realm.copyFromRealm(users);
+        realm.close();
+        return ret;
     }
 }

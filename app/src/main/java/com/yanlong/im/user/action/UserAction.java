@@ -357,15 +357,8 @@ public class UserAction {
      * 根据key搜索所有的好友
      */
     public List<UserInfo> searchUser4key(String key) {
-        Realm realm = DaoUtil.open();
-        List<UserInfo> ret = new ArrayList<>();
-        RealmResults<UserInfo> users = realm.where(UserInfo.class).equalTo("uType", 2).and()
-                .contains("name", key).or()
-                .contains("mkName", key).findAll();
-        if (users != null)
-            ret = realm.copyFromRealm(users);
-        realm.close();
-        return ret;
+
+        return dao.searchUser4key(key);
     }
 
 

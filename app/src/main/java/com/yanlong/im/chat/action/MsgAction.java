@@ -54,15 +54,8 @@ public class MsgAction {
                     return;
                 if (response.body().isOk()) {//存库
                     String id = response.body().getData().getGid();
-                    dao.sessionCreate(id, null);
-                    Group group = new Group();
-                    group.setAvatar(avatar);
-                    group.setGid(id);
-                    group.setName(name);
-                    RealmList<UserInfo> users = new RealmList();
-                    users.addAll(listDataTop);
-                    group.setUsers(users);
-                    DaoUtil.update(group);
+                    dao.groupCreate(id,avatar,name,listDataTop);
+
                 }
                 callback.onResponse(call, response);
             }
@@ -155,14 +148,8 @@ public class MsgAction {
      * 根据key查询群
      */
     public List<Group> searchGroup4key(String key) {
-        Realm realm = DaoUtil.open();
-        List<Group> ret = new ArrayList<>();
-        RealmResults<Group> users = realm.where(Group.class)
-                .contains("name", key).findAll();
-        if (users != null)
-            ret = realm.copyFromRealm(users);
-        realm.close();
-        return ret;
+
+        return dao.searchGroup4key(key);
     }
 
     /***
@@ -170,29 +157,7 @@ public class MsgAction {
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
 
-
-        Realm realm = DaoUtil.open();
-        List<MsgAllBean> ret = new ArrayList<>();
-        RealmResults<MsgAllBean> msg;
-        if (StringUtil.isNotNull(gid)) {//群
-            msg = realm.where(MsgAllBean.class)
-                    .equalTo("gid", gid).and()
-                    .contains("chat.msg", key)
-                    .sort("timestamp", Sort.DESCENDING)
-                    .findAll();
-        } else {//单人
-            msg = realm.where(MsgAllBean.class)
-                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid).and()
-                    .equalTo("gid", "").and()
-                    .contains("chat.msg", key)
-                    .sort("timestamp", Sort.DESCENDING)
-                    .findAll();
-        }
-
-        if (msg != null)
-            ret = realm.copyFromRealm(msg);
-        realm.close();
-        return ret;
+        return dao.searchMsg4key(key,gid,uid);
     }
 
     /***

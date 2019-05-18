@@ -54,6 +54,7 @@ public class MsgDao {
         return beans;
     }
 
+
     /***
      * 获取群消息
      * @param gid
@@ -152,6 +153,69 @@ public class MsgDao {
 
     }
 
+
+    /***
+     * 创建群
+     * @param id
+     * @param avatar
+     * @param name
+     * @param listDataTop
+     */
+    public void groupCreate(String id,String avatar,String name,List<UserInfo> listDataTop){
+        sessionCreate(id, null);
+        Group group = new Group();
+        group.setAvatar(avatar);
+        group.setGid(id);
+        group.setName(name);
+        RealmList<UserInfo> users = new RealmList();
+        users.addAll(listDataTop);
+        group.setUsers(users);
+        DaoUtil.update(group);
+    }
+
+    /***
+     * 根据key查询群
+     */
+    public List<Group> searchGroup4key(String key) {
+        Realm realm = DaoUtil.open();
+        List<Group> ret = new ArrayList<>();
+        RealmResults<Group> users = realm.where(Group.class)
+                .contains("name", key).findAll();
+        if (users != null)
+            ret = realm.copyFromRealm(users);
+        realm.close();
+        return ret;
+    }
+
+    /***
+     * 根据key查询消息
+     */
+    public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
+
+
+        Realm realm = DaoUtil.open();
+        List<MsgAllBean> ret = new ArrayList<>();
+        RealmResults<MsgAllBean> msg;
+        if (StringUtil.isNotNull(gid)) {//群
+            msg = realm.where(MsgAllBean.class)
+                    .equalTo("gid", gid).and()
+                    .contains("chat.msg", key)
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+        } else {//单人
+            msg = realm.where(MsgAllBean.class)
+                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid).and()
+                    .equalTo("gid", "").and()
+                    .contains("chat.msg", key)
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+        }
+
+        if (msg != null)
+            ret = realm.copyFromRealm(msg);
+        realm.close();
+        return ret;
+    }
 
     /***
      * 创建会话数量
