@@ -349,7 +349,7 @@ public class UserAction {
      *
      * @param businessType 登录login  注册register  修改密码password
      */
-    public void smsCaptchaGet(Long phone, String businessType, CallBack<ReturnBean<SmsBean>> callback) {
+    public void smsCaptchaGet(Long phone, String businessType, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.smsCaptchaGet(phone, businessType), callback);
     }
 
@@ -372,8 +372,8 @@ public class UserAction {
     /**
      * 用户注册
      */
-    public void register(Long phone, String password, String captcha, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.register(phone, password, captcha), callback);
+    public void register(Long phone, String password, String captcha,String nickname, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.register(phone, password, captcha,nickname), callback);
     }
 
 
@@ -409,6 +409,22 @@ public class UserAction {
     public void getUserInfoByImid(String imid, CallBack<ReturnBean<UserInfo>> callback){
         NetUtil.getNet().exec(server.getUserInfoByImid(imid), callback);
     }
+
+
+    /**
+     * 根据关键字匹配产品号或手机号获取用户信息
+     * */
+    public void getUserInfoByKeyword(String keyWord, CallBack<ReturnBean<List<UserInfo>>> callback){
+        NetUtil.getNet().exec(server.getUserInfoByKeyword(keyWord), callback);
+    }
+
+    /**
+     * 修改用户密码
+     * */
+    public void setUserPassword(String newPassword,String oldPassword,CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.setUserPassword(newPassword, oldPassword),callback);
+    }
+
 
 }
 

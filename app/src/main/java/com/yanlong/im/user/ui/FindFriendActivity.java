@@ -101,14 +101,14 @@ public class FindFriendActivity extends AppActivity {
 
 
     private void taskFindFriend(String content) {
-        userAction.getUserInfoByImid(content, new CallBack<ReturnBean<UserInfo>>(mMtListView) {
+        userAction.getUserInfoByKeyword(content, new CallBack<ReturnBean<List<UserInfo>>>(mMtListView) {
             @Override
-            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
                 if (response.body() == null) {
                     return;
                 }
                 userInfos.clear();
-                userInfos.add(response.body().getData());
+                userInfos.addAll(response.body().getData());
                 mMtListView.notifyDataSetChange(response);
             }
         });

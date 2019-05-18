@@ -7,11 +7,17 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class SetingPasswordActivity extends AppActivity {
 
@@ -63,15 +69,15 @@ public class SetingPasswordActivity extends AppActivity {
         String oldPassword = mEdOldPassword.getText().toString();
         String newPassword = mEdNewPassword.getText().toString();
         String nextPassword = mEdNextPassword.getText().toString();
-        if(!TextUtils.isEmpty(oldPassword)){
+        if(TextUtils.isEmpty(oldPassword)){
             ToastUtil.show(this,"请填写旧密码");
             return;
         }
-        if(!TextUtils.isEmpty(newPassword)){
+        if(TextUtils.isEmpty(newPassword)){
             ToastUtil.show(this,"请填写新密码");
             return;
         }
-        if(!TextUtils.isEmpty(nextPassword)){
+        if(TextUtils.isEmpty(nextPassword)){
             ToastUtil.show(this,"请再次填写新密码");
             return;
         }
@@ -79,8 +85,22 @@ public class SetingPasswordActivity extends AppActivity {
             ToastUtil.show(this,"两次填写密码不一致");
             return;
         }
-
-
+        taskSetUserPassword(newPassword,oldPassword);
     }
+
+
+    private void taskSetUserPassword(String newPassword,String oldPassword){
+        new UserAction().setUserPassword(newPassword, oldPassword, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    return;
+                }
+                ToastUtil.show(SetingPasswordActivity.this,response.body().getMsg());
+                finish();
+            }
+        });
+    }
+
 
 }

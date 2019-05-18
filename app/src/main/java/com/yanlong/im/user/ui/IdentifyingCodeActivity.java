@@ -16,6 +16,7 @@ import com.yanlong.im.user.bean.TokenBean;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -43,6 +44,12 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
         initView();
         initEvent();
         initData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CountDownUtil.cancelTimer();
     }
 
     private void initView() {
@@ -73,7 +80,6 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
 
     private void initData() {
         userAction = new UserAction();
-
     }
 
 
@@ -99,16 +105,16 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(IdentifyingCodeActivity.this, "请填写手机号码");
             return;
         }
-        new CountDownUtil(mTvGetVerificationCode)
-                .setCountDownMillis(60_000L)//倒计时60000ms
-                .setCountDownColor(R.color.red_600, R.color.green_600)//不同状态字体颜色
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        taskGetSms(Long.valueOf(phone));
-
-                    }
-                }).start();
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this,"手机号不合法");
+            return;
+        }
+        CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
+            @Override
+            public void task() {
+                taskGetSms(Long.valueOf(phone));
+            }
+        });
     }
 
 
@@ -121,6 +127,10 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
         }
         if (TextUtils.isEmpty(code)) {
             ToastUtil.show(this, "请输入验证码");
+            return;
+        }
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this,"手机号不合法");
             return;
         }
         userAction.login4Captch(Long.valueOf(phone), code, new CallBack<ReturnBean<TokenBean>>() {
@@ -139,14 +149,12 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
 
 
     private void taskGetSms(Long phone) {
-        userAction.smsCaptchaGet(phone, "login", new CallBack<ReturnBean<SmsBean>>() {
+        userAction.smsCaptchaGet(phone, "login", new CallBack<ReturnBean>() {
             @Override
-            public void onResponse(Call<ReturnBean<SmsBean>> call, Response<ReturnBean<SmsBean>> response) {
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
                 }
-
-                mEtIdentifyingCodeContent.setText(response.body().getData().getCaptcha() + "");
                 ToastUtil.show(IdentifyingCodeActivity.this, response.body().getMsg());
             }
         });

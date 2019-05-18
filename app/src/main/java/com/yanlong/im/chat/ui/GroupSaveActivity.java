@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.ui;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -8,9 +7,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /***
  * 保存的群聊
@@ -19,7 +28,17 @@ public class GroupSaveActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
+    private List<ReturnGroupInfoBean> groupInfoBeans;
 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_save);
+        findViews();
+        initEvent();
+        initData();
+    }
 
     //自动寻找控件
     private void findViews() {
@@ -42,37 +61,51 @@ public class GroupSaveActivity extends AppActivity {
 
             }
         });
-        mtListView.init(new RecyclerViewAdapter());
+
         mtListView.getLoadView().setStateNormal();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_save);
-        findViews();
-        initEvent();
+    private void initData(){
+        groupInfoBeans = new ArrayList<>();
+        mtListView.init(new RecyclerViewAdapter());
+        taskMySaved();
     }
+
+
+    private void taskMySaved(){
+        new MsgAction().getMySaved(new CallBack<ReturnBean<List<ReturnGroupInfoBean>>>(mtListView) {
+            @Override
+            public void onResponse(Call<ReturnBean<List<ReturnGroupInfoBean>>> call, Response<ReturnBean<List<ReturnGroupInfoBean>>> response) {
+                if(response.body() == null || !response.body().isOk()){
+                    mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
+                    return;
+                }
+                groupInfoBeans.addAll(response.body().getData());
+                mtListView.notifyDataSetChange(response);
+            }
+        });
+    }
+
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
         @Override
         public int getItemCount() {
-            return null == null ? 10 : 0;
+            return null == groupInfoBeans ? groupInfoBeans.size() : 0;
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-
-            holder.imgHead.setImageURI(Uri.parse("https://gss2.bdstatic.com/-fo3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D220/sign=181c8583082442a7aa0efaa7e143ad95/a08b87d6277f9e2f8145a2081830e924b899f3ba.jpg"));
-            holder.txtName.setText("曼舞手雷");
+            ReturnGroupInfoBean groupInfoBean = groupInfoBeans.get(position);
+            holder.imgHead.setImageURI(groupInfoBean.getAvatar()+"");
+            holder.txtName.setText(groupInfoBean.getName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     go(ChatActivity.class);
-
                 }
             });
 
@@ -83,8 +116,6 @@ public class GroupSaveActivity extends AppActivity {
             } else {
                 holder.txtNum.setVisibility(View.GONE);
             }
-
-
         }
 
 

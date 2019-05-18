@@ -77,11 +77,11 @@ public interface UserServer {
 
     @POST("pub/get-sms-captcha")
     @FormUrlEncoded
-    Call<ReturnBean<SmsBean>> smsCaptchaGet(@Field("phone") Long phone, @Field("businessType") String businessType);
+    Call<ReturnBean> smsCaptchaGet(@Field("phone") Long phone, @Field("businessType") String businessType);
 
     @POST("pub/register")
     @FormUrlEncoded
-    Call<ReturnBean> register(@Field("phone") Long phone,@Field("password") String password,@Field("captcha") String captcha);
+    Call<ReturnBean> register(@Field("phone") Long phone,@Field("password") String password,@Field("captcha") String captcha,@Field("nickname") String nickname);
 
     @POST("pub/login-by-phone-captcha")
     @FormUrlEncoded

@@ -29,7 +29,6 @@ public class MyFragment extends Fragment {
     private LinearLayout viewWallet;
     private LinearLayout viewCollection;
     private LinearLayout viewSetting;
-    private UserAction userAction;
     private TextView mTvInfo;
 
     //自动寻找控件
@@ -77,9 +76,7 @@ public class MyFragment extends Fragment {
         });
     }
 
-
     private void initData() {
-        userAction = new UserAction();
         UserInfo userInfo = UserAction.getMyInfo();
         imgHead.setImageURI(userInfo.getHead() + "");
         txtName.setText(userInfo.getName());
@@ -123,9 +120,13 @@ public class MyFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initEvent();
-        initData();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        initData();
+    }
 
     @Override
     public void onDetach() {
