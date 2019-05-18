@@ -122,7 +122,7 @@ public class ImageHeadActivity extends AppActivity {
                 Uri uri = Uri.fromFile(new File(file));
                 mSdImageHead.setImageURI(uri);
                 taskUserInfoSet(null,
-                        "https://www.baidu.com/img/baidu_jgylogo3.gif",
+                        "https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=1964939590,2698369709&fm=58&bpow=872&bpoh=1024",
                         null, null);
                 break;
         }

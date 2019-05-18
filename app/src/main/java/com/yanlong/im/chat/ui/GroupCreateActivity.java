@@ -20,6 +20,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendMainFragment;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -28,6 +29,7 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -230,16 +232,27 @@ public class GroupCreateActivity extends AppActivity {
     }
 
     private void taskCreate() {
+        listDataTop.add(UserAction.getMyInfo());
+        String name ="";
 
-        String name = UserAction.getMyInfo().getName() + ",";
         String icon = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
-        for (UserInfo userInfo : listDataTop) {
+        int i=listDataTop.size();
+        i=i>9?9:i;
+        //头像地址
+        String url[] =new String[i];
+        for (int j=0;j<i;j++) {
+            UserInfo userInfo = listDataTop.get(j);
             name += userInfo.getName() + ",";
+            url[j]=userInfo.getHead();
         }
+        File file= GroupHeadImageUtil.synthesis(url);
+        icon="file://"+file.getAbsolutePath();
+
+
         name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
         name = name.length() > 14 ? name.substring(0, 14) : name;
         name += "的群";
-        listDataTop.add(UserAction.getMyInfo());
+
 
         msgACtion.groupCreate(name, icon, listDataTop, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
             @Override
