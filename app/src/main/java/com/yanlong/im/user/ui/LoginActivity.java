@@ -25,7 +25,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private TextView mTvForgetPassword;
     private TextView mTvMore;
     private PopupSelectView popupSelectView;
-    private String [] strings = {"切换账号","注册","取消"};
+    private String[] strings = {"切换账号", "注册", "取消"};
 
 
     @Override
@@ -61,7 +61,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_identifying_code:
-                Intent intent = new Intent(this,IdentifyingCodeActivity.class);
+                Intent intent = new Intent(this, IdentifyingCodeActivity.class);
                 startActivity(intent);
                 onBackPressed();
                 break;
@@ -69,7 +69,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
                 break;
             case R.id.tv_forget_password:
-                Intent forgotPasswordIntent = new Intent(this,ForgotPasswordActivity.class);
+                Intent forgotPasswordIntent = new Intent(this, ForgotPasswordActivity.class);
                 startActivity(forgotPasswordIntent);
                 break;
             case R.id.tv_more:
@@ -78,14 +78,21 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         }
     }
 
-    private void initPopup(){
-        popupSelectView = new PopupSelectView(this,strings);
-        popupSelectView.showAtLocation(mImgHead, Gravity.BOTTOM,0, 0);
+    private void initPopup() {
+        popupSelectView = new PopupSelectView(this, strings);
+        popupSelectView.showAtLocation(mImgHead, Gravity.BOTTOM, 0, 0);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
-                ToastUtil.show(LoginActivity.this,string);
-
+                switch (postsion) {
+                    case 0:
+                        go(PasswordLoginActivity.class);
+                        finish();
+                        break;
+                    case 1:
+                        go(RegisterActivity.class);
+                        break;
+                }
                 popupSelectView.dismiss();
             }
         });

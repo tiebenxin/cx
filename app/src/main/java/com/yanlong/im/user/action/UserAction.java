@@ -3,12 +3,14 @@ package com.yanlong.im.user.action;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.PhoneListUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -216,9 +218,7 @@ public class UserAction {
      * 好友添加
      */
     public void friendApply(Long uid, CallBack<ReturnBean> callback) {
-
         NetUtil.getNet().exec(server.friendStat(uid, 1), callback);
-
     }
 
     /***
@@ -418,6 +418,12 @@ public class UserAction {
         NetUtil.getNet().exec(server.setUserPassword(newPassword, oldPassword),callback);
     }
 
+    /**
+     * 通讯录匹配
+     * */
+    public void getUserMatchPhone(String phoneList, CallBack<ReturnBean<List<FriendInfoBean>>> callback){
+        NetUtil.getNet().exec(server.getUserMatchPhone(phoneList),callback);
+    }
 
 }
 

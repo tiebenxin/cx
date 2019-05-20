@@ -214,6 +214,10 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                     return;
                 }
                 ToastUtil.show(RegisterActivity.this, response.body().getMsg());
+                if(response.body().isOk()){
+                    finish();
+                }
+
             }
         });
     }

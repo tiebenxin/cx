@@ -1,58 +1,74 @@
 package com.yanlong.im.user.ui;
 
-import android.Manifest;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.gson.Gson;
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.utils.PhoneListUtil;
 
-import net.cb.cb.library.utils.CheckPermission2Util;
-import net.cb.cb.library.utils.CheckPermissionUtils;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.ClearEditText;
+import net.cb.cb.library.view.HeadView;
+import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PySortView;
-import net.sourceforge.pinyin4j.PinyinHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class FriendMatchActivity extends AppActivity {
-    private net.cb.cb.library.view.HeadView headView;
+    private HeadView headView;
     private ActionbarView actionbar;
-    private LinearLayout viewSearch;
-    private net.cb.cb.library.view.MultiListView mtListView;
+    private MultiListView mtListView;
+    private ClearEditText mCeSearch;
 
-    private PhoneListUtil phoneListUtil = new PhoneListUtil();
     private PySortView viewType;
-
+    private UserAction userAction;
+    private PhoneListUtil phoneListUtil = new PhoneListUtil();
     private List<FriendInfoBean> listData = new ArrayList<>();
+    private List<FriendInfoBean> seacchData = new ArrayList<>();
+    private RecyclerViewAdapter adapter;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_friend_match);
+        findViews();
+        initEvent();
+        initData();
+    }
+
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewSearch = (LinearLayout) findViewById(R.id.view_search);
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
+        mCeSearch = findViewById(R.id.ce_search);
     }
 
 
@@ -71,49 +87,79 @@ public class FriendMatchActivity extends AppActivity {
         });
         //联动
         viewType.setListView(mtListView.getListView());
-        mtListView.init(new RecyclerViewAdapter());
+        adapter = new RecyclerViewAdapter();
+        mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
-
-
-        phoneListUtil.getPhones(this, new PhoneListUtil.Event() {
+        mCeSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onList(List<PhoneListUtil.PhoneBean> list) {
-                //  Log.d("TAG", "initEvent: "+list.size());
-                if (list == null)
-                    return;
-                for (PhoneListUtil.PhoneBean pb : list) {
-                    FriendInfoBean bean = new FriendInfoBean();
-                    bean.setName(pb.getName());
-                    bean.setPhone(pb.getPhone());
-                    String[] n=PinyinHelper.toHanyuPinyinStringArray(pb.getName().charAt(0));
-                    if (n==null){
-                        bean.setTag( ""+(pb.getName().toUpperCase()).charAt(0));
-                    }else{
-                        bean.setTag(""+n[0].toUpperCase().charAt(0));
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                String name = mCeSearch.getText().toString();
+                if (actionId == EditorInfo.IME_ACTION_SEND || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    switch (event.getAction()) {
+                        case KeyEvent.ACTION_DOWN:
+                            searchName(name);
+                            return true;
                     }
-
-
-
-                    listData.add(bean);
                 }
-
-                initViewTypeData();
-                mtListView.notifyDataSetChange();
-
+                return false;
             }
         });
 
+        mCeSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String content = s.toString();
+                if(TextUtils.isEmpty(content)){
+                    adapter.setList(listData);
+                    mtListView.notifyDataSetChange();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
     }
+
+    private void initData() {
+        userAction = new UserAction();
+        phoneListUtil.getPhones(this, new PhoneListUtil.Event() {
+            @Override
+            public void onList(List<PhoneListUtil.PhoneBean> list) {
+                if (list == null)
+                    return;
+                taskUserMatchPhone(list);
+            }
+        });
+    }
+
+
+    public void searchName(String name) {
+        if (!TextUtils.isEmpty(name)) {
+            seacchData.clear();
+            for (FriendInfoBean bean : listData) {
+                if (bean.getNickname().contains(name)) {
+                    seacchData.add(bean);
+                }
+            }
+            adapter.setList(seacchData);
+            mtListView.notifyDataSetChange();
+        }
+    }
+
 
     /***
      * 初始化
      */
     private void initViewTypeData() {
-
-       //排序
+        //排序
         Collections.sort(listData);
-
         //筛选
         for (int i = 0; i < listData.size(); i++) {
             viewType.putTag(listData.get(i).getTag(), i);
@@ -124,36 +170,35 @@ public class FriendMatchActivity extends AppActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
         phoneListUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friend_match);
-        findViews();
-        initEvent();
-    }
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
+        private List<FriendInfoBean> list;
+
+
+        public void setList(List<FriendInfoBean> list) {
+            this.list = list;
+            notifyDataSetChanged();
+        }
 
         @Override
         public int getItemCount() {
-            return listData == null ? 0 : listData.size();
+            return list == null ? 0 : list.size();
         }
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder holder, int position) {
-            FriendInfoBean bean = listData.get(position);
+        public void onBindViewHolder(RCViewHolder holder, final int position) {
+            final FriendInfoBean bean = list.get(position);
             holder.txtType.setText(bean.getTag());
-            holder.imgHead.setImageURI(Uri.parse("https://gss0.bdstatic.com/94o3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D220/sign=63b408bba11ea8d38e227306a70a30cf/0824ab18972bd40765b46cfd7c899e510fb309ba.jpg"));
-            holder.txtName.setText(bean.getName());
+            holder.imgHead.setImageURI(bean.getAvatar() + "");
+            holder.txtName.setText(bean.getNickname());
 
             if (position != 0) {
-                FriendInfoBean lastbean = listData.get(position - 1);
+                FriendInfoBean lastbean = list.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     holder.viewType.setVisibility(View.GONE);
                 } else {
@@ -165,12 +210,9 @@ public class FriendMatchActivity extends AppActivity {
 
             holder.btnAdd.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    ToastUtil.show(getContext(),"添加的接口");
-
+                    taskFriendApply(bean.getUid(), position);
                 }
             });
-
-
         }
 
 
@@ -186,21 +228,58 @@ public class FriendMatchActivity extends AppActivity {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewType;
             private TextView txtType;
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private SimpleDraweeView imgHead;
             private TextView txtName;
             private Button btnAdd;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewType = (LinearLayout) convertView.findViewById(R.id.view_type);
-                txtType = (TextView) convertView.findViewById(R.id.txt_type);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                btnAdd = (Button) convertView.findViewById(R.id.btn_add);
+                viewType = convertView.findViewById(R.id.view_type);
+                txtType = convertView.findViewById(R.id.txt_type);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                btnAdd = convertView.findViewById(R.id.btn_add);
             }
 
         }
+    }
+
+
+    private void taskUserMatchPhone(List<PhoneListUtil.PhoneBean> phoneList) {
+        userAction.getUserMatchPhone(new Gson().toJson(phoneList), new CallBack<ReturnBean<List<FriendInfoBean>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<FriendInfoBean>>> call, Response<ReturnBean<List<FriendInfoBean>>> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    listData.addAll(response.body().getData());
+                    for (FriendInfoBean bean : listData) {
+                        bean.toTag();
+                    }
+                    adapter.setList(listData);
+                    initViewTypeData();
+                    mtListView.notifyDataSetChange();
+                }
+            }
+        });
+    }
+
+    private void taskFriendApply(Long uid, final int position) {
+        userAction.friendApply(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    listData.remove(position);
+                    mtListView.notifyDataSetChange();
+                }
+                ToastUtil.show(FriendMatchActivity.this, response.body().getMsg());
+            }
+        });
     }
 
 }

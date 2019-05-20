@@ -48,7 +48,7 @@ public class PhoneListUtil {
             //获取联系人姓名
             String name = cursor.getString(cursor
                     .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-            temp.name = name;
+            temp.phoneremark = name;
 
             //获取联系人电话号码
             Cursor phoneCursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -102,15 +102,15 @@ public class PhoneListUtil {
     }
 
     public class PhoneBean {
-        private String name;
+        private String phoneremark;
         private String phone;
 
         public String getName() {
-            return name;
+            return phoneremark;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setName(String phoneremark) {
+            this.phoneremark = phoneremark;
         }
 
         public String getPhone() {

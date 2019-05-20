@@ -1,10 +1,12 @@
 package com.yanlong.im.user.server;
 
 import com.yanlong.im.test.bean.Test2Bean;
+import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.LoginBean;
 import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.PhoneListUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 
@@ -48,7 +50,6 @@ public interface UserServer {
 
     @POST("/pub/退出")
     Call<ReturnBean> loginOut();
-
 
     @POST("/friends/set-friend-stat")
     @FormUrlEncoded
@@ -98,5 +99,9 @@ public interface UserServer {
     @POST("user/set-user-password")
     @FormUrlEncoded
     Call<ReturnBean> setUserPassword(@Field("newPassword") String newPassword,@Field("oldPassword") String oldPassword);
+
+    @POST("user/get-user-matchphone")
+    @FormUrlEncoded
+    Call<ReturnBean<List<FriendInfoBean>>> getUserMatchPhone(@Field("@phoneList") String phoneList);
 
 }

@@ -1,45 +1,80 @@
 package com.yanlong.im.user.bean;
 
+import net.cb.cb.library.utils.StringUtil;
+import net.sourceforge.pinyin4j.PinyinHelper;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FriendInfoBean implements Comparable<FriendInfoBean>{
-    private String name;
-    private String uid;
-    private String head;
+    private String nickname;
+    private Long uid;
+    private String avatar;
     private String tag;
-    private String phone;
+    private String imid;
+    private int gender;
+    private int switchmask;
 
-    public String getPhone() {
-        return phone;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+        toTag();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUid() {
+    public Long getUid() {
         return uid;
     }
 
-    public void setUid(String id) {
-        this.uid = id;
+    public void setUid(Long uid) {
+        this.uid = uid;
     }
 
-    public String getHead() {
-        return head;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setHead(String head) {
-        this.head = head;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getImid() {
+        return imid;
+    }
+
+    public void setImid(String imid) {
+        this.imid = imid;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
+    public int getSwitchmask() {
+        return switchmask;
+    }
+
+    public void setSwitchmask(int switchmask) {
+        this.switchmask = switchmask;
+    }
+
+    /***
+     * 重设tag
+
+     */
+    public void toTag(){
+        String[] n= PinyinHelper.toHanyuPinyinStringArray(nickname.charAt(0));
+        if (n==null){
+            setTag( ""+(nickname.toUpperCase()).charAt(0));
+        }else{
+            setTag(""+n[0].toUpperCase().charAt(0));
+        }
     }
 
     public String getTag() {

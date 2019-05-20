@@ -24,8 +24,9 @@
                 android:src="@mipmap/ic_msg_search" />
 
             <net.cb.cb.library.view.ClearEditText
-
+                android:id="@+id/ce_search"
                 style="@style/app_edt1"
+                android:imeOptions="actionSearch"
                 android:layout_marginRight="@dimen/app_margin_main"
                 android:hint="搜索" />
 
