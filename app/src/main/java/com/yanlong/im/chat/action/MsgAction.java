@@ -198,6 +198,18 @@ public class MsgAction {
     }
 
     /***
+     * 单人详情的开关
+     * @param isMute
+     * @param istop
+     */
+    public void sessionSwitch(Long uid,Integer isMute, Integer istop, Callback<ReturnBean> callback){
+        if(isMute!=null)
+        NetUtil.getNet().exec(server.friendMute(uid,isMute), callback);
+        if(istop!=null)
+        NetUtil.getNet().exec(server.friendTop(uid, istop), callback);
+    }
+
+    /***
      * 清理所有的消息
      */
     public void msgDelAll(){
@@ -212,6 +224,7 @@ public class MsgAction {
     public void getMySaved(Callback<ReturnBean<List<ReturnGroupInfoBean>>> callback) {
         NetUtil.getNet().exec(server.getMySaved(), callback);
     }
+
 
 
 

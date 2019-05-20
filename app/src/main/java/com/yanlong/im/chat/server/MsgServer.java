@@ -50,4 +50,12 @@ public interface MsgServer {
     @POST("group/get-my-saved")
     Call<ReturnBean<List<ReturnGroupInfoBean>>> getMySaved();
 
+    @POST("/friends/set-friend-disturb")
+    @FormUrlEncoded
+    Call<ReturnBean> friendMute(@Field("friend") Long uid,@Field("disturb") Integer isMute);
+
+    @POST("/friends/set-friend-top")
+    @FormUrlEncoded
+    Call<ReturnBean> friendTop(@Field("friend") Long uid,@Field("istop") Integer istop);
+
 }

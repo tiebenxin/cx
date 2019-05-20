@@ -15,18 +15,26 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class ChatInfoActivity extends AppActivity {
     public static final String AGM_FUID = "fuid";
@@ -91,6 +99,7 @@ public class ChatInfoActivity extends AppActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 session.setIsTop(isChecked ? 1 : 0);
                 taskSaveInfo();
+                taskUpSwitch(null,session.getIsTop());
             }
         });
         ckDisturb.setChecked(session.getIsMute() == 1);
@@ -99,12 +108,13 @@ public class ChatInfoActivity extends AppActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 session.setIsMute(isChecked ? 1 : 0);
                 taskSaveInfo();
+                taskUpSwitch(session.getIsMute(),null);
             }
         });
         viewLogClean.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertYesNo alertYesNo=new AlertYesNo();
+                AlertYesNo alertYesNo = new AlertYesNo();
                 alertYesNo.init(ChatInfoActivity.this, "删除", "确定清除聊天记录吗?", "确定", "取消", new AlertYesNo.Event() {
                     @Override
                     public void onON() {
@@ -124,12 +134,11 @@ public class ChatInfoActivity extends AppActivity {
         viewLog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(),SearchMsgActivity.class)
-                        .putExtra(SearchMsgActivity.AGM_FUID,fuid)
+                startActivity(new Intent(getContext(), SearchMsgActivity.class)
+                        .putExtra(SearchMsgActivity.AGM_FUID, fuid)
                 );
             }
         });
-
 
 
     }
@@ -144,8 +153,6 @@ public class ChatInfoActivity extends AppActivity {
     }
 
     private void initData() {
-
-
 
 
     }
@@ -209,12 +216,13 @@ public class ChatInfoActivity extends AppActivity {
     }
 
     private MsgDao msgDao = new MsgDao();
+    private MsgAction msgAction = new MsgAction();
 
     //获取会话和对方信息
     private void taskGetInfo() {
         session = DaoUtil.findOne(Session.class, "from_uid", fuid);
-        if(session==null){
-            session=  msgDao.sessionCreate(null,fuid);
+        if (session == null) {
+            session = msgDao.sessionCreate(null, fuid);
         }
         fUserInfo = DaoUtil.findOne(UserInfo.class, "uid", fuid);
     }
@@ -225,9 +233,25 @@ public class ChatInfoActivity extends AppActivity {
     }
 
     private void taskDelMsg() {
-        msgDao.msgDel(fuid,null);
+        msgDao.msgDel(fuid, null);
     }
 
+
+    private void taskUpSwitch(Integer isMute, Integer istop) {
+        msgAction.sessionSwitch(fuid, isMute, istop, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body()==null)
+                    return;
+                if (response.body().isOk()){
+
+                }else {
+                    ToastUtil.show(getContext(),response.body().getMsg());
+
+                }
+            }
+        });
+    }
 
 
 }
