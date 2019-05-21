@@ -232,6 +232,10 @@ public class GroupCreateActivity extends AppActivity {
     }
 
     private void taskCreate() {
+        if(listDataTop.size()<2){
+            ToastUtil.show(getContext(),"人数必须大于3人");
+            return;
+        }
         listDataTop.add(UserAction.getMyInfo());
         String name ="";
 
