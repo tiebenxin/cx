@@ -221,8 +221,24 @@ public class MsgAction {
     /**
      * 查询已保存的群聊
      */
-    public void getMySaved(Callback<ReturnBean<List<ReturnGroupInfoBean>>> callback) {
-        NetUtil.getNet().exec(server.getMySaved(), callback);
+    public void getMySaved(final Callback<ReturnBean<List<ReturnGroupInfoBean>>> callback) {
+
+        NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<ReturnGroupInfoBean>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<ReturnGroupInfoBean>>> call, Response<ReturnBean<List<ReturnGroupInfoBean>>> response) {
+                callback.onResponse(call,response);
+
+                for (ReturnGroupInfoBean ginfo: response.body().getData()){
+                    //保存群信息到本地
+                    Group group=new Group();
+                    group.setGid(ginfo.getGid());
+                    group.setAvatar(ginfo.getAvatar());
+                    group.setName(ginfo.getName());
+                    dao.groupSave(group);
+                }
+
+            }
+        });
     }
 
 

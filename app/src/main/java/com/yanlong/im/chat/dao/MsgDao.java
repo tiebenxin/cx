@@ -30,6 +30,35 @@ public class MsgDao {
     }
 
     /***
+     * 保存群
+     * @param group
+     */
+    public void groupSave(Group group) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group g =  realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
+        if(g!=null){//已经存在
+            g.setName(group.getName());
+            g.setAvatar(group.getAvatar());
+            if(group.getUsers()!=null)
+                g.setUsers(group.getUsers());
+
+            realm.insertOrUpdate(group);
+        }else{//不存在
+            realm.insertOrUpdate(group);
+           // sessionCreate(group.getGid(),null);
+        }
+
+
+
+
+        realm.commitTransaction();
+        realm.close();
+        //return DaoUtil.findOne(Group.class, "gid", gid);
+    }
+
+    /***
      * 单用户消息列表
      * @param userid
      * @return

@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -65,18 +66,18 @@ public class GroupSaveActivity extends AppActivity {
         mtListView.getLoadView().setStateNormal();
     }
 
-    private void initData(){
+    private void initData() {
         groupInfoBeans = new ArrayList<>();
         mtListView.init(new RecyclerViewAdapter());
         taskMySaved();
     }
 
 
-    private void taskMySaved(){
+    private void taskMySaved() {
         new MsgAction().getMySaved(new CallBack<ReturnBean<List<ReturnGroupInfoBean>>>(mtListView) {
             @Override
             public void onResponse(Call<ReturnBean<List<ReturnGroupInfoBean>>> call, Response<ReturnBean<List<ReturnGroupInfoBean>>> response) {
-                if(response.body() == null || !response.body().isOk()){
+                if (response.body() == null || !response.body().isOk()) {
                     mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
                     return;
                 }
@@ -87,25 +88,27 @@ public class GroupSaveActivity extends AppActivity {
     }
 
 
-
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
         @Override
         public int getItemCount() {
-            return null == groupInfoBeans ? groupInfoBeans.size() : 0;
+            return null == groupInfoBeans ? 0 : groupInfoBeans.size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            ReturnGroupInfoBean groupInfoBean = groupInfoBeans.get(position);
-            holder.imgHead.setImageURI(groupInfoBean.getAvatar()+"");
+            final ReturnGroupInfoBean groupInfoBean = groupInfoBeans.get(position);
+            holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
             holder.txtName.setText(groupInfoBean.getName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    go(ChatActivity.class);
+                    //  star(ChatActivity.class);
+                    startActivity(new Intent(getContext(), ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOGID, groupInfoBean.getGid())
+                    );
                 }
             });
 
