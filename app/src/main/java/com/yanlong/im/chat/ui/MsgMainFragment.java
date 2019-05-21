@@ -436,6 +436,7 @@ public class MsgMainFragment extends Fragment {
 
     private void taskDelSissen(Long from_uid, String gid) {
         msgDao.sessionDel(from_uid, gid);
+        msgDao.msgDel(from_uid, gid);
 
         taskListData();
     }
