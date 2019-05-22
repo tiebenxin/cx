@@ -74,6 +74,9 @@ dependencies {
     api 'com.google.protobuf:protoc:3.5.1'
     api 'com.google.protobuf:protobuf-java-util:3.5.1'
 
+    //上传
+    api 'com.aliyun.dpa:oss-android-sdk:+'
+
     //胶水
     api 'io.reactivex.rxjava2:rxjava:2.1.1'
     api 'io.reactivex.rxjava2:rxandroid:2.0.1'
