@@ -193,6 +193,7 @@ public class UserAction {
      * 登出
      */
     public void loginOut() {
+        myInfo=null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
 
     }

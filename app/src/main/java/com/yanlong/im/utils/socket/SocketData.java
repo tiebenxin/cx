@@ -155,14 +155,16 @@ public class SocketData {
         if (msg != null) {
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
-                    .setMsgId(bean.getMsgId())
+                    .setMsgId(bean.getMsgIdList().get(0))
                     //时间要和ack一起返回
                     .setTimestamp(System.currentTimeMillis())
                     .build();
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-            //?时间戳
+            //时间戳
+            msgAllBean.setTimestamp(bean.getTimestamp());
+
             //移除旧消息
             DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
 
@@ -192,6 +194,8 @@ public class SocketData {
         wmsg.setFromUid(userInfo.getUid());
         wmsg.setAvatar(userInfo.getHead());
         wmsg.setNickname(userInfo.getName());
+        //自动生成uuid
+        wmsg.setMsgId(UUID.randomUUID().toString().replace("-",""));
         wmsg.setTimestamp(System.currentTimeMillis());
 
         if (toGid != null) {//给群发
@@ -354,11 +358,17 @@ public class SocketData {
      * 回执
      * @return
      */
-    public static byte[] msg4ACK(String rid) {
+    public static byte[] msg4ACK(String rid,List<String> msgids) {
 
+        MsgBean.AckMessage ack;
+        MsgBean.AckMessage.Builder amsg = MsgBean.AckMessage.newBuilder()
+                .setRequestId(rid);
 
-        MsgBean.AckMessage ack = MsgBean.AckMessage.newBuilder()
-                .setRequestId(rid).build();
+        for (int i=0;i<msgids.size();i++){
+            amsg.setMsgId(i,msgids.get(i));
+        }
+
+        ack=amsg.build();
 
         return SocketData.getPakage(DataType.ACK, ack.toByteArray());
 
@@ -421,6 +431,7 @@ public class SocketData {
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 
         MsgDao msgDao=new MsgDao();
+        List<String> msgIds=new ArrayList<>();
         //1.先进行数据分割
         for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
             //2.存库:1.存消息表,存会话表
@@ -431,11 +442,13 @@ public class SocketData {
             DaoUtil.update(msgAllBean);
             msgDao.sessionReadUpdate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
 
+            msgIds.add(wmsg.getMsgId());
+
         }
 
 
         //3.发送回执
-        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId()), null);
+        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(),msgIds), null);
 
 
     }

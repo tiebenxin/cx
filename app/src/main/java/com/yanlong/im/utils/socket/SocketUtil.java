@@ -31,14 +31,16 @@ public class SocketUtil {
         @Override
         public void onACK(MsgBean.AckMessage bean) {
 
-           if(!bean.getAccepted()) {
-               LogUtil.getLog().d(TAG, ">>>>>ack抛弃: " + bean.getRequestId());
-               return;
-           }
-            LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 " );
+            if(bean.getRejectType()== MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
+                LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 " );
 
 
-            SocketData.msgSave4Me(bean);
+                SocketData.msgSave4Me(bean);
+
+           }else{
+                LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :"+bean.getRejectType() );
+            }
+
 
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
