@@ -1,6 +1,7 @@
 package com.yanlong.im.user.action;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 
 import com.yanlong.im.user.bean.FriendInfoBean;
@@ -98,8 +99,10 @@ public class UserAction {
         dao.updateUserinfo(userInfo);
     }
 
-
-    public void login(Long phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+    /**
+     * 账号密码登录
+     * */
+    public void login(final Long phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         NetUtil.getNet().exec(server.login(pwd, phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
@@ -108,13 +111,12 @@ public class UserAction {
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
+                    setPhone(phone+"");
 
-                    callback.onResponse(call, response);
-                } else {
-                    callback.onFailure(call, null);
+
                 }
 
-
+                callback.onResponse(call, response);
             }
 
             @Override
@@ -136,7 +138,6 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk()) {
                     UserInfo userInfo = response.body().getData();
                     userInfo.toTag();
-
                     updateUserinfo2DB(userInfo);
                 }
             }
@@ -195,7 +196,15 @@ public class UserAction {
     public void loginOut() {
         myInfo=null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
-
+        NetUtil.getNet().exec(server.loginOut(), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    return;
+                }
+                LogUtil.getLog().d("logout",response.body().getMsg());
+            }
+        });
     }
 
 
@@ -206,6 +215,14 @@ public class UserAction {
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
     }
+
+    /**
+     * 保存手机号码
+     * */
+    private void setPhone(String phone){
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(phone);
+    }
+
 
     /***
      * 配置要使用的DB
@@ -374,7 +391,7 @@ public class UserAction {
     /**
      * 手机号验证码登录
      */
-    public void login4Captch(Long phone, String captcha, final CallBack<ReturnBean<TokenBean>> callback) {
+    public void login4Captch(final Long phone, String captcha, final CallBack<ReturnBean<TokenBean>> callback) {
         NetUtil.getNet().exec(server.login4Captch(phone, captcha), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
@@ -382,11 +399,9 @@ public class UserAction {
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
-
-                    callback.onResponse(call, response);
-                } else {
-                    callback.onFailure(call, null);
+                    setPhone(phone+"");
                 }
+                callback.onResponse(call, response);
             }
 
             @Override
@@ -425,6 +440,14 @@ public class UserAction {
     public void getUserMatchPhone(String phoneList, CallBack<ReturnBean<List<FriendInfoBean>>> callback){
         NetUtil.getNet().exec(server.getUserMatchPhone(phoneList),callback);
     }
+
+    /**
+     * 手机号验证码重置密码
+     * */
+    public void changePasswordBySms(String phone, Integer captcha, String password, CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.changePasswordBySms(phone,captcha,password),callback);
+    }
+
 
 }
 

@@ -27,6 +27,8 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
     private EditText mEtPhoneContent;
     private EditText mEtIdentifyingCodeContent;
     private TextView mTvGetVerificationCode;
+    private EditText mEtNewPasswordContent;
+    private EditText mEtRepetitionPasswordContent;
     private Button mBtnNext;
     private HeadView mHeadView;
 
@@ -46,7 +48,8 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
         mEtIdentifyingCodeContent = findViewById(R.id.et_identifying_code_content);
         mBtnNext = findViewById(R.id.btn_next);
         mTvGetVerificationCode = findViewById(R.id.tv_get_verification_code);
-
+        mEtNewPasswordContent = findViewById(R.id.et_new_password_content);
+        mEtRepetitionPasswordContent = findViewById(R.id.et_repetition_password_content);
     }
 
     private void initEvent() {
@@ -85,8 +88,9 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
             ToastUtil.show(ForgotPasswordActivity.this, "请填写手机号码");
             return;
         }
-        if(CheckUtil.isMobileNO(phone)){
-            ToastUtil.show(this,"手机号不合法");
+        if (!CheckUtil.isMobileNO(phone)) {
+            ToastUtil.show(this, "手机号不合法");
+            return;
         }
 
         CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
@@ -99,28 +103,54 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
 
     private void register() {
         String phone = mEtPhoneContent.getText().toString();
-        String password = mEtIdentifyingCodeContent.getText().toString();
+        String code = mEtIdentifyingCodeContent.getText().toString();
+        String password = mEtNewPasswordContent.getText().toString();
+        String nextPassword = mEtRepetitionPasswordContent.getText().toString();
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(this, "请输入手机号");
             return;
         }
-        if (TextUtils.isEmpty(password)) {
+        if (TextUtils.isEmpty(code)) {
             ToastUtil.show(this, "请输入验证码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
-            ToastUtil.show(this,"手机号不合法");
+        if (!CheckUtil.isMobileNO(phone)) {
+            ToastUtil.show(this, "手机号不合法");
             return;
         }
-        toNext(phone);
+        if (TextUtils.isEmpty(password)) {
+            ToastUtil.show(this, "请输入新密码");
+            return;
+        }
+        if (TextUtils.isEmpty(nextPassword)) {
+            ToastUtil.show(this, "请再次输入新密码");
+            return;
+        }
+        if (!password.equals(nextPassword)) {
+            ToastUtil.show(this, "两次输入密码不一致");
+            return;
+        }
+
+        taskChangePasswordBySms(phone, Integer.valueOf(code), password);
+
     }
 
 
-    private void toNext(String phone) {
-        Intent intent = new Intent(this, ForgotPasswordNextActivity.class);
-        intent.putExtra(ForgotPasswordNextActivity.PHONE, phone);
-        startActivity(intent);
+    private void taskChangePasswordBySms(String phone, Integer captcha, String password) {
+        new UserAction().changePasswordBySms(phone, captcha, password, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(context, response.body().getMsg());
+                if (response.body().isOk()) {
+                    finish();
+                }
+            }
+        });
     }
+
 
     private void taskGetSms(Long phone) {
         new UserAction().smsCaptchaGet(phone, "password", new CallBack<ReturnBean>() {

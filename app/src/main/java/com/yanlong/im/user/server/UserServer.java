@@ -1,12 +1,11 @@
 package com.yanlong.im.user.server;
 
-import com.yanlong.im.test.bean.Test2Bean;
+import android.content.Intent;
+
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.LoginBean;
-import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.utils.PhoneListUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 
@@ -17,7 +16,6 @@ import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 /***
  * test
@@ -27,11 +25,8 @@ import retrofit2.http.Query;
 public interface UserServer {
 
 
-
-
     @POST("/pub/login-by-phone-password")
     Call<ReturnBean<TokenBean>> login(@Body LoginBean loginBean);
-
 
     @POST("/pub/login-by-phone-password")
     @FormUrlEncoded
@@ -40,7 +35,6 @@ public interface UserServer {
     @POST("/user/refresh-access-token")
     Call<ReturnBean<TokenBean>> login4token();
 
-
     @POST("/user/get-user-info")
     Call<ReturnBean<UserInfo>> getMyInfo();
 
@@ -48,7 +42,7 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean<UserInfo>> getUserInfo(@Field("uid")Long uid);
 
-    @POST("/pub/退出")
+    @POST("/user/logout")
     Call<ReturnBean> loginOut();
 
     @POST("/friends/set-friend-stat")
@@ -103,5 +97,10 @@ public interface UserServer {
     @POST("user/get-user-matchphone")
     @FormUrlEncoded
     Call<ReturnBean<List<FriendInfoBean>>> getUserMatchPhone(@Field("@phoneList") String phoneList);
+
+    @POST("/pub/change-password-by-sms-captcha")
+    @FormUrlEncoded
+    Call<ReturnBean> changePasswordBySms(@Field("@phone") String phone, @Field("@captcha") Integer captcha, @Field("@password") String password);
+
 
 }

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -110,16 +111,19 @@ public class StartPageActivity extends AppActivity {
     }
 
     private void updateToken(final boolean isFlast) {
+        final String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
+
+
         UserAction userAction = new UserAction();
         userAction.login4token(new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if(isFlast){
                     startActivity(new Intent(StartPageActivity.this, SelectLoginActivity.class));
-                    onBackPressed();
+                    finish();
                 }else{
                     startActivity(new Intent(StartPageActivity.this, MainActivity.class));
-                    onBackPressed();
+                    finish();
                 }
             }
 
@@ -127,10 +131,15 @@ public class StartPageActivity extends AppActivity {
             public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                 if (isFlast) {
                     startActivity(new Intent(StartPageActivity.this, SelectLoginActivity.class));
-                    onBackPressed();
+                    finish();
                 }else{
-                    startActivity(new Intent(StartPageActivity.this, PasswordLoginActivity.class));
-                    onBackPressed();
+                    if(TextUtils.isEmpty(phone)){
+                        startActivity(new Intent(StartPageActivity.this, PasswordLoginActivity.class));
+                        finish();
+                    }else{
+                        go(LoginActivity.class);
+                        finish();
+                    }
                 }
             }
         });

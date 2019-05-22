@@ -27,6 +27,8 @@ public class SharedPreferencesUtil {
         USER_INFO("user_info"),
         PUSH("push"),
         FIRST_TIME("first_time"),
+        PHONE("phone"),
+        IMAGE_HEAD("image_head"),
         DEV_ID("uid");
 
         private String name;

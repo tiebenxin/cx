@@ -12,11 +12,15 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.ui.ChatFontActivity;
 import com.yanlong.im.user.action.UserAction;
 
+import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class CommonActivity extends AppActivity implements View.OnClickListener {
 
@@ -96,14 +100,9 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 break;
             case R.id.view_clear:
                 taskClearMsg();
-
                 break;
             case R.id.btn_exit:
                 taskExit();
-                Intent loginIntent = new Intent(this, LoginActivity.class);
-                startActivity(loginIntent);
-                finish();
-
                 break;
             case R.id.view_about_as:
                 Intent aboutIntent = new Intent(this, AboutAsActivity.class);
@@ -117,8 +116,12 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
      * 退出
      */
     private void taskExit() {
-
         userAction.loginOut();
+        EventBus.getDefault().post(new EventLoginOut());
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(UserAction.getMyInfo().getHead()+"");
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
+        finish();
     }
 
     private MsgAction msgAction = new MsgAction();

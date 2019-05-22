@@ -89,7 +89,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 startActivity(intent);
                 break;
             case R.id.view_blacklist:
-
+                go(BlacklistActivity.class);
                 break;
         }
     }

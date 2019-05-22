@@ -213,6 +213,7 @@
         <!--登录-->
         <activity
             android:name=".user.ui.LoginActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--关于-->
         <activity
@@ -292,6 +293,12 @@
         <activity
             android:name=".user.ui.FindFriendActivity"
             android:screenOrientation="portrait" />
+
+        <!--黑名单-->
+        <activity
+            android:name=".user.ui.BlacklistActivity"
+            android:screenOrientation="portrait" />
+
 
     </application>
 
