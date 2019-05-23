@@ -103,7 +103,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     public void setImid(String imid) {
         this.imid = imid;
     }
-
+    //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单(不区分和陌生人)
     public Integer getuType() {
         return uType;
     }

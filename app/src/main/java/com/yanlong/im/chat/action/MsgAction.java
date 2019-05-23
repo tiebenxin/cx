@@ -43,18 +43,27 @@ public class MsgAction {
     public void groupCreate(final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<ReturnGroupInfoBean>> callback) {
         /*List<Long> ulist = new ArrayList<>();
 
-        for (UserInfo userInfo:listDataTop){
-            ulist.add(userInfo.getUid());
-        }*/
+         */
+        List<UserInfo> listDataTop2=new ArrayList<>();
+        for ( int i=0;i<listDataTop.size();i++) {
+            UserInfo   userInfo = new UserInfo();
 
-        NetUtil.getNet().exec(server.groupCreate(name, avatar, gson.toJson(listDataTop)), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+
+            userInfo.setUid(listDataTop.get(i).getUid());
+            userInfo.setName(listDataTop.get(i).getName());
+
+            listDataTop2.add(userInfo);
+
+        }
+
+        NetUtil.getNet().exec(server.groupCreate(name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {//存库
                     String id = response.body().getData().getGid();
-                    dao.groupCreate(id,avatar,name,listDataTop);
+                    dao.groupCreate(id, avatar, name, listDataTop);
 
                 }
                 callback.onResponse(call, response);
@@ -157,7 +166,7 @@ public class MsgAction {
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
 
-        return dao.searchMsg4key(key,gid,uid);
+        return dao.searchMsg4key(key, gid, uid);
     }
 
     /***
@@ -202,20 +211,19 @@ public class MsgAction {
      * @param isMute
      * @param istop
      */
-    public void sessionSwitch(Long uid,Integer isMute, Integer istop, Callback<ReturnBean> callback){
-        if(isMute!=null)
-        NetUtil.getNet().exec(server.friendMute(uid,isMute), callback);
-        if(istop!=null)
-        NetUtil.getNet().exec(server.friendTop(uid, istop), callback);
+    public void sessionSwitch(Long uid, Integer isMute, Integer istop, Callback<ReturnBean> callback) {
+        if (isMute != null)
+            NetUtil.getNet().exec(server.friendMute(uid, isMute), callback);
+        if (istop != null)
+            NetUtil.getNet().exec(server.friendTop(uid, istop), callback);
     }
 
     /***
      * 清理所有的消息
      */
-    public void msgDelAll(){
+    public void msgDelAll() {
         dao.msgDelAll();
     }
-
 
 
     /**
@@ -226,11 +234,11 @@ public class MsgAction {
         NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<ReturnGroupInfoBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<ReturnGroupInfoBean>>> call, Response<ReturnBean<List<ReturnGroupInfoBean>>> response) {
-                callback.onResponse(call,response);
+                callback.onResponse(call, response);
 
-                for (ReturnGroupInfoBean ginfo: response.body().getData()){
+                for (ReturnGroupInfoBean ginfo : response.body().getData()) {
                     //保存群信息到本地
-                    Group group=new Group();
+                    Group group = new Group();
                     group.setGid(ginfo.getGid());
                     group.setAvatar(ginfo.getAvatar());
                     group.setName(ginfo.getName());
@@ -240,9 +248,6 @@ public class MsgAction {
             }
         });
     }
-
-
-
 
 
 }

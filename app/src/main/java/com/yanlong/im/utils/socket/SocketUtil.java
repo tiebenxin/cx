@@ -39,8 +39,8 @@ public class SocketUtil {
 
            }else{
                 LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :"+bean.getRejectType() );
-                //移除重发列队
-                SendList.removeSendListJust(bean.getRequestId());
+
+                SocketData.msgSave4MeFail(bean);
             }
 
 

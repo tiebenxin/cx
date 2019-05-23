@@ -22,11 +22,17 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
+import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PySortView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +117,7 @@ public class FriendMainFragment extends Fragment {
 /*            mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);*/
         }
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -138,7 +145,13 @@ public class FriendMainFragment extends Fragment {
         super.onDetach();
 
     }
-  /*
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+    /*
    private MainActivity getActivityMe() {
         return (MainActivity) getActivity();
     }
@@ -289,6 +302,10 @@ public class FriendMainFragment extends Fragment {
 
 
 
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshFriend(EventRefreshFriend event) {
+        taskRefreshListData();
     }
 
     public void taskRefreshListData() {

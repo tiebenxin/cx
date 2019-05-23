@@ -18,6 +18,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -232,6 +233,7 @@ public class UserInfoActivity extends AppActivity {
         userAction.friendApply(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                EventBus.getDefault().post(new EventRefreshFriend());
                 if (response.body() == null) {
                     return;
                 }
@@ -239,6 +241,7 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     finish();
                 }
+
             }
         });
     }
@@ -248,10 +251,12 @@ public class UserInfoActivity extends AppActivity {
         userAction.friendBlack(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                EventBus.getDefault().post(new EventRefreshFriend());
                 if (response.body() == null) {
                     return;
                 }
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
+
             }
         });
     }

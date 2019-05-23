@@ -291,13 +291,9 @@ public class UserAction {
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
                     //更新库
-                    dao.friendMeDel();
-                    for (UserInfo userInfo : list) {
-                        userInfo.setName(userInfo.getName());
-                        userInfo.setuType(2);
-                        // DaoUtil.update(userInfo);
-                        dao.updateUserinfo(userInfo);
-                    }
+                    dao.friendMeUpdate(list);
+
+
 
 
                 }

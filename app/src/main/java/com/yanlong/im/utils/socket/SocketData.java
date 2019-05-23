@@ -164,6 +164,44 @@ public class SocketData {
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
             msgAllBean.setTimestamp(bean.getTimestamp());
+            msgAllBean.setSend_state(0);
+            //移除旧消息
+            DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
+
+            //收到直接存表,创建会话
+            DaoUtil.update(msgAllBean);
+            MsgDao msgDao=new MsgDao();
+
+            msgDao.sessionCreate(msgAllBean.getGid(),msgAllBean.getTo_uid());
+
+            //移除重发列队
+            SendList.removeSendListJust(bean.getRequestId());
+
+
+        }
+    }
+
+    /***
+     * 发送失败
+     * @param bean
+     */
+    public static void msgSave4MeFail(MsgBean.AckMessage bean) {
+        //普通消息
+        MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
+        if (msg != null) {
+            //存库处理
+            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
+                    .setMsgId(bean.getMsgIdList().get(0))
+                    //时间要和ack一起返回
+                    .setTimestamp(System.currentTimeMillis())
+                    .build();
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
+
+            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
+            //时间戳
+            msgAllBean.setTimestamp(bean.getTimestamp());
+            msgAllBean.setSend_state(1);
+            msgAllBean.setSend_data(msg.build().toByteArray());
 
             //移除旧消息
             DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
@@ -365,7 +403,7 @@ public class SocketData {
                 .setRequestId(rid);
 
         for (int i=0;i<msgids.size();i++){
-            amsg.setMsgId(i,msgids.get(i));
+            amsg.addMsgId(msgids.get(i));
         }
 
         ack=amsg.build();

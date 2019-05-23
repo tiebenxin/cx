@@ -85,6 +85,63 @@ public class UserDao {
     }
 
     /***
+     * 更新好友
+     * @param list
+     */
+    public void friendMeUpdate( List<UserInfo> list){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+
+        RealmResults<UserInfo> ls = realm.where(UserInfo.class).equalTo("uType", 2).findAll();
+        for (UserInfo u:ls) {
+
+            boolean isExt=false;
+            for (UserInfo userInfo : list) {
+                if(u.getUid().longValue()==userInfo.getUid().longValue()){//在好友列表中
+                    isExt=true;
+                }
+
+
+            }
+            if(!isExt){//不在好友列表中了,身份改成普通人
+                u.setuType(0);
+            }
+
+        }
+        //更新旧联系人状态
+        realm.insertOrUpdate(ls);
+        //服务器新加的联系人
+        for (UserInfo userInfo : list) {
+            boolean isExt=false;
+            for (UserInfo u:ls) {
+                if(u.getUid().longValue()==userInfo.getUid().longValue()){//在好友列表中
+                    isExt=true;
+                }
+            }
+
+            if(!isExt){
+                userInfo.toTag();
+                userInfo.setuType(2);
+              //  addTemp.add(userInfo);
+                realm.insertOrUpdate(userInfo);
+            }
+
+        }
+
+
+
+
+
+
+        realm.commitTransaction();
+        realm.close();
+
+
+
+    }
+
+    /***
      * 根据key搜索所有的好友
      */
     public List<UserInfo> searchUser4key(String key) {

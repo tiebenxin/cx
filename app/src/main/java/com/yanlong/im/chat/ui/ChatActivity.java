@@ -25,6 +25,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
@@ -33,6 +34,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.ui.SingleRedPacketActivity;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
@@ -120,11 +122,25 @@ public class ChatActivity extends AppActivity {
         }
 
         @Override
-        public void onACK(MsgBean.AckMessage bean) {
+        public void onACK(final MsgBean.AckMessage bean) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    taskRefreshMessage();
+                    if(bean.getRejectType()==MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER){
+                        taskRefreshMessage();
+                      /*  MsgAllBean notbean=new MsgAllBean();
+                        notbean.setMsg_type(0);
+                        notbean.setTimestamp(bean.getTimestamp());
+                        notbean.setFrom_uid(UserAction.getMyId());
+                        ChatMessage chat=new ChatMessage();
+                        chat.setMsg("消息发送成功,但对方已拒收");
+                        notbean.setChat(chat);
+                        msgListData.add(notbean);
+                        mtListView.notifyDataSetChange();*/
+                    }else{
+                        taskRefreshMessage();
+                    }
+
                 }
             });
         }
@@ -672,7 +688,7 @@ public class ChatActivity extends AppActivity {
             switch (msgbean.getMsg_type()) {
                 case 0:
                     // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
-                    //  holder.viewChatItem.setData0(msgbean.getChat().getMsg());
+                      holder.viewChatItem.setData0(msgbean.getChat().getMsg());
                     break;
                 case 1:
 
@@ -729,8 +745,8 @@ public class ChatActivity extends AppActivity {
                         MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
                         SocketUtil.getSocketUtil().sendData4Msg(bean);
                         //点击发送的时候如果要改变成发送中的状态
-                        //   remsg.setSend_state(2);
-                        //    DaoUtil.update(remsg);
+                           remsg.setSend_state(2);
+                            DaoUtil.update(remsg);
 
                         taskRefreshMessage();
                     } catch (Exception e) {

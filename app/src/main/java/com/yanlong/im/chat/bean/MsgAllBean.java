@@ -261,6 +261,10 @@ public class MsgAllBean extends RealmObject {
         return send_state;
     }
 
+    /***
+     * //0:正常,1:错误,2:发送中
+     * @param send_state
+     */
     public void setSend_state(int send_state) {
         this.send_state = send_state;
     }
