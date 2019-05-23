@@ -34,6 +34,11 @@
             </intent-filter>
         </activity-alias>
 
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="5cdf7aab4ca357f3f600055f">
+        </meta-data>
+
         <activity
             android:name=".user.ui.StartPageActivity"
             android:launchMode="singleTask">
@@ -299,6 +304,13 @@
             android:name=".user.ui.BlacklistActivity"
             android:screenOrientation="portrait" />
 
+
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
     </application>
 

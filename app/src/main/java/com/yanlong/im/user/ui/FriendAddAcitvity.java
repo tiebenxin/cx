@@ -3,16 +3,23 @@ package com.yanlong.im.user.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.umeng.socialize.ShareAction;
+import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.bean.SHARE_MEDIA;
+import com.umeng.socialize.media.UMImage;
+import com.umeng.socialize.media.UMWeb;
 import com.yanlong.im.R;
 import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.bean.QRCodeBean;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
@@ -21,6 +28,8 @@ import net.cb.cb.library.zxing.activity.CaptureActivity;
  * 添加朋友
  */
 public class FriendAddAcitvity extends AppActivity {
+    public final static int PERMISSIONS = 10000;
+
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private LinearLayout viewSearch;
@@ -32,12 +41,13 @@ public class FriendAddAcitvity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView =  findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewSearch = (LinearLayout) findViewById(R.id.view_search);
-        viewMatch = (LinearLayout) findViewById(R.id.view_match);
-        viewQr = (LinearLayout) findViewById(R.id.view_qr);
-        viewWc = (LinearLayout) findViewById(R.id.view_wc);
+        viewSearch =  findViewById(R.id.view_search);
+        viewMatch =  findViewById(R.id.view_match);
+        viewQr =  findViewById(R.id.view_qr);
+        viewWc =  findViewById(R.id.view_wc);
+        UMShareAPI.get(this);
     }
 
 
@@ -81,7 +91,7 @@ public class FriendAddAcitvity extends AppActivity {
         viewWc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // ToastUtil.show(getContext(),"wx");
+                shareWX();
             }
         });
 
@@ -93,6 +103,29 @@ public class FriendAddAcitvity extends AppActivity {
         });
 
     }
+
+    private void shareWX(){
+        if(Build.VERSION.SDK_INT>=23){
+            String[] mPermissionList = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.CALL_PHONE,Manifest.permission.READ_LOGS,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.SET_DEBUG_APP,Manifest.permission.SYSTEM_ALERT_WINDOW,Manifest.permission.GET_ACCOUNTS,Manifest.permission.WRITE_APN_SETTINGS};
+            ActivityCompat.requestPermissions(this,mPermissionList,PERMISSIONS);
+        }
+
+        UMImage thumb =  new UMImage(this, R.mipmap.ic_launcher);
+        UMWeb web = new UMWeb("https://blog.csdn.net/mffandxx/article/details/84103875");
+        web.setTitle("添加好友");//标题
+        web.setThumb(thumb);  //缩略图
+        web.setDescription("点击跳转加好友");//描述
+        new ShareAction(FriendAddAcitvity.this)
+                .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
+                .withMedia(web)//分享内容
+                .share();
+
+//        new ShareAction(FriendAddAcitvity.this)
+//                .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
+//                .withText("啦啦啦啦")//分享内容
+//                .share();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,8 +143,13 @@ public class FriendAddAcitvity extends AppActivity {
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
             QRCodeBean bean = QRCodeManage.getQRCodeBean(this,scanResult);
             QRCodeManage.goToActivity(this,bean);
+        }else if(requestCode == PERMISSIONS && resultCode == RESULT_OK){ //分享权限返回
+            ToastUtil.show(this,"失败");
         }
     }
+
+
+
 
 
 }

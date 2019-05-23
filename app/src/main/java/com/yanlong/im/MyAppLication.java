@@ -11,6 +11,7 @@ import net.cb.cb.library.utils.LogUtil;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
+import com.umeng.socialize.PlatformConfig;
 import com.yanlong.im.utils.DaoUtil;
 
 import io.realm.Realm;
@@ -30,11 +31,11 @@ public class MyAppLication extends MainApplication {
                 //AppConfig.URL_HOST = "http://192.168.10.110:8080";
                 AppConfig.DEBUG = true;
                 //AppConfig.SOCKET_IP = "192.168.10.110";
-               // AppConfig.SOCKET_PORT = 19991;
+                // AppConfig.SOCKET_PORT = 19991;
                 //AppConfig.SOCKET_IP="192.168.10.88";
                 // AppConfig.SOCKET_PORT=21;
-                 AppConfig.SOCKET_IP="192.168.10.229";
-                 AppConfig.SOCKET_PORT=19991;
+                AppConfig.SOCKET_IP = "192.168.10.229";
+                AppConfig.SOCKET_PORT = 19991;
 
                 break;
             case "pre":
@@ -50,21 +51,17 @@ public class MyAppLication extends MainApplication {
                 break;
         }
 
-
+        UMConfigure.init(this, "5cdf7aab4ca357f3f600055f",
+                "Umeng", UMConfigure.DEVICE_TYPE_PHONE, "8dd38f8da115dcf6441ce3922f30a2ac");
         LogUtil.getLog().init(AppConfig.DEBUG);
         //初始化数据库
         Realm.init(getApplicationContext());
-
-        //--------------
-
         initUPush();
-        initUAnalytics();
     }
 
-    private void initUPush() {
-        UMConfigure.init(this, "5cad45f33fc195e947000b4d",
-                "umeng", UMConfigure.DEVICE_TYPE_PHONE, "f731980514bd5a9ad50eee9a1fbc8907");
 
+
+    private void initUPush() {
         //获取消息推送代理示例
         PushAgent mPushAgent = PushAgent.getInstance(this);
         //设置通知栏显示数量
@@ -84,9 +81,8 @@ public class MyAppLication extends MainApplication {
         });
     }
 
-    private void initUAnalytics(){
-        UMConfigure.init(this, "5cad45f33fc195e947000b4d","1", UMConfigure.DEVICE_TYPE_PHONE, "f731980514bd5a9ad50eee9a1fbc8907");
+    {
+        PlatformConfig.setWeixin("wx84ecce93acb0e78f", "63293f55248912676fccdfe59515ed42");
     }
-
 
 }

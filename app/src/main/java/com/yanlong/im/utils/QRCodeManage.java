@@ -93,8 +93,12 @@ public class QRCodeManage {
 
             }else if(bean.getFunction().equals(ADD_GROUP_FUNCHTION)){
 
+
             }
         }
     }
+
+
+
 
 }

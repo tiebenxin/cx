@@ -146,7 +146,6 @@ public class BlacklistActivity extends AppActivity {
 
 
         class BlackViewHodler extends RecyclerView.ViewHolder {
-            private SwipeMenuLayout mSwipeLayout;
             private SimpleDraweeView mImgHead;
             private TextView mTxtTime;
             private Button mBtnDel;
@@ -154,7 +153,6 @@ public class BlacklistActivity extends AppActivity {
 
             public BlackViewHodler(@NonNull View itemView) {
                 super(itemView);
-                mSwipeLayout = itemView.findViewById(R.id.swipeLayout);
                 mImgHead = itemView.findViewById(R.id.img_head);
                 mTxtTime = itemView.findViewById(R.id.txt_time);
                 mBtnDel = itemView.findViewById(R.id.btn_del);

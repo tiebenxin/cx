@@ -114,4 +114,6 @@ dependencies {
     api 'com.umeng.umsdk:push:+'
     api 'com.umeng.umsdk:analytics:+'
 
+    api 'com.umeng.sdk:share-wechat:6.9.1'
+
 }
