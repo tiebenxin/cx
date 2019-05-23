@@ -54,6 +54,8 @@ import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AppActivity;
@@ -128,7 +130,9 @@ public class ChatActivity extends AppActivity {
                 public void run() {
                     if(bean.getRejectType()==MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER){
                         taskRefreshMessage();
-                      /*  MsgAllBean notbean=new MsgAllBean();
+
+                        //5.23 ???
+                        MsgAllBean notbean=new MsgAllBean();
                         notbean.setMsg_type(0);
                         notbean.setTimestamp(bean.getTimestamp());
                         notbean.setFrom_uid(UserAction.getMyId());
@@ -136,7 +140,7 @@ public class ChatActivity extends AppActivity {
                         chat.setMsg("消息发送成功,但对方已拒收");
                         notbean.setChat(chat);
                         msgListData.add(notbean);
-                        mtListView.notifyDataSetChange();*/
+                        mtListView.notifyDataSetChange();
                     }else{
                         taskRefreshMessage();
                     }
@@ -608,6 +612,7 @@ public class ChatActivity extends AppActivity {
 
     }
 
+    private UpFileAction upFileAction=new UpFileAction();
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -617,11 +622,28 @@ public class ChatActivity extends AppActivity {
                     // 图片选择结果回调
                     String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
                     //1.上传图片
+                    upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                        @Override
+                        public void success(String url) {
+                            //2.发送图片
 
-                    //2.发送图片
+                            MsgAllBean msgAllbean = SocketData.send4Image(toUId, toGid, url);
+                            showSendObj(msgAllbean);
+                        }
 
-                    MsgAllBean msgAllbean = SocketData.send4Image(toUId, toGid, "https://gss0.bdstatic.com/94o3dSag_xI4khGkpoWK1HF6hhy/baike/w%3D268%3Bg%3D0/sign=291e80bcd02a60595210e61c100f53a6/1ad5ad6eddc451daf9da609eb1fd5266d0163292.jpg");
-                    showSendObj(msgAllbean);
+                        @Override
+                        public void fail() {
+                            ToastUtil.show(getContext(),"上传失败");
+
+                        }
+
+                        @Override
+                        public void inProgress(long progress, long zong) {
+
+                        }
+                    }, file);
+
+
 
                     break;
             }

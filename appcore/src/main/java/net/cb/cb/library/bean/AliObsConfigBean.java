@@ -7,6 +7,7 @@ public class AliObsConfigBean {
     private String accessKeySecret;
 
     private String bucket;
+
     private String endpoint;
 
     public String getBucket() {

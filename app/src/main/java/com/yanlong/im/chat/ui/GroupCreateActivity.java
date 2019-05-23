@@ -25,6 +25,8 @@ import com.yanlong.im.utils.GroupHeadImageUtil;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileAction;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
@@ -230,7 +232,7 @@ public class GroupCreateActivity extends AppActivity {
 
 
     }
-
+private UpFileAction upFileAction=new UpFileAction();
     private void taskCreate() {
         if(listDataTop.size()<2){
             ToastUtil.show(getContext(),"人数必须大于3人");
@@ -239,7 +241,7 @@ public class GroupCreateActivity extends AppActivity {
         listDataTop.add(UserAction.getMyInfo());
         String name ="";
 
-        String icon = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
+       // "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
         int i=listDataTop.size();
         i=i>9?9:i;
         //头像地址
@@ -250,30 +252,51 @@ public class GroupCreateActivity extends AppActivity {
             url[j]=userInfo.getHead();
         }
         File file= GroupHeadImageUtil.synthesis(url);
-        icon="file://"+file.getAbsolutePath();
+
+
 
 
         name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
         name = name.length() > 14 ? name.substring(0, 14) : name;
         name += "的群";
+        final String fname=name;
 
+      //  icon="file://"+file.getAbsolutePath();
 
-        msgACtion.groupCreate(name, icon, listDataTop, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+        upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
             @Override
-            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {
-                    finish();
-                    startActivity(new Intent(getContext(), ChatActivity.class)
-                            .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
-                    );
-                } else {
-                    ToastUtil.show(getContext(), response.body().getMsg());
-                }
+            public void success(String icon) {
+                msgACtion.groupCreate(fname, icon, listDataTop, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                        if (response.body() == null)
+                            return;
+                        if (response.body().isOk()) {
+                            finish();
+                            startActivity(new Intent(getContext(), ChatActivity.class)
+                                    .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
+                            );
+                        } else {
+                            ToastUtil.show(getContext(), response.body().getMsg());
+                        }
+
+                    }
+                });
+            }
+
+            @Override
+            public void fail() {
 
             }
-        });
+
+            @Override
+            public void inProgress(long progress, long zong) {
+
+            }
+        },file.getAbsolutePath());
+
+
+
     }
 
 

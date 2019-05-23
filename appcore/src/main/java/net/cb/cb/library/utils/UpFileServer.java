@@ -25,6 +25,6 @@ public interface UpFileServer {
     Call<ReturnBean<HuaweiObsConfigBean>> haweiObs();
 
 
-    @POST("/xxxxsad")
+    @POST("/user/get-oss-security-token")
     Call<ReturnBean<AliObsConfigBean>> aliObs();
 }

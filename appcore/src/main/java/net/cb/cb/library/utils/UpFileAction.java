@@ -32,16 +32,17 @@ public class UpFileAction {
      * @param callback
      * @param filePath
      */
-    public void upFile( Context context,  UpFileUtil.OssUpCallback callback,  String filePath) {
-        upFile(context,callback,filePath,null);
+    public void upFile(Context context, UpFileUtil.OssUpCallback callback, String filePath) {
+        upFile(context, callback, filePath, null);
     }
 
-    public void upFile( Context context,  UpFileUtil.OssUpCallback callback,  byte[] fileByte) {
-        upFile(context,callback,null,fileByte);
+    public void upFile(Context context, UpFileUtil.OssUpCallback callback, byte[] fileByte) {
+        upFile(context, callback, null, fileByte);
     }
 
 
     private void upFile(final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte) {
+
         NetUtil.getNet().exec(
                 server.aliObs()
                 , new CallBack<ReturnBean<AliObsConfigBean>>() {
@@ -51,16 +52,23 @@ public class UpFileAction {
                             return;
                         }
                         if (response.body().isOk()) {
-                            AliObsConfigBean configBean = response.body().getData();
+                          final  AliObsConfigBean configBean = response.body().getData();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
 
-                            UpFileUtil.getInstance().upFile(context, configBean.getAccessKeyId(), configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
-                                    configBean.getBucket(), callback, filePath, fileByte);
 
+                                    UpFileUtil.getInstance().upFile(context, configBean.getAccessKeyId(), configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
+                                            configBean.getBucket(), callback, filePath, fileByte);
+                                }
+                            }).start();
                         }
 
 
                     }
                 });
+
+
     }
 
 }
