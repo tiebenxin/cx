@@ -1,7 +1,12 @@
 package net.cb.cb.library.utils;
 
-import net.cb.cb.library.bean.HuaweiObsConfigBean;
+import android.content.Context;
+
+import net.cb.cb.library.bean.AliObsConfigBean;
 import net.cb.cb.library.bean.ReturnBean;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /***
  * @author jyj
@@ -15,10 +20,47 @@ public class UpFileAction {
     }
 
 
-    public void haweiObs(CallBack<ReturnBean<HuaweiObsConfigBean>> callback) {
+    /*    public void haweiObs(CallBack<ReturnBean<HuaweiObsConfigBean>> callback) {
+            NetUtil.getNet().exec(
+                    server.haweiObs()
+                    , callback);
+        }*/
+
+    /***
+     * 文件上传
+     * @param context
+     * @param callback
+     * @param filePath
+     */
+    public void upFile( Context context,  UpFileUtil.OssUpCallback callback,  String filePath) {
+        upFile(context,callback,filePath,null);
+    }
+
+    public void upFile( Context context,  UpFileUtil.OssUpCallback callback,  byte[] fileByte) {
+        upFile(context,callback,null,fileByte);
+    }
+
+
+    private void upFile(final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte) {
         NetUtil.getNet().exec(
-                server.haweiObs()
-                , callback);
+                server.aliObs()
+                , new CallBack<ReturnBean<AliObsConfigBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
+                        if (response.body() == null) {
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            AliObsConfigBean configBean = response.body().getData();
+
+                            UpFileUtil.getInstance().upFile(context, configBean.getAccessKeyId(), configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
+                                    configBean.getBucket(), callback, filePath, fileByte);
+
+                        }
+
+
+                    }
+                });
     }
 
 }

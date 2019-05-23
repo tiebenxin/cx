@@ -2,6 +2,7 @@ package com.yanlong.im.utils.socket;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
@@ -481,6 +482,7 @@ public class SocketData {
             msgDao.sessionReadUpdate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
 
             msgIds.add(wmsg.getMsgId());
+
 
         }
 

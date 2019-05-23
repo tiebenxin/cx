@@ -48,16 +48,16 @@ public class UpFileUtil {
 
     private static UpFileUtil instance;
 
-    private final String P_ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";//主机地址（OSS文档中有提到）
 
-    private final String P_STSSERVER = AppConfig.getUrlHost() + "get_aliyun_oss_sts";
 
-    private final String P_BUCKETNAME = "文件夹名字";
+  //  private final String P_STSSERVER = "http://sts.aliyuncs.com";
 
-    public static final String OSS_ACCESS_KEY_ID = "<yourAccessKeyId>";
-    ;
-    public static final String OSS_ACCESS_KEY_SECRET = "<yourAccessKeySecret>";
-    private static final String OSS_ACCESS_KEY_TOKEN = "token";
+ //   private final String P_BUCKETNAME = "e7-test";
+  //  private final String P_ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
+  //  private static final String OSS_ACCESS_KEY_ID = "STS.NK9H2WVQ7m1omvBj6rvW7pBJd";
+  //  private static final String OSS_ACCESS_KEY_SECRET = "C69qyuu4y9YNtsEkNTXFo9yvrGdySJxnpfxPzhAEakQx";
+  //  private static final String OSS_ACCESS_KEY_TOKEN = "CAIShgJ1q6Ft5B2yfSjIr4iMA4jju44W2vOEb1DzjjYnetgbn4fhhjz2IH1IeHVgB+wcsP4xn2BV7PgflqZiQplBQkrLKMp1q4ha6h/5v0UfTwrwv9I+k5SANTW5OXyShb3vAYjQSNfaZY3aCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ4PGS/diEURq0VRG1YpdQdKGHaONu0LxfumRCwNkdzvRdmgm4Njsbay8aHuB3Flw+4mK1H5aaJe8D9NJk9Yc8lCobph7YvJpCsinAAt0J4k45tl7FB9Dv9udWQPkJc+R3uMZCPr4EzcF8nOvJkQfAf/KWmy6Bi2uvIjML51hJJLTuOxugq6A7JGoABIuPFVFt2gARCZTZlkzkCz8h9bcYCqeqK7wWNrFz7Ur25D7hjk33tLJ6LvZNIkRZWr60NdzneF8pfiT1bj9vvSVlz483HjRVIbkccVGqacxoSWc7+T0GR8vtC6GrBbN8UFq3IjZcvknoIJBvUsUlaWxQP8BCuxFxU7HelQ1wyCv4=";
+
     private OSS oss;
 
     private SimpleDateFormat simpleDateFormat;
@@ -82,7 +82,7 @@ public class UpFileUtil {
 
     }
 
-    private void getOSs(Context context) {
+    private void getOSs(Context context,String keyid,String secret,String token,String endpoint) {
 
 
 //该配置类如果不设置，会有默认配置，具体可看该类
@@ -104,9 +104,9 @@ public class UpFileUtil {
         oss = new OSSClient(context, P_ENDPOINT, credentialProvider);*/
 
 
-        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET, OSS_ACCESS_KEY_TOKEN);
+        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(keyid, secret, token);
 
-        oss = new OSSClient(context, P_ENDPOINT, credentialProvider);
+        oss = new OSSClient(context, endpoint, credentialProvider);
 
 
         if (simpleDateFormat == null) {
@@ -122,19 +122,26 @@ public class UpFileUtil {
      *
      * @param context       application上下文对象
      * @param ossUpCallback 成功的回调
-     * @param img_name      上传到oss后的文件名称，图片要记得带后缀 如：.jpg
      * @param imgPath       图片的本地路径
      */
 
-    public void upImage(Context context, final UpFileUtil.OssUpCallback ossUpCallback, final String img_name, String imgPath) {
+    public void upFile(Context context, String keyid, String secret, String token, String endpoint, final String btName, final UpFileUtil.OssUpCallback ossUpCallback, String imgPath, byte[] imgbyte) {
 
-        getOSs(context);
+        getOSs(context,keyid,secret,token,endpoint);
 
         final Date data = new Date();
+        final String img_name = UUID.randomUUID().toString();
 
         data.setTime(System.currentTimeMillis());
 
-        PutObjectRequest putObjectRequest = new PutObjectRequest(P_BUCKETNAME, simpleDateFormat.format(data) + "/" + img_name, imgPath);
+
+        PutObjectRequest putObjectRequest ;
+
+        if(StringUtil.isNotNull(imgPath)){
+            putObjectRequest = new PutObjectRequest(btName, simpleDateFormat.format(data) + "/" + img_name, imgPath);
+        }else{
+            putObjectRequest = new PutObjectRequest(btName, simpleDateFormat.format(data) + "/" + img_name, imgbyte);
+        }
 
         putObjectRequest.setProgressCallback(new OSSProgressCallback() {
 
@@ -150,12 +157,14 @@ public class UpFileUtil {
 
             @Override
             public void onSuccess(OSSRequest request, OSSResult result) {
-                ossUpCallback.successImg(oss.presignPublicObjectURL(P_BUCKETNAME, simpleDateFormat.format(data) + "/" + img_name));
+                ossUpCallback.success(oss.presignPublicObjectURL(btName, simpleDateFormat.format(data) + "/" + img_name));
             }
 
             @Override
             public void onFailure(OSSRequest request, ClientException clientException, ServiceException serviceException) {
-                ossUpCallback.successImg(null);
+
+                LogUtil.getLog().e("uplog", "---->上传异常:" + serviceException.getRawMessage());
+                ossUpCallback.fail();
             }
 
 
@@ -163,107 +172,12 @@ public class UpFileUtil {
 
     }
 
-    /**
-     * 上传图片 上传流
-     *
-     * @param context       application上下文对象
-     * @param ossUpCallback 成功的回调
-     * @param img_name      上传到oss后的文件名称，图片要记得带后缀 如：.jpg
-     * @param imgbyte       图片的byte数组
-     */
 
-    public void upImage(Context context, final UpFileUtil.OssUpCallback ossUpCallback, final String img_name, byte[] imgbyte) {
-
-        getOSs(context);
-
-        final Date data = new Date();
-
-        data.setTime(System.currentTimeMillis());
-
-        PutObjectRequest putObjectRequest = new PutObjectRequest(P_BUCKETNAME, simpleDateFormat.format(data) + "/" + img_name, imgbyte);
-
-        putObjectRequest.setProgressCallback(new OSSProgressCallback() {
-
-            @Override
-            public void onProgress(Object request, long currentSize, long totalSize) {
-                ossUpCallback.inProgress(currentSize, totalSize);
-            }
-
-
-        });
-
-        oss.asyncPutObject(putObjectRequest, new OSSCompletedCallback() {
-
-            @Override
-            public void onSuccess(OSSRequest request, OSSResult result) {
-                ossUpCallback.successImg(oss.presignPublicObjectURL(P_BUCKETNAME, simpleDateFormat.format(data) + "/" + img_name));
-
-            }
-
-            @Override
-            public void onFailure(OSSRequest request, ClientException clientException, ServiceException serviceException) {
-                ossUpCallback.successImg(null);
-
-            }
-
-
-        });
-
-    }
-
-    /**
-     * 上传视频
-     *
-     * @param context       application上下文对象
-     * @param ossUpCallback 成功的回调
-     * @param video_name    上传到oss后的文件名称，视频要记得带后缀 如：.mp4
-     * @param video_path    视频的本地路径
-     */
-
-    public void upVideo(Context context, final UpFileUtil.OssUpCallback ossUpCallback, final String video_name, String video_path) {
-
-        getOSs(context);
-
-        final Date data = new Date();
-
-        data.setTime(System.currentTimeMillis());
-
-        PutObjectRequest putObjectRequest = new PutObjectRequest(P_BUCKETNAME, simpleDateFormat.format(data) + "/" + video_name, video_path);
-
-        putObjectRequest.setProgressCallback(new OSSProgressCallback() {
-
-            @Override
-            public void onProgress(Object request, long currentSize, long totalSize) {
-                ossUpCallback.inProgress(currentSize, totalSize);
-            }
-
-
-        });
-
-        oss.asyncPutObject(putObjectRequest, new OSSCompletedCallback() {
-
-            @Override
-            public void onSuccess(OSSRequest request, OSSResult result) {
-                ossUpCallback.successVideo(oss.presignPublicObjectURL(P_BUCKETNAME, simpleDateFormat.format(data) + "/" + video_name));
-
-            }
-
-            @Override
-            public void onFailure(OSSRequest request, ClientException clientException, ServiceException serviceException) {
-                ossUpCallback.successVideo(null);
-
-            }
-
-
-        });
-
-    }
 
     public interface OssUpCallback {
 
-        void successImg(String img_url);
-
-        void successVideo(String video_url);
+        void success(String url);
+        void fail();
 
         void inProgress(long progress, long zong);
 

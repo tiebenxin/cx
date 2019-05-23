@@ -8,6 +8,7 @@ import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.StringUtil;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -60,6 +61,8 @@ public class SocketUtil {
             //保存消息和处理回执
             LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 "+bean.getToUid());
             SocketData.magSaveAndACK(bean);
+
+
 
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {

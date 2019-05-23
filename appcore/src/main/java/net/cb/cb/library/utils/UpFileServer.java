@@ -1,5 +1,6 @@
 package net.cb.cb.library.utils;
 
+import net.cb.cb.library.bean.AliObsConfigBean;
 import net.cb.cb.library.bean.HuaweiObsConfigBean;
 import net.cb.cb.library.bean.ReturnBean;
 
@@ -22,4 +23,8 @@ public interface UpFileServer {
 
     @POST("/api/pad/v1/hwParam")
     Call<ReturnBean<HuaweiObsConfigBean>> haweiObs();
+
+
+    @POST("/xxxxsad")
+    Call<ReturnBean<AliObsConfigBean>> aliObs();
 }

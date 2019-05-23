@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +26,10 @@ import android.widget.TextView;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
@@ -35,8 +38,11 @@ import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
 
 import net.cb.cb.library.bean.EventRefreshMainMsg;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -50,6 +56,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -165,7 +174,7 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (edtSearch.getText().toString().length() == 0) {
-                    isSearchMode =false;
+                    isSearchMode = false;
                     taskListData();
                 }
             }
@@ -177,7 +186,6 @@ public class MsgMainFragment extends Fragment {
         });
 
     }
-
 
 
     @Override
@@ -295,13 +303,18 @@ public class MsgMainFragment extends Fragment {
 
             } else if (bean.getType() == 1) {//群
                 Group ginfo = msgDao.getGroup4Id(bean.getGid());
-                icon = ginfo.getAvatar();
-                //获取最后一条群消息
-                msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                title = ginfo.getName();
-                if (msginfo != null) {
-                    info = msginfo.getMsg_typeStr();
+                if (ginfo != null) {
+                    icon = ginfo.getAvatar();
+                    //获取最后一条群消息
+                    msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+                    title = ginfo.getName();
+                    if (msginfo != null) {
+                        info = msginfo.getMsg_typeStr();
+                    }
+                } else {
+                    Log.e("taf", "11来消息的时候没有创建群");
                 }
+
             }
 
             holder.imgHead.setImageURI(Uri.parse(icon));
@@ -374,28 +387,62 @@ public class MsgMainFragment extends Fragment {
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
+    private MsgAction msgAction=new MsgAction();
     private List<Session> listData = new ArrayList<>();
 
+    private int gidIndex=0;//当前群缓存的顺序
+    private List<String> gids=new ArrayList<>();//缓存所有未缓存的群信息
     private void taskListData() {
-        if(isSearchMode){
+        if (isSearchMode) {
             return;
         }
         listData = msgDao.sessionGetAll();
-        mtListView.notifyDataSetChange();
+
+        //缓存所有未缓存的群信息
+        gids=new ArrayList<>();
+          gidIndex=0;
+        for (Session s : listData) {
+            String gid=s.getGid();
+            if(StringUtil.isNotNull(gid) ){
+                Group group = msgDao.getGroup4Id(gid);
+                if(group==null){
+                    gids.add(gid);
+                    msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+                        @Override
+                        public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                            gidIndex++;
+                            if(gidIndex==gids.size()){
+                                mtListView.notifyDataSetChange();
+                            }
+                        }
+                    });
+                }
+            }
+
+
+        }
+
+        if(gidIndex==gids.size()){
+            mtListView.notifyDataSetChange();
+        }
+
+
+
     }
 
     /***
      * 搜索模式
      */
-    private boolean isSearchMode =false;
+    private boolean isSearchMode = false;
+
     private void taskSearch() {
-        isSearchMode =true;
+        isSearchMode = true;
         InputUtil.hideKeyboard(edtSearch);
-        String key=edtSearch.getText().toString();
-        if(key.length()<=0)
+        String key = edtSearch.getText().toString();
+        if (key.length() <= 0)
             return;
-        List<Session> temp=new ArrayList<>();
-        for(Session bean:listData){
+        List<Session> temp = new ArrayList<>();
+        for (Session bean : listData) {
             String title = "";
             String info = "";
             MsgAllBean msginfo;
@@ -423,12 +470,12 @@ public class MsgMainFragment extends Fragment {
                 }
             }
 
-            if(title.contains(key)||info.contains(key)){
+            if (title.contains(key) || info.contains(key)) {
                 bean.setUnread_count(0);
                 temp.add(bean);
             }
         }
-        listData=temp;
+        listData = temp;
 
         mtListView.notifyDataSetChange();
     }
@@ -437,7 +484,7 @@ public class MsgMainFragment extends Fragment {
     private void taskDelSissen(Long from_uid, String gid) {
         msgDao.sessionDel(from_uid, gid);
         msgDao.msgDel(from_uid, gid);
-
+        EventBus.getDefault().post(new EventRefreshMainMsg());
         taskListData();
     }
 

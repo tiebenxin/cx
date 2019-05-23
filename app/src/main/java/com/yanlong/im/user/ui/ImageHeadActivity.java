@@ -17,7 +17,9 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -115,11 +117,41 @@ public class ImageHeadActivity extends AppActivity {
         if (resultCode == RESULT_OK) switch (requestCode) {
             case PictureConfig.CHOOSE_REQUEST:
                 // 图片选择结果回调
-                String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
+                final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
                 // 例如 LocalMedia 里面返回两种path
                 // 1.media.getPath(); 为原图path
                 // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
                 Uri uri = Uri.fromFile(new File(file));
+
+                new RunUtils(new RunUtils.Enent() {
+                    @Override
+                    public void onRun() {
+                       /* UpFileUtil.getInstance().upImage(getContext(), new UpFileUtil.OssUpCallback() {
+                            @Override
+                            public void successImg(String img_url) {
+                                mSdImageHead.setImageURI(img_url);
+                            }
+
+                            @Override
+                            public void successVideo(String video_url) {
+
+                            }
+
+                            @Override
+                            public void inProgress(long progress, long zong) {
+
+                            }
+                        },"test.jpg",file);*/
+                    }
+
+                    @Override
+                    public void onMain() {
+
+                    }
+                }).run();
+
+
+
                 mSdImageHead.setImageURI(uri);
                 taskUserInfoSet(null,
                         "https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=1964939590,2698369709&fm=58&bpow=872&bpoh=1024",
