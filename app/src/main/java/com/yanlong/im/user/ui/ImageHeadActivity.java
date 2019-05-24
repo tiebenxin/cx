@@ -128,16 +128,18 @@ public class ImageHeadActivity extends AppActivity {
 
                 Uri uri = Uri.fromFile(new File(file));
 
+                alert.show();
                 mSdImageHead.setImageURI(uri);
-
                 upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
                     @Override
                     public void success(String url) {
+                        alert.dismiss();
                         taskUserInfoSet(null,url,null, null);
                     }
 
                     @Override
                     public void fail() {
+                        alert.dismiss();
                         ToastUtil.show(getContext(),"上传失败!");
                     }
 

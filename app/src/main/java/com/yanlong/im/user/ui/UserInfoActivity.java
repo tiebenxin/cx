@@ -221,8 +221,8 @@ public class UserInfoActivity extends AppActivity {
                 UserInfo info = response.body().getData();
                 imgHead.setImageURI(Uri.parse("" + info.getHead()));
                 txtMkname.setText(info.getName4Show());
-                txtPrNo.append(info.getImid());
-                txtNkname.append(info.getName());
+                txtPrNo.setText(info.getImid());
+                txtNkname.setText(info.getName());
             }
         });
 
