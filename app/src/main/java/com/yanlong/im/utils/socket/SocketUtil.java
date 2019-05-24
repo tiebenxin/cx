@@ -99,21 +99,29 @@ public class SocketUtil {
         }
     };
     //正在运行
-    private boolean isRun = false;
+    private int isRun = 0;//0:没运行1:启动中:2运行中
     //线程版本
     private long threadVer = 0;
 
     public boolean isRun() {
-        return isRun;
+        return isRun>0;
     }
 
     /***
      * 改变运行状态
      * @param state
      */
-    private void setRunState(boolean state){
+    private void setRunState(int state){
         isRun=state;
-        event.onLine(state);
+        if(isRun==0){
+            event.onLine(false);
+        }
+        if(isRun==2){
+            event.onLine(true);
+
+        }
+
+
     }
 
     public static SocketEvent getEvent() {
@@ -151,11 +159,11 @@ public class SocketUtil {
      * 启动
      */
     public void run() {
-        if (isRun)
+        if (isRun())
             return;
         //线程版本+1
         threadVer++;
-        setRunState(true) ;
+        setRunState(1) ;
         try {
             if (socketChannel == null || !socketChannel.isConnected()) {
                 connect();
@@ -163,7 +171,7 @@ public class SocketUtil {
             }
 
         } catch (Exception e) {
-            setRunState(false);
+            setRunState(0);
             e.printStackTrace();
             LogUtil.getLog().e(TAG, e.getMessage());
 
@@ -175,10 +183,10 @@ public class SocketUtil {
      * 停止
      */
     public void stop() {
-        if (!isRun)
+        if (!isRun())
             return;
 
-        setRunState(false) ;
+        setRunState(0) ;
         //关闭信道
         try {
             socketChannel.close();
@@ -212,7 +220,7 @@ public class SocketUtil {
             @Override
             public void run() {
                 try {
-                    while (isRun && indexVer == threadVer) {
+                    while (isRun() && indexVer == threadVer) {
                         sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_HEARTBEAT, null), null);
 
                         Thread.sleep(heartbeatStep);
@@ -243,7 +251,7 @@ public class SocketUtil {
             @Override
             public void run() {
                 try {
-                    while (isRun && indexVer == threadVer) {
+                    while (isRun() && indexVer == threadVer) {
                         SendList.loopList();
 
                         Thread.sleep(sendListStep);
@@ -259,6 +267,7 @@ public class SocketUtil {
 
     }
 
+
     /***
      * 重连
      */
@@ -267,13 +276,17 @@ public class SocketUtil {
         try {
 
 
+
             reconIndex = 0;
-            if (isRun) {
-                // return;
+            if (isRun()) {
+
                 stop();
+
+               // return;
             }
+
             //小于最大重连次数,或者非鉴权失败
-            while (reconIndex <= recontNum && !isAuthFail) {
+            while (reconIndex < recontNum && !isAuthFail) {
                 long time = System.currentTimeMillis();//执行时间
 
                 reconIndex++;
@@ -299,7 +312,7 @@ public class SocketUtil {
      * @param data
      */
     public void sendData(final byte[] data, final MsgBean.UniversalMessage.Builder msgTag) {
-        if (!isRun)
+        if (!isRun())
             return;
         if (data == null)
             return;
@@ -366,7 +379,7 @@ public class SocketUtil {
 
             //----------------------------------------------------
             LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
-
+            setRunState(2) ;
 
             receive();
 
@@ -393,7 +406,7 @@ public class SocketUtil {
                     ByteBuffer readBuf = ByteBuffer.allocate(1024);
                     int data_size = 0;
                     List<byte[]> temp = new ArrayList<>();
-                    while (isRun && (indexVer == threadVer)) {
+                    while (isRun() && (indexVer == threadVer)) {
                         data_size = socketChannel.read(readBuf);
                         if (data_size > 0) {
                             readBuf.flip();

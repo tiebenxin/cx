@@ -133,14 +133,14 @@ public class UpFileUtil {
         final String img_name = UUID.randomUUID().toString();
 
         data.setTime(System.currentTimeMillis());
-
+        final String objkey=simpleDateFormat.format(data) + "/" + img_name;
 
         PutObjectRequest putObjectRequest ;
 
         if(StringUtil.isNotNull(imgPath)){
-            putObjectRequest = new PutObjectRequest(btName, simpleDateFormat.format(data) + "/" + img_name, imgPath);
+            putObjectRequest = new PutObjectRequest(btName,objkey , imgPath);
         }else{
-            putObjectRequest = new PutObjectRequest(btName, simpleDateFormat.format(data) + "/" + img_name, imgbyte);
+            putObjectRequest = new PutObjectRequest(btName, objkey, imgbyte);
         }
 
         putObjectRequest.setProgressCallback(new OSSProgressCallback() {
@@ -157,7 +157,7 @@ public class UpFileUtil {
 
             @Override
             public void onSuccess(OSSRequest request, OSSResult result) {
-                ossUpCallback.success(oss.presignPublicObjectURL(btName, simpleDateFormat.format(data) + "/" + img_name));
+                ossUpCallback.success(oss.presignPublicObjectURL(btName, objkey));
             }
 
             @Override

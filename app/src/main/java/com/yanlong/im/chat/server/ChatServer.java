@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.server;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.Ringtone;
@@ -22,6 +23,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 
@@ -176,11 +178,12 @@ public class ChatServer extends Service {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-
                     SocketUtil.getSocketUtil().addEvent(msgEvent);
                     SocketUtil.getSocketUtil().reconnection();
                 }
             }).start();
+
+
 
         } else {
 
@@ -194,10 +197,25 @@ public class ChatServer extends Service {
     public void onDestroy() {
         super.onDestroy();
         SocketUtil.getSocketUtil().stop();
+        unregisterReceiver(mNetworkChangeReceiver);
     }
-
+    protected BroadcastReceiver mNetworkChangeReceiver;
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //注册广播用于监听网络状态改变
+        mNetworkChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+              if(NetUtil.isNetworkConnected()){//链接成功
+                  onStartCommand(null,0,0);
+              }else{//链接失败
+                  SocketUtil.getSocketUtil().stop();
+
+              }
+            }
+        };
+
     }
 }

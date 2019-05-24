@@ -133,7 +133,7 @@ public class MsgDao {
             if (ui == null) {
                 sv.toTag();
                 sv.setuType(0);
-                realm.copyToRealmOrUpdate(sv);
+                sv= realm.copyToRealmOrUpdate(sv);
                 nums.add(sv);
             } else {
                 nums.add(ui);

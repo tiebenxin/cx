@@ -36,6 +36,9 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
+import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketEvent;
+import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
@@ -75,6 +78,7 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopAdd;
     private LinearLayout viewPopQr;
     private LinearLayout viewPopHelp;
+    private View viewNetwork;
 
     //自动寻找控件
     private void findViewsPop(View rootView) {
@@ -82,6 +86,7 @@ public class MsgMainFragment extends Fragment {
         viewPopAdd = (LinearLayout) rootView.findViewById(R.id.view_pop_add);
         viewPopQr = (LinearLayout) rootView.findViewById(R.id.view_pop_qr);
         viewPopHelp = (LinearLayout) rootView.findViewById(R.id.view_pop_help);
+
     }
 
     //自动寻找控件
@@ -89,6 +94,8 @@ public class MsgMainFragment extends Fragment {
         actionBar = (net.cb.cb.library.view.ActionbarView) rootView.findViewById(R.id.actionBar);
         edtSearch = (net.cb.cb.library.view.ClearEditText) rootView.findViewById(R.id.edt_search);
         mtListView = (net.cb.cb.library.view.MultiListView) rootView.findViewById(R.id.mtListView);
+        viewNetwork = rootView.findViewById(R.id.view_network);
+
         View pView = getLayoutInflater().inflate(R.layout.view_pop_main, null);
         findViewsPop(pView);
         popView.init(getContext(), pView);
@@ -102,6 +109,41 @@ public class MsgMainFragment extends Fragment {
         mtListView.init(new RecyclerViewAdapter());
 
         mtListView.getLoadView().setStateNormal();
+
+        SocketUtil.getSocketUtil().addEvent(new SocketEvent() {
+            @Override
+            public void onHeartbeat() {
+
+            }
+
+            @Override
+            public void onACK(MsgBean.AckMessage bean) {
+
+            }
+
+            @Override
+            public void onMsg(MsgBean.UniversalMessage bean) {
+
+            }
+
+            @Override
+            public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
+
+            }
+
+            @Override
+            public void onLine(final boolean state) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        actionBar.setTitle(state?"消息":"消息(未连接)");
+
+                        viewNetwork.setVisibility(state ? View.GONE : View.VISIBLE);
+                    }
+                });
+
+            }
+        });
 
 
         actionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -387,11 +429,12 @@ public class MsgMainFragment extends Fragment {
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
-    private MsgAction msgAction=new MsgAction();
+    private MsgAction msgAction = new MsgAction();
     private List<Session> listData = new ArrayList<>();
 
-    private int gidIndex=0;//当前群缓存的顺序
-    private List<String> gids=new ArrayList<>();//缓存所有未缓存的群信息
+    private int gidIndex = 0;//当前群缓存的顺序
+    private List<String> gids = new ArrayList<>();//缓存所有未缓存的群信息
+
     private void taskListData() {
         if (isSearchMode) {
             return;
@@ -399,19 +442,19 @@ public class MsgMainFragment extends Fragment {
         listData = msgDao.sessionGetAll();
 
         //缓存所有未缓存的群信息
-        gids=new ArrayList<>();
-          gidIndex=0;
+        gids = new ArrayList<>();
+        gidIndex = 0;
         for (Session s : listData) {
-            String gid=s.getGid();
-            if(StringUtil.isNotNull(gid) ){
+            String gid = s.getGid();
+            if (StringUtil.isNotNull(gid)) {
                 Group group = msgDao.getGroup4Id(gid);
-                if(group==null){
+                if (group == null) {
                     gids.add(gid);
                     msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
                         @Override
                         public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
                             gidIndex++;
-                            if(gidIndex==gids.size()){
+                            if (gidIndex == gids.size()) {
                                 mtListView.notifyDataSetChange();
                             }
                         }
@@ -422,10 +465,9 @@ public class MsgMainFragment extends Fragment {
 
         }
 
-        if(gidIndex==gids.size()){
+        if (gidIndex == gids.size()) {
             mtListView.notifyDataSetChange();
         }
-
 
 
     }
