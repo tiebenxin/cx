@@ -682,7 +682,7 @@ public class ChatActivity extends AppActivity {
 
             //时间戳合并
             String time = null;
-            if (position > 0 && (msgbean.getTimestamp() - msgListData.get(position - 1).getTimestamp()) < (5 * 1000)) { //小于5秒隐藏时间
+            if (position > 0 && (msgbean.getTimestamp() - msgListData.get(position - 1).getTimestamp()) < (60 * 1000)) { //小于60秒隐藏时间
                 time = null;
             } else {
                 time = TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp());

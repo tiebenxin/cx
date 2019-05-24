@@ -67,10 +67,10 @@ public class MsgDao {
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
-        RealmResults list = realm.where(MsgAllBean.class)
+        RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "")
+                .notEqualTo("msg_type", 0).and()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid)
-                .and().equalTo("gid", "").and()
-                .notEqualTo("msg_type", 0)
+
                 .sort("timestamp", Sort.DESCENDING)
                 .findAll();
 
@@ -162,7 +162,7 @@ public class MsgDao {
             realm.where(MsgAllBean.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
         } else {
 
-            realm.where(MsgAllBean.class).equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).and().equalTo("gid", "").findAll().deleteAllFromRealm();
+            realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).findAll().deleteAllFromRealm();
         }
 
 
@@ -232,10 +232,10 @@ public class MsgDao {
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
         } else {//单人
-            msg = realm.where(MsgAllBean.class)
-                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid).and()
-                    .equalTo("gid", "").and()
-                    .contains("chat.msg", key)
+            msg = realm.where(MsgAllBean.class) .equalTo("gid", "").contains("chat.msg", key).and()
+                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+
+
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
         }
@@ -420,7 +420,7 @@ public class MsgDao {
     public MsgAllBean msgGetLast4FUid(Long uid) {
         MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
-        MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+        MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", uid).or().equalTo("to_uid", uid)
                 .sort("timestamp", Sort.DESCENDING).findFirst();
         if (bean != null) {
             ret = realm.copyFromRealm(bean);
