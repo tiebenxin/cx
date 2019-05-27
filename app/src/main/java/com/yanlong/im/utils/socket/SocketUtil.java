@@ -1,5 +1,6 @@
 package com.yanlong.im.utils.socket;
 
+import android.accounts.NetworkErrorException;
 import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -32,14 +33,14 @@ public class SocketUtil {
         @Override
         public void onACK(MsgBean.AckMessage bean) {
 
-            if(bean.getRejectType()== MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
-                LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 " );
+            if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
+                LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
 
 
                 SocketData.msgSave4Me(bean);
 
-           }else{
-                LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :"+bean.getRejectType() );
+            } else {
+                LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :" + bean.getRejectType());
 
                 SocketData.msgSave4MeFail(bean);
             }
@@ -59,9 +60,8 @@ public class SocketUtil {
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
             //保存消息和处理回执
-            LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 "+bean.getToUid());
+            LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
             SocketData.magSaveAndACK(bean);
-
 
 
             for (SocketEvent ev : eventLists) {
@@ -104,24 +104,32 @@ public class SocketUtil {
     private long threadVer = 0;
 
     public boolean isRun() {
-        return isRun>0;
+        return isRun > 0;
     }
 
     /***
      * 改变运行状态
      * @param state
      */
-    private void setRunState(int state){
-        isRun=state;
-        if(isRun==0){
+    private void setRunState(int state) {
+        isRun = state;
+        if (isRun == 0) {
             event.onLine(false);
         }
-        if(isRun==2){
+        if (isRun == 2) {
             event.onLine(true);
 
         }
 
 
+    }
+
+    /***
+     * 获取在线状态
+     * @return
+     */
+    public boolean getOnLineState() {
+        return isRun == 2;
     }
 
     public static SocketEvent getEvent() {
@@ -134,7 +142,10 @@ public class SocketUtil {
      * @param event
      */
     public void addEvent(SocketEvent event) {
-        eventLists.add(event);
+        if (!eventLists.contains(event)) {
+            eventLists.add(event);
+        }
+
     }
 
     /***
@@ -162,8 +173,8 @@ public class SocketUtil {
         if (isRun())
             return;
         //线程版本+1
-        threadVer++;
-        setRunState(1) ;
+       // threadVer++;
+        setRunState(1);
         try {
             if (socketChannel == null || !socketChannel.isConnected()) {
                 connect();
@@ -173,7 +184,10 @@ public class SocketUtil {
         } catch (Exception e) {
             setRunState(0);
             e.printStackTrace();
-            LogUtil.getLog().e(TAG, e.getMessage());
+            stop();
+
+
+
 
         }
 
@@ -186,7 +200,7 @@ public class SocketUtil {
         if (!isRun())
             return;
 
-        setRunState(0) ;
+        setRunState(0);
         //关闭信道
         try {
             socketChannel.close();
@@ -195,23 +209,27 @@ public class SocketUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        LogUtil.getLog().d(TAG,">>>>关闭连接-------------------------");
 
     }
 
     //鉴权失败
     private boolean isAuthFail = false;
-    //重试3次
-    private int recontNum = 30;
-    //当前重试
-    private int reconIndex = 0;
-    private long recontTime = 15 * 1000;
+
+    //重连检测时长
+    private long recontTime =5 * 1000;
     //心跳步长
     private long heartbeatStep = 30 * 1000;
-
+//private boolean heartbeatStart=false;
     /***
      * 心跳线程
      */
     private void heartbeatThread() {
+       /* if(heartbeatStart){
+            return;
+        }
+        heartbeatStart=true;*/
+
         LogUtil.getLog().d(TAG, ">>>心跳线程启动---------------");
         new Thread(new Runnable() {
             //限制版本控制
@@ -221,11 +239,13 @@ public class SocketUtil {
             public void run() {
                 try {
                     while (isRun() && indexVer == threadVer) {
+                   // while (heartbeatStart){
                         sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_HEARTBEAT, null), null);
 
                         Thread.sleep(heartbeatStep);
 
                     }
+                    LogUtil.getLog().d(TAG, ">>>心跳线程结束---------------");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     LogUtil.getLog().d(TAG, ">>>心跳异常run: " + e.getMessage());
@@ -268,42 +288,72 @@ public class SocketUtil {
     }
 
 
+
+    private  boolean isStart=false;
     /***
-     * 重连
+     * 启动
      */
-    public void reconnection() {
-        isAuthFail = false;
-        try {
-
-
-
-            reconIndex = 0;
-            if (isRun()) {
-
-                stop();
-
-               // return;
-            }
-
-            //小于最大重连次数,或者非鉴权失败
-            while (reconIndex < recontNum && !isAuthFail) {
-                long time = System.currentTimeMillis();//执行时间
-
-                reconIndex++;
-
-                if (socketChannel != null && socketChannel.isConnected()) {
-                    break;
-                }
-                LogUtil.getLog().e(TAG, "重试次数" + reconIndex);
-                run();
-                time = System.currentTimeMillis() - time;
-                time = time >= recontTime ? 0 : recontTime - time;
-                Thread.sleep(time);
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void startSocket() {
+        if(isStart){
+            LogUtil.getLog().i(TAG,">>>>> 当前正在运行");
+            return;
         }
+        isStart=true;
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+
+
+                LogUtil.getLog().i(TAG,">>>>>检查socketChannel 空: "+(socketChannel==null));
+                if(socketChannel!=null)
+                LogUtil.getLog().i(TAG,">>>>>检查socketChannel 已连接:"+socketChannel.isConnected());
+                LogUtil.getLog().i(TAG,">>>>>检查运行状态:"+isRun);
+                LogUtil.getLog().i(TAG,">>>>>检查运行线程版本:"+threadVer);
+
+
+
+                while (isStart){
+                    LogUtil.getLog().i(TAG,">>>>>服务器链接检查");
+                    if((socketChannel==null||!socketChannel.isConnected())&&isRun==0){//没有启动,就执行启动
+
+                        //线程版本+1
+                        threadVer++;
+                        LogUtil.getLog().i(TAG,">>>>>新线程版本:"+threadVer);
+                        SocketUtil.this.run();
+                        LogUtil.getLog().i(TAG,">>>>>新线程结束");
+
+                    }else {//已经启动了
+                        LogUtil.getLog().i(TAG,">>>>>跳过当前线程版本:"+threadVer);
+                    }
+
+                    try {
+                        Thread.sleep(recontTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+
+
+
+
+
+
+
+            }
+        }).start();
+    }
+
+    /***
+     * 结束socket
+     */
+    public void endSocket(){
+        isStart=false;
+        stop();
 
     }
 
@@ -323,11 +373,11 @@ public class SocketUtil {
 
                 try {
                     ByteBuffer writeBuf = ByteBuffer.wrap(data);
-                    //    while (writeBuf.hasRemaining()) {
+
                     LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
                     LogUtil.getLog().i(TAG, ">>>发送:" + SocketData.bytesToHex(data));
                     socketChannel.write(writeBuf);
-                    //  }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     LogUtil.getLog().e(TAG, ">>>发送失败" + SocketData.bytesToHex(data));
@@ -336,7 +386,8 @@ public class SocketUtil {
                         SendList.removeSendList(msgTag.getRequestId());
                     }
 
-                    reconnection();
+                    stop();
+                    startSocket();
                 }
             }
         }).start();
@@ -367,19 +418,30 @@ public class SocketUtil {
 
 
         //---------------------------------------------链接中
-        LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppConfig.SOCKET_IP+":"+AppConfig.SOCKET_PORT+"\n\n");
+        LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppConfig.SOCKET_IP + ":" + AppConfig.SOCKET_PORT + "\n\n");
         if (!socketChannel.connect(new InetSocketAddress(AppConfig.SOCKET_IP, AppConfig.SOCKET_PORT))) {
             //不断地轮询连接状态，直到完成连
             System.out.println(">>>链接中");
+            long ttime=System.currentTimeMillis();
             while (!socketChannel.finishConnect()) {
+
                 //在等待连接的时间里
                 Thread.sleep(200);
+
+                if(System.currentTimeMillis()-ttime>2*1000){
+                    System.out.print(">>>链接中超时");
+                    break;
+                }
+
+            }
+            if(!socketChannel.isConnected()){
+                throw new NetworkErrorException();
             }
 
 
             //----------------------------------------------------
             LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
-            setRunState(2) ;
+
 
             receive();
 
@@ -455,8 +517,12 @@ public class SocketUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                     LogUtil.getLog().d(TAG, ">>>接收异常run: " + e.getMessage());
-                    reconnection();
+
+                    stop();
+
+                    startSocket();
                 }
+                setRunState(0);
                 LogUtil.getLog().d(TAG, ">>>接收结束");
 
             }
@@ -505,14 +571,18 @@ public class SocketUtil {
                     MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
                     LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
                     //-------------------------------------------------------------------------test
-                    if (!ruthmsg.getAccepted()){//鉴权失败直接停止
+                    if (!ruthmsg.getAccepted()) {//鉴权失败直接停止
                         isAuthFail = true;
                         stop();
                     } else {
+                        setRunState(2);
+
                         //开始心跳
                         heartbeatThread();
                         //开始启动消息重发队列
                         sendListThread();
+
+
                     }
 
 
@@ -520,7 +590,7 @@ public class SocketUtil {
                 case ACK:
 
                     MsgBean.AckMessage ackmsg = SocketData.ackConversion(indexData);
-                    LogUtil.getLog().i(TAG, ">>>-----<收到回执"+ackmsg.getRequestId());
+                    LogUtil.getLog().i(TAG, ">>>-----<收到回执" + ackmsg.getRequestId());
                     event.onACK(ackmsg);
                     //这里处理回执的事情
                     break;

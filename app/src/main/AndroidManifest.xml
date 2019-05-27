@@ -61,7 +61,13 @@
 
         </activity>
         <!--聊天服务-->
-        <service android:name=".chat.server.ChatServer" />
+        <service android:name=".chat.server.ChatServer" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+            </intent-filter>
+        </service>
         <!-- 新的朋友-->
         <activity
             android:name=".user.ui.FriendApplyAcitvity"

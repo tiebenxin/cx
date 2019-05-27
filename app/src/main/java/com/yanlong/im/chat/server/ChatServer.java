@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -171,24 +172,14 @@ public class ChatServer extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!SocketUtil.getSocketUtil().isRun()) {
+
 
             LogUtil.getLog().d(TAG, ">>>启动socket");
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
                     SocketUtil.getSocketUtil().addEvent(msgEvent);
-                    SocketUtil.getSocketUtil().reconnection();
-                }
-            }).start();
+                    SocketUtil.getSocketUtil().startSocket();
 
 
-
-        } else {
-
-            LogUtil.getLog().d(TAG, ">>>已经启动socket");
-        }
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -196,18 +187,20 @@ public class ChatServer extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        SocketUtil.getSocketUtil().stop();
+        SocketUtil.getSocketUtil().endSocket();
         unregisterReceiver(mNetworkChangeReceiver);
+        LogUtil.getLog().d(TAG,">>>>>网路状态取消");
     }
     protected BroadcastReceiver mNetworkChangeReceiver;
     @Override
     public void onCreate() {
         super.onCreate();
-
+        LogUtil.getLog().d(TAG,">>>>>网路状态监听");
         //注册广播用于监听网络状态改变
         mNetworkChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                LogUtil.getLog().d(TAG,">>>>>网路状态改变");
               if(NetUtil.isNetworkConnected()){//链接成功
                   onStartCommand(null,0,0);
               }else{//链接失败
@@ -216,6 +209,9 @@ public class ChatServer extends Service {
               }
             }
         };
+        IntentFilter intentFilter=new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(mNetworkChangeReceiver,intentFilter);
 
     }
 }

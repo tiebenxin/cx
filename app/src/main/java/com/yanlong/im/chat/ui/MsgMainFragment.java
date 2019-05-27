@@ -1,6 +1,8 @@
 package com.yanlong.im.chat.ui;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -103,6 +105,7 @@ public class MsgMainFragment extends Fragment {
 
 
     private PopView popView = new PopView();
+    private SocketEvent socketEvent;
 
     //自动生成的控件事件
     private void initEvent() {
@@ -110,7 +113,7 @@ public class MsgMainFragment extends Fragment {
 
         mtListView.getLoadView().setStateNormal();
 
-        SocketUtil.getSocketUtil().addEvent(new SocketEvent() {
+        SocketUtil.getSocketUtil().addEvent(socketEvent=new SocketEvent() {
             @Override
             public void onHeartbeat() {
 
@@ -133,7 +136,8 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onLine(final boolean state) {
-                getActivity().runOnUiThread(new Runnable() {
+
+                getActivityMe().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         actionBar.setTitle(state?"消息":"消息(未连接)");
@@ -144,6 +148,7 @@ public class MsgMainFragment extends Fragment {
 
             }
         });
+        socketEvent.onLine( SocketUtil.getSocketUtil().getOnLineState());
 
 
         actionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -306,9 +311,19 @@ public class MsgMainFragment extends Fragment {
         super.onResume();
         taskListData();
     }
+    private MainActivity mainActivity;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mainActivity=(MainActivity) getActivity();
+
+    }
 
     private MainActivity getActivityMe() {
-        return (MainActivity) getActivity();
+        if(mainActivity==null){
+            return (MainActivity)getActivity();
+        }
+        return mainActivity;
     }
 
 
