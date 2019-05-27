@@ -52,7 +52,11 @@ public class MyAppLication extends MainApplication {
         }
 
         UMConfigure.init(this, "5cdf7aab4ca357f3f600055f",
-                "Umeng", UMConfigure.DEVICE_TYPE_PHONE, "8dd38f8da115dcf6441ce3922f30a2ac");
+                "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
+                "8dd38f8da115dcf6441ce3922f30a2ac");
+
+       // MiPushRegistar.register(this,final String XIAOMI_ID, final String XIAOMI_KEY);
+
         LogUtil.getLog().init(AppConfig.DEBUG);
         //初始化数据库
         Realm.init(getApplicationContext());

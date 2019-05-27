@@ -115,5 +115,8 @@ dependencies {
     api 'com.umeng.umsdk:analytics:+'
 
     api 'com.umeng.sdk:share-wechat:6.9.1'
+    //小米推送
+    api 'com.umeng.umsdk:xiaomi-push:3.6.9'
+    api 'com.umeng.umsdk:xiaomi-umengaccs:1.0.9'
 
 }

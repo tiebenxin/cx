@@ -77,7 +77,8 @@
     </LinearLayout>
 
 
-    <LinearLayout style="@style/app_layout_list2">
+    <LinearLayout style="@style/app_layout_list2"
+        android:visibility="gone">
 
         <LinearLayout style="@style/app_layout_list2_item" android:id="@+id/view_money">
 
@@ -122,7 +123,8 @@
 
 
 
-    <LinearLayout style="@style/app_layout_list2">
+    <LinearLayout style="@style/app_layout_list2"
+        android:visibility="gone">
 
         <LinearLayout style="@style/app_layout_list2_item" android:id="@+id/view_collection">
 
