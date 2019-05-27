@@ -19,18 +19,20 @@ android {
 
     buildscript {
         repositories {
+
             google()
             jcenter()
-            maven { url 'https://dl.bintray.com/umsdk/release' }
+
         }
 
     }
     allprojects {
         repositories {
+
+
             google()
             jcenter()
             mavenCentral()
-            maven { url 'https://dl.bintray.com/umsdk/release' }
         }
     }
     buildTypes {
