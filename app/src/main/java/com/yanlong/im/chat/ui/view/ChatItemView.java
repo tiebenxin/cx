@@ -342,6 +342,7 @@ public class ChatItemView extends LinearLayout {
                break;
             case 1://失败
                 imgMeErr.setVisibility(VISIBLE);
+                imgMeErr.setImageResource(R.mipmap.ic_net_err);
                 break;
             case 2://等待
                 imgMeErr.setVisibility(VISIBLE);

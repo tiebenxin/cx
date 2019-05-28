@@ -18,12 +18,13 @@ public class SendList {
 
     public static Map<String, SendListBean> SEND_LIST = new ConcurrentHashMap<>();
 
-public static MsgBean.UniversalMessage.Builder findMsgById(String keyId){
-    if(SEND_LIST.containsKey(keyId)){
-        return SEND_LIST.get(keyId).getMsg();
+    public static MsgBean.UniversalMessage.Builder findMsgById(String keyId) {
+        if (SEND_LIST.containsKey(keyId)) {
+            return SEND_LIST.get(keyId).getMsg();
+        }
+        return null;
     }
-    return null;
-}
+
     /***
      * 添加到列队中监听
      * @param keyId
@@ -41,18 +42,21 @@ public static MsgBean.UniversalMessage.Builder findMsgById(String keyId){
             sl.setMsg(msg);
             sl.setReSendNum(0);
             SEND_LIST.put(keyId, sl);
+            //5.28 如果非在线发送,直接失败
+            if(!SocketUtil.getSocketUtil().getOnLineState()){
+                removeSendList(keyId);
+            }
         }
 
     }
-
 
 
     /***
      * 移除列队,返回发送失败
      * @param keyId
      */
-    public static void removeSendList(String keyId){
-        if(!SEND_LIST.containsKey(keyId))
+    public static void removeSendList(String keyId) {
+        if (!SEND_LIST.containsKey(keyId))
             return;
 
         SocketUtil.getSocketUtil().getEvent().onSendMsgFailure(SEND_LIST.get(keyId).getMsg());
@@ -63,8 +67,8 @@ public static MsgBean.UniversalMessage.Builder findMsgById(String keyId){
      * 仅移除消息列队
      * @param keyId
      */
-    public static void removeSendListJust(String keyId){
-        if(!SEND_LIST.containsKey(keyId))
+    public static void removeSendListJust(String keyId) {
+        if (!SEND_LIST.containsKey(keyId))
             return;
         SEND_LIST.remove(keyId);
     }
@@ -78,28 +82,42 @@ public static MsgBean.UniversalMessage.Builder findMsgById(String keyId){
         long now = System.currentTimeMillis();
         while (entrys.hasNext()) {
             Map.Entry<String, SendListBean> entry = entrys.next();
-            String kid=entry.getKey();
+            String kid = entry.getKey();
             SendListBean bean = entry.getValue();
 
-            if(bean.getReSendNum()<SEND_MAX_NUM){ //在正常发送范围之内
-                if (now>(bean.getFirstTimeSent()+bean.getReSendNum()*SEND_RE_TIME)){
-                    LogUtil.getLog().e(TAG,">>>>符合重发条件"+kid);
+            if (bean.getReSendNum() < SEND_MAX_NUM) { //在正常发送范围之内
+                if (now > (bean.getFirstTimeSent() + bean.getReSendNum() * SEND_RE_TIME)) {
+                    LogUtil.getLog().e(TAG, ">>>>符合重发条件" + kid);
                     SocketUtil.getSocketUtil().sendData4Msg(bean.getMsg());
                 }
-            }else{//超过发送次数,取消队列,返回失败
-                LogUtil.getLog().e(TAG,">>>>发送条件次数不符合"+kid);
+            } else {//超过发送次数,取消队列,返回失败
+                LogUtil.getLog().e(TAG, ">>>>发送条件次数不符合" + kid);
                 removeSendList(kid);
-
 
 
             }
 
 
-
-
         }
 
 
+    }
+
+
+    /***
+     * 结束列队
+     */
+    public static void endList() {
+        Iterator<Map.Entry<String, SendListBean>> entrys = SEND_LIST.entrySet().iterator();
+
+        while (entrys.hasNext()) {
+            Map.Entry<String, SendListBean> entry = entrys.next();
+            String kid = entry.getKey();
+
+            removeSendList(kid);
+
+
+        }
     }
 
 

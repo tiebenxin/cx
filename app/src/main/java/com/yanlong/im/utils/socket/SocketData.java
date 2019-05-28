@@ -219,6 +219,35 @@ public class SocketData {
 
         }
     }
+    //5.27 发送前保存到库
+    public static void msgSave4MeSendFront(MsgBean.UniversalMessage.Builder msg) {
+        //普通消息
+
+        if (msg != null) {
+            //存库处理
+            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
+                   // .setMsgId(bean.getMsgIdList().get(0))
+                    //时间要和ack一起返回
+                   // .setTimestamp(System.currentTimeMillis())
+                    .build();
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
+
+            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
+            //时间戳
+           // msgAllBean.setTimestamp(bean.getTimestamp());
+            msgAllBean.setSend_state(2);
+            msgAllBean.setSend_data(msg.build().toByteArray());
+
+            //移除旧消息
+            DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
+
+            //收到直接存表,创建会话
+            DaoUtil.update(msgAllBean);
+            MsgDao msgDao = new MsgDao();
+
+            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+        }
+    }
 
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
@@ -281,8 +310,14 @@ public class SocketData {
         //      .setMsgId(DEV_ID.randomUUID().toString());
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
         msg.setWrapMsg(0, wm);
+
+        //5.27 发送前先保存到库
+        msgSave4MeSendFront(msg);
+
         SocketUtil.getSocketUtil().sendData4Msg(msg);
-        return MsgConversionBean.ToBean(wm);
+        MsgAllBean msgAllbean = MsgConversionBean.ToBean(wm);
+
+        return msgAllbean;
     }
 
 

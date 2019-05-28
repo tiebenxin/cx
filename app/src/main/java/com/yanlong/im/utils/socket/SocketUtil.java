@@ -169,7 +169,7 @@ public class SocketUtil {
     /***
      * 启动
      */
-    public void run() {
+    private void run() {
         if (isRun())
             return;
         //线程版本+1
@@ -201,6 +201,9 @@ public class SocketUtil {
             return;
 
         setRunState(0);
+        //结束发送列队
+        SendList.endList();
+
         //关闭信道
         try {
             socketChannel.close();
@@ -290,6 +293,7 @@ public class SocketUtil {
 
 
     private  boolean isStart=false;
+
     /***
      * 启动
      */
@@ -412,7 +416,7 @@ public class SocketUtil {
     /***
      * 链接
      */
-    public void connect() throws Exception {
+    private void connect() throws Exception {
         socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
 

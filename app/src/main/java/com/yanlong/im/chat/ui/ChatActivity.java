@@ -173,7 +173,7 @@ public class ChatActivity extends AppActivity {
                     ToastUtil.show(context, "发送失败" + bean.getRequestId());
                     MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
                     msgAllBean.setSend_state(1);
-                    msgAllBean.setMsg_id("重发" + msgAllBean.getRequest_id());
+                  //  msgAllBean.setMsg_id("重发" + msgAllBean.getRequest_id());
                     ///这里写库
                     msgAllBean.setSend_data(bean.build().toByteArray());
                     DaoUtil.update(msgAllBean);
@@ -229,7 +229,7 @@ public class ChatActivity extends AppActivity {
 
         //    msgListData.add(msgAllbean);
         //    notifyData2Buttom();
-
+        taskRefreshMessage();
 
     }
 
