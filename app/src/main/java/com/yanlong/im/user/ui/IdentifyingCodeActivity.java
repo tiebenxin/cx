@@ -105,8 +105,8 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(IdentifyingCodeActivity.this, "请填写手机号码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
-            ToastUtil.show(this,"手机号不合法");
+        if (!CheckUtil.isMobileNO(phone)) {
+            ToastUtil.show(this, "手机号不合法");
             return;
         }
         CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
@@ -129,18 +129,22 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(this, "请输入验证码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
-            ToastUtil.show(this,"手机号不合法");
+        if (!CheckUtil.isMobileNO(phone)) {
+            ToastUtil.show(this, "手机号不合法");
             return;
         }
-        userAction.login4Captch(Long.valueOf(phone), code, new CallBack<ReturnBean<TokenBean>>() {
+        userAction.login4Captch(Long.valueOf(phone), code, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                if(response.body().isOk()){
-                    go(MainActivity.class);
-                    finish();
-                }else{
-                    ToastUtil.show(getContext(),response.body().getMsg());
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    Intent intent = new Intent(getContext(),MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                } else {
+                    ToastUtil.show(getContext(), response.body().getMsg());
                 }
             }
         });

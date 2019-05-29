@@ -78,9 +78,11 @@ public class MyFragment extends Fragment {
 
     private void initData() {
         UserInfo userInfo = UserAction.getMyInfo();
-        imgHead.setImageURI(userInfo.getHead() + "");
-        txtName.setText(userInfo.getName());
-        mTvInfo.setText("待定...");
+         if(userInfo != null){
+            imgHead.setImageURI(userInfo.getHead() + "");
+            txtName.setText(userInfo.getName());
+            mTvInfo.setText("待定...");
+        }
     }
 
 

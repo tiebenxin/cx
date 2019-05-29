@@ -112,8 +112,6 @@ public class StartPageActivity extends AppActivity {
 
     private void updateToken(final boolean isFlast) {
         final String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-
-
         UserAction userAction = new UserAction();
         userAction.login4token(new Callback<ReturnBean<TokenBean>>() {
             @Override

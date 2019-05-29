@@ -163,7 +163,6 @@
         <!--密码登录-->
         <activity
             android:name=".user.ui.PasswordLoginActivity"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--验证码登录-->
         <activity
@@ -225,7 +224,6 @@
         <!--登录-->
         <activity
             android:name=".user.ui.LoginActivity"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--关于-->
         <activity

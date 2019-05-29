@@ -30,6 +30,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String head;
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单
     private Integer uType;
+    private String phone;
 
 
     private Integer disturb;///消息免打扰(0:关闭|1:打开)
@@ -38,6 +39,15 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer imidfind;//通过产品号找到自己(0:关闭|1:打开)
     private Integer friendvalid;//加我为朋友时需要验证(0:关闭|1:打开)
     private Integer groupvalid; //允许被直接添加至群聊(0:关闭|1:打开)
+
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
     public Integer getPhonefind() {
         return phonefind;

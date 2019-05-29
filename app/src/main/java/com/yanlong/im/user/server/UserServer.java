@@ -80,7 +80,7 @@ public interface UserServer {
 
     @POST("pub/login-by-phone-captcha")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") Long phone,@Field("captcha") String captcha);
+    Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") Long phone,@Field("captcha") String captcha,@Field("platform") String platform,@Field("devid") String devid);
 
     @POST("user/get-user-info-by-imid")
     @FormUrlEncoded

@@ -119,11 +119,6 @@ public class FriendAddAcitvity extends AppActivity {
                 .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
                 .withMedia(web)//分享内容
                 .share();
-
-//        new ShareAction(FriendAddAcitvity.this)
-//                .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
-//                .withText("啦啦啦啦")//分享内容
-//                .share();
     }
 
 

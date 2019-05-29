@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.tencent.mm.opensdk.utils.Log;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
@@ -63,7 +64,6 @@ public class UserAction {
         if (myInfo == null) {
             myInfo = new UserDao().myInfo();
         }
-
         return myInfo;
     }
 
@@ -101,19 +101,17 @@ public class UserAction {
 
     /**
      * 账号密码登录
-     * */
+     */
     public void login(final Long phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         NetUtil.getNet().exec(server.login(pwd, phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    Log.v("sssss111111", "login--isOK");
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
-                    setPhone(phone+"");
-
-
                 }
 
                 callback.onResponse(call, response);
@@ -134,7 +132,6 @@ public class UserAction {
         NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-
                 if (response.body() != null && response.body().isOk()) {
                     UserInfo userInfo = response.body().getData();
                     userInfo.toTag();
@@ -166,14 +163,12 @@ public class UserAction {
                     userInfo.toTag();
                     userInfo.setuType(0);
                     dao.updateUserinfo(userInfo);
-                    cb.onResponse(call,response);
+                    cb.onResponse(call, response);
                 }
             }
         });
 
     }
-
-
 
 
     public void login4token(final Callback<ReturnBean<TokenBean>> callback) {
@@ -193,7 +188,6 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
-
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
                     callback.onResponse(call, response);
@@ -217,15 +211,15 @@ public class UserAction {
      * 登出
      */
     public void loginOut() {
-        myInfo=null;
+        myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
         NetUtil.getNet().exec(server.loginOut(), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body() == null){
+                if (response.body() == null) {
                     return;
                 }
-                LogUtil.getLog().d("logout",response.body().getMsg());
+                LogUtil.getLog().d("logout", response.body().getMsg());
             }
         });
     }
@@ -239,19 +233,12 @@ public class UserAction {
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
     }
 
-    /**
-     * 保存手机号码
-     * */
-    private void setPhone(String phone){
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(phone);
-    }
-
 
     /***
      * 配置要使用的DB
      */
     private void initDB(String uuid) {
-        LogUtil.getLog().i("dbinfo",">>>>>>>>>>>>>>>>>>>初始数据库:"+"db_user_" +uuid);
+        LogUtil.getLog().i("dbinfo", ">>>>>>>>>>>>>>>>>>>初始数据库:" + "db_user_" + uuid);
         DaoUtil.get().initConfig("db_user_" + uuid);
     }
 
@@ -308,16 +295,13 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
 
-                if (response == null)
+                if (response.body() == null)
                     return;
 
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
                     //更新库
                     dao.friendMeUpdate(list);
-
-
-
 
                 }
                 callback.onResponse(call, response);
@@ -402,23 +386,22 @@ public class UserAction {
     /**
      * 用户注册
      */
-    public void register(Long phone, String password, String captcha,String nickname, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.register(phone, password, captcha,nickname), callback);
+    public void register(Long phone, String password, String captcha, String nickname, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.register(phone, password, captcha, nickname), callback);
     }
 
 
     /**
      * 手机号验证码登录
      */
-    public void login4Captch(final Long phone, String captcha, final CallBack<ReturnBean<TokenBean>> callback) {
-        NetUtil.getNet().exec(server.login4Captch(phone, captcha), new Callback<ReturnBean<TokenBean>>() {
+    public void login4Captch(final Long phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
-                    setPhone(phone+"");
                 }
                 callback.onResponse(call, response);
             }
@@ -433,38 +416,38 @@ public class UserAction {
 
     /**
      * 根据产品号获取个人资料
-     * */
-    public void getUserInfoByImid(String imid, CallBack<ReturnBean<UserInfo>> callback){
+     */
+    public void getUserInfoByImid(String imid, CallBack<ReturnBean<UserInfo>> callback) {
         NetUtil.getNet().exec(server.getUserInfoByImid(imid), callback);
     }
 
 
     /**
      * 根据关键字匹配产品号或手机号获取用户信息
-     * */
-    public void getUserInfoByKeyword(String keyWord, CallBack<ReturnBean<List<UserInfo>>> callback){
+     */
+    public void getUserInfoByKeyword(String keyWord, CallBack<ReturnBean<List<UserInfo>>> callback) {
         NetUtil.getNet().exec(server.getUserInfoByKeyword(keyWord), callback);
     }
 
     /**
      * 修改用户密码
-     * */
-    public void setUserPassword(String newPassword,String oldPassword,CallBack<ReturnBean> callback){
-        NetUtil.getNet().exec(server.setUserPassword(newPassword, oldPassword),callback);
+     */
+    public void setUserPassword(String newPassword, String oldPassword, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.setUserPassword(newPassword, oldPassword), callback);
     }
 
     /**
      * 通讯录匹配
-     * */
-    public void getUserMatchPhone(String phoneList, CallBack<ReturnBean<List<FriendInfoBean>>> callback){
-        NetUtil.getNet().exec(server.getUserMatchPhone(phoneList),callback);
+     */
+    public void getUserMatchPhone(String phoneList, CallBack<ReturnBean<List<FriendInfoBean>>> callback) {
+        NetUtil.getNet().exec(server.getUserMatchPhone(phoneList), callback);
     }
 
     /**
      * 手机号验证码重置密码
-     * */
-    public void changePasswordBySms(String phone, Integer captcha, String password, CallBack<ReturnBean> callback){
-        NetUtil.getNet().exec(server.changePasswordBySms(phone,captcha,password),callback);
+     */
+    public void changePasswordBySms(String phone, Integer captcha, String password, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.changePasswordBySms(phone, captcha, password), callback);
     }
 
 

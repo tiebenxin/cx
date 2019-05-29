@@ -12,7 +12,8 @@ import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
-import com.yanlong.im.utils.DaoUtil;
+
+import org.android.agoo.xiaomi.MiPushRegistar;
 
 import io.realm.Realm;
 
@@ -55,7 +56,7 @@ public class MyAppLication extends MainApplication {
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
                 "8dd38f8da115dcf6441ce3922f30a2ac");
 
-       // MiPushRegistar.register(this,final String XIAOMI_ID, final String XIAOMI_KEY);
+        MiPushRegistar.register(this,"bMsFYycwSstKDv19Mx9zxQ==", "5411801194485");
 
         LogUtil.getLog().init(AppConfig.DEBUG);
         //初始化数据库

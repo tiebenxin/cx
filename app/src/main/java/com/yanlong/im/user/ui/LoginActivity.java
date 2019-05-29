@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -134,8 +135,9 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                     return;
                 }
                 if (response.body().isOk()) {
-                    go(MainActivity.class);
-                    finish();
+                    Intent intent = new Intent(getContext(),MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }

@@ -20,6 +20,7 @@ public class SelectSexActivity extends AppActivity implements View.OnClickListen
     private String sex = "";
     private ImageView mIvMan;
     private ImageView mIvWoman;
+    private int type; //1 男 2女
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +34,8 @@ public class SelectSexActivity extends AppActivity implements View.OnClickListen
         mHeadView = findViewById(R.id.headView);
         mLlMan = findViewById(R.id.ll_man);
         mLlWoman = findViewById(R.id.ll_woman);
-        mIvMan =  findViewById(R.id.iv_man);
-        mIvWoman =  findViewById(R.id.iv_woman);
+        mIvMan = findViewById(R.id.iv_man);
+        mIvWoman = findViewById(R.id.iv_woman);
 
         mHeadView.getActionbar().setTxtRight("完成");
     }
@@ -63,15 +64,33 @@ public class SelectSexActivity extends AppActivity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_man:
+                selectSex(1);
+                break;
+            case R.id.ll_woman:
+                selectSex(2);
+                break;
+        }
+    }
+
+
+    private void selectSex(int sexType) {
+        switch (sexType) {
+            case 1:
                 mIvMan.setImageResource(R.drawable.bg_cheack_green_s);
                 mIvWoman.setImageResource(R.drawable.bg_cheack_green_e);
                 sex = "男";
                 break;
-            case R.id.ll_woman:
+            case 2:
                 mIvWoman.setImageResource(R.drawable.bg_cheack_green_s);
                 mIvMan.setImageResource(R.drawable.bg_cheack_green_e);
                 sex = "女";
                 break;
+            default:
+                mIvWoman.setImageResource(R.drawable.bg_cheack_green_e);
+                mIvMan.setImageResource(R.drawable.bg_cheack_green_e);
+                sex="";
+                break;
         }
     }
+
 }

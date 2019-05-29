@@ -116,6 +116,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         userAction = new UserAction();
         userInfo = UserAction.getMyInfo();
         imageHead = userInfo.getHead();
+        mTvPhone.setText(userInfo.getPhone()+"");
         imid = userInfo.getImid();
         nickName = userInfo.getName();
         sex = userInfo.getSex();

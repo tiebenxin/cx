@@ -11,6 +11,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.ui.ChatFontActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -116,9 +117,11 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
      * 退出
      */
     private void taskExit() {
-        userAction.loginOut();
+        UserInfo userInfo =  UserAction.getMyInfo();
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead()+"");
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone()+"");
         EventBus.getDefault().post(new EventLoginOut());
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(UserAction.getMyInfo().getHead()+"");
+        userAction.loginOut();
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
         finish();

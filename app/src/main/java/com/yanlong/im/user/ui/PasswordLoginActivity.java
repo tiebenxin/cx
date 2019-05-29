@@ -57,7 +57,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
     private void initEvent(){
         if(AppConfig.DEBUG){
             mEtPhoneContent.setText("13111111111");
-            mEtPasswordContent.setText("123456");
+            mEtPasswordContent.setText("654321");
         }
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -106,8 +106,9 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if(response.body().isOk()){
-                    go(MainActivity.class);
-                    finish();
+                    Intent intent = new Intent(getContext(),MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                 }else{
                     ToastUtil.show(getContext(),response.body().getMsg());
                 }

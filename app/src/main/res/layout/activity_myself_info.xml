@@ -58,8 +58,7 @@
 
             <TextView
                 android:id="@+id/tv_phone"
-                style="@style/app_txt_title_4"
-                android:text="1371111111" />
+                style="@style/app_txt_title_4" />
 
 
         </LinearLayout>
