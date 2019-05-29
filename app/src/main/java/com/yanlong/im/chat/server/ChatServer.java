@@ -15,6 +15,7 @@ import android.util.Log;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.test.bean.Test2Bean;
 import com.yanlong.im.utils.DaoUtil;
@@ -22,6 +23,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
@@ -43,6 +45,7 @@ public class ChatServer extends Service {
     private static int SESSION_TYPE = 0;//无会话,1:单人;2群,3静音模式
     private static Long SESSION_FUID;//单人会话id
     private static String SESSION_SID;//会话id
+    private MsgDao msgDao = new MsgDao();
 
     /***
      * 静音
@@ -114,44 +117,48 @@ public class ChatServer extends Service {
             EventBus.getDefault().post(new EventRefreshMainMsg());
 
             MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
-
+            LogUtil.getLog().d(TAG, "<<<<<<<<<<收到类型:" + msg.getMsgType());
             switch (msg.getMsgType()) {
                 case REQUEST_FRIEND:
-                    ToastUtil.show(getApplicationContext(), "请求加好友消息");
 
+                    //    ToastUtil.show(getApplicationContext(), "请求加好友消息");
 
+                    msgDao.remidCount("friend_apply");
                     EventBus.getDefault().post(new EventRefreshMainMsg());
+                    EventBus.getDefault().post(new EventRefreshFriend());
                     return;
                 case ACCEPT_BE_FRIENDS:
-                    ToastUtil.show(getApplicationContext(), "接收好友请求");
+                    // ToastUtil.show(AppConfig.APP_CONTEXT, "接收好友请求");
+
                     EventBus.getDefault().post(new EventRefreshFriend());
                     return;
 
                 case REMOVE_FRIEND:
-                    ToastUtil.show(getApplicationContext(), "删除好友消息");
+                    //  ToastUtil.show(getApplicationContext(), "删除好友消息");
                     EventBus.getDefault().post(new EventRefreshFriend());
                     return;
                 case REQUEST_GROUP:
-                    ToastUtil.show(getApplicationContext(), "请求入群");
+                    msgDao.remidCount("friend_apply");
+                    //  ToastUtil.show(getApplicationContext(), "请求入群");
                     EventBus.getDefault().post(new EventRefreshMainMsg());
                     return;
                 case ACCEPT_BE_GROUP:
-                    ToastUtil.show(getApplicationContext(), "接受入群请求");
+                    //  ToastUtil.show(getApplicationContext(), "接受入群请求");
                     return;
                 case REMOVE_GROUP_MEMBER:
-                    ToastUtil.show(getApplicationContext(), "删除群成员");
+                    //  ToastUtil.show(getApplicationContext(), "删除群成员");
                     return;
                 case CHANGE_GROUP_MASTER:
-                    ToastUtil.show(getApplicationContext(), "转让群");
+                    // ToastUtil.show(getApplicationContext(), "转让群");
                     return;
                 case CHANGE_GROUP_INFO:
-                    ToastUtil.show(getApplicationContext(), "修改群信息");
+                    //  ToastUtil.show(getApplicationContext(), "修改群信息");
                     return;
                 case DESTROY_GROUP:
-                    ToastUtil.show(getApplicationContext(), "销毁群");
+                    // ToastUtil.show(getApplicationContext(), "销毁群");
                     return;
                 case CONFLICT:
-                    ToastUtil.show(getApplicationContext(), "账号已经被登录");
+                    // ToastUtil.show(getApplicationContext(), "账号已经被登录");
                     EventBus.getDefault().post(new EventLoginOut());
                     return;
 

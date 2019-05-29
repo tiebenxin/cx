@@ -234,7 +234,10 @@ public class MsgAction {
         NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<ReturnGroupInfoBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<ReturnGroupInfoBean>>> call, Response<ReturnBean<List<ReturnGroupInfoBean>>> response) {
+                if(response.body()==null)
+                    return;
                 callback.onResponse(call, response);
+
 
                 for (ReturnGroupInfoBean ginfo : response.body().getData()) {
                     //保存群信息到本地

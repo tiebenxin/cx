@@ -11,11 +11,14 @@ import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -161,6 +164,7 @@ public class FriendApplyAcitvity extends AppActivity {
 
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
+                    EventBus.getDefault().post(new EventRefreshFriend());
                     taskGetList();
                 } else {
                     // ToastUtil.show(getContext(),response.body().getMsg());

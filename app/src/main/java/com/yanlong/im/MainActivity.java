@@ -12,17 +12,12 @@ import android.widget.TextView;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.TokenBean;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.ui.MyFragment;
 
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
@@ -33,9 +28,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import retrofit2.Call;
-import retrofit2.Response;
-
 public class MainActivity extends AppActivity {
     private ViewPagerSlide viewPage;
     private android.support.design.widget.TabLayout bottomTab;
@@ -44,7 +36,9 @@ public class MainActivity extends AppActivity {
     private String[] tabs;
     private int[] iconRes;
     private int[] iconHRes;
-    private StrikeButton msgsb;
+    private StrikeButton sbmsg;
+    private StrikeButton sbfriend;
+    private StrikeButton sbme;
 
     //自动寻找控件
     private void findViews() {
@@ -113,14 +107,17 @@ public class MainActivity extends AppActivity {
                 sb.setSktype(1);
                 //设置值
                 sb.setNum(0);
+                sbme=sb;
             }
             if (i == 1) {
+                sb.setSktype(1);
                 sb.setNum(0);
+                sbfriend=sb;
             }
 
             if (i == 0) {//消息数量
 
-                msgsb = sb;
+                sbmsg = sb;
             }
 
 
@@ -188,17 +185,24 @@ public class MainActivity extends AppActivity {
      * @return
      */
     private void taskGetMsgNum() {
-        if (msgsb == null)
+        if (sbmsg == null)
             return;
 
-        msgsb.setNum(msgDao.sessionReadGetAll());
+        sbmsg.setNum(msgDao.sessionReadGetAll());
     }
 
     /***
      * 好友或者群申请数量
      */
     private void taskGetFriendNum(){
-        ToastUtil.show(getContext(),"更新好友的提示数量");
+      //  ToastUtil.show(getContext(),"更新好友的提示数量");
+        int sum=0;
+        sum+=msgDao.remidGet("friend_apply");
+       // sum+=msgDao.remidGet("friend_apply");
+      //  sum+=msgDao.remidGet("friend_apply");
+        sbfriend.setNum(sum);
+
+
     }
 
 }

@@ -14,21 +14,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
-import com.yanlong.im.chat.ui.ChatActivity;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
 import com.yanlong.im.chat.ui.SearchFriendGroupActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
-import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventRefreshFriend;
+import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PySortView;
+import net.cb.cb.library.view.StrikeButton;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -36,7 +35,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -46,7 +44,7 @@ import retrofit2.Response;
  */
 public class FriendMainFragment extends Fragment {
     private View rootView;
- //   private net.cb.cb.library.view.ClearEditText edtSearch;
+    //   private net.cb.cb.library.view.ClearEditText edtSearch;
     private View viewSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
@@ -56,7 +54,7 @@ public class FriendMainFragment extends Fragment {
     //自动寻找控件
     private void findViews(View rootView) {
 //        edtSearch = (net.cb.cb.library.view.ClearEditText) rootView.findViewById(R.id.edt_search);
-        viewSearch =  rootView.findViewById(R.id.view_search);
+        viewSearch = rootView.findViewById(R.id.view_search);
         mtListView = (net.cb.cb.library.view.MultiListView) rootView.findViewById(R.id.mtListView);
         viewType = (PySortView) rootView.findViewById(R.id.view_type);
         actionbar = rootView.findViewById(R.id.action_bar);
@@ -175,6 +173,7 @@ public class FriendMainFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         // ToastUtil.show(getContext(), "添加朋友");
+                        taskApplyNumClean();
                         startActivity(new Intent(getContext(), FriendApplyAcitvity.class));
                     }
                 });
@@ -192,6 +191,7 @@ public class FriendMainFragment extends Fragment {
                         startActivity(new Intent(getContext(), FriendMatchActivity.class));
                     }
                 });
+                hd.sbApply.setNum(taskGetApplyNum());
             } else if (holder instanceof RCViewHolder) {
 
                 final UserInfo bean = listData.get(position);
@@ -266,6 +266,7 @@ public class FriendMainFragment extends Fragment {
             private LinearLayout viewAdd;
             private LinearLayout viewMatch;
             private LinearLayout viewGroup;
+            private StrikeButton sbApply;
 
             //自动寻找ViewHold
             public RCViewFuncHolder(View convertView) {
@@ -273,6 +274,7 @@ public class FriendMainFragment extends Fragment {
                 viewAdd = (LinearLayout) convertView.findViewById(R.id.view_add);
                 viewMatch = (LinearLayout) convertView.findViewById(R.id.view_match);
                 viewGroup = (LinearLayout) convertView.findViewById(R.id.view_group);
+                sbApply = (StrikeButton) convertView.findViewById(R.id.sb_apply);
             }
 
         }
@@ -300,9 +302,8 @@ public class FriendMainFragment extends Fragment {
         mtListView.notifyDataSetChange();
 
 
-
-
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshFriend(EventRefreshFriend event) {
         taskRefreshListData();
@@ -323,6 +324,25 @@ public class FriendMainFragment extends Fragment {
                                 }
 
         );
+    }
+
+
+    private MsgDao msgDao = new MsgDao();
+
+    /***
+     * 申请数量
+     * @return
+     */
+    private int taskGetApplyNum() {
+
+        return msgDao.remidGet("friend_apply");
+
+
+    }
+    private void taskApplyNumClean(){
+        msgDao.remidClear("friend_apply");
+
+        EventBus.getDefault().post(new EventRefreshMainMsg());
     }
 
 

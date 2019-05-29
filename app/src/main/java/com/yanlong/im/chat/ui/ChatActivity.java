@@ -633,7 +633,7 @@ public class ChatActivity extends AppActivity {
 
                         @Override
                         public void fail() {
-                            ToastUtil.show(getContext(),"上传失败");
+                          //  ToastUtil.show(getContext(),"上传失败");
 
                         }
 
@@ -710,7 +710,7 @@ public class ChatActivity extends AppActivity {
             switch (msgbean.getMsg_type()) {
                 case 0:
                     // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
-                      holder.viewChatItem.setData0(msgbean.getChat().getMsg());
+                      holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                     break;
                 case 1:
 

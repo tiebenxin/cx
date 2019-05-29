@@ -1,6 +1,8 @@
 package net.cb.cb.library.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.os.Looper;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -15,7 +17,14 @@ public class ToastUtil {
         if (txt != null && txt.length() > 0) {
             if (toast != null)
                 toast.cancel();
-            toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
+            try{
+              //  Looper.prepare();
+                toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
+            //    Looper.loop();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
            // toast.setGravity(Gravity.CENTER, 0, 0);
 
             toast.show();
@@ -26,8 +35,14 @@ public class ToastUtil {
     public static void show(Context context, int txt) {
         if (toast != null)
             toast.cancel();
-        toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
-      //  toast.setGravity(Gravity.CENTER, 0, 0);
+        try {
+           // Looper.prepare();
+            toast = Toast.makeText(context, txt, Toast.LENGTH_SHORT);
+           // Looper.loop();
+        } catch (Resources.NotFoundException e) {
+            e.printStackTrace();
+        }
+        //  toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 }

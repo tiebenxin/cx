@@ -3,6 +3,7 @@ package com.yanlong.im.chat.dao;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.user.bean.UserInfo;
@@ -37,20 +38,18 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
-        Group g =  realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-        if(g!=null){//已经存在
+        Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
+        if (g != null) {//已经存在
             g.setName(group.getName());
             g.setAvatar(group.getAvatar());
-            if(group.getUsers()!=null)
+            if (group.getUsers() != null)
                 g.setUsers(group.getUsers());
 
             realm.insertOrUpdate(group);
-        }else{//不存在
+        } else {//不存在
             realm.insertOrUpdate(group);
-           // sessionCreate(group.getGid(),null);
+            // sessionCreate(group.getGid(),null);
         }
-
-
 
 
         realm.commitTransaction();
@@ -68,7 +67,8 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
 
         RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "")
-                .notEqualTo("msg_type", 0).and()
+             //   .notEqualTo("msg_type", 0)
+                .and()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid)
 
                 .sort("timestamp", Sort.DESCENDING)
@@ -96,7 +96,7 @@ public class MsgDao {
 
         RealmResults list = realm.where(MsgAllBean.class)
                 .equalTo("gid", gid).and()
-                .notEqualTo("msg_type", 0)
+              //  .notEqualTo("msg_type", 0)
                 .sort("timestamp", Sort.DESCENDING)
                 .findAll();
 
@@ -133,7 +133,7 @@ public class MsgDao {
             if (ui == null) {
                 sv.toTag();
                 sv.setuType(0);
-                sv= realm.copyToRealmOrUpdate(sv);
+                sv = realm.copyToRealmOrUpdate(sv);
                 nums.add(sv);
             } else {
                 nums.add(ui);
@@ -173,7 +173,7 @@ public class MsgDao {
     /***
      * 清除所有的聊天记录
      */
-    public void msgDelAll(){
+    public void msgDelAll() {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         realm.where(MsgAllBean.class).findAll().deleteAllFromRealm();
@@ -190,7 +190,7 @@ public class MsgDao {
      * @param name
      * @param listDataTop
      */
-    public void groupCreate(String id,String avatar,String name,List<UserInfo> listDataTop){
+    public void groupCreate(String id, String avatar, String name, List<UserInfo> listDataTop) {
         sessionCreate(id, null);
         Group group = new Group();
         group.setAvatar(avatar);
@@ -232,7 +232,7 @@ public class MsgDao {
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
         } else {//单人
-            msg = realm.where(MsgAllBean.class) .equalTo("gid", "").contains("chat.msg", key).and()
+            msg = realm.where(MsgAllBean.class).equalTo("gid", "").and().contains("chat.msg", key).and()
                     .equalTo("from_uid", uid).or().equalTo("to_uid", uid)
 
 
@@ -377,6 +377,50 @@ public class MsgDao {
         return sum;
     }
 
+
+    /***
+     * 获取红点的值
+     * @param type
+     * @return
+     */
+    public int remidGet(String type) {
+        Remind remind = DaoUtil.findOne(Remind.class, "remid_type", type);
+        int num = remind == null ? 0 : remind.getNumber();
+        return num;
+    }
+
+    /***
+     * 清理红点
+     * @param type
+     */
+    public void remidClear(String type) {
+        Remind remind = DaoUtil.findOne(Remind.class, "remid_type", type);
+        if (remind != null) {
+            remind.setNumber(0);
+            DaoUtil.update(remind);
+        }
+    }
+
+    /***
+     * 红点加一
+     * @param type
+     */
+    public void remidCount(String type) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
+        int readnum = remind == null ? 1 : remind.getNumber()+1;
+        Remind newreamid = new Remind();
+        newreamid.setNumber(readnum);
+        newreamid.setRemid_type(type);
+        realm.insertOrUpdate(newreamid);
+        realm.commitTransaction();
+        realm.close();
+
+    }
+
+
     /***
      * 获取单个会话阅读量
      * @param gid
@@ -455,7 +499,7 @@ public class MsgDao {
      * @param saved
      * @param needVerification
      */
-    public void saveSession4Switch(String gid,Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
+    public void saveSession4Switch(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
