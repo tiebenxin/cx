@@ -16,7 +16,9 @@ public class MsgAllBean extends RealmObject {
     private byte[] send_data;
     private String request_id;
     private Long from_uid;
-  //  private UserInfo from_user;
+    private String from_nickname;
+    private String from_avatar;
+    //  private UserInfo from_user;
     private Long to_uid;
  //   private UserInfo to_user;
     private String gid;
@@ -51,11 +53,12 @@ public class MsgAllBean extends RealmObject {
 
     private BusinessCardMessage business_card;
 
-    private RequestFriendMessage request_friend;
+    private MsgNotice msgNotice;
+    //private RequestFriendMessage request_friend;
 
-    private AcceptBeFriendsMessage accept_be_friends;
+   // private AcceptBeFriendsMessage accept_be_friends;
 
-    private AckMessage ack;
+    //private AckMessage ack;
 
     public UserInfo getFrom_user() {
         return DaoUtil.findOne(UserInfo.class,"uid",from_uid);
@@ -80,6 +83,22 @@ public class MsgAllBean extends RealmObject {
     public void setTo_user(UserInfo to_user) {
         this.to_user = to_user;
     }*/
+
+    public String getFrom_nickname() {
+        return from_nickname;
+    }
+
+    public void setFrom_nickname(String from_nickname) {
+        this.from_nickname = from_nickname;
+    }
+
+    public String getFrom_avatar() {
+        return from_avatar;
+    }
+
+    public void setFrom_avatar(String from_avatar) {
+        this.from_avatar = from_avatar;
+    }
 
     public String getRequest_id() {
         return this.request_id;
@@ -129,7 +148,7 @@ public class MsgAllBean extends RealmObject {
     public String getMsg_typeStr() {
         String str = "";
         if (msg_type == 0) {
-            str = "公告";
+            str = "公告:"+getMsgNotice().getNote();
 
         }
         if (msg_type == 1) {//普通消息
@@ -233,7 +252,7 @@ public class MsgAllBean extends RealmObject {
         this.business_card = business_card;
     }
 
-    public RequestFriendMessage getRequest_friend() {
+   /* public RequestFriendMessage getRequest_friend() {
         return request_friend;
     }
 
@@ -255,6 +274,15 @@ public class MsgAllBean extends RealmObject {
 
     public void setAck(AckMessage ack) {
         this.ack = ack;
+    }
+*/
+
+    public MsgNotice getMsgNotice() {
+        return msgNotice;
+    }
+
+    public void setMsgNotice(MsgNotice msgNotice) {
+        this.msgNotice = msgNotice;
     }
 
     public int getSend_state() {

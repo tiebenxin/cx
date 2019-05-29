@@ -510,13 +510,17 @@ public class SocketData {
         for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
             //2.存库:1.存消息表,存会话表
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
-            msgAllBean.setTo_uid(bean.getToUid());
-            LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
-            //收到直接存表
-            DaoUtil.update(msgAllBean);
-            msgDao.sessionReadUpdate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
+            //5.28 如果为空就不保存这类消息
+            if(msgAllBean!=null){
+                msgAllBean.setTo_uid(bean.getToUid());
+                LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
+                //收到直接存表
+                DaoUtil.update(msgAllBean);
+                msgDao.sessionReadUpdate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
 
-            msgIds.add(wmsg.getMsgId());
+                msgIds.add(wmsg.getMsgId());
+            }
+
 
 
         }

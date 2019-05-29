@@ -269,6 +269,12 @@ public class UserInfoActivity extends AppActivity {
                     return;
                 }
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
+                //刷新好友和退出
+                if(response.body().isOk()){
+
+                    EventBus.getDefault().post(new EventRefreshFriend());
+                    finish();
+                }
             }
         });
     }

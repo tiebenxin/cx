@@ -26,27 +26,31 @@ public class MsgConversionBean {
 
         msgAllBean.setTimestamp(bean.getTimestamp());
         msgAllBean.setFrom_uid(bean.getFromUid());
+        msgAllBean.setFrom_avatar(bean.getAvatar());
+        msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setGid(bean.getGid());
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());
             UserInfo toInfo = DaoUtil.findOne(UserInfo.class, "uid", msg.getToUid());
-            if (toInfo != null){//更新用户信息
-              //  msgAllBean.setTo_user(toInfo);
-            }else{
+            if (toInfo != null) {//更新用户信息
+                //  msgAllBean.setTo_user(toInfo);
+            } else {
                 //从网路缓存
             }
         }
 
         //这里需要处理用户信息
         UserInfo userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
-        if (userInfo != null){//更新用户信息
-         //   msgAllBean.setFrom_user(userInfo);
-        }else{
+        if (userInfo != null) {//更新用户信息
+            //   msgAllBean.setFrom_user(userInfo);
+        } else {
             //从网路缓存
             bean.getAvatar();
             bean.getNickname();
-         //   bean.
+            //   bean.
+
+
         }
 
         //---------------------
@@ -69,15 +73,7 @@ public class MsgConversionBean {
                 msgAllBean.setImage(image);
                 msgAllBean.setMsg_type(4);
                 break;
-            case REQUEST_FRIEND:
-                msgAllBean.setMsg_type(0);
-                break;
-            case UNRECOGNIZED:
-                msgAllBean.setMsg_type(0);
-                break;
-            case ACCEPT_BE_FRIENDS:
-                msgAllBean.setMsg_type(0);
-                break;
+
             case STAMP:// 戳一下消息
                 StampMessage stamp = new StampMessage();
                 stamp.setComment(bean.getStamp().getComment());
@@ -110,6 +106,23 @@ public class MsgConversionBean {
                 msgAllBean.setReceive_red_envelope(receiveRedEnvelopeMessage);
                 msgAllBean.setMsg_type(3);
                 break;
+
+                //需要保存的通知类消息
+            case ACCEPT_BE_FRIENDS:// 接收好友请求
+                msgAllBean.setMsg_type(0);
+                MsgNotice msgNotice=new MsgNotice();
+                msgNotice.setNote(bean.getNickname()+"加好友成功");
+                msgAllBean.setMsgNotice(msgNotice);
+                break;
+            case ACCEPT_BE_GROUP://接受入群请求
+                msgAllBean.setMsg_type(0);
+                MsgNotice gNotice=new MsgNotice();
+                gNotice.setNote(bean.getNickname()+"进群成功");
+                msgAllBean.setMsgNotice(gNotice);
+                    break;
+
+            default:
+                return null;
 
 
         }

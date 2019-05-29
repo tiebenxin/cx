@@ -129,7 +129,7 @@ public class MsgAction {
 
 
     /***
-     * 获取群信息
+     * 获取群信息,并缓存
      * @param gid
      * @param callback
      */

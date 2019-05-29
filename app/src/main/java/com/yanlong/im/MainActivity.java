@@ -24,6 +24,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.view.ViewPagerSlide;
@@ -157,6 +158,7 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
+        stopService(new Intent(getContext(), ChatServer.class));
         super.onDestroy();
     }
 
@@ -169,12 +171,12 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
         taskGetMsgNum();
+        taskGetFriendNum();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOut(EventLoginOut event) {
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
-        stopService(new Intent(getContext(), ChatServer.class));
         finish();
     }
 
@@ -192,5 +194,11 @@ public class MainActivity extends AppActivity {
         msgsb.setNum(msgDao.sessionReadGetAll());
     }
 
+    /***
+     * 好友或者群申请数量
+     */
+    private void taskGetFriendNum(){
+        ToastUtil.show(getContext(),"更新好友的提示数量");
+    }
 
 }

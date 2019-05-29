@@ -152,6 +152,29 @@ public class UserAction {
         NetUtil.getNet().exec(server.getUserInfo(usrid), callBack);
     }
 
+    /***
+     * 获取[普通]用户信息并且缓存到数据库
+     * @param usrid
+     */
+    public void getUserInfoAndSave(Long usrid, final CallBack<ReturnBean<UserInfo>> cb) {
+        NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+
+                if (response.body() != null && response.body().isOk()) {
+                    UserInfo userInfo = response.body().getData();
+                    userInfo.toTag();
+                    userInfo.setuType(0);
+                    dao.updateUserinfo(userInfo);
+                    cb.onResponse(call,response);
+                }
+            }
+        });
+
+    }
+
+
+
 
     public void login4token(final Callback<ReturnBean<TokenBean>> callback) {
         //判断有没有token信息

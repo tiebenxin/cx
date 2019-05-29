@@ -125,7 +125,7 @@ public class UpFileUtil {
      * @param imgPath       图片的本地路径
      */
 
-    public void upFile(Context context, String keyid, String secret, String token, String endpoint, final String btName, final UpFileUtil.OssUpCallback ossUpCallback, String imgPath, byte[] imgbyte) {
+    public void upFile(final Context context, String keyid, String secret, String token, String endpoint, final String btName, final UpFileUtil.OssUpCallback ossUpCallback, String imgPath, byte[] imgbyte) {
 
         getOSs(context,keyid,secret,token,endpoint);
 
@@ -164,6 +164,7 @@ public class UpFileUtil {
             public void onFailure(OSSRequest request, ClientException clientException, ServiceException serviceException) {
 
                 LogUtil.getLog().e("uplog", "---->上传异常:" + serviceException.getRawMessage());
+                ToastUtil.show(context,"上传失败");
                 ossUpCallback.fail();
             }
 

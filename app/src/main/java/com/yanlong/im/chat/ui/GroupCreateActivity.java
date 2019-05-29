@@ -232,36 +232,36 @@ public class GroupCreateActivity extends AppActivity {
 
 
     }
-private UpFileAction upFileAction=new UpFileAction();
+
+    private UpFileAction upFileAction = new UpFileAction();
+
     private void taskCreate() {
-        if(listDataTop.size()<2){
-            ToastUtil.show(getContext(),"人数必须大于3人");
+        if (listDataTop.size() < 2) {
+            ToastUtil.show(getContext(), "人数必须大于3人");
             return;
         }
         listDataTop.add(UserAction.getMyInfo());
-        String name ="";
+        String name = "";
 
-       // "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
-        int i=listDataTop.size();
-        i=i>9?9:i;
+        // "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
+        int i = listDataTop.size();
+        i = i > 9 ? 9 : i;
         //头像地址
-        String url[] =new String[i];
-        for (int j=0;j<i;j++) {
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
             UserInfo userInfo = listDataTop.get(j);
             name += userInfo.getName() + ",";
-            url[j]=userInfo.getHead();
+            url[j] = userInfo.getHead();
         }
-        File file= GroupHeadImageUtil.synthesis(url);
-
-
+        File file = GroupHeadImageUtil.synthesis(url);
 
 
         name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
         name = name.length() > 14 ? name.substring(0, 14) : name;
         name += "的群";
-        final String fname=name;
+        final String fname = name;
 
-      //  icon="file://"+file.getAbsolutePath();
+        //  icon="file://"+file.getAbsolutePath();
 
         upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
             @Override
@@ -293,8 +293,7 @@ private UpFileAction upFileAction=new UpFileAction();
             public void inProgress(long progress, long zong) {
 
             }
-        },file.getAbsolutePath());
-
+        }, file.getAbsolutePath());
 
 
     }

@@ -62,6 +62,8 @@ public class UpFileAction {
                                             configBean.getBucket(), callback, filePath, fileByte);
                                 }
                             }).start();
+                        }else{
+                            ToastUtil.show(context,"上传失败");
                         }
 
 

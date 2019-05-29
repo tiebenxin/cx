@@ -20,12 +20,32 @@ public class UserDao {
         return DaoUtil.findOne(UserInfo.class, "uType", 1);
     }
 
+    /***
+     * 纯更新用户信息
+     * @param userInfo
+     */
     public void updateUserinfo(UserInfo userInfo){
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(userInfo);
 
                 realm.commitTransaction();
+        realm.close();
+    }
+
+    /***
+     * 如果存在了就不更新
+     * @param userInfo
+     */
+    public void saveUserinfo(UserInfo userInfo){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        UserInfo u = realm.where(UserInfo.class).equalTo("uid", userInfo.getUid()).findFirst();
+        if(u==null){
+            realm.insertOrUpdate(userInfo);
+        }
+
+        realm.commitTransaction();
         realm.close();
     }
 

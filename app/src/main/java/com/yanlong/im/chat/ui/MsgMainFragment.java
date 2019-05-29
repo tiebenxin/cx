@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.ui;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,6 +33,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
@@ -349,8 +349,11 @@ public class MsgMainFragment extends Fragment {
 
 
                 UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-                icon = finfo.getHead();
-                title = finfo.getName();
+                if(finfo!=null){
+                    icon = finfo.getHead();
+                    title = finfo.getName();
+                }
+
 
                 //获取最后一条消息
                 msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
@@ -444,11 +447,12 @@ public class MsgMainFragment extends Fragment {
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
+    private UserAction userAction = new UserAction();
     private MsgAction msgAction = new MsgAction();
     private List<Session> listData = new ArrayList<>();
 
-    private int gidIndex = 0;//当前群缓存的顺序
-    private List<String> gids = new ArrayList<>();//缓存所有未缓存的群信息
+    private int didIndex = 0;//当前缓存的顺序
+    private List<String> dids = new ArrayList<>();//缓存所有未缓存的信息
 
     private void taskListData() {
         if (isSearchMode) {
@@ -457,30 +461,48 @@ public class MsgMainFragment extends Fragment {
         listData = msgDao.sessionGetAll();
 
         //缓存所有未缓存的群信息
-        gids = new ArrayList<>();
-        gidIndex = 0;
+        dids = new ArrayList<>();
+        didIndex = 0;
         for (Session s : listData) {
             String gid = s.getGid();
-            if (StringUtil.isNotNull(gid)) {
+            if (StringUtil.isNotNull(gid)) {//缓存群的信息
                 Group group = msgDao.getGroup4Id(gid);
                 if (group == null) {
-                    gids.add(gid);
+                    dids.add(gid);
                     msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
                         @Override
                         public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
-                            gidIndex++;
-                            if (gidIndex == gids.size()) {
+                            didIndex++;
+                            if (didIndex == dids.size()) {
                                 mtListView.notifyDataSetChange();
                             }
                         }
                     });
                 }
+            }else{//缓存个人的信息
+                Long fuid=s.getFrom_uid();
+                UserInfo uinfo=userDao.findUserInfo(fuid);
+                if (uinfo == null) {
+                    dids.add(fuid.toString());
+
+
+                    userAction.getUserInfoAndSave(fuid, new CallBack<ReturnBean<UserInfo>>() {
+                        @Override
+                        public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                            didIndex++;
+                            if (didIndex == dids.size()) {
+                                mtListView.notifyDataSetChange();
+                            }
+                        }
+                    });
+                }
+
             }
 
 
         }
 
-        if (gidIndex == gids.size()) {
+        if (didIndex == dids.size()) {
             mtListView.notifyDataSetChange();
         }
 
