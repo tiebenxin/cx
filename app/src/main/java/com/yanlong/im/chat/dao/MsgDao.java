@@ -227,13 +227,14 @@ public class MsgDao {
         RealmResults<MsgAllBean> msg;
         if (StringUtil.isNotNull(gid)) {//群
             msg = realm.where(MsgAllBean.class)
-                    .equalTo("gid", gid).and()
+                    .equalTo("gid", gid).and().equalTo("msg_type",1).and()
                     .contains("chat.msg", key)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
         } else {//单人
-            msg = realm.where(MsgAllBean.class).equalTo("gid", "").and().contains("chat.msg", key).and()
-                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+            msg = realm.where(MsgAllBean.class).equalTo("gid", "").equalTo("msg_type",1)
+                    .contains("chat.msg", key).beginGroup()
+                    .equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
 
 
                     .sort("timestamp", Sort.DESCENDING)

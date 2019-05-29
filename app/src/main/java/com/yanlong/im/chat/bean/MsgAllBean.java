@@ -22,18 +22,7 @@ public class MsgAllBean extends RealmObject {
     private Long to_uid;
  //   private UserInfo to_user;
     private String gid;
-    /***
-     *  CHAT = 0; // 普通聊天消息
-     *   IMAGE = 1; // 图片消息
-     *   RED_ENVELOPER = 2; // 单聊红包消息
-     *   RECEIVE_RED_ENVELOPER = 3; // 领取红包消息
-     *   TRANSFER = 4; // 转账消息
-     *   STAMP = 5; // 戳一下消息
-     *   BUSINESS_CARD = 6; // 名片消息
-     *   REQUEST_FRIEND = 7; // 请求加好友消息
-     *   ACCEPT_BE_FRIENDS = 8; // 接收好友请求
-     *   ACK = 100;
-     */
+
     private Integer msg_type;
     @PrimaryKey
     private String msg_id;

@@ -168,12 +168,13 @@ public class FriendMainFragment extends Fragment {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (holder instanceof RCViewFuncHolder) {
-                RCViewFuncHolder hd = (RCViewFuncHolder) holder;
+                final RCViewFuncHolder hd = (RCViewFuncHolder) holder;
                 hd.viewAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         // ToastUtil.show(getContext(), "添加朋友");
                         taskApplyNumClean();
+                        hd.sbApply.setNum(0);
                         startActivity(new Intent(getContext(), FriendApplyAcitvity.class));
                     }
                 });

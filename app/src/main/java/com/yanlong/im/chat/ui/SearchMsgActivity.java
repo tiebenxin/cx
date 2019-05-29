@@ -119,8 +119,12 @@ public class SearchMsgActivity extends AppActivity {
             }
             msg = msgbean.getChat().getMsg();
             int index = msg.indexOf(key);
-            msg = msg.substring(index);
-            msg = msg.replace(key, "<font color=\"#32b053\">" + key + "</font>");
+
+            if(index>=0){
+                msg = msg.substring(index);
+                msg = msg.replace(key, "<font color=\"#32b053\">" + key + "</font>");
+
+            }
 
 
             holder.txtName.setText(name);

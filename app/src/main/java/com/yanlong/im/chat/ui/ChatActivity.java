@@ -29,6 +29,7 @@ import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
@@ -131,14 +132,16 @@ public class ChatActivity extends AppActivity {
                     if(bean.getRejectType()==MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER){
                         taskRefreshMessage();
 
-                        //5.23 ???
+                        //5.23 发送失败,对方拒收
                         MsgAllBean notbean=new MsgAllBean();
                         notbean.setMsg_type(0);
                         notbean.setTimestamp(bean.getTimestamp());
                         notbean.setFrom_uid(UserAction.getMyId());
-                        ChatMessage chat=new ChatMessage();
-                        chat.setMsg("消息发送成功,但对方已拒收");
-                        notbean.setChat(chat);
+
+                        MsgNotice note=new MsgNotice();
+                        note.setNote("消息发送成功,但对方已拒收");
+                        notbean.setMsgNotice(note);
+
                         msgListData.add(notbean);
                         mtListView.notifyDataSetChange();
                     }else{
@@ -710,6 +713,7 @@ public class ChatActivity extends AppActivity {
             switch (msgbean.getMsg_type()) {
                 case 0:
                     // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
+                    if(msgbean.getMsgNotice()!=null)
                       holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                     break;
                 case 1:
