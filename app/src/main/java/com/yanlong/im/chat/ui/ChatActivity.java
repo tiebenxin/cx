@@ -694,7 +694,11 @@ public class ChatActivity extends AppActivity {
             //昵称处理
             String nikeName = null;
             if (isGroup()) {//群聊显示昵称
-                nikeName = msgbean.getFrom_user().getName();
+
+                nikeName = msgbean.getFrom_user().getMkName();
+                nikeName=StringUtil.isNotNull(nikeName)?nikeName:msgbean.getFrom_nickname();
+
+
             } else {//单聊不显示昵称
                 nikeName = null;
             }
@@ -702,7 +706,9 @@ public class ChatActivity extends AppActivity {
 
 
             //显示数据集
-            String headico = msgbean.getFrom_user() == null ? "" : msgbean.getFrom_user().getHead();
+          //  String headico = msgbean.getFrom_user() == null ? "" : msgbean.getFrom_user().getHead();
+            //5.30
+            String headico = msgbean.getFrom_avatar();
             if (msgbean.isMe()) {
                 // headico =
             } else {

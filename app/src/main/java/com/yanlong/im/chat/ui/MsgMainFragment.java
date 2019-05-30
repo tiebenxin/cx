@@ -354,7 +354,7 @@ public class MsgMainFragment extends Fragment {
                 UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
                 if(finfo!=null){
                     icon = finfo.getHead();
-                    title = finfo.getName();
+                    title = finfo.getName4Show();
                 }
 
 
