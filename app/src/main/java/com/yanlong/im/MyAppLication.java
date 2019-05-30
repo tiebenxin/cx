@@ -28,14 +28,14 @@ public class MyAppLication extends MainApplication {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
 
-              //  AppConfig.URL_HOST = "http://192.168.10.229:8080";
-                AppConfig.URL_HOST = "http://192.168.10.110:18080";
+                AppConfig.URL_HOST = "http://192.168.10.229:8080";
+              //  AppConfig.URL_HOST = "http://192.168.10.110:18080";
                 AppConfig.DEBUG = true;
-                AppConfig.SOCKET_IP = "192.168.10.110";
+               // AppConfig.SOCKET_IP = "192.168.10.110";
                 // AppConfig.SOCKET_PORT = 19991;
                 //AppConfig.SOCKET_IP="192.168.10.88";
                 // AppConfig.SOCKET_PORT=21;
-               // AppConfig.SOCKET_IP = "192.168.10.229";
+                AppConfig.SOCKET_IP = "192.168.10.229";
                 AppConfig.SOCKET_PORT = 19991;
 
                 break;
