@@ -13,7 +13,7 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
 public class SelectSexActivity extends AppActivity implements View.OnClickListener {
-
+    public static final String SEX = "sex";
     private HeadView mHeadView;
     private LinearLayout mLlMan;
     private LinearLayout mLlWoman;
@@ -36,8 +36,10 @@ public class SelectSexActivity extends AppActivity implements View.OnClickListen
         mLlWoman = findViewById(R.id.ll_woman);
         mIvMan = findViewById(R.id.iv_man);
         mIvWoman = findViewById(R.id.iv_woman);
-
         mHeadView.getActionbar().setTxtRight("完成");
+
+        type = getIntent().getIntExtra(SEX,0);
+        selectSex(type);
     }
 
     private void initEvent() {

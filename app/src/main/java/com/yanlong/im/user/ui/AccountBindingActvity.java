@@ -53,7 +53,8 @@ public class AccountBindingActvity extends AppActivity {
             public void onClick(View v) {
 
                 AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(AccountBindingActvity.this, "提示", "确定要解除与该微信绑定吗?", "确定", "取消", new AlertYesNo.Event() {
+                alertYesNo.init(AccountBindingActvity.this, "提示",
+                        "确定要解除与该微信绑定吗?", "确定", "取消", new AlertYesNo.Event() {
                      @Override
                      public void onON() {
 

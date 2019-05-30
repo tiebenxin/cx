@@ -248,7 +248,6 @@ public class MainActivity extends AppActivity {
         //  sum+=msgDao.remidGet("friend_apply");
         sbfriend.setNum(sum);
 
-
     }
 
 }

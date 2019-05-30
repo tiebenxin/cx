@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.ui.MyselfInfoActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.bean.QRCodeBean;
@@ -85,12 +87,17 @@ public class QRCodeManage {
     public static void goToActivity(Activity activity, QRCodeBean bean) {
         if (bean != null) {
             if(bean.getFunction().equals(ADD_FRIEND_FUNCHTION)){
-                Intent intent = new Intent(activity, UserInfoActivity.class);
                 if(!TextUtils.isEmpty(bean.getParameterValue(ID))){
-                    intent.putExtra(UserInfoActivity.ID,Long.valueOf(bean.getParameterValue(ID)));
+                    Long uid = UserAction.getMyInfo().getUid();
+                    if(bean.getParameterValue(ID).equals(uid+"")){
+                        Intent intent = new Intent(activity, MyselfInfoActivity.class);
+                        activity.startActivity(intent);
+                    }else {
+                        Intent intent = new Intent(activity, UserInfoActivity.class);
+                        intent.putExtra(UserInfoActivity.ID,Long.valueOf(bean.getParameterValue(ID)));
+                        activity.startActivity(intent);
+                    }
                 }
-                activity.startActivity(intent);
-
             }else if(bean.getFunction().equals(ADD_GROUP_FUNCHTION)){
 
 

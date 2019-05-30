@@ -77,7 +77,6 @@ public class FindFriendActivity extends AppActivity {
                     switch (event.getAction()) {
                         case KeyEvent.ACTION_DOWN:
                             String content = mEdtSearch.getText().toString();
-
                             if (TextUtils.isEmpty(content)) {
                                 ToastUtil.show(FindFriendActivity.this, "请输入关键字");
                             } else {

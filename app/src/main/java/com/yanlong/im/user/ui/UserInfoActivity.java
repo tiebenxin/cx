@@ -51,12 +51,15 @@ public class UserInfoActivity extends AppActivity {
     private LinearLayout viewDel;
     private LinearLayout viewComplaint;
     private LinearLayout mLayoutMsg;
+    private LinearLayout mViewSettingName;
     private Button mBtnAdd;
     private Button btnMsg;
 
     private int type; //0.已经是好友 1.不是好友添加好友
     private Long id;
     private UserAction userAction;
+    private String mkName;
+
 
 
     @Override
@@ -85,15 +88,18 @@ public class UserInfoActivity extends AppActivity {
         btnMsg = findViewById(R.id.btn_msg);
         mLayoutMsg = findViewById(R.id.layout_msg);
         mBtnAdd = findViewById(R.id.btn_add);
+        mViewSettingName =  findViewById(R.id.view_setting_name);
 
-        id = getIntent().getLongExtra(ID,0);
+        id = getIntent().getLongExtra(ID, 0);
         taskFindExist();
         if (type == 0) {
             mLayoutMsg.setVisibility(View.VISIBLE);
             mBtnAdd.setVisibility(View.GONE);
+            mViewSettingName.setVisibility(View.VISIBLE);
         } else if (type == 1) {
             mLayoutMsg.setVisibility(View.GONE);
             mBtnAdd.setVisibility(View.VISIBLE);
+            mViewSettingName.setVisibility(View.GONE);
         }
 
     }
@@ -175,6 +181,7 @@ public class UserInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "设置备注和描述");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置备注和描述");
                 intent.putExtra(CommonSetingActivity.HINT, "设置备注和描述");
+                intent.putExtra(CommonSetingActivity.SETING,mkName);
                 startActivityForResult(intent, SETING_REMARK);
 
             }
@@ -191,7 +198,7 @@ public class UserInfoActivity extends AppActivity {
 
     private void initData() {
         userAction = new UserAction();
-        id = getIntent().getLongExtra(ID,0);
+        id = getIntent().getLongExtra(ID, 0);
         taskUserInfo(id);
     }
 
@@ -202,8 +209,8 @@ public class UserInfoActivity extends AppActivity {
             String content = data.getStringExtra(CommonSetingActivity.CONTENT);
             switch (requestCode) {
                 case SETING_REMARK:
-                    if(!TextUtils.isEmpty(content)){
-                        taskFriendMark(id,content);
+                    if (!TextUtils.isEmpty(content)) {
+                        taskFriendMark(id, content);
                     }
                     break;
             }
@@ -221,6 +228,7 @@ public class UserInfoActivity extends AppActivity {
                 UserInfo info = response.body().getData();
                 imgHead.setImageURI(Uri.parse("" + info.getHead()));
                 txtMkname.setText(info.getName4Show());
+                mkName = info.getMkName();
                 txtPrNo.setText(info.getImid());
                 txtNkname.setText(info.getName());
             }
@@ -270,7 +278,7 @@ public class UserInfoActivity extends AppActivity {
                 }
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 //刷新好友和退出
-                if(response.body().isOk()){
+                if (response.body().isOk()) {
 
                     EventBus.getDefault().post(new EventRefreshFriend());
                     finish();
@@ -279,7 +287,7 @@ public class UserInfoActivity extends AppActivity {
         });
     }
 
-    private void taskFriendMark(final Long id, String mark){
+    private void taskFriendMark(final Long id, String mark) {
         userAction.friendMark(id, mark, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -294,7 +302,6 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-
     private UserDao userDao = new UserDao();
 
     /***
@@ -303,4 +310,5 @@ public class UserInfoActivity extends AppActivity {
     private void taskFindExist() {
         type = userDao.findUserInfo4Friend(id) == null ? 1 : 0;
     }
+
 }

@@ -40,8 +40,8 @@
 
                 <TextView
                     android:id="@+id/tv_info"
-                    android:layout_marginTop="5dp"
                     style="@style/app_txt_content_1"
+                    android:layout_marginTop="5dp"
                     android:text="info"
                     android:textSize="13sp" />
             </LinearLayout>
@@ -55,7 +55,31 @@
 
     <LinearLayout style="@style/app_layout_list2">
 
-        <LinearLayout style="@style/app_layout_list2_item" android:id="@+id/view_qr">
+        <LinearLayout
+            android:id="@+id/view_scan_qrcode"
+            style="@style/app_layout_list2_item">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:src="@mipmap/ic_scan_qrcode" />
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_weight="1"
+                android:text="扫一扫" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/view_qr"
+            style="@style/app_layout_list2_item">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -77,10 +101,14 @@
     </LinearLayout>
 
 
-    <LinearLayout style="@style/app_layout_list2"
-        android:visibility="gone">
+    <LinearLayout
+        style="@style/app_layout_list2"
+        android:visibility="visible">
 
-        <LinearLayout style="@style/app_layout_list2_item" android:id="@+id/view_money">
+        <LinearLayout
+            android:id="@+id/view_money"
+            style="@style/app_layout_list2_item"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -100,19 +128,21 @@
                 android:src="@mipmap/ic_btn_goto" />
         </LinearLayout>
 
-        <LinearLayout style="@style/app_layout_list2_item" android:id="@+id/view_wallet">
+        <LinearLayout
+            android:id="@+id/view_wallet"
+            style="@style/app_layout_list2_item">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/app_margin_item"
-                android:src="@mipmap/ic_my_wd" />
+                android:src="@mipmap/ic_zfb_hb" />
 
             <TextView
                 style="@style/app_txt_title_2"
                 android:layout_marginRight="@dimen/app_margin_item"
                 android:layout_weight="1"
-                android:text="第三方钱包" />
+                android:text="支付宝红包" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -122,11 +152,13 @@
     </LinearLayout>
 
 
-
-    <LinearLayout style="@style/app_layout_list2"
+    <LinearLayout
+        style="@style/app_layout_list2"
         android:visibility="gone">
 
-        <LinearLayout style="@style/app_layout_list2_item" android:id="@+id/view_collection">
+        <LinearLayout
+            android:id="@+id/view_collection"
+            style="@style/app_layout_list2_item">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -150,7 +182,9 @@
 
     <LinearLayout style="@style/app_layout_list2">
 
-        <LinearLayout style="@style/app_layout_list2_item" android:id="@+id/view_setting">
+        <LinearLayout
+            android:id="@+id/view_setting"
+            style="@style/app_layout_list2_item">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -162,7 +196,29 @@
                 style="@style/app_txt_title_2"
                 android:layout_marginRight="@dimen/app_margin_item"
                 android:layout_weight="1"
-                android:text="设置" />
+                android:text="通用设置" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/view_help"
+            style="@style/app_layout_list2_item">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:src="@mipmap/ic_my_help" />
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_weight="1"
+                android:text="帮助" />
 
             <ImageView
                 android:layout_width="wrap_content"

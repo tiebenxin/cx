@@ -1,10 +1,14 @@
 package com.yanlong.im.user.ui;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +19,12 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.QRCodeManage;
+
+import net.cb.cb.library.bean.QRCodeBean;
+import net.cb.cb.library.zxing.activity.CaptureActivity;
+
+import static android.app.Activity.RESULT_OK;
 
 /***
  * 我
@@ -30,6 +40,8 @@ public class MyFragment extends Fragment {
     private LinearLayout viewCollection;
     private LinearLayout viewSetting;
     private TextView mTvInfo;
+    private LinearLayout mViewScanQrcode;
+    private LinearLayout mViewHelp;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -41,7 +53,9 @@ public class MyFragment extends Fragment {
         viewWallet = rootView.findViewById(R.id.view_wallet);
         viewCollection = rootView.findViewById(R.id.view_collection);
         viewSetting = rootView.findViewById(R.id.view_setting);
-        mTvInfo =  rootView.findViewById(R.id.tv_info);
+        mTvInfo = rootView.findViewById(R.id.tv_info);
+        mViewScanQrcode = rootView.findViewById(R.id.view_scan_qrcode);
+        mViewHelp = rootView.findViewById(R.id.view_help);
     }
 
 
@@ -74,14 +88,33 @@ public class MyFragment extends Fragment {
 
             }
         });
+        mViewScanQrcode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    // 申请权限
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, CaptureActivity.REQ_PERM_CAMERA);
+                    return;
+                }
+                // 二维码扫码
+                Intent intent = new Intent(getActivity(), CaptureActivity.class);
+                startActivityForResult(intent, CaptureActivity.REQ_QR_CODE);
+            }
+        });
+        mViewHelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), HelpActivity.class));
+            }
+        });
     }
 
     private void initData() {
         UserInfo userInfo = UserAction.getMyInfo();
-         if(userInfo != null){
+        if (userInfo != null) {
             imgHead.setImageURI(userInfo.getHead() + "");
             txtName.setText(userInfo.getName());
-            mTvInfo.setText("待定...");
+            mTvInfo.setText("产品号: " + userInfo.getImid() + "");
         }
     }
 
@@ -136,4 +169,15 @@ public class MyFragment extends Fragment {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
+            Bundle bundle = data.getExtras();
+            String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
+            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivity(),scanResult);
+            QRCodeManage.goToActivity(getActivity(),bean);
+            //将扫描出的信息显示出来
+        }
+    }
 }

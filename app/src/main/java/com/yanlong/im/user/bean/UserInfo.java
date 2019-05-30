@@ -31,7 +31,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单
     private Integer uType;
     private String phone;
-
+    private String oldimid;
 
     private Integer disturb;///消息免打扰(0:关闭|1:打开)
     private Integer istop;//聊天置顶(0:关闭|1:打开)
@@ -39,7 +39,41 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer imidfind;//通过产品号找到自己(0:关闭|1:打开)
     private Integer friendvalid;//加我为朋友时需要验证(0:关闭|1:打开)
     private Integer groupvalid; //允许被直接添加至群聊(0:关闭|1:打开)
+    private Integer messagenotice;//新消息通知(0:关闭|1:打开)
+    private Integer displaydetail;//显示详情(0:关闭|1:打开)
+    private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单)
 
+    public Integer getMessagenotice() {
+        return messagenotice;
+    }
+
+    public void setMessagenotice(Integer messagenotice) {
+        this.messagenotice = messagenotice;
+    }
+
+    public Integer getDisplaydetail() {
+        return displaydetail;
+    }
+
+    public void setDisplaydetail(Integer displaydetail) {
+        this.displaydetail = displaydetail;
+    }
+
+    public Integer getStat() {
+        return stat;
+    }
+
+    public void setStat(Integer stat) {
+        this.stat = stat;
+    }
+
+    public String getOldimid() {
+        return oldimid;
+    }
+
+    public void setOldimid(String oldimid) {
+        this.oldimid = oldimid;
+    }
 
     public String getPhone() {
         return phone;

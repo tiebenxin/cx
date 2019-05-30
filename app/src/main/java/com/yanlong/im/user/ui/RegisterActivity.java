@@ -23,6 +23,7 @@ import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.ClearEditText;
 import net.cb.cb.library.view.HeadView;
 
 import retrofit2.Call;
@@ -30,10 +31,10 @@ import retrofit2.Response;
 
 public class RegisterActivity extends AppActivity implements View.OnClickListener {
 
-    private EditText mEtPhoneContent;
+    private ClearEditText mEtPhoneContent;
     private EditText mEtIdentifyingCodeContent;
-    private EditText mEtPasswordContent;
-    private EditText mEtNextPasswordContent;
+    private ClearEditText mEtPasswordContent;
+    private ClearEditText mEtNextPasswordContent;
     private Button mBtnRegister;
     private TextView mTvMattersNeedAttention;
     private TextView mTvGetVerificationCode;

@@ -56,7 +56,9 @@
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout style="@style/app_layout_list2">
+        <LinearLayout
+            android:id="@+id/view_setting_name"
+            style="@style/app_layout_list2">
 
             <LinearLayout
                 android:id="@+id/view_mkname"

@@ -38,11 +38,13 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
+import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.EventRefreshMainMsg;
+import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
@@ -241,8 +243,9 @@ public class MsgMainFragment extends Fragment {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
+            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivityMe(),scanResult);
+            QRCodeManage.goToActivity(getActivityMe(),bean);
             //将扫描出的信息显示出来
-            ToastUtil.show(getActivityMe(), scanResult);
         }
     }
 

@@ -165,6 +165,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 break;
             case R.id.view_sex:
                 Intent sexIntent = new Intent(MyselfInfoActivity.this, SelectSexActivity.class);
+                sexIntent.putExtra(SelectSexActivity.SEX,sex);
                 startActivityForResult(sexIntent, SEX);
                 break;
             case R.id.view_identity:
