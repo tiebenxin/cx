@@ -29,6 +29,21 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/view_add_friend"
+            style="@style/app_layout_list2_item">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:src="@mipmap/ic_msg_friend_add_item" />
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:text="添加好友" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/view_match"
             style="@style/app_layout_list2_item">
 

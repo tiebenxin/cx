@@ -23,12 +23,15 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -176,18 +179,24 @@ public class ChatInfoActivity extends AppActivity {
             UserInfo userInfo = null;
             switch (position) {
                 case 0:
-                    userInfo = UserAction.getMyInfo();
-                    holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
-                    break;
-                case 1:
                     userInfo = fUserInfo;
 
                     holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
                     break;
-                case 2:
-                    holder.imgHead.setImageURI(Uri.parse("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=3853320162,146397336&fm=173&app=25&f=JPEG?w=640&h=360&s=22A066A44A5674C2528F1F7603000054"));
+                case 1:
 
+                    holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
+
+                    holder.imgHead.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            finish();
+                            EventBus.getDefault().post(new EventExitChat());
+                            startActivity(new Intent(getContext(),GroupCreateActivity.class));
+                        }
+                    });
                     break;
+
             }
 
 

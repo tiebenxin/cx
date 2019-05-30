@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -52,9 +53,10 @@ public class GroupInfoActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private android.support.v7.widget.RecyclerView topListView;
-    private ImageView btnAdd;
-    private ImageView btnRm;
+  //  private ImageView btnAdd;
+  //  private ImageView btnRm;
     private LinearLayout viewGroupName;
+    private LinearLayout viewGroupMore;
     private TextView txtGroupName;
     private LinearLayout viewGroupNick;
     private TextView txtGroupNick;
@@ -79,9 +81,10 @@ public class GroupInfoActivity extends AppActivity {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
-        btnAdd = (ImageView) findViewById(R.id.btn_add);
-        btnRm = (ImageView) findViewById(R.id.btn_rm);
+      //  btnAdd = (ImageView) findViewById(R.id.btn_add);
+      //  btnRm = (ImageView) findViewById(R.id.btn_rm);
         viewGroupName = (LinearLayout) findViewById(R.id.view_group_name);
+        viewGroupMore = (LinearLayout) findViewById(R.id.view_group_more);
         txtGroupName = (TextView) findViewById(R.id.txt_group_name);
         viewGroupNick = (LinearLayout) findViewById(R.id.view_group_nick);
         txtGroupNick = (TextView) findViewById(R.id.txt_group_nick);
@@ -121,57 +124,7 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                List<UserInfo> userInfos = taskGetNumbers();
-
-                List<UserInfo> friendsUser = taskGetFriends();
-
-                List<UserInfo> temp = new ArrayList<>();
-
-                for (UserInfo a : friendsUser) {
-                    boolean isEx = false;
-                    for (UserInfo u : userInfos) {
-                        if (u.getUid().longValue() == a.getUid().longValue()) {
-                            isEx = true;
-                        }
-                    }
-                    if (!isEx) {
-                        temp.add(a);
-                    }
-
-                }
-
-
-                String json = gson.toJson(temp);
-                startActivity(new Intent(getContext(), GroupNumbersActivity.class)
-                        .putExtra(GroupNumbersActivity.AGM_GID, gid)
-                        .putExtra(GroupNumbersActivity.AGM_TYPE, GroupNumbersActivity.TYPE_ADD)
-                        .putExtra(GroupNumbersActivity.AGM_NUMBERS_JSON, json)
-                );
-            }
-        });
-        btnRm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<UserInfo> userInfos = taskGetNumbers();
-                for (UserInfo u : userInfos) {
-                    if (u.getUid().longValue() == UserAction.getMyId().longValue()) {
-                        userInfos.remove(u);
-                        break;
-                    }
-                }
-                String json = gson.toJson(userInfos);
-                startActivity(new Intent(getContext(), GroupNumbersActivity.class)
-                        .putExtra(GroupNumbersActivity.AGM_GID, gid)
-                        .putExtra(GroupNumbersActivity.AGM_TYPE, GroupNumbersActivity.TYPE_DEL)
-                        .putExtra(GroupNumbersActivity.AGM_NUMBERS_JSON, json)
-                );
-
-            }
-        });
 
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -223,8 +176,17 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
+        viewGroupMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              //  ToastUtil.show(getContext(),"更多");
+                startActivity(new Intent(getContext(), GroupInfoMumberActivity.class).putExtra(AGM_GID,gid));
+            }
+        });
+
 
     }
+
 
 
     @Override
@@ -244,9 +206,10 @@ public class GroupInfoActivity extends AppActivity {
 
     private void initData() {
         //顶部处理
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        topListView.setLayoutManager(linearLayoutManager);
+        GridLayoutManager gridLayoutManager =new GridLayoutManager(this,5);
+
+
+        topListView.setLayoutManager(gridLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
 
 
@@ -301,30 +264,58 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-    private List<String> listDataTop = new ArrayList<>();
+    private List<UserInfo> listDataTop = new ArrayList<>();
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewTopAdapter extends RecyclerView.Adapter<RecyclerViewTopAdapter.RCViewTopHolder> {
 
         @Override
         public int getItemCount() {
-            // return listDataTop == null ? 0 : listDataTop.size();
-            return ginfo.getMembers() == null ? 0 : ginfo.getMembers().size();
+
+            return listDataTop == null ? 0 : listDataTop.size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
-            //listDataTop.get(position)
-            UserInfo number = ginfo.getMembers().get(position);
-            holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
+
+
+
+          UserInfo number=  listDataTop.get(position);
+            if(number!=null){
+                holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
+                holder.txtName.setText(""+number.getName4Show());
+            }else{
+                if(isAdmin()&&position==listDataTop.size()-1){
+                    holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
+                    holder.txtName.setText("");
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            taskDel();
+                        }
+                    });
+                }else{
+                    holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
+                    holder.txtName.setText("");
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            taskAdd();
+                        }
+                    });
+                }
+
+            }
+
+
         }
 
 
         //自动寻找ViewHold
         @Override
         public RCViewTopHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewTopHolder holder = new RCViewTopHolder(inflater.inflate(R.layout.item_group_create_top, view, false));
+            RCViewTopHolder holder = new RCViewTopHolder(inflater.inflate(R.layout.item_group_create_top2, view, false));
             return holder;
         }
 
@@ -332,11 +323,13 @@ public class GroupInfoActivity extends AppActivity {
         //自动生成ViewHold
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
             private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private TextView txtName;
 
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
                 imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
             }
 
         }
@@ -376,6 +369,8 @@ public class GroupInfoActivity extends AppActivity {
 
 
         userInfos = userInfos == null ? new ArrayList() : userInfos;
+
+
 
         return userInfos;
     }
@@ -427,11 +422,55 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
 
+                    actionbar.setTitle("群聊信息("+ginfo.getMembers().size()+")");
+                  /*  for (int i=0;i<50;i++){
+                        UserInfo teuser=new UserInfo();
+                        teuser.setHead(ginfo.getMembers().get(0).getHead());
+                        teuser.setName(""+i);
+                        teuser.setUid(4546l);
+                        ginfo.getMembers().add(teuser);
+                    }*/
+
+                    listDataTop.clear();
+                    if(isAdmin()){
+                        if(ginfo.getMembers().size()>18){
+                            viewGroupMore.setVisibility(View.VISIBLE);
+                            for (int i=0;i<18;i++){
+                                listDataTop.add(ginfo.getMembers().get(i));
+                            }
+
+                        }else {
+                            listDataTop.addAll(ginfo.getMembers());
+                            viewGroupMore.setVisibility(View.GONE);
+                        }
+                        listDataTop.add(null);
+                        listDataTop.add(null);
+
+                    }else{
+
+                        if(ginfo.getMembers().size()>19){
+                            viewGroupMore.setVisibility(View.VISIBLE);
+                            for (int i=0;i<19;i++){
+                                listDataTop.add(ginfo.getMembers().get(i));
+                            }
+
+                        }else {
+                            listDataTop.addAll(ginfo.getMembers());
+                            viewGroupMore.setVisibility(View.GONE);
+                        }
+
+                        listDataTop.add(null);
+
+
+                    }
+
+                   // viewGroupMore.setVisibility(View.VISIBLE);
                     initData();
                 }
             }
         });
     }
+
 
     private void taskSetState(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
 
@@ -443,5 +482,50 @@ public class GroupInfoActivity extends AppActivity {
         });
     }
 
+
+    private void taskAdd() {
+        List<UserInfo> userInfos = taskGetNumbers();
+
+        List<UserInfo> friendsUser = taskGetFriends();
+
+        List<UserInfo> temp = new ArrayList<>();
+
+        for (UserInfo a : friendsUser) {
+            boolean isEx = false;
+            for (UserInfo u : userInfos) {
+                if (u.getUid().longValue() == a.getUid().longValue()) {
+                    isEx = true;
+                }
+            }
+            if (!isEx) {
+                temp.add(a);
+            }
+
+        }
+
+
+        String json = gson.toJson(temp);
+        startActivity(new Intent(getContext(), GroupNumbersActivity.class)
+                .putExtra(GroupNumbersActivity.AGM_GID, gid)
+                .putExtra(GroupNumbersActivity.AGM_TYPE, GroupNumbersActivity.TYPE_ADD)
+                .putExtra(GroupNumbersActivity.AGM_NUMBERS_JSON, json)
+        );
+    }
+
+    private void taskDel() {
+        List<UserInfo> userInfos = taskGetNumbers();
+        for (UserInfo u : userInfos) {
+            if (u.getUid().longValue() == UserAction.getMyId().longValue()) {
+                userInfos.remove(u);
+                break;
+            }
+        }
+        String json = gson.toJson(userInfos);
+        startActivity(new Intent(getContext(), GroupNumbersActivity.class)
+                .putExtra(GroupNumbersActivity.AGM_GID, gid)
+                .putExtra(GroupNumbersActivity.AGM_TYPE, GroupNumbersActivity.TYPE_DEL)
+                .putExtra(GroupNumbersActivity.AGM_NUMBERS_JSON, json)
+        );
+    }
 
 }

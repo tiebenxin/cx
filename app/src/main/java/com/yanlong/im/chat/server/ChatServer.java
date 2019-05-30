@@ -25,6 +25,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.utils.LogUtil;
@@ -159,7 +160,7 @@ public class ChatServer extends Service {
                     return;
                 case CONFLICT:
                     // ToastUtil.show(getApplicationContext(), "账号已经被登录");
-                    EventBus.getDefault().post(new EventLoginOut());
+                    EventBus.getDefault().post(new EventLoginOut4Conflict());
                     return;
 
             }

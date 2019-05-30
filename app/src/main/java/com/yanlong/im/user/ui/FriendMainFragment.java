@@ -178,6 +178,12 @@ public class FriendMainFragment extends Fragment {
                         startActivity(new Intent(getContext(), FriendApplyAcitvity.class));
                     }
                 });
+                hd.viewAddFriend.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getContext(), FriendAddAcitvity.class));
+                    }
+                });
                 hd.viewGroup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -265,6 +271,7 @@ public class FriendMainFragment extends Fragment {
         //自动生成ViewHold
         public class RCViewFuncHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewAdd;
+            private LinearLayout viewAddFriend;
             private LinearLayout viewMatch;
             private LinearLayout viewGroup;
             private StrikeButton sbApply;
@@ -273,6 +280,7 @@ public class FriendMainFragment extends Fragment {
             public RCViewFuncHolder(View convertView) {
                 super(convertView);
                 viewAdd = (LinearLayout) convertView.findViewById(R.id.view_add);
+                viewAddFriend = (LinearLayout) convertView.findViewById(R.id.view_add_friend);
                 viewMatch = (LinearLayout) convertView.findViewById(R.id.view_match);
                 viewGroup = (LinearLayout) convertView.findViewById(R.id.view_group);
                 sbApply = (StrikeButton) convertView.findViewById(R.id.sb_apply);

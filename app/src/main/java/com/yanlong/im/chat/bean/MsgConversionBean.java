@@ -25,7 +25,7 @@ public class MsgConversionBean {
         MsgAllBean msgAllBean = new MsgAllBean();
 
         msgAllBean.setTimestamp(bean.getTimestamp());
-        msgAllBean.setFrom_uid(bean.getFromUid());
+         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setFrom_avatar(bean.getAvatar());
         msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setGid(bean.getGid());
@@ -111,15 +111,21 @@ public class MsgConversionBean {
             case ACCEPT_BE_FRIENDS:// 接收好友请求
                 msgAllBean.setMsg_type(0);
                 MsgNotice msgNotice=new MsgNotice();
-                msgNotice.setNote(bean.getNickname()+"加好友成功");
+                msgNotice.setNote(bean.getNickname()+"已加你为好友");
                 msgAllBean.setMsgNotice(msgNotice);
                 break;
             case ACCEPT_BE_GROUP://接受入群请求
                 msgAllBean.setMsg_type(0);
                 MsgNotice gNotice=new MsgNotice();
-                gNotice.setNote(bean.getNickname()+"进群成功");
+                gNotice.setNote(bean.getAcceptBeGroup().getNoticeMessage(0).getNickname()+"已加入群");
                 msgAllBean.setMsgNotice(gNotice);
                     break;
+            case DESTROY_GROUP://群解散
+                msgAllBean.setMsg_type(0);
+                MsgNotice gdelNotice=new MsgNotice();
+                gdelNotice.setNote("该群已解散");
+                msgAllBean.setMsgNotice(gdelNotice);
+                break;
 
             default:
                 return null;

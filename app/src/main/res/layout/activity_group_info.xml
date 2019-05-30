@@ -16,16 +16,42 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout style="@style/app_layout_list1_item">
+            <LinearLayout
+                style="@style/app_layout_list1_item"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <android.support.v7.widget.RecyclerView
+                    android:layout_marginTop="10dp"
                     android:id="@+id/topListView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/app_margin_item"
                     android:layout_weight="1" />
 
-                <ImageView
+                <LinearLayout
+                    android:visibility="gone"
+                    android:id="@+id/view_group_more"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+
+                        android:textColor="@color/gray_300"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:text="查看更多群成员" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
+
+           <!--     <ImageView
                     android:id="@+id/btn_add"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -36,7 +62,7 @@
                     android:id="@+id/btn_rm"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_group_c" />
+                    android:src="@mipmap/ic_group_c" />-->
 
             </LinearLayout>
 

@@ -14,12 +14,18 @@ import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.chat.ui.MsgMainFragment;
+import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
+import com.yanlong.im.user.ui.PasswordLoginActivity;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
+import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.view.ViewPagerSlide;
@@ -42,7 +48,7 @@ public class MainActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        viewPage =  findViewById(R.id.viewPage);
+        viewPage = findViewById(R.id.viewPage);
         bottomTab = (android.support.design.widget.TabLayout) findViewById(R.id.bottom_tab);
     }
 
@@ -107,12 +113,12 @@ public class MainActivity extends AppActivity {
                 sb.setSktype(1);
                 //设置值
                 sb.setNum(0);
-                sbme=sb;
+                sbme = sb;
             }
             if (i == 1) {
                 sb.setSktype(1);
                 sb.setNum(0);
-                sbfriend=sb;
+                sbfriend = sb;
             }
 
             if (i == 0) {//消息数量
@@ -129,10 +135,26 @@ public class MainActivity extends AppActivity {
         bottomTab.getTabAt(0).select();
 
 
-
-
         // 启动聊天服务
         startService(new Intent(getContext(), ChatServer.class));
+
+        //监听应用
+  /*      AppFrontBackHelper helper = new AppFrontBackHelper();
+        helper.register(getApplication(), new AppFrontBackHelper.OnAppStatusListener() {
+            @Override
+            public void onFront() {
+                //应用切到前台处理
+                startService(new Intent(getContext(), ChatServer.class));
+            }
+
+            @Override
+            public void onBack() {
+                //应用切到后台处理
+                stopService(new Intent(getContext(), ChatServer.class));
+
+            }
+        });*/
+
 
 
     }
@@ -140,7 +162,6 @@ public class MainActivity extends AppActivity {
 
     private UserAction userAction = new UserAction();
     private boolean testMe = true;
-
 
 
     @Override
@@ -177,6 +198,31 @@ public class MainActivity extends AppActivity {
         finish();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventLoginOutconflict(EventLoginOut4Conflict event) {
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
+        startActivity(new Intent(getContext(), MainActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        );
+
+        AlertYesNo alertYesNo = new AlertYesNo();
+        alertYesNo.init(this, "您已被踢下线", "您已在其他设备登录账号", "确定", null, new AlertYesNo.Event() {
+            @Override
+            public void onON() {
+                startActivity(new Intent(getContext(), PasswordLoginActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onYes() {
+                startActivity(new Intent(getContext(), PasswordLoginActivity.class));
+                finish();
+            }
+        });
+        alertYesNo.show();
+
+    }
+
 
     private MsgDao msgDao = new MsgDao();
 
@@ -194,12 +240,12 @@ public class MainActivity extends AppActivity {
     /***
      * 好友或者群申请数量
      */
-    private void taskGetFriendNum(){
-      //  ToastUtil.show(getContext(),"更新好友的提示数量");
-        int sum=0;
-        sum+=msgDao.remidGet("friend_apply");
-       // sum+=msgDao.remidGet("friend_apply");
-      //  sum+=msgDao.remidGet("friend_apply");
+    private void taskGetFriendNum() {
+        //  ToastUtil.show(getContext(),"更新好友的提示数量");
+        int sum = 0;
+        sum += msgDao.remidGet("friend_apply");
+        // sum+=msgDao.remidGet("friend_apply");
+        //  sum+=msgDao.remidGet("friend_apply");
         sbfriend.setNum(sum);
 
 
