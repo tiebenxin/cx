@@ -170,7 +170,7 @@ public class UserAction {
     }
 
 
-    public void login4token(final Callback<ReturnBean<TokenBean>> callback) {
+    public void login4token(String dev_id,final Callback<ReturnBean<TokenBean>> callback) {
         //判断有没有token信息
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
         if (token == null || !StringUtil.isNotNull(token.getAccessToken())) {
@@ -182,7 +182,7 @@ public class UserAction {
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
         //或者把token传给后端
 
-        NetUtil.getNet().exec(server.login4token(), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4token(dev_id, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token

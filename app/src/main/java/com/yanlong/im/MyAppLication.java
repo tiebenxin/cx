@@ -54,7 +54,8 @@ public class MyAppLication extends MainApplication {
         }
         //初始化数据库
         Realm.init(getApplicationContext());
-        //initUPush();
+        initUPush();
+        initWeixinConfig();
     }
 
 
@@ -70,6 +71,7 @@ public class MyAppLication extends MainApplication {
         //设置通知栏显示数量
         mPushAgent.setDisplayNotificationNumber(2);
         //注册推送服务，每次调用register方法都会回调该接口
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).clear();
         mPushAgent.register(new IUmengRegisterCallback() {
             @Override
             public void onSuccess(String deviceToken) {
@@ -89,7 +91,7 @@ public class MyAppLication extends MainApplication {
 
 
 
-    {
+    private void initWeixinConfig() {
         PlatformConfig.setWeixin("wx84ecce93acb0e78f", "63293f55248912676fccdfe59515ed42");
     }
 

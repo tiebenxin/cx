@@ -33,7 +33,8 @@ public interface UserServer {
     Call<ReturnBean<TokenBean>> login(@Field("password") String password,@Field("phone")Long phone,@Field("devid")String devid,@Field("platform")String platform);
 
     @POST("/user/refresh-access-token")
-    Call<ReturnBean<TokenBean>> login4token();
+    @FormUrlEncoded
+    Call<ReturnBean<TokenBean>> login4token(@Field("devid")String devid,@Field("platform")String platform);
 
     @POST("/user/get-user-info")
     Call<ReturnBean<UserInfo>> getMyInfo();

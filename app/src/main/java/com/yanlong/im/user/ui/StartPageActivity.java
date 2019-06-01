@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
@@ -21,8 +22,10 @@ import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.AppActivity;
 
 import org.android.agoo.xiaomi.MiPushRegistar;
@@ -109,6 +112,8 @@ public class StartPageActivity extends AppActivity {
 
 
     private void initEvent() {
+
+
         mBtnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,7 +125,8 @@ public class StartPageActivity extends AppActivity {
     private void updateToken(final boolean isFlast) {
         final String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         UserAction userAction = new UserAction();
-        userAction.login4token(new Callback<ReturnBean<TokenBean>>() {
+
+        userAction.login4token(UserAction.getDevId(getContext()),new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if(isFlast){
@@ -152,8 +158,9 @@ public class StartPageActivity extends AppActivity {
 
 
     private void goActivity(boolean isFlast) {
+
         //同步使用友盟设备号,如果同步失败使用自己设备号
-        initUPush(isFlast);
+     updateToken(isFlast);
     }
 
     private void showPage() {
@@ -194,35 +201,7 @@ public class StartPageActivity extends AppActivity {
     }
 
 
-    private void initUPush(final boolean isFlast) {
-        UMConfigure.init(this, "5cdf7aab4ca357f3f600055f",
-                "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
-                "8dd38f8da115dcf6441ce3922f30a2ac");
 
-        MiPushRegistar.register(this,"bMsFYycwSstKDv19Mx9zxQ==", "5411801194485");
 
-        //获取消息推送代理示例
-        PushAgent mPushAgent = PushAgent.getInstance(this);
-        //设置通知栏显示数量
-        mPushAgent.setDisplayNotificationNumber(2);
-        //注册推送服务，每次调用register方法都会回调该接口
-        mPushAgent.register(new IUmengRegisterCallback() {
-            @Override
-            public void onSuccess(String deviceToken) {
-                //注册成功会返回deviceToken deviceToken是推送消息的唯一标志
-                Log.i(TAG, "注册成功：deviceToken：-------->  " + deviceToken);
-                new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(deviceToken);
-                updateToken(isFlast);
-
-            }
-
-            @Override
-            public void onFailure(String s, String s1) {
-                Log.e(TAG, "注册失败：-------->  " + "s:" + s + ",s1:" + s1);
-                new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).clear();
-                updateToken(isFlast);
-            }
-        });
-    }
 
 }
