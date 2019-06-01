@@ -27,7 +27,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class IdentifyingCodeActivity extends AppActivity implements View.OnClickListener {
-
+    public final static String PHONE = "phone";
     private EditText mEtPhoneContent;
     private EditText mEtIdentifyingCodeContent;
     private TextView mTvPassword;
@@ -35,6 +35,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
     private TextView mTvGetVerificationCode;
     private UserAction userAction;
     private HeadView mHeadView;
+    private String phone;
 
 
     @Override
@@ -59,6 +60,11 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
         mTvPassword = findViewById(R.id.tv_password);
         mBtnLogin = findViewById(R.id.btn_login);
         mHeadView = findViewById(R.id.headView);
+        phone = getIntent().getStringExtra(PHONE);
+        if(!TextUtils.isEmpty(phone)){
+            mEtPhoneContent.setText(phone);
+        }
+
     }
 
     private void initEvent() {

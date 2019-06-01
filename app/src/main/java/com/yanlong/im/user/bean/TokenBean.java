@@ -1,6 +1,5 @@
 package com.yanlong.im.user.bean;
 
-import com.google.gson.annotations.SerializedName;
 
 public class TokenBean {
     private Long uid;

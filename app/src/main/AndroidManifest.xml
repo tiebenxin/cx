@@ -170,10 +170,12 @@
         <!--密码登录-->
         <activity
             android:name=".user.ui.PasswordLoginActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <!--验证码登录-->
         <activity
             android:name=".user.ui.IdentifyingCodeActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <!--注册页面-->
         <activity

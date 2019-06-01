@@ -3,7 +3,6 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +25,8 @@ import net.cb.cb.library.view.PopupSelectView;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static com.yanlong.im.user.ui.IdentifyingCodeActivity.PHONE;
+
 public class LoginActivity extends AppActivity implements View.OnClickListener {
 
     private SimpleDraweeView mImgHead;
@@ -37,6 +38,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private TextView mTvMore;
     private PopupSelectView popupSelectView;
     private String[] strings = {"切换账号", "注册", "取消"};
+    private String phone;
 
 
     @Override
@@ -70,7 +72,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     }
 
     private void initData() {
-        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
+        phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         String imageHead = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).get4Json(String.class);
         mTvPhoneNumber.setText(phone);
         mImgHead.setImageURI(imageHead+"");
@@ -82,6 +84,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.tv_identifying_code:
                 Intent intent = new Intent(this, IdentifyingCodeActivity.class);
+                intent.putExtra(PHONE,phone);
                 startActivity(intent);
                 break;
             case R.id.btn_login:

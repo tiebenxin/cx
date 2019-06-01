@@ -3,8 +3,8 @@ package com.yanlong.im.user.action;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
-import com.tencent.mm.opensdk.utils.Log;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
@@ -108,7 +108,6 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
-                    Log.v("sssss111111", "login--isOK");
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());

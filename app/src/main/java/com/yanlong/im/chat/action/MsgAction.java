@@ -2,6 +2,7 @@ package com.yanlong.im.chat.action;
 
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -44,9 +45,9 @@ public class MsgAction {
         /*List<Long> ulist = new ArrayList<>();
 
          */
-        List<UserInfo> listDataTop2=new ArrayList<>();
-        for ( int i=0;i<listDataTop.size();i++) {
-            UserInfo   userInfo = new UserInfo();
+        List<UserInfo> listDataTop2 = new ArrayList<>();
+        for (int i = 0; i < listDataTop.size(); i++) {
+            UserInfo userInfo = new UserInfo();
 
 
             userInfo.setUid(listDataTop.get(i).getUid());
@@ -234,7 +235,7 @@ public class MsgAction {
         NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<ReturnGroupInfoBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<ReturnGroupInfoBean>>> call, Response<ReturnBean<List<ReturnGroupInfoBean>>> response) {
-                if(response.body()==null)
+                if (response.body() == null)
                     return;
                 callback.onResponse(call, response);
 
@@ -250,6 +251,13 @@ public class MsgAction {
 
             }
         });
+    }
+
+    /**
+     * 加入群聊
+     * */
+    public void joinGroup(Long gid, Long uid, String nickname, Callback<ReturnBean<GroupJoinBean>> callback) {
+        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname), callback);
     }
 
 

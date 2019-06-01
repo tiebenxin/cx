@@ -55,6 +55,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private String imageHead;
     private String imid;
     private String nickName;
+    private String oldImid;
 
 
     @Override
@@ -66,6 +67,10 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         initData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
     @Override
     protected void onDestroy() {
@@ -117,12 +122,13 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         userInfo = UserAction.getMyInfo();
         imageHead = userInfo.getHead();
         mTvPhone.setText(userInfo.getPhone()+"");
+        oldImid = userInfo.getOldimid();
         imid = userInfo.getImid();
         nickName = userInfo.getName();
         sex = userInfo.getSex();
         mImgHead.setImageURI(imageHead + "");
         mTvNickname.setText(nickName);
-        if (!TextUtils.isEmpty(imid)) {
+        if (!oldImid.equals(imid)) {
             mTvProductNumber.setText(imid);
             mIvProductNumber.setVisibility(View.GONE);
             mViewProductNumber.setClickable(false);
@@ -143,6 +149,9 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 break;
         }
     }
+
+
+
 
 
     @Override

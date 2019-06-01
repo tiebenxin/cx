@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.server;
 
+import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
 import com.yanlong.im.test.bean.Test2Bean;
 
@@ -46,7 +47,6 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> groupSwitch(@Field("gid") String gid,@Field("needVerification") Integer needVerification);
 
-
     @POST("group/get-my-saved")
     Call<ReturnBean<List<ReturnGroupInfoBean>>> getMySaved();
 
@@ -58,4 +58,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> friendTop(@Field("friend") Long uid,@Field("istop") Integer istop);
 
+    @POST("/group/request-join")
+    @FormUrlEncoded
+    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") Long gid, @Field("uid") Long uid,@Field("nickname") String nickname);
 }
