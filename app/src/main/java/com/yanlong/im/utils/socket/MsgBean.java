@@ -158,6 +158,14 @@ public final class MsgBean {
          * <code>CONFLICT = 109;</code>
          */
         CONFLICT(109),
+        /**
+         * <pre>
+         *退群
+         * </pre>
+         *
+         * <code>OUT_GROUP = 110;</code>
+         */
+        OUT_GROUP(110),
         UNRECOGNIZED(-1),
         ;
 
@@ -297,6 +305,14 @@ public final class MsgBean {
          * <code>CONFLICT = 109;</code>
          */
         public static final int CONFLICT_VALUE = 109;
+        /**
+         * <pre>
+         *退群
+         * </pre>
+         *
+         * <code>OUT_GROUP = 110;</code>
+         */
+        public static final int OUT_GROUP_VALUE = 110;
 
 
         public final int getNumber() {
@@ -334,6 +350,7 @@ public final class MsgBean {
                 case 107: return CHANGE_GROUP_INFO;
                 case 108: return DESTROY_GROUP;
                 case 109: return CONFLICT;
+                case 110: return OUT_GROUP;
                 default: return null;
             }
         }
@@ -10086,28 +10103,21 @@ public final class MsgBean {
 
         /**
          * <pre>
-         * 删除人uid
+         * 群id
          * </pre>
          *
-         * <code>repeated uint64 uid = 1;</code>
+         * <code>string gid = 1;</code>
          */
-        java.util.List<java.lang.Long> getUidList();
+        java.lang.String getGid();
         /**
          * <pre>
-         * 删除人uid
+         * 群id
          * </pre>
          *
-         * <code>repeated uint64 uid = 1;</code>
+         * <code>string gid = 1;</code>
          */
-        int getUidCount();
-        /**
-         * <pre>
-         * 删除人uid
-         * </pre>
-         *
-         * <code>repeated uint64 uid = 1;</code>
-         */
-        long getUid(int index);
+        com.google.protobuf.ByteString
+        getGidBytes();
     }
     /**
      * <pre>
@@ -10125,7 +10135,7 @@ public final class MsgBean {
             super(builder);
         }
         private RemoveGroupMemberMessage() {
-            uid_ = java.util.Collections.emptyList();
+            gid_ = "";
         }
 
         @java.lang.Override
@@ -10153,25 +10163,10 @@ public final class MsgBean {
                             }
                             break;
                         }
-                        case 8: {
-                            if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                                uid_ = new java.util.ArrayList<java.lang.Long>();
-                                mutable_bitField0_ |= 0x00000001;
-                            }
-                            uid_.add(input.readUInt64());
-                            break;
-                        }
                         case 10: {
-                            int length = input.readRawVarint32();
-                            int limit = input.pushLimit(length);
-                            if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
-                                uid_ = new java.util.ArrayList<java.lang.Long>();
-                                mutable_bitField0_ |= 0x00000001;
-                            }
-                            while (input.getBytesUntilLimit() > 0) {
-                                uid_.add(input.readUInt64());
-                            }
-                            input.popLimit(limit);
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            gid_ = s;
                             break;
                         }
                     }
@@ -10182,9 +10177,6 @@ public final class MsgBean {
                 throw new com.google.protobuf.InvalidProtocolBufferException(
                         e).setUnfinishedMessage(this);
             } finally {
-                if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                    uid_ = java.util.Collections.unmodifiableList(uid_);
-                }
                 makeExtensionsImmutable();
             }
         }
@@ -10200,40 +10192,47 @@ public final class MsgBean {
                             MsgBean.RemoveGroupMemberMessage.class, MsgBean.RemoveGroupMemberMessage.Builder.class);
         }
 
-        public static final int UID_FIELD_NUMBER = 1;
-        private java.util.List<java.lang.Long> uid_;
+        public static final int GID_FIELD_NUMBER = 1;
+        private volatile java.lang.Object gid_;
         /**
          * <pre>
-         * 删除人uid
+         * 群id
          * </pre>
          *
-         * <code>repeated uint64 uid = 1;</code>
+         * <code>string gid = 1;</code>
          */
-        public java.util.List<java.lang.Long>
-        getUidList() {
-            return uid_;
+        public java.lang.String getGid() {
+            java.lang.Object ref = gid_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                gid_ = s;
+                return s;
+            }
         }
         /**
          * <pre>
-         * 删除人uid
+         * 群id
          * </pre>
          *
-         * <code>repeated uint64 uid = 1;</code>
+         * <code>string gid = 1;</code>
          */
-        public int getUidCount() {
-            return uid_.size();
+        public com.google.protobuf.ByteString
+        getGidBytes() {
+            java.lang.Object ref = gid_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                gid_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
         }
-        /**
-         * <pre>
-         * 删除人uid
-         * </pre>
-         *
-         * <code>repeated uint64 uid = 1;</code>
-         */
-        public long getUid(int index) {
-            return uid_.get(index);
-        }
-        private int uidMemoizedSerializedSize = -1;
 
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
@@ -10247,13 +10246,8 @@ public final class MsgBean {
 
         public void writeTo(com.google.protobuf.CodedOutputStream output)
                 throws java.io.IOException {
-            getSerializedSize();
-            if (getUidList().size() > 0) {
-                output.writeUInt32NoTag(10);
-                output.writeUInt32NoTag(uidMemoizedSerializedSize);
-            }
-            for (int i = 0; i < uid_.size(); i++) {
-                output.writeUInt64NoTag(uid_.get(i));
+            if (!getGidBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 1, gid_);
             }
         }
 
@@ -10262,19 +10256,8 @@ public final class MsgBean {
             if (size != -1) return size;
 
             size = 0;
-            {
-                int dataSize = 0;
-                for (int i = 0; i < uid_.size(); i++) {
-                    dataSize += com.google.protobuf.CodedOutputStream
-                            .computeUInt64SizeNoTag(uid_.get(i));
-                }
-                size += dataSize;
-                if (!getUidList().isEmpty()) {
-                    size += 1;
-                    size += com.google.protobuf.CodedOutputStream
-                            .computeInt32SizeNoTag(dataSize);
-                }
-                uidMemoizedSerializedSize = dataSize;
+            if (!getGidBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, gid_);
             }
             memoizedSize = size;
             return size;
@@ -10292,8 +10275,8 @@ public final class MsgBean {
             MsgBean.RemoveGroupMemberMessage other = (MsgBean.RemoveGroupMemberMessage) obj;
 
             boolean result = true;
-            result = result && getUidList()
-                    .equals(other.getUidList());
+            result = result && getGid()
+                    .equals(other.getGid());
             return result;
         }
 
@@ -10304,10 +10287,8 @@ public final class MsgBean {
             }
             int hash = 41;
             hash = (19 * hash) + getDescriptor().hashCode();
-            if (getUidCount() > 0) {
-                hash = (37 * hash) + UID_FIELD_NUMBER;
-                hash = (53 * hash) + getUidList().hashCode();
-            }
+            hash = (37 * hash) + GID_FIELD_NUMBER;
+            hash = (53 * hash) + getGid().hashCode();
             hash = (29 * hash) + unknownFields.hashCode();
             memoizedHashCode = hash;
             return hash;
@@ -10441,8 +10422,8 @@ public final class MsgBean {
             }
             public Builder clear() {
                 super.clear();
-                uid_ = java.util.Collections.emptyList();
-                bitField0_ = (bitField0_ & ~0x00000001);
+                gid_ = "";
+
                 return this;
             }
 
@@ -10465,12 +10446,7 @@ public final class MsgBean {
 
             public MsgBean.RemoveGroupMemberMessage buildPartial() {
                 MsgBean.RemoveGroupMemberMessage result = new MsgBean.RemoveGroupMemberMessage(this);
-                int from_bitField0_ = bitField0_;
-                if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                    uid_ = java.util.Collections.unmodifiableList(uid_);
-                    bitField0_ = (bitField0_ & ~0x00000001);
-                }
-                result.uid_ = uid_;
+                result.gid_ = gid_;
                 onBuilt();
                 return result;
             }
@@ -10512,14 +10488,8 @@ public final class MsgBean {
 
             public Builder mergeFrom(MsgBean.RemoveGroupMemberMessage other) {
                 if (other == MsgBean.RemoveGroupMemberMessage.getDefaultInstance()) return this;
-                if (!other.uid_.isEmpty()) {
-                    if (uid_.isEmpty()) {
-                        uid_ = other.uid_;
-                        bitField0_ = (bitField0_ & ~0x00000001);
-                    } else {
-                        ensureUidIsMutable();
-                        uid_.addAll(other.uid_);
-                    }
+                if (!other.getGid().isEmpty()) {
+                    gid_ = other.gid_;
                     onChanged();
                 }
                 onChanged();
@@ -10547,98 +10517,92 @@ public final class MsgBean {
                 }
                 return this;
             }
-            private int bitField0_;
 
-            private java.util.List<java.lang.Long> uid_ = java.util.Collections.emptyList();
-            private void ensureUidIsMutable() {
-                if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-                    uid_ = new java.util.ArrayList<java.lang.Long>(uid_);
-                    bitField0_ |= 0x00000001;
+            private java.lang.Object gid_ = "";
+            /**
+             * <pre>
+             * 群id
+             * </pre>
+             *
+             * <code>string gid = 1;</code>
+             */
+            public java.lang.String getGid() {
+                java.lang.Object ref = gid_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    gid_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
                 }
             }
             /**
              * <pre>
-             * 删除人uid
+             * 群id
              * </pre>
              *
-             * <code>repeated uint64 uid = 1;</code>
+             * <code>string gid = 1;</code>
              */
-            public java.util.List<java.lang.Long>
-            getUidList() {
-                return java.util.Collections.unmodifiableList(uid_);
+            public com.google.protobuf.ByteString
+            getGidBytes() {
+                java.lang.Object ref = gid_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    gid_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
             }
             /**
              * <pre>
-             * 删除人uid
+             * 群id
              * </pre>
              *
-             * <code>repeated uint64 uid = 1;</code>
+             * <code>string gid = 1;</code>
              */
-            public int getUidCount() {
-                return uid_.size();
-            }
-            /**
-             * <pre>
-             * 删除人uid
-             * </pre>
-             *
-             * <code>repeated uint64 uid = 1;</code>
-             */
-            public long getUid(int index) {
-                return uid_.get(index);
-            }
-            /**
-             * <pre>
-             * 删除人uid
-             * </pre>
-             *
-             * <code>repeated uint64 uid = 1;</code>
-             */
-            public Builder setUid(
-                    int index, long value) {
-                ensureUidIsMutable();
-                uid_.set(index, value);
+            public Builder setGid(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                gid_ = value;
                 onChanged();
                 return this;
             }
             /**
              * <pre>
-             * 删除人uid
+             * 群id
              * </pre>
              *
-             * <code>repeated uint64 uid = 1;</code>
+             * <code>string gid = 1;</code>
              */
-            public Builder addUid(long value) {
-                ensureUidIsMutable();
-                uid_.add(value);
+            public Builder clearGid() {
+
+                gid_ = getDefaultInstance().getGid();
                 onChanged();
                 return this;
             }
             /**
              * <pre>
-             * 删除人uid
+             * 群id
              * </pre>
              *
-             * <code>repeated uint64 uid = 1;</code>
+             * <code>string gid = 1;</code>
              */
-            public Builder addAllUid(
-                    java.lang.Iterable<? extends java.lang.Long> values) {
-                ensureUidIsMutable();
-                com.google.protobuf.AbstractMessageLite.Builder.addAll(
-                        values, uid_);
-                onChanged();
-                return this;
-            }
-            /**
-             * <pre>
-             * 删除人uid
-             * </pre>
-             *
-             * <code>repeated uint64 uid = 1;</code>
-             */
-            public Builder clearUid() {
-                uid_ = java.util.Collections.emptyList();
-                bitField0_ = (bitField0_ & ~0x00000001);
+            public Builder setGidBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                gid_ = value;
                 onChanged();
                 return this;
             }
@@ -12708,6 +12672,564 @@ public final class MsgBean {
         }
 
         public MsgBean.ConflictMessage getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+    }
+
+    public interface OutGroupMessageOrBuilder extends
+            // @@protoc_insertion_point(interface_extends:OutGroupMessage)
+            com.google.protobuf.MessageOrBuilder {
+
+        /**
+         * <pre>
+         * 群id
+         * </pre>
+         *
+         * <code>string gid = 1;</code>
+         */
+        java.lang.String getGid();
+        /**
+         * <pre>
+         * 群id
+         * </pre>
+         *
+         * <code>string gid = 1;</code>
+         */
+        com.google.protobuf.ByteString
+        getGidBytes();
+    }
+    /**
+     * <pre>
+     * 退群
+     * </pre>
+     *
+     * Protobuf type {@code OutGroupMessage}
+     */
+    public  static final class OutGroupMessage extends
+            com.google.protobuf.GeneratedMessageV3 implements
+            // @@protoc_insertion_point(message_implements:OutGroupMessage)
+            OutGroupMessageOrBuilder {
+        // Use OutGroupMessage.newBuilder() to construct.
+        private OutGroupMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+        private OutGroupMessage() {
+            gid_ = "";
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
+        private OutGroupMessage(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            int mutable_bitField0_ = 0;
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!input.skipField(tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 10: {
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            gid_ = s;
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(
+                        e).setUnfinishedMessage(this);
+            } finally {
+                makeExtensionsImmutable();
+            }
+        }
+        public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+            return MsgBean.internal_static_OutGroupMessage_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return MsgBean.internal_static_OutGroupMessage_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            MsgBean.OutGroupMessage.class, MsgBean.OutGroupMessage.Builder.class);
+        }
+
+        public static final int GID_FIELD_NUMBER = 1;
+        private volatile java.lang.Object gid_;
+        /**
+         * <pre>
+         * 群id
+         * </pre>
+         *
+         * <code>string gid = 1;</code>
+         */
+        public java.lang.String getGid() {
+            java.lang.Object ref = gid_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                gid_ = s;
+                return s;
+            }
+        }
+        /**
+         * <pre>
+         * 群id
+         * </pre>
+         *
+         * <code>string gid = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+        getGidBytes() {
+            java.lang.Object ref = gid_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                gid_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        private byte memoizedIsInitialized = -1;
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1) return true;
+            if (isInitialized == 0) return false;
+
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            if (!getGidBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 1, gid_);
+            }
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (!getGidBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, gid_);
+            }
+            memoizedSize = size;
+            return size;
+        }
+
+        private static final long serialVersionUID = 0L;
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof MsgBean.OutGroupMessage)) {
+                return super.equals(obj);
+            }
+            MsgBean.OutGroupMessage other = (MsgBean.OutGroupMessage) obj;
+
+            boolean result = true;
+            result = result && getGid()
+                    .equals(other.getGid());
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptor().hashCode();
+            hash = (37 * hash) + GID_FIELD_NUMBER;
+            hash = (53 * hash) + getGid().hashCode();
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public static MsgBean.OutGroupMessage parseFrom(
+                java.nio.ByteBuffer data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(
+                java.nio.ByteBuffer data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(
+                com.google.protobuf.ByteString data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(
+                com.google.protobuf.ByteString data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(byte[] data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(
+                byte[] data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static MsgBean.OutGroupMessage parseDelimitedFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input);
+        }
+        public static MsgBean.OutGroupMessage parseDelimitedFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(
+                com.google.protobuf.CodedInputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static MsgBean.OutGroupMessage parseFrom(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+        public static Builder newBuilder(MsgBean.OutGroupMessage prototype) {
+            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        }
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE
+                    ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(
+                com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+        /**
+         * <pre>
+         * 退群
+         * </pre>
+         *
+         * Protobuf type {@code OutGroupMessage}
+         */
+        public static final class Builder extends
+                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+                // @@protoc_insertion_point(builder_implements:OutGroupMessage)
+                MsgBean.OutGroupMessageOrBuilder {
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return MsgBean.internal_static_OutGroupMessage_descriptor;
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return MsgBean.internal_static_OutGroupMessage_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                MsgBean.OutGroupMessage.class, MsgBean.OutGroupMessage.Builder.class);
+            }
+
+            // Construct using MsgBean.OutGroupMessage.newBuilder()
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
+
+            private Builder(
+                    com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3
+                        .alwaysUseFieldBuilders) {
+                }
+            }
+            public Builder clear() {
+                super.clear();
+                gid_ = "";
+
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+                return MsgBean.internal_static_OutGroupMessage_descriptor;
+            }
+
+            public MsgBean.OutGroupMessage getDefaultInstanceForType() {
+                return MsgBean.OutGroupMessage.getDefaultInstance();
+            }
+
+            public MsgBean.OutGroupMessage build() {
+                MsgBean.OutGroupMessage result = buildPartial();
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
+
+            public MsgBean.OutGroupMessage buildPartial() {
+                MsgBean.OutGroupMessage result = new MsgBean.OutGroupMessage(this);
+                result.gid_ = gid_;
+                onBuilt();
+                return result;
+            }
+
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+            public Builder setField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    Object value) {
+                return (Builder) super.setField(field, value);
+            }
+            public Builder clearField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+            public Builder clearOneof(
+                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+            public Builder setRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    int index, Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+            public Builder addRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+            public Builder mergeFrom(com.google.protobuf.Message other) {
+                if (other instanceof MsgBean.OutGroupMessage) {
+                    return mergeFrom((MsgBean.OutGroupMessage)other);
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
+
+            public Builder mergeFrom(MsgBean.OutGroupMessage other) {
+                if (other == MsgBean.OutGroupMessage.getDefaultInstance()) return this;
+                if (!other.getGid().isEmpty()) {
+                    gid_ = other.gid_;
+                    onChanged();
+                }
+                onChanged();
+                return this;
+            }
+
+            public final boolean isInitialized() {
+                return true;
+            }
+
+            public Builder mergeFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws java.io.IOException {
+                MsgBean.OutGroupMessage parsedMessage = null;
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                    parsedMessage = (MsgBean.OutGroupMessage) e.getUnfinishedMessage();
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            private java.lang.Object gid_ = "";
+            /**
+             * <pre>
+             * 群id
+             * </pre>
+             *
+             * <code>string gid = 1;</code>
+             */
+            public java.lang.String getGid() {
+                java.lang.Object ref = gid_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    gid_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+            /**
+             * <pre>
+             * 群id
+             * </pre>
+             *
+             * <code>string gid = 1;</code>
+             */
+            public com.google.protobuf.ByteString
+            getGidBytes() {
+                java.lang.Object ref = gid_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    gid_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <pre>
+             * 群id
+             * </pre>
+             *
+             * <code>string gid = 1;</code>
+             */
+            public Builder setGid(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                gid_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 群id
+             * </pre>
+             *
+             * <code>string gid = 1;</code>
+             */
+            public Builder clearGid() {
+
+                gid_ = getDefaultInstance().getGid();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 群id
+             * </pre>
+             *
+             * <code>string gid = 1;</code>
+             */
+            public Builder setGidBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                gid_ = value;
+                onChanged();
+                return this;
+            }
+            public final Builder setUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return this;
+            }
+
+            public final Builder mergeUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return this;
+            }
+
+
+            // @@protoc_insertion_point(builder_scope:OutGroupMessage)
+        }
+
+        // @@protoc_insertion_point(class_scope:OutGroupMessage)
+        private static final MsgBean.OutGroupMessage DEFAULT_INSTANCE;
+        static {
+            DEFAULT_INSTANCE = new MsgBean.OutGroupMessage();
+        }
+
+        public static MsgBean.OutGroupMessage getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        private static final com.google.protobuf.Parser<OutGroupMessage>
+                PARSER = new com.google.protobuf.AbstractParser<OutGroupMessage>() {
+            public OutGroupMessage parsePartialFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws com.google.protobuf.InvalidProtocolBufferException {
+                return new OutGroupMessage(input, extensionRegistry);
+            }
+        };
+
+        public static com.google.protobuf.Parser<OutGroupMessage> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<OutGroupMessage> getParserForType() {
+            return PARSER;
+        }
+
+        public MsgBean.OutGroupMessage getDefaultInstanceForType() {
             return DEFAULT_INSTANCE;
         }
 
@@ -15115,6 +15637,15 @@ public final class MsgBean {
              */
             MsgBean.ConflictMessageOrBuilder getConflictOrBuilder();
 
+            /**
+             * <code>.OutGroupMessage out_group = 10110;</code>
+             */
+            MsgBean.OutGroupMessage getOutGroup();
+            /**
+             * <code>.OutGroupMessage out_group = 10110;</code>
+             */
+            MsgBean.OutGroupMessageOrBuilder getOutGroupOrBuilder();
+
             public MsgBean.UniversalMessage.WrapMessage.RealMsgCase getRealMsgCase();
         }
         /**
@@ -15441,6 +15972,20 @@ public final class MsgBean {
                                 realMsgCase_ = 10109;
                                 break;
                             }
+                            case 80882: {
+                                MsgBean.OutGroupMessage.Builder subBuilder = null;
+                                if (realMsgCase_ == 10110) {
+                                    subBuilder = ((MsgBean.OutGroupMessage) realMsg_).toBuilder();
+                                }
+                                realMsg_ =
+                                        input.readMessage(MsgBean.OutGroupMessage.parser(), extensionRegistry);
+                                if (subBuilder != null) {
+                                    subBuilder.mergeFrom((MsgBean.OutGroupMessage) realMsg_);
+                                    realMsg_ = subBuilder.buildPartial();
+                                }
+                                realMsgCase_ = 10110;
+                                break;
+                            }
                         }
                     }
                 } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -15485,6 +16030,7 @@ public final class MsgBean {
                 CHANGE_GROUP_INFO(10107),
                 DESTROY_GROUP(10108),
                 CONFLICT(10109),
+                OUT_GROUP(10110),
                 REALMSG_NOT_SET(0);
                 private final int value;
                 private RealMsgCase(int value) {
@@ -15517,6 +16063,7 @@ public final class MsgBean {
                         case 10107: return CHANGE_GROUP_INFO;
                         case 10108: return DESTROY_GROUP;
                         case 10109: return CONFLICT;
+                        case 10110: return OUT_GROUP;
                         case 0: return REALMSG_NOT_SET;
                         default: return null;
                     }
@@ -16082,6 +16629,26 @@ public final class MsgBean {
                 return MsgBean.ConflictMessage.getDefaultInstance();
             }
 
+            public static final int OUT_GROUP_FIELD_NUMBER = 10110;
+            /**
+             * <code>.OutGroupMessage out_group = 10110;</code>
+             */
+            public MsgBean.OutGroupMessage getOutGroup() {
+                if (realMsgCase_ == 10110) {
+                    return (MsgBean.OutGroupMessage) realMsg_;
+                }
+                return MsgBean.OutGroupMessage.getDefaultInstance();
+            }
+            /**
+             * <code>.OutGroupMessage out_group = 10110;</code>
+             */
+            public MsgBean.OutGroupMessageOrBuilder getOutGroupOrBuilder() {
+                if (realMsgCase_ == 10110) {
+                    return (MsgBean.OutGroupMessage) realMsg_;
+                }
+                return MsgBean.OutGroupMessage.getDefaultInstance();
+            }
+
             private byte memoizedIsInitialized = -1;
             public final boolean isInitialized() {
                 byte isInitialized = memoizedIsInitialized;
@@ -16165,6 +16732,9 @@ public final class MsgBean {
                 }
                 if (realMsgCase_ == 10109) {
                     output.writeMessage(10109, (MsgBean.ConflictMessage) realMsg_);
+                }
+                if (realMsgCase_ == 10110) {
+                    output.writeMessage(10110, (MsgBean.OutGroupMessage) realMsg_);
                 }
             }
 
@@ -16264,6 +16834,10 @@ public final class MsgBean {
                 if (realMsgCase_ == 10109) {
                     size += com.google.protobuf.CodedOutputStream
                             .computeMessageSize(10109, (MsgBean.ConflictMessage) realMsg_);
+                }
+                if (realMsgCase_ == 10110) {
+                    size += com.google.protobuf.CodedOutputStream
+                            .computeMessageSize(10110, (MsgBean.OutGroupMessage) realMsg_);
                 }
                 memoizedSize = size;
                 return size;
@@ -16366,6 +16940,10 @@ public final class MsgBean {
                         result = result && getConflict()
                                 .equals(other.getConflict());
                         break;
+                    case 10110:
+                        result = result && getOutGroup()
+                                .equals(other.getOutGroup());
+                        break;
                     case 0:
                     default:
                 }
@@ -16463,6 +17041,10 @@ public final class MsgBean {
                     case 10109:
                         hash = (37 * hash) + CONFLICT_FIELD_NUMBER;
                         hash = (53 * hash) + getConflict().hashCode();
+                        break;
+                    case 10110:
+                        hash = (37 * hash) + OUT_GROUP_FIELD_NUMBER;
+                        hash = (53 * hash) + getOutGroup().hashCode();
                         break;
                     case 0:
                     default:
@@ -16760,6 +17342,13 @@ public final class MsgBean {
                             result.realMsg_ = conflictBuilder_.build();
                         }
                     }
+                    if (realMsgCase_ == 10110) {
+                        if (outGroupBuilder_ == null) {
+                            result.realMsg_ = realMsg_;
+                        } else {
+                            result.realMsg_ = outGroupBuilder_.build();
+                        }
+                    }
                     result.realMsgCase_ = realMsgCase_;
                     onBuilt();
                     return result;
@@ -16894,6 +17483,10 @@ public final class MsgBean {
                         }
                         case CONFLICT: {
                             mergeConflict(other.getConflict());
+                            break;
+                        }
+                        case OUT_GROUP: {
+                            mergeOutGroup(other.getOutGroup());
                             break;
                         }
                         case REALMSG_NOT_SET: {
@@ -19626,6 +20219,136 @@ public final class MsgBean {
                     onChanged();;
                     return conflictBuilder_;
                 }
+
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        MsgBean.OutGroupMessage, MsgBean.OutGroupMessage.Builder, MsgBean.OutGroupMessageOrBuilder> outGroupBuilder_;
+                /**
+                 * <code>.OutGroupMessage out_group = 10110;</code>
+                 */
+                public MsgBean.OutGroupMessage getOutGroup() {
+                    if (outGroupBuilder_ == null) {
+                        if (realMsgCase_ == 10110) {
+                            return (MsgBean.OutGroupMessage) realMsg_;
+                        }
+                        return MsgBean.OutGroupMessage.getDefaultInstance();
+                    } else {
+                        if (realMsgCase_ == 10110) {
+                            return outGroupBuilder_.getMessage();
+                        }
+                        return MsgBean.OutGroupMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <code>.OutGroupMessage out_group = 10110;</code>
+                 */
+                public Builder setOutGroup(MsgBean.OutGroupMessage value) {
+                    if (outGroupBuilder_ == null) {
+                        if (value == null) {
+                            throw new NullPointerException();
+                        }
+                        realMsg_ = value;
+                        onChanged();
+                    } else {
+                        outGroupBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10110;
+                    return this;
+                }
+                /**
+                 * <code>.OutGroupMessage out_group = 10110;</code>
+                 */
+                public Builder setOutGroup(
+                        MsgBean.OutGroupMessage.Builder builderForValue) {
+                    if (outGroupBuilder_ == null) {
+                        realMsg_ = builderForValue.build();
+                        onChanged();
+                    } else {
+                        outGroupBuilder_.setMessage(builderForValue.build());
+                    }
+                    realMsgCase_ = 10110;
+                    return this;
+                }
+                /**
+                 * <code>.OutGroupMessage out_group = 10110;</code>
+                 */
+                public Builder mergeOutGroup(MsgBean.OutGroupMessage value) {
+                    if (outGroupBuilder_ == null) {
+                        if (realMsgCase_ == 10110 &&
+                                realMsg_ != MsgBean.OutGroupMessage.getDefaultInstance()) {
+                            realMsg_ = MsgBean.OutGroupMessage.newBuilder((MsgBean.OutGroupMessage) realMsg_)
+                                    .mergeFrom(value).buildPartial();
+                        } else {
+                            realMsg_ = value;
+                        }
+                        onChanged();
+                    } else {
+                        if (realMsgCase_ == 10110) {
+                            outGroupBuilder_.mergeFrom(value);
+                        }
+                        outGroupBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10110;
+                    return this;
+                }
+                /**
+                 * <code>.OutGroupMessage out_group = 10110;</code>
+                 */
+                public Builder clearOutGroup() {
+                    if (outGroupBuilder_ == null) {
+                        if (realMsgCase_ == 10110) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                            onChanged();
+                        }
+                    } else {
+                        if (realMsgCase_ == 10110) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                        }
+                        outGroupBuilder_.clear();
+                    }
+                    return this;
+                }
+                /**
+                 * <code>.OutGroupMessage out_group = 10110;</code>
+                 */
+                public MsgBean.OutGroupMessage.Builder getOutGroupBuilder() {
+                    return getOutGroupFieldBuilder().getBuilder();
+                }
+                /**
+                 * <code>.OutGroupMessage out_group = 10110;</code>
+                 */
+                public MsgBean.OutGroupMessageOrBuilder getOutGroupOrBuilder() {
+                    if ((realMsgCase_ == 10110) && (outGroupBuilder_ != null)) {
+                        return outGroupBuilder_.getMessageOrBuilder();
+                    } else {
+                        if (realMsgCase_ == 10110) {
+                            return (MsgBean.OutGroupMessage) realMsg_;
+                        }
+                        return MsgBean.OutGroupMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <code>.OutGroupMessage out_group = 10110;</code>
+                 */
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        MsgBean.OutGroupMessage, MsgBean.OutGroupMessage.Builder, MsgBean.OutGroupMessageOrBuilder>
+                getOutGroupFieldBuilder() {
+                    if (outGroupBuilder_ == null) {
+                        if (!(realMsgCase_ == 10110)) {
+                            realMsg_ = MsgBean.OutGroupMessage.getDefaultInstance();
+                        }
+                        outGroupBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                                MsgBean.OutGroupMessage, MsgBean.OutGroupMessage.Builder, MsgBean.OutGroupMessageOrBuilder>(
+                                (MsgBean.OutGroupMessage) realMsg_,
+                                getParentForChildren(),
+                                isClean());
+                        realMsg_ = null;
+                    }
+                    realMsgCase_ = 10110;
+                    onChanged();;
+                    return outGroupBuilder_;
+                }
                 public final Builder setUnknownFields(
                         final com.google.protobuf.UnknownFieldSet unknownFields) {
                     return this;
@@ -20622,6 +21345,11 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internal_static_ConflictMessage_fieldAccessorTable;
     private static final com.google.protobuf.Descriptors.Descriptor
+            internal_static_OutGroupMessage_descriptor;
+    private static final
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internal_static_OutGroupMessage_fieldAccessorTable;
+    private static final com.google.protobuf.Descriptors.Descriptor
             internal_static_AckMessage_descriptor;
     private static final
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -20677,53 +21405,55 @@ public final class MsgBean {
                         "essage\022+\n\016notice_message\030\001 \003(\0132\023.GroupNo",
                 "ticeMessage\"C\n\024AcceptBeGroupMessage\022+\n\016n" +
                         "otice_message\030\001 \003(\0132\023.GroupNoticeMessage" +
-                        "\"\'\n\030RemoveGroupMemberMessage\022\013\n\003uid\030\001 \003(" +
-                        "\004\"\'\n\030ChangeGroupMasterMessage\022\013\n\003uid\030\001 \001" +
+                        "\"\'\n\030RemoveGroupMemberMessage\022\013\n\003gid\030\001 \001(" +
+                        "\t\"\'\n\030ChangeGroupMasterMessage\022\013\n\003uid\030\001 \001" +
                         "(\004\"&\n\026ChangeGroupInfoMessage\022\014\n\004name\030\001 \001" +
                         "(\t\"\"\n\023DestroyGroupMessage\022\013\n\003uid\030\001 \003(\004\"\021" +
-                        "\n\017ConflictMessage\"e\n\nAckMessage\022 \n\013rejec" +
-                        "t_type\030\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030" +
-                        "\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004" +
-                        "\"*\n\022AuthRequestMessage\022\024\n\014access_token\030\001",
-                " \001(\t\"\'\n\023AuthResponseMessage\022\020\n\010accepted\030" +
-                        "\001 \001(\010\"\252\010\n\020UniversalMessage\022\022\n\nrequest_id" +
-                        "\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\013" +
-                        "2\035.UniversalMessage.WrapMessage\032\300\007\n\013Wrap" +
-                        "Message\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002" +
-                        " \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010fr" +
-                        "om_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 " +
-                        "\001(\t\022\016\n\006avatar\030\007 \001(\t\022\035\n\004chat\030\220N \001(\0132\014.Cha" +
-                        "tMessageH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessag" +
-                        "eH\000\022,\n\014red_envelope\030\222N \001(\0132\023.RedEnvelope",
-                "MessageH\000\022;\n\024receive_red_envelope\030\223N \001(\013" +
-                        "2\032.ReceiveRedEnvelopeMessageH\000\022%\n\010transf" +
-                        "er\030\224N \001(\0132\020.TransferMessageH\000\022\037\n\005stamp\030\225" +
-                        "N \001(\0132\r.StampMessageH\000\022.\n\rbusiness_card\030" +
-                        "\226N \001(\0132\024.BusinessCardMessageH\000\0220\n\016reques" +
-                        "t_friend\030\364N \001(\0132\025.RequestFriendMessageH\000" +
-                        "\0225\n\021accept_be_friends\030\365N \001(\0132\027.AcceptBeF" +
-                        "riendsMessageH\000\022.\n\rremove_friend\030\366N \001(\0132" +
-                        "\024.RemoveFriendMessageH\000\022.\n\rrequest_group" +
-                        "\030\367N \001(\0132\024.RequestGroupMessageH\000\0221\n\017accep",
-                "t_be_group\030\370N \001(\0132\025.AcceptBeGroupMessage" +
-                        "H\000\0229\n\023remove_group_member\030\371N \001(\0132\031.Remov" +
-                        "eGroupMemberMessageH\000\0229\n\023change_group_ma" +
-                        "ster\030\372N \001(\0132\031.ChangeGroupMasterMessageH\000" +
-                        "\0225\n\021change_group_info\030\373N \001(\0132\027.ChangeGro" +
-                        "upInfoMessageH\000\022.\n\rdestroy_group\030\374N \001(\0132" +
-                        "\024.DestroyGroupMessageH\000\022%\n\010conflict\030\375N \001" +
-                        "(\0132\020.ConflictMessageH\000B\n\n\010real_msg*\314\002\n\013M" +
-                        "essageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_E" +
-                        "NVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n",
-                "\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020" +
-                        "\006\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIEN" +
-                        "DS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP" +
-                        "\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_" +
-                        "MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\025\n\021CHA" +
-                        "NGE_GROUP_INFO\020k\022\021\n\rDESTROY_GROUP\020l\022\014\n\010C" +
-                        "ONFLICT\020m*I\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n" +
-                        "\033NOT_FRIENDS_OR_GROUP_MEMBER\020\001\022\014\n\010NO_SPA" +
-                        "CE\020\010b\006proto3"
+                        "\n\017ConflictMessage\"\036\n\017OutGroupMessage\022\013\n\003" +
+                        "gid\030\001 \001(\t\"e\n\nAckMessage\022 \n\013reject_type\030\001" +
+                        " \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002 \001(\t\022\016\n" +
+                        "\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022Auth",
+                "RequestMessage\022\024\n\014access_token\030\001 \001(\t\"\'\n\023" +
+                        "AuthResponseMessage\022\020\n\010accepted\030\001 \001(\010\"\322\010" +
+                        "\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(\t\022\016" +
+                        "\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Unive" +
+                        "rsalMessage.WrapMessage\032\350\007\n\013WrapMessage\022" +
+                        "\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.M" +
+                        "essageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004" +
+                        " \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006a" +
+                        "vatar\030\007 \001(\t\022\035\n\004chat\030\220N \001(\0132\014.ChatMessage" +
+                        "H\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014r",
+                "ed_envelope\030\222N \001(\0132\023.RedEnvelopeMessageH" +
+                        "\000\022;\n\024receive_red_envelope\030\223N \001(\0132\032.Recei" +
+                        "veRedEnvelopeMessageH\000\022%\n\010transfer\030\224N \001(" +
+                        "\0132\020.TransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r." +
+                        "StampMessageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024" +
+                        ".BusinessCardMessageH\000\0220\n\016request_friend" +
+                        "\030\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021acce" +
+                        "pt_be_friends\030\365N \001(\0132\027.AcceptBeFriendsMe" +
+                        "ssageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.Remove" +
+                        "FriendMessageH\000\022.\n\rrequest_group\030\367N \001(\0132",
+                "\024.RequestGroupMessageH\000\0221\n\017accept_be_gro" +
+                        "up\030\370N \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023re" +
+                        "move_group_member\030\371N \001(\0132\031.RemoveGroupMe" +
+                        "mberMessageH\000\0229\n\023change_group_master\030\372N " +
+                        "\001(\0132\031.ChangeGroupMasterMessageH\000\0225\n\021chan" +
+                        "ge_group_info\030\373N \001(\0132\027.ChangeGroupInfoMe" +
+                        "ssageH\000\022.\n\rdestroy_group\030\374N \001(\0132\024.Destro" +
+                        "yGroupMessageH\000\022%\n\010conflict\030\375N \001(\0132\020.Con" +
+                        "flictMessageH\000\022&\n\tout_group\030\376N \001(\0132\020.Out" +
+                        "GroupMessageH\000B\n\n\010real_msg*\333\002\n\013MessageTy",
+                "pe\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER" +
+                        "\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFE" +
+                        "R\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\022\n\016REQ" +
+                        "UEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\r" +
+                        "REMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017AC" +
+                        "CEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i" +
+                        "\022\027\n\023CHANGE_GROUP_MASTER\020j\022\025\n\021CHANGE_GROU" +
+                        "P_INFO\020k\022\021\n\rDESTROY_GROUP\020l\022\014\n\010CONFLICT\020" +
+                        "m\022\r\n\tOUT_GROUP\020n*I\n\nRejectType\022\014\n\010ACCEPT" +
+                        "ED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBER\020\001\022\014\n",
+                "\010NO_SPACE\020\010b\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -20826,7 +21556,7 @@ public final class MsgBean {
         internal_static_RemoveGroupMemberMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_RemoveGroupMemberMessage_descriptor,
-                new java.lang.String[] { "Uid", });
+                new java.lang.String[] { "Gid", });
         internal_static_ChangeGroupMasterMessage_descriptor =
                 getDescriptor().getMessageTypes().get(15);
         internal_static_ChangeGroupMasterMessage_fieldAccessorTable = new
@@ -20851,26 +21581,32 @@ public final class MsgBean {
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_ConflictMessage_descriptor,
                 new java.lang.String[] { });
-        internal_static_AckMessage_descriptor =
+        internal_static_OutGroupMessage_descriptor =
                 getDescriptor().getMessageTypes().get(19);
+        internal_static_OutGroupMessage_fieldAccessorTable = new
+                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_OutGroupMessage_descriptor,
+                new java.lang.String[] { "Gid", });
+        internal_static_AckMessage_descriptor =
+                getDescriptor().getMessageTypes().get(20);
         internal_static_AckMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AckMessage_descriptor,
                 new java.lang.String[] { "RejectType", "RequestId", "MsgId", "Timestamp", });
         internal_static_AuthRequestMessage_descriptor =
-                getDescriptor().getMessageTypes().get(20);
+                getDescriptor().getMessageTypes().get(21);
         internal_static_AuthRequestMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AuthRequestMessage_descriptor,
                 new java.lang.String[] { "AccessToken", });
         internal_static_AuthResponseMessage_descriptor =
-                getDescriptor().getMessageTypes().get(21);
+                getDescriptor().getMessageTypes().get(22);
         internal_static_AuthResponseMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AuthResponseMessage_descriptor,
                 new java.lang.String[] { "Accepted", });
         internal_static_UniversalMessage_descriptor =
-                getDescriptor().getMessageTypes().get(22);
+                getDescriptor().getMessageTypes().get(23);
         internal_static_UniversalMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_descriptor,
@@ -20880,7 +21616,7 @@ public final class MsgBean {
         internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_WrapMessage_descriptor,
-                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "ChangeGroupInfo", "DestroyGroup", "Conflict", "RealMsg", });
+                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "ChangeGroupInfo", "DestroyGroup", "Conflict", "OutGroup", "RealMsg", });
     }
 
     // @@protoc_insertion_point(outer_class_scope)
