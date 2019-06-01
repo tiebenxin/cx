@@ -6,6 +6,8 @@ import android.util.Log;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.MainApplication;
+import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 
@@ -15,6 +17,7 @@ import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
 
 import org.android.agoo.xiaomi.MiPushRegistar;
+import org.greenrobot.eventbus.EventBus;
 
 import io.realm.Realm;
 
@@ -56,6 +59,7 @@ public class MyAppLication extends MainApplication {
         Realm.init(getApplicationContext());
         initUPush();
         initWeixinConfig();
+        initRunstate();
     }
 
 
@@ -94,5 +98,33 @@ public class MyAppLication extends MainApplication {
     private void initWeixinConfig() {
         PlatformConfig.setWeixin("wx84ecce93acb0e78f", "63293f55248912676fccdfe59515ed42");
     }
+
+    //初始化运行状态
+    private void initRunstate(){
+
+        AppFrontBackHelper helper = new AppFrontBackHelper();
+        helper.register( this, new AppFrontBackHelper.OnAppStatusListener() {
+            @Override
+            public void onFront() {
+                //应用切到前台处理
+                LogUtil.getLog().d(TAG,"--->应用切到前台处理");
+                EventRunState enent=new EventRunState();
+                enent.setRun(true);
+                EventBus.getDefault().post(enent );
+
+            }
+
+            @Override
+            public void onBack() {
+                //应用切到后台处理
+                LogUtil.getLog().d(TAG,"--->应用切到后台处理");
+                EventRunState enent=new EventRunState();
+                enent.setRun(false);
+                EventBus.getDefault().post(enent );
+
+            }
+        });
+    }
+
 
 }

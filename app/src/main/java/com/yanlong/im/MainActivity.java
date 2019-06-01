@@ -22,6 +22,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
+import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -196,6 +197,16 @@ public class MainActivity extends AppActivity {
     public void eventLoginOut(EventLoginOut event) {
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
         finish();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRunState(EventRunState event) {
+      if(event.getRun()){
+          startService(new Intent(getContext(), ChatServer.class));
+      }else{
+          stopService(new Intent(getContext(), ChatServer.class));
+      }
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
