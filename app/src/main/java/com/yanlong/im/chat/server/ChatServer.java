@@ -158,6 +158,9 @@ public class ChatServer extends Service {
                 case DESTROY_GROUP:
                     // ToastUtil.show(getApplicationContext(), "销毁群");
                     return;
+                case OUT_GROUP://退出群
+
+                    return;
                 case CONFLICT:
                     // ToastUtil.show(getApplicationContext(), "账号已经被登录");
                     EventBus.getDefault().post(new EventLoginOut4Conflict());

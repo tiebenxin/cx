@@ -121,10 +121,28 @@ public class MsgConversionBean {
                 msgAllBean.setMsgNotice(gNotice);
                     break;
             case DESTROY_GROUP://群解散
+                msgAllBean.setGid(bean.getGid());
                 msgAllBean.setMsg_type(0);
                 MsgNotice gdelNotice=new MsgNotice();
                 gdelNotice.setNote("该群已解散");
                 msgAllBean.setMsgNotice(gdelNotice);
+
+
+                break;
+            case OUT_GROUP://退出群
+
+                msgAllBean.setGid(bean.getOutGroup().getGid());
+
+                msgAllBean.setMsg_type(0);
+                MsgNotice goutNotice=new MsgNotice();
+                goutNotice.setNote(bean.getNickname()+"退出该群");
+                msgAllBean.setMsgNotice(goutNotice);
+                break;
+            case CHANGE_GROUP_INFO:
+                msgAllBean.setMsg_type(0);
+                MsgNotice info=new MsgNotice();
+                info.setNote("群信息修改");
+                msgAllBean.setMsgNotice(info);
                 break;
 
             default:
