@@ -67,9 +67,8 @@ public class MyAppLication extends MainApplication {
         UMConfigure.init(this, "5cdf7aab4ca357f3f600055f",
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
                 "8dd38f8da115dcf6441ce3922f30a2ac");
-
+        UMConfigure.setLogEnabled(AppConfig.DEBUG);
         MiPushRegistar.register(this,"bMsFYycwSstKDv19Mx9zxQ==", "5411801194485");
-
         //获取消息推送代理示例
         PushAgent mPushAgent = PushAgent.getInstance(this);
         //设置通知栏显示数量
@@ -101,7 +100,6 @@ public class MyAppLication extends MainApplication {
 
     //初始化运行状态
     private void initRunstate(){
-
         AppFrontBackHelper helper = new AppFrontBackHelper();
         helper.register( this, new AppFrontBackHelper.OnAppStatusListener() {
             @Override
@@ -111,7 +109,6 @@ public class MyAppLication extends MainApplication {
                 EventRunState enent=new EventRunState();
                 enent.setRun(true);
                 EventBus.getDefault().post(enent );
-
             }
 
             @Override
@@ -121,7 +118,6 @@ public class MyAppLication extends MainApplication {
                 EventRunState enent=new EventRunState();
                 enent.setRun(false);
                 EventBus.getDefault().post(enent );
-
             }
         });
     }

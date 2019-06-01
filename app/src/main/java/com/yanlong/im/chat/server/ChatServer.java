@@ -211,7 +211,13 @@ public class ChatServer extends Service {
         }
     };
 
+    private long playTimeOld = 0;
+
     private void palydingdong() {
+        if (System.currentTimeMillis() - playTimeOld < 500) {
+            return;
+        }
+        playTimeOld = System.currentTimeMillis();
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
         r.play();

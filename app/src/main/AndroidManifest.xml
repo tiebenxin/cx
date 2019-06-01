@@ -317,7 +317,10 @@
         <activity
             android:name=".user.ui.BlacklistActivity"
             android:screenOrientation="portrait" />
-
+        <!--加群聊-->
+        <activity
+            android:name=".chat.ui.AddGroupActivity"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".wxapi.WXEntryActivity"
@@ -325,6 +328,11 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <activity
+            android:name=".notify.MipushTestActivity"
+            android:launchMode="singleTask"
+            android:exported="true" />
 
     </application>
 

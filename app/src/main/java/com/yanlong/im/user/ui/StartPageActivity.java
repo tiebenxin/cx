@@ -24,6 +24,7 @@ import com.yanlong.im.user.bean.TokenBean;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.AppActivity;
@@ -112,8 +113,6 @@ public class StartPageActivity extends AppActivity {
 
 
     private void initEvent() {
-
-
         mBtnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,13 +125,13 @@ public class StartPageActivity extends AppActivity {
         final String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         UserAction userAction = new UserAction();
 
-        userAction.login4token(UserAction.getDevId(getContext()),new Callback<ReturnBean<TokenBean>>() {
+        userAction.login4token(UserAction.getDevId(getContext()), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                if(isFlast){
+                if (isFlast) {
                     startActivity(new Intent(StartPageActivity.this, SelectLoginActivity.class));
                     finish();
-                }else{
+                } else {
                     startActivity(new Intent(StartPageActivity.this, MainActivity.class));
                     finish();
                 }
@@ -143,11 +142,11 @@ public class StartPageActivity extends AppActivity {
                 if (isFlast) {
                     startActivity(new Intent(StartPageActivity.this, SelectLoginActivity.class));
                     finish();
-                }else{
-                    if(TextUtils.isEmpty(phone)){
+                } else {
+                    if (TextUtils.isEmpty(phone)) {
                         startActivity(new Intent(StartPageActivity.this, PasswordLoginActivity.class));
                         finish();
-                    }else{
+                    } else {
                         go(LoginActivity.class);
                         finish();
                     }
@@ -158,9 +157,19 @@ public class StartPageActivity extends AppActivity {
 
 
     private void goActivity(boolean isFlast) {
-
         //同步使用友盟设备号,如果同步失败使用自己设备号
-     updateToken(isFlast);
+        if (NetUtil.isNetworkConnected()) {
+            updateToken(isFlast);
+        } else {
+            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+            if(token != null){
+                startActivity(new Intent(StartPageActivity.this, MainActivity.class));
+                finish();
+            }else{
+                startActivity(new Intent(StartPageActivity.this, LoginActivity.class));
+                finish();
+            }
+        }
     }
 
     private void showPage() {
@@ -199,9 +208,6 @@ public class StartPageActivity extends AppActivity {
             container.removeView((View) object);
         }
     }
-
-
-
 
 
 }

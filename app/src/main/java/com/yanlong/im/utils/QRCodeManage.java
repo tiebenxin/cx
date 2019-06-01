@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.GroupJoinBean;
+import com.yanlong.im.chat.ui.AddGroupActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.MyselfInfoActivity;
@@ -110,20 +111,9 @@ public class QRCodeManage {
                 }
             } else if (bean.getFunction().equals(ADD_GROUP_FUNCHTION)) {
                 if (!TextUtils.isEmpty(bean.getParameterValue(ID))) {
-                    UserInfo userInfo = UserAction.getMyInfo();
-                    Long uid = userInfo.getUid();
-                    String name = userInfo.getName();
-
-                    new MsgAction().joinGroup(Long.valueOf(bean.getParameterValue(ID)), uid, name, new CallBack<ReturnBean<GroupJoinBean>>() {
-                        @Override
-                        public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
-                            if(response.body() == null){
-                                ToastUtil.show(activity,"加群失败");
-                                return;
-                            }
-                            ToastUtil.show(activity,response.body().getMsg());
-                        }
-                    });
+                    Intent intent = new Intent(activity, AddGroupActivity.class);
+                    intent.putExtra(AddGroupActivity.GID, bean.getParameterValue(ID));
+                    activity.startActivity(intent);
                 }
             }
         }
