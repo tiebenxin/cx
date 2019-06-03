@@ -30,6 +30,7 @@ import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -412,6 +413,8 @@ public class GroupInfoActivity extends AppActivity {
     }
 
     private boolean isAdmin() {
+        if(!StringUtil.isNotNull(ginfo.getMaster()) )
+            return false;
         return ginfo.getMaster().equals("" + UserAction.getMyId());
     }
 

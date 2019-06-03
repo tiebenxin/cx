@@ -123,6 +123,7 @@ public class MsgDao {
             group.setGid(ginfo.getGid());
             group.setAvatar(ginfo.getAvatar());
             group.setName(ginfo.getName());
+            group.setMaster(ginfo.getMaster());
         }
 
 
@@ -148,6 +149,31 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
 
+    }
+
+    /***
+     * 离线获取群信息
+     * @param gid
+     * @return
+     */
+    public ReturnGroupInfoBean groupNumberGet(String gid){
+        ReturnGroupInfoBean groupInfoBean=new ReturnGroupInfoBean();
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if(group!=null){
+            group=realm.copyFromRealm(group);
+            groupInfoBean.setAvatar(group.getAvatar());
+            groupInfoBean.setGid(group.getGid());
+            groupInfoBean.setMaster(group.getMaster());
+            groupInfoBean.setMembers(group.getUsers());
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+        return groupInfoBean;
     }
 
     /***

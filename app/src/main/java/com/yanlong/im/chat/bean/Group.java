@@ -15,6 +15,7 @@ public class Group  extends RealmObject {
     private String name;
     private String avatar;
 
+    private String master;
     private RealmList<UserInfo> users;
 
     public String getGid() {
@@ -47,5 +48,13 @@ public class Group  extends RealmObject {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getMaster() {
+        return master;
+    }
+
+    public void setMaster(String master) {
+        this.master = master;
     }
 }

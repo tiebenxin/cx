@@ -130,7 +130,7 @@
         <!--聊天界面-->
         <activity
             android:name=".chat.ui.ChatActivity"
-            android:launchMode="standard"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait">
 
         </activity>

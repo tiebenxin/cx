@@ -136,22 +136,32 @@ public class MsgAction {
      */
     public void groupInfo(final String gid, final Callback<ReturnBean<ReturnGroupInfoBean>> callback) {
 
+        if (NetUtil.isNetworkConnected()) {
+            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                    if (response.body() == null)
+                        return;
+                    if (response.body().isOk()) {//保存群友信息到数据库
+                        dao.groupNumberSave(response.body().getData());
 
-        NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
-                if (response.body() == null)
-                    return;
-                if (response.body().isOk()) {//保存群友信息到数据库
-                    dao.groupNumberSave(response.body().getData());
+                        response.body().getData().setMembers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
+                    }
+                    callback.onResponse(call, response);
 
-                    response.body().getData().setMembers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
+
                 }
-                callback.onResponse(call, response);
+            });
+        } else {//从缓存中读
+            ReturnGroupInfoBean rdata=dao.groupNumberGet(gid);
 
+            ReturnBean<ReturnGroupInfoBean> body=new ReturnBean<>();
+            body.setCode(0l);
+            body.setData(rdata);
+            Response<ReturnBean<ReturnGroupInfoBean>> response=Response.success(body);
+            callback.onResponse(null, response);
+        }
 
-            }
-        });
     }
 
     /***
@@ -255,7 +265,7 @@ public class MsgAction {
 
     /**
      * 加入群聊
-     * */
+     */
     public void joinGroup(Long gid, Long uid, String nickname, Callback<ReturnBean<GroupJoinBean>> callback) {
         NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname), callback);
     }

@@ -19,6 +19,7 @@ import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
+import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -293,6 +294,11 @@ public class UserInfoActivity extends AppActivity {
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
+                }
+                //6.3
+                if(response.body().isOk()){
+                    EventBus.getDefault().post(new EventRefreshFriend());
+                    EventBus.getDefault().post(new EventRefreshMainMsg());
                 }
                 taskUserInfo(id);
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());

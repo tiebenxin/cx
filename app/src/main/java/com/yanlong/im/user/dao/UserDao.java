@@ -120,6 +120,14 @@ public class UserDao {
             for (UserInfo userInfo : list) {
                 if(u.getUid().longValue()==userInfo.getUid().longValue()){//在好友列表中
                     isExt=true;
+
+                    //更新用户相关
+                    userInfo.toTag();
+                    userInfo.setuType(2);
+
+                    realm.copyToRealmOrUpdate(userInfo);
+
+
                 }
 
 
@@ -127,6 +135,8 @@ public class UserDao {
             if(!isExt){//不在好友列表中了,身份改成普通人
                 u.setuType(0);
             }
+
+
 
         }
         //更新旧联系人状态
