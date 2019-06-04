@@ -90,8 +90,8 @@ public class MsgDao {
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
-        RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "")
-                .equalTo("from_uid", userid).or().equalTo("to_uid", userid)
+        RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
+                .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                 .lessThan("timestamp",time)
 
                 .sort("timestamp", Sort.DESCENDING)
