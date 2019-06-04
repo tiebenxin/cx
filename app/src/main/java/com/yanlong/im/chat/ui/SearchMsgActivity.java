@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -17,10 +18,13 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.user.bean.UserInfo;
 
+import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +106,7 @@ public class SearchMsgActivity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            MsgAllBean msgbean = listData.get(position);
+            final MsgAllBean msgbean = listData.get(position);
             String url = "";
             String name = "";
             String msg = "";
@@ -114,17 +118,17 @@ public class SearchMsgActivity extends AppActivity {
                 name = g.getName();
             } else {
                 UserInfo u = msgbean.getShow_user();
-                url = u.getHead();
+                url = msgbean.getFrom_avatar(); //u.getHead();
                 name = u.getName4Show();
             }
             msg = msgbean.getChat().getMsg();
-            int index = msg.indexOf(key);
+            int index = msg.indexOf(key)-1;
 
-            if(index>=0){
+            if (index >= 0) {
                 msg = msg.substring(index);
-                msg = msg.replace(key, "<font color=\"#32b053\">" + key + "</font>");
 
             }
+            msg = msg.replace(key, "<font color=\"#32b053\">" + key + "</font>");
 
 
             holder.txtName.setText(name);
@@ -134,7 +138,19 @@ public class SearchMsgActivity extends AppActivity {
             holder.txtContext.setText(Html.fromHtml(msg));
 
             holder.imgHead.setImageURI(Uri.parse("" + url));
-
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EventFindHistory eventFindHistory = new EventFindHistory();
+                    eventFindHistory.setStime(msgbean.getTimestamp());
+                    EventBus.getDefault().post(eventFindHistory);
+                   startActivity(new Intent(getContext(), ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOGID, gid)
+                            .putExtra(ChatActivity.AGM_TOUID, fuid)
+                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    );
+                }
+            });
         }
 
 
@@ -172,7 +188,7 @@ public class SearchMsgActivity extends AppActivity {
     private String key = "";
 
     private void taskSearch() {
-         key = edtSearch.getText().toString();
+        key = edtSearch.getText().toString();
         if (key.length() <= 0) {
             return;
         }

@@ -47,6 +47,7 @@ import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -129,22 +130,22 @@ public class ChatActivity extends AppActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(bean.getRejectType()==MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER){
+                    if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
                         taskRefreshMessage();
 
                         //5.23 发送失败,对方拒收
-                        MsgAllBean notbean=new MsgAllBean();
+                        MsgAllBean notbean = new MsgAllBean();
                         notbean.setMsg_type(0);
                         notbean.setTimestamp(bean.getTimestamp());
                         notbean.setFrom_uid(UserAction.getMyId());
 
-                        MsgNotice note=new MsgNotice();
+                        MsgNotice note = new MsgNotice();
                         note.setNote("消息发送成功,但对方已拒收");
                         notbean.setMsgNotice(note);
 
                         msgListData.add(notbean);
                         mtListView.notifyDataSetChange();
-                    }else{
+                    } else {
                         taskRefreshMessage();
                     }
 
@@ -176,7 +177,7 @@ public class ChatActivity extends AppActivity {
                     ToastUtil.show(context, "发送失败" + bean.getRequestId());
                     MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
                     msgAllBean.setSend_state(1);
-                  //  msgAllBean.setMsg_id("重发" + msgAllBean.getRequest_id());
+                    //  msgAllBean.setMsg_id("重发" + msgAllBean.getRequest_id());
                     ///这里写库
                     msgAllBean.setSend_data(bean.build().toByteArray());
                     DaoUtil.update(msgAllBean);
@@ -443,7 +444,7 @@ public class ChatActivity extends AppActivity {
 
             @Override
             public void onRefresh() {
-              //  indexPage++;
+                //  indexPage++;
                 taskMoreMessage();
             }
 
@@ -459,22 +460,23 @@ public class ChatActivity extends AppActivity {
         });
 
         mtListView.getListView().setOnTouchListener(new View.OnTouchListener() {
-            int isRun=0;
+            int isRun = 0;
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()){
+                switch (event.getAction()) {
 
                     case MotionEvent.ACTION_DOWN:
-                        isRun=1;
+                        isRun = 1;
 
 
                         break;
                     case MotionEvent.ACTION_UP:
-                        isRun=0;
+                        isRun = 0;
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if(isRun==1){
-                            isRun=2;
+                        if (isRun == 1) {
+                            isRun = 2;
                             hideBt();
                             InputUtil.hideKeyboard(edtChat);
                             btnEmj.setImageLevel(0);
@@ -602,7 +604,13 @@ public class ChatActivity extends AppActivity {
         } else {
             ChatServer.setSessionSolo(toUId);
         }
+
+
         //刷新页面数据
+        if (flag_isHistory) {
+            flag_isHistory = false;
+            return;
+        }
         taskRefreshMessage();
     }
 
@@ -615,7 +623,8 @@ public class ChatActivity extends AppActivity {
 
     }
 
-    private UpFileAction upFileAction=new UpFileAction();
+    private UpFileAction upFileAction = new UpFileAction();
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -636,7 +645,7 @@ public class ChatActivity extends AppActivity {
 
                         @Override
                         public void fail() {
-                          //  ToastUtil.show(getContext(),"上传失败");
+                            //  ToastUtil.show(getContext(),"上传失败");
 
                         }
 
@@ -645,7 +654,6 @@ public class ChatActivity extends AppActivity {
 
                         }
                     }, file);
-
 
 
                     break;
@@ -662,22 +670,22 @@ public class ChatActivity extends AppActivity {
     //显示大图
     private void showBigPic(String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
-        int pos=0;
+        int pos = 0;
 
 
-                for(MsgAllBean msgl:  msgListData){
-                   if(msgl.getMsg_type().intValue()==4) {
+        for (MsgAllBean msgl : msgListData) {
+            if (msgl.getMsg_type().intValue() == 4) {
 
-                       if(uri.contains(msgl.getImage().getUrl())){
-                           pos=selectList.size();
-                       }
-
-                       LocalMedia lc = new LocalMedia();
-                       lc.setPath(msgl.getImage().getUrl());
-                       selectList.add(lc);
-
-                   }
+                if (uri.contains(msgl.getImage().getUrl())) {
+                    pos = selectList.size();
                 }
+
+                LocalMedia lc = new LocalMedia();
+                lc.setPath(msgl.getImage().getUrl());
+                selectList.add(lc);
+
+            }
+        }
 
         PictureSelector.create(ChatActivity.this).themeStyle(R.style.picture_default_style).openExternalPreview(pos, selectList);
 
@@ -710,7 +718,7 @@ public class ChatActivity extends AppActivity {
             if (isGroup()) {//群聊显示昵称
 
                 nikeName = msgbean.getFrom_user().getMkName();
-                nikeName=StringUtil.isNotNull(nikeName)?nikeName:msgbean.getFrom_nickname();
+                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
 
 
             } else {//单聊不显示昵称
@@ -720,7 +728,7 @@ public class ChatActivity extends AppActivity {
 
 
             //显示数据集
-          //  String headico = msgbean.getFrom_user() == null ? "" : msgbean.getFrom_user().getHead();
+            //  String headico = msgbean.getFrom_user() == null ? "" : msgbean.getFrom_user().getHead();
             //5.30
             String headico = msgbean.getFrom_avatar();
             if (msgbean.isMe()) {
@@ -733,8 +741,8 @@ public class ChatActivity extends AppActivity {
             switch (msgbean.getMsg_type()) {
                 case 0:
                     // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
-                    if(msgbean.getMsgNotice()!=null)
-                      holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
+                    if (msgbean.getMsgNotice() != null)
+                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                     break;
                 case 1:
 
@@ -791,8 +799,8 @@ public class ChatActivity extends AppActivity {
                         MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
                         SocketUtil.getSocketUtil().sendData4Msg(bean);
                         //点击发送的时候如果要改变成发送中的状态
-                           remsg.setSend_state(2);
-                            DaoUtil.update(remsg);
+                        remsg.setSend_state(2);
+                        DaoUtil.update(remsg);
 
                         taskRefreshMessage();
                     } catch (Exception e) {
@@ -860,10 +868,28 @@ public class ChatActivity extends AppActivity {
      */
     private void taskRefreshMessage() {
 
-      //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
+        //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
         msgListData = msgAction.getMsg4User(toGid, toUId, null);
         notifyData2Buttom();
     }
+
+    private boolean flag_isHistory = false;
+
+    /***
+     * 查询历史
+     * @param history
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void taskFinadHistoryMessage(EventFindHistory history) {
+        flag_isHistory = true;
+        msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
+
+        mtListView.getListView().getAdapter().notifyDataSetChanged();
+
+        mtListView.getListView().smoothScrollToPosition(0);
+
+    }
+
 
     /***
      * 加载更多
@@ -872,7 +898,7 @@ public class ChatActivity extends AppActivity {
 
         int addItem = msgListData.size();
 
-      //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
+        //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
         msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
 
         addItem = msgListData.size() - addItem;

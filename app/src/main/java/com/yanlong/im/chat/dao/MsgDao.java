@@ -158,6 +158,54 @@ public class MsgDao {
         return beans;
     }
 
+    public List<MsgAllBean> getMsg4GroupHistory(String gid, Long stime) {
+
+            Long time=99999999999999l;
+
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+
+        RealmResults list = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid)
+                .lessThan("timestamp",time)
+                .greaterThanOrEqualTo("timestamp",stime)
+
+                .sort("timestamp", Sort.DESCENDING)
+
+                .findAll();
+
+        beans = realm.copyFromRealm(list);;
+
+
+        //翻转列表
+        Collections.reverse(beans);
+        realm.close();
+        return beans;
+    }
+    public List<MsgAllBean> getMsg4UserHistory(Long userid, Long stime) {
+
+        Long  time=99999999999999l;
+
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+
+        RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "")
+                .equalTo("from_uid", userid).or().equalTo("to_uid", userid)
+                .lessThan("timestamp",time)
+                .greaterThanOrEqualTo("timestamp",stime)
+                .sort("timestamp", Sort.DESCENDING)
+
+                .findAll();
+
+        beans = realm.copyFromRealm(list);;
+
+
+        //翻转列表
+        Collections.reverse(beans);
+        realm.close();
+        return beans;
+    }
+
     /***
      * 保存群成员到数据库
      * @param

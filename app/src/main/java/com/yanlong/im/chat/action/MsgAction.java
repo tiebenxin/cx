@@ -134,6 +134,12 @@ public class MsgAction {
         return dao.getMsg4User(uid, time);
     }
 
+    public List<MsgAllBean> getMsg4UserHistory(String gid, Long uid, Long stime) {
+        if (StringUtil.isNotNull(gid)) {
+            return dao.getMsg4GroupHistory(gid, stime);
+        }
+        return dao.getMsg4UserHistory(uid, stime);
+    }
 
     /***
      * 获取群信息,并缓存
