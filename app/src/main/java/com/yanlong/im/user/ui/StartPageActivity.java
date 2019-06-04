@@ -48,6 +48,7 @@ public class StartPageActivity extends AppActivity {
     private ViewPagerAdapter adapter;
     private int images[] = {R.mipmap.bg_index1, R.mipmap.bg_index2, R.mipmap.bg_index3};
     private List<ImageView> imgList;
+    private String phone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +60,7 @@ public class StartPageActivity extends AppActivity {
     }
 
     private void initView() {
+        phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         mLayoutGuidance = findViewById(R.id.layout_guidance);
         mViewPager = findViewById(R.id.view_pager);
         mBtnStart = findViewById(R.id.btn_start);
@@ -122,7 +124,6 @@ public class StartPageActivity extends AppActivity {
     }
 
     private void updateToken(final boolean isFlast) {
-        final String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         UserAction userAction = new UserAction();
 
         userAction.login4token(UserAction.getDevId(getContext()), new Callback<ReturnBean<TokenBean>>() {
@@ -166,8 +167,13 @@ public class StartPageActivity extends AppActivity {
                 startActivity(new Intent(StartPageActivity.this, MainActivity.class));
                 finish();
             }else{
-                startActivity(new Intent(StartPageActivity.this, LoginActivity.class));
-                finish();
+               if(TextUtils.isEmpty(phone)){
+                   startActivity(new Intent(StartPageActivity.this, PasswordLoginActivity.class));
+                   finish();
+               }else{
+                   startActivity(new Intent(StartPageActivity.this, LoginActivity.class));
+                   finish();
+               }
             }
         }
     }

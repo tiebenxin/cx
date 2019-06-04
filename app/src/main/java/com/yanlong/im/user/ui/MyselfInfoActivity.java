@@ -229,14 +229,14 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 if(response.body() == null){
                     return;
                 }
-                if(imid != null){
+                if(!TextUtils.isEmpty(imid)){
                     MyselfInfoActivity.this.imid = imid;
                     mTvProductNumber.setText(imid);
                     mIvProductNumber.setVisibility(View.GONE);
                     mViewProductNumber.setClickable(false);
                 }
 
-                if(nickname != null){
+                if(!TextUtils.isEmpty(nickname)){
                     MyselfInfoActivity.this.nickName = nickname;
                     mTvNickname.setText(nickname);
                 }

@@ -272,8 +272,8 @@ public class MsgAction {
     /**
      * 加入群聊
      */
-    public void joinGroup(Long gid, Long uid, String nickname, Callback<ReturnBean<GroupJoinBean>> callback) {
-        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname), callback);
+    public void joinGroup(String gid, Long uid, Callback<ReturnBean<GroupJoinBean>> callback) {
+        NetUtil.getNet().exec(server.joinGroup(gid, uid), callback);
     }
 
 

@@ -40,6 +40,10 @@
             android:value="5cdf7aab4ca357f3f600055f">
         </meta-data>
 
+        <meta-data
+            android:name="com.huawei.hms.client.appid"
+            android:value="appid=100836087" />
+
         <activity
             android:name=".user.ui.StartPageActivity"
             android:launchMode="singleTask">
@@ -330,7 +334,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
-            android:name=".notify.MipushTestActivity"
+            android:name=".notify.PushToActivity"
             android:launchMode="singleTask"
             android:exported="true" />
 

@@ -120,5 +120,9 @@ dependencies {
     //小米推送
     api 'com.umeng.umsdk:xiaomi-push:3.6.9'
     api 'com.umeng.umsdk:xiaomi-umengaccs:1.0.9'
+    //华为推送
+    api 'com.umeng.umsdk:huawei-basetb:2.6.0.301'
+    api 'com.umeng.umsdk:huawei-pushtb:2.6.0.301'
+    api 'com.umeng.umsdk:huawei-umengaccs:1.1.3'
 
 }

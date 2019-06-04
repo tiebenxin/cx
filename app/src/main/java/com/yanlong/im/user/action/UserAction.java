@@ -170,7 +170,7 @@ public class UserAction {
     }
 
 
-    public void login4token(String dev_id,final Callback<ReturnBean<TokenBean>> callback) {
+    public void login4token(String dev_id, final Callback<ReturnBean<TokenBean>> callback) {
         //判断有没有token信息
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
         if (token == null || !StringUtil.isNotNull(token.getAccessToken())) {
@@ -340,11 +340,11 @@ public class UserAction {
                     return;
                 if (response.body().isOk()) {
                     myInfo = dao.findUserInfo(getMyId());
-                    if (imid != null)
+                    if (!TextUtils.isEmpty(imid))
                         myInfo.setImid(imid);
-                    if (avatar != null)
+                    if (!TextUtils.isEmpty(avatar))
                         myInfo.setHead(avatar);
-                    if (nickname != null)
+                    if (!TextUtils.isEmpty(nickname))
                         myInfo.setName(nickname);
                     if (gender != null)
                         myInfo.setSex(gender);
