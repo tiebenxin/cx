@@ -101,7 +101,7 @@ public class ChatActivity extends AppActivity {
     private Long toUId = null;
     private String toGid = null;
     //当前页
-    private int indexPage = 0;
+    //private int indexPage = 0;
     private List<MsgAllBean> msgListData = new ArrayList<>();
 
 
@@ -443,8 +443,8 @@ public class ChatActivity extends AppActivity {
 
             @Override
             public void onRefresh() {
-                indexPage++;
-                taskMoreMessage(indexPage);
+              //  indexPage++;
+                taskMoreMessage();
             }
 
             @Override
@@ -662,10 +662,24 @@ public class ChatActivity extends AppActivity {
     //显示大图
     private void showBigPic(String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
-        LocalMedia lc = new LocalMedia();
-        lc.setPath(uri);
-        selectList.add(lc);
-        PictureSelector.create(ChatActivity.this).themeStyle(R.style.picture_default_style).openExternalPreview(0, selectList);
+        int pos=0;
+
+
+                for(MsgAllBean msgl:  msgListData){
+                   if(msgl.getMsg_type().intValue()==4) {
+
+                       if(uri.contains(msgl.getImage().getUrl())){
+                           pos=selectList.size();
+                       }
+
+                       LocalMedia lc = new LocalMedia();
+                       lc.setPath(msgl.getImage().getUrl());
+                       selectList.add(lc);
+
+                   }
+                }
+
+        PictureSelector.create(ChatActivity.this).themeStyle(R.style.picture_default_style).openExternalPreview(pos, selectList);
 
     }
 
@@ -845,20 +859,21 @@ public class ChatActivity extends AppActivity {
      * 获取最新的
      */
     private void taskRefreshMessage() {
-        indexPage = 0;
-        msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
+
+      //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
+        msgListData = msgAction.getMsg4User(toGid, toUId, null);
         notifyData2Buttom();
     }
 
     /***
      * 加载更多
-     * @param page
      */
-    private void taskMoreMessage(final int page) {
+    private void taskMoreMessage() {
 
         int addItem = msgListData.size();
 
-        msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
+      //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
+        msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
 
         addItem = msgListData.size() - addItem;
 

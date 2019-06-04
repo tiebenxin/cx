@@ -121,11 +121,17 @@ public class MsgAction {
      * 获取某个用户的数据
      * @return
      */
-    public List<MsgAllBean> getMsg4User(String gid, Long uid, Integer page) {
+/*    public List<MsgAllBean> getMsg4User(String gid, Long uid, Integer page) {
         if (StringUtil.isNotNull(gid)) {
             return dao.getMsg4Group(gid, page);
         }
         return dao.getMsg4User(uid, page);
+    }*/
+    public List<MsgAllBean> getMsg4User(String gid, Long uid, Long time) {
+        if (StringUtil.isNotNull(gid)) {
+            return dao.getMsg4Group(gid, time);
+        }
+        return dao.getMsg4User(uid, time);
     }
 
 
