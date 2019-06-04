@@ -17,6 +17,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
@@ -598,6 +599,7 @@ public class ChatActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         //激活当前会话
         if (isGroup()) {
             ChatServer.setSessionGroup(toGid);
@@ -883,6 +885,7 @@ public class ChatActivity extends AppActivity {
     public void taskFinadHistoryMessage(EventFindHistory history) {
         flag_isHistory = true;
         msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
+        //ToastUtil.show(getContext(),"历史"+msgListData.size());
 
         mtListView.getListView().getAdapter().notifyDataSetChanged();
 
