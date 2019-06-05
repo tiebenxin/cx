@@ -85,7 +85,6 @@
                         android:id="@+id/txt_group_name"
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:text="xxx"
                         android:textColor="@color/gray_300" />
 
                     <ImageView
@@ -109,7 +108,6 @@
                         android:id="@+id/txt_group_nick"
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:text="xxx"
                         android:textColor="@color/gray_300" />
 
                     <ImageView
@@ -155,7 +153,6 @@
                         android:id="@+id/txt_group_note"
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:text="xxx"
                         android:textColor="@color/gray_300" />
 
                     <ImageView

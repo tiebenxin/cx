@@ -38,7 +38,6 @@
         <TextView
             style="@style/app_txt_content_1"
             android:layout_marginTop="8dp"
-            android:text="隔壁的六连拍"
             app:layout_constraintLeft_toLeftOf="@id/tv_title"
             app:layout_constraintTop_toBottomOf="@id/tv_title" />
 

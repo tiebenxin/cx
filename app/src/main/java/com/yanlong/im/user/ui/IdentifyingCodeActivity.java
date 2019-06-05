@@ -118,7 +118,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
         CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
-                taskGetSms(Long.valueOf(phone));
+                taskGetSms(phone);
             }
         });
     }
@@ -139,7 +139,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(this, "手机号不合法");
             return;
         }
-        userAction.login4Captch(Long.valueOf(phone), code, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
+        userAction.login4Captch(phone, code, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() == null) {
@@ -158,7 +158,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
     }
 
 
-    private void taskGetSms(Long phone) {
+    private void taskGetSms(String phone) {
         userAction.smsCaptchaGet(phone, "login", new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {

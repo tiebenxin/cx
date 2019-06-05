@@ -78,8 +78,7 @@
 
             <TextView
                 android:id="@+id/tv_nickname"
-                style="@style/app_txt_title_4"
-                android:text="嘻嘻嘻" />
+                style="@style/app_txt_title_4" />
 
 
             <ImageView
@@ -135,8 +134,7 @@
 
             <TextView
                 android:id="@+id/tv_sex"
-                style="@style/app_txt_title_4"
-                android:text="男" />
+                style="@style/app_txt_title_4"/>
 
 
             <ImageView

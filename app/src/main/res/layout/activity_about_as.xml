@@ -25,8 +25,7 @@
             android:id="@+id/tv_version_number"
             style="@style/app_txt_title_2"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="21dp"
-            android:text="夸夸聊    V1.0.0" />
+            android:layout_marginTop="21dp"/>
 
         <LinearLayout
             android:id="@+id/ll_check_versions"

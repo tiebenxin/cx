@@ -149,7 +149,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
             @Override
             public void task() {
-                taskGetSms(Long.valueOf(phone));
+                taskGetSms(phone);
             }
         });
 
@@ -190,12 +190,12 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             return;
         }
 
-        taskRegister(Long.valueOf(phone), password, code,nikename);
+        taskRegister(phone, password, code,nikename);
 
     }
 
 
-    private void taskGetSms(Long phone) {
+    private void taskGetSms(String phone) {
         userAction.smsCaptchaGet(phone, "register", new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -207,7 +207,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         });
     }
 
-    private void taskRegister(Long phone, String password, String captcha,String nickname) {
+    private void taskRegister(String phone, String password, String captcha,String nickname) {
         userAction.register(phone, password, captcha,nickname, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {

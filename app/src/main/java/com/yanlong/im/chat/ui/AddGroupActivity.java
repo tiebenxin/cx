@@ -102,7 +102,8 @@ public class AddGroupActivity extends AppActivity {
     private void taskAddGroup(final String gid){
         UserInfo userInfo = UserAction.getMyInfo();
         Long uid = userInfo.getUid();
-        new MsgAction().joinGroup(gid, uid, new CallBack<ReturnBean<GroupJoinBean>>() {
+        String name = userInfo.getName();
+        new MsgAction().joinGroup(gid, uid,name,new CallBack<ReturnBean<GroupJoinBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
                 if(response.body() == null){

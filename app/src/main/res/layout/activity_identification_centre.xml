@@ -31,8 +31,7 @@
 
             <TextView
                 android:id="@+id/tv_name"
-                style="@style/app_txt_content_1"
-                android:text="*某"/>
+                style="@style/app_txt_content_1"/>
 
         </LinearLayout>
 
@@ -68,8 +67,7 @@
 
             <TextView
                 android:id="@+id/tv_identity_number"
-                style="@style/app_txt_content_1"
-                android:text="432222222222222222222"/>
+                style="@style/app_txt_content_1"/>
 
         </LinearLayout>
 

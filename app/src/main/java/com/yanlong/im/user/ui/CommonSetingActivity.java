@@ -2,6 +2,8 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -21,6 +23,8 @@ public class CommonSetingActivity extends AppActivity {
     public final static String REMMARK1 = "remark1";
     public final static String SETING = "seting"; //设置输入栏的内容
     public final static String TYPE_LINE = "type"; //默认0 单行 1 多行
+    public final static String SIZE = "SIZE";//限制字数长度
+    public final static String INPUT_TYPE = "input_type";//输入类型
 
     private HeadView mHeadView;
     private TextView mTvTitle;
@@ -79,6 +83,10 @@ public class CommonSetingActivity extends AppActivity {
         if (!TextUtils.isEmpty(seting)) {
             mEdContent.setText(seting);
         }
+
+        int size = intent.getIntExtra(SIZE,70);
+        mEdContent.setFilters(new InputFilter[]{new InputFilter.LengthFilter(size)});
+
     }
 
 

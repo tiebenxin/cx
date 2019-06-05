@@ -60,5 +60,5 @@ public interface MsgServer {
 
     @POST("/group/request-join")
     @FormUrlEncoded
-    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid);
+    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid,@Field("membername")String membername);
 }

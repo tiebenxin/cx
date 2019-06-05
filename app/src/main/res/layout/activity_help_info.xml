@@ -31,7 +31,6 @@
             android:paddingRight="13dp"
             android:paddingBottom="12dp"
             android:singleLine="false"
-            android:text="saaaaaa"
             android:textSize="16sp" />
     </LinearLayout>
 </net.cb.cb.library.view.HeadView>

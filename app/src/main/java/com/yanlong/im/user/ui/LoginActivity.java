@@ -131,7 +131,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             ToastUtil.show(this, "请输入密码");
             return;
         }
-        new UserAction().login(Long.valueOf(phone), password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
+        new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if(response.body() == null){

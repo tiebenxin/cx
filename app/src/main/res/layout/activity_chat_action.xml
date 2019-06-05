@@ -17,7 +17,6 @@
         android:id="@+id/txt_name"
         style="@style/app_txt_title_2"
         android:layout_marginTop="10dp"
-        android:text="xxx"
         android:textColor="@color/white"
         android:textSize="30sp" />
 
@@ -27,8 +26,6 @@
         android:layout_marginTop="45dp"
         android:background="@drawable/bg_chat_action"
         android:gravity="center"
-
-        android:text="xxx"
         android:textColor="@color/white" />
     <View
         android:layout_weight="1"

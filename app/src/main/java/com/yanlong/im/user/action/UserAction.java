@@ -102,7 +102,7 @@ public class UserAction {
     /**
      * 账号密码登录
      */
-    public void login(final Long phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+    public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         NetUtil.getNet().exec(server.login(pwd, phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
@@ -369,7 +369,7 @@ public class UserAction {
      *
      * @param businessType 登录login  注册register  修改密码password
      */
-    public void smsCaptchaGet(Long phone, String businessType, CallBack<ReturnBean> callback) {
+    public void smsCaptchaGet(String phone, String businessType, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.smsCaptchaGet(phone, businessType), callback);
     }
 
@@ -385,7 +385,7 @@ public class UserAction {
     /**
      * 用户注册
      */
-    public void register(Long phone, String password, String captcha, String nickname, CallBack<ReturnBean> callback) {
+    public void register(String phone, String password, String captcha, String nickname, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.register(phone, password, captcha, nickname), callback);
     }
 
@@ -393,7 +393,7 @@ public class UserAction {
     /**
      * 手机号验证码登录
      */
-    public void login4Captch(final Long phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+    public void login4Captch(final String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {

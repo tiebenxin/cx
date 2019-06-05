@@ -30,16 +30,14 @@
                 style="@style/app_txt_title_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="17dp"
-                android:text="水果销售下单群" />
+                android:layout_marginTop="17dp"/>
 
             <TextView
                 android:id="@+id/tv_group_num"
                 style="@style/app_txt_title_3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:text="18人" />
+                android:layout_marginTop="18dp"/>
 
         </LinearLayout>
 
