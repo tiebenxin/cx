@@ -26,6 +26,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.user.ui.CommonSetingActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
+import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.ReturnBean;
@@ -278,14 +279,21 @@ public class GroupInfoActivity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewTopHolder holder, int position) {
+        public void onBindViewHolder(final RCViewTopHolder holder, int position) {
 
 
 
-          UserInfo number=  listDataTop.get(position);
+          final UserInfo number=  listDataTop.get(position);
             if(number!=null){
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 holder.txtName.setText(""+number.getName4Show());
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, number.getUid()));
+                    }
+                });
             }else{
                 if(isAdmin()&&position==listDataTop.size()-1){
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());

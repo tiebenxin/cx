@@ -21,6 +21,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
@@ -182,6 +183,13 @@ public class ChatInfoActivity extends AppActivity {
                     userInfo = fUserInfo;
 
                     holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
+                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                    .putExtra(UserInfoActivity.ID, fUserInfo.getUid()));
+                        }
+                    });
                     break;
                 case 1:
 

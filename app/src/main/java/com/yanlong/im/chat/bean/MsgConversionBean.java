@@ -117,7 +117,12 @@ public class MsgConversionBean {
             case ACCEPT_BE_GROUP://接受入群请求
                 msgAllBean.setMsg_type(0);
                 MsgNotice gNotice=new MsgNotice();
-                gNotice.setNote(bean.getAcceptBeGroup().getNoticeMessage(0).getNickname()+"已加入群");
+                String names="";
+                for (int i=0;i<bean.getAcceptBeGroup().getNoticeMessageCount();i++){
+                    names+=bean.getAcceptBeGroup().getNoticeMessage(i).getNickname()+",";
+                }
+                names=names.length()>0?names.substring(0,names.length()-1):names;
+                gNotice.setNote(names+"已加入群");
                 msgAllBean.setMsgNotice(gNotice);
                     break;
             case DESTROY_GROUP://群解散

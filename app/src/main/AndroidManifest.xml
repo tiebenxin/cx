@@ -281,18 +281,22 @@
         <!--单个红包-->
         <activity
             android:name=".pay.ui.SingleRedPacketActivity"
+            android:theme="@style/RedAppThrme"
             android:screenOrientation="portrait" />
         <!--群红包-->
         <activity
+            android:theme="@style/RedAppThrme"
             android:name=".pay.ui.MultiRedPacketActivity"
             android:screenOrientation="portrait" />
         <!--红包详情-->
         <activity
+            android:theme="@style/RedAppThrme"
             android:name=".pay.ui.RedPacketDetailsActivity"
             android:screenOrientation="portrait" />
 
         <!--红包记录-->
         <activity
+            android:theme="@style/RedAppThrme"
             android:name=".pay.ui.RedpacketRecordActivity"
             android:screenOrientation="portrait" />
 

@@ -35,6 +35,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.view.ChatItemView;
+import com.yanlong.im.pay.ui.MultiRedPacketActivity;
 import com.yanlong.im.pay.ui.SingleRedPacketActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -395,10 +396,15 @@ public class ChatActivity extends AppActivity {
         viewRbZfb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent;
                 ToastUtil.show(getContext(), "显示红包");
+                if (isGroup()) {
+                    intent = new Intent(ChatActivity.this, MultiRedPacketActivity.class);
+                } else {
+                    intent = new Intent(ChatActivity.this, SingleRedPacketActivity.class);
+                }
 
-                Intent intent = new Intent(ChatActivity.this, SingleRedPacketActivity.class);
+
                 startActivity(intent);
             }
         });
@@ -735,9 +741,17 @@ public class ChatActivity extends AppActivity {
             String headico = msgbean.getFrom_avatar();
             if (msgbean.isMe()) {
                 // headico =
+                holder.viewChatItem.setOnHead(null);
             } else {
                 //msgbean.getFrom_user().getHead();
                 //  headico = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1327564550,2587085231&fm=26&gp=0.jpg";
+                holder.viewChatItem.setOnHead(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid()));
+                    }
+                });
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             switch (msgbean.getMsg_type()) {
@@ -811,6 +825,8 @@ public class ChatActivity extends AppActivity {
 
                 }
             });
+
+
             //----------------------------------------
 
 

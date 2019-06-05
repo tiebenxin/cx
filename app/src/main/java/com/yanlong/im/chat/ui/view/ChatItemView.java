@@ -356,7 +356,10 @@ public class ChatItemView extends LinearLayout {
         imgMeErr.setOnClickListener(onk);
     }
 
-
+public void setOnHead(OnClickListener onk){
+        imgMeHead.setOnClickListener(onk);
+        imgOtHead.setOnClickListener(onk);
+}
 
 
 }

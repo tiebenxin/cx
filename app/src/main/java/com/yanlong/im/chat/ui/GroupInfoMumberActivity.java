@@ -22,6 +22,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
+import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -154,10 +155,17 @@ public class GroupInfoMumberActivity extends AppActivity {
 
 
 
-            UserInfo number=  ginfo.getMembers().get(position);
+          final  UserInfo number=  ginfo.getMembers().get(position);
             if(number!=null){
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 holder.txtName.setText(""+number.getName4Show());
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, number.getUid()));
+                    }
+                });
             }else{
                 if(isAdmin()&&position==ginfo.getMembers().size()-1){
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
@@ -168,6 +176,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                             taskDel();
                         }
                     });
+
                 }else{
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
                     holder.txtName.setText("");
