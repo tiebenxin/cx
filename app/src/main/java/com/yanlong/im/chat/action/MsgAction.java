@@ -166,12 +166,12 @@ public class MsgAction {
                 }
             });
         } else {//从缓存中读
-            Group rdata=dao.groupNumberGet(gid);
+            Group rdata = dao.groupNumberGet(gid);
 
-            ReturnBean<Group> body=new ReturnBean<>();
+            ReturnBean<Group> body = new ReturnBean<>();
             body.setCode(0l);
             body.setData(rdata);
-            Response<ReturnBean<Group>> response=Response.success(body);
+            Response<ReturnBean<Group>> response = Response.success(body);
             callback.onResponse(null, response);
         }
 
@@ -225,7 +225,7 @@ public class MsgAction {
         if (needVerification != null) {
             NetUtil.getNet().exec(server.groupSwitch(gid, needVerification), callback);
         } else {
-            NetUtil.getNet().exec(server.groupSwitch(gid, istop,notNotify, saved), callback);
+            NetUtil.getNet().exec(server.groupSwitch(gid, istop, notNotify, saved), callback);
         }
 
 
@@ -280,8 +280,16 @@ public class MsgAction {
     /**
      * 加入群聊
      */
-    public void joinGroup(String gid, Long uid,String membername,Callback<ReturnBean<GroupJoinBean>> callback) {
-        NetUtil.getNet().exec(server.joinGroup(gid, uid,membername), callback);
+    public void joinGroup(String gid, Long uid, String membername, Callback<ReturnBean<GroupJoinBean>> callback) {
+        NetUtil.getNet().exec(server.joinGroup(gid, uid, membername), callback);
+    }
+
+
+    /**
+     * 修改群名称
+     * */
+    public void changeGroupName(String gid, String name, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.changeGroupName(gid, name), callback);
     }
 
 

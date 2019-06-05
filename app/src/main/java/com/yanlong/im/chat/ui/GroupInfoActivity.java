@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -350,9 +351,12 @@ public class GroupInfoActivity extends AppActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             String content = data.getStringExtra(CommonSetingActivity.CONTENT);
+            if(TextUtils.isEmpty(content)){
+                return;
+            }
             switch (requestCode) {
                 case GROUP_NAME:
-                    txtGroupName.setText(content);
+                    taskChangeGroupName(gid,content);
                     break;
                 case GROUP_NICK:
                     txtGroupNick.setText(content);
@@ -537,6 +541,23 @@ public class GroupInfoActivity extends AppActivity {
                 .putExtra(GroupNumbersActivity.AGM_TYPE, GroupNumbersActivity.TYPE_DEL)
                 .putExtra(GroupNumbersActivity.AGM_NUMBERS_JSON, json)
         );
+    }
+
+
+    private void taskChangeGroupName(String gid, final String name){
+        msgAction.changeGroupName(gid, name, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    return;
+                }
+                ToastUtil.show(getContext(),response.body().getMsg());
+                if(response.body().isOk()){
+                    txtGroupName.setText(name);
+                    initEvent();
+                }
+            }
+        });
     }
 
 }

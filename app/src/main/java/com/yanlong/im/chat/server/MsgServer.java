@@ -41,24 +41,29 @@ public interface MsgServer {
 
     @POST("/group/change-member-switch")
     @FormUrlEncoded
-    Call<ReturnBean> groupSwitch(@Field("gid") String gid,@Field("toTop") Integer isTop,@Field("notNotify") Integer notNotify,@Field("saved") Integer saved);
+    Call<ReturnBean> groupSwitch(@Field("gid") String gid, @Field("toTop") Integer isTop, @Field("notNotify") Integer notNotify, @Field("saved") Integer saved);
 
     @POST("/group/change-group-switch")
     @FormUrlEncoded
-    Call<ReturnBean> groupSwitch(@Field("gid") String gid,@Field("needVerification") Integer needVerification);
+    Call<ReturnBean> groupSwitch(@Field("gid") String gid, @Field("needVerification") Integer needVerification);
 
     @POST("group/get-my-saved")
     Call<ReturnBean<List<Group>>> getMySaved();
 
     @POST("/friends/set-friend-disturb")
     @FormUrlEncoded
-    Call<ReturnBean> friendMute(@Field("friend") Long uid,@Field("disturb") Integer isMute);
+    Call<ReturnBean> friendMute(@Field("friend") Long uid, @Field("disturb") Integer isMute);
 
     @POST("/friends/set-friend-top")
     @FormUrlEncoded
-    Call<ReturnBean> friendTop(@Field("friend") Long uid,@Field("istop") Integer istop);
+    Call<ReturnBean> friendTop(@Field("friend") Long uid, @Field("istop") Integer istop);
 
     @POST("/group/request-join")
     @FormUrlEncoded
-    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid,@Field("membername")String membername);
+    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid, @Field("membername") String membername);
+
+    @POST("/group/change-group-name")
+    @FormUrlEncoded
+    Call<ReturnBean> changeGroupName(@Field("gid") String gid, @Field("name") String name);
+
 }
