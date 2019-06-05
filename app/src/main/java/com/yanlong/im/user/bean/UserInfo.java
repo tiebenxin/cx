@@ -42,6 +42,16 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer messagenotice;//新消息通知(0:关闭|1:打开)
     private Integer displaydetail;//显示详情(0:关闭|1:打开)
     private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单)
+    @Ignore
+    private String membername;//群的昵称
+
+    public String getMembername() {
+        return membername;
+    }
+
+    public void setMembername(String membername) {
+        this.membername = membername;
+    }
 
     public Integer getMessagenotice() {
         return messagenotice;

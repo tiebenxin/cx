@@ -30,7 +30,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
@@ -472,9 +472,9 @@ public class MsgMainFragment extends Fragment {
                 Group group = msgDao.getGroup4Id(gid);
                 if (group == null) {
                     dids.add(gid);
-                    msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+                    msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
                         @Override
-                        public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                        public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                             didIndex++;
                             if (didIndex == dids.size()) {
                                 mtListView.notifyDataSetChange();

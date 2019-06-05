@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
+import com.yanlong.im.chat.bean.Group;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -29,7 +29,7 @@ public class GroupSaveActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private List<ReturnGroupInfoBean> groupInfoBeans;
+    private List<Group> groupInfoBeans;
 
 
     @Override
@@ -74,9 +74,9 @@ public class GroupSaveActivity extends AppActivity {
 
 
     private void taskMySaved() {
-        new MsgAction().getMySaved(new CallBack<ReturnBean<List<ReturnGroupInfoBean>>>(mtListView) {
+        new MsgAction().getMySaved(new CallBack<ReturnBean<List<Group>>>(mtListView) {
             @Override
-            public void onResponse(Call<ReturnBean<List<ReturnGroupInfoBean>>> call, Response<ReturnBean<List<ReturnGroupInfoBean>>> response) {
+            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
                 if (response.body() == null || !response.body().isOk()) {
                     mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
                     return;
@@ -99,7 +99,7 @@ public class GroupSaveActivity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            final ReturnGroupInfoBean groupInfoBean = groupInfoBeans.get(position);
+            final Group groupInfoBean = groupInfoBeans.get(position);
             holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
             holder.txtName.setText(groupInfoBean.getName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {

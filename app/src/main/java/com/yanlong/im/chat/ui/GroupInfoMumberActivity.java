@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -46,7 +46,7 @@ public class GroupInfoMumberActivity extends AppActivity {
 
 
     private Gson gson = new Gson();
-    private ReturnGroupInfoBean ginfo;
+    private Group ginfo;
 
     /***
      * 搜索模式
@@ -146,7 +146,7 @@ public class GroupInfoMumberActivity extends AppActivity {
         @Override
         public int getItemCount() {
 
-            return ginfo.getMembers() == null ? 0 : ginfo.getMembers().size();
+            return ginfo.getUsers() == null ? 0 : ginfo.getUsers().size();
         }
 
         //自动生成控件事件
@@ -155,7 +155,7 @@ public class GroupInfoMumberActivity extends AppActivity {
 
 
 
-          final  UserInfo number=  ginfo.getMembers().get(position);
+          final  UserInfo number=  ginfo.getUsers().get(position);
             if(number!=null){
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 holder.txtName.setText(""+number.getName4Show());
@@ -167,7 +167,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                     }
                 });
             }else{
-                if(isAdmin()&&position==ginfo.getMembers().size()-1){
+                if(isAdmin()&&position==ginfo.getUsers().size()-1){
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -232,7 +232,7 @@ public class GroupInfoMumberActivity extends AppActivity {
      */
     private List<UserInfo> taskGetNumbers() {
         //进入这个信息的时候会统一给的
-        List<UserInfo> userInfos = ginfo.getMembers();
+        List<UserInfo> userInfos = ginfo.getUsers();
 
         for(int i=userInfos.size()-1;i>0;i--){
             if(userInfos.get(i)==null){
@@ -261,22 +261,22 @@ public class GroupInfoMumberActivity extends AppActivity {
     }
 
     private void taskGetInfo() {
-        msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+        msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
-            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
 
-                    actionbar.setTitle("群成员("+ginfo.getMembers().size()+")");
+                    actionbar.setTitle("群成员("+ginfo.getUsers().size()+")");
 
                     if(isAdmin()){
 
-                        ginfo.getMembers().add(null);
-                        ginfo.getMembers().add(null);
+                        ginfo.getUsers().add(null);
+                        ginfo.getUsers().add(null);
 
                     }else{
 
-                        ginfo.getMembers().add(null);
+                        ginfo.getUsers().add(null);
 
 
                     }
@@ -296,16 +296,16 @@ public class GroupInfoMumberActivity extends AppActivity {
         if (key.length() <= 0)
             return;
         List<UserInfo> temp = new ArrayList<>();
-        for (UserInfo bean : ginfo.getMembers()) {
+        for (UserInfo bean : ginfo.getUsers()) {
            if(bean!=null){
                if(bean.getName4Show().contains(key)){
                    temp.add(bean);
                }
            }
         }
-        ginfo.getMembers().clear();
+        ginfo.getUsers().clear();
 
-        ginfo.getMembers().addAll(temp) ;
+        ginfo.getUsers().addAll(temp) ;
 
         mtListView.notifyDataSetChange();
     }

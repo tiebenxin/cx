@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
+
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.test.server.TestServer;
@@ -41,7 +41,7 @@ public class MsgAction {
     }
 
 
-    public void groupCreate(final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<ReturnGroupInfoBean>> callback) {
+    public void groupCreate(final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<Group>> callback) {
         /*List<Long> ulist = new ArrayList<>();
 
          */
@@ -57,9 +57,9 @@ public class MsgAction {
 
         }
 
-        NetUtil.getNet().exec(server.groupCreate(name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+        NetUtil.getNet().exec(server.groupCreate(name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<Group>>() {
             @Override
-            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {//存库
@@ -146,18 +146,19 @@ public class MsgAction {
      * @param gid
      * @param callback
      */
-    public void groupInfo(final String gid, final Callback<ReturnBean<ReturnGroupInfoBean>> callback) {
+    public void groupInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
 
         if (NetUtil.isNetworkConnected()) {
-            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
                 @Override
-                public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null)
                         return;
                     if (response.body().isOk()) {//保存群友信息到数据库
+                        response.body().getData().getMygroupName();
                         dao.groupNumberSave(response.body().getData());
 
-                        response.body().getData().setMembers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
+                        response.body().getData().setUsers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
                     }
                     callback.onResponse(call, response);
 
@@ -165,12 +166,12 @@ public class MsgAction {
                 }
             });
         } else {//从缓存中读
-            ReturnGroupInfoBean rdata=dao.groupNumberGet(gid);
+            Group rdata=dao.groupNumberGet(gid);
 
-            ReturnBean<ReturnGroupInfoBean> body=new ReturnBean<>();
+            ReturnBean<Group> body=new ReturnBean<>();
             body.setCode(0l);
             body.setData(rdata);
-            Response<ReturnBean<ReturnGroupInfoBean>> response=Response.success(body);
+            Response<ReturnBean<Group>> response=Response.success(body);
             callback.onResponse(null, response);
         }
 
@@ -201,10 +202,11 @@ public class MsgAction {
      */
     public void groupSwitch(final String gid, final Integer istop, final Integer notNotify, final Integer saved, final Integer needVerification, final Callback<ReturnBean> cb) {
 
-        if (istop != null) {
+        //存服务器
+    /*    if (istop != null) {
             dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
             return;
-        }
+        }*/
 
         Callback<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
@@ -223,7 +225,7 @@ public class MsgAction {
         if (needVerification != null) {
             NetUtil.getNet().exec(server.groupSwitch(gid, needVerification), callback);
         } else {
-            NetUtil.getNet().exec(server.groupSwitch(gid, notNotify, saved), callback);
+            NetUtil.getNet().exec(server.groupSwitch(gid, istop,notNotify, saved), callback);
         }
 
 
@@ -252,17 +254,17 @@ public class MsgAction {
     /**
      * 查询已保存的群聊
      */
-    public void getMySaved(final Callback<ReturnBean<List<ReturnGroupInfoBean>>> callback) {
+    public void getMySaved(final Callback<ReturnBean<List<Group>>> callback) {
 
-        NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<ReturnGroupInfoBean>>>() {
+        NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<Group>>>() {
             @Override
-            public void onResponse(Call<ReturnBean<List<ReturnGroupInfoBean>>> call, Response<ReturnBean<List<ReturnGroupInfoBean>>> response) {
+            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
                 if (response.body() == null)
                     return;
                 callback.onResponse(call, response);
 
 
-                for (ReturnGroupInfoBean ginfo : response.body().getData()) {
+                for (Group ginfo : response.body().getData()) {
                     //保存群信息到本地
                     Group group = new Group();
                     group.setGid(ginfo.getGid());

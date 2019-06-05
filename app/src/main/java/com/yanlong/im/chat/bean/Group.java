@@ -1,6 +1,10 @@
 package com.yanlong.im.chat.bean;
 
+import com.google.gson.annotations.SerializedName;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+
+import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -16,7 +20,34 @@ public class Group  extends RealmObject {
     private String avatar;
 
     private String master;
+    @SerializedName("members")
     private RealmList<UserInfo> users;
+
+    private Integer ceiling;
+    private Integer saved;// 是否已保存
+    private Integer notNotify;// 消息免打扰
+    private Integer needVerification;//是否需要群验证
+    @SerializedName("toTop")
+    private Integer isTop;
+
+    private String mygroupName;//我的群昵称
+
+    public String getMygroupName() {
+        if(!StringUtil.isNotNull(mygroupName)&&users!=null){
+            for (UserInfo user:users) {
+                if(UserAction.getMyId().longValue()==user.getUid().longValue()){
+                    mygroupName=user.getMembername();
+                    break;
+                }
+            }
+        }
+
+        return mygroupName;
+    }
+
+    public void setMygroupName(String mygroupName) {
+        this.mygroupName = mygroupName;
+    }
 
     public String getGid() {
         return gid;
@@ -27,6 +58,7 @@ public class Group  extends RealmObject {
     }
 
     public RealmList<UserInfo> getUsers() {
+        users= users==null?new RealmList<UserInfo>():users;
         return users;
     }
 
@@ -56,5 +88,45 @@ public class Group  extends RealmObject {
 
     public void setMaster(String master) {
         this.master = master;
+    }
+
+    public Integer getCeiling() {
+        return ceiling;
+    }
+
+    public void setCeiling(Integer ceiling) {
+        this.ceiling = ceiling;
+    }
+
+    public Integer getSaved() {
+        return saved;
+    }
+
+    public void setSaved(Integer saved) {
+        this.saved = saved;
+    }
+
+    public Integer getNotNotify() {
+        return notNotify;
+    }
+
+    public void setNotNotify(Integer notNotify) {
+        this.notNotify = notNotify;
+    }
+
+    public Integer getNeedVerification() {
+        return needVerification;
+    }
+
+    public void setNeedVerification(Integer needVerification) {
+        this.needVerification = needVerification;
+    }
+
+    public Integer getIsTop() {
+        return isTop;
+    }
+
+    public void setIsTop(Integer isTop) {
+        this.isTop = isTop;
     }
 }

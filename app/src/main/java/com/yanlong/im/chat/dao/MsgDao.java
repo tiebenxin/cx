@@ -4,7 +4,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Remind;
-import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -210,7 +210,7 @@ public class MsgDao {
      * 保存群成员到数据库
      * @param
      */
-    public void groupNumberSave(ReturnGroupInfoBean ginfo) {
+    public void groupNumberSave(Group ginfo) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         //更新信息到群成员列表
@@ -226,7 +226,7 @@ public class MsgDao {
 
         RealmList<UserInfo> nums = new RealmList<>();
         //更新信息到用户表
-        for (UserInfo sv : ginfo.getMembers()) {
+        for (UserInfo sv : ginfo.getUsers()) {
             UserInfo ui = realm.where(UserInfo.class).equalTo("uid", sv.getUid()).findFirst();
             if (ui == null) {
                 sv.toTag();
@@ -253,8 +253,8 @@ public class MsgDao {
      * @param gid
      * @return
      */
-    public ReturnGroupInfoBean groupNumberGet(String gid){
-        ReturnGroupInfoBean groupInfoBean=new ReturnGroupInfoBean();
+    public Group groupNumberGet(String gid){
+        Group groupInfoBean=new Group();
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
@@ -264,7 +264,7 @@ public class MsgDao {
             groupInfoBean.setAvatar(group.getAvatar());
             groupInfoBean.setGid(group.getGid());
             groupInfoBean.setMaster(group.getMaster());
-            groupInfoBean.setMembers(group.getUsers());
+            groupInfoBean.setUsers(group.getUsers());
         }
 
 

@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -266,9 +266,9 @@ public class GroupCreateActivity extends AppActivity {
         upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
-                msgACtion.groupCreate(fname, icon, listDataTop, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+                msgACtion.groupCreate(fname, icon, listDataTop, new CallBack<ReturnBean<Group>>() {
                     @Override
-                    public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+                    public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                         if (response.body() == null)
                             return;
                         if (response.body().isOk()) {

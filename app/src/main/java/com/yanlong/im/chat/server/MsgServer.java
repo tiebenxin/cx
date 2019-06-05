@@ -1,7 +1,7 @@
 package com.yanlong.im.chat.server;
 
 import com.yanlong.im.chat.bean.GroupJoinBean;
-import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.test.bean.Test2Bean;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -16,7 +16,7 @@ import retrofit2.http.POST;
 public interface MsgServer {
     @POST("/group/create")
     @FormUrlEncoded
-    Call<ReturnBean<ReturnGroupInfoBean>> groupCreate(@Field("name") String name, @Field("avatar") String avatar, @Field("@members") String membersJson);
+    Call<ReturnBean<Group>> groupCreate(@Field("name") String name, @Field("avatar") String avatar, @Field("@members") String membersJson);
 
     @POST("/group/quit")
     @FormUrlEncoded
@@ -37,18 +37,18 @@ public interface MsgServer {
 
     @POST("/group/get-group-data")
     @FormUrlEncoded
-    Call<ReturnBean<ReturnGroupInfoBean>> groupInfo(@Field("gid") String gid);
+    Call<ReturnBean<Group>> groupInfo(@Field("gid") String gid);
 
     @POST("/group/change-member-switch")
     @FormUrlEncoded
-    Call<ReturnBean> groupSwitch(@Field("gid") String gid,@Field("notNotify") Integer notNotify,@Field("saved") Integer saved);
+    Call<ReturnBean> groupSwitch(@Field("gid") String gid,@Field("toTop") Integer isTop,@Field("notNotify") Integer notNotify,@Field("saved") Integer saved);
 
     @POST("/group/change-group-switch")
     @FormUrlEncoded
     Call<ReturnBean> groupSwitch(@Field("gid") String gid,@Field("needVerification") Integer needVerification);
 
     @POST("group/get-my-saved")
-    Call<ReturnBean<List<ReturnGroupInfoBean>>> getMySaved();
+    Call<ReturnBean<List<Group>>> getMySaved();
 
     @POST("/friends/set-friend-disturb")
     @FormUrlEncoded

@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.ReturnGroupInfoBean;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -76,7 +76,7 @@ public class GroupInfoActivity extends AppActivity {
     private CheckBox ckGroupVerif;
     private Button btnDel;
     private Gson gson = new Gson();
-    private ReturnGroupInfoBean ginfo;
+    private Group ginfo;
 
     //自动寻找控件
     private void findViews() {
@@ -221,7 +221,7 @@ public class GroupInfoActivity extends AppActivity {
         //txtGroupNick.setText();
         //txtGroupNote.setText();
         ckGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
-        ckDisturb.setChecked(ginfo.getNotnotify() == 1);
+        ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
         ckTop.setChecked(ginfo.getIsTop() == 1);
 
@@ -374,7 +374,7 @@ public class GroupInfoActivity extends AppActivity {
      */
     private List<UserInfo> taskGetNumbers() {
         //进入这个信息的时候会统一给的
-        List<UserInfo> userInfos = ginfo.getMembers();
+        List<UserInfo> userInfos = ginfo.getUsers();
 
 
         userInfos = userInfos == null ? new ArrayList() : userInfos;
@@ -427,13 +427,13 @@ public class GroupInfoActivity extends AppActivity {
     }
 
     private void taskGetInfo() {
-        msgAction.groupInfo(gid, new CallBack<ReturnBean<ReturnGroupInfoBean>>() {
+        msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
-            public void onResponse(Call<ReturnBean<ReturnGroupInfoBean>> call, Response<ReturnBean<ReturnGroupInfoBean>> response) {
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
 
-                    actionbar.setTitle("群聊信息("+ginfo.getMembers().size()+")");
+                    actionbar.setTitle("群聊信息("+ginfo.getUsers().size()+")");
                   /*  for (int i=0;i<50;i++){
                         UserInfo teuser=new UserInfo();
                         teuser.setHead(ginfo.getMembers().get(0).getHead());
@@ -444,14 +444,14 @@ public class GroupInfoActivity extends AppActivity {
 
                     listDataTop.clear();
                     if(isAdmin()){
-                        if(ginfo.getMembers().size()>18){
+                        if(ginfo.getUsers().size()>18){
                             viewGroupMore.setVisibility(View.VISIBLE);
                             for (int i=0;i<18;i++){
-                                listDataTop.add(ginfo.getMembers().get(i));
+                                listDataTop.add(ginfo.getUsers().get(i));
                             }
 
                         }else {
-                            listDataTop.addAll(ginfo.getMembers());
+                            listDataTop.addAll(ginfo.getUsers());
                             viewGroupMore.setVisibility(View.GONE);
                         }
                         listDataTop.add(null);
@@ -459,14 +459,14 @@ public class GroupInfoActivity extends AppActivity {
 
                     }else{
 
-                        if(ginfo.getMembers().size()>19){
+                        if(ginfo.getUsers().size()>19){
                             viewGroupMore.setVisibility(View.VISIBLE);
                             for (int i=0;i<19;i++){
-                                listDataTop.add(ginfo.getMembers().get(i));
+                                listDataTop.add(ginfo.getUsers().get(i));
                             }
 
                         }else {
-                            listDataTop.addAll(ginfo.getMembers());
+                            listDataTop.addAll(ginfo.getUsers());
                             viewGroupMore.setVisibility(View.GONE);
                         }
 
