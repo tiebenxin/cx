@@ -3,7 +3,9 @@ package com.yanlong.im.chat.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -108,9 +110,12 @@ public class GroupInfoActivity extends AppActivity {
         ckGroupSave = (CheckBox) findViewById(R.id.ck_group_save);
         btnDel = (Button) findViewById(R.id.btn_del);
 
-
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
 
     //自动生成的控件事件
     private void initEvent() {
@@ -149,6 +154,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "群聊名称");
                 intent.putExtra(CommonSetingActivity.REMMARK, "群聊名称");
                 intent.putExtra(CommonSetingActivity.HINT, "群聊名称");
+                intent.putExtra(CommonSetingActivity.CONTENT,ginfo.getName());
                 startActivityForResult(intent, GROUP_NAME);
             }
         });
@@ -160,6 +166,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
+                intent.putExtra(CommonSetingActivity.CONTENT,ginfo.getMygroupName());
                 startActivityForResult(intent, GROUP_NICK);
             }
         });
@@ -368,7 +375,7 @@ public class GroupInfoActivity extends AppActivity {
                     taskChangeGroupName(gid,content);
                     break;
                 case GROUP_NICK:
-                    txtGroupNick.setText(content);
+                    taskChangeMemberName(gid,content);
                     break;
                 case GROUP_NOTE:
                     txtGroupNote.setText(content);
@@ -575,5 +582,22 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
     }
+
+    private void taskChangeMemberName(String gid, final String name){
+        msgAction.changeMemberName(gid, name, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    return;
+                }
+                ToastUtil.show(getContext(),response.body().getMsg());
+                if(response.body().isOk()){
+                    txtGroupNick.setText(name);
+                    initEvent();
+                }
+            }
+        });
+    }
+
 
 }

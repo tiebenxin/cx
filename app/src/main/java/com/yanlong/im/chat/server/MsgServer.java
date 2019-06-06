@@ -66,4 +66,8 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> changeGroupName(@Field("gid") String gid, @Field("name") String name);
 
+    @POST("/group/change-member-name")
+    @FormUrlEncoded
+    Call<ReturnBean> changeMemberName(@Field("gid") String gid, @Field("name") String name);
+
 }

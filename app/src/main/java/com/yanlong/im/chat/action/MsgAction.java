@@ -292,5 +292,11 @@ public class MsgAction {
         NetUtil.getNet().exec(server.changeGroupName(gid, name), callback);
     }
 
+    /**
+     * 修改群成员昵称
+     * */
+    public void changeMemberName(String gid, String name, Callback<ReturnBean> callback){
+        NetUtil.getNet().exec(server.changeMemberName(gid, name), callback);
+    }
 
 }
