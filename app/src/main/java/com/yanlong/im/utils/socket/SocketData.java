@@ -3,6 +3,7 @@ package com.yanlong.im.utils.socket;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
@@ -39,6 +40,8 @@ public class SocketData {
     public enum DataType {
         PROTOBUF_MSG, PROTOBUF_HEARTBEAT, AUTH, ACK, OTHER;
     }
+
+    private static MsgDao msgDao=new MsgDao();
 
     public static byte[] getPakage(DataType type, byte[] context) {
 
@@ -261,13 +264,24 @@ public class SocketData {
         UserInfo userInfo = UserAction.getMyInfo();
         wmsg.setFromUid(userInfo.getUid());
         wmsg.setAvatar(userInfo.getHead());
+
+
         wmsg.setNickname(userInfo.getName());
+
         //自动生成uuid
         wmsg.setMsgId(UUID.randomUUID().toString().replace("-",""));
         wmsg.setTimestamp(System.currentTimeMillis());
 
         if (toGid != null) {//给群发
             wmsg.setGid(toGid);
+           Group group= msgDao.getGroup4Id(toGid);
+           if(group!=null){
+             String name=  group.getMygroupName();
+              if(StringUtil.isNotNull(name)) {
+                  wmsg.setNickname(name);
+              }
+           }
+
         }
 
         wmsg.setMsgType(type);
@@ -498,13 +512,15 @@ public class SocketData {
         return null;
     }
 
+    //6.6 为后端擦屁股
+    private static String oldMsgId="";
     /***
      * 保存消息和发送消息回执
      */
     public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 
-        MsgDao msgDao=new MsgDao();
+
         List<String> msgIds=new ArrayList<>();
         //1.先进行数据分割
         for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
@@ -516,7 +532,15 @@ public class SocketData {
                 LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
                 //收到直接存表
                 DaoUtil.update(msgAllBean);
-                msgDao.sessionReadUpdate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
+
+                //6.6 为后端擦屁股
+                if(!oldMsgId.equals(wmsg.getMsgId())){
+                    oldMsgId=wmsg.getMsgId();
+                    msgDao.sessionReadUpdate(msgAllBean.getGid(),msgAllBean.getFrom_uid());
+                }else{
+                    LogUtil.getLog().e(TAG, ">>>>>重复消息,为后端擦屁股: " + oldMsgId);
+                }
+
 
                 msgIds.add(wmsg.getMsgId());
             }

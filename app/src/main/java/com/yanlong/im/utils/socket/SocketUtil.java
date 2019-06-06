@@ -57,6 +57,8 @@ public class SocketUtil {
 
         }
 
+
+
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
             //保存消息和处理回执
@@ -143,6 +145,7 @@ public class SocketUtil {
      */
     public void addEvent(SocketEvent event) {
         if (!eventLists.contains(event)) {
+            LogUtil.getLog().i(TAG,">>>>>>添加消息监听");
             eventLists.add(event);
         }
 
@@ -153,6 +156,7 @@ public class SocketUtil {
      * @param event
      */
     public void removeEvent(SocketEvent event) {
+        LogUtil.getLog().i(TAG,">>>>>>移除消息监听");
         eventLists.remove(event);
     }
 

@@ -117,7 +117,14 @@ public class ChatServer extends Service {
             //通知界面刷新
             EventBus.getDefault().post(new EventRefreshMainMsg());
 
-            MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
+         //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
+            for (MsgBean.UniversalMessage.WrapMessage msg :bean.getWrapMsgList()) {
+                onMsgbranch(msg);
+
+            }
+        }
+
+        public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg){
             LogUtil.getLog().d(TAG, "<<<<<<<<<<收到类型:" + msg.getMsgType());
             switch (msg.getMsgType()) {
                 case REQUEST_FRIEND:
@@ -196,8 +203,6 @@ public class ChatServer extends Service {
             } else {
                 palydingdong();
             }
-
-
         }
 
         @Override
@@ -223,9 +228,13 @@ public class ChatServer extends Service {
         r.play();
 
     }
-
+    private long playVBTimeOld = 0;
     //振动
     private void playVibration() {
+        if (System.currentTimeMillis() - playVBTimeOld < 500) {
+            return;
+        }
+        playVBTimeOld= System.currentTimeMillis();
 
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator.hasVibrator()) {
@@ -240,7 +249,7 @@ public class ChatServer extends Service {
 
         LogUtil.getLog().d(TAG, ">>>启动socket");
 
-        SocketUtil.getSocketUtil().addEvent(msgEvent);
+
         SocketUtil.getSocketUtil().startSocket();
 
 
@@ -250,6 +259,7 @@ public class ChatServer extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SocketUtil.getSocketUtil().removeEvent(msgEvent);
         SocketUtil.getSocketUtil().endSocket();
         unregisterReceiver(mNetworkChangeReceiver);
         LogUtil.getLog().d(TAG, ">>>>>网路状态取消");
@@ -261,6 +271,7 @@ public class ChatServer extends Service {
     public void onCreate() {
         super.onCreate();
         LogUtil.getLog().d(TAG, ">>>>>网路状态监听");
+        SocketUtil.getSocketUtil().addEvent(msgEvent);
         //注册广播用于监听网络状态改变
         mNetworkChangeReceiver = new BroadcastReceiver() {
             @Override

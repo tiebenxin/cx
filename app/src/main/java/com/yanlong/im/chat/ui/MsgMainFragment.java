@@ -276,6 +276,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SocketUtil.getSocketUtil().removeEvent(socketEvent);
         EventBus.getDefault().unregister(this);
     }
 

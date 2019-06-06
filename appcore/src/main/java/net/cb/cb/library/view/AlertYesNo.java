@@ -78,6 +78,7 @@ public class AlertYesNo {
 
 
         alertDialog = builder.create();
+        alertDialog.setCancelable(false);
 
         View rootView = View.inflate(context, R.layout.view_alert_yes_no, null);
 
