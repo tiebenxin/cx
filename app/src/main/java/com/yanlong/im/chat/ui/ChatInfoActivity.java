@@ -54,7 +54,7 @@ public class ChatInfoActivity extends AppActivity {
     private CheckBox ckDisturb;
     private LinearLayout viewLogClean;
     private LinearLayout viewFeedback;
-    private Session session;
+  //  private Session session;
     private UserInfo fUserInfo;
 
 
@@ -97,22 +97,22 @@ public class ChatInfoActivity extends AppActivity {
         topListView.setLayoutManager(linearLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
 
-        ckTop.setChecked(session.getIsTop() == 1);
+        ckTop.setChecked(fUserInfo.getIstop() == 1);
         ckTop.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                session.setIsTop(isChecked ? 1 : 0);
+                fUserInfo.setIstop(isChecked ? 1 : 0);
                 taskSaveInfo();
-                taskUpSwitch(null,session.getIsTop());
+                taskUpSwitch(null,fUserInfo.getIstop());
             }
         });
-        ckDisturb.setChecked(session.getIsMute() == 1);
+        ckDisturb.setChecked(fUserInfo.getDisturb() == 1);
         ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                session.setIsMute(isChecked ? 1 : 0);
+                fUserInfo.setDisturb(isChecked ? 1 : 0);
                 taskSaveInfo();
-                taskUpSwitch(session.getIsMute(),null);
+                taskUpSwitch(fUserInfo.getDisturb(),null);
             }
         });
         viewLogClean.setOnClickListener(new View.OnClickListener() {
@@ -237,16 +237,16 @@ public class ChatInfoActivity extends AppActivity {
 
     //获取会话和对方信息
     private void taskGetInfo() {
-        session = DaoUtil.findOne(Session.class, "from_uid", fuid);
+       /* session = DaoUtil.findOne(Session.class, "from_uid", fuid);
         if (session == null) {
             session = msgDao.sessionCreate(null, fuid);
-        }
+        }*/
         fUserInfo = DaoUtil.findOne(UserInfo.class, "uid", fuid);
     }
 
     //更新配置
     private void taskSaveInfo() {
-        DaoUtil.update(session);
+        DaoUtil.update(fUserInfo);
     }
 
     private void taskDelMsg() {

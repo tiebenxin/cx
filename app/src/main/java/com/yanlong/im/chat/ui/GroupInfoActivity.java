@@ -16,6 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
@@ -140,6 +141,10 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+               if(!isAdmin()){
+                   ToastUtil.show(getContext(),"非群主无法修改");
+                   return;
+               }
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
                 intent.putExtra(CommonSetingActivity.TITLE, "群聊名称");
                 intent.putExtra(CommonSetingActivity.REMMARK, "群聊名称");
@@ -162,6 +167,10 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isAdmin()){
+                    ToastUtil.show(getContext(),"非群主无法修改");
+                    return;
+                }
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
                 intent.putExtra(CommonSetingActivity.TITLE, "修改群公告");
                 intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
@@ -219,7 +228,7 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupVerif.setVisibility(isAdmin() ? View.VISIBLE : View.GONE);
         // ginfo.getNotnotify()
         txtGroupName.setText(ginfo.getName());
-        //txtGroupNick.setText();
+        txtGroupNick.setText(ginfo.getMygroupName());
         //txtGroupNote.setText();
         ckGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
@@ -492,7 +501,14 @@ public class GroupInfoActivity extends AppActivity {
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+
+                if (response.body()==null)
+                    return;
                 ToastUtil.show(getContext(), response.body().getMsg());
+                if(response.body().isOk()){
+                    initEvent();
+                }
+
             }
         });
     }

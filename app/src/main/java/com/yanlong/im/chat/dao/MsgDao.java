@@ -214,14 +214,14 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         //更新信息到群成员列表
-        Group group = realm.where(Group.class).equalTo("gid", ginfo.getGid()).findFirst();
+       /* Group group = realm.where(Group.class).equalTo("gid", ginfo.getGid()).findFirst();
         if (group == null) {
             group = new Group();
             group.setGid(ginfo.getGid());
             group.setAvatar(ginfo.getAvatar());
             group.setName(ginfo.getName());
             group.setMaster(ginfo.getMaster());
-        }
+        }*/
 
 
         RealmList<UserInfo> nums = new RealmList<>();
@@ -238,9 +238,11 @@ public class MsgDao {
             }
 
         }
+        //更新自己的群昵称
+        ginfo.getMygroupName();
 
-        group.setUsers(nums);
-        realm.insertOrUpdate(group);
+        ginfo.setUsers(nums);
+        realm.insertOrUpdate(ginfo);
 
 
         realm.commitTransaction();
@@ -570,10 +572,35 @@ public class MsgDao {
     public List<Session> sessionGetAll() {
         List<Session> rts;
         Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
         RealmResults<Session> list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+        //6.5 优先读取单独表的配置
+
+        for(Session l:list){
+            int top=0;
+
+            try {
+                if(l.getType()==1){
+                    top=realm.where(Group.class).equalTo("gid",l.getGid()).findFirst().getIsTop();
+                }else{
+                    top=realm.where(UserInfo.class).equalTo("uid",l.getFrom_uid()).findFirst().getIstop();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            l.setIsTop(top);
+
+
+        }
+        realm.copyToRealmOrUpdate(list);
+
+
         list = list.sort("isTop", Sort.DESCENDING);
         rts = realm.copyFromRealm(list);
 
+        realm.commitTransaction();
         realm.close();
 
         return rts;

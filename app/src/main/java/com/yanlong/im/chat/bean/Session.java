@@ -1,5 +1,8 @@
 package com.yanlong.im.chat.bean;
 
+import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.dao.UserDao;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -21,15 +24,32 @@ public class Session extends RealmObject {
     private int isMute=0;
 
 
+
+
     public int getIsMute() {
+       // int isMute =0;
+
+        try {
+            isMute= type==0?new UserDao().findUserInfo(from_uid).getDisturb() :new MsgDao().getGroup4Id(gid).getNotNotify();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return isMute;
     }
 
-    public void setIsMute(int isMute) {
+   public void setIsMute(int isMute) {
         this.isMute = isMute;
     }
 
     public int getIsTop() {
+       // int isTop=0;
+        try {
+            isTop= type==0?new UserDao().findUserInfo(from_uid).getIstop() :new MsgDao().getGroup4Id(gid).getIsTop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return isTop;
     }
 

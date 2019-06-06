@@ -620,6 +620,8 @@ public class ChatActivity extends AppActivity {
             return;
         }
         taskRefreshMessage();
+        //刷新群资料
+        taskSessionInfo();
     }
 
     @Override
