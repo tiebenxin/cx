@@ -105,7 +105,7 @@ public class GroupHeadImageUtil {
 
         Bitmap result = Bitmap.createBitmap(th, tw, Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(result);
-        canvas.drawColor(Color.WHITE);
+        canvas.drawColor(Color.parseColor("#f6f8fa"));
         Paint paint=new Paint();
 
         switch (bitmaps.length) {
