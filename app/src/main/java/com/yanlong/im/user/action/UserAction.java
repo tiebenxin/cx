@@ -211,8 +211,7 @@ public class UserAction {
      * 登出
      */
     public void loginOut() {
-        myInfo = null;
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
+        cleanInfo();
         NetUtil.getNet().exec(server.loginOut(), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -223,6 +222,15 @@ public class UserAction {
             }
         });
     }
+
+    /***
+     * 清理信息
+     */
+    public void cleanInfo(){
+        myInfo = null;
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
+    }
+
 
 
     /***

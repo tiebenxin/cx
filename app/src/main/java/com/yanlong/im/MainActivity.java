@@ -195,7 +195,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOut(EventLoginOut event) {
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
+        userAction.cleanInfo();
         finish();
     }
 
@@ -211,7 +211,8 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOutconflict(EventLoginOut4Conflict event) {
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
+
+        userAction.cleanInfo();
         startActivity(new Intent(getContext(), MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         );
@@ -233,6 +234,10 @@ public class MainActivity extends AppActivity {
         alertYesNo.show();
 
     }
+
+
+
+
 
 
     private MsgDao msgDao = new MsgDao();
