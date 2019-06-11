@@ -34,6 +34,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private static final int PRODUCT = 2000;
     private static final int SEX = 3000;
     private static final int IMAGE_HEAD = 4000;
+    private static final int IDENTITY = 5000;
 
     private SimpleDraweeView mImgHead;
     private LinearLayout mViewBlacklist;
@@ -56,6 +57,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private String imid;
     private String nickName;
     private String oldImid;
+    private int authStat;
 
 
     @Override
@@ -121,11 +123,12 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         userAction = new UserAction();
         userInfo = UserAction.getMyInfo();
         imageHead = userInfo.getHead();
-        mTvPhone.setText(userInfo.getPhone()+"");
+        mTvPhone.setText(userInfo.getPhone() + "");
         oldImid = userInfo.getOldimid();
         imid = userInfo.getImid();
         nickName = userInfo.getName();
         sex = userInfo.getSex();
+        authStat = userInfo.getAuthStat();
         mImgHead.setImageURI(imageHead + "");
         mTvNickname.setText(nickName);
         if (!oldImid.equals(imid)) {
@@ -134,6 +137,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             mViewProductNumber.setClickable(false);
 
         } else {
+            mTvProductNumber.setText("未设置");
             mIvProductNumber.setVisibility(View.VISIBLE);
             mViewProductNumber.setClickable(true);
         }
@@ -148,10 +152,19 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 mTvSex.setText("未知");
                 break;
         }
+        switch (authStat) {
+            case 0:
+                mTvIdentity.setText("未认证");
+                break;
+            case 1:
+                mTvIdentity.setText("已认证");
+                break;
+            case 2:
+                mTvIdentity.setText("已认证");
+                break;
+        }
+
     }
-
-
-
 
 
     @Override
@@ -174,17 +187,23 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 break;
             case R.id.view_sex:
                 Intent sexIntent = new Intent(MyselfInfoActivity.this, SelectSexActivity.class);
-                sexIntent.putExtra(SelectSexActivity.SEX,sex);
+                sexIntent.putExtra(SelectSexActivity.SEX, sex);
                 startActivityForResult(sexIntent, SEX);
                 break;
             case R.id.view_identity:
-                Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentificationCentreActivity.class);
-                startActivity(identityIntent);
+                if (authStat == 0) {
+                    Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentityAttestationActitiy.class);
+                    startActivityForResult(identityIntent, IDENTITY);
+
+                } else {
+                    Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentificationCentreActivity.class);
+                    startActivity(identityIntent);
+                }
                 break;
             case R.id.view_head:
                 Intent headIntent = new Intent(MyselfInfoActivity.this, ImageHeadActivity.class);
-                headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD,imageHead);
-                startActivityForResult(headIntent,IMAGE_HEAD);
+                headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD, imageHead);
+                startActivityForResult(headIntent, IMAGE_HEAD);
                 break;
         }
     }
@@ -197,24 +216,27 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
             String content = data.getStringExtra(CommonSetingActivity.CONTENT);
             switch (requestCode) {
                 case NICENAME:
-                    taskUserInfoSet(null,null,content,null);
+                    taskUserInfoSet(null, null, content, null);
                     break;
                 case SEX:
                     int contentSex;
-                    if(content.equals("男")) {
+                    if (content.equals("男")) {
                         contentSex = 1;
-                    }else{
+                    } else {
                         contentSex = 2;
                     }
-                    taskUserInfoSet(null,null,null,contentSex);
+                    taskUserInfoSet(null, null, null, contentSex);
                     break;
                 case PRODUCT:
-                    taskUserInfoSet(content,null,null,null);
+                    taskUserInfoSet(content, null, null, null);
                     break;
                 case IMAGE_HEAD:
-                    if(!TextUtils.isEmpty(content)){
+                    if (!TextUtils.isEmpty(content)) {
                         imageHead = content;
                     }
+                    break;
+                case IDENTITY:
+                    mTvIdentity.setText("已认证");
                     break;
             }
 
@@ -222,46 +244,46 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     }
 
 
-    private void taskUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender){
+    private void taskUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender) {
         userAction.myInfoSet(imid, avatar, nickname, gender, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body() == null){
+                if (response.body() == null) {
                     return;
                 }
-                if(!TextUtils.isEmpty(imid)){
+                if (!TextUtils.isEmpty(imid)) {
                     MyselfInfoActivity.this.imid = imid;
                     mTvProductNumber.setText(imid);
                     mIvProductNumber.setVisibility(View.GONE);
                     mViewProductNumber.setClickable(false);
                 }
 
-                if(!TextUtils.isEmpty(nickname)){
+                if (!TextUtils.isEmpty(nickname)) {
                     MyselfInfoActivity.this.nickName = nickname;
                     mTvNickname.setText(nickname);
                 }
-                if(gender != null){
+                if (gender != null) {
                     MyselfInfoActivity.this.sex = gender;
-                    if(gender == 1) {
+                    if (gender == 1) {
                         sex = 1;
                         mTvSex.setText("男");
-                    }else if(gender == 2){
+                    } else if (gender == 2) {
                         sex = 2;
                         mTvSex.setText("女");
-                    }else{
+                    } else {
                         mTvSex.setText("未知");
                     }
                 }
-                ToastUtil.show(MyselfInfoActivity.this,response.body().getMsg());
+                ToastUtil.show(MyselfInfoActivity.this, response.body().getMsg());
             }
         });
     }
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(EventMyUserInfo event){
-        if(event.type == 1){
-           UserInfo userInfo =  event.getUserInfo();
+    public void onEventMainThread(EventMyUserInfo event) {
+        if (event.type == 1) {
+            UserInfo userInfo = event.getUserInfo();
             mImgHead.setImageURI(userInfo.getHead());
         }
     }

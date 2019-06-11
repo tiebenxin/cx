@@ -103,8 +103,7 @@
 
             <TextView
                 android:id="@+id/tv_product_number"
-                style="@style/app_txt_title_4"
-                android:text="未设置" />
+                style="@style/app_txt_title_4" />
 
 
             <ImageView
@@ -164,8 +163,7 @@
 
             <TextView
                 android:id="@+id/tv_identity"
-                style="@style/app_txt_title_4"
-                android:text="未认证" />
+                style="@style/app_txt_title_4"/>
 
 
             <ImageView

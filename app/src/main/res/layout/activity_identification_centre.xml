@@ -48,6 +48,7 @@
                 android:text="证件类型"/>
 
             <TextView
+                android:id="@+id/tv_id_type"
                 style="@style/app_txt_content_1"
                 android:text="身份证"/>
 
@@ -145,8 +146,7 @@
             <TextView
                 android:id="@+id/tv_period_validity"
                 style="@style/app_txt_content_1"
-                android:layout_marginRight="15dp"
-                android:text="待完善"/>
+                android:layout_marginRight="15dp"/>
 
             <ImageView
                 android:layout_width="wrap_content"

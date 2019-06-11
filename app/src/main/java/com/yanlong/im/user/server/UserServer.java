@@ -3,6 +3,7 @@ package com.yanlong.im.user.server;
 import android.content.Intent;
 
 import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.LoginBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -101,7 +102,21 @@ public interface UserServer {
 
     @POST("/pub/change-password-by-sms-captcha")
     @FormUrlEncoded
-    Call<ReturnBean> changePasswordBySms(@Field("@phone") String phone, @Field("@captcha") Integer captcha, @Field("@password") String password);
+    Call<ReturnBean> changePasswordBySms(@Field("phone") String phone, @Field("captcha") Integer captcha, @Field("password") String password);
 
+    @POST("/card/get-id-card-info")
+    Call<ReturnBean<IdCardBean>> getIdCardInfo();
+
+    @POST("/card/real-name-auth")
+    @FormUrlEncoded
+    Call<ReturnBean> realNameAuth(@Field("idNumber") String idNumber,@Field("idType") String idType,@Field("name") String name);
+
+    @POST("/card/set-job-type")
+    @FormUrlEncoded
+    Call<ReturnBean> setJobType(@Field("jobType") String jobType);
+
+    @POST("/card/set-expiry-date")
+    @FormUrlEncoded
+    Call<ReturnBean> setExpiryDate(@Field("expiryDate") String expiryDate);
 
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.provider.FontsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,12 +24,13 @@ import java.util.List;
 
 public class SelectProfessionActivity extends AppActivity {
     public static final String SELECT_PROFEESION = "profession";
+    public static final String JOB_TYPE = "jobType";
     private HeadView mHeadView;
     private MultiListView mMtListView;
     private List<ProfessionBean> list = new ArrayList<>();
     private ProfessionAdapter adapter;
-    private String string [] = {"党政机关人员","企事业单位工作人员","商业及服务业工作人员","农林牧副渔劳动者","学生","军人","无业","其他"};
-
+    private String string[] = {"党政机关人员", "企事业单位工作人员", "商业及服务业工作人员", "农林牧副渔劳动者", "学生", "军人", "无业", "其他"};
+    private String jobType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,6 @@ public class SelectProfessionActivity extends AppActivity {
     }
 
 
-
     private void initView() {
         mHeadView = findViewById(R.id.headView);
         mMtListView = findViewById(R.id.mtListView);
@@ -48,6 +49,8 @@ public class SelectProfessionActivity extends AppActivity {
         adapter = new ProfessionAdapter();
         mMtListView.init(adapter);
         mMtListView.getLoadView().setStateNormal();
+        jobType = getIntent().getStringExtra(JOB_TYPE);
+
     }
 
     private void initEvent() {
@@ -60,18 +63,18 @@ public class SelectProfessionActivity extends AppActivity {
             @Override
             public void onRight() {
                 Intent intent = new Intent();
-                intent.putExtra(SELECT_PROFEESION,getProfession());
-                setResult(RESULT_OK,intent);
+                intent.putExtra(SELECT_PROFEESION, getProfession());
+                setResult(RESULT_OK, intent);
                 onBackPressed();
             }
         });
     }
 
 
-    private String getProfession(){
+    private String getProfession() {
         String profession = "";
         for (int i = 0; i < list.size(); i++) {
-            if(list.get(i).isSelect){
+            if (list.get(i).isSelect) {
                 profession = list.get(i).profession;
             }
         }
@@ -79,10 +82,18 @@ public class SelectProfessionActivity extends AppActivity {
     }
 
 
-    private void initData(){
+    private void initData() {
         for (int i = 0; i < string.length; i++) {
             ProfessionBean bean = new ProfessionBean();
-            bean.isSelect = false;
+            if (!TextUtils.isEmpty(jobType)) {
+                if (string[i].equals(jobType)) {
+                    bean.isSelect = true;
+                } else {
+                    bean.isSelect = false;
+                }
+            } else {
+                bean.isSelect = false;
+            }
             bean.profession = string[i];
             list.add(bean);
         }

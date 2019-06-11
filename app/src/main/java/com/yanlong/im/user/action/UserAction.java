@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -449,6 +450,46 @@ public class UserAction {
         NetUtil.getNet().exec(server.changePasswordBySms(phone, captcha, password), callback);
     }
 
+    /**
+     * 获取认证信息
+     * */
+    public void getIdCardInfo(CallBack<ReturnBean<IdCardBean>> callback){
+        NetUtil.getNet().exec(server.getIdCardInfo(),callback);
+    }
 
+    /**
+     * 实名认证
+     * */
+    public void realNameAuth(String idNumber, String idType, String name, final CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.realNameAuth(idNumber, idType, name), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    myInfo = dao.findUserInfo(getMyId());
+                    myInfo.setAuthStat(1);
+                    updateUserinfo2DB(myInfo);
+                }
+                callback.onResponse(call, response);
+            }
+        });
+    }
+
+
+    /**
+     *更新职业类别
+     * */
+    public void setJobType(String jobType, CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.setJobType(jobType),callback);
+    }
+
+
+    /**
+     *更新证件有效期
+     * */
+    public void setExpiryDate(String expiryDate, CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.setExpiryDate(expiryDate),callback);
+    }
 }
 
