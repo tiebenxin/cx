@@ -50,8 +50,9 @@ public class MyAppLication extends MainApplication {
                 break;
             case "pre":
                 AppConfig.DEBUG = true;
-                AppConfig.URL_HOST = "https://baidu.net";
-
+                AppConfig.URL_HOST = "http://192.168.10.229:8080";
+                AppConfig.SOCKET_IP = "192.168.10.110";
+                AppConfig.SOCKET_PORT = 19991;
                 break;
             case "release":
 

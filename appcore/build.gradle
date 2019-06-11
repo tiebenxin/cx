@@ -86,7 +86,7 @@ dependencies {
 
     //图片
     api 'com.facebook.fresco:fresco:0.14.1'
-    api 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.3'
+    api 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.+'
 
     //常用控件
     api 'com.kyleduo.switchbutton:library:2.0.0'

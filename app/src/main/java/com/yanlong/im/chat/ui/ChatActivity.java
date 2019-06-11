@@ -1,7 +1,9 @@
 package com.yanlong.im.chat.ui;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -50,6 +52,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
+import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -99,7 +102,7 @@ public class ChatActivity extends AppActivity {
     public static final String AGM_TOGID = "toGId";
 
     private Gson gson = new Gson();
-
+    private CheckPermission2Util permission2Util=new  CheckPermission2Util();
 
     private Long toUId = null;
     private String toGid = null;
@@ -228,6 +231,12 @@ public class ChatActivity extends AppActivity {
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permission2Util.onRequestPermissionsResult();
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     //发送并滑动到列表底部
@@ -373,10 +382,22 @@ public class ChatActivity extends AppActivity {
         viewCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PictureSelector.create(ChatActivity.this)
-                        .openCamera(PictureMimeType.ofImage())
-                        .compress(true)
-                        .forResult(PictureConfig.CHOOSE_REQUEST);
+                permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+                  @Override
+                  public void onSuccess() {
+                      PictureSelector.create(ChatActivity.this)
+                              .openCamera(PictureMimeType.ofImage())
+                              .compress(true)
+                              .forResult(PictureConfig.CHOOSE_REQUEST);
+                  }
+
+                  @Override
+                  public void onFail() {
+
+                  }
+              },new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE});
+
+
 
             }
         });
@@ -384,6 +405,7 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 PictureSelector.create(ChatActivity.this)
+
                         .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .previewImage(false)// 是否可预览图片 true or false
@@ -484,8 +506,9 @@ public class ChatActivity extends AppActivity {
                     case MotionEvent.ACTION_MOVE:
                         if (isRun == 1) {
                             isRun = 2;
-                            hideBt();
                             InputUtil.hideKeyboard(edtChat);
+                            hideBt();
+
                             btnEmj.setImageLevel(0);
                         }
 
@@ -642,7 +665,8 @@ public class ChatActivity extends AppActivity {
             switch (requestCode) {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
-                    String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
+                    List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
+                    String file =obt.get(0).getCompressPath();
                     //1.上传图片
                     upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
