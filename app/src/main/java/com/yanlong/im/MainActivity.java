@@ -196,6 +196,7 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOut(EventLoginOut event) {
         userAction.cleanInfo();
+
         finish();
     }
 

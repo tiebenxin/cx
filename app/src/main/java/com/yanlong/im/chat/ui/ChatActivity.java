@@ -93,6 +93,7 @@ public class ChatActivity extends AppActivity {
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
     private View viewChatBottom;
+    private View viewChatBottomc;
     private View imgEmojiDel;
     private Button btnSend;
 
@@ -102,7 +103,7 @@ public class ChatActivity extends AppActivity {
     public static final String AGM_TOGID = "toGId";
 
     private Gson gson = new Gson();
-    private CheckPermission2Util permission2Util=new  CheckPermission2Util();
+    private CheckPermission2Util permission2Util = new CheckPermission2Util();
 
     private Long toUId = null;
     private String toGid = null;
@@ -228,6 +229,7 @@ public class ChatActivity extends AppActivity {
         viewTransfer = (LinearLayout) findViewById(R.id.view_transfer);
         viewCard = (LinearLayout) findViewById(R.id.view_card);
         viewChatBottom = findViewById(R.id.view_chat_bottom);
+        viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
 
@@ -382,21 +384,21 @@ public class ChatActivity extends AppActivity {
         viewCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
-                  @Override
-                  public void onSuccess() {
-                      PictureSelector.create(ChatActivity.this)
-                              .openCamera(PictureMimeType.ofImage())
-                              .compress(true)
-                              .forResult(PictureConfig.CHOOSE_REQUEST);
-                  }
+                    @Override
+                    public void onSuccess() {
+                        PictureSelector.create(ChatActivity.this)
+                                .openCamera(PictureMimeType.ofImage())
+                                .compress(true)
+                                .forResult(PictureConfig.CHOOSE_REQUEST);
+                    }
 
-                  @Override
-                  public void onFail() {
+                    @Override
+                    public void onFail() {
 
-                  }
-              },new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE});
-
+                    }
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
 
 
             }
@@ -404,6 +406,7 @@ public class ChatActivity extends AppActivity {
         viewPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 PictureSelector.create(ChatActivity.this)
 
                         .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
@@ -506,10 +509,14 @@ public class ChatActivity extends AppActivity {
                     case MotionEvent.ACTION_MOVE:
                         if (isRun == 1) {
                             isRun = 2;
+
                             InputUtil.hideKeyboard(edtChat);
                             hideBt();
 
+
                             btnEmj.setImageLevel(0);
+                        } else if (isRun == 0) {
+                            isRun = 1;
                         }
 
                         break;
@@ -666,15 +673,22 @@ public class ChatActivity extends AppActivity {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
-                    String file =obt.get(0).getCompressPath();
+                    String file = obt.get(0).getCompressPath();
                     //1.上传图片
+
                     upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
-                        public void success(String url) {
+                        public void success(final String url) {
                             //2.发送图片
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    MsgAllBean msgAllbean = SocketData.send4Image(toUId, toGid, url);
+                                    showSendObj(msgAllbean);
+                                }
+                            });
 
-                            MsgAllBean msgAllbean = SocketData.send4Image(toUId, toGid, url);
-                            showSendObj(msgAllbean);
+
                         }
 
                         @Override

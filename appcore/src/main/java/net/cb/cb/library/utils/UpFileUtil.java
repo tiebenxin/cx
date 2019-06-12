@@ -153,6 +153,7 @@ public class UpFileUtil {
 
         });
 
+        //6.11 图片上传引起界面刷新
         oss.asyncPutObject(putObjectRequest, new OSSCompletedCallback() {
 
             @Override

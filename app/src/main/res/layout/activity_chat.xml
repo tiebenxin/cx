@@ -27,7 +27,7 @@
             <View style="@style/app_line" />
 
             <LinearLayout
-
+                android:id="@+id/view_chat_bottom_c"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
