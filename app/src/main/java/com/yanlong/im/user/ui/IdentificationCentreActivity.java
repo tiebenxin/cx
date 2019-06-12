@@ -33,6 +33,7 @@ import static com.yanlong.im.user.ui.SelectProfessionActivity.SELECT_PROFEESION;
 
 public class IdentificationCentreActivity extends AppActivity implements View.OnClickListener {
     private static final int PROFESSION = 1000;
+    private static final int CARD_PHOTO = 2000;
 
     private HeadView mHeadView;
     private TextView mTvName;
@@ -105,6 +106,10 @@ public class IdentificationCentreActivity extends AppActivity implements View.On
             case R.id.ll_period_validity:
                 initTimePicker();
                 break;
+            case R.id.ll_identity_card:
+                Intent uploadIdentityIntent = new Intent(this, UploadIdentityActivity.class);
+                startActivityForResult(uploadIdentityIntent, CARD_PHOTO);
+                break;
         }
     }
 
@@ -120,7 +125,9 @@ public class IdentificationCentreActivity extends AppActivity implements View.On
                         taskSetJobType(string);
                     }
                     break;
-
+                case CARD_PHOTO:
+                    mTvIdentityCard.setText("已认证");
+                    break;
             }
         }
 
@@ -199,7 +206,17 @@ public class IdentificationCentreActivity extends AppActivity implements View.On
                         mTvIdentityNumber.setText(bean.getIdNumber() + "");
                         mTvIdType.setText(bean.getIdType() + "");
                         mTvProfession.setText(bean.getJobType() + "");
-                        mTvPeriodValidity.setText(bean.getExpiryDate()+"");
+                        if(TextUtils.isEmpty(bean.getExpiryDate())){
+                            mTvPeriodValidity.setText("未设置");
+                        }else{
+                            mTvPeriodValidity.setText(bean.getExpiryDate());
+                        }
+                        if(bean.getStat() == 2){
+                            mTvIdentityCard.setText("已认证");
+                        }else{
+                            mTvIdentityCard.setText("未认证");
+                        }
+
                         jobType = bean.getJobType();
                     } else {
                         ToastUtil.show(context, response.body().getMsg());

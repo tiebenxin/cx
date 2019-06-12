@@ -499,5 +499,25 @@ public class UserAction {
     public void setExpiryDate(String expiryDate, CallBack<ReturnBean> callback){
         NetUtil.getNet().exec(server.setExpiryDate(expiryDate),callback);
     }
+
+    /**
+     * 更新证件照片
+     * */
+    public void setCardPhoto(String cardBack, String cardFront, final CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.setCardPhoto(cardBack, cardFront), new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    myInfo = dao.findUserInfo(getMyId());
+                    myInfo.setAuthStat(2);
+                    updateUserinfo2DB(myInfo);
+                }
+                callback.onResponse(call, response);
+            }
+        });
+    }
+
 }
 

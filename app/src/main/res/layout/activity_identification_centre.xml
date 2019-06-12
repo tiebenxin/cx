@@ -120,8 +120,7 @@
             <TextView
                 android:id="@+id/tv_identity_card"
                 style="@style/app_txt_content_1"
-                android:layout_marginRight="15dp"
-                android:text="身份证"/>
+                android:layout_marginRight="15dp"/>
 
             <ImageView
                 android:layout_width="wrap_content"

@@ -119,4 +119,8 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean> setExpiryDate(@Field("expiryDate") String expiryDate);
 
+    @POST("/card/set-card-photo")
+    @FormUrlEncoded
+    Call<ReturnBean> setCardPhoto(@Field("cardBack") String cardBack,@Field("cardFront") String cardFront);
+
 }

@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui;
 
+import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
@@ -31,6 +33,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 
+import io.reactivex.annotations.NonNull;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -42,6 +45,7 @@ public class ImageHeadActivity extends AppActivity {
     private PopupSelectView popupSelectView;
     private String[] strings = {"拍照", "相册", "取消"};
     private String imageHead;
+    private CheckPermission2Util permission2Util = new CheckPermission2Util();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,14 +87,24 @@ public class ImageHeadActivity extends AppActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-                        PictureSelector.create(ImageHeadActivity.this)
-                                .openCamera(PictureMimeType.ofImage())
-                                .compress(true)
-                                .enableCrop(false)
-                                .withAspectRatio(1, 1)
-                                .freeStyleCropEnabled(false)
-                                .rotateEnabled(false)
-                                .forResult(PictureConfig.CHOOSE_REQUEST);
+                        permission2Util.requestPermissions(ImageHeadActivity.this, new CheckPermission2Util.Event() {
+                            @Override
+                            public void onSuccess() {
+                                PictureSelector.create(ImageHeadActivity.this)
+                                        .openCamera(PictureMimeType.ofImage())
+                                        .compress(true)
+                                        .enableCrop(true)
+                                        .withAspectRatio(1, 1)
+                                        .freeStyleCropEnabled(false)
+                                        .rotateEnabled(false)
+                                        .forResult(PictureConfig.CHOOSE_REQUEST);
+                            }
+
+                            @Override
+                            public void onFail() {
+
+                            }
+                        }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
                         break;
                     case 1:
                         PictureSelector.create(ImageHeadActivity.this)
@@ -112,48 +126,53 @@ public class ImageHeadActivity extends AppActivity {
         });
     }
 
-    private UpFileAction upFileAction=new UpFileAction();
+    private UpFileAction upFileAction = new UpFileAction();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) switch (requestCode) {
-            case PictureConfig.CHOOSE_REQUEST:
-                // 图片选择结果回调
-                final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
-                // 例如 LocalMedia 里面返回两种path
-                // 1.media.getPath(); 为原图path
-                // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case PictureConfig.CHOOSE_REQUEST:
+                    // 图片选择结果回调
+                    final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
+                    // 例如 LocalMedia 里面返回两种path
+                    // 1.media.getPath(); 为原图path
+                    // 2.media.getCompressPath();为压缩后path，需判断media.isCompressed();是否为true
+                    Uri uri = Uri.fromFile(new File(file));
 
+                    alert.show();
+                    mSdImageHead.setImageURI(uri);
+                    upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                        @Override
+                        public void success(String url) {
+                            alert.dismiss();
+                            taskUserInfoSet(null, url, null, null);
+                        }
 
-                Uri uri = Uri.fromFile(new File(file));
+                        @Override
+                        public void fail() {
+                            alert.dismiss();
+                            ToastUtil.show(getContext(), "上传失败!");
+                        }
 
-                alert.show();
-                mSdImageHead.setImageURI(uri);
-                upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
-                    @Override
-                    public void success(String url) {
-                        alert.dismiss();
-                        taskUserInfoSet(null,url,null, null);
-                    }
+                        @Override
+                        public void inProgress(long progress, long zong) {
 
-                    @Override
-                    public void fail() {
-                        alert.dismiss();
-                        ToastUtil.show(getContext(),"上传失败!");
-                    }
-
-                    @Override
-                    public void inProgress(long progress, long zong) {
-
-                    }
-                }, file);
-
-
-
-                break;
+                        }
+                    }, file);
+                    break;
+            }
         }
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permission2Util.onRequestPermissionsResult();
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
 
     private void taskUserInfoSet(String imid, final String avatar, String nickname, Integer gender) {
         new UserAction().myInfoSet(imid, avatar, nickname, gender, new CallBack<ReturnBean>() {
@@ -162,10 +181,10 @@ public class ImageHeadActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
-                if(avatar != null){
+                if (avatar != null) {
                     UserInfo userInfo = new UserInfo();
                     userInfo.setHead(avatar);
-                    EventBus.getDefault().post(new EventMyUserInfo(userInfo,EventMyUserInfo.ALTER_HEAD));
+                    EventBus.getDefault().post(new EventMyUserInfo(userInfo, EventMyUserInfo.ALTER_HEAD));
                 }
                 ToastUtil.show(ImageHeadActivity.this, response.body().getMsg());
             }
