@@ -113,7 +113,7 @@ dependencies {
     //友盟
     api 'com.umeng.umsdk:common:+'
     api 'com.umeng.umsdk:utdid:+'
-    api 'com.umeng.umsdk:push:+'
+    api 'com.umeng.umsdk:push:5.0.2'
     api 'com.umeng.umsdk:analytics:+'
 
     api 'com.umeng.sdk:share-wechat:6.9.1'

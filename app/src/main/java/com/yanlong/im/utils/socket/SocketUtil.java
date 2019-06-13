@@ -414,15 +414,19 @@ public class SocketUtil {
     }
 
 
-    private SocketChannel socketChannel;
+    private SSLSocketChannel2 socketChannel;
 
 
     /***
      * 链接
      */
     private void connect() throws Exception {
-        socketChannel = SocketChannel.open();
+
+        socketChannel = new  SSLSocketChannel2( SocketChannel.open());
+
+
         socketChannel.configureBlocking(false);
+
 
 
         //---------------------------------------------链接中
@@ -449,12 +453,15 @@ public class SocketUtil {
 
             //----------------------------------------------------
             LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
+          if(socketChannel.tryTLS(1) !=0){
+              //证书问题
+              receive();
+              //发送认证请求
+              sendData(SocketData.msg4Auth(), null);
+
+          }
 
 
-            receive();
-
-            //发送认证请求
-            sendData(SocketData.msg4Auth(), null);
 
         }
 
