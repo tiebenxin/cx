@@ -73,7 +73,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
@@ -710,7 +712,7 @@ public class ChatActivity extends AppActivity {
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
 
-            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), "向你推荐一个好人");
+            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), "向你推荐一个人");
             showSendObj(msgAllbean);
         }
     }
@@ -765,7 +767,8 @@ public class ChatActivity extends AppActivity {
             String nikeName = null;
             if (isGroup()) {//群聊显示昵称
 
-                nikeName = msgbean.getFrom_user().getMkName();
+                //6.14 这里有性能问题
+                //  nikeName = msgbean.getFrom_user().getMkName();
                 nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
 
 
@@ -928,7 +931,11 @@ public class ChatActivity extends AppActivity {
 
         //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
         msgListData = msgAction.getMsg4User(toGid, toUId, null);
+
         notifyData2Buttom();
+
+        taskMkName(msgListData);
+        mtListView.notifyDataSetChange();
     }
 
     private boolean flag_isHistory = false;
@@ -942,7 +949,7 @@ public class ChatActivity extends AppActivity {
         flag_isHistory = true;
         msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
         //ToastUtil.show(getContext(),"历史"+msgListData.size());
-
+        taskMkName(msgListData);
         mtListView.getListView().getAdapter().notifyDataSetChanged();
 
         mtListView.getListView().smoothScrollToPosition(0);
@@ -961,11 +968,40 @@ public class ChatActivity extends AppActivity {
         msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
 
         addItem = msgListData.size() - addItem;
-
+        taskMkName(msgListData);
         mtListView.notifyDataSetChange();
 
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context, 20f));
 
+
+    }
+
+    /***
+     * 统一处理mkname
+     */
+    private Map<String, String> mks = new HashMap<>();
+
+    private void taskMkName(List<MsgAllBean> msgListData) {
+        for (MsgAllBean msg : msgListData) {
+           if(msg.getMsg_type()==0){  //通知类型的不处理
+             continue;
+           }
+            String k = msg.getFrom_uid() + "";
+            if (mks.containsKey(k)) {
+                String v=mks.get(k);
+                if(StringUtil.isNotNull(v))
+                msg.setFrom_nickname(v);
+            } else {
+
+                String v = msg.getFrom_user().getMkName();
+                mks.put(k, v);
+                if(StringUtil.isNotNull(v))
+                msg.setFrom_nickname(v);
+            }
+
+
+        }
+        this.msgListData = msgListData;
 
     }
 

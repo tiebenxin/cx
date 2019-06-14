@@ -287,16 +287,40 @@ public class MsgAction {
 
     /**
      * 修改群名称
-     * */
+     */
     public void changeGroupName(String gid, String name, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.changeGroupName(gid, name), callback);
     }
 
     /**
      * 修改群成员昵称
-     * */
-    public void changeMemberName(String gid, String name, Callback<ReturnBean> callback){
+     */
+    public void changeMemberName(String gid, String name, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.changeMemberName(gid, name), callback);
     }
+
+
+    /**
+     * 同意进群
+     */
+    public void groupRequest(final String aid, String gid, String uid, String name, final Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupRequest(gid, uid, name), new Callback<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null)
+                    return;
+                callback.onResponse(call, response);
+                if (response.body().isOk()) {
+                    dao.groupAcceptRemove(aid);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                callback.onFailure(call, t);
+            }
+        });
+    }
+
 
 }

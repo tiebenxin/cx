@@ -2,6 +2,7 @@ package com.yanlong.im.chat.dao;
 
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Group;
@@ -666,6 +667,49 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
     }
+
+
+    /***
+     * 群申请
+     * @param gid
+     * @param fromUid
+     * @param nickname
+     */
+    public void groupAcceptAdd(String gid, long fromUid, String nickname,String head) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        GroupAccept accept=new GroupAccept();
+        accept.setAid(UUID.randomUUID().toString());
+        accept.setGid(gid);
+        Group group=realm.where(Group.class).equalTo("gid",gid).findFirst();
+        if(group!=null){
+            accept.setGroupName(group.getName());
+        }
+
+        accept.setUid(fromUid);
+        accept.setUname(nickname);
+        accept.setHead(head);
+
+        realm.insertOrUpdate(accept);
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public List<GroupAccept> groupAccept(){
+      return DaoUtil.findAll(GroupAccept.class);
+    }
+
+    /**
+     * 移除这条群申请
+     * @param aid
+     */
+    public void groupAcceptRemove(String aid){
+       DaoUtil.deleteOne(GroupAccept.class,"aid",aid);
+
+    }
+
 
 
 }

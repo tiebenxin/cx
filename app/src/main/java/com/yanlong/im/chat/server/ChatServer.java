@@ -145,12 +145,20 @@ public class ChatServer extends Service {
                     //  ToastUtil.show(getApplicationContext(), "删除好友消息");
                     EventBus.getDefault().post(new EventRefreshFriend());
                     return;
-                case REQUEST_GROUP:
+                case REQUEST_GROUP://群主会收到成员进群的请求的通知
                     msgDao.remidCount("friend_apply");
                     //  ToastUtil.show(getApplicationContext(), "请求入群");
+
+                            for(MsgBean.GroupNoticeMessage ntm:msg.getRequestGroup().getNoticeMessageList()){
+
+                                msgDao.groupAcceptAdd(msg.getGid(), ntm.getUid(),ntm.getNickname(),ntm.getAvatar());
+                            }
+
+
                     EventBus.getDefault().post(new EventRefreshMainMsg());
+                    EventBus.getDefault().post(new EventRefreshFriend());
                     return;
-                case ACCEPT_BE_GROUP:
+                case ACCEPT_BE_GROUP://群主会收到成员已经进群的消息
                     //  ToastUtil.show(getApplicationContext(), "接受入群请求");
                     return;
                 case REMOVE_GROUP_MEMBER:

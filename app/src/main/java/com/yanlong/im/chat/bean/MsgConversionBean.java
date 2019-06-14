@@ -134,6 +134,21 @@ public class MsgConversionBean {
 
 
                 break;
+            case REMOVE_GROUP_MEMBER:
+                //  ToastUtil.show(getApplicationContext(), "删除群成员");
+                msgAllBean.setGid(bean.getRemoveGroupMember().getGid());
+                msgAllBean.setMsg_type(0);
+                MsgNotice grmvNotice=new MsgNotice();
+                grmvNotice.setNote("您已移除群");
+                msgAllBean.setMsgNotice(grmvNotice);
+                break;
+            case CHANGE_GROUP_MASTER:
+                msgAllBean.setGid(bean.getGid());
+                msgAllBean.setMsg_type(0);
+                MsgNotice gnewAdminNotice=new MsgNotice();
+                gnewAdminNotice.setNote("该群已转让");
+                msgAllBean.setMsgNotice(gnewAdminNotice);
+                break;
             case OUT_GROUP://退出群
 
                 msgAllBean.setGid(bean.getOutGroup().getGid());

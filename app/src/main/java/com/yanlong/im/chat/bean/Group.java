@@ -67,6 +67,7 @@ public class Group  extends RealmObject {
     }
 
     public String getName() {
+        name=name==null?"":name;
         return name;
     }
 
