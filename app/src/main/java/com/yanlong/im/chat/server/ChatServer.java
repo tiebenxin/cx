@@ -248,7 +248,7 @@ public class ChatServer extends Service {
 
 
         LogUtil.getLog().d(TAG, ">>>启动socket");
-
+        //SocketUtil.getSocketUtil().stop();
 
         SocketUtil.getSocketUtil().startSocket();
 
@@ -276,7 +276,7 @@ public class ChatServer extends Service {
         mNetworkChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                LogUtil.getLog().d(TAG, ">>>>>网路状态改变");
+                LogUtil.getLog().d(TAG, ">>>>>网路状态改变"+NetUtil.isNetworkConnected());
                 if (NetUtil.isNetworkConnected()) {//链接成功
                     onStartCommand(null, 0, 0);
                 } else {//链接失败

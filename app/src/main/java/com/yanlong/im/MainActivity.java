@@ -24,6 +24,7 @@ import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.utils.AppFrontBackHelper;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -202,7 +203,9 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRunState(EventRunState event) {
+        LogUtil.getLog().i("TAG",">>>>EventRunState:"+event.getRun());
       if(event.getRun()){
+
           startService(new Intent(getContext(), ChatServer.class));
       }else{
           stopService(new Intent(getContext(), ChatServer.class));

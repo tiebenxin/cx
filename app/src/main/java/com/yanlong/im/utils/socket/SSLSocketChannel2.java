@@ -134,35 +134,35 @@ public class SSLSocketChannel2 {
         cTOs.clear();
         res = sslEngine.wrap(b, cTOs);
         cTOs.flip();
-        LogUtil.getLog().i(TAG,"wrap:\n"+res.toString()+"\n");
+       // LogUtil.getLog().i(TAG,"wrap:\n"+res.toString()+"\n");
         return cTOs;
     }
 
     private synchronized ByteBuffer unwrap(ByteBuffer b) throws SSLException {
         clientIn.clear();
         int pos;
-        LogUtil.getLog().i(TAG,"b.remaining "+b.remaining()+"\n");
+       // LogUtil.getLog().i(TAG,"b.remaining "+b.remaining()+"\n");
         while (b.hasRemaining()) {
-            LogUtil.getLog().i(TAG,"b.remaining "+b.remaining()+"\n");
+           // LogUtil.getLog().i(TAG,"b.remaining "+b.remaining()+"\n");
             res = sslEngine.unwrap(b, clientIn);
-            LogUtil.getLog().i(TAG,"unwrap:\n"+res.toString()+"\n");
+           // LogUtil.getLog().i(TAG,"unwrap:\n"+res.toString()+"\n");
             if (res.getHandshakeStatus() ==
                     SSLEngineResult.HandshakeStatus.NEED_TASK) {
 // Task
                 Runnable task;
                 while ((task=sslEngine.getDelegatedTask()) != null)
                 {
-                    LogUtil.getLog().i(TAG,"task...\n");
+                  //  LogUtil.getLog().i(TAG,"task...\n");
                     task.run();
                 }
-                LogUtil.getLog().i(TAG,"task:\n"+res.toString()+"\n");
+              //  LogUtil.getLog().i(TAG,"task:\n"+res.toString()+"\n");
             } else if (res.getHandshakeStatus() ==
                     SSLEngineResult.HandshakeStatus.FINISHED) {
                 return clientIn;
             } else if (res.getStatus() ==
                     SSLEngineResult.Status.BUFFER_UNDERFLOW) {
-                LogUtil.getLog().i(TAG,"underflow\n");
-                LogUtil.getLog().i(TAG,"b.remaining "+b.remaining()+"\n");
+             //   LogUtil.getLog().i(TAG,"underflow\n");
+              //  LogUtil.getLog().i(TAG,"b.remaining "+b.remaining()+"\n");
                 return clientIn;
             }
         }
@@ -191,7 +191,7 @@ public class SSLSocketChannel2 {
     }
 
     public int read(ByteBuffer dst) throws IOException {
-        LogUtil.getLog().i(TAG,"read\n");
+      //  LogUtil.getLog().i(TAG,"read\n");
         int amount = 0, limit;
         if (SSL == 4) {
 // test if there was a buffer overflow in dst
@@ -238,7 +238,7 @@ public class SSLSocketChannel2 {
                 dst.put(clientIn.get());
                 amount++;
             }
-          LogUtil.getLog().i(TAG,"dst.remaining "+dst.remaining()+"\n");
+          //LogUtil.getLog().i(TAG,"dst.remaining "+dst.remaining()+"\n");
             return amount;
         }
         return sc.read(dst);

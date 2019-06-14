@@ -324,7 +324,10 @@ public class SocketUtil {
 
 
                 while (isStart){
-                    LogUtil.getLog().i(TAG,">>>>>服务器链接检查");
+                    LogUtil.getLog().i(TAG,">>>>>服务器链接检查isRun: "+isRun);
+                    LogUtil.getLog().i(TAG,">>>>>服务器链接socketChannel: "+socketChannel);
+                    if(socketChannel!=null)
+                    LogUtil.getLog().i(TAG,">>>>>服务器链接isConnected: "+socketChannel.isConnected());
                     if((socketChannel==null||!socketChannel.isConnected())&&isRun==0){//没有启动,就执行启动
 
                         //线程版本+1
@@ -414,7 +417,9 @@ public class SocketUtil {
     }
 
 
-    private SSLSocketChannel2 socketChannel;
+    //1.
+   // private SSLSocketChannel2 socketChannel;
+    private SocketChannel socketChannel;
 
 
     /***
@@ -422,7 +427,9 @@ public class SocketUtil {
      */
     private void connect() throws Exception {
 
-        socketChannel = new  SSLSocketChannel2( SocketChannel.open());
+        //2.
+        //socketChannel = new  SSLSocketChannel2( SocketChannel.open());
+        socketChannel =  SocketChannel.open();
 
 
         socketChannel.configureBlocking(false);
@@ -447,19 +454,26 @@ public class SocketUtil {
 
             }
             if(!socketChannel.isConnected()){
+                LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
                 throw new NetworkErrorException();
             }
 
 
             //----------------------------------------------------
-            LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
-          if(socketChannel.tryTLS(1) !=0){
+
+            //3.
+  /*        if(socketChannel.tryTLS(1) ==0){
+              socketChannel.close();
+              LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
               //证书问题
+              throw new NetworkErrorException();
+
+          }else{*/
+              LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
               receive();
               //发送认证请求
               sendData(SocketData.msg4Auth(), null);
-
-          }
+        //  }
 
 
 
