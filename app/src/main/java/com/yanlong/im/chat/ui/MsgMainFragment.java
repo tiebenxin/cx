@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -408,7 +409,7 @@ public class MsgMainFragment extends Fragment {
                     taskDelSissen(bean.getFrom_uid(), bean.getGid());
                 }
             });
-
+            holder.viewIt.setBackgroundColor(bean.getIsTop()==0?Color.WHITE:Color.parseColor("#f1f1f1"));
 
         }
 

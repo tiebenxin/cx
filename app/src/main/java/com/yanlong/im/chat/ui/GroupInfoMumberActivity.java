@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -157,6 +158,11 @@ public class GroupInfoMumberActivity extends AppActivity {
 
           final  UserInfo number=  ginfo.getUsers().get(position);
             if(number!=null){
+                if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
+                    holder.imgGroup.setVisibility(View.VISIBLE);
+                } else {
+                    holder.imgGroup.setVisibility(View.GONE);
+                }
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 holder.txtName.setText(""+number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -206,12 +212,13 @@ public class GroupInfoMumberActivity extends AppActivity {
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
             private com.facebook.drawee.view.SimpleDraweeView imgHead;
             private TextView txtName;
-
+            private ImageView imgGroup;
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
+                imgGroup = convertView.findViewById(R.id.img_group);
             }
 
         }

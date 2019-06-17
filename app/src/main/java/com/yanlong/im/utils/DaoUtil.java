@@ -176,5 +176,21 @@ public class DaoUtil {
         return realm.copyFromRealm(list.subList(from, to));
     }
 
+    /***
+     * 自动开启事务
+     * @param event
+     */
+    public static void start(EventTransaction event){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        event.run(realm);
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public interface EventTransaction{
+        void run( Realm realm);
+    }
 
 }

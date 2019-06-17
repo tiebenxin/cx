@@ -210,9 +210,10 @@ public class UserInfoActivity extends AppActivity {
             String content = data.getStringExtra(CommonSetingActivity.CONTENT);
             switch (requestCode) {
                 case SETING_REMARK:
-                    if (!TextUtils.isEmpty(content)) {
+                    //6.15
+                  //  if (!TextUtils.isEmpty(content)) {
                         taskFriendMark(id, content);
-                    }
+                  //  }
                     break;
             }
         }

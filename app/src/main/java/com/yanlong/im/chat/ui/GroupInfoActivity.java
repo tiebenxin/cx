@@ -59,8 +59,8 @@ public class GroupInfoActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private android.support.v7.widget.RecyclerView topListView;
-  //  private ImageView btnAdd;
-  //  private ImageView btnRm;
+    //  private ImageView btnAdd;
+    //  private ImageView btnRm;
     private LinearLayout viewGroupName;
     private LinearLayout viewGroupMore;
     private TextView txtGroupName;
@@ -87,8 +87,8 @@ public class GroupInfoActivity extends AppActivity {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
-      //  btnAdd = (ImageView) findViewById(R.id.btn_add);
-      //  btnRm = (ImageView) findViewById(R.id.btn_rm);
+        //  btnAdd = (ImageView) findViewById(R.id.btn_add);
+        //  btnRm = (ImageView) findViewById(R.id.btn_rm);
         viewGroupName = (LinearLayout) findViewById(R.id.view_group_name);
         viewGroupMore = (LinearLayout) findViewById(R.id.view_group_more);
         txtGroupName = (TextView) findViewById(R.id.txt_group_name);
@@ -134,7 +134,6 @@ public class GroupInfoActivity extends AppActivity {
         });
 
 
-
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // ToastUtil.show(getContext(), "删除会话");
@@ -146,15 +145,15 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               if(!isAdmin()){
-                   ToastUtil.show(getContext(),"非群主无法修改");
-                   return;
-               }
+                if (!isAdmin()) {
+                    ToastUtil.show(getContext(), "非群主无法修改");
+                    return;
+                }
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
                 intent.putExtra(CommonSetingActivity.TITLE, "群聊名称");
                 intent.putExtra(CommonSetingActivity.REMMARK, "群聊名称");
                 intent.putExtra(CommonSetingActivity.HINT, "群聊名称");
-                intent.putExtra(CommonSetingActivity.SETING,ginfo.getName());
+                intent.putExtra(CommonSetingActivity.SETING, ginfo.getName());
                 startActivityForResult(intent, GROUP_NAME);
             }
         });
@@ -166,7 +165,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
-                intent.putExtra(CommonSetingActivity.SETING,ginfo.getMygroupName());
+                intent.putExtra(CommonSetingActivity.SETING, ginfo.getMygroupName());
                 startActivityForResult(intent, GROUP_NICK);
             }
         });
@@ -174,8 +173,8 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isAdmin()){
-                    ToastUtil.show(getContext(),"非群主无法修改");
+                if (!isAdmin()) {
+                    ToastUtil.show(getContext(), "非群主无法修改");
                     return;
                 }
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
@@ -198,14 +197,13 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              //  ToastUtil.show(getContext(),"更多");
-                startActivity(new Intent(getContext(), GroupInfoMumberActivity.class).putExtra(AGM_GID,gid));
+                //  ToastUtil.show(getContext(),"更多");
+                startActivity(new Intent(getContext(), GroupInfoMumberActivity.class).putExtra(AGM_GID, gid));
             }
         });
 
 
     }
-
 
 
     @Override
@@ -225,7 +223,7 @@ public class GroupInfoActivity extends AppActivity {
 
     private void initData() {
         //顶部处理
-        GridLayoutManager gridLayoutManager =new GridLayoutManager(this,5);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
 
 
         topListView.setLayoutManager(gridLayoutManager);
@@ -273,9 +271,9 @@ public class GroupInfoActivity extends AppActivity {
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), MyselfQRCodeActivity.class)
                         .putExtra(MyselfQRCodeActivity.TYPE, 1)
-                        .putExtra(MyselfQRCodeActivity.GROUP_NAME,ginfo.getName() )
-                        .putExtra(MyselfQRCodeActivity.GROUP_HEAD,ginfo.getAvatar())
-                        .putExtra(MyselfQRCodeActivity.GROUP_ID,ginfo.getGid())
+                        .putExtra(MyselfQRCodeActivity.GROUP_NAME, ginfo.getName())
+                        .putExtra(MyselfQRCodeActivity.GROUP_HEAD, ginfo.getAvatar())
+                        .putExtra(MyselfQRCodeActivity.GROUP_ID, ginfo.getGid())
                 );
             }
         });
@@ -298,12 +296,20 @@ public class GroupInfoActivity extends AppActivity {
         @Override
         public void onBindViewHolder(final RCViewTopHolder holder, int position) {
 
+            //6.15加标识
+            final UserInfo number = listDataTop.get(position);
 
 
-          final UserInfo number=  listDataTop.get(position);
-            if(number!=null){
+            if (number != null) {
+                if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
+                    holder.imgGroup.setVisibility(View.VISIBLE);
+                } else {
+                    holder.imgGroup.setVisibility(View.GONE);
+                }
+
+
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
-                holder.txtName.setText(""+number.getName4Show());
+                holder.txtName.setText("" + number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -311,8 +317,8 @@ public class GroupInfoActivity extends AppActivity {
                                 .putExtra(UserInfoActivity.ID, number.getUid()));
                     }
                 });
-            }else{
-                if(isAdmin()&&position==listDataTop.size()-1){
+            } else {
+                if (isAdmin() && position == listDataTop.size() - 1) {
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -321,7 +327,7 @@ public class GroupInfoActivity extends AppActivity {
                             taskDel();
                         }
                     });
-                }else{
+                } else {
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -350,12 +356,15 @@ public class GroupInfoActivity extends AppActivity {
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
             private com.facebook.drawee.view.SimpleDraweeView imgHead;
             private TextView txtName;
+            private ImageView imgGroup;
 
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
                 imgHead = convertView.findViewById(R.id.img_head);
+                imgGroup = convertView.findViewById(R.id.img_group);
                 txtName = convertView.findViewById(R.id.txt_name);
+
             }
 
         }
@@ -367,15 +376,16 @@ public class GroupInfoActivity extends AppActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             String content = data.getStringExtra(CommonSetingActivity.CONTENT);
-            if(TextUtils.isEmpty(content)){
-                return;
-            }
+
             switch (requestCode) {
                 case GROUP_NAME:
-                    taskChangeGroupName(gid,content);
+                    if (TextUtils.isEmpty(content)) {
+                        return;
+                    }
+                    taskChangeGroupName(gid, content);
                     break;
                 case GROUP_NICK:
-                    taskChangeMemberName(gid,content);
+                    taskChangeMemberName(gid, content);
                     break;
                 case GROUP_NOTE:
                     txtGroupNote.setText(content);
@@ -398,7 +408,6 @@ public class GroupInfoActivity extends AppActivity {
 
 
         userInfos = userInfos == null ? new ArrayList() : userInfos;
-
 
 
         return userInfos;
@@ -441,7 +450,7 @@ public class GroupInfoActivity extends AppActivity {
     }
 
     private boolean isAdmin() {
-        if(!StringUtil.isNotNull(ginfo.getMaster()) )
+        if (!StringUtil.isNotNull(ginfo.getMaster()))
             return false;
         return ginfo.getMaster().equals("" + UserAction.getMyId());
     }
@@ -453,7 +462,7 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
 
-                    actionbar.setTitle("群聊信息("+ginfo.getUsers().size()+")");
+                    actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                   /*  for (int i=0;i<50;i++){
                         UserInfo teuser=new UserInfo();
                         teuser.setHead(ginfo.getMembers().get(0).getHead());
@@ -463,29 +472,29 @@ public class GroupInfoActivity extends AppActivity {
                     }*/
 
                     listDataTop.clear();
-                    if(isAdmin()){
-                        if(ginfo.getUsers().size()>18){
+                    if (isAdmin()) {
+                        if (ginfo.getUsers().size() > 18) {
                             viewGroupMore.setVisibility(View.VISIBLE);
-                            for (int i=0;i<18;i++){
+                            for (int i = 0; i < 18; i++) {
                                 listDataTop.add(ginfo.getUsers().get(i));
                             }
 
-                        }else {
+                        } else {
                             listDataTop.addAll(ginfo.getUsers());
                             viewGroupMore.setVisibility(View.GONE);
                         }
                         listDataTop.add(null);
                         listDataTop.add(null);
 
-                    }else{
+                    } else {
 
-                        if(ginfo.getUsers().size()>19){
+                        if (ginfo.getUsers().size() > 19) {
                             viewGroupMore.setVisibility(View.VISIBLE);
-                            for (int i=0;i<19;i++){
+                            for (int i = 0; i < 19; i++) {
                                 listDataTop.add(ginfo.getUsers().get(i));
                             }
 
-                        }else {
+                        } else {
                             listDataTop.addAll(ginfo.getUsers());
                             viewGroupMore.setVisibility(View.GONE);
                         }
@@ -495,7 +504,7 @@ public class GroupInfoActivity extends AppActivity {
 
                     }
 
-                   // viewGroupMore.setVisibility(View.VISIBLE);
+                    // viewGroupMore.setVisibility(View.VISIBLE);
                     initData();
                 }
             }
@@ -509,10 +518,10 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
 
-                if (response.body()==null)
+                if (response.body() == null)
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
-                if(response.body().isOk()){
+                if (response.body().isOk()) {
                     initEvent();
                 }
 
@@ -567,15 +576,15 @@ public class GroupInfoActivity extends AppActivity {
     }
 
 
-    private void taskChangeGroupName(String gid, final String name){
+    private void taskChangeGroupName(String gid, final String name) {
         msgAction.changeGroupName(gid, name, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body() == null){
+                if (response.body() == null) {
                     return;
                 }
-                ToastUtil.show(getContext(),response.body().getMsg());
-                if(response.body().isOk()){
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
                     txtGroupName.setText(name);
                     initEvent();
                 }
@@ -583,15 +592,15 @@ public class GroupInfoActivity extends AppActivity {
         });
     }
 
-    private void taskChangeMemberName(String gid, final String name){
+    private void taskChangeMemberName(String gid, final String name) {
         msgAction.changeMemberName(gid, name, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body() == null){
+                if (response.body() == null) {
                     return;
                 }
-                ToastUtil.show(getContext(),response.body().getMsg());
-                if(response.body().isOk()){
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
                     txtGroupNick.setText(name);
                     initEvent();
                 }

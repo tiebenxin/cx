@@ -74,7 +74,7 @@ public class StrikeButton extends RelativeLayout {
 	public void setNum(int num) {
 		String numStr = null;
 
-		numStr =num > 9?9 + "+":num + "";
+		numStr =num > 99?99 + "+":num + "";
 
 		switch (sktype){
 			case 0:

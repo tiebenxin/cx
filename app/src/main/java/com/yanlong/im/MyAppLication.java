@@ -40,11 +40,10 @@ public class MyAppLication extends MainApplication {
                 AppConfig.URL_HOST = "http://192.168.10.229:8080";
               //  AppConfig.URL_HOST = "http://192.168.10.110:18080";
                 AppConfig.DEBUG = true;
-               // AppConfig.SOCKET_IP = "192.168.10.110";
-                AppConfig.SOCKET_IP = "192.168.10.229";
-                AppConfig.SOCKET_PORT = 19991;
-               // AppConfig.SOCKET_IP = "yanlong.1616d.top";
-               // AppConfig.SOCKET_PORT = 19992;
+               // AppConfig.SOCKET_IP = "192.168.10.229";
+               // AppConfig.SOCKET_PORT = 19991;
+               AppConfig.SOCKET_IP = "yanlong.1616d.top";
+                AppConfig.SOCKET_PORT = 19992;
 
                 break;
             case "pre":

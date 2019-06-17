@@ -3,6 +3,7 @@ package com.yanlong.im.chat.dao;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
+import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Group;
@@ -68,7 +69,7 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
 
         RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "")
-             //   .notEqualTo("msg_type", 0)
+                //   .notEqualTo("msg_type", 0)
                 .and()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid)
 
@@ -85,21 +86,22 @@ public class MsgDao {
     }
 
     public List<MsgAllBean> getMsg4User(Long userid, Long time) {
-        if(time==null){
-            time=99999999999999l;
+        if (time == null) {
+            time = 99999999999999l;
         }
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
         RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
-                .lessThan("timestamp",time)
+                .lessThan("timestamp", time)
 
                 .sort("timestamp", Sort.DESCENDING)
                 .limit(20)
                 .findAll();
 
-        beans = realm.copyFromRealm(list);;
+        beans = realm.copyFromRealm(list);
+        ;
 
 
         //翻转列表
@@ -121,7 +123,7 @@ public class MsgDao {
 
         RealmResults list = realm.where(MsgAllBean.class)
                 .equalTo("gid", gid).and()
-              //  .notEqualTo("msg_type", 0)
+                //  .notEqualTo("msg_type", 0)
                 .sort("timestamp", Sort.DESCENDING)
                 .findAll();
 
@@ -136,21 +138,22 @@ public class MsgDao {
 
 
     public List<MsgAllBean> getMsg4Group(String gid, Long time) {
-        if(time==null){
-            time=99999999999999l;
+        if (time == null) {
+            time = 99999999999999l;
         }
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
         RealmResults list = realm.where(MsgAllBean.class)
                 .equalTo("gid", gid)
-                .lessThan("timestamp",time)
+                .lessThan("timestamp", time)
 
                 .sort("timestamp", Sort.DESCENDING)
                 .limit(20)
                 .findAll();
 
-        beans = realm.copyFromRealm(list);;
+        beans = realm.copyFromRealm(list);
+        ;
 
 
         //翻转列表
@@ -161,21 +164,22 @@ public class MsgDao {
 
     public List<MsgAllBean> getMsg4GroupHistory(String gid, Long stime) {
 
-         //   Long time=99999999999999l;
+        //   Long time=99999999999999l;
 
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
         RealmResults list = realm.where(MsgAllBean.class)
                 .equalTo("gid", gid)
-              //  .lessThan("timestamp",time)
-                .greaterThanOrEqualTo("timestamp",stime)
+                //  .lessThan("timestamp",time)
+                .greaterThanOrEqualTo("timestamp", stime)
 
                 .sort("timestamp", Sort.DESCENDING)
 
                 .findAll();
 
-        beans = realm.copyFromRealm(list);;
+        beans = realm.copyFromRealm(list);
+        ;
 
 
         //翻转列表
@@ -183,22 +187,24 @@ public class MsgDao {
         realm.close();
         return beans;
     }
+
     public List<MsgAllBean> getMsg4UserHistory(Long userid, Long stime) {
 
-       // Long  time=99999999999999l;
+        // Long  time=99999999999999l;
 
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
         RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
-             //   .lessThan("timestamp",time)
-                .greaterThanOrEqualTo("timestamp",stime)
+                //   .lessThan("timestamp",time)
+                .greaterThanOrEqualTo("timestamp", stime)
                 .sort("timestamp", Sort.DESCENDING)
 
                 .findAll();
 
-        beans = realm.copyFromRealm(list);;
+        beans = realm.copyFromRealm(list);
+        ;
 
 
         //翻转列表
@@ -256,14 +262,14 @@ public class MsgDao {
      * @param gid
      * @return
      */
-    public Group groupNumberGet(String gid){
-        Group groupInfoBean=new Group();
+    public Group groupNumberGet(String gid) {
+        Group groupInfoBean = new Group();
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
         Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-        if(group!=null){
-            group=realm.copyFromRealm(group);
+        if (group != null) {
+            group = realm.copyFromRealm(group);
             groupInfoBean.setAvatar(group.getAvatar());
             groupInfoBean.setGid(group.getGid());
             groupInfoBean.setMaster(group.getMaster());
@@ -353,12 +359,12 @@ public class MsgDao {
         RealmResults<MsgAllBean> msg;
         if (StringUtil.isNotNull(gid)) {//群
             msg = realm.where(MsgAllBean.class)
-                    .equalTo("gid", gid).and().equalTo("msg_type",1).and()
+                    .equalTo("gid", gid).and().equalTo("msg_type", 1).and()
                     .contains("chat.msg", key)
                     .sort("timestamp", Sort.DESCENDING)
                     .findAll();
         } else {//单人
-            msg = realm.where(MsgAllBean.class).equalTo("gid", "").equalTo("msg_type",1)
+            msg = realm.where(MsgAllBean.class).equalTo("gid", "").equalTo("msg_type", 1)
                     .contains("chat.msg", key).beginGroup()
                     .equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
 
@@ -537,7 +543,7 @@ public class MsgDao {
         realm.beginTransaction();
 
         Remind remind = realm.where(Remind.class).equalTo("remid_type", type).findFirst();
-        int readnum = remind == null ? 1 : remind.getNumber()+1;
+        int readnum = remind == null ? 1 : remind.getNumber() + 1;
         Remind newreamid = new Remind();
         newreamid.setNumber(readnum);
         newreamid.setRemid_type(type);
@@ -578,14 +584,14 @@ public class MsgDao {
         RealmResults<Session> list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
         //6.5 优先读取单独表的配置
 
-        for(Session l:list){
-            int top=0;
+        for (Session l : list) {
+            int top = 0;
 
             try {
-                if(l.getType()==1){
-                    top=realm.where(Group.class).equalTo("gid",l.getGid()).findFirst().getIsTop();
-                }else{
-                    top=realm.where(UserInfo.class).equalTo("uid",l.getFrom_uid()).findFirst().getIstop();
+                if (l.getType() == 1) {
+                    top = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst().getIsTop();
+                } else {
+                    top = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst().getIstop();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -675,15 +681,15 @@ public class MsgDao {
      * @param fromUid
      * @param nickname
      */
-    public void groupAcceptAdd(String gid, long fromUid, String nickname,String head) {
+    public void groupAcceptAdd(String gid, long fromUid, String nickname, String head) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
-        GroupAccept accept=new GroupAccept();
+        GroupAccept accept = new GroupAccept();
         accept.setAid(UUID.randomUUID().toString());
         accept.setGid(gid);
-        Group group=realm.where(Group.class).equalTo("gid",gid).findFirst();
-        if(group!=null){
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (group != null) {
             accept.setGroupName(group.getName());
         }
 
@@ -697,19 +703,58 @@ public class MsgDao {
         realm.close();
     }
 
-    public List<GroupAccept> groupAccept(){
-      return DaoUtil.findAll(GroupAccept.class);
+    public List<GroupAccept> groupAccept() {
+        return DaoUtil.findAll(GroupAccept.class);
     }
 
     /**
      * 移除这条群申请
+     *
      * @param aid
      */
-    public void groupAcceptRemove(String aid){
-       DaoUtil.deleteOne(GroupAccept.class,"aid",aid);
+    public void groupAcceptRemove(String aid) {
+        DaoUtil.deleteOne(GroupAccept.class, "aid", aid);
 
     }
 
+    /***
+     * 群解散,退出的配置
+     * @param gid
+     * @param isExit
+     */
+    public void groupExit(final String gid,final String gname,final String gicon, final int isExit) {
+        DaoUtil.start(new DaoUtil.EventTransaction() {
+            @Override
+            public void run(Realm realm) {
+                GroupConfig groupConfig = realm.where(GroupConfig.class).equalTo("gid", gid).findFirst();
+                if(groupConfig==null){
+                    groupConfig=new GroupConfig();
+                }
+                groupConfig.setIsExit(isExit);
+                realm.insertOrUpdate(groupConfig);
+
+                Group group=realm.where(Group.class).equalTo("gid", gid).findFirst();
+                if(group==null){
+                    group=new Group();
+                    group.setGid(gid);
+                }
+                group.setName(gname);
+                group.setAvatar(gicon);
+                realm.insertOrUpdate(group);
+
+
+            }
+        });
+    }
+
+    /***
+     * 获取群配置
+     * @param gid
+     * @return
+     */
+    public GroupConfig groupConfigGet(String gid){
+        return DaoUtil.findOne(GroupConfig.class,"gid", gid);
+    }
 
 
 }

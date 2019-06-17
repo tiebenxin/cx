@@ -14,10 +14,10 @@
         app:swipeEnable="true">
 
         <LinearLayout
-            android:id="@+id/view_it"
+
             style="@style/app_layout_list1">
 
-            <LinearLayout style="@style/app_layout_list1_item">
+            <LinearLayout style="@style/app_layout_list1_item"   android:id="@+id/view_it">
 
                 <FrameLayout
                     android:layout_width="56dp"

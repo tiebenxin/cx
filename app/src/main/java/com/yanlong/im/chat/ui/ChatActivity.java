@@ -13,6 +13,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -30,6 +31,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -52,6 +54,9 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
+import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventRefreshFriend;
+import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -78,6 +83,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ChatActivity extends AppActivity {
+    //返回需要刷新的
+    private static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
@@ -166,6 +173,12 @@ public class ChatActivity extends AppActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
+                        onMsgbranch(msg);
+
+                    }
+
+
                     //从数据库读取消息
                     taskRefreshMessage();
                 }
@@ -198,6 +211,7 @@ public class ChatActivity extends AppActivity {
             });
         }
 
+
         @Override
         public void onLine(boolean state) {
             runOnUiThread(new Runnable() {
@@ -210,7 +224,22 @@ public class ChatActivity extends AppActivity {
             });
         }
     };
+    public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
 
+        switch (msg.getMsgType()) {
+
+            case DESTROY_GROUP:
+                // ToastUtil.show(getApplicationContext(), "销毁群");
+
+            case OUT_GROUP://退出群
+                taskGroupConf();
+                break;
+
+
+        }
+
+
+    }
 
     //自动寻找控件
     private void findViews() {
@@ -271,13 +300,13 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onRight() {
                 if (isGroup()) {//群聊,单聊
-                    startActivity(new Intent(getContext(), GroupInfoActivity.class)
-                            .putExtra(GroupInfoActivity.AGM_GID, toGid)
+                    startActivityForResult(new Intent(getContext(), GroupInfoActivity.class)
+                            .putExtra(GroupInfoActivity.AGM_GID, toGid), REQ_REFRESH
                     );
                 } else {
 
-                    startActivity(new Intent(getContext(), ChatInfoActivity.class)
-                            .putExtra(ChatInfoActivity.AGM_FUID, toUId)
+                    startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
+                            .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
                     );
 
                 }
@@ -435,6 +464,7 @@ public class ChatActivity extends AppActivity {
                 startActivity(intent);
             }
         });
+
         //戳一下
         viewAction.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -469,6 +499,10 @@ public class ChatActivity extends AppActivity {
                 startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
+
+        if (isGroup()) {//去除群的控件
+            viewFunc.removeView(viewAction);
+        }
 
 
         mtListView.init(new RecyclerViewAdapter());
@@ -549,7 +583,14 @@ public class ChatActivity extends AppActivity {
             }
         });
 
-        taskRefreshMessage();
+
+        //6.15 先加载完成界面,后刷数据
+        actionbar.post(new Runnable() {
+            @Override
+            public void run() {
+                taskRefreshMessage();
+            }
+        });
 
 
     }
@@ -647,11 +688,12 @@ public class ChatActivity extends AppActivity {
 
 
         //刷新页面数据
-        if (flag_isHistory) {
+       /* if (flag_isHistory) {
             flag_isHistory = false;
             return;
-        }
-        taskRefreshMessage();
+        }*/
+        //6.15 取消每次刷新
+        //  taskRefreshMessage();
         //刷新群资料
         taskSessionInfo();
     }
@@ -714,6 +756,9 @@ public class ChatActivity extends AppActivity {
 
             MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), "向你推荐一个人");
             showSendObj(msgAllbean);
+        } else if (requestCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
+            mks.clear();
+            taskRefreshMessage();
         }
     }
 
@@ -916,6 +961,9 @@ public class ChatActivity extends AppActivity {
         if (isGroup()) {
             Group ginfo = msgDao.getGroup4Id(toGid);
             title = ginfo.getName();
+            //6.15 设置右上角点击
+            taskGroupConf();
+
         } else {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
@@ -938,7 +986,7 @@ public class ChatActivity extends AppActivity {
         mtListView.notifyDataSetChange();
     }
 
-    private boolean flag_isHistory = false;
+    //  private boolean flag_isHistory = false;
 
     /***
      * 查询历史
@@ -946,7 +994,7 @@ public class ChatActivity extends AppActivity {
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskFinadHistoryMessage(EventFindHistory history) {
-        flag_isHistory = true;
+        //   flag_isHistory = true;
         msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
         //ToastUtil.show(getContext(),"历史"+msgListData.size());
         taskMkName(msgListData);
@@ -983,20 +1031,27 @@ public class ChatActivity extends AppActivity {
 
     private void taskMkName(List<MsgAllBean> msgListData) {
         for (MsgAllBean msg : msgListData) {
-           if(msg.getMsg_type()==0){  //通知类型的不处理
-             continue;
-           }
+            if (msg.getMsg_type() == 0) {  //通知类型的不处理
+                continue;
+            }
             String k = msg.getFrom_uid() + "";
             if (mks.containsKey(k)) {
-                String v=mks.get(k);
-                if(StringUtil.isNotNull(v))
-                msg.setFrom_nickname(v);
+                String v = mks.get(k);
+                if (StringUtil.isNotNull(v))
+                    msg.setFrom_nickname(v);
             } else {
 
-                String v = msg.getFrom_user().getMkName();
+                String v = "";
+                if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                    Group ginfo = msgDao.getGroup4Id(toGid);
+                    if (ginfo != null)
+                        v = ginfo.getMygroupName();
+                } else {
+                    v = msg.getFrom_user().getMkName();
+                }
                 mks.put(k, v);
-                if(StringUtil.isNotNull(v))
-                msg.setFrom_nickname(v);
+                if (StringUtil.isNotNull(v))
+                    msg.setFrom_nickname(v);
             }
 
 
@@ -1014,6 +1069,17 @@ public class ChatActivity extends AppActivity {
             dao.sessionReadClean(null, toUId);
         }
 
+    }
+
+    private void taskGroupConf() {
+        if (!isGroup()) {
+            return;
+        }
+        GroupConfig config = dao.groupConfigGet(toGid);
+        if (config != null) {
+            actionbar.getBtnRight().setVisibility(config.getIsExit() == 1 ? View.GONE : View.VISIBLE);
+
+        }
     }
 
 

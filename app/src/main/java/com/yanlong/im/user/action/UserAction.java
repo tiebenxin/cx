@@ -170,6 +170,12 @@ public class UserAction {
 
     }
 
+    /***
+     * 无网登录
+     */
+    public void login4tokenNotNet( TokenBean token) {
+        initDB("" + token.getUid());
+    }
 
     public void login4token(String dev_id, final Callback<ReturnBean<TokenBean>> callback) {
         //判断有没有token信息
@@ -226,11 +232,10 @@ public class UserAction {
     /***
      * 清理信息
      */
-    public void cleanInfo(){
+    public void cleanInfo() {
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
     }
-
 
 
     /***
@@ -460,15 +465,15 @@ public class UserAction {
 
     /**
      * 获取认证信息
-     * */
-    public void getIdCardInfo(CallBack<ReturnBean<IdCardBean>> callback){
-        NetUtil.getNet().exec(server.getIdCardInfo(),callback);
+     */
+    public void getIdCardInfo(CallBack<ReturnBean<IdCardBean>> callback) {
+        NetUtil.getNet().exec(server.getIdCardInfo(), callback);
     }
 
     /**
      * 实名认证
-     * */
-    public void realNameAuth(String idNumber, String idType, String name, final CallBack<ReturnBean> callback){
+     */
+    public void realNameAuth(String idNumber, String idType, String name, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.realNameAuth(idNumber, idType, name), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -486,24 +491,24 @@ public class UserAction {
 
 
     /**
-     *更新职业类别
-     * */
-    public void setJobType(String jobType, CallBack<ReturnBean> callback){
-        NetUtil.getNet().exec(server.setJobType(jobType),callback);
+     * 更新职业类别
+     */
+    public void setJobType(String jobType, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.setJobType(jobType), callback);
     }
 
 
     /**
-     *更新证件有效期
-     * */
-    public void setExpiryDate(String expiryDate, CallBack<ReturnBean> callback){
-        NetUtil.getNet().exec(server.setExpiryDate(expiryDate),callback);
+     * 更新证件有效期
+     */
+    public void setExpiryDate(String expiryDate, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.setExpiryDate(expiryDate), callback);
     }
 
     /**
      * 更新证件照片
-     * */
-    public void setCardPhoto(String cardBack, String cardFront, final CallBack<ReturnBean> callback){
+     */
+    public void setCardPhoto(String cardBack, String cardFront, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.setCardPhoto(cardBack, cardFront), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {

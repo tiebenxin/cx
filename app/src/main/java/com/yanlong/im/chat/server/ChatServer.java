@@ -172,6 +172,7 @@ public class ChatServer extends Service {
                     return;
                 case DESTROY_GROUP:
                     // ToastUtil.show(getApplicationContext(), "销毁群");
+                    msgDao.groupExit(msg.getGid(),"解散的名","",1);
                     return;
                 case OUT_GROUP://退出群
 

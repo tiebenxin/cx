@@ -122,9 +122,9 @@ public class StartPageActivity extends AppActivity {
             }
         });
     }
-
+    private  UserAction userAction = new UserAction();
     private void updateToken(final boolean isFlast) {
-        UserAction userAction = new UserAction();
+
 
         userAction.login4token(UserAction.getDevId(getContext()), new Callback<ReturnBean<TokenBean>>() {
             @Override
@@ -164,6 +164,8 @@ public class StartPageActivity extends AppActivity {
         } else {
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
             if(token != null){
+                //6.17 无网处理
+                userAction.login4tokenNotNet(token);
                 startActivity(new Intent(StartPageActivity.this, MainActivity.class));
                 finish();
             }else{

@@ -5,17 +5,28 @@
     android:gravity="center"
     android:orientation="vertical">
 
+    <FrameLayout
+        android:layout_width="47dp"
+        android:layout_height="47dp">
 
-    <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@+id/img_head"
-        style="@style/app_img_head"
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/img_head"
+            style="@style/app_img_head" />
 
- />
+        <ImageView
+            android:id="@+id/img_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:src="@drawable/bg_red_num"
+            android:visibility="gone" />
+    </FrameLayout>
+
     <TextView
         android:id="@+id/txt_name"
         style="@style/app_txt_content_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"/>
+        android:layout_marginBottom="5dp" />
 
 </LinearLayout>
