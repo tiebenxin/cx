@@ -418,8 +418,8 @@ public class SocketUtil {
 
 
     //1.
-   // private SSLSocketChannel2 socketChannel;
-    private SocketChannel socketChannel;
+    private SSLSocketChannel2 socketChannel;
+  //  private SocketChannel socketChannel;
 
 
     /***
@@ -428,8 +428,8 @@ public class SocketUtil {
     private void connect() throws Exception {
 
         //2.
-        //socketChannel = new  SSLSocketChannel2( SocketChannel.open());
-        socketChannel =  SocketChannel.open();
+        socketChannel = new  SSLSocketChannel2( SocketChannel.open());
+        //socketChannel =  SocketChannel.open();
 
 
         socketChannel.configureBlocking(false);
@@ -462,18 +462,18 @@ public class SocketUtil {
             //----------------------------------------------------
 
             //3.
-  /*        if(socketChannel.tryTLS(1) ==0){
+          if(socketChannel.tryTLS(1) ==0){
               socketChannel.close();
               LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
               //证书问题
               throw new NetworkErrorException();
 
-          }else{*/
+          }else{
               LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
               receive();
               //发送认证请求
               sendData(SocketData.msg4Auth(), null);
-        //  }
+          }
 
 
 

@@ -102,8 +102,12 @@ public class SSLSocketChannel2 {
                         SSLEngineResult.HandshakeStatus.NEED_UNWRAP) {
 // unwrap
                     sTOc.clear();
-                    while (sc.read(sTOc) < 1)
+                    int readindex=0;
+                    while (sc.read(sTOc) < 1||readindex>100){
                         Thread.sleep(20);
+                        readindex++;
+                    }
+
                     sTOc.flip();
                     unwrap(sTOc);
                     if (res.getHandshakeStatus() != SSLEngineResult.HandshakeStatus.FINISHED) {

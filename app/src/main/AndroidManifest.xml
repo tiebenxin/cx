@@ -14,7 +14,7 @@
         android:theme="@style/MainAppThrme"
         tools:replace="android:theme,android:allowBackup">
 
-        <activity-alias
+<!--        <activity-alias
             android:name="test"
             android:label="测试页面"
             android:targetActivity=".user.ui.ImageHeadActivity">
@@ -23,7 +23,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity-alias>
+        </activity-alias>-->
         <activity-alias
             android:name="main"
             android:label="首页"
