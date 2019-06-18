@@ -1,5 +1,7 @@
 package com.yanlong.im.utils.socket;
 
+import android.accounts.NetworkErrorException;
+
 import com.yanlong.im.R;
 
 import net.cb.cb.library.AppConfig;
@@ -47,7 +49,7 @@ public class SSLSocketChannel2 {
     }
 
     //2.链接成功后启动 pssl=1
-    public int tryTLS(int pSSL) throws IOException {
+    public int tryTLS(int pSSL) throws Exception {
         SSL = pSSL;
         if (SSL == 0)
             return 0;
@@ -103,9 +105,14 @@ public class SSLSocketChannel2 {
 // unwrap
                     sTOc.clear();
                     int readindex=0;
-                    while (sc.read(sTOc) < 1||readindex>100){
+                    while (sc.read(sTOc) < 1){
                         Thread.sleep(20);
                         readindex++;
+                        if(readindex>100){
+                           // throw new NetworkErrorException();
+                            return 0;
+                        }
+
                     }
 
                     sTOc.flip();
@@ -130,6 +137,7 @@ public class SSLSocketChannel2 {
             e.printStackTrace(System.out);
             LogUtil.getLog().e(TAG,"SSL "+e.toString());
             SSL = 0;
+            throw new NetworkErrorException();
         }
         return SSL;
     }
@@ -194,7 +202,7 @@ public class SSLSocketChannel2 {
         return sc.write(src);
     }
 
-    public int read(ByteBuffer dst) throws IOException {
+    public int read(ByteBuffer dst) throws Exception {
       //  LogUtil.getLog().i(TAG,"read\n");
         int amount = 0, limit;
         if (SSL == 4) {
@@ -229,9 +237,12 @@ public class SSLSocketChannel2 {
 
             if (sc.read(sTOc) == -1) {
                 LogUtil.getLog().i(TAG,"close from SSLSocketChannel2"+"\n");
+
                 sTOc.clear();
                 sTOc.flip();
-                return -1;
+
+                throw new NetworkErrorException();
+                //return -1;
             }
             sTOc.flip();
             unwrap(sTOc);

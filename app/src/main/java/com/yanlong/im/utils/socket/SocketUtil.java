@@ -446,13 +446,14 @@ public class SocketUtil {
 
                 //在等待连接的时间里
                 Thread.sleep(200);
-
+                System.out.println(">>>链接进行"+(System.currentTimeMillis()-ttime));
                 if(System.currentTimeMillis()-ttime>2*1000){
                     System.out.print(">>>链接中超时");
                     break;
                 }
 
             }
+            System.out.println(">>>链接执行完毕");
             if(!socketChannel.isConnected()){
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
                 throw new NetworkErrorException();
@@ -464,6 +465,7 @@ public class SocketUtil {
             //3.
           if(socketChannel.tryTLS(1) ==0){
               socketChannel.close();
+              socketChannel=null;
               LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
               //证书问题
               throw new NetworkErrorException();
