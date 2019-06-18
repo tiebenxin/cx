@@ -14,16 +14,16 @@
         android:theme="@style/MainAppThrme"
         tools:replace="android:theme,android:allowBackup">
 
-<!--        <activity-alias
-            android:name="test"
-            android:label="测试页面"
-            android:targetActivity=".user.ui.ImageHeadActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <!--<activity-alias-->
+            <!--android:name="test"-->
+            <!--android:label="测试页面"-->
+            <!--android:targetActivity=".user.ui.ImageHeadActivity">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        <!--</activity-alias>-->
         <activity-alias
             android:name="main"
             android:label="首页"
