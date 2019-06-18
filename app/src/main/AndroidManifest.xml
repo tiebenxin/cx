@@ -27,7 +27,7 @@
         <activity-alias
             android:name="main"
             android:label="首页"
-            android:targetActivity=".user.ui.StartPageActivity">
+            android:targetActivity=".user.ui.StartPageActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -166,6 +166,7 @@
         <!--选择登录注册-->
         <activity
             android:name=".user.ui.SelectLoginActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--密码登录-->
@@ -181,13 +182,16 @@
         <!--注册页面-->
         <activity
             android:name=".user.ui.RegisterActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--忘记密码-->
         <activity
             android:name=".user.ui.ForgotPasswordActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".user.ui.ForgotPasswordNextActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--忘记密码 end-->
         <!--设置登录密码-->
@@ -197,6 +201,7 @@
         <!--安全隐私-->
         <activity
             android:name=".user.ui.SecurityPrivacyActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--个人信息-->
@@ -207,46 +212,56 @@
         <!--通用设置-->
         <activity
             android:name=".user.ui.CommonActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--新消息设置-->
         <activity
             android:name=".user.ui.NewMessageActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--选择职业-->
         <activity
             android:name=".user.ui.SelectProfessionActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--账号绑定-->
         <activity
             android:name=".user.ui.AccountBindingActvity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--二维码-->
         <activity
             android:name=".user.ui.MyselfQRCodeActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--零钱-->
         <activity
             android:name=".pay.ui.LooseChangeActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--登录-->
         <activity
             android:name=".user.ui.LoginActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--关于-->
         <activity
             android:name=".user.ui.AboutAsActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--公共设置页面-->
         <activity
             android:name=".user.ui.CommonSetingActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--选择性别-->
         <activity
             android:name=".user.ui.SelectSexActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--个人头像-->
         <activity
@@ -255,45 +270,54 @@
         <!--用户资料-->
         <activity
             android:name=".user.ui.UserInfoActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--选择用户-->
         <activity
             android:name=".user.ui.SelectUserActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--上传身份证照片-->
         <activity
             android:name=".user.ui.UploadIdentityActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--投诉-->
         <activity
             android:name=".user.ui.ComplaintActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--实名认证-->
         <activity
             android:name=".user.ui.IdentificationCentreActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--单个红包-->
         <activity
             android:name=".pay.ui.SingleRedPacketActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
         <!--群红包-->
         <activity
             android:name=".pay.ui.MultiRedPacketActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
         <!--红包详情-->
         <activity
             android:name=".pay.ui.RedPacketDetailsActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
 
         <!--红包记录-->
         <activity
             android:name=".pay.ui.RedpacketRecordActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
 
@@ -306,31 +330,35 @@
         <!--帮助-->
         <activity
             android:name=".user.ui.HelpActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--帮助详情-->
         <activity
             android:name=".user.ui.HelpInfoActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--查找好友-->
         <activity
             android:name=".user.ui.FindFriendActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--黑名单-->
         <activity
             android:name=".user.ui.BlacklistActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--加群聊-->
         <activity
             android:name=".chat.ui.AddGroupActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".wxapi.WXEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
@@ -341,6 +369,7 @@
 
         <activity
             android:name=".user.ui.IdentityAttestationActitiy"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
 

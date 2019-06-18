@@ -5,6 +5,7 @@ import android.content.Intent;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.LoginBean;
+import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 
@@ -123,4 +124,7 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean> setCardPhoto(@Field("cardBack") String cardBack,@Field("cardFront") String cardFront);
 
+    @POST("/version/get-new-version")
+    @FormUrlEncoded
+    Call<ReturnBean<NewVersionBean>> getNewVersion(@Field("platform") String platform);
 }

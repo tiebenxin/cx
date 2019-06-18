@@ -59,10 +59,7 @@ public class NetCacheUtil {
             });
 
         } else {
-
             try {
-
-
                 Type genericSuperclass = call.getClass().getGenericSuperclass();
                 Type agms = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
                // Type type = call.getClass().getGenericInterfaces()[0];
@@ -76,13 +73,8 @@ public class NetCacheUtil {
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.e(TAG, "缓存读取数据<<<" + e.getMessage());
-
-
             }
-
-
         }
-
     }
 
 

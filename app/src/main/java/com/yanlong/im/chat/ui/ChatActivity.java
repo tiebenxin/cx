@@ -960,7 +960,7 @@ public class ChatActivity extends AppActivity {
         String title = "";
         if (isGroup()) {
             Group ginfo = msgDao.getGroup4Id(toGid);
-            title = ginfo.getName();
+                title = ginfo.getName();
             //6.15 设置右上角点击
             taskGroupConf();
 

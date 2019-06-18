@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
+import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -522,6 +523,14 @@ public class UserAction {
                 callback.onResponse(call, response);
             }
         });
+    }
+
+
+    /**
+     * 版本更新
+     * */
+    public void getNewVersion(CallBack<ReturnBean<NewVersionBean>> callback){
+        NetUtil.getNet().exec(server.getNewVersion("android"),callback);
     }
 
 }

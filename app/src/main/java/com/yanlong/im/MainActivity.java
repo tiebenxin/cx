@@ -12,18 +12,22 @@ import android.widget.TextView;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.PasswordLoginActivity;
+import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.AppFrontBackHelper;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -35,6 +39,9 @@ import net.cb.cb.library.view.ViewPagerSlide;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class MainActivity extends AppActivity {
     private ViewPagerSlide viewPage;
@@ -51,8 +58,11 @@ public class MainActivity extends AppActivity {
     //自动寻找控件
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
-        bottomTab = (android.support.design.widget.TabLayout) findViewById(R.id.bottom_tab);
+        bottomTab = findViewById(R.id.bottom_tab);
     }
+
+
+
 
     public ViewPagerSlide getViewPage() {
         return viewPage;
@@ -173,6 +183,7 @@ public class MainActivity extends AppActivity {
         EventBus.getDefault().register(this);
         findViews();
         initEvent();
+        uploadApp();
     }
 
     @Override
@@ -241,8 +252,9 @@ public class MainActivity extends AppActivity {
     }
 
 
-
-
+    private void uploadApp(){
+        taskNewVersion();
+    }
 
 
     private MsgDao msgDao = new MsgDao();
@@ -270,5 +282,26 @@ public class MainActivity extends AppActivity {
         sbfriend.setNum(sum);
 
     }
+
+    private void taskNewVersion(){
+        userAction.getNewVersion(new CallBack<ReturnBean<NewVersionBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
+                if(response.body() == null && response.body().getData() == null){
+                    return;
+                }
+                if(response.body().isOk()){
+                    NewVersionBean bean =  response.body().getData();
+                    UpdateManage updateManage = new UpdateManage(context,MainActivity.this);
+                    if(response.body().getData().getForceUpdate() == 0){
+                        updateManage.uploadApp(bean.getVersion(),bean.getContent(),bean.getUrl(),false);
+                    }else{
+                        updateManage.uploadApp(bean.getVersion(),bean.getContent(),bean.getUrl(),true);
+                    }
+                }
+            }
+        });
+    }
+
 
 }
