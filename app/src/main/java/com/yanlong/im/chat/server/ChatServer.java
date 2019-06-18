@@ -169,6 +169,8 @@ public class ChatServer extends Service {
                     return;
                 case CHANGE_GROUP_NAME :
                     //  ToastUtil.show(getApplicationContext(), "修改群名");
+                    msgDao.groupNameUpadte(msg.getGid(),msg.getChangeGroupName().getName());
+
                     return;
                 case CHANGE_GROUP_ANNOUNCEMENT  :
                     //  ToastUtil.show(getApplicationContext(), "修改群公告");

@@ -745,6 +745,25 @@ public class MsgDao {
         return DaoUtil.findAll(GroupAccept.class);
     }
 
+    /***
+     * 修改群名
+     * @param gid
+     * @param name
+     */
+    public void groupNameUpadte(final String gid, final String name){
+        DaoUtil.start(new DaoUtil.EventTransaction() {
+            @Override
+            public void run(Realm realm) {
+                Group ginfo=realm.where(Group.class).equalTo("gid",gid).findFirst();
+                if(ginfo!=null){
+                    ginfo.setName(name);
+                    realm.insertOrUpdate(ginfo);
+                }
+
+            }
+        });
+    }
+
     /**
      * 移除这条群申请
      *
@@ -767,6 +786,7 @@ public class MsgDao {
                 GroupConfig groupConfig = realm.where(GroupConfig.class).equalTo("gid", gid).findFirst();
                 if(groupConfig==null){
                     groupConfig=new GroupConfig();
+                    groupConfig.setGid(gid);
                 }
                 groupConfig.setIsExit(isExit);
                 realm.insertOrUpdate(groupConfig);
