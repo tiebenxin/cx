@@ -18,13 +18,21 @@ public class Session extends RealmObject {
     private String gid;
     private Long up_time;
     private int unread_count=0;
+    //草稿
+    private String draft;
     //是否置顶
     private int isTop=0;
     //时候静音
     private int isMute=0;
 
 
+    public String getDraft() {
+        return draft;
+    }
 
+    public void setDraft(String draft) {
+        this.draft = draft;
+    }
 
     public int getIsMute() {
        // int isMute =0;

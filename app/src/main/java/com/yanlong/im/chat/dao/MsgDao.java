@@ -510,6 +510,44 @@ public class MsgDao {
         return sum;
     }
 
+    /***
+     * 获取会话
+     * @param gid
+     * @param uid
+     * @return
+     */
+    public Session sessionGet(String gid,Long uid){
+        if(StringUtil.isNotNull(gid)){
+            return DaoUtil.findOne(Session.class,"gid",gid);
+        }else {
+            return DaoUtil.findOne(Session.class,"from_uid",uid);
+        }
+
+    }
+
+    /***
+     * 存草稿
+     * @param gid
+     * @param uid
+     * @param draft
+     */
+    public void sessionDraft(String gid,Long uid,String draft){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Session session= StringUtil.isNotNull(gid)?  realm.where(Session.class).equalTo("gid",gid).findFirst():realm.where(Session.class).equalTo("from_uid",uid).findFirst();
+
+
+        if(session!=null){
+            session.setDraft(draft);
+            realm.insertOrUpdate(session);
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+
+    }
 
     /***
      * 获取红点的值
@@ -755,6 +793,8 @@ public class MsgDao {
     public GroupConfig groupConfigGet(String gid){
         return DaoUtil.findOne(GroupConfig.class,"gid", gid);
     }
+
+
 
 
 }

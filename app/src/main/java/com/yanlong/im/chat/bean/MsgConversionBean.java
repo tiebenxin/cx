@@ -146,7 +146,7 @@ public class MsgConversionBean {
                 msgAllBean.setGid(bean.getGid());
                 msgAllBean.setMsg_type(0);
                 MsgNotice gnewAdminNotice=new MsgNotice();
-                gnewAdminNotice.setNote("该群已转让");
+                gnewAdminNotice.setNote("该群已转让");//+bean.getChangeGroupMaster().getUid()
                 msgAllBean.setMsgNotice(gnewAdminNotice);
                 break;
             case OUT_GROUP://退出群
@@ -158,11 +158,17 @@ public class MsgConversionBean {
                 goutNotice.setNote(bean.getNickname()+"退出该群");
                 msgAllBean.setMsgNotice(goutNotice);
                 break;
-            case CHANGE_GROUP_INFO:
+            case CHANGE_GROUP_NAME:
                 msgAllBean.setMsg_type(0);
                 MsgNotice info=new MsgNotice();
-                info.setNote("群信息修改");
+                info.setNote("新群名称:"+bean.getChangeGroupName().getName());
                 msgAllBean.setMsgNotice(info);
+                break;
+            case CHANGE_GROUP_ANNOUNCEMENT  :
+                msgAllBean.setMsg_type(0);
+                MsgNotice ani=new MsgNotice();
+                ani.setNote("群公告:"+bean.getChangeGroupAnnouncement().getAnnouncement());
+                msgAllBean.setMsgNotice(ani);
                 break;
 
             default:

@@ -167,12 +167,17 @@ public class ChatServer extends Service {
                 case CHANGE_GROUP_MASTER:
                     // ToastUtil.show(getApplicationContext(), "转让群");
                     return;
-                case CHANGE_GROUP_INFO:
-                    //  ToastUtil.show(getApplicationContext(), "修改群信息");
+                case CHANGE_GROUP_NAME :
+                    //  ToastUtil.show(getApplicationContext(), "修改群名");
+                    return;
+                case CHANGE_GROUP_ANNOUNCEMENT  :
+                    //  ToastUtil.show(getApplicationContext(), "修改群公告");
                     return;
                 case DESTROY_GROUP:
                     // ToastUtil.show(getApplicationContext(), "销毁群");
-                    msgDao.groupExit(msg.getGid(),"解散的名","",1);
+                    String gname=msg.getDestroyGroup().getName();
+                    String icon=msg.getDestroyGroup().getAvatar();
+                    msgDao.groupExit(msg.getGid(),gname,icon,1);
                     return;
                 case OUT_GROUP://退出群
 
