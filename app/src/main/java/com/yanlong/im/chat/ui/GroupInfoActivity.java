@@ -388,15 +388,13 @@ public class GroupInfoActivity extends AppActivity {
                     taskChangeMemberName(gid, content);
                     break;
                 case GROUP_NOTE:
-
-                    txtGroupNote.setText(content);
+                    changeGroupAnnouncement(gid,content);
                     break;
             }
         }
     }
 
     private UserDao userDao = new UserDao();
-    private UserAction userAction = new UserAction();
     private MsgAction msgAction = new MsgAction();
 
     /***
@@ -610,7 +608,7 @@ public class GroupInfoActivity extends AppActivity {
     }
 
 
-    private void changeGroupAnnouncement(String gid, String announcement){
+    private void changeGroupAnnouncement(String gid, final String announcement){
         msgAction.changeGroupAnnouncement(gid, announcement, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -619,8 +617,7 @@ public class GroupInfoActivity extends AppActivity {
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-
-                    initEvent();
+                    txtGroupNote.setText(announcement);
                 }
             }
         });

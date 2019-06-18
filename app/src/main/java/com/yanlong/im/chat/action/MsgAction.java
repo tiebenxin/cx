@@ -96,8 +96,15 @@ public class MsgAction {
     }
 
     public void groupAdd(String id, List<UserInfo> members, CallBack<ReturnBean> callback) {
-
-        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(members)), callback);
+        List<GroupUserInfo> groupUserInfos = new ArrayList<>();
+        for (int i = 0; i < members.size(); i++) {
+            GroupUserInfo groupUserInfo = new GroupUserInfo();
+            groupUserInfo.setUid(members.get(i).getUid()+"");
+            groupUserInfo.setAvatar(members.get(i).getHead());
+            groupUserInfo.setMembername(members.get(i).getName());
+            groupUserInfos.add(groupUserInfo);
+        }
+        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos)), callback);
     }
 
     public void groupDestroy(final String id, final CallBack<ReturnBean> callback) {
