@@ -70,9 +70,11 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> changeMemberName(@Field("gid") String gid, @Field("name") String name);
 
-
     @POST("/group/accept-request")
     @FormUrlEncoded
     Call<ReturnBean> groupRequest(@Field("gid") String gid, @Field("uid") String uid, @Field("membername") String nickname);
 
+    @POST("/group/change-group-announcement")
+    @FormUrlEncoded
+    Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid,@Field("announcement") String announcement);
 }

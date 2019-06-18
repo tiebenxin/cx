@@ -175,6 +175,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 nicknameIntent.putExtra(CommonSetingActivity.TITLE, "昵称");
                 nicknameIntent.putExtra(CommonSetingActivity.REMMARK, "设置昵称");
                 nicknameIntent.putExtra(CommonSetingActivity.HINT, "昵称");
+                nicknameIntent.putExtra(CommonSetingActivity.SETING,nickName);
                 startActivityForResult(nicknameIntent, NICENAME);
                 break;
             case R.id.view_product_number:

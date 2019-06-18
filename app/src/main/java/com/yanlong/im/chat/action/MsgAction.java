@@ -3,6 +3,7 @@ package com.yanlong.im.chat.action;
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
+import com.yanlong.im.chat.bean.GroupUserInfo;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import com.yanlong.im.chat.dao.MsgDao;
@@ -45,14 +46,12 @@ public class MsgAction {
         /*List<Long> ulist = new ArrayList<>();
 
          */
-        List<UserInfo> listDataTop2 = new ArrayList<>();
+        List<GroupUserInfo> listDataTop2 = new ArrayList<>();
         for (int i = 0; i < listDataTop.size(); i++) {
-            UserInfo userInfo = new UserInfo();
-
-
-            userInfo.setUid(listDataTop.get(i).getUid());
-            userInfo.setName(listDataTop.get(i).getName());
-
+            GroupUserInfo userInfo = new GroupUserInfo();
+            userInfo.setUid(listDataTop.get(i).getUid()+"");
+            userInfo.setMembername(listDataTop.get(i).getName());
+            userInfo.setAvatar(listDataTop.get(i).getHead());
             listDataTop2.add(userInfo);
 
         }
@@ -320,6 +319,14 @@ public class MsgAction {
                 callback.onFailure(call, t);
             }
         });
+    }
+
+
+    /**
+     * 修改群公告
+     * */
+    public void changeGroupAnnouncement(String gid, String announcement, Callback<ReturnBean> callback){
+        NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement), callback);
     }
 
 

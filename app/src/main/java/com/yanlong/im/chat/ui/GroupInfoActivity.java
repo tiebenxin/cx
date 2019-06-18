@@ -388,6 +388,7 @@ public class GroupInfoActivity extends AppActivity {
                     taskChangeMemberName(gid, content);
                     break;
                 case GROUP_NOTE:
+
                     txtGroupNote.setText(content);
                     break;
             }
@@ -602,6 +603,23 @@ public class GroupInfoActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     txtGroupNick.setText(name);
+                    initEvent();
+                }
+            }
+        });
+    }
+
+
+    private void changeGroupAnnouncement(String gid, String announcement){
+        msgAction.changeGroupAnnouncement(gid, announcement, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
+
                     initEvent();
                 }
             }
