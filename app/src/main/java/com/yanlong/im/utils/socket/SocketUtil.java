@@ -211,11 +211,12 @@ public class SocketUtil {
         //关闭信道
         try {
             socketChannel.close();
-
+            socketChannel=null;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        socketChannel=null;
         LogUtil.getLog().d(TAG,">>>>关闭连接-------------------------");
 
     }
@@ -364,7 +365,9 @@ public class SocketUtil {
      */
     public void endSocket(){
         isStart=false;
+    //    System.out.println(">>>endSocket:isRun"+isRun);
         stop();
+    //    System.out.println(">>>endSocket:isRun"+isRun);
 
     }
 
