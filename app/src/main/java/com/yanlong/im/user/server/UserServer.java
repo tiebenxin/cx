@@ -124,7 +124,7 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean> setCardPhoto(@Field("cardBack") String cardBack,@Field("cardFront") String cardFront);
 
-    @POST("/version/get-new-version")
+    @POST("/pub/get-new-version")
     @FormUrlEncoded
     Call<ReturnBean<NewVersionBean>> getNewVersion(@Field("platform") String platform);
 }

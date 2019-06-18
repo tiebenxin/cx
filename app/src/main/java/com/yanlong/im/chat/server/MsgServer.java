@@ -2,7 +2,6 @@ package com.yanlong.im.chat.server;
 
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.test.bean.Test2Bean;
 
 import net.cb.cb.library.bean.ReturnBean;
 

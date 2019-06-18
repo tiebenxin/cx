@@ -182,6 +182,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
                 intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
                 intent.putExtra(CommonSetingActivity.TYPE_LINE, 1);
+                intent.putExtra(CommonSetingActivity.SETING,ginfo.getAnnouncement());
                 startActivityForResult(intent, GROUP_NOTE);
             }
         });
@@ -462,6 +463,7 @@ public class GroupInfoActivity extends AppActivity {
                     ginfo = response.body().getData();
 
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
+                    txtGroupNote.setText(ginfo.getAnnouncement());
                   /*  for (int i=0;i<50;i++){
                         UserInfo teuser=new UserInfo();
                         teuser.setHead(ginfo.getMembers().get(0).getHead());

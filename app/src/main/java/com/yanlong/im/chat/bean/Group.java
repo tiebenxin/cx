@@ -31,6 +31,7 @@ public class Group  extends RealmObject {
     private Integer isTop;
 
     private String mygroupName;//我的群昵称
+    private String announcement;//群公告
 
     public String getMygroupName() {
         if(!StringUtil.isNotNull(mygroupName)&&users!=null){
@@ -43,6 +44,14 @@ public class Group  extends RealmObject {
         }
 
         return mygroupName;
+    }
+
+    public String getAnnouncement() {
+        return announcement;
+    }
+
+    public void setAnnouncement(String announcement) {
+        this.announcement = announcement;
     }
 
     public void setMygroupName(String mygroupName) {
