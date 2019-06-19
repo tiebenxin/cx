@@ -233,7 +233,7 @@ public class ChatActivity extends AppActivity {
             case DESTROY_GROUP:
                 // ToastUtil.show(getApplicationContext(), "销毁群");
                 taskGroupConf();
-            case OUT_GROUP://退出群
+            case REMOVE_GROUP_MEMBER://退出群
                 taskGroupConf();
                 break;
             case CHANGE_GROUP_NAME:

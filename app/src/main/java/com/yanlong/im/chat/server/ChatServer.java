@@ -161,9 +161,7 @@ public class ChatServer extends Service {
                 case ACCEPT_BE_GROUP://群主会收到成员已经进群的消息
                     //  ToastUtil.show(getApplicationContext(), "接受入群请求");
                     return;
-                case REMOVE_GROUP_MEMBER:
-                    //  ToastUtil.show(getApplicationContext(), "删除群成员");
-                    return;
+
                 case CHANGE_GROUP_MASTER:
                     // ToastUtil.show(getApplicationContext(), "转让群");
                     return;
@@ -180,6 +178,13 @@ public class ChatServer extends Service {
                     String gname=msg.getDestroyGroup().getName();
                     String icon=msg.getDestroyGroup().getAvatar();
                     msgDao.groupExit(msg.getGid(),gname,icon,1);
+                    return;
+                case REMOVE_GROUP_MEMBER:
+                    //  ToastUtil.show(getApplicationContext(), "删除群成员");
+                    String gname2=msg.getRemoveGroupMember().getName();
+                    String icon2=msg.getRemoveGroupMember().getAvatar();
+                    //6.19 依旧保持不禁用右上角更高
+                    //msgDao.groupExit(msg.getRemoveGroupMember().getGid(),gname2,icon2,1);
                     return;
                 case OUT_GROUP://退出群
 
