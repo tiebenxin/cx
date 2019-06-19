@@ -2,6 +2,7 @@ package net.cb.cb.library.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /***
@@ -14,6 +15,7 @@ public class TimeToString {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM");
         return dateFormat.format(new Date(time));
     }
+
     public static long toYYYY_MM(String time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM");
         try {
@@ -23,6 +25,7 @@ public class TimeToString {
         }
         return 0;
     }
+
     public static long getYYYY_MM(Long time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM");
         try {
@@ -42,24 +45,60 @@ public class TimeToString {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         return dateFormat.format(new Date(time));
     }
+
     public static String YYYY_MM_DD_HH_MM_SS(Long time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return dateFormat.format(new Date(time));
     }
 
+    public static String getTime(long time, String timeFormat) {
+        SimpleDateFormat format = new SimpleDateFormat(timeFormat);
+        return format.format(new Date(time));
+    }
+
+    public static String getTimeWx(Long timestamp) {
+        String result = "";
+        String[] weekNames = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+        String hourTimeFormat = "HH:mm";
+        String dayTimeFormat = "昨天 HH:mm";
+        String yearTimeFormat = "yyyy-MM-dd  HH:mm";
+        try {
+            Calendar todayCalendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(timestamp);
+
+            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+                if (todayCalendar.get(Calendar.DATE) == calendar.get(Calendar.DATE)) {//当年
+                    result = getTime(timestamp, hourTimeFormat);
+                } else if (todayCalendar.get(Calendar.DATE) == (calendar.get(Calendar.DATE) + 1)) {
+                    result = getTime(timestamp, dayTimeFormat);
+                } else if (todayCalendar.get(Calendar.WEEK_OF_YEAR) == calendar.get(Calendar.WEEK_OF_YEAR)) {
+                    result = getTime(timestamp, weekNames[calendar.get(Calendar.DAY_OF_WEEK)] + hourTimeFormat);
+                }
+            } else {
+                result = getTime(timestamp, yearTimeFormat);
+            }
+            return result;
+        } catch (Exception e) {
+
+            return "";
+        }
+    }
+
+
     public static String A_DD_HH_MM(Long time) {
-       long day= time/86400000;
-        long m=time-day*86400000;
-        long hour=m/3600000;
-        m=m-hour*3600000;
-        long minute=m/60000;
-        String s=day+"天"+hour+"小时"+minute+"分钟";
+        long day = time / 86400000;
+        long m = time - day * 86400000;
+        long hour = m / 3600000;
+        m = m - hour * 3600000;
+        long minute = m / 60000;
+        String s = day + "天" + hour + "小时" + minute + "分钟";
 
-        if(day<=0)
-            s=hour+"小时"+minute+"分钟";
+        if (day <= 0)
+            s = hour + "小时" + minute + "分钟";
 
-        if(day<=0&&hour<=0)
-            s=minute+"分钟";
+        if (day <= 0 && hour <= 0)
+            s = minute + "分钟";
 
         return s;
     }

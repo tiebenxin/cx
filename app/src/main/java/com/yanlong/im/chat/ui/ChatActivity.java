@@ -818,7 +818,7 @@ public class ChatActivity extends AppActivity {
             if (position > 0 && (msgbean.getTimestamp() - msgListData.get(position - 1).getTimestamp()) < (60 * 1000)) { //小于60秒隐藏时间
                 time = null;
             } else {
-                time = TimeToString.YYYY_MM_DD_HH_MM(msgbean.getTimestamp());
+                time = TimeToString.getTimeWx(msgbean.getTimestamp());
             }
             //----------------------------------------
             //昵称处理

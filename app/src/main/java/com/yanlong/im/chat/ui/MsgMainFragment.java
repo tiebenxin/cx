@@ -396,7 +396,7 @@ public class MsgMainFragment extends Fragment {
             holder.sb.setButtonBackground(R.color.transparent);
             holder.sb.setNum(bean.getUnread_count());
 
-            holder.txtTime.setText(TimeToString.YYYY_MM_DD_HH_MM_SS(bean.getUp_time()));
+            holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
 
 
             holder.viewIt.setOnClickListener(new View.OnClickListener() {
