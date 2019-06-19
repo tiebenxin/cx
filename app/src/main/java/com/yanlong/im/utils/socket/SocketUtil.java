@@ -211,12 +211,13 @@ public class SocketUtil {
         //关闭信道
         try {
             socketChannel.close();
-            socketChannel=null;
 
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            socketChannel=null;
         }
-        socketChannel=null;
+
         LogUtil.getLog().d(TAG,">>>>关闭连接-------------------------");
 
     }

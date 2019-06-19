@@ -49,7 +49,7 @@ public class SSLSocketChannel2 {
     }
 
     //2.链接成功后启动 pssl=1
-    public int tryTLS(int pSSL) throws Exception {
+    public int tryTLS(int pSSL)  {
         SSL = pSSL;
         if (SSL == 0)
             return 0;
@@ -135,9 +135,9 @@ public class SSLSocketChannel2 {
             LogUtil.getLog().i(TAG,"SSL established\n");
         } catch (Exception e) {
             e.printStackTrace(System.out);
-            LogUtil.getLog().e(TAG,"SSL "+e.toString());
+            LogUtil.getLog().e(TAG,"SSL tryTLS的异常:"+e.toString());
             SSL = 0;
-            throw new NetworkErrorException();
+          //  throw new NetworkErrorException();
         }
         return SSL;
     }

@@ -225,15 +225,19 @@ public class ChatActivity extends AppActivity {
         }
     };
 
+    //消息的分发
     public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
 
         switch (msg.getMsgType()) {
 
             case DESTROY_GROUP:
                 // ToastUtil.show(getApplicationContext(), "销毁群");
-
+                taskGroupConf();
             case OUT_GROUP://退出群
                 taskGroupConf();
+                break;
+            case CHANGE_GROUP_NAME:
+                taskSessionInfo();
                 break;
 
 
@@ -590,6 +594,7 @@ public class ChatActivity extends AppActivity {
             @Override
             public void run() {
                 taskRefreshMessage();
+                taskDraftGet();
             }
         });
 
@@ -657,7 +662,14 @@ public class ChatActivity extends AppActivity {
     }
 
     @Override
+    protected void onStop() {
+        taskDarftSet();
+        super.onStop();
+    }
+
+    @Override
     protected void onDestroy() {
+
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -806,7 +818,7 @@ public class ChatActivity extends AppActivity {
             if (position > 0 && (msgbean.getTimestamp() - msgListData.get(position - 1).getTimestamp()) < (60 * 1000)) { //小于60秒隐藏时间
                 time = null;
             } else {
-                time = TimeToString.YYYY_MM_DD_HH_MM_SS(msgbean.getTimestamp());
+                time = TimeToString.YYYY_MM_DD_HH_MM(msgbean.getTimestamp());
             }
             //----------------------------------------
             //昵称处理
@@ -867,7 +879,7 @@ public class ChatActivity extends AppActivity {
                     holder.viewChatItem.setData4(msgbean.getImage().getUrl(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
-                            ToastUtil.show(getContext(), "大图:" + uri);
+                            //  ToastUtil.show(getContext(), "大图:" + uri);
                             showBigPic(uri);
                         }
                     });
@@ -1030,6 +1042,10 @@ public class ChatActivity extends AppActivity {
      */
     private Map<String, String> mks = new HashMap<>();
 
+    /***
+     * 获取统一的昵称
+     * @param msgListData
+     */
     private void taskMkName(List<MsgAllBean> msgListData) {
         for (MsgAllBean msg : msgListData) {
             if (msg.getMsg_type() == 0) {  //通知类型的不处理
@@ -1049,7 +1065,7 @@ public class ChatActivity extends AppActivity {
                         v = ginfo.getMygroupName();
                 } else {
                     UserInfo userInfo = msg.getFrom_user();
-                    if(userInfo != null){
+                    if (userInfo != null) {
                         v = userInfo.getMkName();
                     }
                 }
@@ -1066,6 +1082,9 @@ public class ChatActivity extends AppActivity {
 
     private MsgDao dao = new MsgDao();
 
+    /***
+     * 清理已读
+     */
     private void taskCleanRead() {
         if (isGroup()) {
             dao.sessionReadClean(toGid, null);
@@ -1075,6 +1094,31 @@ public class ChatActivity extends AppActivity {
 
     }
 
+    /***
+     * 获取草稿
+     */
+    private void taskDraftGet() {
+        Session session = dao.sessionGet(toGid, toUId);
+        if (session == null)
+            return;
+        if (StringUtil.isNotNull(session.getDraft())) {
+            edtChat.setText(session.getDraft());
+        }
+    }
+
+    /***
+     * 设置草稿
+     */
+    private void taskDarftSet() {
+        String df = edtChat.getText().toString();
+        dao.sessionDraft(toGid, toUId, df);
+        EventBus.getDefault().post(new EventRefreshMainMsg());
+
+    }
+
+    /***
+     * 获取群配置,并显示更多按钮
+     */
     private void taskGroupConf() {
         if (!isGroup()) {
             return;

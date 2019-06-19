@@ -366,6 +366,8 @@ public class MsgMainFragment extends Fragment {
                     info = msginfo.getMsg_typeStr();
                 }
 
+
+
             } else if (bean.getType() == 1) {//群
                 Group ginfo = msgDao.getGroup4Id(bean.getGid());
                 if (ginfo != null) {
@@ -380,6 +382,11 @@ public class MsgMainFragment extends Fragment {
                     Log.e("taf", "11来消息的时候没有创建群");
                 }
 
+            }
+
+
+            if(StringUtil.isNotNull(bean.getDraft())){
+                info="草稿:"+bean.getDraft();
             }
 
             holder.imgHead.setImageURI(Uri.parse(icon));
@@ -535,7 +542,7 @@ public class MsgMainFragment extends Fragment {
 
                 UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
 
-                title = finfo.getName();
+                title = finfo.getName4Show();
 
                 //获取最后一条消息
                 msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
@@ -563,6 +570,8 @@ public class MsgMainFragment extends Fragment {
 
         mtListView.notifyDataSetChange();
     }
+
+
 
 
     private void taskDelSissen(Long from_uid, String gid) {

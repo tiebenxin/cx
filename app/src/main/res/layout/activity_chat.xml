@@ -52,6 +52,7 @@
                         android:layout_marginLeft="@dimen/app_margin_item"
                         android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"
+                        android:maxLength="500"
                         android:background="@drawable/bg_edt_chat"
                         android:fontFamily="@font/emoji_font" />
 
