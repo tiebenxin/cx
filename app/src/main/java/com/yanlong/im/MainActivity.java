@@ -188,9 +188,15 @@ public class MainActivity extends AppActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStop() {
 
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
         stopService(new Intent(getContext(), ChatServer.class));
+
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }

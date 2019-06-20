@@ -43,7 +43,7 @@ public class MyAppLication extends MainApplication {
                // AppConfig.SOCKET_IP = "192.168.10.229";
                // AppConfig.SOCKET_PORT = 19991;
                AppConfig.SOCKET_IP = "yanlong.1616d.top";
-                AppConfig.SOCKET_PORT = 19992;
+                AppConfig.SOCKET_PORT = 19991;
 
                 break;
             case "pre":

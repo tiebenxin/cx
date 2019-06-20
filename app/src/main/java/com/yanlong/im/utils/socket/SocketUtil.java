@@ -8,8 +8,11 @@ import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -388,7 +391,13 @@ public class SocketUtil {
     public void endSocket(){
         isStart=false;
     //    System.out.println(">>>endSocket:isRun"+isRun);
-        stop2();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                stop2();
+            }
+        }).start();
+
     //    System.out.println(">>>endSocket:isRun"+isRun);
 
     }
@@ -627,9 +636,11 @@ public class SocketUtil {
                     MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
                     LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
                     //-------------------------------------------------------------------------test
-                    if (!ruthmsg.getAccepted()) {//鉴权失败直接停止
+                    if (ruthmsg.getAccepted()!=1) {//鉴权失败直接停止
                         isAuthFail = true;
                         stop();
+                        //6.20 鉴权失败退出登录
+                        EventBus.getDefault().post(new EventLoginOut4Conflict());
                     } else {
                         setRunState(2);
 

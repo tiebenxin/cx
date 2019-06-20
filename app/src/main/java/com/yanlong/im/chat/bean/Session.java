@@ -55,7 +55,7 @@ public class Session extends RealmObject {
         try {
             isTop= type==0?new UserDao().findUserInfo(from_uid).getIstop() :new MsgDao().getGroup4Id(gid).getIsTop();
         } catch (Exception e) {
-            e.printStackTrace();
+          //  e.printStackTrace();
         }
 
         return isTop;

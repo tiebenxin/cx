@@ -268,7 +268,7 @@ public class ChatServer extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
 
-        LogUtil.getLog().d(TAG, ">>>启动socket");
+        LogUtil.getLog().e(TAG, ">>>启动socket,服务已经开启-----------------------------------");
         //SocketUtil.getSocketUtil().stop();
 
         SocketUtil.getSocketUtil().startSocket();
@@ -283,7 +283,7 @@ public class ChatServer extends Service {
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         SocketUtil.getSocketUtil().endSocket();
         unregisterReceiver(mNetworkChangeReceiver);
-        LogUtil.getLog().d(TAG, ">>>>>网路状态取消");
+        LogUtil.getLog().e(TAG, ">>>>>网路状态取消,服务已经关闭-----------------------------------");
     }
 
     protected BroadcastReceiver mNetworkChangeReceiver;
