@@ -175,7 +175,9 @@ public class UserAction {
      * 无网登录
      */
     public void login4tokenNotNet( TokenBean token) {
+
         initDB("" + token.getUid());
+        NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
     }
 
     public void login4token(String dev_id, final Callback<ReturnBean<TokenBean>> callback) {

@@ -117,14 +117,11 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
      * 退出
      */
     private void taskExit() {
-        UserInfo userInfo =  UserAction.getMyInfo();
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead()+"");
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone()+"");
-        EventBus.getDefault().post(new EventLoginOut());
-        userAction.loginOut();
-        Intent loginIntent = new Intent(this, LoginActivity.class);
-        startActivity(loginIntent);
+
         finish();
+        userAction.loginOut();
+        EventBus.getDefault().post(new EventLoginOut());
+
     }
 
     private MsgAction msgAction = new MsgAction();

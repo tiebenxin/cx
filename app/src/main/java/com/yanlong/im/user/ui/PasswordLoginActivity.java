@@ -54,8 +54,8 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         mBtnLogin =  findViewById(R.id.btn_login);
         mHeadView.getActionbar().setTxtRight("注册");
         if(AppConfig.DEBUG){
-            mEtPhoneContent.setText("13111111111");
-            mEtPasswordContent.setText("654321");
+            mEtPhoneContent.setText("13000000000");
+            mEtPasswordContent.setText("123456");
         }
 
     }

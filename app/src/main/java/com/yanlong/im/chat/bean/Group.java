@@ -109,7 +109,7 @@ public class Group  extends RealmObject {
     }
 
     public Integer getSaved() {
-        return saved;
+        return saved==null?0:saved;
     }
 
     public void setSaved(Integer saved) {
@@ -117,7 +117,7 @@ public class Group  extends RealmObject {
     }
 
     public Integer getNotNotify() {
-        return notNotify;
+        return notNotify==null?0:notNotify;
     }
 
     public void setNotNotify(Integer notNotify) {
@@ -125,7 +125,7 @@ public class Group  extends RealmObject {
     }
 
     public Integer getNeedVerification() {
-        return needVerification;
+        return needVerification==null?0:needVerification;
     }
 
     public void setNeedVerification(Integer needVerification) {
@@ -133,7 +133,7 @@ public class Group  extends RealmObject {
     }
 
     public Integer getIsTop() {
-        return isTop;
+        return isTop==null?0:isTop;
     }
 
     public void setIsTop(Integer isTop) {

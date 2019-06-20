@@ -269,11 +269,11 @@ public class MsgDao {
 
         Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
         if (group != null) {
-            group = realm.copyFromRealm(group);
-            groupInfoBean.setAvatar(group.getAvatar());
+            groupInfoBean = realm.copyFromRealm(group);
+           /* groupInfoBean.setAvatar(group.getAvatar());
             groupInfoBean.setGid(group.getGid());
             groupInfoBean.setMaster(group.getMaster());
-            groupInfoBean.setUsers(group.getUsers());
+            groupInfoBean.setUsers(group.getUsers());*/
         }
 
 

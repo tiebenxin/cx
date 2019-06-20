@@ -117,7 +117,7 @@ public class NetIntrtceptor implements Interceptor {
             case 401:
                 Log.e(TAG, "<<拦截器:401 url:" + resp.request().url().url().toString());
 
-                EventBus.getDefault().post(new EventLoginOut4Conflict());
+                EventBus.getDefault().post(new EventLoginOut());
               /*  if(token==null||token.getToken()==null){//没登录,在当前页面弹登录
                     EventBus.getDefault().post(new EventLoginOut());
                 }else{//有登录,被踢了
@@ -131,7 +131,7 @@ public class NetIntrtceptor implements Interceptor {
             case 403:
                 Log.e(TAG, "<<拦截器:403 url:" + resp.request().url().url().toString());
 
-                EventBus.getDefault().post(new EventLoginOut4Conflict());
+                EventBus.getDefault().post(new EventLoginOut());
                 break;
             case 404:
                 Log.e(TAG, "<<拦截器:404 url:" + resp.request().url().url().toString());

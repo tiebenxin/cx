@@ -215,7 +215,17 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOut(EventLoginOut event) {
+        UserInfo userInfo =  UserAction.getMyInfo();
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead()+"");
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone()+"");
+
         userAction.cleanInfo();
+
+
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
+
+
 
         finish();
     }
