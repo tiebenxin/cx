@@ -8,6 +8,7 @@ import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -640,7 +641,7 @@ public class SocketUtil {
                         isAuthFail = true;
                         stop();
                         //6.20 鉴权失败退出登录
-                        EventBus.getDefault().post(new EventLoginOut4Conflict());
+                        EventBus.getDefault().post(new EventLoginOut());
                     } else {
                         setRunState(2);
 
