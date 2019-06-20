@@ -222,6 +222,27 @@ public class SocketUtil {
 
     }
 
+    //6.20 强制结束
+    public void stop2() {
+
+        setRunState(0);
+        //结束发送列队
+        SendList.endList();
+
+        //关闭信道
+        try {
+            socketChannel.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            socketChannel=null;
+        }
+
+        LogUtil.getLog().d(TAG,">>>>关闭连接-------------------------");
+
+    }
+
     //鉴权失败
     private boolean isAuthFail = false;
 
@@ -367,7 +388,7 @@ public class SocketUtil {
     public void endSocket(){
         isStart=false;
     //    System.out.println(">>>endSocket:isRun"+isRun);
-        stop();
+        stop2();
     //    System.out.println(">>>endSocket:isRun"+isRun);
 
     }

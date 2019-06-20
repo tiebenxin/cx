@@ -632,7 +632,7 @@ public class MsgDao {
                     top = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst().getIstop();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+             //   e.printStackTrace();
             }
 
             l.setIsTop(top);
@@ -796,7 +796,9 @@ public class MsgDao {
                     group=new Group();
                     group.setGid(gid);
                 }
+                if(gname!=null)
                 group.setName(gname);
+                if(gicon!=null)
                 group.setAvatar(gicon);
                 realm.insertOrUpdate(group);
 
