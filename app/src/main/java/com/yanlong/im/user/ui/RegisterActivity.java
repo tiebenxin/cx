@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -75,6 +76,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         mBtnRegister.setOnClickListener(this);
         mTvMattersNeedAttention.setOnClickListener(this);
         mTvGetVerificationCode.setOnClickListener(this);
+        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent));
+        mEtNextPasswordContent.addTextChangedListener(new PasswordTextWather(mEtNextPasswordContent));
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

@@ -13,6 +13,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.NewVersionBean;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
@@ -227,24 +228,26 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOutconflict(EventLoginOut4Conflict event) {
-
+        UserInfo userInfo =  UserAction.getMyInfo();
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead()+"");
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone()+"");
         userAction.cleanInfo();
         startActivity(new Intent(getContext(), MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         );
 
         AlertYesNo alertYesNo = new AlertYesNo();
-       String phone= new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
+        String phone= new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         alertYesNo.init(this, "提示", "您的账号"+phone+"已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码", "确定", null, new AlertYesNo.Event() {
             @Override
             public void onON() {
-                startActivity(new Intent(getContext(), PasswordLoginActivity.class));
+                startActivity(new Intent(getContext(), LoginActivity.class));
                 finish();
             }
 
             @Override
             public void onYes() {
-                startActivity(new Intent(getContext(), PasswordLoginActivity.class));
+                startActivity(new Intent(getContext(), LoginActivity.class));
                 finish();
             }
         });

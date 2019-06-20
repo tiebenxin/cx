@@ -16,6 +16,7 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ReturnBean;
@@ -52,13 +53,15 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         mTvIdentifyingCode =  findViewById(R.id.tv_identifying_code);
         mBtnLogin =  findViewById(R.id.btn_login);
         mHeadView.getActionbar().setTxtRight("注册");
-    }
-
-    private void initEvent(){
         if(AppConfig.DEBUG){
             mEtPhoneContent.setText("13111111111");
             mEtPasswordContent.setText("654321");
         }
+
+    }
+
+    private void initEvent(){
+        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent));
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

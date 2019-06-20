@@ -24,12 +24,13 @@ public class CommonSetingActivity extends AppActivity {
     public final static String SETING = "seting"; //设置输入栏的内容
     public final static String TYPE_LINE = "type"; //默认0 单行 1 多行
     public final static String SIZE = "SIZE";//限制字数长度
-    public final static String INPUT_TYPE = "input_type";//输入类型
+    public final static String SPECIAL = "special";//特殊处理 1.产品号
 
     private HeadView mHeadView;
     private TextView mTvTitle;
     private EditText mEdContent;
     private TextView mTvContent;
+    private int special;
 
 
     @Override
@@ -87,6 +88,12 @@ public class CommonSetingActivity extends AppActivity {
         int size = intent.getIntExtra(SIZE,70);
         mEdContent.setFilters(new InputFilter[]{new InputFilter.LengthFilter(size)});
 
+        special = intent.getIntExtra(SPECIAL,0);
+        switch (special){
+            case 1:
+
+                break;
+        }
     }
 
 
@@ -107,6 +114,7 @@ public class CommonSetingActivity extends AppActivity {
             }
         });
     }
+
 
 
 }

@@ -2,6 +2,7 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -50,11 +52,14 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
         mTvGetVerificationCode = findViewById(R.id.tv_get_verification_code);
         mEtNewPasswordContent = findViewById(R.id.et_new_password_content);
         mEtRepetitionPasswordContent = findViewById(R.id.et_repetition_password_content);
+
     }
 
     private void initEvent() {
         mBtnNext.setOnClickListener(this);
         mTvGetVerificationCode.setOnClickListener(this);
+        mEtNewPasswordContent.addTextChangedListener(new PasswordTextWather(mEtNewPasswordContent));
+        mEtRepetitionPasswordContent.addTextChangedListener(new PasswordTextWather(mEtRepetitionPasswordContent));
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

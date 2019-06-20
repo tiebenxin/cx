@@ -14,6 +14,7 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -68,7 +69,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         mBtnLogin.setOnClickListener(this);
         mTvForgetPassword.setOnClickListener(this);
         mTvMore.setOnClickListener(this);
-
+        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent));
     }
 
     private void initData() {
