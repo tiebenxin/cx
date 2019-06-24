@@ -13,6 +13,8 @@ import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 
+
+import com.jrmf360.tools.JrmfClient;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
@@ -64,6 +66,18 @@ public class MyAppLication extends MainApplication {
         initUPush();
         initWeixinConfig();
         initRunstate();
+        initRedPacket();
+    }
+
+    /***
+     * 初始化红包
+     */
+    private void initRedPacket() {
+        //设置为测试环境
+        JrmfClient.isDebug(AppConfig.DEBUG);
+        /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
+        JrmfClient.init(this);
+        com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);
     }
 
 

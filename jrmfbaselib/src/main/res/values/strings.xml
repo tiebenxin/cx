@@ -1,0 +1,9 @@
+<resources>
+    <string name="jrmf_request_exception">当前服务器繁忙请稍后再试</string>
+    <string name="jrmf_network_error">当前网络不佳，请稍后再试</string>
+    <string name="jrmf_http_data_fail">获得服务端数据失败，请重试</string>
+    <string name="jrmf_send_code_time_out">银行校验时间过长，请重新获得验证码</string>
+    <string name="jrmf_fumin_declare">本服务由富民银行提供</string>
+
+
+</resources>

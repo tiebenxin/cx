@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/jrmf_b_white"
+    android:padding="@dimen/dimen_16"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:layout_marginLeft="@dimen/dimen_21"
+        android:textColor="@color/jrmf_w_color_323232"
+        tools:text="@string/jrmf_w_to_account_time"/>
+
+    <TextView
+        android:id="@+id/tv_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_8"
+        android:layout_marginLeft="@dimen/dimen_21"
+        android:textSize="14sp"
+        android:textColor="@color/jrmf_w_color_323232"
+        tools:text="@string/jrmf_w_to_account_amount"/>
+
+    <TextView
+        android:id="@+id/tv_bankNo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_8"
+        android:layout_marginLeft="@dimen/dimen_21"
+        android:textSize="14sp"
+        android:textColor="@color/jrmf_w_color_323232"
+        tools:text="@string/jrmf_w_bank_no"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen_8"
+        android:textSize="14sp"
+        android:textColor="@color/jrmf_w_color_a0a0a0"
+        android:text="@string/jrmf_w_appeal_question_tip"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginTop="@dimen/dimen_10"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tv_question"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:textColor="@color/jrmf_b_title_bar_color"
+            android:text="@string/jrmf_w_appeal_question"/>
+
+        <TextView
+            android:id="@+id/tv_confirm"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textColor="@color/jrmf_b_title_bar_color"
+            android:text="@string/jrmf_w_confirm"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+

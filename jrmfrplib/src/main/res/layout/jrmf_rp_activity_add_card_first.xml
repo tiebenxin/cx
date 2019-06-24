@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/jrmf_rp_background"
+              android:fitsSystemWindows="true"
+              android:orientation="vertical">
+
+    <com.jrmf360.rplib.widget.ActionBarView
+        android:id="@+id/actionbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:jrmf_content="添加银行卡"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/jrmf_b_white"
+            android:orientation="vertical"
+            android:padding="@dimen/dimen_16">
+
+            <TextView
+                android:id="@+id/tv_bankname"
+                style="@style/text_black_16"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="XXXX（xxxx）"/>
+
+            <com.jrmf360.tools.view.floattextview.FloatingLabelTextView
+                android:id="@+id/ftv_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dip"
+                app:allowEmpty="false"
+                app:hintText="姓名"
+                app:validatorType="alpha"/>
+
+            <com.jrmf360.tools.view.floattextview.FloatingLabelTextView
+                android:id="@+id/ftv_identityno"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dip"
+                app:allowEmpty="false"
+                app:hintText="身份证号"
+                app:validatorType="alpha"/>
+
+            <com.jrmf360.tools.view.floattextview.FloatingLabelTextView
+                android:id="@+id/ftv_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dip"
+                app:allowEmpty="false"
+                app:hintText="银行预留手机号"
+                app:validatorType="alpha"/>
+
+            <TextView
+                android:id="@+id/tv_charge_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:paddingBottom="3dip"
+                android:text=""
+                android:textColor="@color/jrmf_b_gray"
+                android:textSize="10sp"/>
+
+            <TextView
+                android:id="@+id/tv_protocol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_8"
+                android:drawableLeft="@drawable/jrmf_rp_icon_checked"
+                android:gravity="center_vertical"
+                android:text="《金融魔方用户协议》"
+                android:textColor="@color/jrmf_rp_red"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tv_fumin_protocol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_5"
+                android:layout_marginTop="@dimen/dimen_5"
+                android:drawableLeft="@drawable/jrmf_rp_icon_checked"
+                android:gravity="center_vertical"
+                android:text="《富民银行用户服务协议》"
+                android:textColor="@color/jrmf_rp_red"
+                android:textSize="14sp"/>
+
+            <Button
+                android:id="@+id/btn_next"
+                style="@style/text_white_16"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginTop="@dimen/dimen_16"
+                android:background="@drawable/jrmf_rp_selector_common_btn"
+                android:text="下一步"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

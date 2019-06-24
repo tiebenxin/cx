@@ -23,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+
+import com.jrmf360.rplib.JrmfRpClient;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -120,7 +122,9 @@ public class ChatActivity extends AppActivity {
     //private int indexPage = 0;
     private List<MsgAllBean> msgListData = new ArrayList<>();
 
-
+    //红包和转账
+    public static final int REQ_RP = 0x110;
+    public static final int REQ_TRANS = 0x120;
 
 /*    private void initChatInfo(){
         toUId = null;
@@ -457,16 +461,20 @@ public class ChatActivity extends AppActivity {
         viewRbZfb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent;
-                ToastUtil.show(getContext(), "显示红包");
+
+             //   ToastUtil.show(getContext(), "显示红包");
+                String token ="22abbef3e68e4786540b2afdd99a2e23";
                 if (isGroup()) {
-                    intent = new Intent(ChatActivity.this, MultiRedPacketActivity.class);
+
+                    JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, ""+toGid, ""+UserAction.getMyId(),token, 18, "", "", REQ_RP);
                 } else {
-                    intent = new Intent(ChatActivity.this, SingleRedPacketActivity.class);
+                    JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, ""+toUId,""+ UserAction.getMyId(),token, "", "", REQ_RP);
                 }
 
 
-                startActivity(intent);
+
+
+
             }
         });
 

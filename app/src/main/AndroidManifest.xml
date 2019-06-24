@@ -14,6 +14,13 @@
         android:theme="@style/MainAppThrme"
         tools:replace="android:theme,android:allowBackup">
 
+        <meta-data
+            android:name="JRMF_PARTNER_ID"
+            android:value="zhixuntest"/>
+
+        <meta-data
+            android:name="JRMF_PARTNER_NAME"
+            android:value="红包"/>
         <!--<activity-alias-->
             <!--android:name="test"-->
             <!--android:label="测试页面"-->
