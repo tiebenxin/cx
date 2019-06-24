@@ -42,6 +42,10 @@ public class GroupHeadImageUtil {
             if (resource != null) {
                 File file = resource.getFile();
                 if (file.exists()) {
+                    //BitmapFactory.Options opt = new BitmapFactory.Options();
+                    // 这个isjustdecodebounds很重要
+                    //opt.inJustDecodeBounds = true;
+                   // opt.inSampleSize=300;
                     Bitmap bt = BitmapFactory.decodeFile(file.getAbsolutePath());
                     if (bt != null) {
                         bitmaps.add(bt);

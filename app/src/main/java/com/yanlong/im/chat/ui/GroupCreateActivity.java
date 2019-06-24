@@ -12,6 +12,15 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.controller.BaseControllerListener;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.image.ImageInfo;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
+
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -24,6 +33,7 @@ import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -187,7 +197,10 @@ public class GroupCreateActivity extends AppActivity {
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
 
+            //6.20 内存消耗过大
             holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
+
+            //  showThumb( holder.imgHead,listDataTop.get(position).getHead(),10,10);
         }
 
 
@@ -211,6 +224,23 @@ public class GroupCreateActivity extends AppActivity {
 
         }
     }
+    //----------------
+    public static void showThumb(SimpleDraweeView draweeView, String url, int resizeWidthDp, int resizeHeightDp) {
+        if (url == null || "".equals(url))
+            return;
+        if (draweeView == null)
+            return;
+        ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
+                .setResizeOptions(new ResizeOptions(DensityUtil.dip2px(draweeView.getContext(), resizeWidthDp), DensityUtil.dip2px(draweeView.getContext(), resizeHeightDp)))
+                .build();
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setImageRequest(request)
+                .setOldController(draweeView.getController())
+                .setControllerListener(new BaseControllerListener<ImageInfo>())
+                .build();
+        draweeView.setController(controller);
+    }
+    //---------------------
 
 
     private MsgAction msgACtion = new MsgAction();
@@ -240,16 +270,18 @@ public class GroupCreateActivity extends AppActivity {
             ToastUtil.show(getContext(), "人数必须大于3人");
             return;
         }
-        listDataTop.add(UserAction.getMyInfo());
+        final ArrayList<UserInfo> templist = new ArrayList<>();
+        templist.addAll(listDataTop);
+        templist.add(UserAction.getMyInfo());
         String name = "";
 
         // "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
-        int i = listDataTop.size();
+        int i = templist.size();
         i = i > 9 ? 9 : i;
         //头像地址
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
-            UserInfo userInfo = listDataTop.get(j);
+            UserInfo userInfo = templist.get(j);
             name += userInfo.getName() + ",";
             url[j] = userInfo.getHead();
         }
@@ -266,7 +298,7 @@ public class GroupCreateActivity extends AppActivity {
         upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
-                msgACtion.groupCreate(fname, icon, listDataTop, new CallBack<ReturnBean<Group>>() {
+                msgACtion.groupCreate(fname, icon, templist, new CallBack<ReturnBean<Group>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                         if (response.body() == null)
@@ -278,6 +310,7 @@ public class GroupCreateActivity extends AppActivity {
                             );
                         } else {
                             ToastUtil.show(getContext(), response.body().getMsg());
+
                         }
 
                     }
@@ -298,5 +331,11 @@ public class GroupCreateActivity extends AppActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+     //   ((ViewGroup)mtListView.getListView().getParent()) .removeAllViews();
+     //   ((ViewGroup)topListView.getParent()) .removeAllViews();
 
+    }
 }
