@@ -153,6 +153,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "群聊名称");
                 intent.putExtra(CommonSetingActivity.REMMARK, "群聊名称");
                 intent.putExtra(CommonSetingActivity.HINT, "群聊名称");
+                intent.putExtra(CommonSetingActivity.SIZE, 16);
                 intent.putExtra(CommonSetingActivity.SETING, ginfo.getName());
                 startActivityForResult(intent, GROUP_NAME);
             }
@@ -165,7 +166,9 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
+                intent.putExtra(CommonSetingActivity.SIZE, 16);
                 intent.putExtra(CommonSetingActivity.SETING, ginfo.getMygroupName());
+
                 startActivityForResult(intent, GROUP_NICK);
             }
         });

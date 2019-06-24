@@ -10,7 +10,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.utils.PasswordTextWather;
 
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -37,10 +39,10 @@ public class CommonSetingActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        int type = intent.getIntExtra(TYPE_LINE,0);
-        if(type == 0){
+        int type = intent.getIntExtra(TYPE_LINE, 0);
+        if (type == 0) {
             setContentView(R.layout.activity_common_seting);
-        }else{
+        } else {
             setContentView(R.layout.activity_common_seting_multi);
         }
         initView();
@@ -85,13 +87,13 @@ public class CommonSetingActivity extends AppActivity {
             mEdContent.setText(seting);
         }
 
-        int size = intent.getIntExtra(SIZE,70);
+        int size = intent.getIntExtra(SIZE, 70);
         mEdContent.setFilters(new InputFilter[]{new InputFilter.LengthFilter(size)});
 
-        special = intent.getIntExtra(SPECIAL,0);
-        switch (special){
+        special = intent.getIntExtra(SPECIAL, 0);
+        switch (special) {
             case 1:
-
+                mEdContent.addTextChangedListener(new PasswordTextWather(mEdContent));
                 break;
         }
     }
@@ -106,15 +108,46 @@ public class CommonSetingActivity extends AppActivity {
 
             @Override
             public void onRight() {
+
                 String content = mEdContent.getText().toString();
+                if(TextUtils.isEmpty(content) && content.contains(" ") && TextUtils.isEmpty(content.trim())){
+                    ToastUtil.show(CommonSetingActivity.this,"不能用空字符");
+                    return;
+                }
+
+
+
                 Intent intent = new Intent();
-                intent.putExtra(CONTENT,content);
-                setResult(RESULT_OK,intent);
+                intent.putExtra(CONTENT, content);
+                setResult(RESULT_OK, intent);
                 onBackPressed();
             }
         });
     }
 
+    private boolean checkProduct() {
+        boolean isCheck = false;
+
+        if (special == 1) {
+            int size = mEdContent.getText().toString().length();
+            String content = mEdContent.getText().toString();
+
+            String regEx = "[^a-zA-Z]";
+
+//            if(!TextUtils.isEmpty(content)){
+//                content.
+//
+//
+//            }
+
+            if (size < 5) {
+                ToastUtil.show(context, "不能少于五个字符");
+                isCheck = true;
+            }
+        }
+
+        return isCheck;
+    }
 
 
 }

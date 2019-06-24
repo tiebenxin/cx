@@ -131,16 +131,16 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         authStat = userInfo.getAuthStat();
         mImgHead.setImageURI(imageHead + "");
         mTvNickname.setText(nickName);
-        if (!oldImid.equals(imid)) {
-            mTvProductNumber.setText(imid);
-            mIvProductNumber.setVisibility(View.GONE);
-            mViewProductNumber.setClickable(false);
-
-        } else {
-            mTvProductNumber.setText("未设置");
-            mIvProductNumber.setVisibility(View.VISIBLE);
-            mViewProductNumber.setClickable(true);
-        }
+//        if (!oldImid.equals(imid)) {
+//            mTvProductNumber.setText(imid);
+//            mIvProductNumber.setVisibility(View.GONE);
+//            mViewProductNumber.setClickable(false);
+//
+//        } else {
+//            mTvProductNumber.setText("未设置");
+//            mIvProductNumber.setVisibility(View.VISIBLE);
+//            mViewProductNumber.setClickable(true);
+//        }
         switch (sex) {
             case 1:
                 mTvSex.setText("男");
@@ -175,6 +175,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 nicknameIntent.putExtra(CommonSetingActivity.TITLE, "昵称");
                 nicknameIntent.putExtra(CommonSetingActivity.REMMARK, "设置昵称");
                 nicknameIntent.putExtra(CommonSetingActivity.HINT, "昵称");
+                nicknameIntent.putExtra(CommonSetingActivity.SIZE,16);
                 nicknameIntent.putExtra(CommonSetingActivity.SETING,nickName);
                 startActivityForResult(nicknameIntent, NICENAME);
                 break;
@@ -184,6 +185,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 productIntent.putExtra(CommonSetingActivity.REMMARK, "夸夸号");
                 productIntent.putExtra(CommonSetingActivity.HINT, "可以使用5~15个字符 数字(必须以字母开头)");
                 productIntent.putExtra(CommonSetingActivity.REMMARK1, "夸夸号只能设置一次");
+                productIntent.putExtra(CommonSetingActivity.SPECIAL,1);
                 startActivityForResult(productIntent, PRODUCT);
                 break;
             case R.id.view_sex:

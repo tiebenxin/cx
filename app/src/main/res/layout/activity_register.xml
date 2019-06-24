@@ -142,6 +142,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:hint="请输入昵称"
+            android:maxLength="16"
             android:textColorHint="@color/gray_300"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/tv_state_content"

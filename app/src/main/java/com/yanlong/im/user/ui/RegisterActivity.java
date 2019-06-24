@@ -163,7 +163,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         String code = mEtIdentifyingCodeContent.getText().toString();
         String password = mEtPasswordContent.getText().toString();
         String nextPassword = mEtNextPasswordContent.getText().toString();
-        String nikename = mEtNicknameContent.getText().toString();
+        String nikename = mEtNicknameContent.getText().toString().trim();
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(this, "请输入手机号");
             return;
