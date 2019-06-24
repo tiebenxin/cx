@@ -18,12 +18,19 @@ import android.widget.TextView;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
+import com.yanlong.im.pay.action.PayAction;
+import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.bean.QRCodeBean;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
 //import com.jrmf360.walletlib.JrmfWalletClient;
@@ -111,11 +118,13 @@ public class MyFragment extends Fragment {
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String token="xxxxxxx";
-                JrmfWalletClient.intentWallet(getActivity(), ""+UserAction.getMyId(), token, "", "");
+                taskWallet();
+
             }
         });
     }
+
+
 
     private void initData() {
         UserInfo userInfo = UserAction.getMyInfo();
@@ -187,5 +196,22 @@ public class MyFragment extends Fragment {
             QRCodeManage.goToActivity(getActivity(),bean);
             //将扫描出的信息显示出来
         }
+    }
+
+    private PayAction payAction=new PayAction();
+    //钱包
+    private void taskWallet() {
+        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    String token=response.body().getData().getSign();
+                    UserInfo minfo = UserAction.getMyInfo();
+                    JrmfWalletClient.intentWallet(getActivity(), ""+ UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+                }
+            }
+        });
     }
 }

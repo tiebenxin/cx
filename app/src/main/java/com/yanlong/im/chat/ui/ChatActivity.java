@@ -25,6 +25,11 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import com.jrmf360.rplib.JrmfRpClient;
+import com.jrmf360.rplib.bean.EnvelopeBean;
+import com.jrmf360.rplib.bean.GrabRpBean;
+import com.jrmf360.rplib.bean.TransAccountBean;
+import com.jrmf360.rplib.utils.callback.GrabRpCallBack;
+import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -41,6 +46,8 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.view.ChatItemView;
+import com.yanlong.im.pay.action.PayAction;
+import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.pay.ui.MultiRedPacketActivity;
 import com.yanlong.im.pay.ui.SingleRedPacketActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -59,6 +66,8 @@ import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -68,6 +77,7 @@ import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -83,6 +93,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class ChatActivity extends AppActivity {
     //返回需要刷新的
@@ -462,19 +475,16 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onClick(View v) {
 
-             //   ToastUtil.show(getContext(), "显示红包");
-                String token ="22abbef3e68e4786540b2afdd99a2e23";
-                if (isGroup()) {
-
-                    JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, ""+toGid, ""+UserAction.getMyId(),token, 18, "", "", REQ_RP);
-                } else {
-                    JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, ""+toUId,""+ UserAction.getMyId(),token, "", "", REQ_RP);
-                }
+                //   ToastUtil.show(getContext(), "显示红包");
+                taskPayRb();
 
 
-
-
-
+            }
+        });
+        viewTransfer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                taskTrans();
             }
         });
 
@@ -515,6 +525,7 @@ public class ChatActivity extends AppActivity {
 
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
+            viewFunc.removeView(viewTransfer);
         }
 
 
@@ -608,6 +619,8 @@ public class ChatActivity extends AppActivity {
 
 
     }
+
+
 
     /***
      * 底部显示面板
@@ -780,6 +793,10 @@ public class ChatActivity extends AppActivity {
         } else if (requestCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
             mks.clear();
             taskRefreshMessage();
+        }else if(requestCode==REQ_RP){//发红包的回调
+            EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
+            ToastUtil.show(getContext(),"红包的回调"+envelopeInfo.toString());
+
         }
     }
 
@@ -973,6 +990,7 @@ public class ChatActivity extends AppActivity {
     private MsgAction msgAction = new MsgAction();
     private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
+    private PayAction payAction = new PayAction();
 
     /***
      * 获取会话信息
@@ -1136,6 +1154,106 @@ public class ChatActivity extends AppActivity {
             actionbar.getBtnRight().setVisibility(config.getIsExit() == 1 ? View.GONE : View.VISIBLE);
 
         }
+    }
+
+    /***
+     * 转账
+     */
+    private void taskTrans() {
+        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    SignatureBean sign = response.body().getData();
+                    String token = sign.getSign();
+                    UserInfo finfo = userDao.findUserInfo(toUId);
+                    UserInfo minfo = UserAction.getMyInfo();
+
+                    JrmfRpClient.transAccount(ChatActivity.this, "" + finfo.getUid(), "" + minfo.getUid(), token,
+                            minfo.getName(), minfo.getHead(), finfo.getName4Show(), finfo.getHead(), new TransAccountCallBack() {
+                                @Override
+                                public void transResult(TransAccountBean transAccountBean) {
+                                    ToastUtil.show(getContext(),"转完了"+transAccountBean.getTransferAmount());
+                                }
+                            });
+                }
+            }
+        });
+    }
+
+    /***
+     * 发红包
+     */
+    private void taskPayRb() {
+        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    SignatureBean sign = response.body().getData();
+                    String token = sign.getSign();
+                    if (isGroup()) {
+                        UserInfo minfo = UserAction.getMyInfo();
+                        Group group = msgDao.getGroup4Id(toGid);
+
+                        JrmfRpClient.sendGroupEnvelopeForResult(ChatActivity.this, "" + toGid, "" + UserAction.getMyId(), token,
+                                group.getUsers().size(), minfo.getName(), minfo.getHead(), REQ_RP);
+                    } else {
+
+                        UserInfo minfo = UserAction.getMyInfo();
+                        JrmfRpClient.sendSingleEnvelopeForResult(ChatActivity.this, "" + toUId, "" + minfo.getUid(), token,
+                                minfo.getName(), minfo.getHead(), REQ_RP);
+                    }
+
+                }
+            }
+        });
+    }
+
+    /***
+     * 红包收
+     */
+    private void taskPayRbGet() {
+        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    SignatureBean sign = response.body().getData();
+                    String token = sign.getSign();
+                    String rbid="";//红包id
+                    if (isGroup()) {
+                        UserInfo minfo = UserAction.getMyInfo();
+                        JrmfRpClient.openGroupRp(ChatActivity.this,""+ minfo.getUid(), token,
+                                minfo.getName(), minfo.getHead(), rbid, new GrabRpCallBack() {
+                            @Override
+                            public void grabRpResult(GrabRpBean grabRpBean) {
+                                if (grabRpBean.isHadGrabRp()) {
+                                    ToastUtil.show(getContext(), "抢到了红包"+grabRpBean.toString());
+                                }
+                            }
+                        });
+                    } else {
+
+                        UserInfo minfo = UserAction.getMyInfo();
+                        JrmfRpClient.openSingleRp(ChatActivity.this,""+ minfo.getUid(), token,
+                                minfo.getName(), minfo.getHead(), rbid, new GrabRpCallBack() {
+                            @Override
+                            public void grabRpResult(GrabRpBean grabRpBean) {
+                                if (grabRpBean.isHadGrabRp()) {
+                                    ToastUtil.show(getContext(), "抢到了红包"+grabRpBean.toString());
+                                }
+                            }
+                        });
+                    }
+
+                }
+            }
+        });
     }
 
 
