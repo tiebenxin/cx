@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -25,7 +26,7 @@ import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import static android.app.Activity.RESULT_OK;
-
+//import com.jrmf360.walletlib.JrmfWalletClient;
 /***
  * 我
  */
@@ -105,6 +106,13 @@ public class MyFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getActivity(), HelpActivity.class));
+            }
+        });
+        viewWallet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String token="xxxxxxx";
+                JrmfWalletClient.intentWallet(getActivity(), ""+UserAction.getMyId(), token, "", "");
             }
         });
     }

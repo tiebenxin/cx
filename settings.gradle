@@ -1,1 +1,1 @@
-include ':app', 'appcore', ':jrmfbaselib', ':jrmfrplib',':jrmfwalletlib',':jrmfwalletpaylib',':jrmfewalletlib'
+include ':app', 'appcore'
