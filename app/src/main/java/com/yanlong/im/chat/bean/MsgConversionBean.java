@@ -97,14 +97,16 @@ public class MsgConversionBean {
                 envelopeMessage.setComment(bean.getRedEnvelope().getComment());
                 envelopeMessage.setId(bean.getRedEnvelope().getId());
                 envelopeMessage.setRe_type(bean.getRedEnvelope().getReTypeValue());
+                envelopeMessage.setStyle(bean.getRedEnvelope().getStyleValue());
                 msgAllBean.setRed_envelope(envelopeMessage);
                 msgAllBean.setMsg_type(3);
                 break;
             case RECEIVE_RED_ENVELOPER:
-                ReceiveRedEnvelopeMessage receiveRedEnvelopeMessage = new ReceiveRedEnvelopeMessage();
-                receiveRedEnvelopeMessage.setId(bean.getReceiveRedEnvelope().getId());
-                msgAllBean.setReceive_red_envelope(receiveRedEnvelopeMessage);
-                msgAllBean.setMsg_type(3);
+
+                msgAllBean.setMsg_type(0);
+                MsgNotice rbNotice=new MsgNotice();
+                rbNotice.setNote(bean.getNickname()+"领取红包");
+                msgAllBean.setMsgNotice(rbNotice);
                 break;
 
                 //需要保存的通知类消息

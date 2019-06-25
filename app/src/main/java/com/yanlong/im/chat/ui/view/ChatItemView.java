@@ -253,14 +253,17 @@ public class ChatItemView extends LinearLayout {
         txtMeRbInfo.setText(info);
         txtOtRbInfo.setText(info);
 
-        if (true)
-            return;
+       if(typeName!=null){
+           txtMeRpBt.setText(typeName);
+           txtOtRpBt.setText(typeName);
+       }
 
-        txtMeRpBt.setText(typeName);
-        imgMeRbIcon.setImageResource(typeIconRes);
+       if(typeIconRes!=0){
+           imgMeRbIcon.setImageResource(typeIconRes);
+           imgOtRbIcon.setImageResource(typeIconRes);
+       }
 
-        txtOtRpBt.setText(typeName);
-        imgOtRbIcon.setImageResource(typeIconRes);
+
 
     }
 

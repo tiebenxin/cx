@@ -452,6 +452,9 @@ public class SocketUtil {
     }
 
 
+
+
+
     //1.
     private SSLSocketChannel2 socketChannel;
   //  private SocketChannel socketChannel;

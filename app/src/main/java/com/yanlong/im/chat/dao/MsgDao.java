@@ -5,6 +5,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
@@ -516,11 +517,11 @@ public class MsgDao {
      * @param uid
      * @return
      */
-    public Session sessionGet(String gid,Long uid){
-        if(StringUtil.isNotNull(gid)){
-            return DaoUtil.findOne(Session.class,"gid",gid);
-        }else {
-            return DaoUtil.findOne(Session.class,"from_uid",uid);
+    public Session sessionGet(String gid, Long uid) {
+        if (StringUtil.isNotNull(gid)) {
+            return DaoUtil.findOne(Session.class, "gid", gid);
+        } else {
+            return DaoUtil.findOne(Session.class, "from_uid", uid);
         }
 
     }
@@ -531,14 +532,14 @@ public class MsgDao {
      * @param uid
      * @param draft
      */
-    public void sessionDraft(String gid,Long uid,String draft){
+    public void sessionDraft(String gid, Long uid, String draft) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
-        Session session= StringUtil.isNotNull(gid)?  realm.where(Session.class).equalTo("gid",gid).findFirst():realm.where(Session.class).equalTo("from_uid",uid).findFirst();
+        Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() : realm.where(Session.class).equalTo("from_uid", uid).findFirst();
 
 
-        if(session!=null){
+        if (session != null) {
             session.setDraft(draft);
             realm.insertOrUpdate(session);
         }
@@ -632,7 +633,7 @@ public class MsgDao {
                     top = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst().getIstop();
                 }
             } catch (Exception e) {
-             //   e.printStackTrace();
+                //   e.printStackTrace();
             }
 
             l.setIsTop(top);
@@ -750,12 +751,12 @@ public class MsgDao {
      * @param gid
      * @param name
      */
-    public void groupNameUpadte(final String gid, final String name){
+    public void groupNameUpadte(final String gid, final String name) {
         DaoUtil.start(new DaoUtil.EventTransaction() {
             @Override
             public void run(Realm realm) {
-                Group ginfo=realm.where(Group.class).equalTo("gid",gid).findFirst();
-                if(ginfo!=null){
+                Group ginfo = realm.where(Group.class).equalTo("gid", gid).findFirst();
+                if (ginfo != null) {
                     ginfo.setName(name);
                     realm.insertOrUpdate(ginfo);
                 }
@@ -779,27 +780,27 @@ public class MsgDao {
      * @param gid
      * @param isExit
      */
-    public void groupExit(final String gid,final String gname,final String gicon, final int isExit) {
+    public void groupExit(final String gid, final String gname, final String gicon, final int isExit) {
         DaoUtil.start(new DaoUtil.EventTransaction() {
             @Override
             public void run(Realm realm) {
                 GroupConfig groupConfig = realm.where(GroupConfig.class).equalTo("gid", gid).findFirst();
-                if(groupConfig==null){
-                    groupConfig=new GroupConfig();
+                if (groupConfig == null) {
+                    groupConfig = new GroupConfig();
                     groupConfig.setGid(gid);
                 }
                 groupConfig.setIsExit(isExit);
                 realm.insertOrUpdate(groupConfig);
 
-                Group group=realm.where(Group.class).equalTo("gid", gid).findFirst();
-                if(group==null){
-                    group=new Group();
+                Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+                if (group == null) {
+                    group = new Group();
                     group.setGid(gid);
                 }
-                if(gname!=null)
-                group.setName(gname);
-                if(gicon!=null)
-                group.setAvatar(gicon);
+                if (gname != null)
+                    group.setName(gname);
+                if (gicon != null)
+                    group.setAvatar(gicon);
                 realm.insertOrUpdate(group);
 
 
@@ -812,11 +813,28 @@ public class MsgDao {
      * @param gid
      * @return
      */
-    public GroupConfig groupConfigGet(String gid){
-        return DaoUtil.findOne(GroupConfig.class,"gid", gid);
+    public GroupConfig groupConfigGet(String gid) {
+        return DaoUtil.findOne(GroupConfig.class, "gid", gid);
     }
 
+    /**
+     * 红包开
+     * @param rid
+     * @param isOpen
+     */
+    public void redEnvelopeOpen(String rid, boolean isOpen) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
 
+        RedEnvelopeMessage envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
+        if(envelopeMessage!=null){
+            envelopeMessage.setIsInvalid(isOpen ? 1 : 0);
+            realm.insertOrUpdate(envelopeMessage);
+        }
+
+        realm.commitTransaction();
+        realm.close();
+    }
 
 
 }

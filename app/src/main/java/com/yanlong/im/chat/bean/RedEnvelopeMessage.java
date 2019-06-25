@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.bean;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 
 public class RedEnvelopeMessage extends RealmObject {
 
@@ -8,6 +9,27 @@ public class RedEnvelopeMessage extends RealmObject {
     // ALIPAY = 0; // 支付宝红包
     private Integer re_type;
     private String comment;
+
+    //红包的状态0:没拆,1拆了
+    private int isInvalid=0;
+    //类型:0普通1拼手气
+    private int style=0;
+
+    public int getStyle() {
+        return style;
+    }
+
+    public void setStyle(int style) {
+        this.style = style;
+    }
+
+    public int getIsInvalid() {
+        return isInvalid;
+    }
+
+    public void setIsInvalid(int isInvalid) {
+        this.isInvalid = isInvalid;
+    }
 
     public String getId() {
         return this.id;
