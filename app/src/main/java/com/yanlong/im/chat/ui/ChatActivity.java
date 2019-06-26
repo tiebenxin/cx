@@ -140,8 +140,8 @@ public class ChatActivity extends AppActivity {
     private List<MsgAllBean> msgListData = new ArrayList<>();
 
     //红包和转账
-    public static final int REQ_RP = 0x110;
-    public static final int REQ_TRANS = 0x120;
+    public static final int REQ_RP = 9653;
+    public static final int REQ_TRANS = 9653;
 
 /*    private void initChatInfo(){
         toUId = null;
@@ -786,6 +786,31 @@ public class ChatActivity extends AppActivity {
 
 
                     break;
+                case REQ_RP://红包
+                    EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
+                    if (envelopeInfo != null) {
+                      //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
+                        String info = envelopeInfo.getEnvelopeMessage();
+                        String rid = envelopeInfo.getEnvelopesID();
+
+                        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style= MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
+                        if(envelopeInfo.getEnvelopeType()==1) {//拼手气
+                            style= MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
+                        }
+
+
+
+                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info,style);
+                        showSendObj(msgAllbean);
+
+
+                    }
+                    break;
+
+
+
+
+
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
@@ -796,37 +821,6 @@ public class ChatActivity extends AppActivity {
         } else if (requestCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
             mks.clear();
             taskRefreshMessage();
-        } else if (requestCode == REQ_RP) {//发红包的回调
-            EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
-            //test
-            if (envelopeInfo == null) {
-                envelopeInfo = new EnvelopeBean();
-                int type=  new Random().nextInt(2);
-                envelopeInfo.setEnvelopeMessage("这是模拟的"+type+"红包" + envelopeInfo.hashCode());
-                envelopeInfo.setEnvelopesID(UUID.randomUUID().toString());
-                envelopeInfo.setEnvelopeType(type);
-            }
-            //=======test over
-
-            if (envelopeInfo != null) {
-                ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
-                String info = envelopeInfo.getEnvelopeMessage();
-                String rid = envelopeInfo.getEnvelopesID();
-
-                MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style= MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
-               if(envelopeInfo.getEnvelopeType()==1) {//拼手气
-                   style= MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
-               }
-
-
-
-                MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info,style);
-                showSendObj(msgAllbean);
-
-
-            }
-
-
         }
     }
 
