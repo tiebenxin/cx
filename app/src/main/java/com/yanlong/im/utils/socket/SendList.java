@@ -14,7 +14,7 @@ public class SendList {
     //重发次数
     private static int SEND_MAX_NUM = 2;
     //重发时长
-    private static long SEND_RE_TIME = 2 * 1000;
+    private static long SEND_RE_TIME = 3 * 1000;
 
     public static Map<String, SendListBean> SEND_LIST = new ConcurrentHashMap<>();
 
