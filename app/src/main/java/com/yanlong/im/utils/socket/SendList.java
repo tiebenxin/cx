@@ -12,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SendList {
     private static final String TAG = "SendList";
     //重发次数
-    private static int SEND_MAX_NUM = 3;
+    private static int SEND_MAX_NUM = 2;
     //重发时长
-    private static long SEND_RE_TIME = 3 * 1000;
+    private static long SEND_RE_TIME = 2 * 1000;
 
     public static Map<String, SendListBean> SEND_LIST = new ConcurrentHashMap<>();
 
@@ -40,7 +40,8 @@ public class SendList {
             SendListBean sl = new SendListBean();
             sl.setFirstTimeSent(System.currentTimeMillis());
             sl.setMsg(msg);
-            sl.setReSendNum(0);
+            //6.26 发送次数从1
+            sl.setReSendNum(1);
             SEND_LIST.put(keyId, sl);
             //5.28 如果非在线发送,直接失败
             if(!SocketUtil.getSocketUtil().getOnLineState()){
