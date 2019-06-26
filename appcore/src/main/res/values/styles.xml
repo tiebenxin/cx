@@ -432,4 +432,11 @@
         <attr name="defaultPosition" format="integer" />
     </declare-styleable>
 
+    <style name="password_edittext">
+        <item name="android:maxLength">18</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
 </resources>

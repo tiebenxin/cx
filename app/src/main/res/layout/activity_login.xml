@@ -38,7 +38,7 @@
 
         <net.cb.cb.library.view.ClearEditText
             android:id="@+id/et_password_content"
-            style="@style/app_txt_title_2"
+            style="@style/password_edittext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

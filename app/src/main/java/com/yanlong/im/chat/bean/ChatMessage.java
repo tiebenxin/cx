@@ -8,6 +8,7 @@ public class ChatMessage extends RealmObject {
     private String msg; // 消息内容
 
     public ChatMessage() {
+
     }
 
 

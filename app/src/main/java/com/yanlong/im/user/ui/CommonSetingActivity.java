@@ -93,7 +93,7 @@ public class CommonSetingActivity extends AppActivity {
         special = intent.getIntExtra(SPECIAL, 0);
         switch (special) {
             case 1:
-                mEdContent.addTextChangedListener(new PasswordTextWather(mEdContent));
+                mEdContent.addTextChangedListener(new PasswordTextWather(mEdContent,this));
                 break;
         }
     }
@@ -108,19 +108,22 @@ public class CommonSetingActivity extends AppActivity {
 
             @Override
             public void onRight() {
-
                 String content = mEdContent.getText().toString();
-                if(TextUtils.isEmpty(content) && content.contains(" ") && TextUtils.isEmpty(content.trim())){
-                    ToastUtil.show(CommonSetingActivity.this,"不能用空字符");
+                if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
+                    ToastUtil.show(CommonSetingActivity.this, "不能用空字符");
                     return;
                 }
-
-
+                if(special == 1){
+                    if(checkProduct()){
+                        return;
+                    }
+                }
 
                 Intent intent = new Intent();
-                intent.putExtra(CONTENT, content);
+                intent.putExtra(CONTENT, content.trim());
                 setResult(RESULT_OK, intent);
                 onBackPressed();
+
             }
         });
     }
@@ -131,21 +134,23 @@ public class CommonSetingActivity extends AppActivity {
         if (special == 1) {
             int size = mEdContent.getText().toString().length();
             String content = mEdContent.getText().toString();
-
-            String regEx = "[^a-zA-Z]";
-
-//            if(!TextUtils.isEmpty(content)){
-//                content.
-//
-//
-//            }
+            if (!TextUtils.isEmpty(content)) {
+                String initial = content.substring(0, 1);
+                char initialChat = initial.charAt(0);
+                if ((initialChat >= 'A' && initialChat <= 'Z') || (initialChat >= 'a' && initialChat <= 'z')) {
+                    isCheck = false;
+                }else{
+                    ToastUtil.show(context,"首位必须用英文字母");
+                    isCheck = true;
+                    return isCheck;
+                }
+            }
 
             if (size < 5) {
                 ToastUtil.show(context, "不能少于五个字符");
                 isCheck = true;
             }
         }
-
         return isCheck;
     }
 

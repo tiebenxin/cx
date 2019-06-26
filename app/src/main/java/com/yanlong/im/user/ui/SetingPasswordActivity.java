@@ -8,6 +8,7 @@ import android.widget.EditText;
 
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -45,6 +46,9 @@ public class SetingPasswordActivity extends AppActivity {
     }
 
     private void initEvent() {
+        mEdOldPassword.addTextChangedListener(new PasswordTextWather(mEdOldPassword,this));
+        mEdNewPassword.addTextChangedListener(new PasswordTextWather(mEdNewPassword,this));
+        mEdNextPassword.addTextChangedListener(new PasswordTextWather(mEdNextPassword,this));
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

@@ -69,7 +69,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         mBtnLogin.setOnClickListener(this);
         mTvForgetPassword.setOnClickListener(this);
         mTvMore.setOnClickListener(this);
-        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent));
+        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent,this));
     }
 
     private void initData() {

@@ -59,7 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@null"
-            style="@style/app_txt_title_2"
+            style="@style/password_edittext"
             android:inputType="textPassword"
             app:layout_constraintTop_toTopOf="@id/tv_password_title"
             app:layout_constraintLeft_toLeftOf="@id/et_phone_content"

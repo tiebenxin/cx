@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.umeng.message.IUmengCallback;
+import com.umeng.message.PushAgent;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
@@ -18,20 +20,16 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
-import com.yanlong.im.user.ui.PasswordLoginActivity;
 import com.yanlong.im.utils.update.UpdateManage;
 
-import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
@@ -218,13 +216,20 @@ public class MainActivity extends AppActivity {
         UserInfo userInfo =  UserAction.getMyInfo();
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead()+"");
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone()+"");
-
         userAction.cleanInfo();
-
-
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
+        PushAgent.getInstance(this).disable(new IUmengCallback() {
+            @Override
+            public void onSuccess() {
 
+            }
+
+            @Override
+            public void onFailure(String s, String s1) {
+
+            }
+        });
 
 
         finish();

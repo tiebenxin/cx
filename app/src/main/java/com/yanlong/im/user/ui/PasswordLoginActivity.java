@@ -61,7 +61,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
     }
 
     private void initEvent(){
-        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent));
+        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent,this));
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

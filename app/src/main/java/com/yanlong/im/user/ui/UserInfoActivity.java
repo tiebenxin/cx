@@ -182,6 +182,7 @@ public class UserInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "设置备注和描述");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置备注和描述");
                 intent.putExtra(CommonSetingActivity.HINT, "设置备注和描述");
+                intent.putExtra(CommonSetingActivity.SIZE,16);
                 intent.putExtra(CommonSetingActivity.SETING,mkName);
                 startActivityForResult(intent, SETING_REMARK);
 

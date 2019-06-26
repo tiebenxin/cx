@@ -79,7 +79,7 @@
 
         <net.cb.cb.library.view.ClearEditText
             android:id="@+id/et_password_content"
-            style="@style/app_txt_title_2"
+            style="@style/password_edittext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@null"
@@ -108,12 +108,13 @@
 
         <net.cb.cb.library.view.ClearEditText
             android:id="@+id/et_next_password_content"
-            style="@style/app_txt_title_2"
+            style="@style/password_edittext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@null"
             android:hint="再次请输入密码"
             android:inputType="textPassword"
+
             android:textColorHint="@color/gray_300"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/tv_state_content"

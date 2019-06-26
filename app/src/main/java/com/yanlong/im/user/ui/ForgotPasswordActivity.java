@@ -58,8 +58,8 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
     private void initEvent() {
         mBtnNext.setOnClickListener(this);
         mTvGetVerificationCode.setOnClickListener(this);
-        mEtNewPasswordContent.addTextChangedListener(new PasswordTextWather(mEtNewPasswordContent));
-        mEtRepetitionPasswordContent.addTextChangedListener(new PasswordTextWather(mEtRepetitionPasswordContent));
+        mEtNewPasswordContent.addTextChangedListener(new PasswordTextWather(mEtNewPasswordContent,this));
+        mEtRepetitionPasswordContent.addTextChangedListener(new PasswordTextWather(mEtRepetitionPasswordContent,this));
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

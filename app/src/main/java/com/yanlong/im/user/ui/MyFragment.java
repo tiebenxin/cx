@@ -207,7 +207,7 @@ public class MyFragment extends Fragment {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    String token=response.body().getData().getSign();
+                    String token = response.body().getData().getSign();
                     UserInfo minfo = UserAction.getMyInfo();
                     JrmfWalletClient.intentWallet(getActivity(), ""+ UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
                 }
