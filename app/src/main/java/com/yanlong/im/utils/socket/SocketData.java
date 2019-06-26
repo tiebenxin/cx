@@ -484,6 +484,20 @@ public class SocketData {
     }
 
     /***
+     *发转账
+     * @return
+     */
+    public static MsgAllBean send4Trans(Long toId,  String rid, String info,String money) {
+
+        MsgBean.TransferMessage msg = MsgBean.TransferMessage.newBuilder()
+                .setId(rid)
+                .setComment(info)
+                .setTransactionAmount(money)
+                .build();
+        return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
+    }
+
+    /***
      * 处理一些统一的数据,用于发送消息时获取
      * @return
      */

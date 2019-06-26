@@ -3449,9 +3449,18 @@ public final class MsgBean {
          * 转账金额
          * </pre>
          *
-         * <code>int32 transaction_amount = 2;</code>
+         * <code>string transaction_amount = 2;</code>
          */
-        int getTransactionAmount();
+        java.lang.String getTransactionAmount();
+        /**
+         * <pre>
+         * 转账金额
+         * </pre>
+         *
+         * <code>string transaction_amount = 2;</code>
+         */
+        com.google.protobuf.ByteString
+        getTransactionAmountBytes();
 
         /**
          * <pre>
@@ -3488,7 +3497,7 @@ public final class MsgBean {
         }
         private TransferMessage() {
             id_ = "";
-            transactionAmount_ = 0;
+            transactionAmount_ = "";
             comment_ = "";
         }
 
@@ -3523,9 +3532,10 @@ public final class MsgBean {
                             id_ = s;
                             break;
                         }
-                        case 16: {
+                        case 18: {
+                            java.lang.String s = input.readStringRequireUtf8();
 
-                            transactionAmount_ = input.readInt32();
+                            transactionAmount_ = s;
                             break;
                         }
                         case 26: {
@@ -3600,16 +3610,45 @@ public final class MsgBean {
         }
 
         public static final int TRANSACTION_AMOUNT_FIELD_NUMBER = 2;
-        private int transactionAmount_;
+        private volatile java.lang.Object transactionAmount_;
         /**
          * <pre>
          * 转账金额
          * </pre>
          *
-         * <code>int32 transaction_amount = 2;</code>
+         * <code>string transaction_amount = 2;</code>
          */
-        public int getTransactionAmount() {
-            return transactionAmount_;
+        public java.lang.String getTransactionAmount() {
+            java.lang.Object ref = transactionAmount_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                transactionAmount_ = s;
+                return s;
+            }
+        }
+        /**
+         * <pre>
+         * 转账金额
+         * </pre>
+         *
+         * <code>string transaction_amount = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+        getTransactionAmountBytes() {
+            java.lang.Object ref = transactionAmount_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                transactionAmount_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
         }
 
         public static final int COMMENT_FIELD_NUMBER = 3;
@@ -3669,8 +3708,8 @@ public final class MsgBean {
             if (!getIdBytes().isEmpty()) {
                 com.google.protobuf.GeneratedMessageV3.writeString(output, 1, id_);
             }
-            if (transactionAmount_ != 0) {
-                output.writeInt32(2, transactionAmount_);
+            if (!getTransactionAmountBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 2, transactionAmount_);
             }
             if (!getCommentBytes().isEmpty()) {
                 com.google.protobuf.GeneratedMessageV3.writeString(output, 3, comment_);
@@ -3685,9 +3724,8 @@ public final class MsgBean {
             if (!getIdBytes().isEmpty()) {
                 size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, id_);
             }
-            if (transactionAmount_ != 0) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeInt32Size(2, transactionAmount_);
+            if (!getTransactionAmountBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, transactionAmount_);
             }
             if (!getCommentBytes().isEmpty()) {
                 size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, comment_);
@@ -3710,8 +3748,8 @@ public final class MsgBean {
             boolean result = true;
             result = result && getId()
                     .equals(other.getId());
-            result = result && (getTransactionAmount()
-                    == other.getTransactionAmount());
+            result = result && getTransactionAmount()
+                    .equals(other.getTransactionAmount());
             result = result && getComment()
                     .equals(other.getComment());
             return result;
@@ -3727,7 +3765,7 @@ public final class MsgBean {
             hash = (37 * hash) + ID_FIELD_NUMBER;
             hash = (53 * hash) + getId().hashCode();
             hash = (37 * hash) + TRANSACTION_AMOUNT_FIELD_NUMBER;
-            hash = (53 * hash) + getTransactionAmount();
+            hash = (53 * hash) + getTransactionAmount().hashCode();
             hash = (37 * hash) + COMMENT_FIELD_NUMBER;
             hash = (53 * hash) + getComment().hashCode();
             hash = (29 * hash) + unknownFields.hashCode();
@@ -3865,7 +3903,7 @@ public final class MsgBean {
                 super.clear();
                 id_ = "";
 
-                transactionAmount_ = 0;
+                transactionAmount_ = "";
 
                 comment_ = "";
 
@@ -3939,8 +3977,9 @@ public final class MsgBean {
                     id_ = other.id_;
                     onChanged();
                 }
-                if (other.getTransactionAmount() != 0) {
-                    setTransactionAmount(other.getTransactionAmount());
+                if (!other.getTransactionAmount().isEmpty()) {
+                    transactionAmount_ = other.transactionAmount_;
+                    onChanged();
                 }
                 if (!other.getComment().isEmpty()) {
                     comment_ = other.comment_;
@@ -4061,25 +4100,58 @@ public final class MsgBean {
                 return this;
             }
 
-            private int transactionAmount_ ;
+            private java.lang.Object transactionAmount_ = "";
             /**
              * <pre>
              * 转账金额
              * </pre>
              *
-             * <code>int32 transaction_amount = 2;</code>
+             * <code>string transaction_amount = 2;</code>
              */
-            public int getTransactionAmount() {
-                return transactionAmount_;
+            public java.lang.String getTransactionAmount() {
+                java.lang.Object ref = transactionAmount_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    transactionAmount_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
             }
             /**
              * <pre>
              * 转账金额
              * </pre>
              *
-             * <code>int32 transaction_amount = 2;</code>
+             * <code>string transaction_amount = 2;</code>
              */
-            public Builder setTransactionAmount(int value) {
+            public com.google.protobuf.ByteString
+            getTransactionAmountBytes() {
+                java.lang.Object ref = transactionAmount_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    transactionAmount_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <pre>
+             * 转账金额
+             * </pre>
+             *
+             * <code>string transaction_amount = 2;</code>
+             */
+            public Builder setTransactionAmount(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
 
                 transactionAmount_ = value;
                 onChanged();
@@ -4090,11 +4162,29 @@ public final class MsgBean {
              * 转账金额
              * </pre>
              *
-             * <code>int32 transaction_amount = 2;</code>
+             * <code>string transaction_amount = 2;</code>
              */
             public Builder clearTransactionAmount() {
 
-                transactionAmount_ = 0;
+                transactionAmount_ = getDefaultInstance().getTransactionAmount();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 转账金额
+             * </pre>
+             *
+             * <code>string transaction_amount = 2;</code>
+             */
+            public Builder setTransactionAmountBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                transactionAmount_ = value;
                 onChanged();
                 return this;
             }
@@ -22764,7 +22854,7 @@ public final class MsgBean {
                         "EnvelopeStyle\022\n\n\006NORMAL\020\000\022\010\n\004LUCK\020\001\"\'\n\031R" +
                         "eceiveRedEnvelopeMessage\022\n\n\002id\030\001 \001(\t\"J\n\017" +
                         "TransferMessage\022\n\n\002id\030\001 \001(\t\022\032\n\022transacti",
-                "on_amount\030\002 \001(\005\022\017\n\007comment\030\003 \001(\t\"\037\n\014Stam" +
+                "on_amount\030\002 \001(\t\022\017\n\007comment\030\003 \001(\t\"\037\n\014Stam" +
                         "pMessage\022\017\n\007comment\030\001 \001(\t\"U\n\023BusinessCar" +
                         "dMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avatar\030\002 \001(\t\022\020\n" +
                         "\010nickname\030\003 \001(\t\022\017\n\007comment\030\004 \001(\t\"&\n\024Requ" +

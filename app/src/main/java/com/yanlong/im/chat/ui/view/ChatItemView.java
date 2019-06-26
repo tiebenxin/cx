@@ -62,6 +62,19 @@ public class ChatItemView extends LinearLayout {
     private TextView txtMe5Info;
     private TextView txtMe5Bt;
 
+    private LinearLayout viewMe6;
+    private ImageView imgMeTsState;
+    private TextView txtMeTsTitle;
+    private TextView txtMeTsInfo;
+    private TextView txtMeTsBt;
+    private ImageView imgMeTsIcon;
+
+    private LinearLayout viewOt6;
+    private ImageView imgOtTsState;
+    private TextView txtOtTsTitle;
+    private TextView txtOtTsInfo;
+    private TextView txtOtTsBt;
+    private ImageView imgOtTsIcon;
     //自动寻找控件
     private void findViews(View rootView) {
 
@@ -113,7 +126,19 @@ public class ChatItemView extends LinearLayout {
         txtMe5Bt = (TextView) rootView.findViewById(R.id.txt_me_5_bt);
 
 
+        viewMe6 = (LinearLayout) rootView.findViewById(R.id.view_me_6);
+        imgMeTsState = (ImageView) rootView.findViewById(R.id.img_me_ts_state);
+        txtMeTsTitle = (TextView) rootView.findViewById(R.id.txt_me_ts_title);
+        txtMeTsInfo = (TextView) rootView.findViewById(R.id.txt_me_ts_info);
+        txtMeTsBt = (TextView) rootView.findViewById(R.id.txt_me_ts_bt);
+        imgMeTsIcon = (ImageView) rootView.findViewById(R.id.img_me_ts_icon);
 
+        viewOt6 = (LinearLayout) rootView.findViewById(R.id.view_ot_6);
+        imgOtTsState = (ImageView) rootView.findViewById(R.id.img_ot_ts_state);
+        txtOtTsTitle = (TextView) rootView.findViewById(R.id.txt_ot_ts_title);
+        txtOtTsInfo = (TextView) rootView.findViewById(R.id.txt_ot_ts_info);
+        txtOtTsBt = (TextView) rootView.findViewById(R.id.txt_ot_ts_bt);
+        imgOtTsIcon = (ImageView) rootView.findViewById(R.id.img_ot_ts_icon);
 
     }
 
@@ -149,7 +174,8 @@ public class ChatItemView extends LinearLayout {
         viewOt4.setVisibility(GONE);
         viewMe5.setVisibility(GONE);
         viewOt5.setVisibility(GONE);
-
+        viewMe6.setVisibility(GONE);
+        viewOt6.setVisibility(GONE);
         switch (type) {
             case 0://公告
                 txtBroadcast.setVisibility(VISIBLE);
@@ -175,6 +201,10 @@ public class ChatItemView extends LinearLayout {
             case 5:
                 viewMe5.setVisibility(VISIBLE);
                 viewOt5.setVisibility(VISIBLE);
+                break;
+            case 6:
+                viewMe6.setVisibility(VISIBLE);
+                viewOt6.setVisibility(VISIBLE);
                 break;
         }
 
@@ -267,6 +297,50 @@ public class ChatItemView extends LinearLayout {
 
     }
 
+
+    //转账消息
+    public void setData6(final boolean isInvalid, String title, String info, String typeName, int typeIconRes, final EventRP eventRP) {
+        if (isInvalid) {//失效
+            imgMeTsState.setImageResource(R.mipmap.ic_rb_zfb_n);
+            imgOtTsState.setImageResource(R.mipmap.ic_rb_zfb_n);
+            viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
+            viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
+        } else {
+            imgMeTsState.setImageResource(R.mipmap.ic_launcher);
+            imgOtTsState.setImageResource(R.mipmap.ic_launcher);
+            viewMe6.setBackgroundResource(R.drawable.bg_chat_me_rp);
+            viewOt6.setBackgroundResource(R.drawable.bg_chat_other_rp);
+        }
+
+        if (eventRP != null) {
+            OnClickListener onk;
+            viewMe6.setOnClickListener(onk = new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    eventRP.onClick(isInvalid);
+                }
+            });
+            viewOt6.setOnClickListener(onk);
+        }
+
+
+        txtMeTsTitle.setText(title);
+        txtOtTsTitle.setText(title);
+
+        txtMeTsInfo.setText(info);
+        txtOtTsInfo.setText(info);
+
+        if(typeName!=null){
+            txtMeTsBt.setText(typeName);
+            txtOtTsBt.setText(typeName);
+        }
+
+        if(typeIconRes!=0){
+            imgMeTsIcon.setImageResource(typeIconRes);
+            imgOtTsIcon.setImageResource(typeIconRes);
+        }
+    }
+
     public void setFont(Integer size) {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
         txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
@@ -327,6 +401,7 @@ public class ChatItemView extends LinearLayout {
         viewOt5.setOnClickListener(onk);
         viewMe5.setOnClickListener(onk);
     }
+
 
 
     public ChatItemView(Context context, AttributeSet attrs) {

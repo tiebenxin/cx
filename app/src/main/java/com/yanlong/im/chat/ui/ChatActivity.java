@@ -45,6 +45,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.ReceiveRedEnvelopeMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.view.ChatItemView;
@@ -530,10 +531,11 @@ public class ChatActivity extends AppActivity {
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
             viewFunc.removeView(viewTransfer);
+            viewFunc.removeView(viewTransfer);
         }
         viewFunc.removeView(viewRb);
         //test 6.26
-        viewFunc.removeView(viewTransfer);
+        // viewFunc.removeView(viewTransfer);
 
 
         mtListView.init(new RecyclerViewAdapter());
@@ -792,26 +794,22 @@ public class ChatActivity extends AppActivity {
                 case REQ_RP://红包
                     EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
                     if (envelopeInfo != null) {
-                      //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
+                        //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
                         String info = envelopeInfo.getEnvelopeMessage();
                         String rid = envelopeInfo.getEnvelopesID();
 
-                        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style= MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
-                        if(envelopeInfo.getEnvelopeType()==1) {//拼手气
-                            style= MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
+                        MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL;
+                        if (envelopeInfo.getEnvelopeType() == 1) {//拼手气
+                            style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
                         }
 
 
-
-                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info,style);
+                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
                         showSendObj(msgAllbean);
 
 
                     }
                     break;
-
-
-
 
 
             }
@@ -934,7 +932,7 @@ public class ChatActivity extends AppActivity {
                     String title = msgbean.getRed_envelope().getComment();
                     final String rid = rb.getId();
                     final Long touid = msgbean.getFrom_uid();
-                    final int style=msgbean.getRed_envelope().getStyle();
+                    final int style = msgbean.getRed_envelope().getStyle();
                     String type = null;
                     if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
                         type = "第三方红包";
@@ -944,7 +942,7 @@ public class ChatActivity extends AppActivity {
                     holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, new ChatItemView.EventRP() {
                         @Override
                         public void onClick(boolean isInvalid) {
-                            if ((isInvalid || msgbean.isMe())&&style==MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                            if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                 //ToastUtil.show(getContext(), "红包详情");
                                 taskPayRbDatail(rid);
 
@@ -977,7 +975,27 @@ public class ChatActivity extends AppActivity {
                                 }
                             });
                     break;
+                case 6:
 
+                    TransferMessage ts = msgbean.getTransfer();
+
+
+                    Boolean isInvalidTs = false;
+                    String infoTs = ts.getComment();
+                    String titleTs = ts.getTransaction_amount() + "元";
+                    final String tsId = ts.getId();
+                    String typeTs = "好友转账";
+
+
+                    holder.viewChatItem.setData6(isInvalidTs, titleTs, infoTs, typeTs, R.color.transparent, new ChatItemView.EventRP() {
+                        @Override
+                        public void onClick(boolean isInvalid) {
+                            tsakTransGet(tsId);
+                        }
+                    });
+
+
+                    break;
 
             }
 
@@ -1234,11 +1252,12 @@ public class ChatActivity extends AppActivity {
                             minfo.getName(), minfo.getHead(), finfo.getName4Show(), finfo.getHead(), new TransAccountCallBack() {
                                 @Override
                                 public void transResult(TransAccountBean transAccountBean) {
-                                    transAccountBean.getTransferOrder();
-
+                                    String rid = transAccountBean.getTransferOrder();
+                                    String info = transAccountBean.getTransferDesc();
+                                    String money = transAccountBean.getTransferAmount();
                                     //设置转账消息
-                                 //   MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info,style);
-                                 //   showSendObj(msgAllbean);
+                                    MsgAllBean msgAllbean = SocketData.send4Trans(toUId, rid, info, money);
+                                    showSendObj(msgAllbean);
 
                                 }
                             });
@@ -1284,7 +1303,7 @@ public class ChatActivity extends AppActivity {
         //红包开记录 test
 
         //  MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
-       //    showSendObj(msgAllbean);
+        //    showSendObj(msgAllbean);
 
         //test over
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
@@ -1322,11 +1341,47 @@ public class ChatActivity extends AppActivity {
         });
     }
 
+    /**
+     * 收转账
+     */
+    private void tsakTransGet(final String rbid) {
+
+        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    SignatureBean sign = response.body().getData();
+                    String token = sign.getSign();
+                    UserInfo minfo = UserAction.getMyInfo();
+
+                    JrmfRpClient.openTransDetail(ChatActivity.this, "" + minfo.getUid(), token,
+                            rbid, new TransAccountCallBack() {
+                                @Override
+                                public void transResult(TransAccountBean transAccountBean) {
+                                    if (transAccountBean.getTransferStatus().equals(1)) {//收钱成功
+                                        //改变收钱状态
+
+                                    } else if (transAccountBean.getTransferStatus().equals(0)) {//收到转账信息
+
+                                    } else {//退回
+                                        //改变收钱状态
+                                    }
+                                    transAccountBean.getTransferOrder();
+                                }
+                            });
+
+                }
+            }
+        });
+    }
+
     /***
      * 红包详情
      * @param rid
      */
-    private void taskPayRbDatail( final String rid) {
+    private void taskPayRbDatail(final String rid) {
      /*   if (!isGroup()) {
             return;
         }*/
@@ -1340,9 +1395,9 @@ public class ChatActivity extends AppActivity {
                     String token = sign.getSign();
 
 
-                   // if (isGroup()) {
-                        UserInfo minfo = UserAction.getMyInfo();
-                        JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
+                    // if (isGroup()) {
+                    UserInfo minfo = UserAction.getMyInfo();
+                    JrmfRpClient.openRpDetail(ChatActivity.this, "" + minfo.getUid(), token, rid, minfo.getName(), minfo.getHead());
                    /* } else {
                         ToastUtil.show(getContext(), "单人没有红包详情");
 
