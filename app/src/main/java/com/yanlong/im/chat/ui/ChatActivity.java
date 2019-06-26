@@ -531,6 +531,9 @@ public class ChatActivity extends AppActivity {
             viewFunc.removeView(viewAction);
             viewFunc.removeView(viewTransfer);
         }
+        viewFunc.removeView(viewRb);
+        //test 6.26
+        viewFunc.removeView(viewTransfer);
 
 
         mtListView.init(new RecyclerViewAdapter());
@@ -934,7 +937,7 @@ public class ChatActivity extends AppActivity {
                     final int style=msgbean.getRed_envelope().getStyle();
                     String type = null;
                     if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
-                        type = "金融魔方红包";
+                        type = "第三方红包";
                     }
 
 
@@ -1231,7 +1234,12 @@ public class ChatActivity extends AppActivity {
                             minfo.getName(), minfo.getHead(), finfo.getName4Show(), finfo.getHead(), new TransAccountCallBack() {
                                 @Override
                                 public void transResult(TransAccountBean transAccountBean) {
-                                    ToastUtil.show(getContext(), "转完了" + transAccountBean.getTransferAmount());
+                                    transAccountBean.getTransferOrder();
+
+                                    //设置转账消息
+                                 //   MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info,style);
+                                 //   showSendObj(msgAllbean);
+
                                 }
                             });
                 }

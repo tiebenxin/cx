@@ -158,7 +158,7 @@ public class SocketData {
         MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
         //6.25 排除通知存库
 
-        if (msg != null &&msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
+        if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
@@ -179,8 +179,6 @@ public class SocketData {
             MsgDao msgDao = new MsgDao();
 
             msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
-
-
 
 
         }
@@ -228,6 +226,11 @@ public class SocketData {
 
     //5.27 发送前保存到库
     public static void msgSave4MeSendFront(MsgBean.UniversalMessage.Builder msg) {
+        msgSave4Me(msg,2);
+    }
+
+    //6.26 消息直接存库
+    public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg,int state) {
         //普通消息
 
         if (msg != null) {
@@ -242,7 +245,7 @@ public class SocketData {
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
             // msgAllBean.setTimestamp(bean.getTimestamp());
-            msgAllBean.setSend_state(2);
+            msgAllBean.setSend_state(state);
             msgAllBean.setSend_data(msg.build().toByteArray());
 
             //移除旧消息
@@ -256,8 +259,34 @@ public class SocketData {
         }
     }
 
+
+
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(toId, toGid, type,  value);
+
+
+        if (msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
+
+            msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
+        }
+
+
+        SocketUtil.getSocketUtil().sendData4Msg(msg);
+        MsgAllBean msgAllbean = MsgConversionBean.ToBean(msg.getWrapMsg(0));
+
+        return msgAllbean;
+    }
+
+    /***
+     * 6.26消息构建
+     * @param toId
+     * @param toGid
+     * @param type
+     * @param value
+     * @return
+     */
+    private static MsgBean.UniversalMessage.Builder toMsgBuilder(Long toId, String toGid, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
         if (toId != null) {//给个人发
             msg.setToUid(toId);
@@ -322,38 +351,22 @@ public class SocketData {
         }
 
 
-        //test
-        // wmsg.setFromUid(100102l).setTimestamp(System.currentTimeMillis());
-
-        //      .setMsgId(DEV_ID.randomUUID().toString());
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
         msg.setWrapMsg(0, wm);
-
-
-
-        if(msgSendSave4filter(wmsg)){
-
-            msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
-        }
-
-
-        SocketUtil.getSocketUtil().sendData4Msg(msg);
-        MsgAllBean msgAllbean = MsgConversionBean.ToBean(wm);
-
-        return msgAllbean;
+        return msg;
     }
 
     /***
      * 忽略存库的消息
      * @return false 需要忽略
      */
-    private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg){
-        if(wmsg.getMsgType()==MsgBean.MessageType.RECEIVE_RED_ENVELOPER){
+    private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
+        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER) {
             return false;
         }
 
 
-        return  true;
+        return true;
 
     }
 
@@ -436,7 +449,7 @@ public class SocketData {
      * @param info
      * @return
      */
-    public static MsgAllBean send4Rb(Long toId, String toGid, String rid, String info,MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style) {
+    public static MsgAllBean send4Rb(Long toId, String toGid, String rid, String info, MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style) {
 
         MsgBean.RedEnvelopeMessage msg = MsgBean.RedEnvelopeMessage.newBuilder()
                 .setId(rid)
@@ -455,11 +468,18 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4RbRev(Long toId, String toGid, String rid) {
-
         msgDao.redEnvelopeOpen(rid, true);
         MsgBean.ReceiveRedEnvelopeMessage msg = MsgBean.ReceiveRedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .build();
+
+        if (toId.longValue() == UserAction.getMyId().longValue()) {//自己的不发红包通知,只保存
+            MsgBean.UniversalMessage.Builder  umsg= toMsgBuilder(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
+            msgSave4Me(umsg,0);
+            return MsgConversionBean.ToBean(umsg.getWrapMsg(0));
+        }
+
+
         return send4Base(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
     }
 

@@ -2,9 +2,11 @@ package com.yanlong.im.chat.bean;
 
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class StampMessage extends RealmObject {
-
+    @PrimaryKey
+    private String msgid;
     private String comment;
 
 
@@ -15,5 +17,12 @@ public class StampMessage extends RealmObject {
         this.comment = comment;
     }
 
+    public String getMsgid() {
 
+        return msgid;
+    }
+
+    public void setMsgid(String msgid) {
+        this.msgid = msgid;
+    }
 }

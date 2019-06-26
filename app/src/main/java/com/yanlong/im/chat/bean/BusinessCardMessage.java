@@ -2,9 +2,11 @@ package com.yanlong.im.chat.bean;
 
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class BusinessCardMessage extends RealmObject {
-
+    @PrimaryKey
+    private String msgid;
    private String avatar; // 头像地址
     private String nickname; // 昵称
     private  String comment; // 备注
@@ -40,5 +42,13 @@ public class BusinessCardMessage extends RealmObject {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getMsgid() {
+        return msgid;
+    }
+
+    public void setMsgid(String msgid) {
+        this.msgid = msgid;
     }
 }

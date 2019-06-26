@@ -2,8 +2,11 @@ package com.yanlong.im.chat.bean;
 
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class ChatMessage extends RealmObject {
+    @PrimaryKey
+    private String msgid;
 
     private String msg; // 消息内容
 
@@ -12,7 +15,13 @@ public class ChatMessage extends RealmObject {
     }
 
 
+    public String getMsgid() {
+        return msgid;
+    }
 
+    public void setMsgid(String msgid) {
+        this.msgid = msgid;
+    }
 
     public String getMsg() {
         return msg;
