@@ -291,11 +291,39 @@ public class MsgDao {
     public void msgDel(Long toUid, String gid) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
+        RealmResults<MsgAllBean> list=null;
         if (StringUtil.isNotNull(gid)) {
-            realm.where(MsgAllBean.class).equalTo("gid", gid).findAll().deleteAllFromRealm();
+            list =  realm.where(MsgAllBean.class).equalTo("gid", gid).findAll();
         } else {
 
-            realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).findAll().deleteAllFromRealm();
+           list = realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).findAll();
+
+        }
+
+        //删除前先把子表数据干掉!!切记
+        if(list!=null){
+            for (MsgAllBean msg:list) {
+                if(msg.getReceive_red_envelope()!=null)
+                msg.getReceive_red_envelope().deleteFromRealm();
+                if(msg.getMsgNotice()!=null)
+                    msg.getMsgNotice().deleteFromRealm();
+                if(msg.getBusiness_card()!=null)
+                    msg.getBusiness_card().deleteFromRealm();
+                if(msg.getStamp()!=null)
+                    msg.getStamp().deleteFromRealm();
+                if(msg.getChat()!=null)
+                    msg.getChat().deleteFromRealm();
+                if(msg.getImage()!=null)
+                    msg.getImage().deleteFromRealm();
+                if(msg.getRed_envelope()!=null)
+                    msg.getRed_envelope().deleteFromRealm();
+                if(msg.getTransfer()!=null)
+                    msg.getTransfer().deleteFromRealm();
+
+
+
+            }
+            list.deleteAllFromRealm();
         }
 
 

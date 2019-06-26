@@ -10,6 +10,9 @@ import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 public class MsgAllBean extends RealmObject {
+    @PrimaryKey
+    private String msg_id;
+    private Long timestamp;
     //0:正常,1:错误,2:发送中
     private int send_state = 0;
     //重发的数据对象
@@ -24,9 +27,7 @@ public class MsgAllBean extends RealmObject {
     private String gid;
 
     private Integer msg_type;
-    @PrimaryKey
-    private String msg_id;
-    private Long timestamp;
+
 
     private ChatMessage chat;
 

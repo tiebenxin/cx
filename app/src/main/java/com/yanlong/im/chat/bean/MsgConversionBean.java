@@ -83,6 +83,11 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(2);
                 break;
             case TRANSFER:
+                TransferMessage transferMessage=new TransferMessage();
+                transferMessage.setMsgid(msgAllBean.getMsg_id());
+                transferMessage.setId(bean.getTransfer().getId());
+                transferMessage.setComment(bean.getTransfer().getComment());
+               // transferMessage.setTransaction_amount(""+bean.getTransfer().getTransactionAmount());
                 break;
             case BUSINESS_CARD:
                 BusinessCardMessage businessCard = new BusinessCardMessage();

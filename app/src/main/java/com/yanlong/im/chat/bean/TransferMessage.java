@@ -2,11 +2,13 @@ package com.yanlong.im.chat.bean;
 
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class TransferMessage extends RealmObject {
-
+    @PrimaryKey
+    private String msgid;
     private String id; // 转账流水号
-    private Double transaction_amount; // 转账金额
+    private String transaction_amount; // 转账金额
     private String comment; // 备注信息
 
     public String getId() {
@@ -15,10 +17,10 @@ public class TransferMessage extends RealmObject {
     public void setId(String id) {
         this.id = id;
     }
-    public Double getTransaction_amount() {
+    public String getTransaction_amount() {
         return this.transaction_amount;
     }
-    public void setTransaction_amount(Double transaction_amount) {
+    public void setTransaction_amount(String transaction_amount) {
         this.transaction_amount = transaction_amount;
     }
     public String getComment() {
@@ -28,5 +30,11 @@ public class TransferMessage extends RealmObject {
         this.comment = comment;
     }
 
-   
+    public String getMsgid() {
+        return msgid;
+    }
+
+    public void setMsgid(String msgid) {
+        this.msgid = msgid;
+    }
 }
