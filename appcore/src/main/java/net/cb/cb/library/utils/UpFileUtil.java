@@ -49,14 +49,13 @@ public class UpFileUtil {
     private static UpFileUtil instance;
 
 
+    //  private final String P_STSSERVER = "http://sts.aliyuncs.com";
 
-  //  private final String P_STSSERVER = "http://sts.aliyuncs.com";
-
- //   private final String P_BUCKETNAME = "e7-test";
-  //  private final String P_ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
-  //  private static final String OSS_ACCESS_KEY_ID = "STS.NK9H2WVQ7m1omvBj6rvW7pBJd";
-  //  private static final String OSS_ACCESS_KEY_SECRET = "C69qyuu4y9YNtsEkNTXFo9yvrGdySJxnpfxPzhAEakQx";
-  //  private static final String OSS_ACCESS_KEY_TOKEN = "CAIShgJ1q6Ft5B2yfSjIr4iMA4jju44W2vOEb1DzjjYnetgbn4fhhjz2IH1IeHVgB+wcsP4xn2BV7PgflqZiQplBQkrLKMp1q4ha6h/5v0UfTwrwv9I+k5SANTW5OXyShb3vAYjQSNfaZY3aCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ4PGS/diEURq0VRG1YpdQdKGHaONu0LxfumRCwNkdzvRdmgm4Njsbay8aHuB3Flw+4mK1H5aaJe8D9NJk9Yc8lCobph7YvJpCsinAAt0J4k45tl7FB9Dv9udWQPkJc+R3uMZCPr4EzcF8nOvJkQfAf/KWmy6Bi2uvIjML51hJJLTuOxugq6A7JGoABIuPFVFt2gARCZTZlkzkCz8h9bcYCqeqK7wWNrFz7Ur25D7hjk33tLJ6LvZNIkRZWr60NdzneF8pfiT1bj9vvSVlz483HjRVIbkccVGqacxoSWc7+T0GR8vtC6GrBbN8UFq3IjZcvknoIJBvUsUlaWxQP8BCuxFxU7HelQ1wyCv4=";
+    //   private final String P_BUCKETNAME = "e7-test";
+    //  private final String P_ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
+    //  private static final String OSS_ACCESS_KEY_ID = "STS.NK9H2WVQ7m1omvBj6rvW7pBJd";
+    //  private static final String OSS_ACCESS_KEY_SECRET = "C69qyuu4y9YNtsEkNTXFo9yvrGdySJxnpfxPzhAEakQx";
+    //  private static final String OSS_ACCESS_KEY_TOKEN = "CAIShgJ1q6Ft5B2yfSjIr4iMA4jju44W2vOEb1DzjjYnetgbn4fhhjz2IH1IeHVgB+wcsP4xn2BV7PgflqZiQplBQkrLKMp1q4ha6h/5v0UfTwrwv9I+k5SANTW5OXyShb3vAYjQSNfaZY3aCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ4PGS/diEURq0VRG1YpdQdKGHaONu0LxfumRCwNkdzvRdmgm4Njsbay8aHuB3Flw+4mK1H5aaJe8D9NJk9Yc8lCobph7YvJpCsinAAt0J4k45tl7FB9Dv9udWQPkJc+R3uMZCPr4EzcF8nOvJkQfAf/KWmy6Bi2uvIjML51hJJLTuOxugq6A7JGoABIuPFVFt2gARCZTZlkzkCz8h9bcYCqeqK7wWNrFz7Ur25D7hjk33tLJ6LvZNIkRZWr60NdzneF8pfiT1bj9vvSVlz483HjRVIbkccVGqacxoSWc7+T0GR8vtC6GrBbN8UFq3IjZcvknoIJBvUsUlaWxQP8BCuxFxU7HelQ1wyCv4=";
 
     private OSS oss;
 
@@ -82,7 +81,7 @@ public class UpFileUtil {
 
     }
 
-    private void getOSs(Context context,String keyid,String secret,String token,String endpoint) {
+    private void getOSs(Context context, String keyid, String secret, String token, String endpoint) {
 
 
 //该配置类如果不设置，会有默认配置，具体可看该类
@@ -127,19 +126,27 @@ public class UpFileUtil {
 
     public void upFile(final Context context, String keyid, String secret, String token, String endpoint, final String btName, final UpFileUtil.OssUpCallback ossUpCallback, String imgPath, byte[] imgbyte) {
 
-        getOSs(context,keyid,secret,token,endpoint);
+        getOSs(context, keyid, secret, token, endpoint);
 
         final Date data = new Date();
-        final String img_name = UUID.randomUUID().toString();
+        String endEx = "";
+        if (imgPath != null) {
+            int sEx = imgPath.lastIndexOf(".");
+
+            if (sEx > 0) {
+                endEx = imgPath.substring(sEx);
+            }
+        }
+        final String img_name = UUID.randomUUID().toString() + endEx;
 
         data.setTime(System.currentTimeMillis());
-        final String objkey=simpleDateFormat.format(data) + "/" + img_name;
+        final String objkey = "Android/" + simpleDateFormat.format(data) + "/" + img_name;
 
-        PutObjectRequest putObjectRequest ;
+        PutObjectRequest putObjectRequest;
 
-        if(StringUtil.isNotNull(imgPath)){
-            putObjectRequest = new PutObjectRequest(btName,objkey , imgPath);
-        }else{
+        if (StringUtil.isNotNull(imgPath)) {
+            putObjectRequest = new PutObjectRequest(btName, objkey, imgPath);
+        } else {
             putObjectRequest = new PutObjectRequest(btName, objkey, imgbyte);
         }
 
@@ -165,7 +172,7 @@ public class UpFileUtil {
             public void onFailure(OSSRequest request, ClientException clientException, ServiceException serviceException) {
 
                 LogUtil.getLog().e("uplog", "---->上传异常:" + serviceException.getRawMessage());
-                ToastUtil.show(context,"上传失败");
+                ToastUtil.show(context, "上传失败");
                 ossUpCallback.fail();
             }
 
@@ -175,10 +182,10 @@ public class UpFileUtil {
     }
 
 
-
     public interface OssUpCallback {
 
         void success(String url);
+
         void fail();
 
         void inProgress(long progress, long zong);

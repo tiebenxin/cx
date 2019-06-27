@@ -87,7 +87,7 @@ dependencies {
     //图片
     api 'com.facebook.fresco:fresco:1.8.0'
     api 'com.facebook.fresco:animated-gif:1.8.0'
-    api 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.+'
+    api 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.3'
 
 
     //常用控件

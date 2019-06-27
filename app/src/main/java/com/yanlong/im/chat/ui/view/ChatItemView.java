@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui.view;
 
 import android.content.Context;
+import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.text.Html;
 import android.util.AttributeSet;
@@ -11,7 +12,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.controller.AbstractDraweeController;
+import com.facebook.drawee.drawable.ScalingUtils;
+import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.yanlong.im.R;
+
+import static com.taobao.accs.client.AccsConfig.build;
 
 public class ChatItemView extends LinearLayout {
     private TextView txtOtName;
@@ -361,8 +371,32 @@ public class ChatItemView extends LinearLayout {
 
     public void setData4(final Uri uri, final EventPic eventPic) {
         if (uri != null) {
-            imgMe4.setImageURI(uri);
-            imgOt4.setImageURI(uri);
+           // imgMe4.setImageURI(uri);
+           // imgOt4.setImageURI(uri);
+
+           if(uri.getPath().endsWith(".gif")){
+              imgOt4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
+               imgMe4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
+           }
+           DraweeController  controller1 =
+                    Fresco.newDraweeControllerBuilder()
+                            .setUri(uri)
+                            .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
+
+                            .build();
+            DraweeController  controller2 =
+                    Fresco.newDraweeControllerBuilder()
+                            .setUri(uri)
+                            .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
+                            .build();
+
+
+
+            imgOt4.setController(controller1);
+            imgMe4.setController(controller2);
+
+
+
         }
         if (eventPic != null) {
 

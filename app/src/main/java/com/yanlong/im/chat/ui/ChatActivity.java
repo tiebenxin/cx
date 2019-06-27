@@ -472,6 +472,7 @@ public class ChatActivity extends AppActivity {
                         .previewImage(false)// 是否可预览图片 true or false
                         .isCamera(false)// 是否显示拍照按钮 ture or false
                         .compress(true)// 是否压缩 true or false
+                        .isGif(true)
                         .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
             }
         });
@@ -845,7 +846,7 @@ public class ChatActivity extends AppActivity {
             }
         }
 
-        PictureSelector.create(ChatActivity.this).themeStyle(R.style.picture_default_style).openExternalPreview(pos, selectList);
+        PictureSelector.create(ChatActivity.this).themeStyle(R.style.picture_default_style).isGif(true).openExternalPreview(pos, selectList);
 
     }
 
