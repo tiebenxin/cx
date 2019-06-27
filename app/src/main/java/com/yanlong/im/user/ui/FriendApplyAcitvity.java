@@ -3,9 +3,11 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -98,8 +100,11 @@ public class FriendApplyAcitvity extends AppActivity {
                 holder.txtName.setText(bean.getName4Show());
                 holder.imgHead.setImageURI(bean.getHead());
 
-                holder.txtInfo.setText("想加你为好友");
-
+                if (TextUtils.isEmpty(bean.getSayHi())) {
+                    holder.txtInfo.setText("想加你为好友");
+                } else {
+                    holder.txtInfo.setText(bean.getSayHi());
+                }
 
                 holder.btnComit.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -108,14 +113,23 @@ public class FriendApplyAcitvity extends AppActivity {
                     }
                 });
 
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                holder.mLayoutItem.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(FriendApplyAcitvity.this, UserInfoActivity.class);
                         intent.putExtra(UserInfoActivity.ID, bean.getUid());
+                        intent.putExtra(UserInfoActivity.SAY_HI,bean.getSayHi());
                         startActivity(intent);
                     }
                 });
+                holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.mSwipeLayout.quickClose();
+                        taskDelRequestFriend(bean.getUid());
+                    }
+                });
+
 
             } else if (listData.get(position) instanceof GroupAccept) {
                 final GroupAccept bean = (GroupAccept) listData.get(position);
@@ -131,18 +145,19 @@ public class FriendApplyAcitvity extends AppActivity {
                         taskRequest(bean);
                     }
                 });
+                holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.mSwipeLayout.quickClose();
+                        taskGroupRequestDelect(bean);
+                    }
+                });
             }
 
             //  holder.txtState.setText("已添加");
 
             holder.btnComit.setVisibility(View.VISIBLE);
             holder.txtState.setVisibility(View.GONE);
-            holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    holder.mSwipeLayout.quickClose();
-                }
-            });
 
         }
 
@@ -164,10 +179,12 @@ public class FriendApplyAcitvity extends AppActivity {
             private Button btnComit;
             private SwipeMenuLayout mSwipeLayout;
             private Button mBtnDel;
+            private LinearLayout mLayoutItem;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
+                mLayoutItem = convertView.findViewById(R.id.layout_item);
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
                 txtInfo = convertView.findViewById(R.id.txt_info);
@@ -200,6 +217,28 @@ public class FriendApplyAcitvity extends AppActivity {
             }
         });
     }
+
+    private void taskGroupRequestDelect(GroupAccept bean){
+        msgAction.groupRequestDelect(bean.getAid());
+        taskGetList();
+    }
+
+    private void taskDelRequestFriend(Long uid){
+        userAction.delRequestFriend(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
+                    taskGetList();
+                }
+
+            }
+        });
+    }
+
 
     private void taskRequest(GroupAccept accept) {
         msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(), new CallBack<ReturnBean>() {

@@ -330,6 +330,16 @@ public class MsgAction {
 
 
     /**
+     * 删除群申请
+     * */
+    public void groupRequestDelect(String aid){
+        dao.groupAcceptRemove(aid);
+    }
+
+
+
+
+    /**
      * 修改群公告
      * */
     public void changeGroupAnnouncement(String gid, String announcement, Callback<ReturnBean> callback){

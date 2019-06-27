@@ -261,15 +261,15 @@ public class UserAction {
     /***
      * 好友添加
      */
-    public void friendApply(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 1), callback);
+    public void friendApply(Long uid,String sayHi, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid, 1,sayHi), callback);
     }
 
     /***
      * 好友同意
      */
     public void friendAgree(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 0), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 0,null), callback);
 
     }
 
@@ -277,7 +277,7 @@ public class UserAction {
      * 加黑名单
      */
     public void friendBlack(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 2), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 2,null), callback);
 
     }
 
@@ -285,7 +285,7 @@ public class UserAction {
      * 移除黑名单
      */
     public void friendBlackRemove(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 3), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 3,null), callback);
     }
 
     /***
@@ -301,6 +301,14 @@ public class UserAction {
      */
     public void friendMark(Long uid, String mkn, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.friendMkName(uid, mkn), callback);
+    }
+
+
+    /**
+     * 删除待同意好友
+     * */
+    public void delRequestFriend(Long uid,CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.delRequestFriend(uid), callback);
     }
 
     /**
@@ -397,6 +405,7 @@ public class UserAction {
 
         return dao.searchUser4key(key);
     }
+
 
 
     /**

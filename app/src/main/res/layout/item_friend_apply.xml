@@ -13,7 +13,9 @@
         app:ios="false"
         app:swipeEnable="true">
 
-        <LinearLayout style="@style/app_layout_list1">
+        <LinearLayout
+            android:id="@+id/layout_item"
+            style="@style/app_layout_list1">
 
             <LinearLayout style="@style/app_layout_list1_item">
 

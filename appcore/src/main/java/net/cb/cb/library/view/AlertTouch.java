@@ -25,7 +25,6 @@ import net.cb.cb.library.utils.DensityUtil;
 public class AlertTouch {
     private AlertDialog alertDialog;
     private Event event;
-
     private Context context;
     private ImageView mIvImage;
     private TextView mTxtAlertMsg;
@@ -78,31 +77,26 @@ public class AlertTouch {
 
     public void init(Activity activity, String title, String y, int image, Event e) {
         event = e;
-
         this.context = activity;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-
         alertDialog = builder.create();
-
         View rootView = View.inflate(context, R.layout.view_alert_touch, null);
-
         alertDialog.setView(rootView);
         findViews(rootView);
-
         initEvent(title, y, image);
-
-
     }
 
+
+    public void setContent(String content){
+        mEdContent.setText(content);
+    }
+
+
     public void show() {
-
         alertDialog.show();
-
         WindowManager.LayoutParams p = alertDialog.getWindow().getAttributes();
         // p.height = DensityUtil.dip2px(activity, 226);
         p.width = DensityUtil.dip2px(context, 300);
-
         alertDialog.getWindow().setAttributes(p);
     }
 
@@ -111,7 +105,6 @@ public class AlertTouch {
         void onON();
 
         void onYes(String content);
-
     }
 
 

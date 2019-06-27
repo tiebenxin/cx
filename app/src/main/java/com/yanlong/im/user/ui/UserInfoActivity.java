@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -39,6 +40,7 @@ import retrofit2.Response;
 public class UserInfoActivity extends AppActivity {
     public static final int SETING_REMARK = 1000;
     public static final String ID = "id";
+    public static final String SAY_HI = "sayHi";
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -59,9 +61,10 @@ public class UserInfoActivity extends AppActivity {
 
     private int type; //0.已经是好友 1.不是好友添加好友
     private Long id;
+    private String sayHi;
     private UserAction userAction;
     private String mkName;
-
+    private String name;
 
 
     @Override
@@ -94,6 +97,8 @@ public class UserInfoActivity extends AppActivity {
         mViewSettingName = findViewById(R.id.view_setting_name);
 
         id = getIntent().getLongExtra(ID, 0);
+        sayHi = getIntent().getStringExtra(SAY_HI);
+
         taskFindExist();
         if (type == 0) {
             mLayoutMsg.setVisibility(View.VISIBLE);
@@ -103,6 +108,12 @@ public class UserInfoActivity extends AppActivity {
             mLayoutMsg.setVisibility(View.GONE);
             mBtnAdd.setVisibility(View.VISIBLE);
             mViewSettingName.setVisibility(View.GONE);
+            if (TextUtils.isEmpty(sayHi)) {
+                mTvRemark.setVisibility(View.GONE);
+            } else {
+                mTvRemark.setVisibility(View.VISIBLE);
+                mTvRemark.setText(sayHi);
+            }
         }
 
     }
@@ -203,11 +214,11 @@ public class UserInfoActivity extends AppActivity {
 
                     @Override
                     public void onYes(String content) {
-                        taskAddFriend(id);
+                        taskAddFriend(id, content);
                     }
                 });
                 alertTouch.show();
-
+                alertTouch.setContent("我是" + name);
 
             }
         });
@@ -250,14 +261,15 @@ public class UserInfoActivity extends AppActivity {
                 mkName = info.getMkName();
                 txtPrNo.setText(info.getImid());
                 txtNkname.setText(info.getName());
+                name = info.getName();
             }
         });
 
     }
 
 
-    private void taskAddFriend(Long id) {
-        userAction.friendApply(id, new CallBack<ReturnBean>() {
+    private void taskAddFriend(Long id, String sayHi) {
+        userAction.friendApply(id, sayHi, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 EventBus.getDefault().post(new EventRefreshFriend());

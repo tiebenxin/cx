@@ -45,7 +45,16 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
     @Ignore
     private String membername;//群的昵称
+    private String sayHi;//待同意好友招呼语
 
+
+    public String getSayHi() {
+        return sayHi;
+    }
+
+    public void setSayHi(String sayHi) {
+        this.sayHi = sayHi;
+    }
 
     public Integer getAuthStat() {
         return authStat;

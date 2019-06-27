@@ -50,7 +50,7 @@ public interface UserServer {
 
     @POST("/friends/set-friend-stat")
     @FormUrlEncoded
-    Call<ReturnBean> friendStat(@Field("friend") Long uid,@Field("opFlag") Integer opFlag);
+    Call<ReturnBean> friendStat(@Field("friend") Long uid,@Field("opFlag") Integer opFlag,@Field("sayHi") String sayHi);
 
     @POST("/friends/del-friend")
     @FormUrlEncoded
@@ -127,4 +127,8 @@ public interface UserServer {
     @POST("/pub/get-new-version")
     @FormUrlEncoded
     Call<ReturnBean<NewVersionBean>> getNewVersion(@Field("platform") String platform);
+
+    @POST("friends/del-request-friend")
+    @FormUrlEncoded
+    Call<ReturnBean> delRequestFriend(@Field("friend") Long friend);
 }

@@ -267,7 +267,7 @@ public class FriendMatchActivity extends AppActivity {
     }
 
     private void taskFriendApply(Long uid, final int position) {
-        userAction.friendApply(uid, new CallBack<ReturnBean>() {
+        userAction.friendApply(uid,null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
