@@ -158,6 +158,9 @@ public class MsgAllBean extends RealmObject {
         if (msg_type == 5) {
             str = "名片:" + getBusiness_card().getNickname();
         }
+        if (msg_type == 6) {
+            str = "收款信息" ;
+        }
 
 
         return str;
