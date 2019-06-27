@@ -3,17 +3,9 @@ package net.cb.cb.library;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.support.multidex.MultiDexApplication;
-import android.util.Log;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.umeng.commonsdk.UMConfigure;
-import com.umeng.message.IUmengRegisterCallback;
-import com.umeng.message.PushAgent;
-
-import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -12,7 +12,9 @@
         android:orientation="vertical">
 
 
-        <LinearLayout style="@style/app_layout_list1">
+        <LinearLayout
+            style="@style/app_layout_list1"
+            android:background="@color/white">
 
             <LinearLayout
                 android:id="@+id/view_head"
@@ -51,9 +53,24 @@
                         android:text="产品号："
                         android:textSize="13sp" />
                 </LinearLayout>
-
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_remark"
+                style="@style/app_txt_title_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_user_info"
+                android:padding="10dp"
+                android:singleLine="false"
+                android:visibility="gone" />
+
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/view_setting_name"
@@ -155,8 +172,8 @@
             android:layout_marginLeft="@dimen/app_margin_main"
             android:layout_marginTop="20dp"
             android:layout_marginRight="@dimen/app_margin_main"
-            android:visibility="gone"
-            android:text="添加好友" />
+            android:text="添加好友"
+            android:visibility="gone" />
 
     </LinearLayout>
 </net.cb.cb.library.view.HeadView>

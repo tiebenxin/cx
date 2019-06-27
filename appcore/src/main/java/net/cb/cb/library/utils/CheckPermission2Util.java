@@ -17,8 +17,8 @@ public class CheckPermission2Util {
     private static final String TAG = "CheckPermission2Util";
 
     private Event onEvent;
-private Activity activity;
-    private  String[] prm;
+    private Activity activity;
+    private String[] prm;
 
     /***
      * 1.申请权限
@@ -26,15 +26,15 @@ private Activity activity;
      * @param event
      * @param prm
      */
-    public void requestPermissions(Activity act,Event event ,String[] prm){
-        onEvent =event;
-        activity=act;
-        this.prm=prm;
-        String[] prming=   getNeededPermission(act,prm);
-        if(prming!=null&&prming.length>0){
-            ActivityCompat.requestPermissions(act,prming,1);
+    public void requestPermissions(Activity act, Event event, String[] prm) {
+        onEvent = event;
+        activity = act;
+        this.prm = prm;
+        String[] prming = getNeededPermission(act, prm);
+        if (prming != null && prming.length > 0) {
+            ActivityCompat.requestPermissions(act, prming, 1);
 
-        }else{
+        } else {
             onEvent.onSuccess();
         }
 
@@ -46,10 +46,10 @@ private Activity activity;
      */
     public void onRequestPermissionsResult() {
 
-        String[] prming=   getNeededPermission(activity,prm);
-        if(prming!=null&&prming.length>0){
+        String[] prming = getNeededPermission(activity, prm);
+        if (prming != null && prming.length > 0) {
             onEvent.onFail();
-        }else{
+        } else {
             onEvent.onSuccess();
         }
 
@@ -72,8 +72,6 @@ private Activity activity;
     private boolean isNeedAddPermission(Context context, String permission) {
         return ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED;
     }
-
-
 
 
     public interface Event {

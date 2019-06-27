@@ -36,17 +36,22 @@ public class AlertTouch {
 
     //自动寻找控件
     private void findViews(View rootview) {
-        mIvImage =  rootview.findViewById(R.id.iv_image);
-        mTxtAlertMsg =  rootview.findViewById(R.id.txt_alert_msg);
-        mEdContent =  rootview.findViewById(R.id.ed_content);
-        mBtnCl =  rootview.findViewById(R.id.btn_cl);
-        mBtnOk =  rootview.findViewById(R.id.btn_ok);
+        mIvImage = rootview.findViewById(R.id.iv_image);
+        mTxtAlertMsg = rootview.findViewById(R.id.txt_alert_msg);
+        mEdContent = rootview.findViewById(R.id.ed_content);
+        mBtnCl = rootview.findViewById(R.id.btn_cl);
+        mBtnOk = rootview.findViewById(R.id.btn_ok);
     }
 
 
     //自动生成的控件事件
-    private void initEvent(String title, String y,int image) {
-        mIvImage.setImageResource(image);
+    private void initEvent(String title, String y, int image) {
+        if (image == 0) {
+            mIvImage.setVisibility(View.GONE);
+        } else {
+            mIvImage.setImageResource(image);
+        }
+
         mTxtAlertMsg.setText(title);
         mBtnOk.setText(y);
         mBtnCl.setOnClickListener(new View.OnClickListener() {
@@ -62,7 +67,6 @@ public class AlertTouch {
                 dismiss();
             }
         });
-
 
 
     }
@@ -86,7 +90,7 @@ public class AlertTouch {
         alertDialog.setView(rootView);
         findViews(rootView);
 
-        initEvent(title,y,image);
+        initEvent(title, y, image);
 
 
     }

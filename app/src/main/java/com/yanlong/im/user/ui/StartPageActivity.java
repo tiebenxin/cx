@@ -8,28 +8,20 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.umeng.analytics.MobclickAgent;
-import com.umeng.commonsdk.UMConfigure;
-import com.umeng.message.IUmengRegisterCallback;
-import com.umeng.message.PushAgent;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 
-import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.AppActivity;
 
-import org.android.agoo.xiaomi.MiPushRegistar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +32,7 @@ import retrofit2.Response;
 
 public class StartPageActivity extends AppActivity {
     private static final String TAG = "StartPageActivity";
+    private UserAction userAction = new UserAction();
     private final static long TIME = 200; //启动页时间
     private ConstraintLayout mLayoutGuidance;
     private ViewPager mViewPager;
@@ -123,10 +116,9 @@ public class StartPageActivity extends AppActivity {
             }
         });
     }
-    private  UserAction userAction = new UserAction();
+
+
     private void updateToken(final boolean isFlast) {
-
-
         userAction.login4token(UserAction.getDevId(getContext()), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
@@ -164,19 +156,19 @@ public class StartPageActivity extends AppActivity {
             updateToken(isFlast);
         } else {
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-            if(token != null){
+            if (token != null) {
                 //6.17 无网处理
                 userAction.login4tokenNotNet(token);
                 startActivity(new Intent(StartPageActivity.this, MainActivity.class));
                 finish();
-            }else{
-               if(TextUtils.isEmpty(phone)){
-                   startActivity(new Intent(StartPageActivity.this, PasswordLoginActivity.class));
-                   finish();
-               }else{
-                   startActivity(new Intent(StartPageActivity.this, LoginActivity.class));
-                   finish();
-               }
+            } else {
+                if (TextUtils.isEmpty(phone)) {
+                    startActivity(new Intent(StartPageActivity.this, PasswordLoginActivity.class));
+                    finish();
+                } else {
+                    startActivity(new Intent(StartPageActivity.this, LoginActivity.class));
+                    finish();
+                }
             }
         }
     }

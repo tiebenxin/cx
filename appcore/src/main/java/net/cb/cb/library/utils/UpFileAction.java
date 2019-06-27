@@ -56,9 +56,8 @@ public class UpFileAction {
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-
-
-                                    UpFileUtil.getInstance().upFile(context, configBean.getAccessKeyId(), configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
+                                    UpFileUtil.getInstance().upFile(context, configBean.getAccessKeyId(),
+                                            configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
                                             configBean.getBucket(), callback, filePath, fileByte);
                                 }
                             }).start();

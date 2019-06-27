@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -24,6 +23,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -47,6 +47,7 @@ public class UserInfoActivity extends AppActivity {
     private TextView txtMkname;
     private TextView txtNkname;
     private TextView txtPrNo;
+    private TextView mTvRemark;
     private LinearLayout viewMkname;
     private LinearLayout viewBlack;
     private LinearLayout viewDel;
@@ -89,7 +90,8 @@ public class UserInfoActivity extends AppActivity {
         btnMsg = findViewById(R.id.btn_msg);
         mLayoutMsg = findViewById(R.id.layout_msg);
         mBtnAdd = findViewById(R.id.btn_add);
-        mViewSettingName =  findViewById(R.id.view_setting_name);
+        mTvRemark = findViewById(R.id.tv_remark);
+        mViewSettingName = findViewById(R.id.view_setting_name);
 
         id = getIntent().getLongExtra(ID, 0);
         taskFindExist();
@@ -182,8 +184,8 @@ public class UserInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.TITLE, "设置备注和描述");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置备注和描述");
                 intent.putExtra(CommonSetingActivity.HINT, "设置备注和描述");
-                intent.putExtra(CommonSetingActivity.SIZE,16);
-                intent.putExtra(CommonSetingActivity.SETING,mkName);
+                intent.putExtra(CommonSetingActivity.SIZE, 16);
+                intent.putExtra(CommonSetingActivity.SETING, mkName);
                 startActivityForResult(intent, SETING_REMARK);
 
             }
@@ -192,7 +194,21 @@ public class UserInfoActivity extends AppActivity {
         mBtnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                taskAddFriend(id);
+                AlertTouch alertTouch = new AlertTouch();
+                alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes(String content) {
+                        taskAddFriend(id);
+                    }
+                });
+                alertTouch.show();
+
+
             }
         });
     }
@@ -212,9 +228,9 @@ public class UserInfoActivity extends AppActivity {
             switch (requestCode) {
                 case SETING_REMARK:
                     //6.15
-                  //  if (!TextUtils.isEmpty(content)) {
-                        taskFriendMark(id, content);
-                  //  }
+                    //  if (!TextUtils.isEmpty(content)) {
+                    taskFriendMark(id, content);
+                    //  }
                     break;
             }
         }
@@ -298,7 +314,7 @@ public class UserInfoActivity extends AppActivity {
                     return;
                 }
                 //6.3
-                if(response.body().isOk()){
+                if (response.body().isOk()) {
                     EventBus.getDefault().post(new EventRefreshFriend());
                     EventBus.getDefault().post(new EventRefreshMainMsg());
                 }
@@ -318,5 +334,6 @@ public class UserInfoActivity extends AppActivity {
     private void taskFindExist() {
         type = userDao.findUserInfo4Friend(id) == null ? 1 : 0;
     }
+
 
 }

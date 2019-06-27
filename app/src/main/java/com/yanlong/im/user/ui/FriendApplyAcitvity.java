@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -7,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.GroupAccept;
@@ -26,7 +29,6 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 /***
@@ -81,6 +83,7 @@ public class FriendApplyAcitvity extends AppActivity {
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
+
         @Override
         public int getItemCount() {
             return listData == null ? 0 : listData.size();
@@ -88,10 +91,10 @@ public class FriendApplyAcitvity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder holder, int position) {
+        public void onBindViewHolder(final RCViewHolder holder, int position) {
 
-            if(listData.get(position) instanceof UserInfo){
-                final UserInfo bean =(UserInfo) listData.get(position);
+            if (listData.get(position) instanceof UserInfo) {
+                final UserInfo bean = (UserInfo) listData.get(position);
                 holder.txtName.setText(bean.getName4Show());
                 holder.imgHead.setImageURI(bean.getHead());
 
@@ -104,12 +107,22 @@ public class FriendApplyAcitvity extends AppActivity {
                         taskFriendAgree(bean.getUid());
                     }
                 });
-            }else if(listData.get(position) instanceof GroupAccept){
-                final GroupAccept bean=(GroupAccept)listData.get(position);
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(FriendApplyAcitvity.this, UserInfoActivity.class);
+                        intent.putExtra(UserInfoActivity.ID, bean.getUid());
+                        startActivity(intent);
+                    }
+                });
+
+            } else if (listData.get(position) instanceof GroupAccept) {
+                final GroupAccept bean = (GroupAccept) listData.get(position);
                 holder.txtName.setText(bean.getUname());
                 holder.imgHead.setImageURI(bean.getHead());
 
-                holder.txtInfo.setText("申请进群:"+bean.getGroupName());
+                holder.txtInfo.setText("申请进群:" + bean.getGroupName());
 
 
                 holder.btnComit.setOnClickListener(new View.OnClickListener() {
@@ -120,14 +133,16 @@ public class FriendApplyAcitvity extends AppActivity {
                 });
             }
 
-
-
-
             //  holder.txtState.setText("已添加");
 
-                holder.btnComit.setVisibility(View.VISIBLE);
-                holder.txtState.setVisibility(View.GONE);
-
+            holder.btnComit.setVisibility(View.VISIBLE);
+            holder.txtState.setVisibility(View.GONE);
+            holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    holder.mSwipeLayout.quickClose();
+                }
+            });
 
         }
 
@@ -142,20 +157,24 @@ public class FriendApplyAcitvity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private SimpleDraweeView imgHead;
             private TextView txtName;
             private TextView txtInfo;
             private TextView txtState;
             private Button btnComit;
+            private SwipeMenuLayout mSwipeLayout;
+            private Button mBtnDel;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                txtInfo = (TextView) convertView.findViewById(R.id.txt_info);
-                txtState = (TextView) convertView.findViewById(R.id.txt_state);
-                btnComit = (Button) convertView.findViewById(R.id.btn_comit);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                txtInfo = convertView.findViewById(R.id.txt_info);
+                txtState = convertView.findViewById(R.id.txt_state);
+                btnComit = convertView.findViewById(R.id.btn_comit);
+                mSwipeLayout = convertView.findViewById(R.id.swipeLayout);
+                mBtnDel = convertView.findViewById(R.id.btn_del);
             }
 
         }
@@ -163,10 +182,9 @@ public class FriendApplyAcitvity extends AppActivity {
 
     private UserAction userAction = new UserAction();
     private MsgAction msgAction = new MsgAction();
-    private MsgDao msgDao=new MsgDao();
+    private MsgDao msgDao = new MsgDao();
 
     private void taskGetList() {
-
 
 
         userAction.friendGet4Apply(new CallBack<ReturnBean<List<UserInfo>>>(mtListView) {
@@ -176,22 +194,22 @@ public class FriendApplyAcitvity extends AppActivity {
                     return;
                 }
                 //群申请
-                listData=msgDao.groupAccept();
-                listData.addAll(response.body().getData()) ;
+                listData = msgDao.groupAccept();
+                listData.addAll(response.body().getData());
                 mtListView.notifyDataSetChange(response);
             }
         });
     }
 
-    private void taskRequest(GroupAccept accept){
-        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid()+"", accept.getUname(), new CallBack<ReturnBean>() {
+    private void taskRequest(GroupAccept accept) {
+        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
                     taskGetList();
 
                 }
-                ToastUtil.show(getContext(),response.body().getMsg());
+                ToastUtil.show(getContext(), response.body().getMsg());
             }
         });
     }

@@ -146,8 +146,8 @@ public class CommonSetingActivity extends AppActivity {
                 }
             }
 
-            if (size < 5) {
-                ToastUtil.show(context, "不能少于五个字符");
+            if (size < 6) {
+                ToastUtil.show(context, "不能少于六个字符");
                 isCheck = true;
             }
         }

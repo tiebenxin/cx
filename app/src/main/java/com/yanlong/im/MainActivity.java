@@ -61,8 +61,6 @@ public class MainActivity extends AppActivity {
     }
 
 
-
-
     public ViewPagerSlide getViewPage() {
         return viewPage;
     }
@@ -167,7 +165,6 @@ public class MainActivity extends AppActivity {
         });*/
 
 
-
     }
 
 
@@ -213,53 +210,22 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOut(EventLoginOut event) {
-        UserInfo userInfo =  UserAction.getMyInfo();
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead()+"");
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone()+"");
-        userAction.cleanInfo();
+        loginoutComment();
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
-        PushAgent.getInstance(this).disable(new IUmengCallback() {
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onFailure(String s, String s1) {
-
-            }
-        });
-
-
         finish();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void eventRunState(EventRunState event) {
-        LogUtil.getLog().i("TAG",">>>>EventRunState:"+event.getRun());
-      if(event.getRun()){
-
-          startService(new Intent(getContext(), ChatServer.class));
-      }else{
-          stopService(new Intent(getContext(), ChatServer.class));
-      }
-
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOutconflict(EventLoginOut4Conflict event) {
-        UserInfo userInfo =  UserAction.getMyInfo();
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead()+"");
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone()+"");
-        userAction.cleanInfo();
+        loginoutComment();
         startActivity(new Intent(getContext(), MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         );
 
         AlertYesNo alertYesNo = new AlertYesNo();
-        String phone= new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-        alertYesNo.init(this, "提示", "您的账号"+phone+"已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码", "确定", null, new AlertYesNo.Event() {
+        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
+        alertYesNo.init(this, "提示", "您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码", "确定", null, new AlertYesNo.Event() {
             @Override
             public void onON() {
                 startActivity(new Intent(getContext(), LoginActivity.class));
@@ -277,7 +243,38 @@ public class MainActivity extends AppActivity {
     }
 
 
-    private void uploadApp(){
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRunState(EventRunState event) {
+        LogUtil.getLog().i("TAG", ">>>>EventRunState:" + event.getRun());
+        if (event.getRun()) {
+
+            startService(new Intent(getContext(), ChatServer.class));
+        } else {
+            stopService(new Intent(getContext(), ChatServer.class));
+        }
+
+    }
+
+    private void loginoutComment() {
+        UserInfo userInfo = UserAction.getMyInfo();
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
+        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
+        userAction.cleanInfo();
+//        PushAgent.getInstance(this).disable(new IUmengCallback() {
+//            @Override
+//            public void onSuccess() {
+//
+//            }
+//
+//            @Override
+//            public void onFailure(String s, String s1) {
+//
+//            }
+//        });
+    }
+
+
+    private void uploadApp() {
         taskNewVersion();
     }
 
@@ -308,20 +305,20 @@ public class MainActivity extends AppActivity {
 
     }
 
-    private void taskNewVersion(){
+    private void taskNewVersion() {
         userAction.getNewVersion(new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
-                if(response.body() == null && response.body().getData() == null){
+                if (response.body() == null && response.body().getData() == null) {
                     return;
                 }
-                if(response.body().isOk()){
-                    NewVersionBean bean =  response.body().getData();
-                    UpdateManage updateManage = new UpdateManage(context,MainActivity.this);
-                    if(response.body().getData().getForceUpdate() == 0){
-                        updateManage.uploadApp(bean.getVersion(),bean.getContent(),bean.getUrl(),false);
-                    }else{
-                        updateManage.uploadApp(bean.getVersion(),bean.getContent(),bean.getUrl(),true);
+                if (response.body().isOk()) {
+                    NewVersionBean bean = response.body().getData();
+                    UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
+                    if (response.body().getData().getForceUpdate() == 0) {
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                    } else {
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     }
                 }
             }

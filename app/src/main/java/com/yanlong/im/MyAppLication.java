@@ -40,11 +40,11 @@ public class MyAppLication extends MainApplication {
             case "debug":
 
                 AppConfig.URL_HOST = "http://192.168.10.229:8080";
-              //  AppConfig.URL_HOST = "http://192.168.10.110:18080";
+                //  AppConfig.URL_HOST = "http://192.168.10.110:18080";
                 AppConfig.DEBUG = true;
-               // AppConfig.SOCKET_IP = "192.168.10.229";
-               // AppConfig.SOCKET_PORT = 19991;
-               AppConfig.SOCKET_IP = "yanlong.1616d.top";
+                // AppConfig.SOCKET_IP = "192.168.10.229";
+                // AppConfig.SOCKET_PORT = 19991;
+                AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.SOCKET_PORT = 19991;
 
                 break;
@@ -87,7 +87,7 @@ public class MyAppLication extends MainApplication {
                 "8dd38f8da115dcf6441ce3922f30a2ac");
         UMConfigure.setLogEnabled(AppConfig.DEBUG);
         //注册小米推送
-        MiPushRegistar.register(this,"bMsFYycwSstKDv19Mx9zxQ==", "5411801194485");
+        MiPushRegistar.register(this, "bMsFYycwSstKDv19Mx9zxQ==", "5411801194485");
         //注册华为推送
         HuaWeiRegister.register(this);
 
@@ -117,44 +117,43 @@ public class MyAppLication extends MainApplication {
     }
 
 
-
     private void initWeixinConfig() {
         PlatformConfig.setWeixin("wx84ecce93acb0e78f", "63293f55248912676fccdfe59515ed42");
     }
 
     //初始化运行状态
-    private void initRunstate(){
+    private void initRunstate() {
         AppFrontBackHelper helper = new AppFrontBackHelper();
-        helper.register( this, new AppFrontBackHelper.OnAppStatusListener() {
+        helper.register(this, new AppFrontBackHelper.OnAppStatusListener() {
             @Override
             public void onFront() {
                 //应用切到前台处理
-                LogUtil.getLog().d(TAG,"--->应用切到前台处理");
-                EventRunState enent=new EventRunState();
+                LogUtil.getLog().d(TAG, "--->应用切到前台处理");
+                EventRunState enent = new EventRunState();
                 enent.setRun(true);
-                EventBus.getDefault().post(enent );
+                EventBus.getDefault().post(enent);
             }
 
             @Override
             public void onBack() {
                 //应用切到后台处理
-                LogUtil.getLog().d(TAG,"--->应用切到后台处理");
-                EventRunState enent=new EventRunState();
+                LogUtil.getLog().d(TAG, "--->应用切到后台处理");
+                EventRunState enent = new EventRunState();
                 enent.setRun(false);
-                EventBus.getDefault().post(enent );
+                EventBus.getDefault().post(enent);
             }
         });
     }
 
 
-    UmengNotificationClickHandler notificationClickHandler = new UmengNotificationClickHandler() {
-        @Override
-        public void dealWithCustomAction(Context context, UMessage msg) {
-            Log.v("PushUtil","跳转");
-            Intent intent = new Intent(context, MainActivity.class);
-            context.startActivity(intent);
-
-        }
-    };
+//    UmengNotificationClickHandler notificationClickHandler = new UmengNotificationClickHandler() {
+//        @Override
+//        public void dealWithCustomAction(Context context, UMessage msg) {
+//            Log.v("PushUtil","跳转");
+//            Intent intent = new Intent(context, MainActivity.class);
+//            context.startActivity(intent);
+//
+//        }
+//    };
 
 }
