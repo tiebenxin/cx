@@ -936,7 +936,7 @@ public class ChatActivity extends AppActivity {
                     final int style = msgbean.getRed_envelope().getStyle();
                     String type = null;
                     if (rb.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
-                        type = "第三方红包";
+                        type = "云红包";
                     }
 
 

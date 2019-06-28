@@ -140,7 +140,7 @@
                 style="@style/app_txt_title_2"
                 android:layout_marginRight="@dimen/app_margin_item"
                 android:layout_weight="1"
-                android:text="支付宝红包" />
+                android:text="云红包" />
 
             <ImageView
                 android:layout_width="wrap_content"
