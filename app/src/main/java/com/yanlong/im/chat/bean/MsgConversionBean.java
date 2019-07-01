@@ -82,6 +82,11 @@ public class MsgConversionBean {
                 msgAllBean.setStamp(stamp);
                 msgAllBean.setMsg_type(2);
                 break;
+
+            case UNRECOGNIZED:// 语音消息
+
+                msgAllBean.setMsg_type(7);
+                break;
             case TRANSFER:
                 TransferMessage transferMessage = new TransferMessage();
                 transferMessage.setMsgid(msgAllBean.getMsg_id());

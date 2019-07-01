@@ -14,34 +14,34 @@
         android:theme="@style/MainAppThrme"
         tools:replace="android:theme,android:allowBackup">
 
-<!--        <meta-data
-            android:name="JRMF_PARTNER_ID"
-            android:value="zhixuntest"/>
-            <meta-data
-                android:name="JRMF_PARTNER_NAME"
-                android:value="红包"/> -->
+        <!--        <meta-data
+                    android:name="JRMF_PARTNER_ID"
+                    android:value="zhixuntest"/>
+                    <meta-data
+                        android:name="JRMF_PARTNER_NAME"
+                        android:value="红包"/> -->
         <meta-data
             android:name="JRMF_PARTNER_ID"
-            android:value="closedbate"/>
+            android:value="closedbate" />
 
 
         <meta-data
             android:name="JRMF_PARTNER_NAME"
-            android:value="测试红包"/>
-        <!--<activity-alias-->
-            <!--android:name="test"-->
-            <!--android:label="测试页面"-->
-            <!--android:targetActivity=".user.ui.ImageHeadActivity">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+            android:value="测试红包" />
+        <!-- <activity-alias
+              android:name="test"
+              android:label="测试页面"
+              android:targetActivity=".test.TestActicity">
+              <intent-filter>
+                  <action android:name="android.intent.action.MAIN" />
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        <!--</activity-alias>-->
+                  <category android:name="android.intent.category.LAUNCHER" />
+              </intent-filter>
+         </activity-alias>-->
         <activity-alias
             android:name="main"
             android:label="@string/app_name"
-            android:targetActivity=".user.ui.StartPageActivity" >
+            android:targetActivity=".user.ui.StartPageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -125,6 +125,7 @@ public class ChatActivity extends AppActivity {
     private View viewChatBottomc;
     private View imgEmojiDel;
     private Button btnSend;
+    private Button txtVoice;
 
     private Integer font_size;
 
@@ -290,6 +291,9 @@ public class ChatActivity extends AppActivity {
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
+
+        txtVoice = findViewById(R.id.txt_voice);
+
 
     }
 
@@ -530,6 +534,45 @@ public class ChatActivity extends AppActivity {
             }
         });
 
+        //语音
+        btnVoice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startVoice(null);
+            }
+        });
+       txtVoice.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        //  AudioRecordManager.getInstance(TestActivity.this).startRecord();
+                        txtVoice.setText("松开 结束");
+                         txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                       /* if (isCancelled(v, event)) {
+                            AudioRecordManager.getInstance(TestActivity.this).willCancelRecord();
+                        } else {
+                            AudioRecordManager.getInstance(TestActivity.this).continueRecord();
+                        }*/
+                        //   txtVoice.setText("滑动 取消");
+                        //  txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                       /*AudioRecordManager.getInstance(TestActivity.this).stopRecord();
+                        AudioRecordManager.getInstance(TestActivity.this).destroyRecord();*/
+
+                        txtVoice.setText("按住 说话");
+                         txtVoice.setBackgroundResource(R.drawable.bg_edt_chat);
+
+                        break;
+                }
+                return true;
+            }
+        });
+
+
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
             viewFunc.removeView(viewTransfer);
@@ -631,6 +674,36 @@ public class ChatActivity extends AppActivity {
 
     }
 
+    /***
+     * 开始语音
+     */
+    private void startVoice(Boolean open) {
+        if(open==null){
+            open=txtVoice.getVisibility()==View.GONE?true:false;
+        }
+
+
+        if(open){
+            showBtType(2);
+        }else{
+            showVoice(false);
+            hideBt();
+
+        }
+
+
+
+    }
+    private void showVoice(boolean show){
+        if(show){//开启语音
+            txtVoice.setVisibility(View.VISIBLE);
+            edtChat.setVisibility(View.GONE);
+        }else{//关闭语音
+            txtVoice.setVisibility(View.GONE);
+            edtChat.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     /***
      * 底部显示面板
@@ -639,7 +712,7 @@ public class ChatActivity extends AppActivity {
 
         btnEmj.setImageLevel(0);
         InputUtil.hideKeyboard(edtChat);
-
+        showVoice(false);
         viewFunc.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -656,6 +729,9 @@ public class ChatActivity extends AppActivity {
                         viewEmoji.setVisibility(View.VISIBLE);
 
                         break;
+                    case 2://语音
+                        showVoice(true);
+                        break;
                 }
             }
         }, 50);
@@ -668,6 +744,7 @@ public class ChatActivity extends AppActivity {
 
         viewFunc.setVisibility(View.GONE);
         viewEmoji.setVisibility(View.GONE);
+
     }
 
     @Override

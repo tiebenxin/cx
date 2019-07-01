@@ -85,6 +85,11 @@ public class ChatItemView extends LinearLayout {
     private TextView txtOtTsInfo;
     private TextView txtOtTsBt;
     private ImageView imgOtTsIcon;
+
+    private VoiceView viewMe7;
+    private VoiceView viewOt7;
+    private boolean isMe;
+
     //自动寻找控件
     private void findViews(View rootView) {
 
@@ -150,6 +155,9 @@ public class ChatItemView extends LinearLayout {
         txtOtTsBt = (TextView) rootView.findViewById(R.id.txt_ot_ts_bt);
         imgOtTsIcon = (ImageView) rootView.findViewById(R.id.img_ot_ts_icon);
 
+      viewOt7  =(VoiceView) rootView.findViewById(R.id.view_ot_7);
+      viewMe7  =(VoiceView) rootView.findViewById(R.id.view_me_7);
+
     }
 
 
@@ -165,6 +173,7 @@ public class ChatItemView extends LinearLayout {
      */
     public void setShowType(int type, boolean isMe, String headUrl,String nikeName, String time) {
 
+        this.isMe=isMe;
         if (isMe) {
             viewMe.setVisibility(VISIBLE);
             viewOt.setVisibility(GONE);
@@ -186,6 +195,8 @@ public class ChatItemView extends LinearLayout {
         viewOt5.setVisibility(GONE);
         viewMe6.setVisibility(GONE);
         viewOt6.setVisibility(GONE);
+        viewMe7.setVisibility(GONE);
+        viewOt7.setVisibility(GONE);
         switch (type) {
             case 0://公告
                 txtBroadcast.setVisibility(VISIBLE);
@@ -215,6 +226,11 @@ public class ChatItemView extends LinearLayout {
             case 6:
                 viewMe6.setVisibility(VISIBLE);
                 viewOt6.setVisibility(VISIBLE);
+                break;
+            case 7:
+                viewMe7.setVisibility(VISIBLE);
+                viewOt7.setVisibility(VISIBLE);
+
                 break;
         }
 
@@ -350,6 +366,15 @@ public class ChatItemView extends LinearLayout {
             imgOtTsIcon.setImageResource(typeIconRes);
         }
     }
+    //语音
+    public void setData7(int second ,OnClickListener onk) {
+        viewOt7.init(isMe,second);
+        viewOt7.setOnClickListener(onk);
+        viewMe7.init(isMe,second);
+        viewMe7.setOnClickListener(onk);
+    }
+
+
 
     public void setFont(Integer size) {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
@@ -374,7 +399,7 @@ public class ChatItemView extends LinearLayout {
            // imgMe4.setImageURI(uri);
            // imgOt4.setImageURI(uri);
 
-           if(uri.getPath().endsWith(".gif")){
+           if(uri.getPath().toLowerCase().endsWith(".gif")){
               imgOt4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
                imgMe4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
            }

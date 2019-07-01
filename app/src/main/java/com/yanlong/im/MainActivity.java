@@ -311,7 +311,7 @@ public class MainActivity extends AppActivity {
         userAction.getNewVersion(new CallBack<ReturnBean<NewVersionBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
-                if (response.body() == null && response.body().getData() == null) {
+                if (response.body() == null || response.body().getData() == null) {
                     return;
                 }
                 if (response.body().isOk()) {

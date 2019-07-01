@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.view.VoiceView;
 import com.yanlong.im.pay.ui.view.RedPacketDialog;
 import com.yanlong.im.test.bean.Test2Bean;
 
@@ -22,13 +23,13 @@ import java.util.UUID;
 
 public class OtherFragment extends Fragment {
     private View rootView;
-    private net.cb.cb.library.view.PySortView pySort;
+private VoiceView voiceView;
 
 
 
     //自动寻找控件
     private void findViews(View rootView){
-        pySort = (net.cb.cb.library.view.PySortView) rootView.findViewById(R.id.pySort);
+        voiceView = rootView.findViewById(R.id.voice);
     }
 
     public OtherFragment() {
@@ -73,34 +74,7 @@ public class OtherFragment extends Fragment {
     }
 
     private void initEvent() {
-        pySort.setEvent(new PySortView.Event() {
-            @Override
-            public void onChange(String type) {
-                ToastUtil.show(getContext(),type);
-            }
-        });
-
-        Test2Bean testBean=new Test2Bean();
-        testBean.setName(UUID.randomUUID().toString());
-
-
-
-
-        final RedPacketDialog redd=new RedPacketDialog();
-
-        redd.show4open(getFragmentManager(), "https://ss0.baidu.com/73x1bjeh1BF3odCf/it/u=2534985070,2613606008&fm=85&s=4B3481425B151BED4070FFBB03008003", "wow", "哒哒哒", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ToastUtil.show(getContext(),"走你");
-                redd.show4opened(getFragmentManager(), "", "xx", "ed", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ToastUtil.show(getContext(),"more");
-                    }
-                });
-            }
-        });
-
+        voiceView.init(false,70);
 
     }
 

@@ -11,17 +11,8 @@
     <TextView
         style="@style/app_txt_title_1"
         android:text="qita"/>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <net.cb.cb.library.view.PySortView
-            android:id="@+id/pySort"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="right"
-           />
-    </FrameLayout>
-
+<com.yanlong.im.chat.ui.view.VoiceView
+    android:id="@+id/voice"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
 </LinearLayout>

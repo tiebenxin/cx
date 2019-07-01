@@ -334,6 +334,12 @@
 
             </LinearLayout>
 
+            <!--语音-->
+            <com.yanlong.im.chat.ui.view.VoiceView
+                android:id="@+id/view_ot_7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
         </LinearLayout>
 
     </LinearLayout>
@@ -648,6 +654,11 @@
                     </LinearLayout>
 
                 </LinearLayout>
+                <!--语音-->
+                <com.yanlong.im.chat.ui.view.VoiceView
+                    android:id="@+id/view_me_7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
 
