@@ -63,6 +63,7 @@ public class UserAction {
      * @return
      */
     public static UserInfo getMyInfo() {
+        Log.v("ssss","getMyInfo");
         if (myInfo == null) {
             myInfo = new UserDao().myInfo();
         }
@@ -75,7 +76,7 @@ public class UserAction {
      * @return
      */
     public static Long getMyId() {
-
+        Log.v("ssss","getMyId");
         return getMyInfo().getUid();
     }
 
@@ -105,7 +106,7 @@ public class UserAction {
      * 账号密码登录
      */
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
-
+        cleanInfo();
         NetUtil.getNet().exec(server.login(pwd, phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
@@ -236,6 +237,7 @@ public class UserAction {
      * 清理信息
      */
     public void cleanInfo() {
+        Log.v("ssss","cleanInfo");
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
     }
@@ -420,6 +422,7 @@ public class UserAction {
      * 手机号验证码登录
      */
     public void login4Captch(final String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+        cleanInfo();
         NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {

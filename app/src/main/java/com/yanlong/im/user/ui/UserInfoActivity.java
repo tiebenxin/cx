@@ -218,7 +218,8 @@ public class UserInfoActivity extends AppActivity {
                     }
                 });
                 alertTouch.show();
-                alertTouch.setContent("我是" + name);
+                alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
+                alertTouch.setEdHintOrSize(null,60);
 
             }
         });

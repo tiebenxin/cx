@@ -516,6 +516,7 @@ public class ChatActivity extends AppActivity {
                     }
                 });
                 alertTouch.show();
+                alertTouch.setEdHintOrSize(null,15);
 
 
             }

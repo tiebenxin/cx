@@ -22,6 +22,7 @@ import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.utils.update.UpdateManage;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
@@ -247,7 +248,6 @@ public class MainActivity extends AppActivity {
     public void eventRunState(EventRunState event) {
         LogUtil.getLog().i("TAG", ">>>>EventRunState:" + event.getRun());
         if (event.getRun()) {
-
             startService(new Intent(getContext(), ChatServer.class));
         } else {
             stopService(new Intent(getContext(), ChatServer.class));
@@ -275,7 +275,9 @@ public class MainActivity extends AppActivity {
 
 
     private void uploadApp() {
-        taskNewVersion();
+        if(!AppConfig.DEBUG){
+            taskNewVersion();
+        }
     }
 
 

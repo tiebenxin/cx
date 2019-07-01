@@ -5,6 +5,8 @@ import android.content.Context;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
@@ -89,6 +91,14 @@ public class AlertTouch {
 
     public void setContent(String content){
         mEdContent.setText(content);
+    }
+
+
+    public void setEdHintOrSize(String hint,int size){
+        if(!TextUtils.isEmpty(hint)){
+            mEdContent.setHint(hint);
+        }
+        mEdContent.setFilters(new InputFilter[]{new InputFilter.LengthFilter(size)});
     }
 
 

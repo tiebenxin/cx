@@ -36,12 +36,14 @@ public class AppActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //友盟Push后台进行日活统计及多维度推送的必调用方法
         PushAgent.getInstance(context).onAppStart();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         MobclickAgent.onResume(this);
+        Log.v("ssss",this.getClass().toString());
     }
 
     @Override
