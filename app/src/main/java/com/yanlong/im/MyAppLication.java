@@ -39,7 +39,7 @@ public class MyAppLication extends MainApplication {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
 
-                AppConfig.URL_HOST = "http://192.168.10.229:8080";
+                AppConfig.URL_HOST = "https://yanlong.1616d.top:8080";
                 //  AppConfig.URL_HOST = "http://192.168.10.110:18080";
                 AppConfig.DEBUG = true;
                 // AppConfig.SOCKET_IP = "192.168.10.229";
@@ -50,7 +50,7 @@ public class MyAppLication extends MainApplication {
                 break;
             case "pre":
                 AppConfig.DEBUG = true;
-                AppConfig.URL_HOST = "http://192.168.10.229:8080";
+                AppConfig.URL_HOST = "https://192.168.10.229:8080";
                 AppConfig.SOCKET_IP = "192.168.10.110";
                 AppConfig.SOCKET_PORT = 19991;
                 break;
