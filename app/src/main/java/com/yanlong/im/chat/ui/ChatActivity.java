@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui;
 
 import android.Manifest;
 import android.content.Intent;
+import android.media.AudioRecord;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
@@ -64,6 +65,9 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.audio.AudioRecordManager;
+import net.cb.cb.library.audio.IAdioTouch;
+import net.cb.cb.library.audio.IAudioRecord;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -520,7 +524,7 @@ public class ChatActivity extends AppActivity {
                     }
                 });
                 alertTouch.show();
-                alertTouch.setEdHintOrSize(null,15);
+                alertTouch.setEdHintOrSize(null, 15);
 
 
             }
@@ -541,36 +545,33 @@ public class ChatActivity extends AppActivity {
                 startVoice(null);
             }
         });
-       txtVoice.setOnTouchListener(new View.OnTouchListener() {
+
+        txtVoice.setOnTouchListener(new IAdioTouch(this, new IAdioTouch.MTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        //  AudioRecordManager.getInstance(TestActivity.this).startRecord();
-                        txtVoice.setText("松开 结束");
-                         txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                       /* if (isCancelled(v, event)) {
-                            AudioRecordManager.getInstance(TestActivity.this).willCancelRecord();
-                        } else {
-                            AudioRecordManager.getInstance(TestActivity.this).continueRecord();
-                        }*/
-                        //   txtVoice.setText("滑动 取消");
-                        //  txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                       /*AudioRecordManager.getInstance(TestActivity.this).stopRecord();
-                        AudioRecordManager.getInstance(TestActivity.this).destroyRecord();*/
-
-                        txtVoice.setText("按住 说话");
-                         txtVoice.setBackgroundResource(R.drawable.bg_edt_chat);
-
-                        break;
-                }
-                return true;
+            public void onDown() {
+                txtVoice.setText("松开 结束");
+                txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
             }
-        });
+
+            @Override
+            public void onMove() {
+                //   txtVoice.setText("滑动 取消");
+                //  txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
+            }
+
+            @Override
+            public void onUp() {
+                txtVoice.setText("按住 说话");
+                txtVoice.setBackgroundResource(R.drawable.bg_edt_chat);
+            }
+        }));
+
+        AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
+            @Override
+            public void getUrl(String url) {
+                ToastUtil.show(context,"语音上传:"+url);
+            }
+        }));
 
 
         if (isGroup()) {//去除群的控件
@@ -678,27 +679,27 @@ public class ChatActivity extends AppActivity {
      * 开始语音
      */
     private void startVoice(Boolean open) {
-        if(open==null){
-            open=txtVoice.getVisibility()==View.GONE?true:false;
+        if (open == null) {
+            open = txtVoice.getVisibility() == View.GONE ? true : false;
         }
 
 
-        if(open){
+        if (open) {
             showBtType(2);
-        }else{
+        } else {
             showVoice(false);
             hideBt();
 
         }
 
 
-
     }
-    private void showVoice(boolean show){
-        if(show){//开启语音
+
+    private void showVoice(boolean show) {
+        if (show) {//开启语音
             txtVoice.setVisibility(View.VISIBLE);
             edtChat.setVisibility(View.GONE);
-        }else{//关闭语音
+        } else {//关闭语音
             txtVoice.setVisibility(View.GONE);
             edtChat.setVisibility(View.VISIBLE);
         }

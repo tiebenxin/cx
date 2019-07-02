@@ -67,25 +67,26 @@ public class IAudioRecord implements IAudioRecordListener {
     @Override
     public void onFinish(Uri audioPath, int duration) {
         Toast.makeText(context,audioPath.getPath(), Toast.LENGTH_LONG).show();
-        new UpFileAction().upFile(context, new UpFileUtil.OssUpCallback() {
-            @Override
-            public void success(String url) {
-                if(callback == null){
-                    callback.getUrl(url);
+        if(audioPath != null){
+            new UpFileAction().upFile(context, new UpFileUtil.OssUpCallback() {
+                @Override
+                public void success(String url) {
+                    if(callback == null){
+                        callback.getUrl(url);
+                    }
                 }
-            }
 
-            @Override
-            public void fail() {
-                ToastUtil.show(context, "发送失败!");
-            }
+                @Override
+                public void fail() {
+                    ToastUtil.show(context, "发送失败!");
+                }
 
-            @Override
-            public void inProgress(long progress, long zong) {
+                @Override
+                public void inProgress(long progress, long zong) {
 
-            }
-        }, audioPath.getPath());
-
+                }
+            }, audioPath.getPath());
+        }
 
     }
 
