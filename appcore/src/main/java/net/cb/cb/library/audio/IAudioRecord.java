@@ -18,10 +18,10 @@ public class IAudioRecord implements IAudioRecordListener {
     private UrlCallback callback;
 
     /**
-     * @param view 参照物view
+     * @param view        参照物view
      * @param urlCallback 返回上传音频url回调
-     * */
-    public IAudioRecord(Context context, View view,UrlCallback urlCallback){
+     */
+    public IAudioRecord(Context context, View view, UrlCallback urlCallback) {
         this.context = context;
         this.view = view;
         this.callback = urlCallback;
@@ -65,13 +65,13 @@ public class IAudioRecord implements IAudioRecordListener {
     }
 
     @Override
-    public void onFinish(Uri audioPath, int duration) {
-        if(audioPath != null){
+    public void onFinish(Uri audioPath, final int duration) {
+        if (audioPath != null) {
             new UpFileAction().upFile(context, new UpFileUtil.OssUpCallback() {
                 @Override
                 public void success(String url) {
-                    if(callback != null){
-                        callback.getUrl(url);
+                    if (callback != null) {
+                        callback.getUrl(url, duration);
                     }
                 }
 
@@ -95,8 +95,8 @@ public class IAudioRecord implements IAudioRecordListener {
     }
 
 
-    public interface UrlCallback{
-        void getUrl(String url);
+    public interface UrlCallback {
+        void getUrl(String url, int duration);
     }
 
 
