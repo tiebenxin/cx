@@ -49,6 +49,7 @@ import com.yanlong.im.chat.bean.ReceiveRedEnvelopeMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.TransferMessage;
+import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.view.ChatItemView;
@@ -546,7 +547,19 @@ public class ChatActivity extends AppActivity {
         btnVoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startVoice(null);
+                //申请权限 7.2
+                permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+                    @Override
+                    public void onSuccess() {
+                        startVoice(null);
+                    }
+
+                    @Override
+                    public void onFail() {
+
+                    }
+                }, new String[]{Manifest.permission.RECORD_AUDIO,Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+
             }
         });
 
@@ -572,32 +585,16 @@ public class ChatActivity extends AppActivity {
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
-            public void getUrl(final String url) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        ToastUtil.show(context,"语音上传:"+url);
-//                    }
-//                });
-
+            public void getUrl(String url, int duration) {
                 if(!TextUtils.isEmpty(url)){
-                    AudioPlayManager.getInstance().startPlay(context, Uri.parse(url) , new IAudioPlayListener() {
-                        @Override
-                        public void onStart(Uri var1) {
-                        }
+                    //发送语音消息
+                    MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url,duration);
+                    showSendObj(msgAllbean);
 
-                        @Override
-                        public void onStop(Uri var1) {
-
-                        }
-
-                        @Override
-                        public void onComplete(Uri var1) {
-                        }
-                    });
                 }
-
             }
+
+
         }));
 
 
@@ -1098,6 +1095,33 @@ public class ChatActivity extends AppActivity {
                         @Override
                         public void onClick(boolean isInvalid) {
                             tsakTransGet(tsId);
+                        }
+                    });
+
+
+                    break;
+                case 7:
+                   final VoiceMessage vm=msgbean.getVoiceMessage();
+                    holder.viewChatItem.setData7(vm.getTime(), new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            AudioPlayManager.getInstance().startPlay(context, Uri.parse( vm.getUrl()) , new IAudioPlayListener() {
+                                @Override
+                                public void onStart(Uri var1) {
+                                }
+
+                                @Override
+                                public void onStop(Uri var1) {
+
+                                }
+
+                                @Override
+                                public void onComplete(Uri var1) {
+                                }
+                            });
+
+
                         }
                     });
 

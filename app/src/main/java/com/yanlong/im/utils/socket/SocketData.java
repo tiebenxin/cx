@@ -346,6 +346,9 @@ public class SocketData {
             case REQUEST_FRIEND:
                 wmsg.setRequestFriend((MsgBean.RequestFriendMessage) value);
                 break;
+            case VOICE:
+                wmsg.setVoice((MsgBean.VoiceMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
         }
@@ -418,6 +421,22 @@ public class SocketData {
                 .setUrl(url)
                 .build();
         return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
+    }
+
+    /***
+     * 发送语音
+     * @param toId
+     * @param toGid
+     * @param url
+     * @param time
+     * @return
+     */
+    public static MsgAllBean send4Voice(Long toId, String toGid, String url,int time) {
+        MsgBean.VoiceMessage msg = MsgBean.VoiceMessage.newBuilder()
+                .setUrl(url)
+                .setDuration(time)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.VOICE, msg);
     }
 
     /****

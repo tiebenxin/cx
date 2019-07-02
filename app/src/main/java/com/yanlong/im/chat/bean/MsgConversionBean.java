@@ -83,8 +83,12 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(2);
                 break;
 
-            case UNRECOGNIZED:// 语音消息
-
+            case VOICE:// 语音消息
+                VoiceMessage voiceMessage = new VoiceMessage();
+                voiceMessage.setMsgid(msgAllBean.getMsg_id());
+                voiceMessage.setUrl(bean.getVoice().getUrl());
+                voiceMessage.setTime(bean.getVoice().getDuration());
+                msgAllBean.setVoiceMessage(voiceMessage);
                 msgAllBean.setMsg_type(7);
                 break;
             case TRANSFER:

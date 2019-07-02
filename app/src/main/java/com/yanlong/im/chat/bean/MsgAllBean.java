@@ -44,6 +44,8 @@ public class MsgAllBean extends RealmObject {
     private BusinessCardMessage business_card;
 
     private MsgNotice msgNotice;
+
+    private VoiceMessage voiceMessage;
     //private RequestFriendMessage request_friend;
 
    // private AcceptBeFriendsMessage accept_be_friends;
@@ -130,6 +132,13 @@ public class MsgAllBean extends RealmObject {
         return this.msg_type;
     }
 
+    public VoiceMessage getVoiceMessage() {
+        return voiceMessage;
+    }
+
+    public void setVoiceMessage(VoiceMessage voiceMessage) {
+        this.voiceMessage = voiceMessage;
+    }
 
     /***
      * 把类型转换为消息
@@ -146,7 +155,7 @@ public class MsgAllBean extends RealmObject {
 
         }
         if (msg_type == 2) {
-            str = " 戳一下:" + getStamp().getComment();
+            str = "戳一下:" + getStamp().getComment();
 
         }
         if (msg_type == 3) {
@@ -161,7 +170,9 @@ public class MsgAllBean extends RealmObject {
         if (msg_type == 6) {
             str = "收款信息" ;
         }
-
+        if (msg_type == 7) {
+            str = "发来了一条语音信息" ;
+        }
 
         return str;
     }
