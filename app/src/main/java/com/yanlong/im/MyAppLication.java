@@ -38,11 +38,9 @@ public class MyAppLication extends MainApplication {
         super.onCreate();
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
-                AppConfig.SOCKET_IP = "usa-test.1616d.top";
-                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
 
+                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://"+AppConfig.SOCKET_IP+":8080";
-                //AppConfig.URL_HOST = "https://yanlong.1616d.top:8080";
 
                 AppConfig.DEBUG = true;
 
@@ -52,8 +50,8 @@ public class MyAppLication extends MainApplication {
                 break;
             case "pre":
                 AppConfig.DEBUG = true;
-                AppConfig.URL_HOST = "http://192.168.10.229:8080";
-                AppConfig.SOCKET_IP = "192.168.10.110";
+                AppConfig.SOCKET_IP = "usa-test.1616d.top";
+                AppConfig.URL_HOST = "https://"+AppConfig.SOCKET_IP+":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 break;
             case "release":
