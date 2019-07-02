@@ -201,6 +201,8 @@
             </LinearLayout>
 
             <!-- 名片消息-->
+
+            <!-- 转账消息-->
             <LinearLayout
                 android:id="@+id/view_ot_5"
                 android:layout_width="211dp"
@@ -263,7 +265,6 @@
 
             </LinearLayout>
 
-            <!-- 转账消息-->
             <LinearLayout
                 android:id="@+id/view_ot_6"
                 android:layout_width="211dp"

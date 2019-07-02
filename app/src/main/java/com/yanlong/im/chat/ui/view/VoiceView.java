@@ -2,13 +2,17 @@ package com.yanlong.im.chat.ui.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+
+import net.cb.cb.library.utils.DensityUtil;
 
 public class VoiceView extends LinearLayout {
     private LinearLayout viewOtVoice;
@@ -27,6 +31,9 @@ public class VoiceView extends LinearLayout {
         viewMeVoice = (LinearLayout) rootView.findViewById(R.id.view_me_voice);
         viewMeP = (View) rootView.findViewById(R.id.view_me_p);
         txtMeVoice = (TextView) rootView.findViewById(R.id.txt_me_voice);
+
+        viewOtVoice.setVisibility(GONE);
+        viewMeVoice.setVisibility(GONE);
     }
 
     public VoiceView(Context context, AttributeSet attrs) {
@@ -39,11 +46,8 @@ public class VoiceView extends LinearLayout {
     }
 
     public void init(final boolean isMe, final int second) {
-        post(new Runnable() {
-            @Override
-            public void run() {
 
-                if (isMe) {
+     if (isMe) {
                     viewMeVoice.setVisibility(VISIBLE);
                     viewOtVoice.setVisibility(GONE);
                 } else {
@@ -54,19 +58,28 @@ public class VoiceView extends LinearLayout {
                 txtMeVoice.setText(second+"''");
 
                 int s=second>60?60:second;
-                int w=new Float( (viewOtVoice.getMeasuredWidth()-viewOtP.getX())/60*(s)).intValue();
-                ViewGroup.LayoutParams lp = viewMeP.getLayoutParams();
+       int wsum =getScreenWidth()- DensityUtil.dip2px(getContext(),74)*2;//-DensityUtil.dip2px(getContext(),35);
+       float x=DensityUtil.dip2px(getContext(),60);//viewOtP.getX();
+                int w=new Float( (wsum-x)/60*(s)).intValue();
+                LinearLayout.LayoutParams lp =(LinearLayout.LayoutParams) viewMeP.getLayoutParams();
                 lp.width=w;
+                lp.weight=1;
                 viewMeP.setLayoutParams(lp);
 
-                lp = viewOtP.getLayoutParams();
+                lp =(LinearLayout.LayoutParams)  viewOtP.getLayoutParams();
                 lp.width=w;
                 viewOtP.setLayoutParams(lp);
 
 
-            }
-        });
-
     }
+
+    private int getScreenWidth() {
+        WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics.widthPixels;
+    }
+
+
 
 }
