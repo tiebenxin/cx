@@ -66,12 +66,11 @@ public class IAudioRecord implements IAudioRecordListener {
 
     @Override
     public void onFinish(Uri audioPath, int duration) {
-        Toast.makeText(context,audioPath.getPath(), Toast.LENGTH_LONG).show();
         if(audioPath != null){
             new UpFileAction().upFile(context, new UpFileUtil.OssUpCallback() {
                 @Override
                 public void success(String url) {
-                    if(callback == null){
+                    if(callback != null){
                         callback.getUrl(url);
                     }
                 }

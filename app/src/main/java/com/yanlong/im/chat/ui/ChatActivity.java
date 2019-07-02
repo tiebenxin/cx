@@ -2,7 +2,9 @@ package com.yanlong.im.chat.ui;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioRecord;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
@@ -65,8 +67,10 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.audio.AudioPlayManager;
 import net.cb.cb.library.audio.AudioRecordManager;
 import net.cb.cb.library.audio.IAdioTouch;
+import net.cb.cb.library.audio.IAudioPlayListener;
 import net.cb.cb.library.audio.IAudioRecord;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
@@ -568,8 +572,31 @@ public class ChatActivity extends AppActivity {
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
-            public void getUrl(String url) {
-                ToastUtil.show(context,"语音上传:"+url);
+            public void getUrl(final String url) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        ToastUtil.show(context,"语音上传:"+url);
+//                    }
+//                });
+
+                if(!TextUtils.isEmpty(url)){
+                    AudioPlayManager.getInstance().startPlay(context, Uri.parse(url) , new IAudioPlayListener() {
+                        @Override
+                        public void onStart(Uri var1) {
+                        }
+
+                        @Override
+                        public void onStop(Uri var1) {
+
+                        }
+
+                        @Override
+                        public void onComplete(Uri var1) {
+                        }
+                    });
+                }
+
             }
         }));
 
