@@ -370,6 +370,17 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
+        <!--群助手信息-->
+        <activity
+            android:name=".chat.ui.GroupRobotActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <!--群助手选择页面-->
+        <activity
+            android:name=".chat.ui.GroupRobotSelecActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".wxapi.WXEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

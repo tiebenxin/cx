@@ -109,6 +109,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatActivity extends AppActivity {
@@ -130,6 +131,7 @@ public class ChatActivity extends AppActivity {
     private LinearLayout viewAction;
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
+    private LinearLayout viewChatRobot;
     private View viewChatBottom;
     private View viewChatBottomc;
     private View imgEmojiDel;
@@ -298,6 +300,7 @@ public class ChatActivity extends AppActivity {
         viewCard = (LinearLayout) findViewById(R.id.view_card);
         viewChatBottom = findViewById(R.id.view_chat_bottom);
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
+        viewChatRobot = findViewById(R.id.view_chat_robot);
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
 
@@ -558,7 +561,7 @@ public class ChatActivity extends AppActivity {
                     public void onFail() {
 
                     }
-                }, new String[]{Manifest.permission.RECORD_AUDIO,Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+                }, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
 
             }
         });
@@ -586,9 +589,9 @@ public class ChatActivity extends AppActivity {
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
             public void getUrl(String url, int duration) {
-                if(!TextUtils.isEmpty(url)){
+                if (!TextUtils.isEmpty(url)) {
                     //发送语音消息
-                    MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url,duration);
+                    MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
                     showSendObj(msgAllbean);
 
                 }
@@ -597,11 +600,26 @@ public class ChatActivity extends AppActivity {
 
         }));
 
+        //群助手
+        viewChatRobot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //  ToastUtil.show(getContext(),"群助手");
+                go(GroupRobotActivity.class);
+            }
+        });
+
 
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
             viewFunc.removeView(viewTransfer);
             viewFunc.removeView(viewTransfer);
+            viewChatRobot.setVisibility(View.INVISIBLE);
+            taskGroupInfo();
+
+        } else {
+
+            viewFunc.removeView(viewChatRobot);
         }
         viewFunc.removeView(viewRb);
         //test 6.26
@@ -1101,12 +1119,12 @@ public class ChatActivity extends AppActivity {
 
                     break;
                 case 7:
-                   final VoiceMessage vm=msgbean.getVoiceMessage();
+                    final VoiceMessage vm = msgbean.getVoiceMessage();
                     holder.viewChatItem.setData7(vm.getTime(), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
 
-                            AudioPlayManager.getInstance().startPlay(context, Uri.parse( vm.getUrl()) , new IAudioPlayListener() {
+                            AudioPlayManager.getInstance().startPlay(context, Uri.parse(vm.getUrl()), new IAudioPlayListener() {
                                 @Override
                                 public void onStart(Uri var1) {
                                 }
@@ -1538,6 +1556,29 @@ public class ChatActivity extends AppActivity {
             }
         });
 
+    }
+
+    /***
+     * 获取群信息
+     */
+    private void taskGroupInfo() {
+        msgAction.groupInfo(toGid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                if (response.body() == null)
+                    return;
+
+                Group group = response.body().getData();
+
+                if (group.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
+                    viewChatRobot.setVisibility(View.VISIBLE);
+                }else{
+                    viewFunc.removeView(viewChatRobot);
+                }
+
+
+            }
+        });
     }
 
 
