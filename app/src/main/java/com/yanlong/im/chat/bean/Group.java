@@ -32,6 +32,16 @@ public class Group  extends RealmObject {
 
     private String mygroupName;//我的群昵称
     private String announcement;//群公告
+    //机器人id
+    private String robotid;
+
+    public String getRobotid() {
+        return robotid;
+    }
+
+    public void setRobotid(String robotid) {
+        this.robotid = robotid;
+    }
 
     public String getMygroupName() {
         if(!StringUtil.isNotNull(mygroupName)&&users!=null){

@@ -6,6 +6,7 @@ import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
+import com.yanlong.im.chat.bean.RobotInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.test.server.TestServer;
@@ -345,6 +346,44 @@ public class MsgAction {
     public void changeGroupAnnouncement(String gid, String announcement, Callback<ReturnBean> callback){
         NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement), callback);
     }
+
+
+    /***
+     * 机器人搜索列表
+     * @param key
+     * @param callback
+     */
+    public void robotSearch(String key, Callback<ReturnBean<List<RobotInfoBean>>> callback){
+        NetUtil.getNet().exec(server.robotSearch( key), callback);
+    }
+
+    /***
+     * 修改机器人
+     * @param gid
+     * @param callback
+     */
+    public void robotChange(String gid,String rid, Callback<ReturnBean> callback){
+        NetUtil.getNet().exec(server.robotChange(gid,rid), callback);
+    }
+
+    /***
+     * 删除
+     * @param gid
+     * @param callback
+     */
+    public void robotDel(String gid, Callback<ReturnBean> callback){
+        NetUtil.getNet().exec(server.robotChange(gid, "-1"), callback);
+    }
+
+    /**
+     * 查看详情
+     * @param gid
+     * @param callback
+     */
+    public void robotInfo(String gid, Callback<ReturnBean<RobotInfoBean>> callback){
+        NetUtil.getNet().exec(server.robotInfo(gid), callback);
+    }
+
 
 
 }

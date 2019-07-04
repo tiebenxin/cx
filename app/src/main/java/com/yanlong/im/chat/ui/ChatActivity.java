@@ -528,6 +528,8 @@ public class ChatActivity extends AppActivity {
                             //发送普通消息
                             MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
                             showSendObj(msgAllbean);
+                        } else {
+                            ToastUtil.show(getContext(), "留言不能为空");
                         }
                     }
                 });
@@ -605,7 +607,13 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 //  ToastUtil.show(getContext(),"群助手");
-                go(GroupRobotActivity.class);
+                if(groupInfo==null)
+                    return;
+
+                startActivity(new Intent(getContext(), GroupRobotActivity.class)
+                        .putExtra(GroupRobotActivity.AGM_GID, toGid)
+                        .putExtra(GroupRobotActivity.AGM_RID, groupInfo.getRobotid())
+                );
             }
         });
 
@@ -615,7 +623,7 @@ public class ChatActivity extends AppActivity {
             viewFunc.removeView(viewTransfer);
             viewFunc.removeView(viewTransfer);
             viewChatRobot.setVisibility(View.INVISIBLE);
-            taskGroupInfo();
+
 
         } else {
 
@@ -1380,6 +1388,7 @@ public class ChatActivity extends AppActivity {
             actionbar.getBtnRight().setVisibility(config.getIsExit() == 1 ? View.GONE : View.VISIBLE);
 
         }
+        taskGroupInfo();
     }
 
     /***
@@ -1558,6 +1567,7 @@ public class ChatActivity extends AppActivity {
 
     }
 
+    private Group groupInfo;
     /***
      * 获取群信息
      */
@@ -1568,11 +1578,11 @@ public class ChatActivity extends AppActivity {
                 if (response.body() == null)
                     return;
 
-                Group group = response.body().getData();
+                groupInfo = response.body().getData();
 
-                if (group.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
+                if (groupInfo.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
                     viewChatRobot.setVisibility(View.VISIBLE);
-                }else{
+                } else {
                     viewFunc.removeView(viewChatRobot);
                 }
 

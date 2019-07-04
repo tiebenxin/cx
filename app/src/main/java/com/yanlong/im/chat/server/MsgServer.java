@@ -2,6 +2,7 @@ package com.yanlong.im.chat.server;
 
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.RobotInfoBean;
 
 import net.cb.cb.library.bean.ReturnBean;
 
@@ -76,4 +77,25 @@ public interface MsgServer {
     @POST("/group/edit-announcement")
     @FormUrlEncoded
     Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid,@Field("announcement") String announcement);
+
+
+
+    @POST("/group/search-for-robots")
+    @FormUrlEncoded
+    Call<ReturnBean<List<RobotInfoBean>>> robotSearch(@Field("keyword") String keyword);
+
+
+    @POST("/group/change-robot")
+    @FormUrlEncoded
+    Call<ReturnBean> robotChange(@Field("gid") String gid,@Field("robotid")String robotid);
+
+
+
+
+    @POST("/group/get-robot-detail")
+    @FormUrlEncoded
+    Call<ReturnBean<RobotInfoBean>> robotInfo(@Field("robotid") String robotid);
+
+
+
 }

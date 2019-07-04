@@ -13,12 +13,20 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.RobotInfoBean;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class GroupRobotSelecActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
@@ -26,8 +34,8 @@ public class GroupRobotSelecActivity extends AppActivity {
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
 
-    private List<Object> listData = new ArrayList<>();
-
+    private List<RobotInfoBean> listData = new ArrayList<>();
+private String gid;
 
     //自动寻找控件
     private void findViews() {
@@ -40,6 +48,7 @@ public class GroupRobotSelecActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
+         gid = getIntent().getStringExtra(GroupRobotActivity.AGM_GID);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -81,18 +90,23 @@ public class GroupRobotSelecActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return null == null ? 10 : 0;
+            return listData == null ? 0 : listData.size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            holder.txtInfoTitle.setText("te");
-            holder.imgInfoIcon.setImageURI(Uri.parse("https://qzonestyle.gtimg.cn/qz-proj/wy-pc-v3/static/img/web/logo-color@2x.png"));
-            holder.txtInfoMore.setText("1");
+            final RobotInfoBean infobean = listData.get(position);
+            holder.txtInfoTitle.setText(infobean.getRname());
+            holder.imgInfoIcon.setImageURI(Uri.parse(infobean.getAvatar()));
+            holder.txtInfoMore.setText(infobean.getRobotDescription());
 
             holder.btnInfoAdd.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                    setResult(GroupRobotActivity.RET_SELECT,new Intent()
+                            .putExtra(GroupRobotActivity.AGM_GID,gid)
+                            .putExtra(GroupRobotActivity.AGM_RID,infobean.getRid()));
+                    finish();
 
                 }
             });
@@ -100,7 +114,11 @@ public class GroupRobotSelecActivity extends AppActivity {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(getContext(), GroupRobotActivity.class).putExtra(GroupRobotActivity.AGM_SHOW_TYPE, GroupRobotActivity.AGM_SHOW_TYPE_ADD));
+                    startActivity(new Intent(getContext(), GroupRobotActivity.class).putExtra(GroupRobotActivity.AGM_SHOW_TYPE, GroupRobotActivity.AGM_SHOW_TYPE_ADD)
+                            .putExtra(GroupRobotActivity.AGM_GID, gid)
+                            .putExtra(GroupRobotActivity.AGM_RID, infobean.getRid())
+
+                    );
                 }
             });
 
@@ -137,13 +155,26 @@ public class GroupRobotSelecActivity extends AppActivity {
 
     private String key = "";
 
+    private MsgAction msgAction=new MsgAction();
     private void taskSearch() {
         key = edtSearch.getText().toString();
         if (key.length() <= 0) {
             return;
         }
+        msgAction.robotSearch(key, new CallBack<ReturnBean<List<RobotInfoBean>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<RobotInfoBean>>> call, Response<ReturnBean<List<RobotInfoBean>>> response) {
+                if (response.body()==null)
+                    return;
 
-        //listData
-        mtListView.notifyDataSetChange();
+                listData=response.body().getData();
+                mtListView.notifyDataSetChange();
+            }
+        });
+
+
+
     }
+
+
 }
