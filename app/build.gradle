@@ -1,6 +1,10 @@
+import java.text.SimpleDateFormat
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
-
+def releaseTime() {
+    SimpleDateFormat format = new SimpleDateFormat("MMdd_hms")
+    return format.format(new Date(java.lang.System.currentTimeMillis()))
+}
 android {
     compileSdkVersion 28
 
@@ -17,6 +21,9 @@ android {
         versionName "0.8.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+
+
 
     signingConfigs {
         debug {
@@ -73,6 +80,18 @@ android {
             ]
 
             signingConfig = signingConfigs.release
+        }
+    }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            if (variant.buildType.name.equals('debug')) {
+                outputFileName = "IM_V${defaultConfig.versionName}_${releaseTime()}_debug.apk"
+            } else if (variant.buildType.name.equals('pre')) {
+                outputFileName = "IM_V${defaultConfig.versionName}_${releaseTime()}_pre.apk"
+            } else if (variant.buildType.name.equals('release')) {
+                outputFileName = "IM_V${defaultConfig.versionName}_${releaseTime()}_release.apk"
+            }
+
         }
     }
 
