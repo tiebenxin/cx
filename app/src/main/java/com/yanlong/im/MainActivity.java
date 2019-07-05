@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -260,22 +261,22 @@ public class MainActivity extends AppActivity {
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
         userAction.cleanInfo();
-//        PushAgent.getInstance(this).disable(new IUmengCallback() {
-//            @Override
-//            public void onSuccess() {
-//
-//            }
-//
-//            @Override
-//            public void onFailure(String s, String s1) {
-//
-//            }
-//        });
+        PushAgent.getInstance(this).disable(new IUmengCallback() {
+            @Override
+            public void onSuccess() {
+                Log.e("youmeng", "关闭推送成功：-------->  ");
+            }
+
+            @Override
+            public void onFailure(String s, String s1) {
+                Log.e("youmeng", "关闭推送成功：-------->  " + "s:" + s + "s1:" + s1);
+            }
+        });
     }
 
 
     private void uploadApp() {
-        if(!AppConfig.DEBUG){
+        if (!AppConfig.DEBUG) {
             taskNewVersion();
         }
     }

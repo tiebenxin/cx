@@ -21,6 +21,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -75,7 +76,12 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             }
         });
         mTvIdentifyingCode.setOnClickListener(this);
-        mBtnLogin.setOnClickListener(this);
+        ClickFilter.onClick(mBtnLogin, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
     }
 
 
@@ -85,9 +91,6 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             case R.id.tv_identifying_code:
                 Intent intent = new Intent(this,IdentifyingCodeActivity.class);
                 startActivity(intent);
-                break;
-            case R.id.btn_login:
-                login();
                 break;
         }
 

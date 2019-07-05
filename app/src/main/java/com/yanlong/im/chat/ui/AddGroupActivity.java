@@ -110,12 +110,16 @@ public class AddGroupActivity extends AppActivity {
                     ToastUtil.show(AddGroupActivity.this,"加群失败");
                     return;
                 }
-                ToastUtil.show(AddGroupActivity.this,response.body().getMsg());
                 if(response.body().isOk()){
-                    Intent intent = new Intent(AddGroupActivity.this,ChatActivity.class);
-                    intent.putExtra(ChatActivity.AGM_TOGID,gid);
-                    startActivity(intent);
-                    finish();
+                    if(!response.body().getData().isPending()){
+                        ToastUtil.show(AddGroupActivity.this,response.body().getMsg());
+                        Intent intent = new Intent(AddGroupActivity.this,ChatActivity.class);
+                        intent.putExtra(ChatActivity.AGM_TOGID,gid);
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        ToastUtil.show(AddGroupActivity.this,"加群成功,等待群主验证");
+                    }
                 }
             }
         });

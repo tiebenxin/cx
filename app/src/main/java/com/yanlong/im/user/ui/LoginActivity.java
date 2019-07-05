@@ -18,6 +18,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
@@ -66,17 +67,22 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
     private void initEvent() {
         mTvIdentifyingCode.setOnClickListener(this);
-        mBtnLogin.setOnClickListener(this);
         mTvForgetPassword.setOnClickListener(this);
         mTvMore.setOnClickListener(this);
-        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent,this));
+        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent, this));
+        ClickFilter.onClick(mBtnLogin, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
     }
 
     private void initData() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         String imageHead = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).get4Json(String.class);
         mTvPhoneNumber.setText(phone);
-        mImgHead.setImageURI(imageHead+"");
+        mImgHead.setImageURI(imageHead + "");
     }
 
 
@@ -85,11 +91,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.tv_identifying_code:
                 Intent intent = new Intent(this, IdentifyingCodeActivity.class);
-                intent.putExtra(PHONE,phone);
+                intent.putExtra(PHONE, phone);
                 startActivity(intent);
-                break;
-            case R.id.btn_login:
-                login();
                 break;
             case R.id.tv_forget_password:
                 Intent forgotPasswordIntent = new Intent(this, ForgotPasswordActivity.class);
@@ -135,12 +138,12 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                if(response.body() == null){
+                if (response.body() == null) {
                     return;
                 }
                 if (response.body().isOk()) {
-                    Intent intent = new Intent(getContext(),MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());

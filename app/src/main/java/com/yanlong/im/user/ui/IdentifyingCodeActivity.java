@@ -17,6 +17,7 @@ import com.yanlong.im.user.bean.TokenBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -69,7 +70,6 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
 
     private void initEvent() {
         mTvPassword.setOnClickListener(this);
-        mBtnLogin.setOnClickListener(this);
         mTvGetVerificationCode.setOnClickListener(this);
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -80,6 +80,12 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             @Override
             public void onRight() {
 
+            }
+        });
+        ClickFilter.onClick(mBtnLogin, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
             }
         });
     }
@@ -95,9 +101,6 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             case R.id.tv_password:
                 Intent intent = new Intent(this, PasswordLoginActivity.class);
                 startActivity(intent);
-                break;
-            case R.id.btn_login:
-                login();
                 break;
             case R.id.tv_get_verification_code:
                 initCountDownUtil();

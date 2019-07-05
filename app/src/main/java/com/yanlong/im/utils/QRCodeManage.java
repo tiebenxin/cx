@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.ui.AddGroupActivity;
+import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.MyselfInfoActivity;
@@ -21,6 +23,7 @@ import net.cb.cb.library.utils.ToastUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -111,12 +114,56 @@ public class QRCodeManage {
                 }
             } else if (bean.getFunction().equals(ADD_GROUP_FUNCHTION)) {
                 if (!TextUtils.isEmpty(bean.getParameterValue(ID))) {
-                    Intent intent = new Intent(activity, AddGroupActivity.class);
-                    intent.putExtra(AddGroupActivity.GID, bean.getParameterValue(ID));
-                    activity.startActivity(intent);
+//                    Intent intent = new Intent(activity, AddGroupActivity.class);
+//                    intent.putExtra(AddGroupActivity.GID, bean.getParameterValue(ID));
+//                    activity.startActivity(intent);
+
+                    taskGroupInfo(bean.getParameterValue(ID),activity);
                 }
             }
         }
+    }
+
+
+    private static void taskGroupInfo(final String gid, final Activity activity) {
+        new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+
+                if (response.body() != null) {
+                    if (response.body().isOk()) {
+                        boolean isNot = false;
+                        Group bean = response.body().getData();
+                        RealmList<UserInfo> users = bean.getUsers();
+                        UserInfo userInfo = new UserAction().getMyInfo();
+                        for (UserInfo user : users) {
+                            if (userInfo.getUid().longValue() == user.getUid().longValue()) {
+                                isNot = true;
+                            }
+                        }
+
+                        if (!isNot) {
+                            Intent intent = new Intent(activity, AddGroupActivity.class);
+                            intent.putExtra(AddGroupActivity.GID, gid);
+                            activity.startActivity(intent);
+                        } else {
+                            Intent intent = new Intent(activity, ChatActivity.class);
+                            intent.putExtra(ChatActivity.AGM_TOGID,gid);
+                            activity.startActivity(intent);
+                        }
+
+                    } else {
+                        Intent intent = new Intent(activity, AddGroupActivity.class);
+                        intent.putExtra(AddGroupActivity.GID, gid);
+                        activity.startActivity(intent);
+                    }
+                } else {
+                    Intent intent = new Intent(activity, AddGroupActivity.class);
+                    intent.putExtra(AddGroupActivity.GID, gid);
+                    activity.startActivity(intent);
+                }
+            }
+        });
     }
 
 }

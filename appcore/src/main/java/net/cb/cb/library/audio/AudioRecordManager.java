@@ -19,6 +19,7 @@ import java.io.File;
 
 public class AudioRecordManager implements Handler.Callback {
     private static final String TAG = "LQR_AudioRecordManager";
+    public static final int KHS = 11025;
     private int RECORD_INTERVAL;
     private String SAVE_PATH;
     private IAudioState mCurAudioState;
@@ -222,17 +223,17 @@ public class AudioRecordManager implements Handler.Callback {
 //                Resources e = this.mContext.getResources();
 //                int bps = e.getInteger(e.getIdentifier("rc_audio_encoding_bit_rate", "integer", this.mContext.getPackageName()));
                 int bps = 7950;
-                this.mMediaRecorder.setAudioSamplingRate(8000);
+                this.mMediaRecorder.setAudioSamplingRate(KHS);
                 this.mMediaRecorder.setAudioEncodingBitRate(bps);
             } catch (Resources.NotFoundException var3) {
                 var3.printStackTrace();
             }
 
-            this.mMediaRecorder.setAudioChannels(1);
+            this.mMediaRecorder.setAudioChannels(MediaRecorder.AudioSource.MIC);
             this.mMediaRecorder.setAudioSource(1);
-            this.mMediaRecorder.setOutputFormat(3);
-            this.mMediaRecorder.setAudioEncoder(1);
-            this.mAudioPath = Uri.fromFile(new File(SAVE_PATH, System.currentTimeMillis() + "temp.voice"));
+            this.mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+            this.mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            this.mAudioPath = Uri.fromFile(new File(SAVE_PATH, System.currentTimeMillis() + "temp.aac"));
             this.mMediaRecorder.setOutputFile(this.mAudioPath.getPath());
             this.mMediaRecorder.prepare();
             this.mMediaRecorder.start();

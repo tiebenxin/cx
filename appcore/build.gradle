@@ -24,7 +24,6 @@ android {
             jcenter()
 
         }
-
     }
     allprojects {
         repositories {
@@ -35,6 +34,9 @@ android {
             mavenCentral()
         }
     }
+
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -47,8 +49,6 @@ android {
         }
     }
 }
-
-
 
 
 dependencies {
@@ -104,8 +104,8 @@ dependencies {
     api 'com.github.mcxtzhang:SwipeDelMenuLayout:V1.3.0'
 
     //表情
-   // api 'com.android.support:support-emoji-appcompat:28.+'
-  //  api 'com.android.support:support-emoji-bundled:28.+'
+    // api 'com.android.support:support-emoji-appcompat:28.+'
+    //  api 'com.android.support:support-emoji-bundled:28.+'
     api 'com.android.support:support-emoji:28.+'
     api 'com.android.support:support-emoji-appcompat:28.+'
     api 'com.android.support:support-emoji-bundled:28.+'

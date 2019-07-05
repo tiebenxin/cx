@@ -20,6 +20,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -73,7 +74,6 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     }
 
     private void initEvent() {
-        mBtnRegister.setOnClickListener(this);
         mTvMattersNeedAttention.setOnClickListener(this);
         mTvGetVerificationCode.setOnClickListener(this);
         mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent,this));
@@ -89,6 +89,12 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
 
             }
         });
+        ClickFilter.onClick(mBtnRegister, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                register();
+            }
+        });
     }
 
     private void initData() {
@@ -99,9 +105,6 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_register:
-                register();
-                break;
             case R.id.tv_get_verification_code:
                 initCountDownUtil();
                 break;

@@ -39,6 +39,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -136,8 +137,20 @@ public class GroupInfoActivity extends AppActivity {
 
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // ToastUtil.show(getContext(), "删除会话");
-                taskExitGroup();
+                AlertYesNo alertYesNo = new AlertYesNo();
+                alertYesNo.init(GroupInfoActivity.this, "退出群聊", "确定退出群聊?", "确定", "取消",
+                        new AlertYesNo.Event() {
+                            @Override
+                            public void onON() {
+
+                            }
+
+                            @Override
+                            public void onYes() {
+                                taskExitGroup();
+                            }
+                        });
+                alertYesNo.show();
             }
         });
 

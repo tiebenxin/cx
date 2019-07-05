@@ -12,6 +12,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -60,7 +61,7 @@ public class SetingPasswordActivity extends AppActivity {
 
             }
         });
-        mBtnCommit.setOnClickListener(new View.OnClickListener() {
+        ClickFilter.onClick(mBtnCommit, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 commit();
@@ -85,7 +86,7 @@ public class SetingPasswordActivity extends AppActivity {
             ToastUtil.show(this,"请再次填写新密码");
             return;
         }
-        if(mEdNewPassword.equals(mEdNextPassword)){
+        if(!newPassword.equals(nextPassword)){
             ToastUtil.show(this,"两次填写密码不一致");
             return;
         }
@@ -100,8 +101,12 @@ public class SetingPasswordActivity extends AppActivity {
                 if(response.body() == null){
                     return;
                 }
+                if(response.body().isOk()){
+                    finish();
+                }
                 ToastUtil.show(SetingPasswordActivity.this,response.body().getMsg());
-                finish();
+
+
             }
         });
     }

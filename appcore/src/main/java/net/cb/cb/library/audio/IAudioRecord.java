@@ -2,6 +2,7 @@ package net.cb.cb.library.audio;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
 
@@ -10,6 +11,8 @@ import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 
 import java.io.File;
+
+import jaygoo.library.converter.Mp3Converter;
 
 public class IAudioRecord implements IAudioRecordListener {
     private Context context;
@@ -65,8 +68,20 @@ public class IAudioRecord implements IAudioRecordListener {
     }
 
     @Override
-    public void onFinish(Uri audioPath, final int duration) {
+    public void onFinish(final Uri audioPath, final int duration) {
         if (audioPath != null) {
+//            Mp3Converter.init(11025,1,0,11025,22,7);
+//   //         Mp3Converter.init(  44100,1,0,44100,96,7);
+//
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    //
+//                    Mp3Converter.convertMp3(audioPath.getPath(),
+//                            Environment.getExternalStorageDirectory()+File.separator+"LQR_AUDIO"+File.separator+"test.mp3");
+//                }
+//            }).start();
+
             new UpFileAction().upFile(context, new UpFileUtil.OssUpCallback() {
                 @Override
                 public void success(String url) {

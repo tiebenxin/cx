@@ -16,6 +16,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import com.jrmf360.tools.JrmfClient;
 import com.umeng.commonsdk.UMConfigure;
+import com.umeng.message.IUmengCallback;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengNotificationClickHandler;
@@ -39,8 +40,8 @@ public class MyAppLication extends MainApplication {
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
 
-                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
-                AppConfig.URL_HOST = "https://"+AppConfig.SOCKET_IP+":8080";
+                AppConfig.SOCKET_IP = "yanlong.1616d.top";
+                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
 
                 AppConfig.DEBUG = true;
 
@@ -51,7 +52,7 @@ public class MyAppLication extends MainApplication {
             case "pre":
                 AppConfig.DEBUG = true;
                 AppConfig.SOCKET_IP = "usa-test.1616d.top";
-                AppConfig.URL_HOST = "https://"+AppConfig.SOCKET_IP+":8080";
+                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 break;
             case "release":
@@ -103,15 +104,27 @@ public class MyAppLication extends MainApplication {
             @Override
             public void onSuccess(String deviceToken) {
                 //注册成功会返回deviceToken deviceToken是推送消息的唯一标志
-                Log.i(TAG, "注册成功：deviceToken：-------->  " + deviceToken);
+                Log.i("youmeng", "注册成功：deviceToken：-------->  " + deviceToken);
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(deviceToken);
 
             }
 
             @Override
             public void onFailure(String s, String s1) {
-                Log.e(TAG, "注册失败：-------->  " + "s:" + s + ",s1:" + s1);
+                Log.e("youmeng", "注册失败：-------->  " + "s:" + s + ",s1:" + s1);
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).clear();
+            }
+        });
+
+        mPushAgent.enable(new IUmengCallback() {
+            @Override
+            public void onSuccess() {
+                Log.e("youmeng", "开启推送成功：-------->  ");
+            }
+
+            @Override
+            public void onFailure(String s, String s1) {
+                Log.e("youmeng", "开启推送失败：--------> " + "s:" + s + "s1:" + s1);
             }
         });
     }

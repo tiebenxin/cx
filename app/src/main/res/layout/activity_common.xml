@@ -14,11 +14,13 @@
 
         <View
             style="@style/app_line"
-            android:layout_marginTop="@dimen/app_margin_item_top" />
+            android:layout_marginTop="@dimen/app_margin_item_top"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/view_account_binding"
-            style="@style/app_layout_list2_item">
+            style="@style/app_layout_list2_item"
+            android:visibility="gone">
 
 
             <TextView

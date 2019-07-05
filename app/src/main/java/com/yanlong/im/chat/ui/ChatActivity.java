@@ -6,6 +6,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioRecord;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -101,6 +102,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -587,6 +589,13 @@ public class ChatActivity extends AppActivity {
                 txtVoice.setBackgroundResource(R.drawable.bg_edt_chat);
             }
         }));
+
+        File mAudioDir = new File(Environment.getExternalStorageDirectory(), "LQR_AUDIO");
+        if (!mAudioDir.exists()) {
+            mAudioDir.mkdirs();
+        }
+        AudioRecordManager.getInstance(this).setAudioSavePath(mAudioDir.getAbsolutePath());
+
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
