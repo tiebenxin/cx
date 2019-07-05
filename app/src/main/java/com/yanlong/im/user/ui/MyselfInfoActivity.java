@@ -182,10 +182,10 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
                 break;
             case R.id.view_product_number:
                 Intent productIntent = new Intent(MyselfInfoActivity.this, CommonSetingActivity.class);
-                productIntent.putExtra(CommonSetingActivity.TITLE, "夸夸号");
-                productIntent.putExtra(CommonSetingActivity.REMMARK, "夸夸号");
+                productIntent.putExtra(CommonSetingActivity.TITLE, "常聊号");
+                productIntent.putExtra(CommonSetingActivity.REMMARK, "常聊号");
                 productIntent.putExtra(CommonSetingActivity.HINT, "可以使用6~15个字符 数字(必须以字母开头)");
-                productIntent.putExtra(CommonSetingActivity.REMMARK1, "夸夸号只能设置一次");
+                productIntent.putExtra(CommonSetingActivity.REMMARK1, "常聊号只能设置一次");
                 productIntent.putExtra(CommonSetingActivity.SIZE,15);
                 productIntent.putExtra(CommonSetingActivity.SPECIAL,1);
                 startActivityForResult(productIntent, PRODUCT);

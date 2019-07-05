@@ -15,16 +15,18 @@
         
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/sd_image_head"
+            style="@style/app_img_head"
             android:layout_width="250dp"
-            android:layout_height="250dp"
-            fresco:placeholderImage="@mipmap/ic_launcher"
-            fresco:failureImage="@mipmap/ic_launcher"/>
+            android:layout_height="250dp"/>
 
 
-        <ImageView
-            android:id="@+id/iv_test"
-            android:layout_width="100dp"
-            android:layout_height="100dp" />
+       <Button
+           android:id="@+id/btn_image_head"
+           style="@style/app_btn_green"
+           android:layout_marginLeft="30dp"
+           android:layout_marginRight="30dp"
+           android:layout_marginTop="100dp"
+           android:text="修改头像"/>
 
     </LinearLayout>
     

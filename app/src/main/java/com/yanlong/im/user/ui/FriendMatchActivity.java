@@ -241,7 +241,6 @@ public class FriendMatchActivity extends AppActivity {
                 txtName = convertView.findViewById(R.id.txt_name);
                 btnAdd = convertView.findViewById(R.id.btn_add);
             }
-
         }
     }
 
@@ -261,6 +260,9 @@ public class FriendMatchActivity extends AppActivity {
                     adapter.setList(listData);
                     initViewTypeData();
                     mtListView.notifyDataSetChange();
+                    if(listData== null || listData.size() == 0){
+                        ToastUtil.show(context,"没有匹配的手机联系人");
+                    }
                 }
             }
         });

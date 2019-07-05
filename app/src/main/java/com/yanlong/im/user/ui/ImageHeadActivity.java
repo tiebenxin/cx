@@ -6,11 +6,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
@@ -19,9 +21,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
-import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -32,6 +32,8 @@ import net.cb.cb.library.view.PopupSelectView;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import retrofit2.Call;
@@ -43,9 +45,12 @@ public class ImageHeadActivity extends AppActivity {
     private HeadView mHeadView;
     private SimpleDraweeView mSdImageHead;
     private PopupSelectView popupSelectView;
+    private PopupSelectView saveImagePopup;
     private String[] strings = {"拍照", "相册", "取消"};
+    private String[] saveImages = {"保存头像","取消"};
     private String imageHead;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
+    private Button mBtnImageHead;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,7 @@ public class ImageHeadActivity extends AppActivity {
         mSdImageHead.setImageURI(imageHead + "");
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
+        mBtnImageHead = findViewById(R.id.btn_image_head);
     }
 
 
@@ -77,7 +83,47 @@ public class ImageHeadActivity extends AppActivity {
                 initPopup();
             }
         });
+        mBtnImageHead.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initPopup();
+            }
+        });
+
+        mSdImageHead.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+              //  initSaveImage();
+
+                List<LocalMedia> selectList = new ArrayList<>();
+                LocalMedia lc = new LocalMedia();
+                lc.setPath(imageHead);
+                selectList.add(lc);
+                PictureSelector.create(ImageHeadActivity.this).themeStyle(R.style.picture_default_style)
+                        .isGif(true).openExternalPreview(0, selectList);
+                return false;
+            }
+        });
+
     }
+
+    private void initSaveImage(){
+        saveImagePopup = new PopupSelectView(this,saveImages);
+        saveImagePopup.showAtLocation(mSdImageHead, Gravity.BOTTOM, 0, 0);
+        saveImagePopup.setListener(new PopupSelectView.OnClickItemListener() {
+            @Override
+            public void onItem(String string, int postsion) {
+                switch (postsion){
+                    case 0:
+
+                        break;
+                }
+                saveImagePopup.dismiss();
+            }
+        });
+    }
+
 
     private void initPopup() {
         popupSelectView = new PopupSelectView(this, strings);
