@@ -5,6 +5,11 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.jrmf360.rplib.JrmfRpClient;
+import com.jrmf360.rplib.http.model.BaseModel;
+import com.jrmf360.tools.http.OkHttpModelCallBack;
+import com.yanlong.im.pay.action.PayAction;
+import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -356,6 +361,33 @@ public class UserAction {
         NetUtil.getNet().exec(server.friendGet(2), callback);
     }
 
+    private PayAction payAction=new PayAction();
+    private void upMyinfoToPay(){
+        payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    SignatureBean sign = response.body().getData();
+                    String token = sign.getSign();
+                    JrmfRpClient.updateUserInfo(myInfo.getUid()+"", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
+                        @Override
+                        public void onSuccess(BaseModel baseModel) {
+
+                        }
+
+                        @Override
+                        public void onFail(String s) {
+
+                        }
+                    });
+
+
+                }
+            }
+        });
+    }
     /**
      * 设置用户个人资料
      */
@@ -376,10 +408,13 @@ public class UserAction {
                     if (gender != null)
                         myInfo.setSex(gender);
                     updateUserinfo2DB(myInfo);
+                    upMyinfoToPay();
                 }
                 callback.onResponse(call, response);
             }
         });
+
+
 
     }
 

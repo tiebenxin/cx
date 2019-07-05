@@ -32,7 +32,10 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.BtnClickUtil;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CheckUtil;
+import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -81,10 +84,20 @@ public class GroupCreateActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                taskCreate();
+
             }
         });
         actionbar.setTxtRight("确定");
+
+
+        ClickFilter.onClick(actionbar.getViewRight(), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionbar.getViewRight().setEnabled(false);
+                taskCreate();
+            }
+        });
+
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
 
@@ -268,6 +281,7 @@ public class GroupCreateActivity extends AppActivity {
     private void taskCreate() {
         if (listDataTop.size() < 2) {
             ToastUtil.show(getContext(), "人数必须大于3人");
+            actionbar.getViewRight().setEnabled(true);
             return;
         }
         final ArrayList<UserInfo> templist = new ArrayList<>();
@@ -301,6 +315,7 @@ public class GroupCreateActivity extends AppActivity {
                 msgACtion.groupCreate(fname, icon, templist, new CallBack<ReturnBean<Group>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                        actionbar.getViewRight().setEnabled(true);
                         if (response.body() == null)
                             return;
                         if (response.body().isOk()) {
@@ -313,6 +328,12 @@ public class GroupCreateActivity extends AppActivity {
 
                         }
 
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                        actionbar.getViewRight().setEnabled(true);
+                        super.onFailure(call, t);
                     }
                 });
             }

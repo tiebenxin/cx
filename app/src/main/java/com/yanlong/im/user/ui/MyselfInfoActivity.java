@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.jrmf360.rplib.JrmfRpClient;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
@@ -249,6 +250,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 
 
     private void taskUserInfoSet(final String imid, final String avatar, final String nickname, final Integer gender) {
+
         userAction.myInfoSet(imid, avatar, nickname, gender, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {

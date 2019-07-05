@@ -252,7 +252,7 @@ public class ChatActivity extends AppActivity {
                 @Override
                 public void run() {
                     //离线就禁止发送之类的
-                    ToastUtil.show(getContext(), "离线就禁止发送之类的");
+                   // ToastUtil.show(getContext(), "离线就禁止发送之类的");
                     //  btnSend.setEnabled(state);
                 }
             });
