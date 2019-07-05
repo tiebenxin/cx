@@ -46,7 +46,7 @@
                         android:id="@+id/btn_voice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="2dp"
+                        android:layout_marginBottom="4dp"
                         android:src="@mipmap/ic_chat_vio" />
 
                     <FrameLayout
@@ -62,6 +62,7 @@
                             android:background="@drawable/bg_edt_chat"
                             android:fontFamily="@font/emoji_font"
                             android:singleLine="false"
+                            android:minHeight="34dp"
 
                             android:layout_height="wrap_content"
                            android:layout_width="match_parent"
@@ -84,13 +85,13 @@
                         android:id="@+id/btn_emj"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="2dp"
+                        android:layout_marginBottom="4dp"
                         android:src="@drawable/ic_lv_emoji" />
 
                     <FrameLayout
-                        android:layout_marginBottom="2dp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp">
 
                         <ImageView
                             android:id="@+id/btn_func"
