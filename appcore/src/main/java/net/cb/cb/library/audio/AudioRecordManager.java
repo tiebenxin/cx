@@ -55,7 +55,7 @@ public class AudioRecordManager implements Handler.Callback {
         this.mContext = context;
         this.mHandler = new Handler(this);
         this.RECORD_INTERVAL = 60;
-        this.SAVE_PATH = context.getCacheDir().getAbsolutePath();
+        this.SAVE_PATH = context.getExternalCacheDir().getAbsolutePath();
         this.idleState = new AudioRecordManager.IdleState();
         this.recordState = new AudioRecordManager.RecordState();
         this.sendingState = new AudioRecordManager.SendingState();

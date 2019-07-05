@@ -105,8 +105,6 @@ public class SetingPasswordActivity extends AppActivity {
                     finish();
                 }
                 ToastUtil.show(SetingPasswordActivity.this,response.body().getMsg());
-
-
             }
         });
     }

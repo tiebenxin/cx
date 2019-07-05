@@ -590,11 +590,11 @@ public class ChatActivity extends AppActivity {
             }
         }));
 
-        File mAudioDir = new File(Environment.getExternalStorageDirectory(), "LQR_AUDIO");
-        if (!mAudioDir.exists()) {
-            mAudioDir.mkdirs();
-        }
-        AudioRecordManager.getInstance(this).setAudioSavePath(mAudioDir.getAbsolutePath());
+//        File mAudioDir = new File(Environment.getExternalStorageDirectory(), "LQR_AUDIO");
+//        if (!mAudioDir.exists()) {
+//            mAudioDir.mkdirs();
+//        }
+//        AudioRecordManager.getInstance(this).setAudioSavePath(mAudioDir.getAbsolutePath());
 
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
