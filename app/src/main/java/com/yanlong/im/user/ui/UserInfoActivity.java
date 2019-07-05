@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -30,6 +32,9 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -256,13 +261,24 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
-                UserInfo info = response.body().getData();
+                final UserInfo info = response.body().getData();
                 imgHead.setImageURI(Uri.parse("" + info.getHead()));
                 txtMkname.setText(info.getName4Show());
                 mkName = info.getMkName();
                 txtPrNo.setText(info.getImid());
                 txtNkname.setText(info.getName());
                 name = info.getName();
+
+                imgHead.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        List<LocalMedia> selectList = new ArrayList<>();
+                        LocalMedia lc = new LocalMedia();
+                        lc.setPath(info.getHead());
+                        selectList.add(lc);
+                        PictureSelector.create(UserInfoActivity.this).themeStyle(R.style.picture_default_style).isGif(true).openExternalPreview(0, selectList);
+                    }
+                });
             }
         });
 

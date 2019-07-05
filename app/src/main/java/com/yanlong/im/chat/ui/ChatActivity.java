@@ -908,6 +908,7 @@ public class ChatActivity extends AppActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+
                                     MsgAllBean msgAllbean = SocketData.send4Image(toUId, toGid, url);
                                     showSendObj(msgAllbean);
                                 }
