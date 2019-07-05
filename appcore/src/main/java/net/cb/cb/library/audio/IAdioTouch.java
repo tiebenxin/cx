@@ -1,6 +1,7 @@
 package net.cb.cb.library.audio;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -15,6 +16,7 @@ public class IAdioTouch implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        //Log.d("-------", "_______onTouch: "+event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 AudioRecordManager.getInstance(context).startRecord();
@@ -32,6 +34,7 @@ public class IAdioTouch implements View.OnTouchListener {
                     listener.onMove();
                 }
                 break;
+            case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 AudioRecordManager.getInstance(context).stopRecord();
                 AudioRecordManager.getInstance(context).destroyRecord();
@@ -40,7 +43,7 @@ public class IAdioTouch implements View.OnTouchListener {
                 }
                 break;
         }
-        return false;
+        return true;
     }
 
 
