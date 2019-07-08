@@ -19,6 +19,7 @@ public class IAdioTouch implements View.OnTouchListener {
         //Log.d("-------", "_______onTouch: "+event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                AudioPlayManager.getInstance().stopPlay();
                 AudioRecordManager.getInstance(context).startRecord();
                 if(listener != null){
                     listener.onDown();

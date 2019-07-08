@@ -74,7 +74,7 @@ private VoiceView voiceView;
     }
 
     private void initEvent() {
-        voiceView.init(false,70);
+       // voiceView.init(false,70);
 
     }
 

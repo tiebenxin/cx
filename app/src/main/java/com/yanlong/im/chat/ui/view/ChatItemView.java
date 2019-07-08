@@ -155,8 +155,8 @@ public class ChatItemView extends LinearLayout {
         txtOtTsBt = (TextView) rootView.findViewById(R.id.txt_ot_ts_bt);
         imgOtTsIcon = (ImageView) rootView.findViewById(R.id.img_ot_ts_icon);
 
-      viewOt7  =(VoiceView) rootView.findViewById(R.id.view_ot_7);
-      viewMe7  =(VoiceView) rootView.findViewById(R.id.view_me_7);
+        viewOt7 = (VoiceView) rootView.findViewById(R.id.view_ot_7);
+        viewMe7 = (VoiceView) rootView.findViewById(R.id.view_me_7);
 
     }
 
@@ -171,9 +171,9 @@ public class ChatItemView extends LinearLayout {
      * @param type
      * @param isMe
      */
-    public void setShowType(int type, boolean isMe, String headUrl,String nikeName, String time) {
+    public void setShowType(int type, boolean isMe, String headUrl, String nikeName, String time) {
 
-        this.isMe=isMe;
+        this.isMe = isMe;
         if (isMe) {
             viewMe.setVisibility(VISIBLE);
             viewOt.setVisibility(GONE);
@@ -182,7 +182,7 @@ public class ChatItemView extends LinearLayout {
             viewOt.setVisibility(VISIBLE);
         }
         txtBroadcast.setVisibility(GONE);
-      //  imgMeErr.setVisibility(GONE);
+        //  imgMeErr.setVisibility(GONE);
         viewMe1.setVisibility(GONE);
         viewOt1.setVisibility(GONE);
         viewMe2.setVisibility(GONE);
@@ -238,12 +238,12 @@ public class ChatItemView extends LinearLayout {
             imgMeHead.setImageURI(Uri.parse(headUrl));
             imgOtHead.setImageURI(Uri.parse(headUrl));
         }
-        if(nikeName!=null){
+        if (nikeName != null) {
             txtMeName.setText(nikeName);
             txtOtName.setText(nikeName);
             txtOtName.setVisibility(VISIBLE);
             txtMeName.setVisibility(VISIBLE);
-        }else{
+        } else {
             txtOtName.setVisibility(INVISIBLE);
             txtMeName.setVisibility(INVISIBLE);
         }
@@ -309,16 +309,15 @@ public class ChatItemView extends LinearLayout {
         txtMeRbInfo.setText(info);
         txtOtRbInfo.setText(info);
 
-       if(typeName!=null){
-           txtMeRpBt.setText(typeName);
-           txtOtRpBt.setText(typeName);
-       }
+        if (typeName != null) {
+            txtMeRpBt.setText(typeName);
+            txtOtRpBt.setText(typeName);
+        }
 
-       if(typeIconRes!=0){
-           imgMeRbIcon.setImageResource(typeIconRes);
-           imgOtRbIcon.setImageResource(typeIconRes);
-       }
-
+        if (typeIconRes != 0) {
+            imgMeRbIcon.setImageResource(typeIconRes);
+            imgOtRbIcon.setImageResource(typeIconRes);
+        }
 
 
     }
@@ -356,24 +355,45 @@ public class ChatItemView extends LinearLayout {
         txtMeTsInfo.setText(info);
         txtOtTsInfo.setText(info);
 
-        if(typeName!=null){
+        if (typeName != null) {
             txtMeTsBt.setText(typeName);
             txtOtTsBt.setText(typeName);
         }
 
-        if(typeIconRes!=0){
+        if (typeIconRes != 0) {
             imgMeTsIcon.setImageResource(typeIconRes);
             imgOtTsIcon.setImageResource(typeIconRes);
         }
     }
-    //语音
-    public void setData7(int second ,OnClickListener onk) {
-        viewOt7.init(isMe,second);
-        viewOt7.setOnClickListener(onk);
-        viewMe7.init(isMe,second);
-        viewMe7.setOnClickListener(onk);
-    }
 
+    //语音
+    public ImageView setData7(int second, boolean isRead, final OnClickListener onk) {
+        viewOt7.init(isMe, second, isRead);
+        viewMe7.init(isMe, second, isRead);
+
+        OnClickListener nonk = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isMe) {
+
+                    onk.onClick(viewMe7.getImgMeIcon());
+                } else {
+                    onk.onClick(viewOt7.getImgOtIcon());
+
+
+                }
+
+            }
+        };
+        viewMe7.setOnClickListener(nonk);
+        viewOt7.setOnClickListener(nonk);
+
+        if (isMe) {
+            return viewMe7.getImgMeIcon();
+        } else {
+            return viewOt7.getImgOtIcon();
+        }
+    }
 
 
     public void setFont(Integer size) {
@@ -396,30 +416,32 @@ public class ChatItemView extends LinearLayout {
 
     public void setData4(final Uri uri, final EventPic eventPic) {
         if (uri != null) {
-           // imgMe4.setImageURI(uri);
-           // imgOt4.setImageURI(uri);
+            // imgMe4.setImageURI(uri);
+            // imgOt4.setImageURI(uri);
 
-           if(uri.getPath().toLowerCase().endsWith(".gif")){
-              imgOt4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
-               imgMe4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
-           }
-           DraweeController  controller1 =
+            if (uri.getPath().toLowerCase().endsWith(".gif")) {
+                imgOt4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
+
+                imgMe4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
+                //把圆角设置为直角
+                imgOt4.getHierarchy().getRoundingParams().setRoundAsCircle(false);
+                imgMe4.getHierarchy().getRoundingParams().setRoundAsCircle(false);
+            }
+            DraweeController controller1 =
                     Fresco.newDraweeControllerBuilder()
                             .setUri(uri)
                             .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
 
                             .build();
-            DraweeController  controller2 =
+            DraweeController controller2 =
                     Fresco.newDraweeControllerBuilder()
                             .setUri(uri)
                             .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
                             .build();
-
 
 
             imgOt4.setController(controller1);
             imgMe4.setController(controller2);
-
 
 
         }
@@ -442,8 +464,8 @@ public class ChatItemView extends LinearLayout {
     }
 
     //名片消息
-    public void setData5(String name, String info,String headUrl, String moreInfo,OnClickListener onk) {
-        if(moreInfo!=null){
+    public void setData5(String name, String info, String headUrl, String moreInfo, OnClickListener onk) {
+        if (moreInfo != null) {
             txtMe5Bt.setText(moreInfo);
             txtOt5Bt.setText(moreInfo);
         }
@@ -462,7 +484,6 @@ public class ChatItemView extends LinearLayout {
     }
 
 
-
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -472,11 +493,11 @@ public class ChatItemView extends LinearLayout {
         initEvent();
     }
 
-    public void setErr(int state){
-        switch (state){
+    public void setErr(int state) {
+        switch (state) {
             case 0://正常
                 imgMeErr.setVisibility(GONE);
-               break;
+                break;
             case 1://失败
                 imgMeErr.setVisibility(VISIBLE);
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
@@ -489,14 +510,15 @@ public class ChatItemView extends LinearLayout {
         }
 
     }
-    public void setOnErr(OnClickListener onk){
+
+    public void setOnErr(OnClickListener onk) {
         imgMeErr.setOnClickListener(onk);
     }
 
-public void setOnHead(OnClickListener onk){
+    public void setOnHead(OnClickListener onk) {
         imgMeHead.setOnClickListener(onk);
         imgOtHead.setOnClickListener(onk);
-}
+    }
 
 
 }

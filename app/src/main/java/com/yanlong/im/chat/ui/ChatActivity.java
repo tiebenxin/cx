@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioRecord;
 import android.net.Uri;
@@ -80,6 +81,7 @@ import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.AnimationPic;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -158,12 +160,9 @@ public class ChatActivity extends AppActivity {
     public static final int REQ_RP = 9653;
     public static final int REQ_TRANS = 9653;
 
-/*    private void initChatInfo(){
-        toUId = null;
-        toGid = null;
-        indexPage = 0;
-        msgListData.clear();
-    }*/
+
+    //语音的动画
+    private AnimationPic animationPic = new AnimationPic();
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -254,7 +253,7 @@ public class ChatActivity extends AppActivity {
                 @Override
                 public void run() {
                     //离线就禁止发送之类的
-                   // ToastUtil.show(getContext(), "离线就禁止发送之类的");
+                    // ToastUtil.show(getContext(), "离线就禁止发送之类的");
                     //  btnSend.setEnabled(state);
                 }
             });
@@ -589,12 +588,6 @@ public class ChatActivity extends AppActivity {
             }
         }));
 
-//        File mAudioDir = new File(Environment.getExternalStorageDirectory(), "LQR_AUDIO");
-//        if (!mAudioDir.exists()) {
-//            mAudioDir.mkdirs();
-//        }
-//        AudioRecordManager.getInstance(this).setAudioSavePath(mAudioDir.getAbsolutePath());
-
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
@@ -615,7 +608,7 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 //  ToastUtil.show(getContext(),"群助手");
-                if(groupInfo==null)
+                if (groupInfo == null)
                     return;
 
                 startActivity(new Intent(getContext(), GroupRobotActivity.class)
@@ -743,6 +736,7 @@ public class ChatActivity extends AppActivity {
 
 
         if (open) {
+
             showBtType(2);
         } else {
             showVoice(false);
@@ -798,13 +792,13 @@ public class ChatActivity extends AppActivity {
         }, 50);
     }
 
-    private void showEndMsg(){
+    private void showEndMsg() {
         mtListView.postDelayed(new Runnable() {
             @Override
             public void run() {
                 mtListView.getListView().smoothScrollToPosition(msgListData.size());
             }
-        },200);
+        }, 200);
 
     }
 
@@ -832,6 +826,7 @@ public class ChatActivity extends AppActivity {
 
         //清理会话数量
         taskCleanRead();
+        AudioPlayManager.getInstance().stopPlay();
         super.onBackPressed();
     }
 
@@ -1000,6 +995,9 @@ public class ChatActivity extends AppActivity {
 
     }
 
+    private int[] aimapicOt = new int[]{R.mipmap.ic_voice_l1, R.mipmap.ic_voice_l2, R.mipmap.ic_voice_l};
+    private int[] aimapicMe = new int[]{R.mipmap.ic_voice_r1, R.mipmap.ic_voice_r2, R.mipmap.ic_voice_r};
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -1149,28 +1147,58 @@ public class ChatActivity extends AppActivity {
                     break;
                 case 7:
                     final VoiceMessage vm = msgbean.getVoiceMessage();
-                    holder.viewChatItem.setData7(vm.getTime(), new View.OnClickListener() {
+
+
+                    ImageView vim = holder.viewChatItem.setData7(vm.getTime(), false, new View.OnClickListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(final View v) {
+                            if(AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))){
+                                AudioPlayManager.getInstance().stopPlay();
 
-                            AudioPlayManager.getInstance().startPlay(context, Uri.parse(vm.getUrl()), new IAudioPlayListener() {
-                                @Override
-                                public void onStart(Uri var1) {
-                                }
+                            }else{
+                                AudioPlayManager.getInstance().startPlay(context, Uri.parse(vm.getUrl()), new IAudioPlayListener() {
+                                    @Override
+                                    public void onStart(Uri var1) {
 
-                                @Override
-                                public void onStop(Uri var1) {
 
-                                }
+                                        if (msgbean.isMe()) {
+                                            animationPic.init((ImageView) v, aimapicMe, aimapicMe[2], 750);
+                                        } else {
+                                            animationPic.init((ImageView) v, aimapicOt, aimapicOt[2], 750);
 
-                                @Override
-                                public void onComplete(Uri var1) {
-                                }
-                            });
+                                        }
+                                      //  animationPic.start((ImageView) v);
+
+
+                                    }
+
+                                    @Override
+                                    public void onStop(Uri var1) {
+
+                                        animationPic.stop((ImageView) v);
+
+                                    }
+
+                                    @Override
+                                    public void onComplete(Uri var1) {
+
+                                        animationPic.stop((ImageView) v);
+                                    }
+                                });
+                            }
+
+
 
 
                         }
                     });
+
+                  if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
+
+                        animationPic.start(vim);
+                    }else{
+                      animationPic.stop(vim);
+                  }
 
 
                     break;
@@ -1589,6 +1617,7 @@ public class ChatActivity extends AppActivity {
     }
 
     private Group groupInfo;
+
     /***
      * 获取群信息
      */
