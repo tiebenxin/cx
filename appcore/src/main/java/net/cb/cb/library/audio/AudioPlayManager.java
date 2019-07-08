@@ -269,6 +269,16 @@ public class AudioPlayManager implements SensorEventListener {
 
     }
 
+
+    public boolean isPlay(Uri url){
+        boolean isPlay = false;
+        if(_playingUri.equals(url)){
+            isPlay = true;
+            return isPlay;
+        }
+        return isPlay;
+    }
+
     public Uri getPlayingUri() {
         return this._playingUri;
     }
