@@ -10,6 +10,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:splitMotionEvents="false"
         android:orientation="vertical">
 
         <net.cb.cb.library.view.MultiListView
@@ -22,6 +23,7 @@
             android:id="@+id/view_chat_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:splitMotionEvents="false"
             android:orientation="vertical">
 
             <View style="@style/app_line" />

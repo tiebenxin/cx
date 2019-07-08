@@ -573,6 +573,11 @@ public class ChatActivity extends AppActivity {
             public void onDown() {
                 txtVoice.setText("松开 结束");
                 txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
+
+                btnVoice.setEnabled(false);
+                btnEmj.setEnabled(false);
+                btnFunc.setEnabled(false);
+
             }
 
             @Override
@@ -585,17 +590,29 @@ public class ChatActivity extends AppActivity {
             public void onUp() {
                 txtVoice.setText("按住 说话");
                 txtVoice.setBackgroundResource(R.drawable.bg_edt_chat);
+
+                btnVoice.setEnabled(true);
+                btnEmj.setEnabled(true);
+                btnFunc.setEnabled(true);
+
             }
         }));
 
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
-            public void getUrl(String url, int duration) {
+            public void getUrl(final String url, final int duration) {
                 if (!TextUtils.isEmpty(url)) {
-                    //发送语音消息
-                    MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
-                    showSendObj(msgAllbean);
+                    //处理ui放在线程
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //发送语音消息
+                            MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
+                            showSendObj(msgAllbean);
+                        }
+                    });
+
 
                 }
             }
@@ -1263,7 +1280,7 @@ public class ChatActivity extends AppActivity {
 
     private void notifyData2Buttom() {
         mtListView.getListView().getAdapter().notifyDataSetChanged();
-        mtListView.getListView().smoothScrollToPosition(msgListData.size());
+        mtListView.getListView().scrollToPosition(msgListData.size());
     }
 
     private void notifyData() {
