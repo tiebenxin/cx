@@ -682,11 +682,10 @@ public class ChatActivity extends AppActivity {
                     case MotionEvent.ACTION_MOVE:
                         if (isRun == 1) {
                             isRun = 2;
+                            //7.5
 
                             InputUtil.hideKeyboard(edtChat);
                             hideBt();
-
-
                             btnEmj.setImageLevel(0);
                         } else if (isRun == 0) {
                             isRun = 1;
@@ -710,6 +709,7 @@ public class ChatActivity extends AppActivity {
 
 
                 btnEmj.setImageLevel(0);
+                showEndMsg();
             }
 
             @Override
@@ -792,8 +792,20 @@ public class ChatActivity extends AppActivity {
                         showVoice(true);
                         break;
                 }
+                //滚动到结尾 7.5
+                showEndMsg();
             }
         }, 50);
+    }
+
+    private void showEndMsg(){
+        mtListView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mtListView.getListView().smoothScrollToPosition(msgListData.size());
+            }
+        },200);
+
     }
 
     /***
