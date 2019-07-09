@@ -482,7 +482,7 @@ public class ChatActivity extends AppActivity {
             public void onClick(View v) {
 
                 PictureSelector.create(ChatActivity.this)
-
+                        .selectArtworkMaster(true)
                         .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .previewImage(false)// 是否可预览图片 true or false
@@ -922,6 +922,15 @@ public class ChatActivity extends AppActivity {
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
                     String file = obt.get(0).getCompressPath();
+                  /*  if( obt.get(0).getPictureType().contains("image/gif")){
+                         file = obt.get(0).getPath();
+                    }
+                    */
+                    boolean isArtworkMaster = data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER,false);
+                    if(isArtworkMaster){
+                      //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
+                        file = obt.get(0).getPath();
+                    }
                     //1.上传图片
 
                     upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {

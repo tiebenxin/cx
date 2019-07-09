@@ -195,8 +195,8 @@
                     android:layout_width="150dp"
                     android:layout_height="180dp"
 
-                    app:actualImageScaleType="centerCrop"
-                    app:roundedCornerRadius="3dp" />
+                    app:actualImageScaleType="centerInside"
+                     />
 
 
             </LinearLayout>
@@ -518,8 +518,8 @@
                         android:id="@+id/img_me_4"
                         android:layout_width="150dp"
                         android:layout_height="180dp"
-                        app:actualImageScaleType="centerCrop"
-                        app:roundedCornerRadius="3dp" />
+                        app:actualImageScaleType="centerInside"
+                         />
 
 
                 </LinearLayout>

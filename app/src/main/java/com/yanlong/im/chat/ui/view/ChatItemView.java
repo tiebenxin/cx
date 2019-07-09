@@ -412,17 +412,15 @@ public class ChatItemView extends LinearLayout {
 
     public void setData4(final Uri uri, final EventPic eventPic) {
         if (uri != null) {
-            // imgMe4.setImageURI(uri);
-            // imgOt4.setImageURI(uri);
 
-            if (uri.getPath().toLowerCase().endsWith(".gif")) {
+          /*  if (uri.getPath().toLowerCase().endsWith(".gif")) {
                 imgOt4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
 
                 imgMe4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
                 //把圆角设置为直角
                 imgOt4.getHierarchy().getRoundingParams().setRoundAsCircle(false);
                 imgMe4.getHierarchy().getRoundingParams().setRoundAsCircle(false);
-            }
+            }*/
             DraweeController controller1 =
                     Fresco.newDraweeControllerBuilder()
                             .setUri(uri)
