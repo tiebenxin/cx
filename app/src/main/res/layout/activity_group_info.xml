@@ -166,7 +166,26 @@
 
             </LinearLayout>
 
+        <LinearLayout style="@style/app_layout_list2">
+            <LinearLayout
+                android:id="@+id/view_group_manage"
+                style="@style/app_layout_list2_item">
 
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="群管理" />
+
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto" />
+            </LinearLayout>
+
+        </LinearLayout>
             <LinearLayout style="@style/app_layout_list2">
 
                 <LinearLayout
@@ -235,6 +254,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:id="@+id/view_group_verif"
                     style="@style/app_layout_list2_item">
 

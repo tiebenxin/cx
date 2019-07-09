@@ -47,8 +47,9 @@
         </LinearLayout>
 
         <TextView
-            style="@style/app_txt_title_4"
-            android:padding="@dimen/app_margin_main"
+            style="@style/app_txt_content_2"
+            android:paddingLeft="@dimen/app_margin_main"
+            android:paddingRight="@dimen/app_margin_main"
             android:text="开启后，需要管理员同意才能加入群聊" />
 
         <LinearLayout

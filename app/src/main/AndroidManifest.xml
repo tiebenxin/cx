@@ -375,6 +375,11 @@
             android:name=".chat.ui.GroupRobotActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+        <!--群管理-->
+        <activity
+            android:name=".chat.ui.GroupManageActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <!--群助手选择页面-->
         <activity
             android:name=".chat.ui.GroupRobotSelecActivity"

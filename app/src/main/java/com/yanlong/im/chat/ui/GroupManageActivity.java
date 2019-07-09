@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
@@ -24,7 +25,7 @@ import retrofit2.Response;
 
 public class GroupManageActivity extends AppActivity {
 
-
+    public static final String AGM_GID = "AGM_GID";
     private HeadView mHeadView;
     private LinearLayout mViewGroupTransfer;
     private LinearLayout viewGroupRobot;
@@ -40,13 +41,13 @@ public class GroupManageActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_manage);
         initView();
-        initEvent();
+
         initData();
     }
 
     private void initView() {
         msgAction = new MsgAction();
-        gid = getIntent().getStringExtra("gid");
+        gid = getIntent().getStringExtra(AGM_GID);
         mHeadView = findViewById(R.id.headView);
         mViewGroupTransfer = findViewById(R.id.view_group_transfer);
         mCkGroupVerif = findViewById(R.id.ck_group_verif);
@@ -94,15 +95,22 @@ public class GroupManageActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
+                    //群机器人
                     String rname=ginfo.getRobotname();
                     rname= StringUtil.isNotNull(rname)?rname:"未配置";
                     txtGroupRobot.setText(rname);
                     viewGroupRobot.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            go(GroupRobotActivity.class);
+                            startActivity(new Intent(getContext(), GroupRobotActivity.class)
+                                    .putExtra(GroupRobotActivity.AGM_GID, ginfo.getGid())
+                                    .putExtra(GroupRobotActivity.AGM_RID, ginfo.getRobotid()));
                         }
                     });
+                    //群验证
+                    mCkGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
+
+                    initEvent();
 
 
                 }

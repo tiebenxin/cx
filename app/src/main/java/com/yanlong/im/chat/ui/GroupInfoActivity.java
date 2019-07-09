@@ -76,6 +76,7 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewDisturb;
     private CheckBox ckDisturb;
     private LinearLayout viewGroupSave;
+    private LinearLayout viewGroupManage;
     private CheckBox ckGroupSave;
     private LinearLayout viewGroupVerif;
     private CheckBox ckGroupVerif;
@@ -104,6 +105,7 @@ public class GroupInfoActivity extends AppActivity {
         viewDisturb = (LinearLayout) findViewById(R.id.view_disturb);
         ckDisturb = (CheckBox) findViewById(R.id.ck_disturb);
         viewGroupSave = (LinearLayout) findViewById(R.id.view_group_save);
+        viewGroupManage = (LinearLayout) findViewById(R.id.view_group_manage);
 
         ckGroupVerif = (CheckBox) findViewById(R.id.ck_group_verif);
         viewGroupVerif = (LinearLayout) findViewById(R.id.view_group_verif);
@@ -220,6 +222,14 @@ public class GroupInfoActivity extends AppActivity {
         });
 
 
+        viewGroupManage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID,gid));
+            }
+        });
+
+
     }
 
 
@@ -247,12 +257,12 @@ public class GroupInfoActivity extends AppActivity {
         topListView.setAdapter(new RecyclerViewTopAdapter());
 
 
-        viewGroupVerif.setVisibility(isAdmin() ? View.VISIBLE : View.GONE);
+        viewGroupVerif.setVisibility(View.GONE);
         // ginfo.getNotnotify()
         txtGroupName.setText(ginfo.getName());
         txtGroupNick.setText(ginfo.getMygroupName());
         //txtGroupNote.setText();
-        ckGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
+        //ckGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
         ckTop.setChecked(ginfo.getIsTop() == 1);
@@ -504,8 +514,9 @@ public class GroupInfoActivity extends AppActivity {
                         }
                         listDataTop.add(null);
                         listDataTop.add(null);
-
+                        viewGroupManage.setVisibility(View.VISIBLE);
                     } else {
+
 
                         if (ginfo.getUsers().size() > 19) {
                             viewGroupMore.setVisibility(View.VISIBLE);
@@ -519,7 +530,7 @@ public class GroupInfoActivity extends AppActivity {
                         }
 
                         listDataTop.add(null);
-
+                        viewGroupManage.setVisibility(View.GONE);
 
                     }
 
