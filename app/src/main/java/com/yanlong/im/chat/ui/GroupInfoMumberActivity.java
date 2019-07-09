@@ -158,11 +158,7 @@ public class GroupInfoMumberActivity extends AppActivity {
 
           final  UserInfo number=  ginfo.getUsers().get(position);
             if(number!=null){
-                if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
-                    holder.imgGroup.setVisibility(View.VISIBLE);
-                } else {
-                    holder.imgGroup.setVisibility(View.GONE);
-                }
+
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 holder.txtName.setText(""+number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -172,6 +168,13 @@ public class GroupInfoMumberActivity extends AppActivity {
                                 .putExtra(UserInfoActivity.ID, number.getUid()));
                     }
                 });
+                if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
+                    holder.imgGroup.setVisibility(View.VISIBLE);
+                    holder.itemView.setOnClickListener(null);
+                } else {
+                    holder.imgGroup.setVisibility(View.GONE);
+
+                }
             }else{
                 if(isAdmin()&&position==ginfo.getUsers().size()-1){
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());

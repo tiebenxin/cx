@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
@@ -25,6 +26,8 @@ public class GroupManageActivity extends AppActivity {
 
     private HeadView mHeadView;
     private LinearLayout mViewGroupTransfer;
+    private LinearLayout viewGroupRobot;
+    private TextView txtGroupRobot;
     private CheckBox mCkGroupVerif;
     private MsgAction msgAction;
     private String gid;
@@ -46,6 +49,8 @@ public class GroupManageActivity extends AppActivity {
         mHeadView = findViewById(R.id.headView);
         mViewGroupTransfer = findViewById(R.id.view_group_transfer);
         mCkGroupVerif = findViewById(R.id.ck_group_verif);
+        viewGroupRobot = findViewById(R.id.view_group_robot);
+        txtGroupRobot = findViewById(R.id.txt_group_robot);
     }
 
     private void initEvent(){

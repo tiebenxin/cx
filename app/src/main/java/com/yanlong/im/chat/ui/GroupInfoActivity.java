@@ -318,11 +318,7 @@ public class GroupInfoActivity extends AppActivity {
 
 
             if (number != null) {
-                if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
-                    holder.imgGroup.setVisibility(View.VISIBLE);
-                } else {
-                    holder.imgGroup.setVisibility(View.GONE);
-                }
+
 
 
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
@@ -334,6 +330,12 @@ public class GroupInfoActivity extends AppActivity {
                                 .putExtra(UserInfoActivity.ID, number.getUid()));
                     }
                 });
+                if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
+                    holder.imgGroup.setVisibility(View.VISIBLE);
+                    holder.itemView.setOnClickListener(null);
+                } else {
+                    holder.imgGroup.setVisibility(View.GONE);
+                }
             } else {
                 if (isAdmin() && position == listDataTop.size() - 1) {
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
