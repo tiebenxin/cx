@@ -13,6 +13,7 @@ import com.yanlong.im.chat.bean.Group;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -93,6 +94,15 @@ public class GroupManageActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
+                    String rname=ginfo.getRobotname();
+                    rname= StringUtil.isNotNull(rname)?rname:"未配置";
+                    txtGroupRobot.setText(rname);
+                    viewGroupRobot.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            go(GroupRobotActivity.class);
+                        }
+                    });
 
 
                 }
