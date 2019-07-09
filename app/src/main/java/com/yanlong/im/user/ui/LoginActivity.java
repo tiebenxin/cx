@@ -125,6 +125,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
 
     private void login() {
+        mBtnLogin.setEnabled(false);
         String password = mEtPasswordContent.getText().toString();
         String phone = mTvPhoneNumber.getText().toString();
         if (TextUtils.isEmpty(phone)) {
@@ -138,6 +139,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                mBtnLogin.setEnabled(true);
                 if (response.body() == null) {
                     return;
                 }
@@ -148,6 +150,12 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                mBtnLogin.setEnabled(true);
             }
         });
     }

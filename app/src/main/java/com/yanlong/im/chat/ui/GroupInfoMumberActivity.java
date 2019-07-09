@@ -164,13 +164,15 @@ public class GroupInfoMumberActivity extends AppActivity {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (number.getUid().longValue()==UserAction.getMyId().longValue()){
+                            return;
+                        }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, number.getUid()));
                     }
                 });
                 if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
                     holder.imgGroup.setVisibility(View.VISIBLE);
-                    holder.itemView.setOnClickListener(null);
                 } else {
                     holder.imgGroup.setVisibility(View.GONE);
 
