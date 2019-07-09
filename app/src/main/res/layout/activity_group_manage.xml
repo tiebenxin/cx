@@ -8,6 +8,7 @@
 
 
     <LinearLayout
+        style="@style/app_layout_list2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -31,8 +32,8 @@
 
         <LinearLayout
             android:id="@+id/view_group_verif"
-            android:layout_marginTop="@dimen/app_margin_item_top"
-            style="@style/app_layout_list2_item">
+            style="@style/app_layout_list2_item"
+            android:layout_marginTop="@dimen/app_margin_item_top">
 
             <TextView
                 style="@style/app_txt_title_2"
@@ -44,6 +45,37 @@
                 android:id="@+id/ck_group_verif"
                 style="@style/app_check" />
         </LinearLayout>
+
+        <TextView
+            style="@style/app_txt_title_4"
+            android:padding="@dimen/app_margin_main"
+            android:text="开启后，需要管理员同意才能加入群聊" />
+
+        <LinearLayout
+            android:id="@+id/view_group_robot"
+            style="@style/app_layout_list2_item"
+            android:layout_marginTop="@dimen/app_margin_item_top">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+
+                android:text="群机器人" />
+
+            <TextView
+                android:layout_weight="1"
+                android:gravity="right"
+                android:id="@+id/txt_group_robot"
+                style="@style/app_txt_title_4"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:text="未配置" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto" />
+        </LinearLayout>
+
 
     </LinearLayout>
 
