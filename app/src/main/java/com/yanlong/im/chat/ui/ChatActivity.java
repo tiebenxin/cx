@@ -482,13 +482,13 @@ public class ChatActivity extends AppActivity {
             public void onClick(View v) {
 
                 PictureSelector.create(ChatActivity.this)
-                        .selectArtworkMaster(true)
                         .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .previewImage(false)// 是否可预览图片 true or false
                         .isCamera(false)// 是否显示拍照按钮 ture or false
                         .compress(true)// 是否压缩 true or false
                         .isGif(true)
+                        .selectArtworkMaster(true)
                         .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
             }
         });
