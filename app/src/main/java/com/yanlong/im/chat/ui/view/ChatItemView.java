@@ -367,11 +367,11 @@ public class ChatItemView extends LinearLayout {
     }
 
     //语音
-    public ImageView setData7(int second, boolean isRead, final OnClickListener onk) {
-        viewOt7.init(isMe, second, isRead);
-        viewMe7.init(isMe, second, isRead);
+    public void setData7(int second, boolean isRead,boolean isPlay, final OnClickListener onk) {
+        viewOt7.init(isMe, second, isRead,isPlay);
+        viewMe7.init(isMe, second, isRead,isPlay);
 
-        OnClickListener nonk = new OnClickListener() {
+      /*  OnClickListener nonk = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isMe) {
@@ -384,15 +384,11 @@ public class ChatItemView extends LinearLayout {
                 }
 
             }
-        };
-        viewMe7.setOnClickListener(nonk);
-        viewOt7.setOnClickListener(nonk);
+        };*/
+        viewMe7.setOnClickListener(onk);
+        viewOt7.setOnClickListener(onk);
 
-        if (isMe) {
-            return viewMe7.getImgMeIcon();
-        } else {
-            return viewOt7.getImgOtIcon();
-        }
+
     }
 
 

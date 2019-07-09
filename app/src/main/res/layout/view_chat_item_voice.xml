@@ -23,7 +23,7 @@
                 android:id="@+id/img_ot_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_voice_l" />
+                android:src="@drawable/ic_voice_anim_l" />
 
             <TextView
                 android:id="@+id/txt_ot_voice"
@@ -94,7 +94,7 @@
                 android:id="@+id/img_me_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_voice_r" />
+                android:src="@drawable/ic_voice_anim_r" />
 
 
         </LinearLayout>

@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui.view;
 
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -60,7 +61,7 @@ public class VoiceView extends LinearLayout {
 
     }
 
-    public void init(final boolean isMe, final int second, boolean isRead) {
+    public void init(final boolean isMe, final int second, boolean isRead,boolean isPlay) {
 
         if (isMe) {
             viewMeVoice.setVisibility(VISIBLE);
@@ -72,6 +73,20 @@ public class VoiceView extends LinearLayout {
         }
         txtOtVoice.setText(second + "''");
         txtMeVoice.setText(second + "''");
+        if(isPlay){
+            ( (AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
+            ( (AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
+            ( (AnimationDrawable) imgMeIcon.getDrawable()).start();
+            ( (AnimationDrawable) imgOtIcon.getDrawable()).start();
+        }else{
+
+            ( (AnimationDrawable) imgMeIcon.getDrawable()).stop();
+
+            ( (AnimationDrawable) imgOtIcon.getDrawable()).stop();
+
+          //
+        }
+
 
         int s = second > 60 ? 60 : second;
         int wsum = getScreenWidth() - DensityUtil.dip2px(getContext(), 74) * 2;//-DensityUtil.dip2px(getContext(),35);

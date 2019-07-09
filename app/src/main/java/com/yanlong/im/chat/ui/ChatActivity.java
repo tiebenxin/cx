@@ -1012,8 +1012,7 @@ public class ChatActivity extends AppActivity {
 
     }
 
-    private int[] aimapicOt = new int[]{R.mipmap.ic_voice_l1, R.mipmap.ic_voice_l2, R.mipmap.ic_voice_l};
-    private int[] aimapicMe = new int[]{R.mipmap.ic_voice_r1, R.mipmap.ic_voice_r2, R.mipmap.ic_voice_r};
+
 
 
     //自动生成RecyclerViewAdapter
@@ -1164,7 +1163,7 @@ public class ChatActivity extends AppActivity {
                     final VoiceMessage vm = msgbean.getVoiceMessage();
 
 
-                    ImageView vim = holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), new View.OnClickListener() {
+                     holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(),AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
 
@@ -1176,14 +1175,7 @@ public class ChatActivity extends AppActivity {
                                     @Override
                                     public void onStart(Uri var1) {
 
-
-                                        if (msgbean.isMe()) {
-                                            animationPic.init(msgbean.getMsg_id(),(ImageView) v, aimapicMe, aimapicMe[2], 750);
-                                        } else {
-                                            animationPic.init(msgbean.getMsg_id(),(ImageView) v, aimapicOt, aimapicOt[2], 750);
-
-                                        }
-                                      //  animationPic.start((ImageView) v);
+                                        mtListView.getListView().getAdapter().notifyDataSetChanged();
 
 
                                     }
@@ -1191,14 +1183,14 @@ public class ChatActivity extends AppActivity {
                                     @Override
                                     public void onStop(Uri var1) {
 
-                                        animationPic.stop(msgbean.getMsg_id(),(ImageView) v);
+                                        mtListView.getListView().getAdapter().notifyDataSetChanged();
 
                                     }
 
                                     @Override
                                     public void onComplete(Uri var1) {
 
-                                        animationPic.stop(msgbean.getMsg_id(),(ImageView) v);
+                                        mtListView.getListView().getAdapter().notifyDataSetChanged();
                                     }
                                 });
                             }
@@ -1216,9 +1208,9 @@ public class ChatActivity extends AppActivity {
 
                   if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
 
-                        animationPic.start(msgbean.getMsg_id(),vim);
+                      //  animationPic.start(msgbean.getMsg_id(),vim);
                     }else{
-                      animationPic.stop(msgbean.getMsg_id(),vim);
+                     // animationPic.stop(msgbean.getMsg_id(),vim);
                   }
 
 
