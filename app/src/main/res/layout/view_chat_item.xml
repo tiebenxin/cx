@@ -196,6 +196,8 @@
                     android:layout_height="180dp"
 
                     app:actualImageScaleType="centerInside"
+                    app:placeholderImage="@mipmap/ic_img_def"
+                    app:placeholderImageScaleType="centerInside"
                      />
 
 
@@ -519,6 +521,8 @@
                         android:layout_width="150dp"
                         android:layout_height="180dp"
                         app:actualImageScaleType="centerInside"
+                        app:placeholderImage="@mipmap/ic_img_def"
+                        app:placeholderImageScaleType="centerInside"
                          />
 
 

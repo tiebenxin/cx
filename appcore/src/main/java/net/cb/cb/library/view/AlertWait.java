@@ -84,7 +84,7 @@ public class AlertWait {
         View v = LayoutInflater.from(act).inflate(R.layout.fgm_wait, null);
         TextView txtTitle = (TextView) v.findViewById(R.id.txt_title);
         progressNum = (ProgressBar) v.findViewById(R.id.progress_num);
-        WaitView viewNet = (net.cb.cb.library.view.WaitView) v.findViewById(R.id.view_net);
+        View viewNet = v.findViewById(R.id.view_net);
 
 
 
@@ -116,7 +116,7 @@ public class AlertWait {
         dialog.show();
         WindowManager.LayoutParams p = dialog.getWindow().getAttributes();
         // p.height = DensityUtil.dip2px(activity, 226);
-        p.width = DensityUtil.dip2px(AppConfig.APP_CONTEXT,300);
+        p.width = DensityUtil.dip2px(AppConfig.APP_CONTEXT,200);
 
         dialog.getWindow().setAttributes(p);
     }

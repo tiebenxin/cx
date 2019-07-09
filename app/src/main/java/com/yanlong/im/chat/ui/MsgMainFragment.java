@@ -375,15 +375,21 @@ public class MsgMainFragment extends Fragment {
                     //获取最后一条群消息
                     msginfo = msgDao.msgGetLast4Gid(bean.getGid());
                     title = ginfo.getName();
-                    if (msginfo != null) {
-                        String name=msginfo.getFrom_nickname()+" : ";
-                        UserInfo fuser = msginfo.getFrom_user();
+                   if (msginfo != null) {
+                       if(msginfo.getMsg_type()==0){//通知不要加谁发的消息
+                           info = msginfo.getMsg_typeStr();
+                       }else{
+                           String name=msginfo.getFrom_nickname()+" : ";
+                           UserInfo fuser = msginfo.getFrom_user();
 
-                        if(fuser!=null&&StringUtil.isNotNull(fuser.getMkName())){
-                            name=fuser.getMkName()+" : ";
+                           if(fuser!=null&&StringUtil.isNotNull(fuser.getMkName())){
+                               name=fuser.getMkName()+" : ";
 
-                        }
-                        info =name+ msginfo.getMsg_typeStr();
+                           }
+
+                           info =name+ msginfo.getMsg_typeStr();
+                       }
+
                     }
                 } else {
                     Log.e("taf", "11来消息的时候没有创建群");

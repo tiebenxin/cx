@@ -24,10 +24,12 @@
         android:progress="0"
         android:visibility="visible" />
 
-    <net.cb.cb.library.view.WaitView
+
+
+    <ProgressBar
         android:id="@+id/view_net"
-        app:waitview_state="true"
-        android:layout_width="250dp"
-        android:layout_height="80dp" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible" />
 
 </LinearLayout>

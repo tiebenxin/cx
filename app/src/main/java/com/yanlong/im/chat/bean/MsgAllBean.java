@@ -156,7 +156,8 @@ public class MsgAllBean extends RealmObject {
     public String getMsg_typeStr() {
         String str = "";
         if (msg_type == 0) {
-            str = "公告:"+getMsgNotice().getNote();
+            //公告:
+            str = ""+getMsgNotice().getNote();
 
         }
         if (msg_type == 1) {//普通消息

@@ -17,9 +17,12 @@ import com.facebook.drawee.controller.AbstractDraweeController;
 import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.imagepipeline.common.ResizeOptions;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.yanlong.im.R;
+
+import net.cb.cb.library.utils.DensityUtil;
 
 import static com.taobao.accs.client.AccsConfig.build;
 
@@ -421,16 +424,27 @@ public class ChatItemView extends LinearLayout {
                 imgOt4.getHierarchy().getRoundingParams().setRoundAsCircle(false);
                 imgMe4.getHierarchy().getRoundingParams().setRoundAsCircle(false);
             }*/
+
+
+            int width = DensityUtil.dip2px(getContext(),150);
+            int height =  DensityUtil.dip2px(getContext(),180);
+            ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
+                    .setResizeOptions(new ResizeOptions(width, height))
+                    .build();
+
+
+
             DraweeController controller1 =
                     Fresco.newDraweeControllerBuilder()
-                            .setUri(uri)
-                            .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
 
+                            .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
+                            .setImageRequest(request)
                             .build();
             DraweeController controller2 =
                     Fresco.newDraweeControllerBuilder()
-                            .setUri(uri)
+
                             .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
+                            .setImageRequest(request)
                             .build();
 
 

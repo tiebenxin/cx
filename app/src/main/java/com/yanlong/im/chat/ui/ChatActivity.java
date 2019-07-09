@@ -595,6 +595,8 @@ public class ChatActivity extends AppActivity {
                 btnEmj.setEnabled(true);
                 btnFunc.setEnabled(true);
 
+              //  alert.show();
+
             }
         }));
 
@@ -607,6 +609,7 @@ public class ChatActivity extends AppActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                           // alert.dismiss();
                             //发送语音消息
                             MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
                             showSendObj(msgAllbean);
@@ -926,13 +929,13 @@ public class ChatActivity extends AppActivity {
                          file = obt.get(0).getPath();
                     }
                     */
-                    boolean isArtworkMaster = data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER,false);
-                    if(isArtworkMaster){
-                      //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
+                    boolean isArtworkMaster = data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                    if (isArtworkMaster) {
+                        //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                         file = obt.get(0).getPath();
                     }
                     //1.上传图片
-
+                    alert.show();
                     upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(final String url) {
@@ -940,7 +943,7 @@ public class ChatActivity extends AppActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-
+                                    alert.dismiss();
                                     MsgAllBean msgAllbean = SocketData.send4Image(toUId, toGid, url);
                                     showSendObj(msgAllbean);
                                 }
@@ -951,7 +954,8 @@ public class ChatActivity extends AppActivity {
 
                         @Override
                         public void fail() {
-                            //  ToastUtil.show(getContext(),"上传失败");
+                            alert.dismiss();
+                            ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
                         }
 
@@ -1020,8 +1024,6 @@ public class ChatActivity extends AppActivity {
         PictureSelector.create(ChatActivity.this).themeStyle(R.style.picture_default_style).isGif(true).openExternalPreview(pos, selectList);
 
     }
-
-
 
 
     //自动生成RecyclerViewAdapter
@@ -1172,14 +1174,14 @@ public class ChatActivity extends AppActivity {
                     final VoiceMessage vm = msgbean.getVoiceMessage();
 
 
-                     holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(),AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), new View.OnClickListener() {
+                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
 
-                            if(AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))){
+                            if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
                                 AudioPlayManager.getInstance().stopPlay();
 
-                            }else{
+                            } else {
                                 AudioPlayManager.getInstance().startPlay(context, Uri.parse(vm.getUrl()), new IAudioPlayListener() {
                                     @Override
                                     public void onStart(Uri var1) {
@@ -1205,8 +1207,8 @@ public class ChatActivity extends AppActivity {
                             }
 
                             //设置为已读
-                            if(msgbean.isRead()==false){
-                                msgAction.msgRead(msgbean.getMsg_id(),true);
+                            if (msgbean.isRead() == false) {
+                                msgAction.msgRead(msgbean.getMsg_id(), true);
                                 msgbean.setRead(true);
                                 mtListView.getListView().getAdapter().notifyDataSetChanged();
                             }
@@ -1215,16 +1217,12 @@ public class ChatActivity extends AppActivity {
                         }
                     });
 
-                  if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
+                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
 
-                      //  animationPic.start(msgbean.getMsg_id(),vim);
-                    }else{
-                     // animationPic.stop(msgbean.getMsg_id(),vim);
-                  }
-
-
-
-
+                        //  animationPic.start(msgbean.getMsg_id(),vim);
+                    } else {
+                        // animationPic.stop(msgbean.getMsg_id(),vim);
+                    }
 
 
                     break;

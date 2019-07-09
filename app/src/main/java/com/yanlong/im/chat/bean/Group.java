@@ -34,6 +34,16 @@ public class Group  extends RealmObject {
     private String announcement;//群公告
     //机器人id
     private String robotid;
+    //名称
+    private String robotname;
+
+    public String getRobotname() {
+        return robotname;
+    }
+
+    public void setRobotname(String robotname) {
+        this.robotname = robotname;
+    }
 
     public String getRobotid() {
         return robotid;

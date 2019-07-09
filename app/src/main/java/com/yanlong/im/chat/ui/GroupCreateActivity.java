@@ -287,7 +287,7 @@ public class GroupCreateActivity extends AppActivity {
         }
         final ArrayList<UserInfo> templist = new ArrayList<>();
         templist.addAll(listDataTop);
-        templist.add(UserAction.getMyInfo());
+        templist.add(0,UserAction.getMyInfo());
         String name = "";
 
         // "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
@@ -297,7 +297,7 @@ public class GroupCreateActivity extends AppActivity {
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             UserInfo userInfo = templist.get(j);
-            name += userInfo.getName() + ",";
+            name += userInfo.getName() + "、";
             url[j] = userInfo.getHead();
         }
         File file = GroupHeadImageUtil.synthesis(url);

@@ -258,7 +258,7 @@ public class UserInfoActivity extends AppActivity {
         userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                if (response.body() == null) {
+                if (response.body() == null||response.body().getData()==null) {
                     return;
                 }
                 final UserInfo info = response.body().getData();
