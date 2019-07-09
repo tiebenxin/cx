@@ -1,5 +1,7 @@
 package net.cb.cb.library.utils;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.util.Log;
 import android.view.View;
@@ -14,17 +16,19 @@ public class AnimationPic {
     private ImageView view;
     private int defRes;
     private long time;
+    private String tag="";
 
-    public void init(final ImageView mview, final int[] res,int defRes, long time) {
+    public void init(final String tag,final ImageView mview, final int[] res,int defRes, long time) {
         if(animator!=null){
-            stop(view);
+            stop(this.tag,this.view);
         }
         this.res = res;
         this.view = mview;
         this.defRes=defRes;
        this.time=time;
+       this.tag=tag;
         play();
-        Log.d("xxx", "init: ");
+        Log.d("xxx", "init: "+tag+"   "+mview);
         animator.start();
     }
 
@@ -35,28 +39,42 @@ public class AnimationPic {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 int v = (int) animation.getAnimatedValue();
-
+                v=v>=res.length?res.length-1:v;
                 view.setImageResource(res[v]);
               //  Log.d("xxx", "addUpdateListener: ");
             }
         });
         animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                super.onAnimationCancel(animation);
+                view.setImageResource(defRes);
+            }
+        });
     }
 
-    public void start(ImageView mview){
+    public void start(String tag,ImageView mview){
         this.view = mview;
-        Log.d("xxx", "start: "+mview);
+        this.tag=tag;
+        Log.d("xxx", "start: "+tag+"   "+mview);
         play();
         animator.start();
     }
 
-    public void stop(ImageView mview){
-        Log.d("xxx", "stop: "+animator);
+    public void stop(String tag,ImageView mview){
+
         if(animator==null)
             return;
-        if(mview!=view)
-            return;
-        animator.cancel();
-        view.setImageResource(defRes);
+
+        if(this.tag.equals(tag)||mview== this.view){
+            Log.d("xxx", "stop: "+tag+"   "+mview);
+            view.setImageResource(defRes);
+            this.view=mview;
+            animator.cancel();
+           view.setImageResource(defRes);
+        }
+
+
     }
 }

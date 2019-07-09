@@ -1053,15 +1053,13 @@ public class ChatActivity extends AppActivity {
 
 
             //显示数据集
-            //  String headico = msgbean.getFrom_user() == null ? "" : msgbean.getFrom_user().getHead();
             //5.30
             String headico = msgbean.getFrom_avatar();
             if (msgbean.isMe()) {
                 // headico =
                 holder.viewChatItem.setOnHead(null);
             } else {
-                //msgbean.getFrom_user().getHead();
-                //  headico = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1327564550,2587085231&fm=26&gp=0.jpg";
+
                 holder.viewChatItem.setOnHead(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1166,9 +1164,10 @@ public class ChatActivity extends AppActivity {
                     final VoiceMessage vm = msgbean.getVoiceMessage();
 
 
-                    ImageView vim = holder.viewChatItem.setData7(vm.getTime(), false, new View.OnClickListener() {
+                    ImageView vim = holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
+
                             if(AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))){
                                 AudioPlayManager.getInstance().stopPlay();
 
@@ -1179,9 +1178,9 @@ public class ChatActivity extends AppActivity {
 
 
                                         if (msgbean.isMe()) {
-                                            animationPic.init((ImageView) v, aimapicMe, aimapicMe[2], 750);
+                                            animationPic.init(msgbean.getMsg_id(),(ImageView) v, aimapicMe, aimapicMe[2], 750);
                                         } else {
-                                            animationPic.init((ImageView) v, aimapicOt, aimapicOt[2], 750);
+                                            animationPic.init(msgbean.getMsg_id(),(ImageView) v, aimapicOt, aimapicOt[2], 750);
 
                                         }
                                       //  animationPic.start((ImageView) v);
@@ -1192,19 +1191,24 @@ public class ChatActivity extends AppActivity {
                                     @Override
                                     public void onStop(Uri var1) {
 
-                                        animationPic.stop((ImageView) v);
+                                        animationPic.stop(msgbean.getMsg_id(),(ImageView) v);
 
                                     }
 
                                     @Override
                                     public void onComplete(Uri var1) {
 
-                                        animationPic.stop((ImageView) v);
+                                        animationPic.stop(msgbean.getMsg_id(),(ImageView) v);
                                     }
                                 });
                             }
 
-
+                            //设置为已读
+                            if(msgbean.isRead()==false){
+                                msgAction.msgRead(msgbean.getMsg_id(),true);
+                                msgbean.setRead(true);
+                                mtListView.getListView().getAdapter().notifyDataSetChanged();
+                            }
 
 
                         }
@@ -1212,10 +1216,14 @@ public class ChatActivity extends AppActivity {
 
                   if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
 
-                        animationPic.start(vim);
+                        animationPic.start(msgbean.getMsg_id(),vim);
                     }else{
-                      animationPic.stop(vim);
+                      animationPic.stop(msgbean.getMsg_id(),vim);
                   }
+
+
+
+
 
 
                     break;

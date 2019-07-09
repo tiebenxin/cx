@@ -17,6 +17,7 @@ public class MsgAllBean extends RealmObject {
     private int send_state = 0;
     //重发的数据对象
     private byte[] send_data;
+    private boolean isRead=false;
     private String request_id;
     private Long from_uid;
     private String from_nickname;
@@ -51,6 +52,14 @@ public class MsgAllBean extends RealmObject {
    // private AcceptBeFriendsMessage accept_be_friends;
 
     //private AckMessage ack;
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
 
     public UserInfo getFrom_user() {
         return DaoUtil.findOne(UserInfo.class,"uid",from_uid);
@@ -155,23 +164,23 @@ public class MsgAllBean extends RealmObject {
 
         }
         if (msg_type == 2) {
-            str = "戳一下:" + getStamp().getComment();
+            str = "[戳一下]" + getStamp().getComment();
 
         }
         if (msg_type == 3) {
-            str = "发来了一个红包";
+            str = "[常聊红包]"+getRed_envelope().getComment();
         }
         if (msg_type == 4) {
-            str = "发来了一张图片";
+            str = "[图片]";
         }
         if (msg_type == 5) {
-            str = "名片:" + getBusiness_card().getNickname();
+            str = "[名片]" + getBusiness_card().getNickname();
         }
         if (msg_type == 6) {
-            str = "收款信息" ;
+            str = "[收款]" ;
         }
         if (msg_type == 7) {
-            str = "发来了一条语音信息" ;
+            str = "[语音]" ;
         }
 
         return str;

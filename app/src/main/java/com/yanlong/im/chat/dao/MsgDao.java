@@ -865,4 +865,20 @@ public class MsgDao {
     }
 
 
+    //7.8 要写语音已读的处理
+    public void msgRead(String msgid,boolean isRead){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+        if(msgBean!=null){
+            msgBean.setRead(isRead);
+            realm.insertOrUpdate(msgBean);
+        }
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+
 }

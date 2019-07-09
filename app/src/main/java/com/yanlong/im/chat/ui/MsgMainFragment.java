@@ -376,7 +376,14 @@ public class MsgMainFragment extends Fragment {
                     msginfo = msgDao.msgGetLast4Gid(bean.getGid());
                     title = ginfo.getName();
                     if (msginfo != null) {
-                        info = msginfo.getMsg_typeStr();
+                        String name=msginfo.getFrom_nickname()+" : ";
+                        UserInfo fuser = msginfo.getFrom_user();
+
+                        if(fuser!=null&&StringUtil.isNotNull(fuser.getMkName())){
+                            name=fuser.getMkName()+" : ";
+
+                        }
+                        info =name+ msginfo.getMsg_typeStr();
                     }
                 } else {
                     Log.e("taf", "11来消息的时候没有创建群");

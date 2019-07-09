@@ -140,7 +140,8 @@ public class GroupCreateActivity extends AppActivity {
 
             hd.txtType.setText(bean.getTag());
             hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
-            hd.txtName.setText(bean.getName());
+           // hd.txtName.setText(bean.getName());
+            hd.txtName.setText(bean.getName4Show());
 
             hd.viewType.setVisibility(View.VISIBLE);
             if (position > 0) {

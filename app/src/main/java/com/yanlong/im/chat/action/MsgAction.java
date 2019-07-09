@@ -385,5 +385,9 @@ public class MsgAction {
     }
 
 
+    public void msgRead(String msgId,boolean isRead){
+        dao.msgRead(msgId,isRead);
+    }
+
 
 }
