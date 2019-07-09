@@ -227,6 +227,7 @@ public class ImageHeadActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
+                imageHead = avatar;
                 if (avatar != null) {
                     UserInfo userInfo = new UserInfo();
                     userInfo.setHead(avatar);

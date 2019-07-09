@@ -1,1 +1,1 @@
-include ':app', 'appcore'
+include ':app', 'appcore', ':picture_library', ':ucrop'

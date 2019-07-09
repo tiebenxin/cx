@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
@@ -13,8 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -213,7 +216,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         });
     }
 
-    private void taskRegister(String phone, String password, String captcha,String nickname) {
+    private void taskRegister(final String phone, final String password, String captcha, String nickname) {
         userAction.register(phone, password, captcha,nickname, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -222,13 +225,35 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                 }
                 ToastUtil.show(RegisterActivity.this, response.body().getMsg());
                 if(response.body().isOk()){
-                    finish();
+                    taskLogin(phone,password);
                 }
-
             }
         });
     }
 
+
+    private void taskLogin(String phone,String password){
+        new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                if (response.body() == null) {
+                    Intent intent = new Intent(getContext(), PasswordLoginActivity.class);
+                    startActivity(intent);
+                    return;
+                }
+                if (response.body().isOk()) {
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getContext(), PasswordLoginActivity.class);
+                    startActivity(intent);
+                    ToastUtil.show(getContext(), response.body().getMsg());
+                }
+                finish();
+            }
+        });
+    }
 
 
 
