@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -27,6 +28,7 @@ public class GroupManageActivity extends AppActivity {
     private CheckBox mCkGroupVerif;
     private MsgAction msgAction;
     private String gid;
+    private Group ginfo;
 
 
     @Override
@@ -35,10 +37,12 @@ public class GroupManageActivity extends AppActivity {
         setContentView(R.layout.activity_group_manage);
         initView();
         initEvent();
+        initData();
     }
 
     private void initView() {
         msgAction = new MsgAction();
+        gid = getIntent().getStringExtra("gid");
         mHeadView = findViewById(R.id.headView);
         mViewGroupTransfer = findViewById(R.id.view_group_transfer);
         mCkGroupVerif = findViewById(R.id.ck_group_verif);
@@ -74,6 +78,22 @@ public class GroupManageActivity extends AppActivity {
     }
 
 
+    private void initData(){
+        taskGetInfo();
+    }
+
+    private void taskGetInfo() {
+        msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                if (response.body().isOk()) {
+                    ginfo = response.body().getData();
+
+
+                }
+            }
+        });
+    }
 
 
 
