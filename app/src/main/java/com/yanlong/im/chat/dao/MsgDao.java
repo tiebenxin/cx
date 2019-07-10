@@ -752,9 +752,14 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
-        GroupAccept accept = new GroupAccept();
-        accept.setAid(UUID.randomUUID().toString());
-        accept.setGid(gid);
+
+
+        GroupAccept accept =  realm.where(GroupAccept.class).equalTo("gid", gid).findFirst();
+        if(accept==null){
+            accept.setAid(UUID.randomUUID().toString());
+            accept.setGid(gid);
+        }
+
         Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
         if (group != null) {
             accept.setGroupName(group.getName());
