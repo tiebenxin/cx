@@ -116,10 +116,10 @@ public class AddGroupActivity extends AppActivity {
                         Intent intent = new Intent(AddGroupActivity.this,ChatActivity.class);
                         intent.putExtra(ChatActivity.AGM_TOGID,gid);
                         startActivity(intent);
-                        finish();
                     }else{
                         ToastUtil.show(AddGroupActivity.this,"加群成功,等待群主验证");
                     }
+                    finish();
                 }
             }
         });

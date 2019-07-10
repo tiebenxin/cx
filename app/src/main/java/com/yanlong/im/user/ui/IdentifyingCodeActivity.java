@@ -16,6 +16,7 @@ import com.yanlong.im.user.bean.TokenBean;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
@@ -142,9 +143,10 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(this, "手机号不合法");
             return;
         }
-        userAction.login4Captch(phone, code, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
+        userAction.login4Captch(phone, code, UserAction.getDevId(this), new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
+
             @Override
-            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+            public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() == null) {
                     return;
                 }
@@ -157,7 +159,6 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
                 }
             }
         });
-
     }
 
 
