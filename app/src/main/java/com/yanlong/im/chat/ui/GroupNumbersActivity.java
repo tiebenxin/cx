@@ -95,7 +95,8 @@ public class GroupNumbersActivity extends AppActivity {
         actionbar.setTitle(type==TYPE_ADD?"加入群":"移出群");
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
-
+        //联动
+        viewType.setListView(mtListView.getListView());
         //顶部处理
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);

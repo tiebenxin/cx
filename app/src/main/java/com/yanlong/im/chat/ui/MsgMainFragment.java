@@ -143,7 +143,7 @@ public class MsgMainFragment extends Fragment {
                 getActivityMe().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        actionBar.setTitle(state?"消息":"消息(未连接)");
+                        actionBar.setTitle(state?"消息":"消息(连接中...)");
 
                         viewNetwork.setVisibility(state ? View.GONE : View.VISIBLE);
                     }

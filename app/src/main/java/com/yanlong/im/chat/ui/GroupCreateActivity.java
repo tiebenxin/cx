@@ -100,6 +100,8 @@ public class GroupCreateActivity extends AppActivity {
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
+        //联动
+        viewType.setListView(mtListView.getListView());
 
         //顶部处理
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
