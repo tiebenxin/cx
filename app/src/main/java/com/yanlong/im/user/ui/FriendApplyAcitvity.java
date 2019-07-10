@@ -75,10 +75,15 @@ public class FriendApplyAcitvity extends AppActivity {
         setContentView(R.layout.activity_friend_apply);
         findViews();
         initEvent();
-        inttData();
     }
 
-    private void inttData() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initData();
+    }
+
+    private void initData() {
         taskGetList();
     }
 
@@ -119,6 +124,7 @@ public class FriendApplyAcitvity extends AppActivity {
                         Intent intent = new Intent(FriendApplyAcitvity.this, UserInfoActivity.class);
                         intent.putExtra(UserInfoActivity.ID, bean.getUid());
                         intent.putExtra(UserInfoActivity.SAY_HI,bean.getSayHi());
+                        intent.putExtra(UserInfoActivity.IS_APPLY,1);
                         startActivity(intent);
                     }
                 });

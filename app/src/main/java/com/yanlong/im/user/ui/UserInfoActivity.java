@@ -46,6 +46,7 @@ public class UserInfoActivity extends AppActivity {
     public static final int SETING_REMARK = 1000;
     public static final String ID = "id";
     public static final String SAY_HI = "sayHi";
+    public static final String IS_APPLY = "isApply";
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -65,6 +66,7 @@ public class UserInfoActivity extends AppActivity {
     private Button btnMsg;
 
     private int type; //0.已经是好友 1.不是好友添加好友
+    private int isApply;//是否是好友申请 0 不是 1.是
     private Long id;
     private String sayHi;
     private UserAction userAction;
@@ -103,7 +105,7 @@ public class UserInfoActivity extends AppActivity {
 
         id = getIntent().getLongExtra(ID, 0);
         sayHi = getIntent().getStringExtra(SAY_HI);
-
+        isApply = getIntent().getIntExtra(IS_APPLY,0);
         taskFindExist();
         if (type == 0) {
             mLayoutMsg.setVisibility(View.VISIBLE);
@@ -138,6 +140,7 @@ public class UserInfoActivity extends AppActivity {
             }
         });
 
+        btnMsg.setText("发送消息");
         btnMsg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 EventBus.getDefault().post(new EventExitChat());
@@ -147,6 +150,7 @@ public class UserInfoActivity extends AppActivity {
 
             }
         });
+
         viewBlack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -207,27 +211,40 @@ public class UserInfoActivity extends AppActivity {
             }
         });
 
-        mBtnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertTouch alertTouch = new AlertTouch();
-                alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
-                    @Override
-                    public void onON() {
 
-                    }
+        if (isApply == 0) {
+            mBtnAdd.setText("添加好友");
+            mBtnAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertTouch alertTouch = new AlertTouch();
+                    alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
+                        @Override
+                        public void onON() {
 
-                    @Override
-                    public void onYes(String content) {
-                        taskAddFriend(id, content);
-                    }
-                });
-                alertTouch.show();
-                alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
-                alertTouch.setEdHintOrSize(null,60);
+                        }
 
-            }
-        });
+                        @Override
+                        public void onYes(String content) {
+                            taskAddFriend(id, content);
+                        }
+                    });
+                    alertTouch.show();
+                    alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
+                    alertTouch.setEdHintOrSize(null, 60);
+                }
+            });
+        } else {
+            mBtnAdd.setText("接受邀请");
+            mBtnAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    taskFriendAgree(id);
+                }
+            });
+        }
+
+
     }
 
 
@@ -258,7 +275,7 @@ public class UserInfoActivity extends AppActivity {
         userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                if (response.body() == null||response.body().getData()==null) {
+                if (response.body() == null || response.body().getData() == null) {
                     return;
                 }
                 final UserInfo info = response.body().getData();
@@ -276,7 +293,10 @@ public class UserInfoActivity extends AppActivity {
                         LocalMedia lc = new LocalMedia();
                         lc.setPath(info.getHead());
                         selectList.add(lc);
-                        PictureSelector.create(UserInfoActivity.this).themeStyle(R.style.picture_default_style).isGif(true).openExternalPreview(0, selectList);
+                        PictureSelector.create(UserInfoActivity.this)
+                                .themeStyle(R.style.picture_default_style)
+                                .isGif(true)
+                                .openExternalPreview(0, selectList);
                     }
                 });
             }
@@ -293,6 +313,7 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
+
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 if (response.body().isOk()) {
                     finish();
@@ -352,6 +373,23 @@ public class UserInfoActivity extends AppActivity {
             }
         });
 
+    }
+
+
+    private void taskFriendAgree(Long uid) {
+        userAction.friendAgree(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
+                    finish();
+                }
+
+            }
+        });
     }
 
 

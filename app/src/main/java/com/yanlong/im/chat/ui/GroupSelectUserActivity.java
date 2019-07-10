@@ -74,7 +74,6 @@ public class GroupSelectUserActivity extends AppActivity {
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
-
     }
 
     @Override
@@ -173,7 +172,6 @@ public class GroupSelectUserActivity extends AppActivity {
                 txtName = convertView.findViewById(R.id.txt_name);
                 ckSelect = convertView.findViewById(R.id.ck_select);
             }
-
         }
     }
 

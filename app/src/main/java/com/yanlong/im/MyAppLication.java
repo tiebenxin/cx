@@ -116,17 +116,17 @@ public class MyAppLication extends MainApplication {
             }
         });
 
-        mPushAgent.enable(new IUmengCallback() {
-            @Override
-            public void onSuccess() {
-                Log.e("youmeng", "开启推送成功：-------->  ");
-            }
-
-            @Override
-            public void onFailure(String s, String s1) {
-                Log.e("youmeng", "开启推送失败：--------> " + "s:" + s + "s1:" + s1);
-            }
-        });
+//        mPushAgent.enable(new IUmengCallback() {
+//            @Override
+//            public void onSuccess() {
+//                Log.e("youmeng", "开启推送成功：-------->  ");
+//            }
+//
+//            @Override
+//            public void onFailure(String s, String s1) {
+//                Log.e("youmeng", "开启推送失败：--------> " + "s:" + s + "s1:" + s1);
+//            }
+//        });
     }
 
 
