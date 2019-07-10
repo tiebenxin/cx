@@ -146,7 +146,6 @@
                     <TextView
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
-
                         android:text="群公告" />
 
                     <TextView

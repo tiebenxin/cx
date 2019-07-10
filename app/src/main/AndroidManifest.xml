@@ -402,6 +402,10 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".chat.ui.GroupSelectUserActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
     </application>
 

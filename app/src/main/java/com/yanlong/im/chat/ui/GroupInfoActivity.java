@@ -371,8 +371,6 @@ public class GroupInfoActivity extends AppActivity {
                 }
 
             }
-
-
         }
 
 

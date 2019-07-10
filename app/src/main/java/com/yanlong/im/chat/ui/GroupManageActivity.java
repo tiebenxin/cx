@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.user.ui.CommonSetingActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -78,7 +80,9 @@ public class GroupManageActivity extends AppActivity {
         mViewGroupTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(GroupManageActivity.this,GroupSelectUserActivity.class);
+                intent.putExtra(GroupSelectUserActivity.GID,gid);
+                startActivityForResult(intent,GroupSelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
 
@@ -109,10 +113,7 @@ public class GroupManageActivity extends AppActivity {
                     });
                     //群验证
                     mCkGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
-
                     initEvent();
-
-
                 }
             }
         });
@@ -124,19 +125,42 @@ public class GroupManageActivity extends AppActivity {
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-
                 if (response.body() == null)
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     initEvent();
                 }
-
             }
         });
     }
 
 
+    private void changeMaster(String gid,String uid,String membername){
+        msgAction.changeMaster(gid, uid,membername, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    ToastUtil.show(context,"转让失败");
+                    return;
+                }
+                ToastUtil.show(context,response.body().getMsg());
+                if(response.body().isOk()){
+                    finish();
+                }
+            }
+        });
+    }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == GroupSelectUserActivity.RET_CODE_SELECTUSR){
+            String uid = data.getStringExtra(GroupSelectUserActivity.UID);
+            String membername = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
+            changeMaster(gid,uid,membername);
+        }
+
+    }
 }

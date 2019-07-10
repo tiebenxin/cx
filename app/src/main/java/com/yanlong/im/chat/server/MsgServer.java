@@ -78,24 +78,19 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid,@Field("announcement") String announcement);
 
-
-
     @POST("/group/search-for-robots")
     @FormUrlEncoded
     Call<ReturnBean<List<RobotInfoBean>>> robotSearch(@Field("keyword") String keyword);
-
 
     @POST("/group/change-robot")
     @FormUrlEncoded
     Call<ReturnBean> robotChange(@Field("gid") String gid,@Field("robotid")String robotid);
 
-
-
-
     @POST("/group/get-robot-detail")
     @FormUrlEncoded
     Call<ReturnBean<RobotInfoBean>> robotInfo(@Field("robotid") String robotid);
 
-
-
+    @POST("group/change-master")
+    @FormUrlEncoded
+    Call<ReturnBean> changeMaster(@Field("gid") String gid,@Field("uid") String uid,@Field("membername") String membername);
 }

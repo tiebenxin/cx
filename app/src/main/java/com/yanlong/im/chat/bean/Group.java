@@ -6,6 +6,8 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.utils.StringUtil;
 
+import java.io.Serializable;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;

@@ -390,4 +390,12 @@ public class MsgAction {
     }
 
 
+    /**
+     * 转让群
+     * */
+    public void changeMaster(String gid,String uid,String membername,Callback<ReturnBean> callback){
+        NetUtil.getNet().exec(server.changeMaster(gid,uid,membername), callback);
+    }
+
+
 }

@@ -95,6 +95,7 @@ public class IAudioRecord implements IAudioRecordListener {
 
     public interface UrlCallback {
         void getUrl(String url, int duration);
+
     }
 
 
