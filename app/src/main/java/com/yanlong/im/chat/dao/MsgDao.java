@@ -756,6 +756,7 @@ public class MsgDao {
 
         GroupAccept accept =  realm.where(GroupAccept.class).equalTo("gid", gid).findFirst();
         if(accept==null){
+            accept=new GroupAccept();
             accept.setAid(UUID.randomUUID().toString());
             accept.setGid(gid);
         }
