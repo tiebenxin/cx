@@ -18,6 +18,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -70,7 +71,13 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         mTvForgetPassword.setOnClickListener(this);
         mTvMore.setOnClickListener(this);
         mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent, this));
-        ClickFilter.onClick(mBtnLogin, new View.OnClickListener() {
+        /*ClickFilter.onClick(mBtnLogin, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });*/
+        mBtnLogin.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 login();
@@ -125,7 +132,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
 
     private void login() {
-        mBtnLogin.setEnabled(false);
+       // mBtnLogin.setEnabled(false);
         String password = mEtPasswordContent.getText().toString();
         String phone = mTvPhoneNumber.getText().toString();
         if (TextUtils.isEmpty(phone)) {
@@ -136,10 +143,11 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             ToastUtil.show(this, "请输入密码");
             return;
         }
-        new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
+        new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
+
+
             @Override
-            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                mBtnLogin.setEnabled(true);
+            public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() == null) {
                     return;
                 }
@@ -150,12 +158,6 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }
-            }
-
-            @Override
-            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
-                super.onFailure(call, t);
-                mBtnLogin.setEnabled(true);
             }
         });
     }

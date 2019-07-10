@@ -21,6 +21,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -108,9 +109,10 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             ToastUtil.show(this,"请输入密码");
             return;
         }
-        userAction.login(phone, password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
+        userAction.login(phone, password, UserAction.getDevId(this), new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
+
             @Override
-            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+            public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if(response.body().isOk()){
                     Intent intent = new Intent(getContext(),MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
