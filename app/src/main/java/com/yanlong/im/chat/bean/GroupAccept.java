@@ -12,6 +12,16 @@ public class GroupAccept extends RealmObject {
     private String gid;
     private String groupName;
 
+    private Long time;
+
+    public Long getTime() {
+        return time;
+    }
+
+    public void setTime(Long time) {
+        this.time = time;
+    }
+
     public String getHead() {
         return head;
     }

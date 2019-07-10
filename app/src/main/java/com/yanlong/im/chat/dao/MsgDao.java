@@ -754,12 +754,13 @@ public class MsgDao {
 
 
 
-        GroupAccept accept =  realm.where(GroupAccept.class).equalTo("gid", gid).findFirst();
+        GroupAccept accept =  realm.where(GroupAccept.class).equalTo("gid", gid).equalTo("uid",fromUid).findFirst();
         if(accept==null){
             accept=new GroupAccept();
             accept.setAid(UUID.randomUUID().toString());
             accept.setGid(gid);
         }
+        accept.setTime(System.currentTimeMillis());
 
         Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
         if (group != null) {
@@ -777,7 +778,19 @@ public class MsgDao {
     }
 
     public List<GroupAccept> groupAccept() {
-        return DaoUtil.findAll(GroupAccept.class);
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        List<GroupAccept> beans=new ArrayList<>();
+        RealmResults<GroupAccept> res = realm.where(GroupAccept.class).sort("time", Sort.DESCENDING).findAll();
+        if(res!=null){
+             beans = realm.copyFromRealm(res);
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+
+        return beans;
     }
 
     /***
