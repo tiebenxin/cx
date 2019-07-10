@@ -1,5 +1,7 @@
 package com.yanlong.im.user.bean;
 
+import android.util.Log;
+
 import com.google.gson.annotations.SerializedName;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
@@ -260,13 +262,33 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     @Override
     public int compareTo(UserInfo o) {
+
         int last=getTag().charAt(0);
         if(getTag().equals("#")){
+
+
             return 1;
         }
+        if(o.getTag().equals("#")){
+
+            return -1;
+        }
+
+        if(getTag().equals("↑")){
+
+
+            return -1;
+        }
+        if(o.getTag().equals("↑")){
+
+            return 1;
+        }
+
         if (last>o.getTag().charAt(0)){
+
             return 1;
         }
+
         return -1;
 
     }

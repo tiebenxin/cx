@@ -46,6 +46,7 @@ import net.cb.cb.library.view.PySortView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -270,7 +271,7 @@ public class GroupCreateActivity extends AppActivity {
 
         listData = userDao.friendGetAll();
 
-
+        Collections.sort(listData);
         for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:
             viewType.putTag(listData.get(i).getTag(), i);

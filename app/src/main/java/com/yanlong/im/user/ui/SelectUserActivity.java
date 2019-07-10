@@ -27,6 +27,7 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,7 +71,8 @@ public class SelectUserActivity extends AppActivity {
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
-
+        //联动
+        viewType.setListView(mtListView.getListView());
 
 
     }
@@ -107,7 +109,7 @@ public class SelectUserActivity extends AppActivity {
 
             hd.txtType.setText(bean.getTag());
             hd.imgHead.setImageURI(Uri.parse(""+bean.getHead()));
-            hd.txtName.setText(bean.getName());
+            hd.txtName.setText(bean.getName4Show());
 
             hd.viewType.setVisibility(View.VISIBLE);
             if(position>0){
@@ -210,7 +212,7 @@ public class SelectUserActivity extends AppActivity {
 
 
         listData=  userDao.friendGetAll();
-
+        Collections.sort(listData);
 
         for (int i=0;i<listData.size();i++){
             //UserInfo infoBean:

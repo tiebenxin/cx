@@ -34,6 +34,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -302,6 +303,7 @@ public class FriendMainFragment extends Fragment {
         topBean.setTag("↑");
         listData.add(0, topBean);
         //筛选
+        Collections.sort(listData);
 
         for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:

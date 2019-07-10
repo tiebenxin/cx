@@ -257,6 +257,8 @@ public class FriendMatchActivity extends AppActivity {
                     for (FriendInfoBean bean : listData) {
                         bean.toTag();
                     }
+                    //筛选
+                    Collections.sort(listData);
                     adapter.setList(listData);
                     initViewTypeData();
                     mtListView.notifyDataSetChange();

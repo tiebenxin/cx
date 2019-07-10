@@ -157,9 +157,14 @@ public class GroupManageActivity extends AppActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == GroupSelectUserActivity.RET_CODE_SELECTUSR){
+            if(data==null)
+                return;
             String uid = data.getStringExtra(GroupSelectUserActivity.UID);
-            String membername = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
-            changeMaster(gid,uid,membername);
+            if(StringUtil.isNotNull(uid)){
+                String membername = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
+                changeMaster(gid,uid,membername);
+            }
+
         }
 
     }

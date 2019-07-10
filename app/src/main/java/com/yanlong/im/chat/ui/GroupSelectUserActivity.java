@@ -27,6 +27,7 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -74,6 +75,8 @@ public class GroupSelectUserActivity extends AppActivity {
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
+        //联动
+        viewType.setListView(mtListView.getListView());
     }
 
     @Override
@@ -99,7 +102,12 @@ public class GroupSelectUserActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     listData = response.body().getData().getUsers();
+                    Collections.sort(listData);
                     mtListView.notifyDataSetChange();
+                    for (int i = 0; i < listData.size(); i++) {
+                        //UserInfo infoBean:
+                        viewType.putTag(listData.get(i).getTag(), i);
+                    }
                 }
             }
         });
@@ -121,7 +129,7 @@ public class GroupSelectUserActivity extends AppActivity {
             final UserInfo bean = listData.get(position);
             hd.txtType.setText(bean.getTag());
             hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
-            hd.txtName.setText(bean.getName());
+            hd.txtName.setText(bean.getName4Show());
             hd.viewType.setVisibility(View.VISIBLE);
             if (position > 0) {
                 UserInfo lastbean = listData.get(position - 1);

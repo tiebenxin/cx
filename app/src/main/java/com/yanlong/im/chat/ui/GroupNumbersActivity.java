@@ -29,6 +29,7 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,6 +76,7 @@ public class GroupNumbersActivity extends AppActivity {
     //自动生成的控件事件
     private void initEvent() {
         listData=gson.fromJson(getIntent().getStringExtra(AGM_NUMBERS_JSON),new TypeToken<List<UserInfo>>(){}.getType());
+        Collections.sort(listData);
         type=getIntent().getIntExtra(AGM_TYPE,TYPE_ADD);
         gid=getIntent().getStringExtra(AGM_GID);
 
