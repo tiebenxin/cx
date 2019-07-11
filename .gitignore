@@ -1,0 +1,10 @@
+/build
+*.iml
+.idea/*
+captures/*
+out
+local.properties
+.gradle/*
+*/*.iml
+*/*/*.iml
+
