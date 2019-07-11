@@ -166,6 +166,10 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
         userAction.smsCaptchaGet(phone, "login", new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    ToastUtil.show(context,"登录异常");
+                    return;
+                }
                 if (response.body() == null) {
                     return;
                 }

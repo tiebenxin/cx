@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.cb.cb.library.R;
+import net.cb.cb.library.utils.ClickFilter;
 
 
 /***
@@ -197,11 +198,9 @@ public class ActionbarView extends LinearLayout {
 			txtRight.setVisibility(View.VISIBLE);
 		}
 
-		ViewRight.setOnClickListener(new OnClickListener() {
-
+		ClickFilter.onClick(ViewRight, new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 				if (listenEvent != null
 						&& (txtRight.getVisibility() == View.VISIBLE || btnRight.getVisibility() == View.VISIBLE))
 					listenEvent.onRight();
@@ -293,11 +292,8 @@ public class ActionbarView extends LinearLayout {
 
 	public void setWhite(){
 		//白色主题 1.16
-
 			rootView.findViewById(R.id.ll_main).setBackgroundColor(Color.parseColor("#ffffff"));
 			txtTitle.setTextColor(Color.parseColor("#000000"));
-
-
 	}
 
 }

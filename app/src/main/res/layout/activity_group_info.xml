@@ -78,12 +78,14 @@
                     <TextView
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:layout_weight="1"
                         android:text="群聊名称" />
 
                     <TextView
                         android:id="@+id/txt_group_name"
                         style="@style/app_txt_title_2"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:gravity="right"
                         android:layout_marginRight="@dimen/app_margin_item"
                         android:textColor="@color/gray_300" />
 
@@ -101,13 +103,15 @@
                     <TextView
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:layout_weight="1"
                         android:text="我在本群的昵称" />
 
                     <TextView
                         android:id="@+id/txt_group_nick"
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:gravity="right"
                         android:textColor="@color/gray_300" />
 
                     <ImageView

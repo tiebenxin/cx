@@ -113,6 +113,10 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
 
             @Override
             public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                if(response.body() == null){
+                    ToastUtil.show(context,"登录异常");
+                    return;
+                }
                 if(response.body().isOk()){
                     Intent intent = new Intent(getContext(),MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -23,6 +23,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -114,6 +116,16 @@ public class GroupSelectUserActivity extends AppActivity {
     }
 
 
+
+    private RealmList<UserInfo> delectMaster(){
+
+
+
+
+        return null;
+    }
+
+
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
@@ -124,7 +136,7 @@ public class GroupSelectUserActivity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder hd, int position) {
+        public void onBindViewHolder(final RCViewHolder hd, int position) {
 
             final UserInfo bean = listData.get(position);
             hd.txtType.setText(bean.getTag());
@@ -141,15 +153,29 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Intent intent = new Intent();
-                    intent.putExtra(UID,bean.getUid()+"");
-                    if(!TextUtils.isEmpty(bean.getMembername())){
-                        intent.putExtra(MEMBERNAME,bean.getMembername());
-                    }else{
-                        intent.putExtra(MEMBERNAME,bean.getName4Show());
-                    }
-                    setResult(RET_CODE_SELECTUSR, intent);
-                    finish();
+                    hd.ckSelect.setChecked(false);
+
+                    AlertYesNo alertYesNo = new AlertYesNo();
+                    alertYesNo.init(GroupSelectUserActivity.this, "转让群", "确认转让群主吗?", "确定", "取消", new AlertYesNo.Event() {
+                        @Override
+                        public void onON() {
+
+                        }
+
+                        @Override
+                        public void onYes() {
+                            Intent intent = new Intent();
+                            intent.putExtra(UID,bean.getUid()+"");
+                            if(!TextUtils.isEmpty(bean.getMembername())){
+                                intent.putExtra(MEMBERNAME,bean.getMembername());
+                            }else{
+                                intent.putExtra(MEMBERNAME,bean.getName4Show());
+                            }
+                            setResult(RET_CODE_SELECTUSR, intent);
+                            finish();
+                        }
+                    });
+                    alertYesNo.show();
                 }
             });
         }

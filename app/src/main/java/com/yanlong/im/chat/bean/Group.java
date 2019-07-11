@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.SerializedName;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -64,7 +66,6 @@ public class Group  extends RealmObject {
                 }
             }
         }
-
         return mygroupName;
     }
 

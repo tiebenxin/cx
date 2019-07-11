@@ -33,8 +33,11 @@
             <TextView
                 android:id="@+id/tv_user_name"
                 style="@style/app_txt_title_1"
+                android:layout_width="0dp"
                 app:layout_constraintLeft_toRightOf="@id/img_head"
                 app:layout_constraintTop_toTopOf="@id/img_head"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginRight="20dp"
                 android:layout_marginLeft="14dp"
                 android:layout_marginTop="11dp"
                 android:textSize="17sp"/>

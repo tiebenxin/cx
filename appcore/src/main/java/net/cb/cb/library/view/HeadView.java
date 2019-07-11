@@ -71,7 +71,6 @@ public class HeadView extends LinearLayout {
 
         appbar.removeAllViews();
         v.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
-
         appbar.addView(v);
     }
     public View getAppBar(){
@@ -112,12 +111,6 @@ public class HeadView extends LinearLayout {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
         super.onLayout(changed, l, t, r, b);
-
-
-
-
-
     }
 }

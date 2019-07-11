@@ -1,9 +1,7 @@
 package com.yanlong.im.user.bean;
 
-import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
-import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -11,8 +9,6 @@ import net.sourceforge.pinyin4j.PinyinHelper;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;

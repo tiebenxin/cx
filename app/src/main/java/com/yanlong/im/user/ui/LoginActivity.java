@@ -149,6 +149,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             @Override
             public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() == null) {
+                    ToastUtil.show(context,"登录异常");
                     return;
                 }
                 if (response.body().isOk()) {

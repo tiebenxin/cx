@@ -81,21 +81,9 @@ public class GroupManageActivity extends AppActivity {
         mViewGroupTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(GroupManageActivity.this, "转让群", "确认转让群主吗?", "确定", "取消", new AlertYesNo.Event() {
-                    @Override
-                    public void onON() {
-
-                    }
-
-                    @Override
-                    public void onYes() {
-                        Intent intent = new Intent(GroupManageActivity.this,GroupSelectUserActivity.class);
-                        intent.putExtra(GroupSelectUserActivity.GID,gid);
-                        startActivityForResult(intent,GroupSelectUserActivity.RET_CODE_SELECTUSR);
-                    }
-                });
-                alertYesNo.show();
+                Intent intent = new Intent(GroupManageActivity.this,GroupSelectUserActivity.class);
+                intent.putExtra(GroupSelectUserActivity.GID,gid);
+                startActivityForResult(intent,GroupSelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
 
