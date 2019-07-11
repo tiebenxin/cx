@@ -212,6 +212,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 } else {
                     RequestOptions options = new RequestOptions()
                             .diskCacheStrategy(DiskCacheStrategy.ALL);
+
                     Glide.with(PictureExternalPreviewActivity.this)
                             .asBitmap()
                             .load(path)

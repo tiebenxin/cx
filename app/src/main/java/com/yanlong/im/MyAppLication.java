@@ -39,27 +39,20 @@ public class MyAppLication extends MainApplication {
         super.onCreate();
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
-
                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-
                 AppConfig.DEBUG = true;
-
-
                 AppConfig.SOCKET_PORT = 19991;
-
                 break;
             case "pre":
                 AppConfig.DEBUG = true;
-                AppConfig.SOCKET_IP = "usa-test.1616d.top";
+                AppConfig.SOCKET_IP = "hk-test.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 break;
             case "release":
-
                 AppConfig.DEBUG = false;
                 AppConfig.URL_HOST = "https://baidu.com";
-
                 break;
         }
         //初始化数据库

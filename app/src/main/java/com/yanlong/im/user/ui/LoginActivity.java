@@ -77,7 +77,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 login();
             }
         });*/
-        mBtnLogin.setOnClickListener(new View.OnClickListener(){
+        mBtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 login();
@@ -132,7 +132,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
 
     private void login() {
-       // mBtnLogin.setEnabled(false);
+        // mBtnLogin.setEnabled(false);
         String password = mEtPasswordContent.getText().toString();
         String phone = mTvPhoneNumber.getText().toString();
         if (TextUtils.isEmpty(phone)) {
@@ -149,7 +149,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             @Override
             public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() == null) {
-                    ToastUtil.show(context,"登录异常");
+                    ToastUtil.show(context, "登录异常");
                     return;
                 }
                 if (response.body().isOk()) {
