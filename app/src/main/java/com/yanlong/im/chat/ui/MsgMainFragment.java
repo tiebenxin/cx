@@ -379,13 +379,17 @@ public class MsgMainFragment extends Fragment {
                        if(msginfo.getMsg_type()==0){//通知不要加谁发的消息
                            info = msginfo.getMsg_typeStr();
                        }else{
-                           String name=msginfo.getFrom_nickname()+" : ";
-                           UserInfo fuser = msginfo.getFrom_user();
+                           String name="";
+                           if(msginfo.getFrom_uid().longValue()!=UserAction.getMyId().longValue()){//自己的不加昵称
+                               name=msginfo.getFrom_nickname()+" : ";
+                               UserInfo fuser = msginfo.getFrom_user();
 
-                           if(fuser!=null&&StringUtil.isNotNull(fuser.getMkName())){
-                               name=fuser.getMkName()+" : ";
+                               if(fuser!=null&&StringUtil.isNotNull(fuser.getMkName())){
+                                   name=fuser.getMkName()+" : ";
 
+                               }
                            }
+
 
                            info =name+ msginfo.getMsg_typeStr();
                        }
