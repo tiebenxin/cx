@@ -144,8 +144,6 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             return;
         }
         new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
-
-
             @Override
             public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() == null) {

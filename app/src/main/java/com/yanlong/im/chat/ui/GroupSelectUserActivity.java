@@ -103,7 +103,7 @@ public class GroupSelectUserActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    listData = response.body().getData().getUsers();
+                    listData = delectMaster(response.body().getData());
                     Collections.sort(listData);
                     mtListView.notifyDataSetChange();
                     for (int i = 0; i < listData.size(); i++) {
@@ -116,12 +116,16 @@ public class GroupSelectUserActivity extends AppActivity {
     }
 
 
-
-    private RealmList<UserInfo> delectMaster(){
-
-
-
-
+    private List<UserInfo> delectMaster(Group group){
+        List <UserInfo> list = group.getUsers();
+        if(list != null && list.size() > 0){
+            for (int i = 0; i < list.size(); i++) {
+                if(group.getMaster().equals(list.get(i).getUid()+"")){
+                    list.remove(i);
+                }
+            }
+            return list;
+        }
         return null;
     }
 
