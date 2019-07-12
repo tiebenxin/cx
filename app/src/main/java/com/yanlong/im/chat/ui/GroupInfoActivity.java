@@ -434,11 +434,7 @@ public class GroupInfoActivity extends AppActivity {
     private List<UserInfo> taskGetNumbers() {
         //进入这个信息的时候会统一给的
         List<UserInfo> userInfos = ginfo.getUsers();
-
-
         userInfos = userInfos == null ? new ArrayList() : userInfos;
-
-
         return userInfos;
     }
 
@@ -449,7 +445,6 @@ public class GroupInfoActivity extends AppActivity {
     private List<UserInfo> taskGetFriends() {
         List<UserInfo> userInfos = userDao.friendGetAll();
         userInfos = userInfos == null ? new ArrayList() : userInfos;
-
         return userInfos;
     }
 

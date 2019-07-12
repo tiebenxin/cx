@@ -10,6 +10,7 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -84,9 +85,9 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                     break;
                 case R.id.cb_message_info:
                     if (isChecked) {
-                        taskUserMask(1,5);
+                        taskUserMaskInfo(1,5);
                     } else {
-                        taskUserMask(0,5);
+                        taskUserMaskInfo(0,5);
                     }
                     break;
                 case R.id.cb_message_voice:
@@ -109,9 +110,9 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
 
 
     private void taskUserMask(int switchval, int avatar) {
-        userAction.userMaskSet(switchval, avatar, new CallBack<ReturnBean>() {
+        userAction.userMaskSet(switchval, avatar, new CallBack4Btn<ReturnBean>(mCbReceiveMessage) {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
                     return;
                 }
@@ -119,6 +120,20 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
             }
         });
     }
+
+
+    private void taskUserMaskInfo(int switchval, int avatar) {
+        userAction.userMaskSet(switchval, avatar, new CallBack4Btn<ReturnBean>(mCbMessageInfo) {
+            @Override
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(NewMessageActivity.this, response.body().getMsg());
+            }
+        });
+    }
+
 
     private void taskUserInfo(long uid) {
         userAction.getUserInfo4Id(uid, new CallBack<ReturnBean<UserInfo>>() {

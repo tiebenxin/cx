@@ -17,19 +17,23 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -50,6 +54,7 @@ import com.luck.picture.lib.permissions.RxPermissions;
 import com.luck.picture.lib.photoview.OnViewTapListener;
 import com.luck.picture.lib.photoview.PhotoView;
 import com.luck.picture.lib.tools.PictureFileUtils;
+import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.ToastManage;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.luck.picture.lib.widget.PreviewViewPager;
@@ -90,7 +95,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private LayoutInflater inflater;
     private RxPermissions rxPermissions;
     private loadDataThread loadDataThread;
-    private String[] strings = {"识别二维码", "保存图片", "取消"};
+    private String[] strings = {"识别支付宝二维码", "保存图片", "取消"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,12 +217,14 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 } else {
                     RequestOptions options = new RequestOptions()
                             .diskCacheStrategy(DiskCacheStrategy.ALL);
-
+                    Log.v("Glide","width:"+ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this)
+                    +"----height:"+ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this));
                     Glide.with(PictureExternalPreviewActivity.this)
                             .asBitmap()
                             .load(path)
-                            .apply(options)
-                            .into(new SimpleTarget<Bitmap>(480, 800) {
+                            .apply(options)  //480     800
+                            .into(new SimpleTarget<Bitmap>(ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this),
+                                    ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this)) {
                                 @Override
                                 public void onLoadFailed(@Nullable Drawable errorDrawable) {
                                     super.onLoadFailed(errorDrawable);
@@ -226,6 +233,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
                                 @Override
                                 public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                                    Log.v("Glide","onResourceReady");
                                     dismissDialog();
                                     if (eqLongImg) {
                                         displayLongPic(resource, longImg);
