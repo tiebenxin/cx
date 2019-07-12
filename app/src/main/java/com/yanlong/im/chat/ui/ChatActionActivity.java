@@ -13,6 +13,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.view.AppActivity;
@@ -77,10 +78,7 @@ private  Vibrator vibrator;
     //振动
     private void playVibration(){
 
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator.hasVibrator()) {
-            vibrator.vibrate(2000);
-        }
+        vibrator = MediaBackUtil.playVibration(getContext(),2000);
     }
 
 

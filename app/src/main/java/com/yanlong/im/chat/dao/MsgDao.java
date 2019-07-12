@@ -7,6 +7,8 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.UserSeting;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -894,6 +896,47 @@ public class MsgDao {
 
         realm.commitTransaction();
         realm.close();
+    }
+
+    /***
+     * 个人配置修改,为空不修改
+     */
+    public void userSetingUpdate(Boolean shake,Boolean voice){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        UserSeting userSeting = realm.where(UserSeting.class).equalTo("uid", UserAction.getMyId()).findFirst();
+        if(userSeting==null){
+            userSeting=new UserSeting();
+            userSeting.setUid(UserAction.getMyId());
+
+        }
+        if(shake!=null){
+            userSeting.setShake(shake);
+        }
+
+        if(voice!=null){
+            userSeting.setVoice(voice);
+        }
+
+        realm.insertOrUpdate(userSeting);
+
+        realm.commitTransaction();
+        realm.close();
+
+    }
+
+    /**
+     * 获取用户配置
+     * @return
+     */
+    public UserSeting userSetingGet(){
+        UserSeting userSeting=DaoUtil.findOne(UserSeting.class,"uid", UserAction.getMyId());
+        if(userSeting==null){
+            userSeting=new UserSeting();
+        }
+
+      return  userSeting;
     }
 
 

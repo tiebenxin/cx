@@ -3,6 +3,7 @@
     package="com.yanlong.im">
 
 
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:name=".MyAppLication"
         android:allowBackup="true"
