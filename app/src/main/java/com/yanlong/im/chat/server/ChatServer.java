@@ -19,6 +19,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.test.bean.Test2Bean;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -244,9 +245,10 @@ public class ChatServer extends Service {
             return;
         }
         playTimeOld = System.currentTimeMillis();
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-        r.play();
+
+
+
+        MediaBackUtil.palydingdong(getApplicationContext());
 
     }
     private long playVBTimeOld = 0;
@@ -257,10 +259,7 @@ public class ChatServer extends Service {
         }
         playVBTimeOld= System.currentTimeMillis();
 
-        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator.hasVibrator()) {
-            vibrator.vibrate(200);
-        }
+        MediaBackUtil.playVibration(getApplicationContext(),200);
     }
 
 

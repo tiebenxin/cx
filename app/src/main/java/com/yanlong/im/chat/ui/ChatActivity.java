@@ -335,8 +335,9 @@ public class ChatActivity extends AppActivity {
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if(isGroup()){
             actionbar.getBtnRight().setVisibility(View.GONE);
+        }else{
+            actionbar.getBtnRight().setVisibility(View.VISIBLE);
         }
-
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
