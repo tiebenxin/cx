@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.umeng.socialize.media.UMWeb;
@@ -117,6 +118,29 @@ public class FriendAddAcitvity extends AppActivity {
         web.setDescription("点击跳转加好友");//描述
         new ShareAction(FriendAddAcitvity.this)
                 .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
+                .setCallback(new UMShareListener() {
+                    @Override
+                    public void onStart(SHARE_MEDIA share_media) {
+
+                    }
+
+                    @Override
+                    public void onResult(SHARE_MEDIA share_media) {
+
+                    }
+
+                    @Override
+                    public void onError(SHARE_MEDIA share_media, Throwable throwable) {
+                        if(throwable.getMessage().contains("2008")){
+                            ToastUtil.show(context,"请安装微信");
+                        }
+                    }
+
+                    @Override
+                    public void onCancel(SHARE_MEDIA share_media) {
+
+                    }
+                })
                 .withMedia(web)//分享内容
                 .share();
     }

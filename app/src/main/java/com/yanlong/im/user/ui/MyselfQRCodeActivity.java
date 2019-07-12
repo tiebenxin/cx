@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.zxing.WriterException;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.yanlong.im.R;
@@ -179,20 +180,33 @@ public class MyselfQRCodeActivity extends AppActivity {
 
 
     private void shareWX(Bitmap bitmap) {
-//        if (Build.VERSION.SDK_INT >= 23) {
-//            String[] mPermissionList = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                    Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CALL_PHONE,
-//                    Manifest.permission.READ_LOGS, Manifest.permission.READ_PHONE_STATE,
-//                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SET_DEBUG_APP,
-//                    Manifest.permission.SYSTEM_ALERT_WINDOW, Manifest.permission.GET_ACCOUNTS,
-//                    Manifest.permission.WRITE_APN_SETTINGS};
-//            ActivityCompat.requestPermissions(this, mPermissionList, PERMISSIONS);
-//        }
-
         UMImage thumb = new UMImage(this, bitmap);
         new ShareAction(MyselfQRCodeActivity.this)
                 .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
                 .withMedia(thumb)//分享内容
+                .setCallback(new UMShareListener() {
+                    @Override
+                    public void onStart(SHARE_MEDIA share_media) {
+
+                    }
+
+                    @Override
+                    public void onResult(SHARE_MEDIA share_media) {
+
+                    }
+
+                    @Override
+                    public void onError(SHARE_MEDIA share_media, Throwable throwable) {
+                        if(throwable.getMessage().contains("2008")){
+                            ToastUtil.show(context,"请安装微信");
+                        }
+                    }
+
+                    @Override
+                    public void onCancel(SHARE_MEDIA share_media) {
+
+                    }
+                })
                 .share();
     }
 
