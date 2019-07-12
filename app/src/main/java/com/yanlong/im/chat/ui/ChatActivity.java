@@ -333,7 +333,10 @@ public class ChatActivity extends AppActivity {
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
-        actionbar.getBtnRight().setVisibility(View.VISIBLE);
+        if(isGroup()){
+            actionbar.getBtnRight().setVisibility(View.GONE);
+        }
+
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -816,9 +819,9 @@ public class ChatActivity extends AppActivity {
         mtListView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mtListView.getListView().smoothScrollToPosition(msgListData.size());
+                mtListView.getListView().scrollToPosition(msgListData.size());
             }
-        }, 200);
+        }, 100);
 
     }
 
@@ -1658,6 +1661,20 @@ public class ChatActivity extends AppActivity {
                     viewChatRobot.setVisibility(View.VISIBLE);
                 } else {
                     viewFunc.removeView(viewChatRobot);
+                }
+
+                //如果自己不在群里面
+                boolean isExit=false;
+                for (UserInfo uifo:groupInfo.getUsers()) {
+                   if( uifo.getUid().longValue()==UserAction.getMyId().longValue()){
+                       isExit=true;
+                   }
+
+                }
+                if(!isExit){
+                    actionbar.getBtnRight().setVisibility(View.GONE);
+                }else{
+                    actionbar.getBtnRight().setVisibility(View.VISIBLE);
                 }
 
 

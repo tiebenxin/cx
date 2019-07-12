@@ -247,8 +247,8 @@ public class ChatItemView extends LinearLayout {
             txtOtName.setVisibility(VISIBLE);
             txtMeName.setVisibility(VISIBLE);
         } else {
-            txtOtName.setVisibility(INVISIBLE);
-            txtMeName.setVisibility(INVISIBLE);
+            txtOtName.setVisibility(GONE);
+            txtMeName.setVisibility(GONE);
         }
 
         if (time == null) {
@@ -504,7 +504,7 @@ public class ChatItemView extends LinearLayout {
     public void setErr(int state) {
         switch (state) {
             case 0://正常
-                imgMeErr.setVisibility(GONE);
+                imgMeErr.setVisibility(INVISIBLE);
                 break;
             case 1://失败
                 imgMeErr.setVisibility(VISIBLE);

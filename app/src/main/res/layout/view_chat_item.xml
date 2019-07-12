@@ -53,7 +53,7 @@
                 android:id="@+id/txt_ot_name"
                 style="@style/app_txt_content_1"
                 android:layout_width="match_parent"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="2dp"
                 android:gravity="left"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
@@ -368,7 +368,7 @@
                 android:id="@+id/txt_me_name"
                 style="@style/app_txt_content_1"
                 android:layout_width="match_parent"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="2dp"
                 android:gravity="right"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
@@ -381,11 +381,11 @@
 
                 <ImageView
                     android:id="@+id/img_me_err"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_delete_photo" />
+                    android:src="@mipmap/ic_net_err" />
                 <!-- 普通消息-->
                 <LinearLayout
                     android:id="@+id/view_me_1"
