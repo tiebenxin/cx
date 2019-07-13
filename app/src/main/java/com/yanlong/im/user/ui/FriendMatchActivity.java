@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
@@ -114,7 +115,7 @@ public class FriendMatchActivity extends AppActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String content = s.toString();
-                if(TextUtils.isEmpty(content)){
+                if (TextUtils.isEmpty(content)) {
                     adapter.setList(listData);
                     mtListView.notifyDataSetChange();
                 }
@@ -129,14 +130,26 @@ public class FriendMatchActivity extends AppActivity {
 
     private void initData() {
         userAction = new UserAction();
-        phoneListUtil.getPhones(this, new PhoneListUtil.Event() {
+      //  alert.show("正在匹配中...", false);
+        new Thread(new Runnable() {
             @Override
-            public void onList(List<PhoneListUtil.PhoneBean> list) {
-                if (list == null)
-                    return;
-                taskUserMatchPhone(list);
+            public void run() {
+                phoneListUtil.getPhones(FriendMatchActivity.this, new PhoneListUtil.Event() {
+                    @Override
+                    public void onList(final List<PhoneListUtil.PhoneBean> list) {
+
+                        if (list == null)
+                            return;
+
+                        taskUserMatchPhone(list);
+
+                    }
+                });
+
             }
-        });
+        }).start();
+
+
     }
 
 
@@ -249,6 +262,7 @@ public class FriendMatchActivity extends AppActivity {
         userAction.getUserMatchPhone(new Gson().toJson(phoneList), new CallBack<ReturnBean<List<FriendInfoBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<FriendInfoBean>>> call, Response<ReturnBean<List<FriendInfoBean>>> response) {
+              //  alert.dismiss();
                 if (response.body() == null) {
                     return;
                 }
@@ -262,16 +276,22 @@ public class FriendMatchActivity extends AppActivity {
                     adapter.setList(listData);
                     initViewTypeData();
                     mtListView.notifyDataSetChange();
-                    if(listData== null || listData.size() == 0){
-                        ToastUtil.show(context,"没有匹配的手机联系人");
+                    if (listData == null || listData.size() == 0) {
+                        ToastUtil.show(context, "没有匹配的手机联系人");
                     }
                 }
             }
+
+            /*@Override
+            public void onFailure(Call<ReturnBean<List<FriendInfoBean>>> call, Throwable t) {
+                alert.dismiss();
+                super.onFailure(call, t);
+            }*/
         });
     }
 
     private void taskFriendApply(Long uid, final int position) {
-        userAction.friendApply(uid,null, new CallBack<ReturnBean>() {
+        userAction.friendApply(uid, null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
