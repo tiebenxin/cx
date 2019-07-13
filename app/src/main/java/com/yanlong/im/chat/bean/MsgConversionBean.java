@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.bean;
 
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
@@ -145,7 +146,13 @@ public class MsgConversionBean {
                 gNotice.setMsgid(msgAllBean.getMsg_id());
                 String names = "";
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
-                    names += bean.getAcceptBeGroup().getNoticeMessage(i).getNickname() + ",";
+                    //7.13 加入替换自己的昵称
+                    if(bean.getAcceptBeGroup().getNoticeMessage(i).getUid()== UserAction.getMyId().longValue()){
+                        names +="你,";
+                    }else{
+                        names += bean.getAcceptBeGroup().getNoticeMessage(i).getNickname() + ",";
+                    }
+
                 }
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
                 gNotice.setNote(names + "已加入群");
@@ -176,7 +183,12 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(0);
                 MsgNotice gnewAdminNotice = new MsgNotice();
                 gnewAdminNotice.setMsgid(msgAllBean.getMsg_id());
-                gnewAdminNotice.setNote("群已经转让给"+bean.getChangeGroupMaster().getMembername());
+                if(bean.getChangeGroupMaster().getUid()== UserAction.getMyId().longValue()){
+                    gnewAdminNotice.setNote("你已成为新的群主");
+                }else{
+                    gnewAdminNotice.setNote(bean.getChangeGroupMaster().getMembername()+"已成为新的群主");
+                }
+
                 msgAllBean.setMsgNotice(gnewAdminNotice);
                 break;
             case OUT_GROUP://退出群
