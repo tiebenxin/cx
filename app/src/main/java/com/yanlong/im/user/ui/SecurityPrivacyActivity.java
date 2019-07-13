@@ -14,6 +14,7 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -107,16 +108,16 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                     break;
                 case R.id.cb_find_product_number:
                     if (isChecked) {
-                        taskUserMask(1,1);
+                        taskUserMaskProduct(1,1);
                     } else {
-                        taskUserMask(0,1);
+                        taskUserMaskProduct(0,1);
                     }
                     break;
                 case R.id.cb_verification:
                     if (isChecked) {
-                        taskUserMask(1,2);
+                        taskUserMaskVerification(1,2);
                     } else {
-                        taskUserMask(0,2);
+                        taskUserMaskVerification(0,2);
                     }
                     break;
             }
@@ -124,9 +125,34 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     }
 
     private void taskUserMask(int switchval,int avatar){
-        userAction.userMaskSet(switchval, avatar, new CallBack<ReturnBean>() {
+        userAction.userMaskSet(switchval, avatar, new CallBack4Btn<ReturnBean>(mCbFindPhone) {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    return;
+                }
+                ToastUtil.show(SecurityPrivacyActivity.this,response.body().getMsg());
+            }
+        });
+    }
+
+    private void taskUserMaskProduct(int switchval,int avatar){
+        userAction.userMaskSet(switchval, avatar, new CallBack4Btn<ReturnBean>(mCbFindProductNumber) {
+            @Override
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if(response.body() == null){
+                    return;
+                }
+                ToastUtil.show(SecurityPrivacyActivity.this,response.body().getMsg());
+            }
+        });
+    }
+
+
+    private void taskUserMaskVerification(int switchval,int avatar){
+        userAction.userMaskSet(switchval, avatar, new CallBack4Btn<ReturnBean>(mCbVerification) {
+            @Override
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if(response.body() == null){
                     return;
                 }

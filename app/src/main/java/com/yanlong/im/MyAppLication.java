@@ -1,8 +1,6 @@
 package com.yanlong.im;
 
 
-import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import net.cb.cb.library.AppConfig;
@@ -16,11 +14,8 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import com.jrmf360.tools.JrmfClient;
 import com.umeng.commonsdk.UMConfigure;
-import com.umeng.message.IUmengCallback;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
-import com.umeng.message.UmengNotificationClickHandler;
-import com.umeng.message.entity.UMessage;
 import com.umeng.socialize.PlatformConfig;
 
 import org.android.agoo.huawei.HuaWeiRegister;
@@ -76,9 +71,9 @@ public class MyAppLication extends MainApplication {
 
 
     private void initUPush() {
-        UMConfigure.init(this, "5cdf7aab4ca357f3f600055f",
+        UMConfigure.init(this, "5d284fab3fc19520bf000ec9",
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
-                "8dd38f8da115dcf6441ce3922f30a2ac");
+                "dfaeeefa090961c33bb804bdd5436797");
         UMConfigure.setLogEnabled(AppConfig.DEBUG);
         //注册小米推送
         MiPushRegistar.register(this, "bMsFYycwSstKDv19Mx9zxQ==", "5411801194485");

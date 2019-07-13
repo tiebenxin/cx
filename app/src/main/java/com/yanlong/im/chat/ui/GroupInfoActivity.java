@@ -35,6 +35,7 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
@@ -200,7 +201,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
                 intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
                 intent.putExtra(CommonSetingActivity.TYPE_LINE, 1);
-                intent.putExtra(CommonSetingActivity.SETING,ginfo.getAnnouncement());
+                intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
                 startActivityForResult(intent, GROUP_NOTE);
             }
         });
@@ -225,7 +226,7 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupManage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID,gid));
+                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid));
             }
         });
 
@@ -277,19 +278,19 @@ public class GroupInfoActivity extends AppActivity {
         ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                taskSetState(gid, null, isChecked ? 1 : 0, null, null);
+                taskSetStateDisturb(gid, null, isChecked ? 1 : 0, null, null);
             }
         });
         ckGroupSave.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                taskSetState(gid, null, null, isChecked ? 1 : 0, null);
+                taskSetStateGroupSave(gid, null, null, isChecked ? 1 : 0, null);
             }
         });
         ckGroupVerif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                taskSetState(gid, null, null, null, isChecked ? 1 : 0);
+                taskSetStateGroupVerif(gid, null, null, null, isChecked ? 1 : 0);
             }
         });
 
@@ -304,8 +305,6 @@ public class GroupInfoActivity extends AppActivity {
                 );
             }
         });
-
-
     }
 
     private List<UserInfo> listDataTop = new ArrayList<>();
@@ -330,20 +329,19 @@ public class GroupInfoActivity extends AppActivity {
             if (number != null) {
 
 
-
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 holder.txtName.setText("" + number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (number.getUid().longValue()==UserAction.getMyId().longValue()){
+                        if (number.getUid().longValue() == UserAction.getMyId().longValue()) {
                             return;
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, number.getUid()));
                     }
                 });
-                if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
+                if (ginfo.getMaster().equals("" + number.getUid().longValue())) {
                     holder.imgGroup.setVisibility(View.VISIBLE);
 
                 } else {
@@ -418,7 +416,7 @@ public class GroupInfoActivity extends AppActivity {
                     taskChangeMemberName(gid, content);
                     break;
                 case GROUP_NOTE:
-                    changeGroupAnnouncement(gid,content);
+                    changeGroupAnnouncement(gid, content);
                     break;
             }
         }
@@ -540,9 +538,9 @@ public class GroupInfoActivity extends AppActivity {
 
     private void taskSetState(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
 
-        msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack<ReturnBean>() {
+        msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckTop) {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
 
                 if (response.body() == null)
                     return;
@@ -551,6 +549,56 @@ public class GroupInfoActivity extends AppActivity {
                     initEvent();
                 }
 
+            }
+        });
+    }
+
+
+    private void taskSetStateDisturb(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
+
+        msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckDisturb) {
+            @Override
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
+
+                if (response.body() == null)
+                    return;
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
+                    initEvent();
+                }
+
+            }
+        });
+    }
+
+    private void taskSetStateGroupSave(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
+
+        msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckGroupSave) {
+            @Override
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
+
+                if (response.body() == null)
+                    return;
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
+                    initEvent();
+                }
+            }
+        });
+    }
+
+    private void taskSetStateGroupVerif(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
+
+        msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckGroupVerif) {
+            @Override
+            public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
+
+                if (response.body() == null)
+                    return;
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
+                    initEvent();
+                }
             }
         });
     }
@@ -635,7 +683,7 @@ public class GroupInfoActivity extends AppActivity {
     }
 
 
-    private void changeGroupAnnouncement(String gid, final String announcement){
+    private void changeGroupAnnouncement(String gid, final String announcement) {
         msgAction.changeGroupAnnouncement(gid, announcement, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
