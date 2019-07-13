@@ -27,7 +27,7 @@ public class PasswordTextWather implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         String editable = editText.getText().toString();
-        String regEx = "[^a-zA-Z0-9._]";
+        String regEx = "[^a-zA-Z0-9_]";
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(editable);
         String str = m.replaceAll("").trim();
