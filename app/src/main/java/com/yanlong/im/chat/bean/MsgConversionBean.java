@@ -176,7 +176,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(0);
                 MsgNotice gnewAdminNotice = new MsgNotice();
                 gnewAdminNotice.setMsgid(msgAllBean.getMsg_id());
-                gnewAdminNotice.setNote("该群已转让");//+bean.getChangeGroupMaster().getUid()
+                gnewAdminNotice.setNote("群已经转让给"+bean.getChangeGroupMaster().getMembername());
                 msgAllBean.setMsgNotice(gnewAdminNotice);
                 break;
             case OUT_GROUP://退出群
