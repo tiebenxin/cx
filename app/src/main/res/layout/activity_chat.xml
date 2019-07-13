@@ -71,7 +71,7 @@
 
 
                             android:maxLines="3"
-                            android:maxLength="500" />
+                            android:maxLength="200" />
                         <Button
                             android:visibility="gone"
                             android:id="@+id/txt_voice"
