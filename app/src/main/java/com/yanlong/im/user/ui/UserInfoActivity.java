@@ -282,8 +282,8 @@ public class UserInfoActivity extends AppActivity {
                 imgHead.setImageURI(Uri.parse("" + info.getHead()));
                 txtMkname.setText(info.getName4Show());
                 mkName = info.getMkName();
-                txtPrNo.setText(info.getImid());
-                txtNkname.setText(info.getName());
+                txtPrNo.setText("常聊号: "+info.getImid());
+                txtNkname.setText("昵称: "+info.getName());
                 name = info.getName();
 
                 imgHead.setOnClickListener(new View.OnClickListener() {
