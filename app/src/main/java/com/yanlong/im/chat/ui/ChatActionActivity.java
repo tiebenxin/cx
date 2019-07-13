@@ -86,7 +86,10 @@ private  Vibrator vibrator;
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        vibrator.cancel();
+        if(vibrator!=null){
+            vibrator.cancel();
+        }
+
     }
 
     @Override

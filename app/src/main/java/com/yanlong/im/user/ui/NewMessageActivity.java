@@ -5,6 +5,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.UserSeting;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 
@@ -61,14 +63,15 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
         });
         mCbReceiveMessage.setOnCheckedChangeListener(this);
         mCbMessageInfo.setOnCheckedChangeListener(this);
-        mCbMessageVoice.setOnCheckedChangeListener(this);
-        mCbMessageShake.setOnCheckedChangeListener(this);
+
+
     }
 
     private void initData() {
         userAction = new UserAction();
         uid = UserAction.getMyId();
         taskUserInfo(uid);
+        taskSetingGet();
     }
 
 
@@ -78,31 +81,34 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
             switch (buttonView.getId()) {
                 case R.id.cb_receive_message:
                     if (isChecked) {
-                        taskUserMask(1,4);
+                        taskUserMask(1, 4);
                     } else {
-                        taskUserMask(0,4);
+                        taskUserMask(0, 4);
                     }
                     break;
                 case R.id.cb_message_info:
                     if (isChecked) {
-                        taskUserMaskInfo(1,5);
+                        taskUserMaskInfo(1, 5);
                     } else {
-                        taskUserMaskInfo(0,5);
+                        taskUserMaskInfo(0, 5);
                     }
                     break;
                 case R.id.cb_message_voice:
-                    if (isChecked) {
+                    /*if (isChecked) {
                         ToastUtil.show(this, "选中");
+
                     } else {
                         ToastUtil.show(this, "取消选中");
-                    }
+                    }*/
+                    taskSetingSet(null,isChecked);
                     break;
                 case R.id.cb_message_shake:
-                    if (isChecked) {
+                   /* if (isChecked) {
                         ToastUtil.show(this, "选中");
                     } else {
                         ToastUtil.show(this, "取消选中");
-                    }
+                    }*/
+                    taskSetingSet(isChecked,null);
                     break;
             }
         }
@@ -157,6 +163,24 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                 isClick = 1;
             }
         });
+    }
+
+    private MsgDao msgDao = new MsgDao();
+
+    private void taskSetingGet() {
+        mCbMessageVoice.setOnCheckedChangeListener(null);
+        mCbMessageShake.setOnCheckedChangeListener(null);
+        UserSeting userSeting = msgDao.userSetingGet();
+
+        mCbMessageVoice.setChecked(userSeting.isVoice());
+        mCbMessageShake.setChecked(userSeting.isShake());
+
+        mCbMessageVoice.setOnCheckedChangeListener(this);
+        mCbMessageShake.setOnCheckedChangeListener(this);
+    }
+
+    private void taskSetingSet(Boolean sk,Boolean vic) {
+        msgDao.userSetingUpdate(sk,vic);
     }
 
 
