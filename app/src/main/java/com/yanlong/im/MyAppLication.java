@@ -14,6 +14,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import com.jrmf360.tools.JrmfClient;
 import com.umeng.commonsdk.UMConfigure;
+import com.umeng.message.IUmengCallback;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
@@ -75,13 +76,10 @@ public class MyAppLication extends MainApplication {
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
                 "dfaeeefa090961c33bb804bdd5436797");
         UMConfigure.setLogEnabled(AppConfig.DEBUG);
-        //注册小米推送
-        MiPushRegistar.register(this, "bMsFYycwSstKDv19Mx9zxQ==", "5411801194485");
-        //注册华为推送
-        HuaWeiRegister.register(this);
+
 
         //获取消息推送代理示例
-        PushAgent mPushAgent = PushAgent.getInstance(this);
+        final PushAgent mPushAgent = PushAgent.getInstance(this);
         //设置通知栏显示数量
         mPushAgent.setDisplayNotificationNumber(2);
         //   mPushAgent.setNotificationClickHandler(notificationClickHandler);
@@ -94,6 +92,19 @@ public class MyAppLication extends MainApplication {
                 //注册成功会返回deviceToken deviceToken是推送消息的唯一标志
                 Log.i("youmeng", "注册成功：deviceToken：-------->  " + deviceToken);
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(deviceToken);
+
+                //每次启动,一定要开启这个
+                mPushAgent.enable(new IUmengCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.e(TAG, "PushAgent推送开启成功" );
+                    }
+
+                    @Override
+                    public void onFailure(String s, String s1) {
+                        Log.e(TAG, "PushAgent推送开启失败:"+s+s1 );
+                    }
+                });
 
             }
 
@@ -115,6 +126,13 @@ public class MyAppLication extends MainApplication {
 //                Log.e("youmeng", "开启推送失败：--------> " + "s:" + s + "s1:" + s1);
 //            }
 //        });
+
+
+
+        //注册小米推送
+        MiPushRegistar.register(getApplicationContext(), "2882303761518011485", "5411801194485");
+        //注册华为推送
+        HuaWeiRegister.register(this);
     }
 
 
