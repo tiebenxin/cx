@@ -15,7 +15,9 @@ import net.cb.cb.library.utils.CheckPermissionUtils;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PhoneListUtil {
     private String[] permission = new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS};
@@ -28,7 +30,8 @@ public class PhoneListUtil {
         this.event = event;
 
        if( CheckPermissionUtils.requestPermissions(act, permission)){
-           getAllContacts(activity.getApplicationContext());
+          // getAllContacts(activity.getApplicationContext());
+           getPhoneContacts(activity.getApplicationContext());
        }
 
 
@@ -85,12 +88,75 @@ public class PhoneListUtil {
 
     }
 
+    public void getPhoneContacts(Context context) {
+
+        //联系人集合
+        List<PhoneBean> data = new ArrayList<>();
+        ContentResolver resolver = context.getContentResolver();
+        //搜索字段
+        String[] projection = new String[]{
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.Contacts.DISPLAY_NAME};
+        // 获取手机联系人
+        Cursor contactsCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                projection, null, null, null);
+        if (contactsCursor != null) {
+            //key: contactId,value: 该contactId在联系人集合data的index
+            Map<Integer, Integer> contactIdMap = new HashMap<>();
+            while (contactsCursor.moveToNext()) {
+                //获取联系人的ID
+                int contactId = contactsCursor.getInt(0);
+                //获取联系人的姓名
+                String name = contactsCursor.getString(2);
+                //获取联系人的号码
+                String phoneNumber = contactsCursor.getString(1);
+                //号码处理
+                String replace = phoneNumber.replace(" ", "").replace("-", "").replace("+", "");
+                //判断号码是否符合手机号
+           /*     if (CheckUtils.checkPhoneNumber(replace)) {
+                    //如果联系人Map已经包含该contactId
+                    if (contactIdMap.containsKey(contactId)) {
+                        //得到该contactId在data的index
+                        Integer index = contactIdMap.get(contactId);
+                        //重新设置号码数组
+                        PhoneBean contacts = data.get(index);
+                        String[] mobile = contacts.getPhone();
+                        String[] mobileCopy = new String[mobile.length + 1];
+                        for (int i = 0; i < mobile.length; i++) {
+                            mobileCopy[i] = mobile[i];
+                        }
+                        mobileCopy[mobileCopy.length - 1] = replace;
+                        contacts.setMobile(mobileCopy);
+                    } else {*/
+                        //如果联系人Map不包含该contactId
+                        PhoneBean contacts = new PhoneBean();
+                      //  contacts.setRecordId(contactId);
+                        contacts.setName(name);
+                      //  String[] strings = new String[1];
+                      //  strings[0] = PhoneBean;
+                        contacts.setPhone(replace);
+                        data.add(contacts);
+                        contactIdMap.put(contactId, data.size() - 1);
+                /*    }
+                }*/
+            }
+            contactsCursor.close();
+            event.onList(data);
+           // syncAvatars(data);
+        }
+    }
+
+
+
+
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         CheckPermissionUtils.checkPermissionResult(new CheckPermissionUtils.OnHasGetPermissionListener() {
             @Override
             public void onSuccess() {
 
-                getAllContacts(activity.getApplicationContext());
+              //  getAllContacts(activity.getApplicationContext());
+                getPhoneContacts(activity.getApplicationContext());
             }
 
             @Override
