@@ -116,17 +116,17 @@ dependencies {
     //友盟
     api 'com.umeng.umsdk:common:+'
     api 'com.umeng.umsdk:utdid:+'
-    api 'com.umeng.umsdk:push:5.0.2'
+    api 'com.umeng.umsdk:push:+'
     api 'com.umeng.umsdk:analytics:+'
 
     api 'com.umeng.sdk:share-wechat:6.9.1'
     //小米推送
-    api 'com.umeng.umsdk:xiaomi-push:3.6.9'
-    api 'com.umeng.umsdk:xiaomi-umengaccs:1.0.9'
+    api 'com.umeng.umsdk:xiaomi-push:+'
+    api 'com.umeng.umsdk:xiaomi-umengaccs:+'
     //华为推送
-    api 'com.umeng.umsdk:huawei-basetb:2.6.0.301'
-    api 'com.umeng.umsdk:huawei-pushtb:2.6.0.301'
-    api 'com.umeng.umsdk:huawei-umengaccs:1.1.3'
+    api 'com.umeng.umsdk:huawei-basetb:+'
+    api 'com.umeng.umsdk:huawei-pushtb:+'
+    api 'com.umeng.umsdk:huawei-umengaccs:+'
 
 
 }
