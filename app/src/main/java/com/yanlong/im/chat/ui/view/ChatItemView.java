@@ -245,7 +245,8 @@ public class ChatItemView extends LinearLayout {
             txtMeName.setText(nikeName);
             txtOtName.setText(nikeName);
             txtOtName.setVisibility(VISIBLE);
-            txtMeName.setVisibility(VISIBLE);
+          //  txtMeName.setVisibility(VISIBLE);
+            txtMeName.setVisibility(GONE);
         } else {
             txtOtName.setVisibility(GONE);
             txtMeName.setVisibility(GONE);
