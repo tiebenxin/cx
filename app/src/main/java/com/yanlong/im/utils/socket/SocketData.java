@@ -171,6 +171,8 @@ public class SocketData {
             //时间戳
             msgAllBean.setTimestamp(bean.getTimestamp());
             msgAllBean.setSend_state(0);
+            //7.16 如果是收到先自己发图图片的消息
+
             //移除旧消息
             DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
 
@@ -226,11 +228,11 @@ public class SocketData {
 
     //5.27 发送前保存到库
     public static void msgSave4MeSendFront(MsgBean.UniversalMessage.Builder msg) {
-        msgSave4Me(msg,2);
+        msgSave4Me(msg, 2);
     }
 
     //6.26 消息直接存库
-    public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg,int state) {
+    public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg, int state) {
         //普通消息
 
         if (msg != null) {
@@ -248,8 +250,9 @@ public class SocketData {
             msgAllBean.setSend_state(state);
             msgAllBean.setSend_data(msg.build().toByteArray());
 
-            //移除旧消息
+            //移除旧消息// 7.16 通过msgid 判断唯一
             DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
+           // DaoUtil.deleteOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
 
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
@@ -259,11 +262,47 @@ public class SocketData {
         }
     }
 
-
-
+    /***
+     * 保存并发送消息
+     * @param toId
+     * @param toGid
+     * @param type
+     * @param value
+     * @return
+     */
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        return send4Base(true, null,toId, toGid, type, value);
+    }
+
+    /***
+     * 根据消息id保存发送数据
+     * @param msgId
+     * @param toId
+     * @param toGid
+     * @param type
+     * @param value
+     * @return
+     */
+    private static MsgAllBean send4BaseById(String msgId,Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        return send4Base(true, msgId,toId, toGid, type, value);
+    }
+
+    /***
+     * 只保存消息,不缓存
+     * @param msgId
+     * @param toId
+     * @param toGid
+     * @param type
+     * @param value
+     * @return
+     */
+    private static MsgAllBean send4BaseJustSave(String msgId,Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        return send4Base(false,msgId, toId, toGid, type, value);
+    }
+
+    private static MsgAllBean send4Base(boolean isSend,String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(toId, toGid, type,  value);
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, type, value);
 
 
         if (msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
@@ -271,11 +310,19 @@ public class SocketData {
             msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
         }
 
+        //立即发送
+        if (isSend) {
+            SocketUtil.getSocketUtil().sendData4Msg(msg);
+        }
 
-        SocketUtil.getSocketUtil().sendData4Msg(msg);
         MsgAllBean msgAllbean = MsgConversionBean.ToBean(msg.getWrapMsg(0));
 
         return msgAllbean;
+    }
+
+
+    public static String getUUID() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     /***
@@ -286,7 +333,7 @@ public class SocketData {
      * @param value
      * @return
      */
-    private static MsgBean.UniversalMessage.Builder toMsgBuilder(Long toId, String toGid, MsgBean.MessageType type, Object value) {
+    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
         if (toId != null) {//给个人发
             msg.setToUid(toId);
@@ -302,7 +349,10 @@ public class SocketData {
         wmsg.setNickname(userInfo.getName());
 
         //自动生成uuid
-        wmsg.setMsgId(UUID.randomUUID().toString().replace("-", ""));
+
+            wmsg.setMsgId(msgid == null?getUUID():msgid);
+
+
         wmsg.setTimestamp(System.currentTimeMillis());
 
         if (toGid != null) {//给群发
@@ -416,11 +466,22 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean send4Image(Long toId, String toGid, String url) {
+    public static MsgAllBean send4Image(String msgId,Long toId, String toGid, String url) {
         MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
                 .setUrl(url)
                 .build();
-        return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
+
+        return send4BaseById(msgId,toId, toGid, MsgBean.MessageType.IMAGE, msg);
+    }
+    public static MsgAllBean send4Image(Long toId, String toGid, String url){
+        return send4Image( getUUID(), toId,  toGid,  url);
+    }
+
+    public static MsgAllBean send4ImagePre(String msgId,Long toId, String toGid, String url) {
+        MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
+                .setUrl(url)
+                .build();
+        return send4BaseJustSave(msgId,toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
 
     /***
@@ -431,7 +492,7 @@ public class SocketData {
      * @param time
      * @return
      */
-    public static MsgAllBean send4Voice(Long toId, String toGid, String url,int time) {
+    public static MsgAllBean send4Voice(Long toId, String toGid, String url, int time) {
         MsgBean.VoiceMessage msg = MsgBean.VoiceMessage.newBuilder()
                 .setUrl(url)
                 .setDuration(time)
@@ -493,8 +554,8 @@ public class SocketData {
                 .build();
 
         if (toId.longValue() == UserAction.getMyId().longValue()) {//自己的不发红包通知,只保存
-            MsgBean.UniversalMessage.Builder  umsg= toMsgBuilder(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
-            msgSave4Me(umsg,0);
+            MsgBean.UniversalMessage.Builder umsg = toMsgBuilder(null, toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
+            msgSave4Me(umsg, 0);
             return MsgConversionBean.ToBean(umsg.getWrapMsg(0));
         }
 
@@ -506,7 +567,7 @@ public class SocketData {
      *发转账
      * @return
      */
-    public static MsgAllBean send4Trans(Long toId,  String rid, String info,String money) {
+    public static MsgAllBean send4Trans(Long toId, String rid, String info, String money) {
 
         MsgBean.TransferMessage msg = MsgBean.TransferMessage.newBuilder()
                 .setId(rid)

@@ -112,6 +112,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -939,7 +940,12 @@ public class ChatActivity extends AppActivity {
                         file = obt.get(0).getPath();
                     }
                     //1.上传图片
-                    alert.show();
+                   // alert.show();
+                 final   String imgMsgId=SocketData.getUUID();
+                    MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId,toUId, toGid,"file://"+file );
+                    imgMsgBean.setSend_state(2);
+                    msgListData.add(imgMsgBean);
+                    notifyData2Buttom();
                     upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(final String url) {
@@ -947,9 +953,9 @@ public class ChatActivity extends AppActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    alert.dismiss();
-                                    MsgAllBean msgAllbean = SocketData.send4Image(toUId, toGid, url);
-                                    showSendObj(msgAllbean);
+                                    //alert.dismiss();
+                                    MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId,toUId, toGid, url);
+                                   // showSendObj(msgAllbean);
                                 }
                             });
 
@@ -958,7 +964,7 @@ public class ChatActivity extends AppActivity {
 
                         @Override
                         public void fail() {
-                            alert.dismiss();
+                            //alert.dismiss();
                             ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
                         }
@@ -1657,6 +1663,11 @@ public class ChatActivity extends AppActivity {
                     return;
 
                 groupInfo = response.body().getData();
+                if(groupInfo==null){//取不到群信息了
+                    groupInfo=new Group();
+                    groupInfo.setMaster("");
+                    groupInfo.setUsers(new RealmList<UserInfo>());
+                }
 
                 if (groupInfo.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
                     viewChatRobot.setVisibility(View.VISIBLE);
