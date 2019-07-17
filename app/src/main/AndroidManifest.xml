@@ -50,13 +50,13 @@
             </intent-filter>
         </activity-alias>
 
-        <meta-data
-            android:name="UMENG_APPKEY"
-            android:value="5cdf7aab4ca357f3f600055f"></meta-data>
+        <!--<meta-data-->
+            <!--android:name="UMENG_APPKEY"-->
+            <!--android:value="5d284fab3fc19520bf000ec9"></meta-data>-->
 
-        <meta-data
-            android:name="com.huawei.hms.client.appid"
-            android:value="appid=100836087" />
+        <!--<meta-data-->
+            <!--android:name="com.huawei.hms.client.appid"-->
+            <!--android:value="appid=100836087" />-->
 
         <activity
             android:name=".user.ui.StartPageActivity"
@@ -407,6 +407,18 @@
             android:name=".chat.ui.GroupSelectUserActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
+
+        <activity android:name=".user.ui.PictureExternalPreviewActivity">
+            <intent-filter>
+                <!--协议部分，-->
+                <data android:scheme="scheme" android:host="picture" android:path="/mainDetail" />
+                <!--下面这几行也必须得设置-->
+                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+            </intent-filter>
+        </activity>
 
     </application>
 

@@ -1025,7 +1025,10 @@ public class ChatActivity extends AppActivity {
             }
         }
 
-        PictureSelector.create(ChatActivity.this).themeStyle(R.style.picture_default_style).isGif(true).openExternalPreview(pos, selectList);
+        PictureSelector.create(ChatActivity.this)
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview1(pos, selectList);
 
     }
 

@@ -3,11 +3,12 @@ package com.yanlong.im.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.text.TextUtils;
 
+import com.google.zxing.Result;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.ui.AddGroupActivity;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -20,6 +21,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +38,8 @@ public class QRCodeManage {
 
     public static final String ADD_FRIEND_FUNCHTION = "ADDFRIEND"; //添加好友
     public static final String ADD_GROUP_FUNCHTION = "ADDGROUP"; //添加群
+
+
 
     /**
      * 扫描二维码转换bean
@@ -165,5 +169,51 @@ public class QRCodeManage {
             }
         });
     }
+
+
+
+    public static void toZhifubao(Context mContext,Result result) {
+        if (result == null) {
+            ToastUtil.show(mContext, "识别二维码失败");
+        } else {
+            String text = result.getText();
+            if (text.contains("qr.alipay.com")) {
+                openAliPay2Pay(mContext,text);
+            } else {
+                QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext,text);
+                QRCodeManage.goToActivity((Activity) mContext,bean);
+            }
+
+        }
+    }
+
+    private static void openAliPay2Pay(Context mContext,String qrCode) {
+        if (openAlipayPayPage(mContext, qrCode)) {
+
+        } else {
+            ToastUtil.show(mContext, "调用失败,请重试");
+        }
+    }
+
+    public static boolean openAlipayPayPage(Context context, String qrcode) {
+        try {
+            qrcode = URLEncoder.encode(qrcode, "utf-8");
+        } catch (Exception e) {
+        }
+        try {
+            final String alipayqr = "alipayqr://platformapi/startapp?saId=10000007&clientVersion=3.7.0.0718&qrcode=" + qrcode;
+            openUri(context, alipayqr + "%3F_s%3Dweb-other&_t=" + System.currentTimeMillis());
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private static void openUri(Context context, String s) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(s));
+        context.startActivity(intent);
+    }
+
 
 }
