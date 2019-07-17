@@ -190,7 +190,7 @@
                 android:gravity="left|center_vertical"
                 android:visibility="gone">
 
-                <com.facebook.drawee.view.SimpleDraweeView
+                <!--<com.facebook.drawee.view.SimpleDraweeView
                     android:id="@+id/img_ot_4"
                     android:layout_width="150dp"
                     android:layout_height="180dp"
@@ -198,7 +198,12 @@
                     app:actualImageScaleType="centerInside"
                     app:placeholderImage="@mipmap/ic_img_def"
                     app:placeholderImageScaleType="centerInside"
-                     />
+                     />-->
+                <ImageView
+                    android:id="@+id/img_ot_4"
+                    android:layout_width="150dp"
+                    android:layout_height="180dp"
+                    />
 
 
             </LinearLayout>
@@ -516,14 +521,20 @@
                     android:gravity="right|center_vertical"
                     android:visibility="gone">
 
-                    <com.facebook.drawee.view.SimpleDraweeView
+                   <!-- <com.facebook.drawee.view.SimpleDraweeView
                         android:id="@+id/img_me_4"
                         android:layout_width="150dp"
                         android:layout_height="180dp"
                         app:actualImageScaleType="centerInside"
                         app:placeholderImage="@mipmap/ic_img_def"
                         app:placeholderImageScaleType="centerInside"
-                         />
+                         />-->
+                    <ImageView
+                        android:id="@+id/img_me_4"
+                        android:layout_width="150dp"
+                        android:layout_height="180dp"
+
+                    />
 
 
                 </LinearLayout>

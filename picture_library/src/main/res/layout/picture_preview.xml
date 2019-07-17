@@ -10,6 +10,7 @@
         android:id="@+id/rl_title"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:visibility="gone"
         android:background="?attr/picture.ac_preview.title.bg">
 
         <ImageView
@@ -68,6 +69,7 @@
 
 
         <LinearLayout
+            android:visibility="gone"
             android:id="@+id/id_ll_ok"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
