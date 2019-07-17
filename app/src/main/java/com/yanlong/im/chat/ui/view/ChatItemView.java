@@ -1,19 +1,34 @@
 package com.yanlong.im.chat.ui.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.text.Html;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.controller.AbstractDraweeController;
 import com.facebook.drawee.drawable.ScalingUtils;
@@ -22,6 +37,7 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.imagepipeline.common.ResizeOptions;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.luck.picture.lib.PictureExternalPreviewActivity;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -61,8 +77,10 @@ public class ChatItemView extends LinearLayout {
 
     private LinearLayout viewMe4;
     private LinearLayout viewOt4;
-    private com.facebook.drawee.view.SimpleDraweeView imgOt4;
-    private com.facebook.drawee.view.SimpleDraweeView imgMe4;
+/*    private com.facebook.drawee.view.SimpleDraweeView imgOt4;
+    private com.facebook.drawee.view.SimpleDraweeView imgMe4;*/
+    private ImageView imgOt4;
+    private ImageView imgMe4;
 
 
     private LinearLayout viewOt5;
@@ -129,9 +147,9 @@ public class ChatItemView extends LinearLayout {
         imgMeErr = (ImageView) rootView.findViewById(R.id.img_me_err);
 
         viewOt4 = (LinearLayout) rootView.findViewById(R.id.view_ot_4);
-        imgOt4 = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_4);
+        imgOt4 =  rootView.findViewById(R.id.img_ot_4);
         viewMe4 = (LinearLayout) rootView.findViewById(R.id.view_me_4);
-        imgMe4 = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_me_4);
+        imgMe4 =  rootView.findViewById(R.id.img_me_4);
 
         viewOt5 = (LinearLayout) rootView.findViewById(R.id.view_ot_5);
         imgOt5 = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_5);
@@ -429,9 +447,9 @@ public class ChatItemView extends LinearLayout {
             }*/
 
 
-            /*int width = DensityUtil.dip2px(getContext(),150);
-            int height =  DensityUtil.dip2px(getContext(),180);
-            ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
+           int width = DensityUtil.dip2px(getContext(),150);
+           int height =  DensityUtil.dip2px(getContext(),180);
+            /* ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
                     .setResizeOptions(new ResizeOptions(width, height))
                     .build();
 
@@ -453,6 +471,48 @@ public class ChatItemView extends LinearLayout {
 
             imgOt4.setController(controller1);
             imgMe4.setController(controller2);*/
+
+
+            RequestListener requestListener=new RequestListener() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
+                    //  imgMe4.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+                    //   imgOt4.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                    return false;
+                }
+
+
+            };
+
+                    RequestOptions rOptions = new RequestOptions();
+
+
+
+            RequestManager in = Glide.with(getContext());
+
+            RequestBuilder rb ;
+            if (uri.getPath().toLowerCase().endsWith(".gif")){
+                Log.e("gif", "setData4: isgif");
+                rb = in.asGif();
+                rOptions.priority(Priority.NORMAL).diskCacheStrategy(DiskCacheStrategy.NONE);
+            }else{
+                rb = in.asBitmap();
+                rOptions .override(width, height)
+                        .priority(Priority.HIGH).diskCacheStrategy(DiskCacheStrategy.ALL);
+            }
+
+
+            rb .apply(rOptions).listener(requestListener).load(uri);
+
+
+            rb.into(imgMe4);
+            rb.into(imgOt4);
 
 
 
