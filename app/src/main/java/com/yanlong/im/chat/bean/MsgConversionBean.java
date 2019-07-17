@@ -71,7 +71,15 @@ public class MsgConversionBean {
             case IMAGE:
                 ImageMessage image = new ImageMessage();
                 image.setMsgid(msgAllBean.getMsg_id());
-                image.setUrl(bean.getImage().getUrl());
+                MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
+                if(imgMsg!=null){//7.16 替换成上一次本地的图片路径
+                    image.setUrl(imgMsg.getImage().getUrl());
+                }else{
+                    image.setUrl(bean.getImage().getUrl());
+                }
+
+
+
                 msgAllBean.setImage(image);
                 msgAllBean.setMsg_type(4);
                 break;
