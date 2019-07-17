@@ -334,9 +334,9 @@ public class ChatActivity extends AppActivity {
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
-        if(isGroup()){
+        if (isGroup()) {
             actionbar.getBtnRight().setVisibility(View.GONE);
-        }else{
+        } else {
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
         }
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -600,7 +600,7 @@ public class ChatActivity extends AppActivity {
                 btnEmj.setEnabled(true);
                 btnFunc.setEnabled(true);
 
-              //  alert.show();
+                //  alert.show();
 
             }
         }));
@@ -614,7 +614,7 @@ public class ChatActivity extends AppActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                           // alert.dismiss();
+                            // alert.dismiss();
                             //发送语音消息
                             MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
                             showSendObj(msgAllbean);
@@ -940,9 +940,9 @@ public class ChatActivity extends AppActivity {
                         file = obt.get(0).getPath();
                     }
                     //1.上传图片
-                   // alert.show();
-                 final   String imgMsgId=SocketData.getUUID();
-                    MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId,toUId, toGid,"file://"+file );
+                    // alert.show();
+                    final String imgMsgId = SocketData.getUUID();
+                    MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file);
                     imgMsgBean.setSend_state(2);
                     msgListData.add(imgMsgBean);
                     notifyData2Buttom();
@@ -954,8 +954,8 @@ public class ChatActivity extends AppActivity {
                                 @Override
                                 public void run() {
                                     //alert.dismiss();
-                                    MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId,toUId, toGid, url);
-                                   // showSendObj(msgAllbean);
+                                    MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId, toUId, toGid, url);
+                                    // showSendObj(msgAllbean);
                                 }
                             });
 
@@ -1059,6 +1059,8 @@ public class ChatActivity extends AppActivity {
             //----------------------------------------
             //昵称处理
             String nikeName = null;
+            //5.30
+            String headico = msgbean.getFrom_avatar();
             if (isGroup()) {//群聊显示昵称
 
                 //6.14 这里有性能问题
@@ -1070,11 +1072,19 @@ public class ChatActivity extends AppActivity {
                 nikeName = null;
             }
             //----------------------------------------
+          /*  //7.16 群资料头像昵称统一
+            if (isGroup()) {
+                UserInfo bean = getGroupInfo(msgbean.getFrom_uid());
+                if (bean != null) {
+                    nikeName = bean.getMembername();
+                    headico = bean.getHead();
+                }
+
+            }*/
 
 
             //显示数据集
-            //5.30
-            String headico = msgbean.getFrom_avatar();
+
             if (msgbean.isMe()) {
                 // headico =
                 holder.viewChatItem.setOnHead(null);
@@ -1327,6 +1337,8 @@ public class ChatActivity extends AppActivity {
 
         actionbar.setTitle(title);
     }
+
+
 
     /***
      * 获取最新的
@@ -1652,6 +1664,19 @@ public class ChatActivity extends AppActivity {
 
     private Group groupInfo;
 
+    //获取群资料
+    private UserInfo getGroupInfo(long uid) {
+        if (groupInfo == null)
+            return null;
+        List<UserInfo> users = groupInfo.getUsers();
+        for (UserInfo uinfo : users) {
+            if (uinfo.getUid().longValue() == uid) {
+                return uinfo;
+            }
+        }
+        return  null;
+    }
+
     /***
      * 获取群信息
      */
@@ -1663,8 +1688,8 @@ public class ChatActivity extends AppActivity {
                     return;
 
                 groupInfo = response.body().getData();
-                if(groupInfo==null){//取不到群信息了
-                    groupInfo=new Group();
+                if (groupInfo == null) {//取不到群信息了
+                    groupInfo = new Group();
                     groupInfo.setMaster("");
                     groupInfo.setUsers(new RealmList<UserInfo>());
                 }
@@ -1676,16 +1701,16 @@ public class ChatActivity extends AppActivity {
                 }
 
                 //如果自己不在群里面
-                boolean isExit=false;
-                for (UserInfo uifo:groupInfo.getUsers()) {
-                   if( uifo.getUid().longValue()==UserAction.getMyId().longValue()){
-                       isExit=true;
-                   }
+                boolean isExit = false;
+                for (UserInfo uifo : groupInfo.getUsers()) {
+                    if (uifo.getUid().longValue() == UserAction.getMyId().longValue()) {
+                        isExit = true;
+                    }
 
                 }
-                if(!isExit){
+                if (!isExit) {
                     actionbar.getBtnRight().setVisibility(View.GONE);
-                }else{
+                } else {
                     actionbar.getBtnRight().setVisibility(View.VISIBLE);
                 }
 

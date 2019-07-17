@@ -147,6 +147,289 @@ public class SocketData {
 
     }
 
+
+    /***
+     * 处理一些统一的数据,用于发送消息时获取
+     * @return
+     */
+    public static MsgBean.UniversalMessage.Builder getMsgBuild() {
+        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
+        MsgBean.UniversalMessage.WrapMessage.Builder wp = MsgBean.UniversalMessage.WrapMessage.newBuilder();
+        msg.setRequestId("" + System.currentTimeMillis());
+        msg.addWrapMsg(0, wp.build());
+
+        return msg;
+    }
+
+    /***
+     * 授权
+     * @return
+     */
+    public static byte[] msg4Auth() {
+
+        TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        //  tokenBean = new TokenBean();
+        // tokenBean.setAccessToken("2N0qG3CHBxVNQfPjIbbCA/YUY48erDHVTBXZHK1JQAOfAxi86DKcvYKqLwxLfINN");
+        LogUtil.getLog().i("tag", ">>>>发送token" + tokenBean.getAccessToken());
+
+        if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
+            return null;
+        }
+
+
+        MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
+                .setAccessToken(tokenBean.getAccessToken()).build();
+
+        return SocketData.getPakage(DataType.AUTH, auth.toByteArray());
+
+    }
+
+    /***
+     * 回执
+     * @return
+     */
+    public static byte[] msg4ACK(String rid, List<String> msgids) {
+
+        MsgBean.AckMessage ack;
+        MsgBean.AckMessage.Builder amsg = MsgBean.AckMessage.newBuilder()
+                .setRequestId(rid);
+
+        for (int i = 0; i < msgids.size(); i++) {
+            amsg.addMsgId(msgids.get(i));
+        }
+
+        ack = amsg.build();
+
+        return SocketData.getPakage(DataType.ACK, ack.toByteArray());
+
+    }
+//------------------------收-----------------------------
+
+    /***
+     * 消息转换
+     * @param data
+     * @return
+     */
+    public static MsgBean.UniversalMessage msgConversion(byte[] data) {
+        try {
+
+            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(bytesToLists(data, 12).get(1));
+            return msg;
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /***
+     * ack转换
+     * @param data
+     * @return
+     */
+    public static MsgBean.AckMessage ackConversion(byte[] data) {
+        try {
+
+            MsgBean.AckMessage msg = MsgBean.AckMessage.parseFrom(bytesToLists(data, 12).get(1));
+            return msg;
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /***
+     * 鉴权消息转换
+     * @param data
+     * @return
+     */
+    public static MsgBean.AuthResponseMessage authConversion(byte[] data) {
+        try {
+            MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(data, 12).get(1));
+
+
+            return ruthmsg;
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //6.6 为后端擦屁股
+    private static String oldMsgId = "";
+
+    /***
+     * 保存消息和发送消息回执
+     */
+    public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
+        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
+
+
+        List<String> msgIds = new ArrayList<>();
+        //1.先进行数据分割
+        for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
+            //2.存库:1.存消息表,存会话表
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
+            //5.28 如果为空就不保存这类消息
+            if (msgAllBean != null) {
+                msgAllBean.setTo_uid(bean.getToUid());
+                LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
+                //收到直接存表
+                DaoUtil.update(msgAllBean);
+
+                //6.6 为后端擦屁股
+                if (!oldMsgId.equals(wmsg.getMsgId())) {
+                    oldMsgId = wmsg.getMsgId();
+                    msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                } else {
+                    LogUtil.getLog().e(TAG, ">>>>>重复消息,为后端擦屁股: " + oldMsgId);
+                }
+
+
+                msgIds.add(wmsg.getMsgId());
+            }
+
+
+        }
+
+
+        //3.发送回执
+        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
+
+
+    }
+//---------------------------------
+
+    //------------------------转换工具-------------------
+
+    /***
+     * 合并数组
+     * @param values
+     * @return
+     */
+    public static byte[] listToBytes(List<byte[]> values) {
+        int length_byte = 0;
+        for (int i = 0; i < values.size(); i++) {
+            length_byte += values.get(i).length;
+        }
+        byte[] all_byte = new byte[length_byte];
+        int countLength = 0;
+        for (int i = 0; i < values.size(); i++) {
+            byte[] b = values.get(i);
+            System.arraycopy(b, 0, all_byte, countLength, b.length);
+            countLength += b.length;
+        }
+        return all_byte;
+    }
+
+    /***
+     * 拆分数组
+     * @return
+     */
+    public static List<byte[]> bytesToLists(byte[] data, int... sp_length) {
+        List<byte[]> list = new ArrayList<>();
+        int i = 0;
+        for (int l : sp_length) {
+            byte[] t = new byte[l];
+            System.arraycopy(data, i, t, 0, t.length);
+            list.add(t);
+            i = l;
+        }
+
+        int exl = data.length - i;
+        byte[] ex = new byte[exl];
+        System.arraycopy(data, i, ex, 0, exl);
+        if (ex.length > 0) {
+            list.add(ex);
+        }
+
+        return list;
+    }
+
+    /***
+     * 合并数组
+     * @param values
+     * @return
+     */
+    public static byte[] byteMergerAll(byte[]... values) {
+        int length_byte = 0;
+        for (int i = 0; i < values.length; i++) {
+            length_byte += values[i].length;
+        }
+        byte[] all_byte = new byte[length_byte];
+        int countLength = 0;
+        for (int i = 0; i < values.length; i++) {
+            byte[] b = values[i];
+            System.arraycopy(b, 0, all_byte, countLength, b.length);
+            countLength += b.length;
+        }
+        return all_byte;
+    }
+
+
+    /***
+     * int转为2byte
+     * @param val
+     * @return
+     */
+    private static byte[] intTobyte2(int val) {
+        byte[] data = new byte[2];
+        data[0] = (byte) ((val >> 8) & 0xff);
+        data[1] = (byte) (val & 0xff);
+        return data;
+    }
+
+    /***
+     * 2byt转为int,读取长度
+     * @param data
+     * @return
+     */
+    public static int byte2Toint(byte[] data) {
+        int i = ((data[0] << 8) & 0x0000ff00) | (data[1] & 0x000000ff);
+        return i;
+
+    }
+
+
+    /***
+     * 合并字节
+     * @param h
+     * @param l
+     * @return
+     */
+    private static byte tobyte(int h, int l) {
+        return (byte) ((h << 4) & 0xf0 | (l & 0x0f));
+    }
+
+    //高4位
+    public static int byteH4(byte bt) {
+        int val = (bt & 0xf0) >> 4;
+        return val;
+    }
+
+    //低4位
+    public static int byteL4(byte bt) {
+        int val = bt & 0x0f;
+        return val;
+    }
+
+    /**
+     * 字节数组转16进制
+     *
+     * @param bytes 需要转换的byte数组
+     * @return 转换后的Hex字符串
+     */
+    public static String bytesToHex(byte[] bytes) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if (hex.length() < 2) {
+                sb.append(0);
+            }
+            sb.append("" + hex + " ");
+        }
+        return sb.toString();
+    }
+
     //------------消息内容发送处理----------------
 
     /***
@@ -577,287 +860,6 @@ public class SocketData {
         return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
     }
 
-    /***
-     * 处理一些统一的数据,用于发送消息时获取
-     * @return
-     */
-    public static MsgBean.UniversalMessage.Builder getMsgBuild() {
-        MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
-        MsgBean.UniversalMessage.WrapMessage.Builder wp = MsgBean.UniversalMessage.WrapMessage.newBuilder();
-        msg.setRequestId("" + System.currentTimeMillis());
-        msg.addWrapMsg(0, wp.build());
-
-        return msg;
-    }
-
-    /***
-     * 授权
-     * @return
-     */
-    public static byte[] msg4Auth() {
-
-        TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
-        //  tokenBean = new TokenBean();
-        // tokenBean.setAccessToken("2N0qG3CHBxVNQfPjIbbCA/YUY48erDHVTBXZHK1JQAOfAxi86DKcvYKqLwxLfINN");
-        LogUtil.getLog().i("tag", ">>>>发送token" + tokenBean.getAccessToken());
-
-        if (tokenBean == null || !StringUtil.isNotNull(tokenBean.getAccessToken())) {
-            return null;
-        }
-
-
-        MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
-                .setAccessToken(tokenBean.getAccessToken()).build();
-
-        return SocketData.getPakage(DataType.AUTH, auth.toByteArray());
-
-    }
-
-    /***
-     * 回执
-     * @return
-     */
-    public static byte[] msg4ACK(String rid, List<String> msgids) {
-
-        MsgBean.AckMessage ack;
-        MsgBean.AckMessage.Builder amsg = MsgBean.AckMessage.newBuilder()
-                .setRequestId(rid);
-
-        for (int i = 0; i < msgids.size(); i++) {
-            amsg.addMsgId(msgids.get(i));
-        }
-
-        ack = amsg.build();
-
-        return SocketData.getPakage(DataType.ACK, ack.toByteArray());
-
-    }
-//------------------------收-----------------------------
-
-    /***
-     * 消息转换
-     * @param data
-     * @return
-     */
-    public static MsgBean.UniversalMessage msgConversion(byte[] data) {
-        try {
-
-            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(bytesToLists(data, 12).get(1));
-            return msg;
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /***
-     * ack转换
-     * @param data
-     * @return
-     */
-    public static MsgBean.AckMessage ackConversion(byte[] data) {
-        try {
-
-            MsgBean.AckMessage msg = MsgBean.AckMessage.parseFrom(bytesToLists(data, 12).get(1));
-            return msg;
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /***
-     * 鉴权消息转换
-     * @param data
-     * @return
-     */
-    public static MsgBean.AuthResponseMessage authConversion(byte[] data) {
-        try {
-            MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(data, 12).get(1));
-
-
-            return ruthmsg;
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    //6.6 为后端擦屁股
-    private static String oldMsgId = "";
-
-    /***
-     * 保存消息和发送消息回执
-     */
-    public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
-        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
-
-
-        List<String> msgIds = new ArrayList<>();
-        //1.先进行数据分割
-        for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
-            //2.存库:1.存消息表,存会话表
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
-            //5.28 如果为空就不保存这类消息
-            if (msgAllBean != null) {
-                msgAllBean.setTo_uid(bean.getToUid());
-                LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
-                //收到直接存表
-                DaoUtil.update(msgAllBean);
-
-                //6.6 为后端擦屁股
-                if (!oldMsgId.equals(wmsg.getMsgId())) {
-                    oldMsgId = wmsg.getMsgId();
-                    msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                } else {
-                    LogUtil.getLog().e(TAG, ">>>>>重复消息,为后端擦屁股: " + oldMsgId);
-                }
-
-
-                msgIds.add(wmsg.getMsgId());
-            }
-
-
-        }
-
-
-        //3.发送回执
-        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
-
-
-    }
-//---------------------------------
-
-    //------------------------转换工具-------------------
-
-    /***
-     * 合并数组
-     * @param values
-     * @return
-     */
-    public static byte[] listToBytes(List<byte[]> values) {
-        int length_byte = 0;
-        for (int i = 0; i < values.size(); i++) {
-            length_byte += values.get(i).length;
-        }
-        byte[] all_byte = new byte[length_byte];
-        int countLength = 0;
-        for (int i = 0; i < values.size(); i++) {
-            byte[] b = values.get(i);
-            System.arraycopy(b, 0, all_byte, countLength, b.length);
-            countLength += b.length;
-        }
-        return all_byte;
-    }
-
-    /***
-     * 拆分数组
-     * @return
-     */
-    public static List<byte[]> bytesToLists(byte[] data, int... sp_length) {
-        List<byte[]> list = new ArrayList<>();
-        int i = 0;
-        for (int l : sp_length) {
-            byte[] t = new byte[l];
-            System.arraycopy(data, i, t, 0, t.length);
-            list.add(t);
-            i = l;
-        }
-
-        int exl = data.length - i;
-        byte[] ex = new byte[exl];
-        System.arraycopy(data, i, ex, 0, exl);
-        if (ex.length > 0) {
-            list.add(ex);
-        }
-
-        return list;
-    }
-
-    /***
-     * 合并数组
-     * @param values
-     * @return
-     */
-    public static byte[] byteMergerAll(byte[]... values) {
-        int length_byte = 0;
-        for (int i = 0; i < values.length; i++) {
-            length_byte += values[i].length;
-        }
-        byte[] all_byte = new byte[length_byte];
-        int countLength = 0;
-        for (int i = 0; i < values.length; i++) {
-            byte[] b = values[i];
-            System.arraycopy(b, 0, all_byte, countLength, b.length);
-            countLength += b.length;
-        }
-        return all_byte;
-    }
-
-
-    /***
-     * int转为2byte
-     * @param val
-     * @return
-     */
-    private static byte[] intTobyte2(int val) {
-        byte[] data = new byte[2];
-        data[0] = (byte) ((val >> 8) & 0xff);
-        data[1] = (byte) (val & 0xff);
-        return data;
-    }
-
-    /***
-     * 2byt转为int,读取长度
-     * @param data
-     * @return
-     */
-    public static int byte2Toint(byte[] data) {
-        int i = ((data[0] << 8) & 0x0000ff00) | (data[1] & 0x000000ff);
-        return i;
-
-    }
-
-
-    /***
-     * 合并字节
-     * @param h
-     * @param l
-     * @return
-     */
-    private static byte tobyte(int h, int l) {
-        return (byte) ((h << 4) & 0xf0 | (l & 0x0f));
-    }
-
-    //高4位
-    public static int byteH4(byte bt) {
-        int val = (bt & 0xf0) >> 4;
-        return val;
-    }
-
-    //低4位
-    public static int byteL4(byte bt) {
-        int val = bt & 0x0f;
-        return val;
-    }
-
-    /**
-     * 字节数组转16进制
-     *
-     * @param bytes 需要转换的byte数组
-     * @return 转换后的Hex字符串
-     */
-    public static String bytesToHex(byte[] bytes) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < bytes.length; i++) {
-            String hex = Integer.toHexString(bytes[i] & 0xFF);
-            if (hex.length() < 2) {
-                sb.append(0);
-            }
-            sb.append("" + hex + " ");
-        }
-        return sb.toString();
-    }
 
 
 }

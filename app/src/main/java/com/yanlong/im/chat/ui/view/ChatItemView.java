@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -427,7 +429,7 @@ public class ChatItemView extends LinearLayout {
             }*/
 
 
-            int width = DensityUtil.dip2px(getContext(),150);
+            /*int width = DensityUtil.dip2px(getContext(),150);
             int height =  DensityUtil.dip2px(getContext(),180);
             ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
                     .setResizeOptions(new ResizeOptions(width, height))
@@ -450,7 +452,8 @@ public class ChatItemView extends LinearLayout {
 
 
             imgOt4.setController(controller1);
-            imgMe4.setController(controller2);
+            imgMe4.setController(controller2);*/
+
 
 
         }
@@ -505,15 +508,21 @@ public class ChatItemView extends LinearLayout {
     public void setErr(int state) {
         switch (state) {
             case 0://正常
+                imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(INVISIBLE);
                 break;
             case 1://失败
+                imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(VISIBLE);
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
+
                 break;
             case 2://等待
+                imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                imgMeErr.startAnimation(rotateAnimation);
                 imgMeErr.setVisibility(VISIBLE);
-                imgMeErr.setImageResource(R.mipmap.ic_chat_more);
+
                 break;
 
         }
