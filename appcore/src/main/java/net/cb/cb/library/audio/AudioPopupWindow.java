@@ -1,6 +1,7 @@
 package net.cb.cb.library.audio;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -84,7 +85,7 @@ public class AudioPopupWindow {
     }
 
     public void audioDBChanged(int db){
-        switch (db / 5) {
+        switch (db / 3) {
             case 0:
                 this.mStateIV.setImageResource(R.mipmap.ic_volume_1);
                 break;

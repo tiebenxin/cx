@@ -35,7 +35,7 @@ public class AboutAsActivity extends AppActivity {
         mTvVersionNumber = findViewById(R.id.tv_version_number);
         mLlCheckVersions = findViewById(R.id.ll_check_versions);
         mLlService = findViewById(R.id.ll_service);
-        mTvVersionNumber.setText("夸夸聊     "+VersionUtil.getVerName(this));
+        mTvVersionNumber.setText("常聊     "+VersionUtil.getVerName(this));
 
     }
 

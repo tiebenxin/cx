@@ -2,7 +2,9 @@ package com.luck.picture.lib;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
@@ -152,6 +154,18 @@ public final class PictureSelector {
         }
     }
 
+    public void externalPicturePreview1(int position, List<LocalMedia> medias) {
+        String url = "scheme://picture/mainDetail";
+        if (!DoubleUtils.isFastDoubleClick()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.putExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) medias);
+            intent.putExtra(PictureConfig.EXTRA_POSITION, position);
+            getActivity().startActivity(intent);
+            getActivity().overridePendingTransition(R.anim.a5, 0);
+        }
+    }
+
+
     /**
      * set preview image
      *
@@ -167,8 +181,11 @@ public final class PictureSelector {
             intent.putExtra(PictureConfig.DIRECTORY_PATH, directory_path);
             getActivity().startActivity(intent);
             getActivity().overridePendingTransition(R.anim.a5, 0);
+
         }
     }
+
+
 
     /**
      * set preview video

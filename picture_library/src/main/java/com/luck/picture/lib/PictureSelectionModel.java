@@ -444,6 +444,14 @@ public class PictureSelectionModel {
         }
     }
 
+    public void openExternalPreview1(int position, List<LocalMedia> medias) {
+        if (selector != null) {
+            selector.externalPicturePreview1(position, medias);
+        } else {
+            throw new NullPointerException("This PictureSelector is Null");
+        }
+    }
+
     /**
      * 提供外部预览图片方法-带自定义下载保存路径
      *
@@ -457,5 +465,7 @@ public class PictureSelectionModel {
             throw new NullPointerException("This PictureSelector is Null");
         }
     }
+
+
 
 }
