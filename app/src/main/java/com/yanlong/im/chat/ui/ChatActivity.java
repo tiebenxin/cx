@@ -488,7 +488,7 @@ public class ChatActivity extends AppActivity {
 
                 PictureSelector.create(ChatActivity.this)
                         .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                        .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                        .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .previewImage(false)// 是否可预览图片 true or false
                         .isCamera(false)// 是否显示拍照按钮 ture or false
                         .compress(true)// 是否压缩 true or false
@@ -929,51 +929,51 @@ public class ChatActivity extends AppActivity {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
-                    String file = obt.get(0).getCompressPath();
-                  /*  if( obt.get(0).getPictureType().contains("image/gif")){
-                         file = obt.get(0).getPath();
+                    for(LocalMedia localMedia:obt){
+                        String file = localMedia.getCompressPath();
+                        boolean isArtworkMaster = data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                        if (isArtworkMaster) {
+                            //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
+                            file = localMedia.getPath();
+                        }
+                        //1.上传图片
+                        // alert.show();
+                        final String imgMsgId = SocketData.getUUID();
+                        MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file);
+                        imgMsgBean.setSend_state(2);
+                        msgListData.add(imgMsgBean);
+                        notifyData2Buttom();
+                        upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                            @Override
+                            public void success(final String url) {
+                                //2.发送图片
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //alert.dismiss();
+                                        MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId, toUId, toGid, url);
+                                        // showSendObj(msgAllbean);
+                                    }
+                                });
+
+
+                            }
+
+                            @Override
+                            public void fail() {
+                                //alert.dismiss();
+                                ToastUtil.show(getContext(), "上传失败,请稍候重试");
+
+                            }
+
+                            @Override
+                            public void inProgress(long progress, long zong) {
+
+                            }
+                        }, file);
                     }
-                    */
-                    boolean isArtworkMaster = data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                    if (isArtworkMaster) {
-                        //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
-                        file = obt.get(0).getPath();
-                    }
-                    //1.上传图片
-                    // alert.show();
-                    final String imgMsgId = SocketData.getUUID();
-                    MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file);
-                    imgMsgBean.setSend_state(2);
-                    msgListData.add(imgMsgBean);
-                    notifyData2Buttom();
-                    upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
-                        @Override
-                        public void success(final String url) {
-                            //2.发送图片
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //alert.dismiss();
-                                    MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId, toUId, toGid, url);
-                                    // showSendObj(msgAllbean);
-                                }
-                            });
 
 
-                        }
-
-                        @Override
-                        public void fail() {
-                            //alert.dismiss();
-                            ToastUtil.show(getContext(), "上传失败,请稍候重试");
-
-                        }
-
-                        @Override
-                        public void inProgress(long progress, long zong) {
-
-                        }
-                    }, file);
 
 
                     break;
