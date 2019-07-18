@@ -20,6 +20,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -98,6 +99,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //去除状态栏
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(com.luck.picture.lib.R.layout.picture_activity_external_preview);
         inflater = LayoutInflater.from(this);
         tv_title = (TextView) findViewById(com.luck.picture.lib.R.id.picture_title);
@@ -128,6 +131,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
             @Override
             public void onPageScrollStateChanged(int state) {
+            }
+        });
+        //点击返回
+        viewPager.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
     }
