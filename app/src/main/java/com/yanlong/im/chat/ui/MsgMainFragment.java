@@ -143,6 +143,7 @@ public class MsgMainFragment extends Fragment {
                 getActivityMe().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d("tyad", "run: state"+state);
                         actionBar.setTitle(state?"消息":"消息(连接中...)");
 
                         viewNetwork.setVisibility(state ? View.GONE : View.VISIBLE);
@@ -151,7 +152,7 @@ public class MsgMainFragment extends Fragment {
 
             }
         });
-        socketEvent.onLine( SocketUtil.getSocketUtil().getOnLineState());
+        //socketEvent.onLine( SocketUtil.getSocketUtil().getOnLineState());
 
 
         actionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -237,6 +238,12 @@ public class MsgMainFragment extends Fragment {
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        //7.18 进来的时候显示有网的状态
+        socketEvent.onLine( true);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
