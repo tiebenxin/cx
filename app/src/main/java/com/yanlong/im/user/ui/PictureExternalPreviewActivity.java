@@ -174,6 +174,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             final SubsamplingScaleImageView longImg =  contentView.findViewById(com.luck.picture.lib.R.id.longImg);
 
             LocalMedia media = images.get(position);
+            //7.18
+            if(media.getPath().toLowerCase().contains(".gif")){
+                media.setPictureType("image/gif");
+            }
+
+
             if (media != null) {
                 final String pictureType = media.getPictureType();
                 final String path;
@@ -197,9 +203,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
                 // 压缩过的gif就不是gif了
                 if (isGif && !media.isCompressed()) {
+                    Log.v("Glide","显示gif图");
                     RequestOptions gifOptions = new RequestOptions()
-                            .override(480, 800)
-                            .priority(Priority.HIGH)
+                           // .override(480, 800)
+                            .priority(Priority.NORMAL)
                             .diskCacheStrategy(DiskCacheStrategy.NONE);
                     Glide.with(PictureExternalPreviewActivity.this)
                             .asGif()
@@ -225,8 +232,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 } else {
                     RequestOptions options = new RequestOptions()
                             .diskCacheStrategy(DiskCacheStrategy.ALL);
-                    Log.v("Glide","width:"+ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this)
-                    +"----height:"+ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this));
+                    Log.v("Glide","显示普通图");
                     Glide.with(PictureExternalPreviewActivity.this)
                             .asBitmap()
                             .load(path)
