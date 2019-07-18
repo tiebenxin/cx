@@ -110,6 +110,30 @@ public class MsgDao {
         return beans;
     }
 
+    public List<MsgAllBean> getMsg4UserImg(Long userid) {
+
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+
+        RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
+                .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+
+                .equalTo("msg_type",4)
+                .sort("timestamp", Sort.DESCENDING)
+
+
+                .findAll();
+
+        beans = realm.copyFromRealm(list);
+        ;
+
+
+        //翻转列表
+        Collections.reverse(beans);
+        realm.close();
+        return beans;
+    }
+
 
     /***
      * 获取群消息
@@ -154,6 +178,27 @@ public class MsgDao {
 
         beans = realm.copyFromRealm(list);
         ;
+
+
+        //翻转列表
+        Collections.reverse(beans);
+        realm.close();
+        return beans;
+    }
+
+    public List<MsgAllBean> getMsg4GroupImg(String gid) {
+
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+
+        RealmResults list = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid)
+                .equalTo("msg_type",4)
+                .sort("timestamp", Sort.DESCENDING)
+                .findAll();
+
+        beans = realm.copyFromRealm(list);
+
 
 
         //翻转列表

@@ -59,6 +59,7 @@ import com.luck.picture.lib.widget.longimage.ImageSource;
 import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
+import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.utils.ToastUtil;
@@ -175,10 +176,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
             LocalMedia media = images.get(position);
             //7.18
-            if(media.getPath().toLowerCase().contains(".gif")){
+           /* if(media.getPath().toLowerCase().contains(".gif")){
                 media.setPictureType("image/gif");
             }
-
+*/
 
             if (media != null) {
                 final String pictureType = media.getPictureType();
@@ -197,7 +198,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 if (isHttp) {
                     showPleaseDialog();
                 }
-                boolean isGif = PictureMimeType.isGif(pictureType);
+                boolean isGif = FileUtils.isGif(media.getPath());//PictureMimeType.isGif(pictureType);
                 final boolean eqLongImg = PictureMimeType.isLongImg(media);
                 imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
                 longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
@@ -205,7 +206,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 if (isGif && !media.isCompressed()) {
                     Log.v("Glide","显示gif图");
                     RequestOptions gifOptions = new RequestOptions()
-                           // .override(480, 800)
                             .priority(Priority.NORMAL)
                             .diskCacheStrategy(DiskCacheStrategy.NONE);
                     Glide.with(PictureExternalPreviewActivity.this)

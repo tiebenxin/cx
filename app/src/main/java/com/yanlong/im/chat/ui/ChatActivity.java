@@ -1012,15 +1012,14 @@ public class ChatActivity extends AppActivity {
     }
 
     //显示大图
-    private void showBigPic(String uri) {
+    private void showBigPic(String msgid,String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
         int pos = 0;
 
+        List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
+        for (MsgAllBean msgl : listdata) {
 
-        for (MsgAllBean msgl : msgListData) {
-            if (msgl.getMsg_type().intValue() == 4) {
-
-                if (uri.contains(msgl.getImage().getUrl())) {
+                if (msgid.equals(msgl.getMsg_id())) {
                     pos = selectList.size();
                 }
 
@@ -1028,7 +1027,6 @@ public class ChatActivity extends AppActivity {
                 lc.setPath(msgl.getImage().getUrl());
                 selectList.add(lc);
 
-            }
         }
 
         PictureSelector.create(ChatActivity.this)
@@ -1155,7 +1153,7 @@ public class ChatActivity extends AppActivity {
                         @Override
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
-                            showBigPic(uri);
+                            showBigPic(msgbean.getMsg_id(),uri);
                         }
                     });
                     break;
