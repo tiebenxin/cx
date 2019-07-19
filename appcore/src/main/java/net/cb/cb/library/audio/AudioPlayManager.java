@@ -11,8 +11,12 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
+import android.text.TextUtils;
 import android.util.Log;
 
+import net.cb.cb.library.utils.DownloadUtil;
+
+import java.io.File;
 import java.io.IOException;
 
 public class AudioPlayManager implements SensorEventListener {
@@ -198,7 +202,19 @@ public class AudioPlayManager implements SensorEventListener {
                         return true;
                     }
                 });
-                this._mediaPlayer.setDataSource(context, audioUri);
+
+                String path = context.getExternalCacheDir().getAbsolutePath();
+                File file = new File(path,getFileName(audioUri.toString()));
+                if(file.exists()){
+                    Log.v(TAG,"本地播放"+file.getPath());
+
+                    this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
+                }else{
+                    Log.v(TAG,"在线播放--"+audioUri);
+                    this._mediaPlayer.setDataSource(context, audioUri);
+                    downloadAudio(context,audioUri.toString());
+                }
+
                 this._mediaPlayer.setAudioStreamType(3);
                 this._mediaPlayer.prepare();
                 this._mediaPlayer.start();
@@ -219,6 +235,33 @@ public class AudioPlayManager implements SensorEventListener {
             Log.e(TAG, "startPlay context or audioUri is null.");
         }
     }
+
+
+
+
+    private void downloadAudio(final Context context, final String url){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String path = context.getExternalCacheDir().getAbsolutePath();
+                DownloadUtil.get().download(url,path,getFileName(url));
+            }
+        }).start();
+    }
+
+
+    private String getFileName(String url){
+        String fileName = "";
+        if(!TextUtils.isEmpty(url)){
+            String strings [] = url.split("/");
+            if(strings!= null && strings.length > 0){
+                fileName = strings[strings.length-1];
+            }
+        }
+        return fileName;
+    }
+
+
 
     public void setPlayListener(IAudioPlayListener listener) {
         this._playListener = listener;

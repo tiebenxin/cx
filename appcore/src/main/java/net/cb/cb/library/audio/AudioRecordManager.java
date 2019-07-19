@@ -19,7 +19,8 @@ import java.io.File;
 
 public class AudioRecordManager implements Handler.Callback {
     private static final String TAG = "LQR_AudioRecordManager";
-    public static final int KHS = 11025;
+    // 22050
+    public static final int KHS = 44100;
     private int RECORD_INTERVAL;
     private String SAVE_PATH;
     private IAudioState mCurAudioState;
@@ -222,7 +223,7 @@ public class AudioRecordManager implements Handler.Callback {
             try {
 //                Resources e = this.mContext.getResources();
 //                int bps = e.getInteger(e.getIdentifier("rc_audio_encoding_bit_rate", "integer", this.mContext.getPackageName()));
-                int bps = 7950;
+                int bps = 192000;
                 this.mMediaRecorder.setAudioSamplingRate(KHS);
                 this.mMediaRecorder.setAudioEncodingBitRate(bps);
             } catch (Resources.NotFoundException var3) {
