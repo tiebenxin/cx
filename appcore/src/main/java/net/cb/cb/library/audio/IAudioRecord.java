@@ -2,11 +2,14 @@ package net.cb.cb.library.audio;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
+
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
+
 
 
 public class IAudioRecord implements IAudioRecordListener {
@@ -69,6 +72,7 @@ public class IAudioRecord implements IAudioRecordListener {
                 @Override
                 public void success(String url) {
                     if (callback != null) {
+                        Log.v("AudioUploadPath",url+"");
                         callback.getUrl(url, duration);
                     }
                 }
