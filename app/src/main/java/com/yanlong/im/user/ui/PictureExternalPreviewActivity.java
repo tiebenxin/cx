@@ -62,6 +62,7 @@ import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.utils.QRCodeManage;
 
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
 import java.io.BufferedInputStream;
@@ -96,6 +97,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private loadDataThread loadDataThread;
     private String[] strings = {"识别二维码", "保存图片", "取消"};
     private LargeImageView imgLarge;
+    private View txtBig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +113,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         directory_path ="/DCIM/Camera/";//getIntent().getStringExtra(PictureConfig.DIRECTORY_PATH);
         images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
         left_back.setOnClickListener(this);
-        View txtBig = findViewById(com.luck.picture.lib.R.id.txt_big);
+         txtBig = findViewById(com.luck.picture.lib.R.id.txt_big);
         imgLarge = findViewById(com.luck.picture.lib.R.id.img_large);
         txtBig.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,6 +222,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(position);
         indexPath = images.get(position).getPath();
+        if(StringUtil.isNotNull(indexPath)){
+            txtBig.setVisibility(View.VISIBLE);
+        }else{
+            txtBig.setVisibility(View.GONE);
+        }
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -230,6 +238,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             public void onPageSelected(int position) {
                 tv_title.setText(position + 1 + "/" + images.size());
                 indexPath = images.get(position).getPath();
+                if(StringUtil.isNotNull(indexPath)){
+                    txtBig.setVisibility(View.VISIBLE);
+                }else{
+                    txtBig.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -289,7 +302,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             if (media != null) {
                 final String pictureType = media.getPictureType();
                 final String path;
-                if (media.isCut() && !media.isCompressed()) {
+               /* if (media.isCut() && !media.isCompressed()) {
                     // 裁剪过
                     path = media.getCutPath();
                 } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
@@ -297,7 +310,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     path = media.getCompressPath();
                 } else {
                     path = media.getPath();
-                }
+                }*/
+               //7.22 优先展现压缩
+                path = media.getCompressPath();
                 boolean isHttp = PictureMimeType.isHttp(path);
                 // 可以长按保存并且是网络图片显示一个对话框
                 if (isHttp) {
@@ -344,8 +359,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                             .asBitmap()
                             .load(path)
                             .apply(options)  //480     800
-                            .into(new SimpleTarget<Bitmap>(ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this),
-                                    ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this)) {
+                            .into(new SimpleTarget<Bitmap>() {
+                            /*.into(new SimpleTarget<Bitmap>(ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this),
+                                    ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this)) {*/
                                 @Override
                                 public void onLoadFailed(@Nullable Drawable errorDrawable) {
                                     super.onLoadFailed(errorDrawable);
