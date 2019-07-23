@@ -26,7 +26,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String tag;
     @SerializedName("avatar")
     private String head;
-    //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单
+    //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单,4小助手
     private Integer uType;
     private String phone;
     private String oldimid;

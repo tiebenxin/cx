@@ -45,7 +45,6 @@ import retrofit2.Response;
  */
 public class FriendMainFragment extends Fragment {
     private View rootView;
-    //   private net.cb.cb.library.view.ClearEditText edtSearch;
     private View viewSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
@@ -54,10 +53,9 @@ public class FriendMainFragment extends Fragment {
 
     //自动寻找控件
     private void findViews(View rootView) {
-//        edtSearch = (net.cb.cb.library.view.ClearEditText) rootView.findViewById(R.id.edt_search);
         viewSearch = rootView.findViewById(R.id.view_search);
-        mtListView = (net.cb.cb.library.view.MultiListView) rootView.findViewById(R.id.mtListView);
-        viewType = (PySortView) rootView.findViewById(R.id.view_type);
+        mtListView =  rootView.findViewById(R.id.mtListView);
+        viewType =  rootView.findViewById(R.id.view_type);
         actionbar = rootView.findViewById(R.id.action_bar);
     }
 
@@ -259,9 +257,9 @@ public class FriendMainFragment extends Fragment {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                txtType = (TextView) convertView.findViewById(R.id.txt_type);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
+                txtType =  convertView.findViewById(R.id.txt_type);
+                imgHead =  convertView.findViewById(R.id.img_head);
+                txtName =  convertView.findViewById(R.id.txt_name);
                 viewType = convertView.findViewById(R.id.view_type);
 
             }
@@ -280,13 +278,12 @@ public class FriendMainFragment extends Fragment {
             //自动寻找ViewHold
             public RCViewFuncHolder(View convertView) {
                 super(convertView);
-                viewAdd = (LinearLayout) convertView.findViewById(R.id.view_add);
-                viewAddFriend = (LinearLayout) convertView.findViewById(R.id.view_add_friend);
-                viewMatch = (LinearLayout) convertView.findViewById(R.id.view_match);
-                viewGroup = (LinearLayout) convertView.findViewById(R.id.view_group);
-                sbApply = (StrikeButton) convertView.findViewById(R.id.sb_apply);
+                viewAdd = convertView.findViewById(R.id.view_add);
+                viewAddFriend = convertView.findViewById(R.id.view_add_friend);
+                viewMatch = convertView.findViewById(R.id.view_match);
+                viewGroup = convertView.findViewById(R.id.view_group);
+                sbApply = convertView.findViewById(R.id.sb_apply);
             }
-
         }
     }
 
@@ -350,7 +347,8 @@ public class FriendMainFragment extends Fragment {
 
 
     }
-    private void taskApplyNumClean(){
+
+    private void taskApplyNumClean() {
         msgDao.remidClear("friend_apply");
 
         EventBus.getDefault().post(new EventRefreshMainMsg());
