@@ -1,11 +1,12 @@
 package com.yanlong.im.utils.audio;
 
 import android.annotation.TargetApi;
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -13,10 +14,17 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
+
 import net.cb.cb.library.utils.DownloadUtil;
+
 import java.io.File;
+
+import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
+import static android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
+import static android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 
 public class AudioPlayManager {
     private static final String TAG = "LQR_AudioPlayManager";
@@ -25,7 +33,7 @@ public class AudioPlayManager {
     private Uri _playingUri;
     private Sensor _sensor;
     //  private SensorManager _sensorManager;
-    private AudioManager _audioManager;
+    private static AudioManager _audioManager;
     private PowerManager _powerManager;
     private PowerManager.WakeLock _wakeLock;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
@@ -226,7 +234,7 @@ public class AudioPlayManager {
                     downloadAudio(context, audioUri.toString());
                 }
 
-                this._mediaPlayer.setAudioStreamType(AudioAttributes.CONTENT_TYPE_UNKNOWN);
+                this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
                 this._mediaPlayer.prepare();
                 this._mediaPlayer.start();
                 if (this._playListener != null) {
@@ -251,36 +259,36 @@ public class AudioPlayManager {
     /**
      * 切换到外放
      */
-    public void changeToSpeaker() {
-        if (this._audioManager != null) {
+    public static void changeToSpeaker() {
+        if (_audioManager != null) {
             Log.v(TAG, "扬声器播放");
-            this._audioManager.setMode(AudioManager.MODE_NORMAL);
-            this._audioManager.setSpeakerphoneOn(true);
+            _audioManager.setMode(AudioManager.MODE_NORMAL);
+            _audioManager.setSpeakerphoneOn(true);
         }
     }
 
     /**
      * 切换到耳机模式
      */
-    public void changeToHeadset() {
-        if (this._audioManager != null) {
+    public static void changeToHeadset() {
+        if (_audioManager != null) {
             Log.v(TAG, "耳机播放");
-            this._audioManager.setSpeakerphoneOn(false);
+            _audioManager.setSpeakerphoneOn(false);
         }
     }
 
     /**
      * 切换到听筒
      */
-    public void changeToReceiver() {
-        if (this._audioManager != null) {
+    public static void changeToReceiver() {
+        if (_audioManager != null) {
             Log.v(TAG, "听筒播放");
-            this._audioManager.setSpeakerphoneOn(false);
+            _audioManager.setSpeakerphoneOn(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                this._audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+                _audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
 
             } else {
-                this._audioManager.setMode(AudioManager.MODE_IN_CALL);
+                _audioManager.setMode(AudioManager.MODE_IN_CALL);
             }
         }
     }
@@ -400,7 +408,7 @@ public class AudioPlayManager {
     }
 
 
-    public class HeadsetReceiver extends BroadcastReceiver {
+    public static class HeadsetReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
