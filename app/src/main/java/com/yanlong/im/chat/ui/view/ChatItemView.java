@@ -16,6 +16,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -76,6 +77,7 @@ public class ChatItemView extends LinearLayout {
     private com.facebook.drawee.view.SimpleDraweeView imgMeHead;
 
     private LinearLayout viewMe4;
+    private ProgressBar imgMeUp;
     private LinearLayout viewOt4;
 /*    private com.facebook.drawee.view.SimpleDraweeView imgOt4;
     private com.facebook.drawee.view.SimpleDraweeView imgMe4;*/
@@ -149,6 +151,7 @@ public class ChatItemView extends LinearLayout {
         viewOt4 = (LinearLayout) rootView.findViewById(R.id.view_ot_4);
         imgOt4 =  rootView.findViewById(R.id.img_ot_4);
         viewMe4 = (LinearLayout) rootView.findViewById(R.id.view_me_4);
+        imgMeUp = (ProgressBar) rootView.findViewById(R.id.img_me_up);
         imgMe4 =  rootView.findViewById(R.id.img_me_4);
 
         viewOt5 = (LinearLayout) rootView.findViewById(R.id.view_ot_5);
@@ -426,15 +429,15 @@ public class ChatItemView extends LinearLayout {
     }
 
     //图片消息
-    public void setData4(String url, final EventPic eventPic) {
+    public void setData4(String url, final EventPic eventPic,Integer pg) {
         if (url != null) {
-            setData4(Uri.parse(url), eventPic);
+            setData4(Uri.parse(url), eventPic,pg);
 
         }
 
     }
 
-    public void setData4(final Uri uri, final EventPic eventPic) {
+    public void setData4(final Uri uri, final EventPic eventPic,Integer pg) {
         if (uri != null) {
 
           /*  if (uri.getPath().toLowerCase().endsWith(".gif")) {
@@ -513,6 +516,17 @@ public class ChatItemView extends LinearLayout {
 
             rb.into(imgMe4);
             rb.into(imgOt4);
+
+            if(pg!=null&&pg!=100){
+
+                imgMeUp.setProgress(pg);
+                imgMeUp.setVisibility(VISIBLE);
+                imgMeErr.setVisibility(GONE);
+            }else{
+                imgMeUp.setVisibility(GONE);
+
+            }
+
 
 
 

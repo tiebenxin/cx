@@ -6,14 +6,32 @@ import io.realm.annotations.PrimaryKey;
 public class ImageMessage extends RealmObject {
     @PrimaryKey
     private String msgid;
-    private String url;
+    private String origin ; //原图
+    private  String preview ; //预览图
+    private  String thumbnail ; //缩略图
 
-    public String getUrl() {
-        return url;
+    public String getOrigin() {
+        return origin;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    public String getPreview() {
+        return preview;
+    }
+
+    public void setPreview(String preview) {
+        this.preview = preview;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
     public String getMsgid() {

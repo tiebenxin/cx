@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -54,6 +55,7 @@ import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
+import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
@@ -195,7 +197,11 @@ public class ChatActivity extends AppActivity {
                         msgListData.add(notbean);
                         mtListView.notifyDataSetChange();
                     } else {
-                        taskRefreshMessage();
+
+                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null) {//忽略图片上传的刷新
+                            taskRefreshMessage();
+                        }
+
                     }
 
                 }
@@ -919,6 +925,7 @@ public class ChatActivity extends AppActivity {
 
     private UpFileAction upFileAction = new UpFileAction();
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -927,9 +934,9 @@ public class ChatActivity extends AppActivity {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
-                    for(LocalMedia localMedia:obt){
+                    for (LocalMedia localMedia : obt) {
                         String file = localMedia.getCompressPath();
-                        boolean isArtworkMaster = data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                        final boolean isArtworkMaster = data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         if (isArtworkMaster) {
                             //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                             file = localMedia.getPath();
@@ -937,11 +944,11 @@ public class ChatActivity extends AppActivity {
                         //1.上传图片
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
-                        MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file);
-                        imgMsgBean.setSend_state(2);
+                        MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file,isArtworkMaster);
+                        imgMsgBean.setSend_state(0);
                         msgListData.add(imgMsgBean);
                         notifyData2Buttom();
-                        upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                        UpLoadService.onAdd(imgMsgId, file, new UpFileUtil.OssUpCallback() {
                             @Override
                             public void success(final String url) {
                                 //2.发送图片
@@ -949,7 +956,7 @@ public class ChatActivity extends AppActivity {
                                     @Override
                                     public void run() {
                                         //alert.dismiss();
-                                        MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId, toUId, toGid, url);
+                                        MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId, toUId, toGid, url, isArtworkMaster);
                                         // showSendObj(msgAllbean);
                                     }
                                 });
@@ -960,18 +967,30 @@ public class ChatActivity extends AppActivity {
                             @Override
                             public void fail() {
                                 //alert.dismiss();
-                                ToastUtil.show(getContext(), "上传失败,请稍候重试");
+                                //ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
                             }
 
                             @Override
-                            public void inProgress(long progress, long zong) {
+                            public void inProgress(final long progress, final long zong) {
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // ToastUtil.show(getContext(), "上传:"+progress);
+                                        // LogUtil.getLog().i("shangchuang","上传:"+progress);
+                                        // mtListView.getListView().getAdapter().notifyItemChanged(pos);
+                                        taskRefreshImage(imgMsgId);
+                                    }
+                                });
+
 
                             }
-                        }, file);
+                        });
+                        startService(new Intent(getContext(), UpLoadService.class));
+
+
                     }
-
-
 
 
                     break;
@@ -1009,24 +1028,39 @@ public class ChatActivity extends AppActivity {
         }
     }
 
+    /***
+     * 更新图片需要的进度
+     * @param msgid
+     */
+    private void taskRefreshImage(String msgid) {
+        if (msgListData == null)
+            return;
+        for (int i = 0; i < msgListData.size(); i++) {
+            if (msgListData.get(i).getMsg_id().equals(msgid)) {
+                // Log.d("xxxx", "taskRefreshImage: "+msgid);
+                mtListView.getListView().getAdapter().notifyItemChanged(i);
+            }
+        }
+
+    }
+
     //显示大图
-    private void showBigPic(String uri) {
+    private void showBigPic(String msgid, String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
         int pos = 0;
 
+        List<MsgAllBean> listdata = msgAction.getMsg4UserImg(toGid, toUId);
+        for (MsgAllBean msgl : listdata) {
 
-        for (MsgAllBean msgl : msgListData) {
-            if (msgl.getMsg_type().intValue() == 4) {
-
-                if (uri.contains(msgl.getImage().getUrl())) {
-                    pos = selectList.size();
-                }
-
-                LocalMedia lc = new LocalMedia();
-                lc.setPath(msgl.getImage().getUrl());
-                selectList.add(lc);
-
+            if (msgid.equals(msgl.getMsg_id())) {
+                pos = selectList.size();
             }
+
+            LocalMedia lc = new LocalMedia();
+            lc.setCompressPath(msgl.getImage().getPreview());
+            lc.setPath(msgl.getImage().getOrigin());
+            selectList.add(lc);
+
         }
 
         PictureSelector.create(ChatActivity.this)
@@ -1044,6 +1078,7 @@ public class ChatActivity extends AppActivity {
         public int getItemCount() {
             return msgListData == null ? 0 : msgListData.size();
         }
+
 
         //自动生成控件事件
         @Override
@@ -1100,6 +1135,8 @@ public class ChatActivity extends AppActivity {
                 });
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
+            //发送状态处理
+            holder.viewChatItem.setErr(msgbean.getSend_state());//
             switch (msgbean.getMsg_type()) {
                 case 0:
                     // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
@@ -1149,13 +1186,18 @@ public class ChatActivity extends AppActivity {
                     break;
 
                 case 4:
-                    holder.viewChatItem.setData4(msgbean.getImage().getUrl(), new ChatItemView.EventPic() {
+                    Integer pg = null;
+
+                    pg = UpLoadService.getProgress(msgbean.getMsg_id());
+
+
+                    holder.viewChatItem.setData4(msgbean.getImage().getThumbnail(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
-                            showBigPic(uri);
+                            showBigPic(msgbean.getMsg_id(), uri);
                         }
-                    });
+                    }, pg);
                     break;
                 case 5:
                     holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
@@ -1252,8 +1294,7 @@ public class ChatActivity extends AppActivity {
 
             //------------------------------------------
 
-            //发送状态处理
-            holder.viewChatItem.setErr(msgbean.getSend_state());//
+
             holder.viewChatItem.setOnErr(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -1307,6 +1348,7 @@ public class ChatActivity extends AppActivity {
 
 
     private void notifyData2Buttom() {
+
         mtListView.getListView().getAdapter().notifyDataSetChanged();
         mtListView.getListView().scrollToPosition(msgListData.size());
     }
@@ -1338,7 +1380,6 @@ public class ChatActivity extends AppActivity {
 
         actionbar.setTitle(title);
     }
-
 
 
     /***
@@ -1675,7 +1716,7 @@ public class ChatActivity extends AppActivity {
                 return uinfo;
             }
         }
-        return  null;
+        return null;
     }
 
     /***

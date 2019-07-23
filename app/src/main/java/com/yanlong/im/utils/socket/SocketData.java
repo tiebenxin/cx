@@ -452,7 +452,12 @@ public class SocketData {
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
-            msgAllBean.setTimestamp(bean.getTimestamp());
+            /*if(wmsg.getTimestamp()!=0){
+                msgAllBean.setTimestamp(wmsg.getTimestamp());
+            }else{*/
+                msgAllBean.setTimestamp(bean.getTimestamp());
+            /*}*/
+
             msgAllBean.setSend_state(0);
             //7.16 如果是收到先自己发图图片的消息
 
@@ -749,21 +754,42 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean send4Image(String msgId,Long toId, String toGid, String url) {
-        MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
-                .setUrl(url)
-                .build();
+    public static MsgAllBean send4Image(String msgId,Long toId, String toGid, String url,boolean isOriginal) {
+        MsgBean.ImageMessage msg;
+        if(isOriginal){
+            msg= MsgBean.ImageMessage.newBuilder()
+                    .setOrigin(url)
+                    .setPreview(url+"/below_200k")
+                    .setThumbnail(url+"/below_20k")
+                    .build();
+        }else{
+            msg= MsgBean.ImageMessage.newBuilder()
+                    .setPreview (url)
+                    .setThumbnail(url+"/below_20k")
+                    .build();
+        }
+
 
         return send4BaseById(msgId,toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
     public static MsgAllBean send4Image(Long toId, String toGid, String url){
-        return send4Image( getUUID(), toId,  toGid,  url);
+        return send4Image( getUUID(), toId,  toGid,  url,false);
     }
 
-    public static MsgAllBean send4ImagePre(String msgId,Long toId, String toGid, String url) {
-        MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
-                .setUrl(url)
-                .build();
+    public static MsgAllBean send4ImagePre(String msgId,Long toId, String toGid, String url,boolean isOriginal) {
+        MsgBean.ImageMessage msg ;
+        if(isOriginal){
+            msg= MsgBean.ImageMessage.newBuilder()
+                    .setOrigin(url)
+                    .setPreview(url)
+                    .setThumbnail(url)
+                    .build();
+        }else{
+            msg= MsgBean.ImageMessage.newBuilder()
+                    .setPreview (url)
+                    .setThumbnail(url)
+                    .build();
+        }
         return send4BaseJustSave(msgId,toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
 
