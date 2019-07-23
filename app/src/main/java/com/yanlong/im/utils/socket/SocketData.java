@@ -759,13 +759,13 @@ public class SocketData {
         if(isOriginal){
             msg= MsgBean.ImageMessage.newBuilder()
                     .setOrigin(url)
-                    .setPreview(url+"/below_200k")
-                    .setThumbnail(url+"/below_20k")
+                    .setPreview(url+"/below-200k")
+                    .setThumbnail(url+"/below-20k")
                     .build();
         }else{
             msg= MsgBean.ImageMessage.newBuilder()
                     .setPreview (url)
-                    .setThumbnail(url+"/below_20k")
+                    .setThumbnail(url+"/below-20k")
                     .build();
         }
 

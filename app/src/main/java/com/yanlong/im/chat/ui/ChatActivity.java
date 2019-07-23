@@ -1252,6 +1252,7 @@ public class ChatActivity extends AppActivity {
 
                     break;
                 case 7:
+
                     menus.add(new OptionMenu("删除"));
                     final VoiceMessage vm = msgbean.getVoiceMessage();
 
@@ -1338,7 +1339,21 @@ public class ChatActivity extends AppActivity {
             holder.viewChatItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+
                    // ToastUtil.show(getContext(),"长按");
+                    if(msgbean.getMsg_type()==7){//为语音单独处理
+                        menus.clear();
+                        menus.add(new OptionMenu("删除"));
+                       if(msgDao.userSetingGet().getVoicePlayer()==0){
+
+                           menus.add(0,new OptionMenu("听筒播放"));
+                       }else{
+                           menus.add(0,new OptionMenu("扬声器播放"));
+                       }
+
+
+
+                    }
 
                     showPop(v, menus,msgbean);
                     return true;
@@ -1357,11 +1372,18 @@ public class ChatActivity extends AppActivity {
          * @param msgbean
          */
         private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean){
+            //禁止滑动
+            //mtListView.getListView().setNestedScrollingEnabled(true);
+
             final PopupMenuView menuView = new PopupMenuView(getContext());
             menuView.setMenuItems(menus);
             menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
                 @Override
                 public boolean onOptionMenuClick(int position, OptionMenu menu) {
+                    //放开滑动
+                   // mtListView.getListView().setNestedScrollingEnabled(true);
+
+
                    if(menu.getTitle().equals("删除")){
                        msgDao.msgDel4MsgId(msgbean.getMsg_id());
                        msgListData.remove(msgbean);
@@ -1380,6 +1402,10 @@ public class ChatActivity extends AppActivity {
                        ClipData mClipData = ClipData.newPlainText(txt, txt);
                        cm.setPrimaryClip(mClipData);
 
+                   }else if(menu.getTitle().equals("听筒播放")){
+                       msgDao.userSetingVoicePlayer(1);
+                   }else if(menu.getTitle().equals("扬声器播放")){
+                       msgDao.userSetingVoicePlayer(0);
                    }
                     menuView.dismiss();
                     return true;
