@@ -76,6 +76,7 @@ dependencies {
     api 'com.google.protobuf:protoc:3.5.1'
     api 'com.google.protobuf:protobuf-java-util:3.5.1'
 
+    api 'me.kareluo.ui:popmenu:1.1.0'
     //上传
     api 'com.aliyun.dpa:oss-android-sdk:+'
 

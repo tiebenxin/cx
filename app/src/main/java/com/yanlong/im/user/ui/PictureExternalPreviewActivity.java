@@ -359,8 +359,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                             .asBitmap()
                             .load(path)
                             .apply(options)  //480     800
-                            .into(new SimpleTarget<Bitmap>() {
-                            /*.into(new SimpleTarget<Bitmap>(ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this),
+                            .into(new SimpleTarget<Bitmap>(800,800) {
+                           /* .into(new SimpleTarget<Bitmap>(ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this),
                                     ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this)) {*/
                                 @Override
                                 public void onLoadFailed(@Nullable Drawable errorDrawable) {

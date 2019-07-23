@@ -114,6 +114,8 @@ public class ChatItemView extends LinearLayout {
     private VoiceView viewMe7;
     private VoiceView viewOt7;
     private boolean isMe;
+    private View viewOtTouch;
+    private View viewMeTouch;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -183,6 +185,20 @@ public class ChatItemView extends LinearLayout {
 
         viewOt7 = (VoiceView) rootView.findViewById(R.id.view_ot_7);
         viewMe7 = (VoiceView) rootView.findViewById(R.id.view_me_7);
+        viewOtTouch =  rootView.findViewById(R.id.view_me_touch);
+        viewMeTouch =  rootView.findViewById(R.id.view_ot_touch);
+
+    }
+
+    public void setOnLongClickListener(OnLongClickListener onLongClick){
+
+
+        viewOtTouch.setOnLongClickListener(onLongClick);
+        viewMeTouch.setOnLongClickListener(onLongClick);
+       /* imgMe4.setOnLongClickListener(onLongClick);
+        imgMe4.setOnLongClickListener(onLongClick);
+
+        viewMe7.setOnLongClickListener(onLongClick);*/
 
     }
 
@@ -320,13 +336,13 @@ public class ChatItemView extends LinearLayout {
 
         if (eventRP != null) {
             OnClickListener onk;
-            viewMe3.setOnClickListener(onk = new OnClickListener() {
+            viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     eventRP.onClick(isInvalid);
                 }
             });
-            viewOt3.setOnClickListener(onk);
+            viewOtTouch.setOnClickListener(onk);
         }
 
 
@@ -366,13 +382,13 @@ public class ChatItemView extends LinearLayout {
 
         if (eventRP != null) {
             OnClickListener onk;
-            viewMe6.setOnClickListener(onk = new OnClickListener() {
+            viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     eventRP.onClick(isInvalid);
                 }
             });
-            viewOt6.setOnClickListener(onk);
+            viewOtTouch.setOnClickListener(onk);
         }
 
 
@@ -412,8 +428,8 @@ public class ChatItemView extends LinearLayout {
 
             }
         };*/
-        viewMe7.setOnClickListener(onk);
-        viewOt7.setOnClickListener(onk);
+        viewMeTouch.setOnClickListener(onk);
+        viewOtTouch.setOnClickListener(onk);
 
 
     }
@@ -534,13 +550,13 @@ public class ChatItemView extends LinearLayout {
         if (eventPic != null) {
 
             OnClickListener onk;
-            imgMe4.setOnClickListener(onk = new OnClickListener() {
+            viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     eventPic.onClick(uri.toString());
                 }
             });
-            imgOt4.setOnClickListener(onk);
+            viewOtTouch.setOnClickListener(onk);
         }
 
     }
@@ -565,8 +581,8 @@ public class ChatItemView extends LinearLayout {
 
         imgOt5.setImageURI(Uri.parse(headUrl));
 
-        viewOt5.setOnClickListener(onk);
-        viewMe5.setOnClickListener(onk);
+        viewMeTouch.setOnClickListener(onk);
+        viewOtTouch.setOnClickListener(onk);
     }
 
 

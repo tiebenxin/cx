@@ -1,6 +1,9 @@
 package com.yanlong.im.chat.ui;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
@@ -9,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -108,6 +112,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,6 +120,9 @@ import java.util.Random;
 import java.util.UUID;
 
 import io.realm.RealmList;
+import me.kareluo.ui.OptionMenu;
+import me.kareluo.ui.OptionMenuView;
+import me.kareluo.ui.PopupMenuView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -1139,6 +1147,10 @@ public class ChatActivity extends AppActivity {
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             //发送状态处理
             holder.viewChatItem.setErr(msgbean.getSend_state());//
+
+            //菜单
+            final List<OptionMenu> menus =new ArrayList<>();
+
             switch (msgbean.getMsg_type()) {
                 case 0:
                     // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
@@ -1147,16 +1159,19 @@ public class ChatActivity extends AppActivity {
                     break;
                 case 1:
 
-
+                    menus.add(new OptionMenu("复制"));
+                    menus.add(new OptionMenu("转发"));
+                    menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData1(msgbean.getChat().getMsg());
                     break;
                 case 2:
 
+                    menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData2(msgbean.getStamp().getComment());
                     break;
 
                 case 3:
-
+                    menus.add(new OptionMenu("删除"));
 
                     RedEnvelopeMessage rb = msgbean.getRed_envelope();
 
@@ -1189,7 +1204,8 @@ public class ChatActivity extends AppActivity {
 
                 case 4:
                     Integer pg = null;
-
+                    menus.add(new OptionMenu("转发"));
+                    menus.add(new OptionMenu("删除"));
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
 
@@ -1202,6 +1218,8 @@ public class ChatActivity extends AppActivity {
                     }, pg);
                     break;
                 case 5:
+
+                    menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
                             msgbean.getBusiness_card().getComment(),
                             msgbean.getBusiness_card().getAvatar(), null, new View.OnClickListener() {
@@ -1215,7 +1233,7 @@ public class ChatActivity extends AppActivity {
                             });
                     break;
                 case 6:
-
+                    menus.add(new OptionMenu("删除"));
                     TransferMessage ts = msgbean.getTransfer();
 
 
@@ -1236,6 +1254,7 @@ public class ChatActivity extends AppActivity {
 
                     break;
                 case 7:
+                    menus.add(new OptionMenu("删除"));
                     final VoiceMessage vm = msgbean.getVoiceMessage();
 
 
@@ -1318,11 +1337,60 @@ public class ChatActivity extends AppActivity {
 
                 }
             });
+            holder.viewChatItem.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                   // ToastUtil.show(getContext(),"长按");
 
+                    showPop(v, menus,msgbean);
+                    return true;
+                }
+            });
 
             //----------------------------------------
 
 
+        }
+
+        /***
+         * 长按的气泡处理
+         * @param v
+         * @param menus
+         * @param msgbean
+         */
+        private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean){
+            final PopupMenuView menuView = new PopupMenuView(getContext());
+            menuView.setMenuItems(menus);
+            menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
+                @Override
+                public boolean onOptionMenuClick(int position, OptionMenu menu) {
+                   if(menu.getTitle().equals("删除")){
+                       msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                       msgListData.remove(msgbean);
+                       mtListView.getListView().getAdapter().notifyDataSetChanged();
+
+                   }else if(menu.getTitle().equals("转发")){
+                       if(msgbean.getChat()!=null){//转换文字
+
+
+                       }else if(msgbean.getImage()!=null){
+
+                       }
+
+                   }else if(menu.getTitle().equals("复制")){//只有文本
+                      String txt= msgbean.getChat().getMsg();
+
+                       ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                       ClipData mClipData = ClipData.newPlainText(txt, txt);
+                       cm.setPrimaryClip(mClipData);
+
+                   }
+                    menuView.dismiss();
+                    return true;
+                }
+            });
+
+            menuView.show(v);
         }
 
 

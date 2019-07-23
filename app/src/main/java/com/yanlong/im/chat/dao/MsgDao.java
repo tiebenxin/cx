@@ -376,6 +376,49 @@ public class MsgDao {
     }
 
     /***
+     * 单删某条
+    * @param msgId
+     */
+    public void msgDel4MsgId(String msgId) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        RealmResults<MsgAllBean> list=null;
+
+            list =  realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findAll();
+
+
+        //删除前先把子表数据干掉!!切记
+        if(list!=null){
+            for (MsgAllBean msg:list) {
+                if(msg.getReceive_red_envelope()!=null)
+                    msg.getReceive_red_envelope().deleteFromRealm();
+                if(msg.getMsgNotice()!=null)
+                    msg.getMsgNotice().deleteFromRealm();
+                if(msg.getBusiness_card()!=null)
+                    msg.getBusiness_card().deleteFromRealm();
+                if(msg.getStamp()!=null)
+                    msg.getStamp().deleteFromRealm();
+                if(msg.getChat()!=null)
+                    msg.getChat().deleteFromRealm();
+                if(msg.getImage()!=null)
+                    msg.getImage().deleteFromRealm();
+                if(msg.getRed_envelope()!=null)
+                    msg.getRed_envelope().deleteFromRealm();
+                if(msg.getTransfer()!=null)
+                    msg.getTransfer().deleteFromRealm();
+
+
+
+            }
+            list.deleteAllFromRealm();
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /***
      * 清除所有的聊天记录
      */
     public void msgDelAll() {

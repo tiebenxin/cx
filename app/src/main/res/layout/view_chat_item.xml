@@ -58,6 +58,10 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text="name" />
+            <LinearLayout
+                android:id="@+id/view_ot_touch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"  android:orientation="vertical">
             <!-- 普通消息-->
             <LinearLayout
                 android:id="@+id/view_ot_1"
@@ -78,7 +82,7 @@
                     android:selectAllOnFocus="true"
                     android:text="我----已经添加你为好友啦"
                     android:textColor="@color/black"
-                    android:textIsSelectable="true"
+                    android:textIsSelectable="false"
                     android:textSize="15sp" />
 
 
@@ -347,7 +351,7 @@
                 android:id="@+id/view_ot_7"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>
@@ -390,6 +394,10 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="5dp"
                     android:src="@mipmap/ic_net_err" />
+                <LinearLayout
+                    android:id="@+id/view_me_touch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"  android:orientation="vertical">
                 <!-- 普通消息-->
                 <LinearLayout
                     android:id="@+id/view_me_1"
@@ -408,7 +416,7 @@
                         android:selectAllOnFocus="true"
                         android:text="我已好友啦"
                         android:textColor="@color/black"
-                        android:textIsSelectable="true"
+                        android:textIsSelectable="false"
                         android:textSize="15sp" />
 
                 </LinearLayout>
@@ -693,6 +701,8 @@
                     android:id="@+id/view_me_7"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
