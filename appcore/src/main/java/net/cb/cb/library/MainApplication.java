@@ -21,18 +21,11 @@ public class MainApplication extends MultiDexApplication {
         super.onCreate();
         context = getApplicationContext();
         AppConfig.APP_CONTEXT = context;
-
-
-
-
         Fresco.initialize(this);
-
         initOther();
        // initFont();
 
     }
-
-
 
 
     /***

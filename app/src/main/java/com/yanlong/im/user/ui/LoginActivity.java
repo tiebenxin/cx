@@ -17,10 +17,7 @@ import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
-import net.cb.cb.library.utils.CheckUtil;
-import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
