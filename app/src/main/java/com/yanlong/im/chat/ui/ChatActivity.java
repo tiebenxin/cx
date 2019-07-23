@@ -1368,12 +1368,10 @@ public class ChatActivity extends AppActivity {
                        mtListView.getListView().getAdapter().notifyDataSetChanged();
 
                    }else if(menu.getTitle().equals("转发")){
-                       if(msgbean.getChat()!=null){//转换文字
-
-
-                       }else if(msgbean.getImage()!=null){
-
-                       }
+                    /*  */
+                       startActivity(new Intent(getContext(),MsgForwardActivity.class)
+                                                   .putExtra(MsgForwardActivity.AGM_JSON,new Gson().toJson(msgbean))
+                                           );
 
                    }else if(menu.getTitle().equals("复制")){//只有文本
                       String txt= msgbean.getChat().getMsg();

@@ -623,7 +623,7 @@ public class SocketData {
      */
     private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
-        if (toId != null) {//给个人发
+        if (toId != null&&toId>0) {//给个人发
             msg.setToUid(toId);
         }
 
@@ -643,7 +643,7 @@ public class SocketData {
 
         wmsg.setTimestamp(System.currentTimeMillis());
 
-        if (toGid != null) {//给群发
+        if (toGid != null&&toGid.length()>0) {//给群发
             wmsg.setGid(toGid);
             Group group = msgDao.getGroup4Id(toGid);
             if (group != null) {
@@ -771,6 +771,16 @@ public class SocketData {
 
 
         return send4BaseById(msgId,toId, toGid, MsgBean.MessageType.IMAGE, msg);
+    }
+    public static MsgAllBean send4Image(Long toId, String toGid, String url,String url1,String url2) {
+        MsgBean.ImageMessage msg= MsgBean.ImageMessage.newBuilder()
+                    .setOrigin(url)
+                    .setPreview(url1)
+                    .setThumbnail(url2)
+                    .build();
+
+
+        return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
     public static MsgAllBean send4Image(Long toId, String toGid, String url){
         return send4Image( getUUID(), toId,  toGid,  url,false);
