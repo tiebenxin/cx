@@ -51,12 +51,12 @@
         </activity-alias>
 
         <!--<meta-data-->
-            <!--android:name="UMENG_APPKEY"-->
-            <!--android:value="5d284fab3fc19520bf000ec9"></meta-data>-->
+        <!--android:name="UMENG_APPKEY"-->
+        <!--android:value="5d284fab3fc19520bf000ec9"></meta-data>-->
 
         <!--<meta-data-->
-            <!--android:name="com.huawei.hms.client.appid"-->
-            <!--android:value="appid=100836087" />-->
+        <!--android:name="com.huawei.hms.client.appid"-->
+        <!--android:value="appid=100836087" />-->
 
         <activity
             android:name=".user.ui.StartPageActivity"
@@ -409,14 +409,23 @@
             android:screenOrientation="portrait" />
 
 
+        <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.HEADSET_PLUG" />
+            </intent-filter>
+        </receiver>
+
         <activity android:name=".user.ui.PictureExternalPreviewActivity">
             <intent-filter>
                 <!--协议部分，-->
-                <data android:scheme="scheme" android:host="picture" android:path="/mainDetail" />
+                <data
+                    android:host="picture"
+                    android:path="/mainDetail"
+                    android:scheme="scheme" />
                 <!--下面这几行也必须得设置-->
-                <category android:name="android.intent.category.DEFAULT"/>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
 

@@ -290,35 +290,34 @@ public class MsgDao {
     public void msgDel(Long toUid, String gid) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        RealmResults<MsgAllBean> list=null;
+        RealmResults<MsgAllBean> list = null;
         if (StringUtil.isNotNull(gid)) {
-            list =  realm.where(MsgAllBean.class).equalTo("gid", gid).findAll();
+            list = realm.where(MsgAllBean.class).equalTo("gid", gid).findAll();
         } else {
 
-           list = realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).findAll();
+            list = realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).findAll();
 
         }
 
         //删除前先把子表数据干掉!!切记
-        if(list!=null){
-            for (MsgAllBean msg:list) {
-                if(msg.getReceive_red_envelope()!=null)
-                msg.getReceive_red_envelope().deleteFromRealm();
-                if(msg.getMsgNotice()!=null)
+        if (list != null) {
+            for (MsgAllBean msg : list) {
+                if (msg.getReceive_red_envelope() != null)
+                    msg.getReceive_red_envelope().deleteFromRealm();
+                if (msg.getMsgNotice() != null)
                     msg.getMsgNotice().deleteFromRealm();
-                if(msg.getBusiness_card()!=null)
+                if (msg.getBusiness_card() != null)
                     msg.getBusiness_card().deleteFromRealm();
-                if(msg.getStamp()!=null)
+                if (msg.getStamp() != null)
                     msg.getStamp().deleteFromRealm();
-                if(msg.getChat()!=null)
+                if (msg.getChat() != null)
                     msg.getChat().deleteFromRealm();
-                if(msg.getImage()!=null)
+                if (msg.getImage() != null)
                     msg.getImage().deleteFromRealm();
-                if(msg.getRed_envelope()!=null)
+                if (msg.getRed_envelope() != null)
                     msg.getRed_envelope().deleteFromRealm();
-                if(msg.getTransfer()!=null)
+                if (msg.getTransfer() != null)
                     msg.getTransfer().deleteFromRealm();
-
 
 
             }
@@ -752,10 +751,9 @@ public class MsgDao {
         realm.beginTransaction();
 
 
-
-        GroupAccept accept =  realm.where(GroupAccept.class).equalTo("gid", gid).equalTo("uid",fromUid).findFirst();
-        if(accept==null){
-            accept=new GroupAccept();
+        GroupAccept accept = realm.where(GroupAccept.class).equalTo("gid", gid).equalTo("uid", fromUid).findFirst();
+        if (accept == null) {
+            accept = new GroupAccept();
             accept.setAid(UUID.randomUUID().toString());
             accept.setGid(gid);
         }
@@ -779,16 +777,13 @@ public class MsgDao {
     public List<GroupAccept> groupAccept() {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        List<GroupAccept> beans=new ArrayList<>();
+        List<GroupAccept> beans = new ArrayList<>();
         RealmResults<GroupAccept> res = realm.where(GroupAccept.class).sort("time", Sort.DESCENDING).findAll();
-        if(res!=null){
-             beans = realm.copyFromRealm(res);
+        if (res != null) {
+            beans = realm.copyFromRealm(res);
         }
-
-
         realm.commitTransaction();
         realm.close();
-
         return beans;
     }
 
@@ -865,6 +860,7 @@ public class MsgDao {
 
     /**
      * 红包开
+     *
      * @param rid
      * @param isOpen
      */
@@ -873,7 +869,7 @@ public class MsgDao {
         realm.beginTransaction();
 
         RedEnvelopeMessage envelopeMessage = realm.where(RedEnvelopeMessage.class).equalTo("id", rid).findFirst();
-        if(envelopeMessage!=null){
+        if (envelopeMessage != null) {
             envelopeMessage.setIsInvalid(isOpen ? 1 : 0);
             realm.insertOrUpdate(envelopeMessage);
         }
@@ -884,12 +880,12 @@ public class MsgDao {
 
 
     //7.8 要写语音已读的处理
-    public void msgRead(String msgid,boolean isRead){
+    public void msgRead(String msgid, boolean isRead) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
         MsgAllBean msgBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
-        if(msgBean!=null){
+        if (msgBean != null) {
             msgBean.setRead(isRead);
             realm.insertOrUpdate(msgBean);
         }
@@ -901,21 +897,21 @@ public class MsgDao {
     /***
      * 个人配置修改,为空不修改
      */
-    public void userSetingUpdate(Boolean shake,Boolean voice){
+    public void userSetingUpdate(Boolean shake, Boolean voice) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
         UserSeting userSeting = realm.where(UserSeting.class).equalTo("uid", UserAction.getMyId()).findFirst();
-        if(userSeting==null){
-            userSeting=new UserSeting();
+        if (userSeting == null) {
+            userSeting = new UserSeting();
             userSeting.setUid(UserAction.getMyId());
 
         }
-        if(shake!=null){
+        if (shake != null) {
             userSeting.setShake(shake);
         }
 
-        if(voice!=null){
+        if (voice != null) {
             userSeting.setVoice(voice);
         }
 
@@ -926,17 +922,38 @@ public class MsgDao {
 
     }
 
+
+    /**
+     *
+     * 修改语音播放模式 0.扬声器  1.听筒
+     */
+    public void userSetingVoicePlayer(int voicePlayer) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        UserSeting userSeting = realm.where(UserSeting.class).equalTo("uid", UserAction.getMyId()).findFirst();
+        if (userSeting == null) {
+            userSeting = new UserSeting();
+            userSeting.setUid(UserAction.getMyId());
+
+        }
+        userSeting.setVoicePlayer(voicePlayer);
+        realm.insertOrUpdate(userSeting);
+        realm.commitTransaction();
+        realm.close();
+
+    }
+
+
     /**
      * 获取用户配置
-     * @return
      */
-    public UserSeting userSetingGet(){
-        UserSeting userSeting=DaoUtil.findOne(UserSeting.class,"uid", UserAction.getMyId());
-        if(userSeting==null){
-            userSeting=new UserSeting();
+    public UserSeting userSetingGet() {
+        UserSeting userSeting = DaoUtil.findOne(UserSeting.class, "uid", UserAction.getMyId());
+        if (userSeting == null) {
+            userSeting = new UserSeting();
         }
-
-      return  userSeting;
+        return userSeting;
     }
 
 

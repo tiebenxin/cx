@@ -1,4 +1,4 @@
-package net.cb.cb.library.audio;
+package com.yanlong.im.utils.audio;
 
 public class IAudioRecordEvent {
     public static final int AUDIO_RECORD_EVENT_TRIGGER = 1;

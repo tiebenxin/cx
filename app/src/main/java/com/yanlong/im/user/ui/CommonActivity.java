@@ -4,17 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.UserSeting;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatFontActivity;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.EventLoginOut;
-import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -35,6 +37,8 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private LinearLayout mViewAboutAs;
     private TextView mTvVersion;
     private UserAction userAction = new UserAction();
+    private CheckBox cbVoice;
+    private MsgDao msgDao;
 
 
     @Override
@@ -56,6 +60,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         mViewAboutAs = findViewById(R.id.view_about_as);
         mTvVersion = findViewById(R.id.tv_version);
         mTvVersion.setText(VersionUtil.getVerName(this));
+        cbVoice = findViewById(R.id.cb_voice);
     }
 
     private void initEvent() {
@@ -75,6 +80,27 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
             @Override
             public void onRight() {
 
+            }
+        });
+
+        msgDao = new MsgDao();
+        UserSeting userSeting = msgDao.userSetingGet();
+        int voice = userSeting.getVoicePlayer();
+        if (voice == 0) {
+            cbVoice.setChecked(false);
+        } else {
+            cbVoice.setChecked(true);
+        }
+
+
+        cbVoice.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    msgDao.userSetingVoicePlayer(1);
+                } else {
+                    msgDao.userSetingVoicePlayer(0);
+                }
             }
         });
     }
@@ -130,7 +156,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
      * 清理消息
      */
     private void taskClearMsg() {
-        AlertYesNo alertYesNo=new AlertYesNo();
+        AlertYesNo alertYesNo = new AlertYesNo();
         alertYesNo.init(this, "清理", "确定清理所有消息?", "确定", "取消", new AlertYesNo.Event() {
             @Override
             public void onON() {

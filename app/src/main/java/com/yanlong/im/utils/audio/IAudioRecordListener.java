@@ -1,4 +1,4 @@
-package net.cb.cb.library.audio;
+package com.yanlong.im.utils.audio;
 
 
 import android.net.Uri;

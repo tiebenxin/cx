@@ -94,20 +94,9 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                     }
                     break;
                 case R.id.cb_message_voice:
-                    /*if (isChecked) {
-                        ToastUtil.show(this, "选中");
-
-                    } else {
-                        ToastUtil.show(this, "取消选中");
-                    }*/
                     taskSetingSet(null,isChecked);
                     break;
                 case R.id.cb_message_shake:
-                   /* if (isChecked) {
-                        ToastUtil.show(this, "选中");
-                    } else {
-                        ToastUtil.show(this, "取消选中");
-                    }*/
                     taskSetingSet(isChecked,null);
                     break;
             }

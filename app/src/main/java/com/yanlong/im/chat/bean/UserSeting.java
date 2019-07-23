@@ -8,6 +8,8 @@ public class UserSeting extends RealmObject {
     private Long uid;
     private boolean shake = true;
     private boolean voice = true;
+    private int voicePlayer = 0;
+
 
     public Long getUid() {
         return uid;
@@ -31,5 +33,13 @@ public class UserSeting extends RealmObject {
 
     public void setVoice(boolean voice) {
         this.voice = voice;
+    }
+
+    public int getVoicePlayer() {
+        return voicePlayer;
+    }
+
+    public void setVoicePlayer(int voicePlayer) {
+        this.voicePlayer = voicePlayer;
     }
 }
