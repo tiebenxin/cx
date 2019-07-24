@@ -25,6 +25,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PySortView;
 import net.cb.cb.library.view.StrikeButton;
@@ -205,6 +206,14 @@ public class FriendMainFragment extends Fragment {
                 hd.txtType.setText(bean.getTag());
                 hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
                 hd.txtName.setText(bean.getName4Show());
+                if(bean.getLastonline()>0){
+                    hd.txtTime.setText(""+TimeToString.getTimeWx(bean.getLastonline()) );
+                    hd.txtTime.setVisibility(View.VISIBLE);
+                }else{
+                    hd.txtTime.setVisibility(View.GONE);
+                }
+
+
 
                 UserInfo lastbean = listData.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
@@ -252,6 +261,7 @@ public class FriendMainFragment extends Fragment {
             private TextView txtType;
             private com.facebook.drawee.view.SimpleDraweeView imgHead;
             private TextView txtName;
+            private TextView txtTime;
             private View viewType;
 
             //自动寻找ViewHold
@@ -260,6 +270,7 @@ public class FriendMainFragment extends Fragment {
                 txtType =  convertView.findViewById(R.id.txt_type);
                 imgHead =  convertView.findViewById(R.id.img_head);
                 txtName =  convertView.findViewById(R.id.txt_name);
+                txtTime =  convertView.findViewById(R.id.txt_time);
                 viewType = convertView.findViewById(R.id.view_type);
 
             }

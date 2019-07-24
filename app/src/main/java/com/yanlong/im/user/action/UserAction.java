@@ -68,7 +68,7 @@ public class UserAction {
      * @return
      */
     public static UserInfo getMyInfo() {
-        Log.v("ssss","getMyInfo");
+       // Log.v("ssss","getMyInfo");
         if (myInfo == null) {
             myInfo = new UserDao().myInfo();
         }
@@ -81,7 +81,7 @@ public class UserAction {
      * @return
      */
     public static Long getMyId() {
-        Log.v("ssss","getMyId");
+       // Log.v("ssss","getMyId");
         return getMyInfo().getUid();
     }
 
@@ -242,7 +242,7 @@ public class UserAction {
      * 清理信息
      */
     public void cleanInfo() {
-        Log.v("ssss","cleanInfo");
+        //Log.v("ssss","cleanInfo");
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
     }

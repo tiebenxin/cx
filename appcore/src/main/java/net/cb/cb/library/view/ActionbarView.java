@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.StringUtil;
 
 
 /***
@@ -26,6 +27,7 @@ public class ActionbarView extends LinearLayout {
 
 	private View rootView;
 	private TextView txtTitle;
+	private TextView txtTitleMore;
 	private TextView txtLeft;
 	private TextView txtRight;
 
@@ -48,6 +50,15 @@ public class ActionbarView extends LinearLayout {
 	 */
 	public void setTitle(String title) {
 		txtTitle.setText(title);
+	}
+	public void setTitleMore(String title) {
+		if(StringUtil.isNotNull(title)){
+			txtTitleMore.setText(title);
+			txtTitleMore.setVisibility(VISIBLE);
+		}else {
+			txtTitleMore.setVisibility(GONE);
+		}
+
 	}
 
 	public String getTitle() {
@@ -148,6 +159,7 @@ public class ActionbarView extends LinearLayout {
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		 rootView = inflater.inflate(R.layout.view_actionbar, this);
 		txtTitle = rootView.findViewById(R.id.txt_title);
+		txtTitleMore = rootView.findViewById(R.id.txt_title_more);
 		btnBack = rootView.findViewById(R.id.btn_icon);
 		btnRight = rootView.findViewById(R.id.btn_icon_right);
 		ViewLeft = rootView.findViewById(R.id.action_left);

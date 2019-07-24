@@ -43,7 +43,7 @@ public class AppActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         MobclickAgent.onResume(this);
-        Log.v("ssss",this.getClass().toString());
+       // Log.v("ssss",this.getClass().toString());
     }
 
     @Override

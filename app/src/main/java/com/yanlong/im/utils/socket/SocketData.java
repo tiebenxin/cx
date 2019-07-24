@@ -1,5 +1,7 @@
 package com.yanlong.im.utils.socket;
 
+import android.util.Log;
+
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.action.MsgAction;
@@ -440,7 +442,7 @@ public class SocketData {
         //普通消息
         MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
         //6.25 排除通知存库
-
+        Log.d(TAG, "msgSave4Me: msg"+msg.toString());
         if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
@@ -448,6 +450,8 @@ public class SocketData {
                     //时间要和ack一起返回
                     .setTimestamp(System.currentTimeMillis())
                     .build();
+            Log.d(TAG, "msgSave4Me2: msg"+msg.toString());
+            Log.d(TAG, "msgSave4Me2: wmsg"+wmsg.toString());
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
@@ -474,6 +478,39 @@ public class SocketData {
         }
         //6.25 移除重发列队
         SendList.removeSendListJust(bean.getRequestId());
+    }
+
+    //6.26 消息直接存库
+    public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg, int state) {
+        //普通消息
+
+        if (msg != null) {
+            //存库处理
+            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
+                    // .setMsgId(bean.getMsgIdList().get(0))
+                    //时间要和ack一起返回
+                    // .setTimestamp(System.currentTimeMillis())
+                    .build();
+            Log.d(TAG, "msgSave4Me1: msg"+msg.toString());
+            Log.d(TAG, "msgSave4Me1: wmsg"+wmsg.toString());
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
+
+            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
+            //时间戳
+            // msgAllBean.setTimestamp(bean.getTimestamp());
+            msgAllBean.setSend_state(state);
+            msgAllBean.setSend_data(msg.build().toByteArray());
+
+            //移除旧消息// 7.16 通过msgid 判断唯一
+            DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
+            // DaoUtil.deleteOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
+
+            //收到直接存表,创建会话
+            DaoUtil.update(msgAllBean);
+            MsgDao msgDao = new MsgDao();
+
+            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+        }
     }
 
     /***
@@ -519,36 +556,7 @@ public class SocketData {
         msgSave4Me(msg, 2);
     }
 
-    //6.26 消息直接存库
-    public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg, int state) {
-        //普通消息
 
-        if (msg != null) {
-            //存库处理
-            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
-                    // .setMsgId(bean.getMsgIdList().get(0))
-                    //时间要和ack一起返回
-                    // .setTimestamp(System.currentTimeMillis())
-                    .build();
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
-
-            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-            //时间戳
-            // msgAllBean.setTimestamp(bean.getTimestamp());
-            msgAllBean.setSend_state(state);
-            msgAllBean.setSend_data(msg.build().toByteArray());
-
-            //移除旧消息// 7.16 通过msgid 判断唯一
-            DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
-           // DaoUtil.deleteOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
-
-            //收到直接存表,创建会话
-            DaoUtil.update(msgAllBean);
-            MsgDao msgDao = new MsgDao();
-
-            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
-        }
-    }
 
     /***
      * 保存并发送消息

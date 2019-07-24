@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioRecord;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -952,7 +954,7 @@ public class ChatActivity extends AppActivity {
                         //1.上传图片
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
-                        MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file,isArtworkMaster);
+                        MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file, isArtworkMaster);
                         imgMsgBean.setSend_state(0);
                         msgListData.add(imgMsgBean);
                         notifyData2Buttom();
@@ -1147,7 +1149,7 @@ public class ChatActivity extends AppActivity {
             holder.viewChatItem.setErr(msgbean.getSend_state());//
 
             //菜单
-            final List<OptionMenu> menus =new ArrayList<>();
+            final List<OptionMenu> menus = new ArrayList<>();
 
             switch (msgbean.getMsg_type()) {
                 case 0:
@@ -1340,22 +1342,21 @@ public class ChatActivity extends AppActivity {
                 @Override
                 public boolean onLongClick(View v) {
 
-                   // ToastUtil.show(getContext(),"长按");
-                    if(msgbean.getMsg_type()==7){//为语音单独处理
+                    // ToastUtil.show(getContext(),"长按");
+                    if (msgbean.getMsg_type() == 7) {//为语音单独处理
                         menus.clear();
                         menus.add(new OptionMenu("删除"));
-                       if(msgDao.userSetingGet().getVoicePlayer()==0){
+                        if (msgDao.userSetingGet().getVoicePlayer() == 0) {
 
-                           menus.add(0,new OptionMenu("听筒播放"));
-                       }else{
-                           menus.add(0,new OptionMenu("扬声器播放"));
-                       }
-
+                            menus.add(0, new OptionMenu("听筒播放"));
+                        } else {
+                            menus.add(0, new OptionMenu("扬声器播放"));
+                        }
 
 
                     }
 
-                    showPop(v, menus,msgbean);
+                    showPop(v, menus, msgbean);
                     return true;
                 }
             });
@@ -1371,7 +1372,7 @@ public class ChatActivity extends AppActivity {
          * @param menus
          * @param msgbean
          */
-        private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean){
+        private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean) {
             //禁止滑动
             //mtListView.getListView().setNestedScrollingEnabled(true);
 
@@ -1381,32 +1382,32 @@ public class ChatActivity extends AppActivity {
                 @Override
                 public boolean onOptionMenuClick(int position, OptionMenu menu) {
                     //放开滑动
-                   // mtListView.getListView().setNestedScrollingEnabled(true);
+                    // mtListView.getListView().setNestedScrollingEnabled(true);
 
 
-                   if(menu.getTitle().equals("删除")){
-                       msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                       msgListData.remove(msgbean);
-                       mtListView.getListView().getAdapter().notifyDataSetChanged();
+                    if (menu.getTitle().equals("删除")) {
+                        msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                        msgListData.remove(msgbean);
+                        mtListView.getListView().getAdapter().notifyDataSetChanged();
 
-                   }else if(menu.getTitle().equals("转发")){
-                    /*  */
-                       startActivity(new Intent(getContext(),MsgForwardActivity.class)
-                                                   .putExtra(MsgForwardActivity.AGM_JSON,new Gson().toJson(msgbean))
-                                           );
+                    } else if (menu.getTitle().equals("转发")) {
+                        /*  */
+                        startActivity(new Intent(getContext(), MsgForwardActivity.class)
+                                .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
+                        );
 
-                   }else if(menu.getTitle().equals("复制")){//只有文本
-                      String txt= msgbean.getChat().getMsg();
+                    } else if (menu.getTitle().equals("复制")) {//只有文本
+                        String txt = msgbean.getChat().getMsg();
 
-                       ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                       ClipData mClipData = ClipData.newPlainText(txt, txt);
-                       cm.setPrimaryClip(mClipData);
+                        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData mClipData = ClipData.newPlainText(txt, txt);
+                        cm.setPrimaryClip(mClipData);
 
-                   }else if(menu.getTitle().equals("听筒播放")){
-                       msgDao.userSetingVoicePlayer(1);
-                   }else if(menu.getTitle().equals("扬声器播放")){
-                       msgDao.userSetingVoicePlayer(0);
-                   }
+                    } else if (menu.getTitle().equals("听筒播放")) {
+                        msgDao.userSetingVoicePlayer(1);
+                    } else if (menu.getTitle().equals("扬声器播放")) {
+                        msgDao.userSetingVoicePlayer(0);
+                    }
                     menuView.dismiss();
                     return true;
                 }
@@ -1468,9 +1469,12 @@ public class ChatActivity extends AppActivity {
         } else {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
-        }
+            actionbar.setTitleMore(TimeToString.getTimeWx(finfo.getLastonline()));
 
+
+        }
         actionbar.setTitle(title);
+
     }
 
 
