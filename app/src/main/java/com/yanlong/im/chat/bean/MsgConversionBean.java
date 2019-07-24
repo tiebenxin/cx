@@ -1,5 +1,8 @@
 package com.yanlong.im.chat.bean;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -71,19 +74,22 @@ public class MsgConversionBean {
             case IMAGE:
                 ImageMessage image = new ImageMessage();
                 image.setMsgid(msgAllBean.getMsg_id());
-                MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
+                Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
+
+
+               MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
+
+
                 if(imgMsg!=null){//7.16 替换成上一次本地的图片路径
-                    image.setOrigin(imgMsg.getImage().getOrigin());
-                    image.setPreview(imgMsg.getImage().getPreview());
-                    image.setThumbnail(imgMsg.getImage().getThumbnail());
-                }else{
-                    image.setOrigin(bean.getImage().getOrigin());
-                    image.setPreview(bean.getImage().getPreview());
-                    image.setThumbnail(bean.getImage().getThumbnail());
+                    image.setLocalimg(imgMsg.getImage().getLocalimg());
+                     Log.d("TAG", "查询到本地图"+image.getLocalimg());
+
                 }
 
-
-
+                image.setOrigin(bean.getImage().getOrigin());
+                image.setPreview(bean.getImage().getPreview());
+                image.setThumbnail(bean.getImage().getThumbnail());
+                Log.d("TAG", "ToBean: image"+bean.getImage());
                 msgAllBean.setImage(image);
                 msgAllBean.setMsg_type(4);
                 break;

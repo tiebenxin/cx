@@ -955,7 +955,7 @@ public class ChatActivity extends AppActivity {
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
                         MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file, isArtworkMaster);
-                        imgMsgBean.setSend_state(0);
+
                         msgListData.add(imgMsgBean);
                         notifyData2Buttom();
                         UpLoadService.onAdd(imgMsgId, file, new UpFileUtil.OssUpCallback() {
@@ -967,6 +967,7 @@ public class ChatActivity extends AppActivity {
                                     public void run() {
                                         //alert.dismiss();
                                         MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId, toUId, toGid, url, isArtworkMaster);
+                                        replaceListDataAndNotify(msgAllbean);
                                         // showSendObj(msgAllbean);
                                     }
                                 });
@@ -1039,6 +1040,24 @@ public class ChatActivity extends AppActivity {
     }
 
     /***
+     * 替换listData中的某条消息并且刷新
+     * @param msgAllbean
+     */
+    private void replaceListDataAndNotify(MsgAllBean msgAllbean) {
+
+        if (msgListData == null)
+            return;
+        for (int i = 0; i < msgListData.size(); i++) {
+            if (msgListData.get(i).getMsg_id().equals(msgAllbean.getMsg_id())) {
+
+                msgListData.set(i,msgAllbean);
+                mtListView.getListView().getAdapter().notifyItemChanged(i);
+            }
+        }
+
+    }
+
+    /***
      * 更新图片需要的进度
      * @param msgid
      */
@@ -1067,8 +1086,8 @@ public class ChatActivity extends AppActivity {
             }
 
             LocalMedia lc = new LocalMedia();
-            lc.setCompressPath(msgl.getImage().getPreview());
-            lc.setPath(msgl.getImage().getOrigin());
+            lc.setCompressPath(msgl.getImage().getPreviewShow());
+            lc.setPath(msgl.getImage().getOriginShow());
             selectList.add(lc);
 
         }
@@ -1209,7 +1228,7 @@ public class ChatActivity extends AppActivity {
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
 
-                    holder.viewChatItem.setData4(msgbean.getImage().getThumbnail(), new ChatItemView.EventPic() {
+                    holder.viewChatItem.setData4(msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
@@ -1356,7 +1375,10 @@ public class ChatActivity extends AppActivity {
 
                     }
 
-                    showPop(v, menus, msgbean);
+                    if(msgbean.getSend_state()==0){
+                        showPop(v, menus, msgbean);
+                    }
+
                     return true;
                 }
             });
@@ -1469,7 +1491,9 @@ public class ChatActivity extends AppActivity {
         } else {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
-            actionbar.setTitleMore(TimeToString.getTimeWx(finfo.getLastonline()));
+            if(finfo.getLastonline()>0){
+                actionbar.setTitleMore(TimeToString.getTimeWx(finfo.getLastonline()));
+            }
 
 
         }

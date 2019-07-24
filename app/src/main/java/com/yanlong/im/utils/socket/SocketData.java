@@ -6,6 +6,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
@@ -442,7 +443,7 @@ public class SocketData {
         //普通消息
         MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
         //6.25 排除通知存库
-        Log.d(TAG, "msgSave4Me: msg"+msg.toString());
+
         if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
@@ -451,7 +452,7 @@ public class SocketData {
                     .setTimestamp(System.currentTimeMillis())
                     .build();
             Log.d(TAG, "msgSave4Me2: msg"+msg.toString());
-            Log.d(TAG, "msgSave4Me2: wmsg"+wmsg.toString());
+
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
@@ -492,7 +493,6 @@ public class SocketData {
                     // .setTimestamp(System.currentTimeMillis())
                     .build();
             Log.d(TAG, "msgSave4Me1: msg"+msg.toString());
-            Log.d(TAG, "msgSave4Me1: wmsg"+wmsg.toString());
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
@@ -764,16 +764,22 @@ public class SocketData {
      */
     public static MsgAllBean send4Image(String msgId,Long toId, String toGid, String url,boolean isOriginal) {
         MsgBean.ImageMessage msg;
+        String extTh="/below-20k";
+        String extPv="/below-200k";
+        if(url.toLowerCase().contains(".gif")){
+            extTh="";
+            extPv="";
+        }
         if(isOriginal){
             msg= MsgBean.ImageMessage.newBuilder()
                     .setOrigin(url)
-                    .setPreview(url+"/below-200k")
-                    .setThumbnail(url+"/below-20k")
+                    .setPreview(url+extPv)
+                    .setThumbnail(url+extTh)
                     .build();
         }else{
             msg= MsgBean.ImageMessage.newBuilder()
                     .setPreview (url)
-                    .setThumbnail(url+"/below-20k")
+                    .setThumbnail(url+extTh)
                     .build();
         }
 
@@ -795,20 +801,33 @@ public class SocketData {
     }
 
     public static MsgAllBean send4ImagePre(String msgId,Long toId, String toGid, String url,boolean isOriginal) {
-        MsgBean.ImageMessage msg ;
+        //
+        //前保存
+          MsgAllBean msgAllBean=new MsgAllBean();
+        msgAllBean.setMsg_id(msgId);
+        UserInfo myinfo = UserAction.getMyInfo();
+        msgAllBean.setFrom_uid(myinfo.getUid());
+        msgAllBean.setFrom_avatar(myinfo.getHead());
+        msgAllBean.setFrom_nickname(myinfo.getMkName());
+        msgAllBean.setTimestamp(System.currentTimeMillis());
+        msgAllBean.setMsg_type(4);
+        msgAllBean.setTo_uid(toId);
+        msgAllBean.setGid(toGid);
+        msgAllBean.setSend_state(-1);
+        ImageMessage image=new ImageMessage();
+        image.setLocalimg(url);
+        image.setPreview(url);
+        image.setThumbnail(url);
+        image.setMsgid(msgId);
         if(isOriginal){
-            msg= MsgBean.ImageMessage.newBuilder()
-                    .setOrigin(url)
-                    .setPreview(url)
-                    .setThumbnail(url)
-                    .build();
-        }else{
-            msg= MsgBean.ImageMessage.newBuilder()
-                    .setPreview (url)
-                    .setThumbnail(url)
-                    .build();
+            image.setOrigin(url);
         }
-        return send4BaseJustSave(msgId,toId, toGid, MsgBean.MessageType.IMAGE, msg);
+        msgAllBean.setImage(image);
+        Log.d(TAG, "send4ImagePre: msgId"+msgId);
+
+        DaoUtil.update(msgAllBean);
+
+        return msgAllBean;
     }
 
     /***
