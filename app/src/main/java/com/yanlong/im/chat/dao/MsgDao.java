@@ -786,6 +786,24 @@ public class MsgDao {
     }
 
     /***
+     * 获取群最后的消息
+     * @param uid
+     * @return
+     */
+    public MsgAllBean msgGetLastGroup4Uid(String gid,Long uid) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", gid).and().equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+                .sort("timestamp", Sort.DESCENDING).findFirst();
+        if (bean != null) {
+            ret = realm.copyFromRealm(bean);
+        }
+
+        realm.close();
+        return ret;
+    }
+
+    /***
      * 获取最后的群消息
      * @param gid
      * @return

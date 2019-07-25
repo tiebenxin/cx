@@ -1126,12 +1126,12 @@ public class ChatActivity extends AppActivity {
             //昵称处理
             String nikeName = null;
             //5.30
-            String headico = msgbean.getFrom_avatar();
+           // UserInfo fusinfo =msgbean.getFrom_user();
+            String headico =msgbean.getFrom_avatar();//fusinfo.getHead();
             if (isGroup()) {//群聊显示昵称
 
                 //6.14 这里有性能问题
-                //  nikeName = msgbean.getFrom_user().getMkName();
-                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
+                nikeName =StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();//fusinfo.getName();
 
 
             } else {//单聊不显示昵称
@@ -1567,39 +1567,61 @@ public class ChatActivity extends AppActivity {
     /***
      * 统一处理mkname
      */
-    private Map<String, String> mks = new HashMap<>();
+    private Map<String, UserInfo> mks = new HashMap<>();
 
     /***
      * 获取统一的昵称
      * @param msgListData
      */
     private void taskMkName(List<MsgAllBean> msgListData) {
+        mks.clear();
         for (MsgAllBean msg : msgListData) {
             if (msg.getMsg_type() == 0) {  //通知类型的不处理
                 continue;
             }
             String k = msg.getFrom_uid() + "";
-            if (mks.containsKey(k)) {
-                String v = mks.get(k);
-                if (StringUtil.isNotNull(v))
-                    msg.setFrom_nickname(v);
-            } else {
+            String nkname="";
+            String head="";
 
-                String v = "";
-                if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
-                    Group ginfo = msgDao.getGroup4Id(toGid);
-                    if (ginfo != null)
-                        v = ginfo.getMygroupName();
-                } else {
-                    UserInfo userInfo = msg.getFrom_user();
-                    if (userInfo != null) {
-                        v = userInfo.getMkName();
+            UserInfo userInfo;
+            if (mks.containsKey(k)) {
+                userInfo = mks.get(k);
+            } else {
+                userInfo=msg.getFrom_user();
+
+                if(isGroup()){
+                    String gname="";//获取对方最新的群昵称
+                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
+                    if(gmsg!=null){
+                        gname=   gmsg.getFrom_group_nickname();
+                    }
+
+
+                    if(StringUtil.isNotNull(gname)){
+                        userInfo.setName(gname);
                     }
                 }
-                mks.put(k, v);
-                if (StringUtil.isNotNull(v))
-                    msg.setFrom_nickname(v);
+
+
+                mks.put(k,userInfo);
             }
+
+
+
+                nkname=userInfo.getName();
+
+
+            if(StringUtil.isNotNull(userInfo.getMkName())){
+                nkname=userInfo.getMkName();
+            }
+
+            head=userInfo.getHead();
+
+
+            Log.d("tak", "taskName: "+nkname);
+
+            msg.setFrom_nickname(nkname);
+            msg.setFrom_avatar(head);
 
 
         }

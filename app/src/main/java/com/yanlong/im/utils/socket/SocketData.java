@@ -657,7 +657,7 @@ public class SocketData {
             if (group != null) {
                 String name = group.getMygroupName();
                 if (StringUtil.isNotNull(name)) {
-                    wmsg.setNickname(name);
+                    wmsg.setMembername(name);
                 }
             }
 

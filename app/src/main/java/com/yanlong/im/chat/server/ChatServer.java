@@ -18,6 +18,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.test.bean.Test2Bean;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
@@ -127,6 +128,9 @@ public class ChatServer extends Service {
 
         public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg){
             LogUtil.getLog().d(TAG, "<<<<<<<<<<收到类型:" + msg.getMsgType());
+
+            taskUpUserinfo(msg);
+
             switch (msg.getMsgType()) {
                 case REQUEST_FRIEND:
 
@@ -237,6 +241,24 @@ public class ChatServer extends Service {
 
         }
     };
+  private   UserDao userDao=new UserDao();
+    /***
+     * 更新用户头像等资料
+     * @param msg
+     */
+    private void taskUpUserinfo(MsgBean.UniversalMessage.WrapMessage msg) {
+       if(msg.getMsgType().getNumber()>100){//通知类消息
+        return;
+       }
+
+      // msg.getMembername();
+        userDao.userHeadNameUpdate(msg.getFromUid(), msg.getAvatar(), msg.getNickname());
+       //需要更新通讯录的展示吗?
+        EventRefreshFriend event=new EventRefreshFriend();
+        event.setLocal(true);
+        EventBus.getDefault().post(event);
+
+    }
 
     private long playTimeOld = 0;
 

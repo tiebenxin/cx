@@ -185,4 +185,34 @@ public class UserDao {
         realm.close();
         return ret;
     }
+
+
+    /***
+     * 用户头像,昵称更新
+     * @param uid
+     * @param head
+     * @param name
+     */
+    public void userHeadNameUpdate(Long uid,String head,String name){
+        if(uid==null)
+            return;
+        Realm realm = DaoUtil.open();
+
+        UserInfo u = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+        if(u!=null){
+            if(u.getHead().equals(head)&&u.getName().equals(name)){
+
+            }else {
+                realm.beginTransaction();
+                u.setHead(head);
+                u.setName(name);
+                realm.insertOrUpdate(u);
+                realm.commitTransaction();
+            }
+
+        }
+
+
+        realm.close();
+    }
 }
