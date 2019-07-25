@@ -31,7 +31,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson);
 
-    @POST("/group/destroy")
+    @POST("/group/quit")
     @FormUrlEncoded
     Call<ReturnBean> groupDestroy(@Field("gid") String gid);
 
