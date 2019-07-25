@@ -61,7 +61,6 @@ public class StartPageActivity extends AppActivity {
     }
 
 
-
     private void initView() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         mLayoutGuidance = findViewById(R.id.layout_guidance);
@@ -183,14 +182,16 @@ public class StartPageActivity extends AppActivity {
     }
 
     private void showPage() {
-        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
-        Boolean isFiast = preferencesUtil.get4Json(Boolean.class);
-        if (isFiast == null) {
-            initViewPager();
-            preferencesUtil.save2Json(true);
-        } else {
-            startTimer();
-        }
+        startTimer();
+
+//        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
+//        Boolean isFiast = preferencesUtil.get4Json(Boolean.class);
+//        if (isFiast == null) {
+//            initViewPager();
+//            preferencesUtil.save2Json(true);
+//        } else {
+//            startTimer();
+//        }
     }
 
 

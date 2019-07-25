@@ -10,8 +10,8 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:splitMotionEvents="false"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:splitMotionEvents="false">
 
         <net.cb.cb.library.view.MultiListView
             android:id="@+id/mtListView"
@@ -23,8 +23,8 @@
             android:id="@+id/view_chat_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:splitMotionEvents="false"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:splitMotionEvents="false">
 
             <View style="@style/app_line" />
 
@@ -39,10 +39,10 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"
                     android:gravity="center_vertical|bottom"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
 
                     <ImageView
                         android:id="@+id/btn_voice"
@@ -58,29 +58,25 @@
                         android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1">
 
-                        <EditText
+                        <net.cb.cb.library.view.MsgEditText
                             android:id="@+id/edt_chat"
                             style="@style/app_txt_title_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:background="@drawable/bg_edt_chat"
                             android:fontFamily="@font/emoji_font"
-                            android:singleLine="false"
-                            android:minHeight="34dp"
-
-                            android:layout_height="wrap_content"
-                           android:layout_width="match_parent"
-
-
+                            android:maxLength="200"
                             android:maxLines="3"
-                            android:maxLength="200" />
-                        <Button
-                            android:visibility="gone"
-                            android:id="@+id/txt_voice"
+                            android:minHeight="34dp"
+                            android:singleLine="false" />
 
+                        <Button
+                            android:id="@+id/txt_voice"
                             style="@style/app_edt1"
+                            android:background="@drawable/bg_edt_chat"
                             android:gravity="center"
                             android:text="按住说话"
-                            android:background="@drawable/bg_edt_chat"
-                             />
+                            android:visibility="gone" />
                     </FrameLayout>
 
                     <ImageView

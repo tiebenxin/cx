@@ -203,6 +203,15 @@ public class ChatItemView extends LinearLayout {
 
     }
 
+    public void setHeadOnLongClickListener(OnLongClickListener onLongClick){
+
+
+      //  imgMeHead.setOnLongClickListener(onLongClick);
+        imgOtHead.setOnLongClickListener(onLongClick);
+
+
+    }
+
 
     //自动生成的控件事件
     private void initEvent() {
