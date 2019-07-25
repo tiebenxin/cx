@@ -617,13 +617,18 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
 
                 break;
-            case 2://等待
+            case 2://等待,发送中
                 imgMeErr.setImageResource(R.mipmap.ic_net_load);
                 Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
                 imgMeErr.startAnimation(rotateAnimation);
                 imgMeErr.setVisibility(VISIBLE);
 
+
                 break;
+            default: // 其他状态如-1:待发送
+                    imgMeErr.clearAnimation();
+                    imgMeErr.setVisibility(INVISIBLE);
+                    break;
 
         }
 

@@ -45,6 +45,15 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String membername;//群的昵称
     private String sayHi;//待同意好友招呼语
 
+    private Long lastonline;
+
+    public Long getLastonline() {
+        return lastonline;
+    }
+
+    public void setLastonline(Long lastonline) {
+        this.lastonline = lastonline;
+    }
 
     public String getSayHi() {
         return sayHi;

@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioRecord;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -109,16 +111,21 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
 import me.kareluo.ui.OptionMenuView;
 import me.kareluo.ui.PopupMenuView;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatActivity extends AppActivity {
@@ -237,6 +244,8 @@ public class ChatActivity extends AppActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+
+
                     //ToastUtil.show(context, "发送失败" + bean.getRequestId());
                     MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
                     msgAllBean.setSend_state(1);
@@ -289,22 +298,22 @@ public class ChatActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = findViewById(R.id.headView);
+        headView =  findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        mtListView = findViewById(R.id.mtListView);
-        btnVoice = findViewById(R.id.btn_voice);
-        edtChat = findViewById(R.id.edt_chat);
-        btnEmj = findViewById(R.id.btn_emj);
-        btnFunc = findViewById(R.id.btn_func);
-        viewFunc = findViewById(R.id.view_func);
-        viewEmoji = findViewById(R.id.view_emoji);
-        viewPic = findViewById(R.id.view_pic);
-        viewCamera = findViewById(R.id.view_camera);
-        viewRb = findViewById(R.id.view_rb);
-        viewRbZfb = findViewById(R.id.view_rb_zfb);
-        viewAction = findViewById(R.id.view_action);
-        viewTransfer = findViewById(R.id.view_transfer);
-        viewCard = findViewById(R.id.view_card);
+        mtListView =  findViewById(R.id.mtListView);
+        btnVoice =  findViewById(R.id.btn_voice);
+        edtChat =  findViewById(R.id.edt_chat);
+        btnEmj =  findViewById(R.id.btn_emj);
+        btnFunc =  findViewById(R.id.btn_func);
+        viewFunc =  findViewById(R.id.view_func);
+        viewEmoji =  findViewById(R.id.view_emoji);
+        viewPic =  findViewById(R.id.view_pic);
+        viewCamera =  findViewById(R.id.view_camera);
+        viewRb =  findViewById(R.id.view_rb);
+        viewRbZfb =  findViewById(R.id.view_rb_zfb);
+        viewAction =  findViewById(R.id.view_action);
+        viewTransfer =  findViewById(R.id.view_transfer);
+        viewCard =  findViewById(R.id.view_card);
         viewChatBottom = findViewById(R.id.view_chat_bottom);
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         viewChatRobot = findViewById(R.id.view_chat_robot);
@@ -358,6 +367,7 @@ public class ChatActivity extends AppActivity {
                             .putExtra(GroupInfoActivity.AGM_GID, toGid), REQ_REFRESH
                     );
                 } else {
+
                     startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
                             .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
                     );
@@ -396,17 +406,6 @@ public class ChatActivity extends AppActivity {
                     btnSend.setVisibility(View.VISIBLE);
                 } else {
                     btnSend.setVisibility(View.GONE);
-                }
-
-                if (isGroup()) {
-                    if (count == 1 && s.charAt(s.length() - 1) == "@".charAt(0)) { //添加一个字
-                        //跳转到@界面
-                        Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
-                        intent.putExtra(GroupSelectUserActivity.TYPE,1);
-                        intent.putExtra(GroupSelectUserActivity.GID, toGid);
-                        startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
-
-                    }
                 }
             }
 
@@ -957,7 +956,7 @@ public class ChatActivity extends AppActivity {
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
                         MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file, isArtworkMaster);
-                        imgMsgBean.setSend_state(0);
+
                         msgListData.add(imgMsgBean);
                         notifyData2Buttom();
                         UpLoadService.onAdd(imgMsgId, file, new UpFileUtil.OssUpCallback() {
@@ -969,6 +968,7 @@ public class ChatActivity extends AppActivity {
                                     public void run() {
                                         //alert.dismiss();
                                         MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId, toUId, toGid, url, isArtworkMaster);
+                                        replaceListDataAndNotify(msgAllbean);
                                         // showSendObj(msgAllbean);
                                     }
                                 });
@@ -1025,14 +1025,8 @@ public class ChatActivity extends AppActivity {
 
                     }
                     break;
-                case GroupSelectUserActivity.RET_CODE_SELECTUSR:
-                    String uid = data.getStringExtra(GroupSelectUserActivity.UID);
-                    String name = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
-                    if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(name)) {
-                        edtChat.addAtSpan(null, name, Long.valueOf(uid));
-                    }
 
-                    break;
+
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
@@ -1044,6 +1038,24 @@ public class ChatActivity extends AppActivity {
             mks.clear();
             taskRefreshMessage();
         }
+    }
+
+    /***
+     * 替换listData中的某条消息并且刷新
+     * @param msgAllbean
+     */
+    private void replaceListDataAndNotify(MsgAllBean msgAllbean) {
+
+        if (msgListData == null)
+            return;
+        for (int i = 0; i < msgListData.size(); i++) {
+            if (msgListData.get(i).getMsg_id().equals(msgAllbean.getMsg_id())) {
+
+                msgListData.set(i,msgAllbean);
+                mtListView.getListView().getAdapter().notifyItemChanged(i);
+            }
+        }
+
     }
 
     /***
@@ -1075,8 +1087,8 @@ public class ChatActivity extends AppActivity {
             }
 
             LocalMedia lc = new LocalMedia();
-            lc.setCompressPath(msgl.getImage().getPreview());
-            lc.setPath(msgl.getImage().getOrigin());
+            lc.setCompressPath(msgl.getImage().getPreviewShow());
+            lc.setPath(msgl.getImage().getOriginShow());
             selectList.add(lc);
 
         }
@@ -1226,7 +1238,7 @@ public class ChatActivity extends AppActivity {
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
 
-                    holder.viewChatItem.setData4(msgbean.getImage().getThumbnail(), new ChatItemView.EventPic() {
+                    holder.viewChatItem.setData4(msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
@@ -1287,18 +1299,22 @@ public class ChatActivity extends AppActivity {
                                 AudioPlayManager.getInstance().startPlay(context, Uri.parse(vm.getUrl()), new IAudioPlayListener() {
                                     @Override
                                     public void onStart(Uri var1) {
+
                                         mtListView.getListView().getAdapter().notifyDataSetChanged();
+
 
                                     }
 
                                     @Override
                                     public void onStop(Uri var1) {
+
                                         mtListView.getListView().getAdapter().notifyDataSetChanged();
 
                                     }
 
                                     @Override
                                     public void onComplete(Uri var1) {
+
                                         mtListView.getListView().getAdapter().notifyDataSetChanged();
                                     }
                                 });
@@ -1365,9 +1381,14 @@ public class ChatActivity extends AppActivity {
                         } else {
                             menus.add(0, new OptionMenu("扬声器播放"));
                         }
+
+
                     }
 
-                    showPop(v, menus, msgbean);
+                    if(msgbean.getSend_state()==0){
+                        showPop(v, menus, msgbean);
+                    }
+
                     return true;
                 }
             });
@@ -1480,9 +1501,14 @@ public class ChatActivity extends AppActivity {
         } else {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
-        }
+            if(finfo.getLastonline()>0){
+                actionbar.setTitleMore(TimeToString.getTimeWx(finfo.getLastonline()));
+            }
 
+
+        }
         actionbar.setTitle(title);
+
     }
 
 

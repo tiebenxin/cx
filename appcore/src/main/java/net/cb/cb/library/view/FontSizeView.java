@@ -246,7 +246,7 @@ public class FontSizeView extends View {
     private Point getNearestPoint(float x) {
         for (int i = 0; i < points.size(); i++) {
             Point point = points.get(i);
-            Log.v("ssss", Math.abs(point.x - x) + "-----" + itemWidth / 2);
+          //  Log.v("ssss", Math.abs(point.x - x) + "-----" + itemWidth / 2);
             if (Math.abs(point.x - x) <= itemWidth / 2) {
                 currentProgress = i;
                 return point;

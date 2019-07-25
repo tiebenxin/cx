@@ -1,9 +1,12 @@
 package com.yanlong.im.utils.socket;
 
+import android.util.Log;
+
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
@@ -448,6 +451,8 @@ public class SocketData {
                     //时间要和ack一起返回
                     .setTimestamp(System.currentTimeMillis())
                     .build();
+            Log.d(TAG, "msgSave4Me2: msg"+msg.toString());
+
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
@@ -474,6 +479,38 @@ public class SocketData {
         }
         //6.25 移除重发列队
         SendList.removeSendListJust(bean.getRequestId());
+    }
+
+    //6.26 消息直接存库
+    public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg, int state) {
+        //普通消息
+
+        if (msg != null) {
+            //存库处理
+            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
+                    // .setMsgId(bean.getMsgIdList().get(0))
+                    //时间要和ack一起返回
+                    // .setTimestamp(System.currentTimeMillis())
+                    .build();
+            Log.d(TAG, "msgSave4Me1: msg"+msg.toString());
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
+
+            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
+            //时间戳
+            // msgAllBean.setTimestamp(bean.getTimestamp());
+            msgAllBean.setSend_state(state);
+            msgAllBean.setSend_data(msg.build().toByteArray());
+
+            //移除旧消息// 7.16 通过msgid 判断唯一
+            DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
+            // DaoUtil.deleteOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
+
+            //收到直接存表,创建会话
+            DaoUtil.update(msgAllBean);
+            MsgDao msgDao = new MsgDao();
+
+            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+        }
     }
 
     /***
@@ -519,36 +556,7 @@ public class SocketData {
         msgSave4Me(msg, 2);
     }
 
-    //6.26 消息直接存库
-    public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg, int state) {
-        //普通消息
 
-        if (msg != null) {
-            //存库处理
-            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
-                    // .setMsgId(bean.getMsgIdList().get(0))
-                    //时间要和ack一起返回
-                    // .setTimestamp(System.currentTimeMillis())
-                    .build();
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
-
-            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-            //时间戳
-            // msgAllBean.setTimestamp(bean.getTimestamp());
-            msgAllBean.setSend_state(state);
-            msgAllBean.setSend_data(msg.build().toByteArray());
-
-            //移除旧消息// 7.16 通过msgid 判断唯一
-            DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
-           // DaoUtil.deleteOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
-
-            //收到直接存表,创建会话
-            DaoUtil.update(msgAllBean);
-            MsgDao msgDao = new MsgDao();
-
-            msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
-        }
-    }
 
     /***
      * 保存并发送消息
@@ -756,16 +764,22 @@ public class SocketData {
      */
     public static MsgAllBean send4Image(String msgId,Long toId, String toGid, String url,boolean isOriginal) {
         MsgBean.ImageMessage msg;
+        String extTh="/below-20k";
+        String extPv="/below-200k";
+        if(url.toLowerCase().contains(".gif")){
+            extTh="";
+            extPv="";
+        }
         if(isOriginal){
             msg= MsgBean.ImageMessage.newBuilder()
                     .setOrigin(url)
-                    .setPreview(url+"/below-200k")
-                    .setThumbnail(url+"/below-20k")
+                    .setPreview(url+extPv)
+                    .setThumbnail(url+extTh)
                     .build();
         }else{
             msg= MsgBean.ImageMessage.newBuilder()
                     .setPreview (url)
-                    .setThumbnail(url+"/below-20k")
+                    .setThumbnail(url+extTh)
                     .build();
         }
 
@@ -787,20 +801,33 @@ public class SocketData {
     }
 
     public static MsgAllBean send4ImagePre(String msgId,Long toId, String toGid, String url,boolean isOriginal) {
-        MsgBean.ImageMessage msg ;
+        //
+        //前保存
+          MsgAllBean msgAllBean=new MsgAllBean();
+        msgAllBean.setMsg_id(msgId);
+        UserInfo myinfo = UserAction.getMyInfo();
+        msgAllBean.setFrom_uid(myinfo.getUid());
+        msgAllBean.setFrom_avatar(myinfo.getHead());
+        msgAllBean.setFrom_nickname(myinfo.getMkName());
+        msgAllBean.setTimestamp(System.currentTimeMillis());
+        msgAllBean.setMsg_type(4);
+        msgAllBean.setTo_uid(toId);
+        msgAllBean.setGid(toGid);
+        msgAllBean.setSend_state(-1);
+        ImageMessage image=new ImageMessage();
+        image.setLocalimg(url);
+        image.setPreview(url);
+        image.setThumbnail(url);
+        image.setMsgid(msgId);
         if(isOriginal){
-            msg= MsgBean.ImageMessage.newBuilder()
-                    .setOrigin(url)
-                    .setPreview(url)
-                    .setThumbnail(url)
-                    .build();
-        }else{
-            msg= MsgBean.ImageMessage.newBuilder()
-                    .setPreview (url)
-                    .setThumbnail(url)
-                    .build();
+            image.setOrigin(url);
         }
-        return send4BaseJustSave(msgId,toId, toGid, MsgBean.MessageType.IMAGE, msg);
+        msgAllBean.setImage(image);
+        Log.d(TAG, "send4ImagePre: msgId"+msgId);
+
+        DaoUtil.update(msgAllBean);
+
+        return msgAllBean;
     }
 
     /***
