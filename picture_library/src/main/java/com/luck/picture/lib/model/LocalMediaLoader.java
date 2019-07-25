@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureConfig;
@@ -37,6 +38,8 @@ public class LocalMediaLoader {
     private static final String DURATION = "duration";
     private static final String NOT_GIF = "!='image/gif'";
     private static final int AUDIO_DURATION = 500;// 过滤掉小于500毫秒的录音
+    //图片最大过滤
+    private static final long IMG_DURATION = 20 * 1024 * 1024;// 过滤掉小于500毫秒的录音
     private int type = PictureConfig.TYPE_IMAGE;
     private FragmentActivity activity;
     private boolean isGif;
@@ -173,13 +176,14 @@ public class LocalMediaLoader {
 
                                         LocalMediaFolder folder = getImageFolder(path, imageFolders);
                                         List<LocalMedia> images = folder.getImages();
+
                                         images.add(image);
                                         folder.setImageNum(folder.getImageNum() + 1);
                                         latelyImages.add(image);
                                         int imageNum = allImageFolder.getImageNum();
                                         allImageFolder.setImageNum(imageNum + 1);
                                     } while (data.moveToNext());
-
+                                    latelyImages = fileSize(latelyImages);
                                     if (latelyImages.size() > 0) {
                                         sortFolder(imageFolders);
                                         imageFolders.add(0, allImageFolder);
@@ -206,6 +210,26 @@ public class LocalMediaLoader {
                     public void onLoaderReset(Loader<Cursor> loader) {
                     }
                 });
+    }
+
+    /***
+     * 文件大小的过滤
+     * @param images
+     * @return
+     */
+    private List<LocalMedia> fileSize(List<LocalMedia> images) {
+        File imageFile;
+        for (int i = images.size() - 1; i >= 0; i--) {
+            imageFile = new File(images.get(i).getPath());
+            // Log.d("TAG", "fileSize: "+imageFile.length());
+            if (imageFile.length() >= IMG_DURATION) {
+
+                //   Log.d("TAG", "more: "+imageFile.length());
+                images.remove(i);
+            }
+        }
+
+        return images;
     }
 
     /**
@@ -237,6 +261,8 @@ public class LocalMediaLoader {
      */
     private LocalMediaFolder getImageFolder(String path, List<LocalMediaFolder> imageFolders) {
         File imageFile = new File(path);
+
+
         File folderFile = imageFile.getParentFile();
         for (LocalMediaFolder folder : imageFolders) {
             // 同一个文件夹下，返回自己，否则创建新文件夹
