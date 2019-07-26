@@ -10,9 +10,12 @@ import android.util.Log;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -21,7 +24,7 @@ import java.util.Queue;
 
 public class UpLoadService extends Service {
     public static Queue<UpProgress> queue = new LinkedList<>();
-    public static HashMap<String ,Integer> pgms=new HashMap<>();
+    public static HashMap<String, Integer> pgms = new HashMap<>();
     private UpFileAction upFileAction = new UpFileAction();
 
     @Override
@@ -36,18 +39,19 @@ public class UpLoadService extends Service {
 
     }
 
-    public static Integer getProgress(String msgId){
+    public static Integer getProgress(String msgId) {
 
-        if(pgms.containsKey(msgId)){
-            int pg=pgms.get(msgId);
-            Log.d("getProgress", "getProgress: "+msgId+"  val:"+pg);
-           return pg;
+        if (pgms.containsKey(msgId)) {
+            int pg = pgms.get(msgId);
+            Log.d("getProgress", "getProgress: " + msgId + "  val:" + pg);
+            return pg;
         }
 
         return null;
     }
-    private static void updataProgress(String msgId,Integer pg){
-        pgms.put(msgId,pg);
+
+    private static void updataProgress(String msgId, Integer pg) {
+        pgms.put(msgId, pg);
     }
 
     @Override
@@ -69,20 +73,31 @@ public class UpLoadService extends Service {
 
     }
 
-    public static void onAdd(final String id, String file, final UpFileUtil.OssUpCallback myback) {
+    private static long oldUptime = 0;
+private static EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
+    public static void onAdd(final String id, String file,final Boolean isOriginal,final Long toUId,final String toGid) {
         final UpProgress upProgress = new UpProgress();
         upProgress.setId(id);
-      //  upProgress.setProgress(0);
+        //  upProgress.setProgress(0);
         upProgress.setFile(file);
-        updataProgress(id,0);
+        updataProgress(id, 0);
         upProgress.setCallback(new UpFileUtil.OssUpCallback() {
+
             @Override
             public void success(final String url) {
 
-               // upProgress.setProgress(100);
-                updataProgress(id,100);
+                // upProgress.setProgress(100);
+                updataProgress(id, 100);
+                eventUpImgLoadEvent.setMsgid(id);
+                eventUpImgLoadEvent.setState(1);
+                eventUpImgLoadEvent.setUrl(url);
+                eventUpImgLoadEvent.setOriginal(isOriginal);
+                Object msgbean=SocketData.send4Image(id, toUId, toGid, url, isOriginal);
 
-                myback.success(url);
+                eventUpImgLoadEvent.setMsgAllBean(msgbean);
+                EventBus.getDefault().post(eventUpImgLoadEvent);
+              //  myback.success(url);
+
             }
 
             @Override
@@ -90,20 +105,36 @@ public class UpLoadService extends Service {
                 //alert.dismiss();
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
-              //  upProgress.setProgress(100);
-                updataProgress(id,100);
+                //  upProgress.setProgress(100);
+                updataProgress(id, 100);
 
-                myback.fail();
+                eventUpImgLoadEvent.setMsgid(id);
+                eventUpImgLoadEvent.setState(-1);
+                eventUpImgLoadEvent.setUrl("");
+                eventUpImgLoadEvent.setOriginal(isOriginal);
+                EventBus.getDefault().post(eventUpImgLoadEvent);
+
+               // myback.fail();
             }
 
             @Override
             public void inProgress(long progress, long zong) {
-                int pg =new Double( progress / (zong + 0.0f) * 100.0).intValue();
+                if (System.currentTimeMillis() - oldUptime < 200) {
+                    return;
+                }
+                oldUptime = System.currentTimeMillis();
 
-               // upProgress.setProgress(new Double(pg);
-                updataProgress(id,pg);
+                int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
 
-                myback.inProgress(upProgress.getProgress(), 0);
+                // upProgress.setProgress(new Double(pg);
+                updataProgress(id, pg);
+                eventUpImgLoadEvent.setMsgid(id);
+                eventUpImgLoadEvent.setState(0);
+                eventUpImgLoadEvent.setUrl("");
+                eventUpImgLoadEvent.setOriginal(isOriginal);
+                EventBus.getDefault().post(eventUpImgLoadEvent);
+
+              //  myback.inProgress(upProgress.getProgress(), 0);
             }
         });
 

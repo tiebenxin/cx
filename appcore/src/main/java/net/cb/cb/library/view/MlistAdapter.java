@@ -1,6 +1,7 @@
 package net.cb.cb.library.view;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.cb.cb.library.R;
+
+import java.util.List;
 
 //自动生成RecyclerViewAdapter
 class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -33,6 +36,22 @@ class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public int getItemCounts() {
         return adapter.getItemCount();
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+
+        try{
+            if(payloads==null ||payloads.isEmpty()){
+                super.onBindViewHolder(holder, position, payloads);
+            }else{
+                adapter.onBindViewHolder(holder, position,payloads);
+            }
+
+        }catch (Exception e){
+
+        }
+
     }
 
     //自动生成控件事件

@@ -538,6 +538,7 @@
                           />-->
                     <FrameLayout
                         android:layout_width="wrap_content"
+
                         android:layout_height="wrap_content">
 
                         <ImageView
@@ -547,16 +548,31 @@
 
                             />
 
-                        <ProgressBar
-                            android:id="@+id/img_me_up"
-                            style="?android:progressBarStyleHorizontal"
-                            android:layout_width="50dp"
-
-                            android:layout_height="50dp"
+                        <LinearLayout
+                            android:id="@+id/view_me_up"
                             android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/black_a_20"
+                          >
+                            <ProgressBar
+                                android:id="@+id/img_me_up"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:indeterminateBehavior="repeat"
+                                android:indeterminateDrawable="@drawable/anim_load"
 
-                            android:progress="0"
-                            android:max="100" />
+                                />
+                            <TextView
+                                style="@style/app_txt_title_2"
+                                android:id="@+id/txt_me_up"
+                                android:textColor="@color/white"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+
 
                     </FrameLayout>
 

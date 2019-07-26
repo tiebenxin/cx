@@ -808,11 +808,12 @@ public class SocketData {
         UserInfo myinfo = UserAction.getMyInfo();
         msgAllBean.setFrom_uid(myinfo.getUid());
         msgAllBean.setFrom_avatar(myinfo.getHead());
-        msgAllBean.setFrom_nickname(myinfo.getMkName());
+        msgAllBean.setFrom_nickname(myinfo.getName());
+        msgAllBean.setRequest_id(System.currentTimeMillis()+"");
         msgAllBean.setTimestamp(System.currentTimeMillis());
         msgAllBean.setMsg_type(4);
         msgAllBean.setTo_uid(toId);
-        msgAllBean.setGid(toGid);
+        msgAllBean.setGid(toGid==null?"":toGid);
         msgAllBean.setSend_state(-1);
         ImageMessage image=new ImageMessage();
         image.setLocalimg(url);
