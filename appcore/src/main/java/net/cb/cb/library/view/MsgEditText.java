@@ -9,6 +9,9 @@ import android.text.TextUtils;
 import android.text.style.MetricAffectingSpan;
 import android.util.AttributeSet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @创建人 shenxin
  * @创建时间 2019/7/24 0024 9:52
@@ -70,6 +73,32 @@ public class MsgEditText extends AppCompatEditText {
         }
         return builder.toString();
     }
+
+    //获取用户Id集合
+    public List<Long> getUserIdList(){
+        List<Long> list = new ArrayList<>();
+        MyTextSpan[] spans = getText().getSpans(0, getText().length(), MyTextSpan.class);
+        for (MyTextSpan myTextSpan : spans) {
+            String realText = getText().toString().substring(getText().getSpanStart(myTextSpan), getText().getSpanEnd(myTextSpan));
+            String showText = myTextSpan.getShowText();
+            if (realText.contains(showText)) {
+                list.add(myTextSpan.getUserId());
+            }
+        }
+        return list;
+    }
+
+
+    public boolean isAtAll(){
+        MyTextSpan[] spans = getText().getSpans(0, getText().length(), MyTextSpan.class);
+        for (MyTextSpan myTextSpan : spans) {
+           if(myTextSpan.getUserId() == 0){
+               return true;
+           }
+        }
+        return false;
+    }
+
 
     //生成一个需要整体删除的Span
     private void makeSpan(Spannable sps, UnSpanText unSpanText, long userId) {

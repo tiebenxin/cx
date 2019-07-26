@@ -47,6 +47,9 @@ public class MsgAllBean extends RealmObject {
     private MsgNotice msgNotice;
 
     private VoiceMessage voiceMessage;
+
+    private AtMessage atMessage;
+
     //private RequestFriendMessage request_friend;
 
    // private AcceptBeFriendsMessage accept_be_friends;
@@ -183,7 +186,15 @@ public class MsgAllBean extends RealmObject {
         if (msg_type == 7) {
             str = "[语音]" ;
         }
+        if (msg_type == 8) {
+            if(isMe()){
+                str = "[有人@我]"+getAtMessage().getMsg();
+            }else{
+                str = getAtMessage().getMsg();
+            }
 
+
+        }
         return str;
     }
 
@@ -291,6 +302,14 @@ public class MsgAllBean extends RealmObject {
     }
 */
 
+    public AtMessage getAtMessage() {
+        return atMessage;
+    }
+
+    public void setAtMessage(AtMessage atMessage) {
+        this.atMessage = atMessage;
+    }
+
     public MsgNotice getMsgNotice() {
         return msgNotice;
     }
@@ -318,6 +337,7 @@ public class MsgAllBean extends RealmObject {
     public void setSend_data(byte[] send_data) {
         this.send_data = send_data;
     }
+
 
     /***
      * 是否为自己

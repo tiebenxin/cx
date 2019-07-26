@@ -80,8 +80,7 @@
 
         </activity>
         <!--聊天服务-->
-        <service android:name=".chat.server.UpLoadService">
-        </service>
+        <service android:name=".chat.server.UpLoadService"></service>
         <service android:name=".chat.server.ChatServer">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -412,6 +411,12 @@
 
         <activity
             android:name=".chat.ui.GroupSelectUserActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <!--选择背景-->
+        <activity
+            android:name=".user.ui.BackgroundImageActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 

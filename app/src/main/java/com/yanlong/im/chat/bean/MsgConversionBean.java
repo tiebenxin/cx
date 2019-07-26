@@ -8,6 +8,8 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import io.realm.RealmList;
+
 /***
  * 消息转换类
  */
@@ -53,8 +55,6 @@ public class MsgConversionBean {
             bean.getAvatar();
             bean.getNickname();
             //   bean.
-
-
         }
 
         //---------------------
@@ -233,11 +233,19 @@ public class MsgConversionBean {
                 ani.setNote("群公告:" + bean.getChangeGroupAnnouncement().getAnnouncement());
                 msgAllBean.setMsgNotice(ani);
                 break;
+            case AT:
+                RealmList<Long> realmList =  new RealmList<>();
+                realmList.addAll(bean.getAt().getUidList());
 
+                msgAllBean.setMsg_type(8);
+                AtMessage atMessage = new AtMessage();
+                atMessage.setMsg(bean.getAt().getMsg());
+                atMessage.setAt_type(bean.getAt().getAtType().getNumber());
+                atMessage.setUid(realmList);
+                msgAllBean.setAtMessage(atMessage);
+                break;
             default:
                 return null;
-
-
         }
 
         return msgAllBean;

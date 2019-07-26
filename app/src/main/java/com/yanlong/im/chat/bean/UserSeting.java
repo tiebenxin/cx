@@ -10,6 +10,16 @@ public class UserSeting extends RealmObject {
     private boolean voice = true;
     private int voicePlayer = 0;
 
+    public int getImageBackground() {
+        return imageBackground;
+    }
+
+    public void setImageBackground(int imageBackground) {
+        this.imageBackground = imageBackground;
+    }
+
+    private int imageBackground = 0;
+
 
     public Long getUid() {
         return uid;

@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -58,6 +59,7 @@ import com.yanlong.im.chat.bean.ReceiveRedEnvelopeMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.TransferMessage;
+import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
@@ -298,31 +300,29 @@ public class ChatActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView =  findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        mtListView =  findViewById(R.id.mtListView);
-        btnVoice =  findViewById(R.id.btn_voice);
-        edtChat =  findViewById(R.id.edt_chat);
-        btnEmj =  findViewById(R.id.btn_emj);
-        btnFunc =  findViewById(R.id.btn_func);
-        viewFunc =  findViewById(R.id.view_func);
-        viewEmoji =  findViewById(R.id.view_emoji);
-        viewPic =  findViewById(R.id.view_pic);
-        viewCamera =  findViewById(R.id.view_camera);
-        viewRb =  findViewById(R.id.view_rb);
-        viewRbZfb =  findViewById(R.id.view_rb_zfb);
-        viewAction =  findViewById(R.id.view_action);
-        viewTransfer =  findViewById(R.id.view_transfer);
-        viewCard =  findViewById(R.id.view_card);
+        mtListView = findViewById(R.id.mtListView);
+        btnVoice = findViewById(R.id.btn_voice);
+        edtChat = findViewById(R.id.edt_chat);
+        btnEmj = findViewById(R.id.btn_emj);
+        btnFunc = findViewById(R.id.btn_func);
+        viewFunc = findViewById(R.id.view_func);
+        viewEmoji = findViewById(R.id.view_emoji);
+        viewPic = findViewById(R.id.view_pic);
+        viewCamera = findViewById(R.id.view_camera);
+        viewRb = findViewById(R.id.view_rb);
+        viewRbZfb = findViewById(R.id.view_rb_zfb);
+        viewAction = findViewById(R.id.view_action);
+        viewTransfer = findViewById(R.id.view_transfer);
+        viewCard = findViewById(R.id.view_card);
         viewChatBottom = findViewById(R.id.view_chat_bottom);
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         viewChatRobot = findViewById(R.id.view_chat_robot);
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
-
         txtVoice = findViewById(R.id.txt_voice);
-
-
+        setChatImageBackground();
     }
 
     @Override
@@ -387,11 +387,24 @@ public class ChatActivity extends AppActivity {
             @Override
             public void onClick(View v) {
 
-                //发送普通消息
-                MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, edtChat.getText().toString());
-                showSendObj(msgAllbean);
-                edtChat.getText().clear();
+                if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
+                    if(edtChat.isAtAll()){
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, edtChat.getText().toString(), 1,edtChat.getUserIdList());
+                        showSendObj(msgAllbean);
+                        edtChat.getText().clear();
+                    }else{
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, edtChat.getText().toString(), 0, edtChat.getUserIdList());
+                        showSendObj(msgAllbean);
+                        edtChat.getText().clear();
+                    }
 
+
+                } else {
+                    //发送普通消息
+                    MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, edtChat.getText().toString());
+                    showSendObj(msgAllbean);
+                    edtChat.getText().clear();
+                }
             }
         });
         edtChat.addTextChangedListener(new TextWatcher() {
@@ -406,6 +419,17 @@ public class ChatActivity extends AppActivity {
                     btnSend.setVisibility(View.VISIBLE);
                 } else {
                     btnSend.setVisibility(View.GONE);
+                }
+
+                if (isGroup()) {
+                    if (count == 1 && s.charAt(s.length() - 1) == "@".charAt(0)) { //添加一个字
+                        //跳转到@界面
+                        Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
+                        intent.putExtra(GroupSelectUserActivity.TYPE, 1);
+                        intent.putExtra(GroupSelectUserActivity.GID, toGid);
+                        startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
+
+                    }
                 }
             }
 
@@ -1025,7 +1049,13 @@ public class ChatActivity extends AppActivity {
 
                     }
                     break;
-
+                case GroupSelectUserActivity.RET_CODE_SELECTUSR:
+                    String uid = data.getStringExtra(GroupSelectUserActivity.UID);
+                    String name = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
+                    if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(name)) {
+                        edtChat.addAtSpan(null, name, Long.valueOf(uid));
+                    }
+                    break;
 
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
@@ -1040,6 +1070,44 @@ public class ChatActivity extends AppActivity {
         }
     }
 
+    private void setChatImageBackground() {
+        UserSeting seting = new MsgDao().userSetingGet();
+        switch (seting.getImageBackground()) {
+            case 1:
+                mtListView.setBackgroundResource(R.mipmap.bg_image1);
+                break;
+            case 2:
+                mtListView.setBackgroundResource(R.mipmap.bg_image2);
+                break;
+            case 3:
+                mtListView.setBackgroundResource(R.mipmap.bg_image3);
+                break;
+            case 4:
+                mtListView.setBackgroundResource(R.mipmap.bg_image4);
+                break;
+            case 5:
+                mtListView.setBackgroundResource(R.mipmap.bg_image5);
+                break;
+            case 6:
+                mtListView.setBackgroundResource(R.mipmap.bg_image6);
+                break;
+            case 7:
+                mtListView.setBackgroundResource(R.mipmap.bg_image7);
+                break;
+            case 8:
+                mtListView.setBackgroundResource(R.mipmap.bg_image8);
+                break;
+            case 9:
+                mtListView.setBackgroundResource(R.mipmap.bg_image9);
+                break;
+            default:
+                mtListView.setBackgroundColor(ContextCompat.getColor(this,R.color.gray_100));
+                break;
+        }
+
+    }
+
+
     /***
      * 替换listData中的某条消息并且刷新
      * @param msgAllbean
@@ -1051,7 +1119,7 @@ public class ChatActivity extends AppActivity {
         for (int i = 0; i < msgListData.size(); i++) {
             if (msgListData.get(i).getMsg_id().equals(msgAllbean.getMsg_id())) {
 
-                msgListData.set(i,msgAllbean);
+                msgListData.set(i, msgAllbean);
                 mtListView.getListView().getAdapter().notifyItemChanged(i);
             }
         }
@@ -1340,6 +1408,12 @@ public class ChatActivity extends AppActivity {
 
 
                     break;
+                case 8:
+                    menus.add(new OptionMenu("复制"));
+                    menus.add(new OptionMenu("转发"));
+                    menus.add(new OptionMenu("删除"));
+                    holder.viewChatItem.setDataAt(msgbean.getAtMessage().getMsg());
+                    break;
 
             }
 
@@ -1385,7 +1459,7 @@ public class ChatActivity extends AppActivity {
 
                     }
 
-                    if(msgbean.getSend_state()==0){
+                    if (msgbean.getSend_state() == 0) {
                         showPop(v, menus, msgbean);
                     }
 
@@ -1501,7 +1575,7 @@ public class ChatActivity extends AppActivity {
         } else {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
-            if(finfo.getLastonline()>0){
+            if (finfo.getLastonline() > 0) {
                 actionbar.setTitleMore(TimeToString.getTimeWx(finfo.getLastonline()));
             }
 

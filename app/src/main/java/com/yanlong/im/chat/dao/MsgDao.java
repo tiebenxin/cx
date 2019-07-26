@@ -1034,6 +1034,27 @@ public class MsgDao {
 
 
     /**
+     * 修改聊天背景图片
+     * */
+    public void userSetingImage(int image) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        UserSeting userSeting = realm.where(UserSeting.class).equalTo("uid", UserAction.getMyId()).findFirst();
+        if (userSeting == null) {
+            userSeting = new UserSeting();
+            userSeting.setUid(UserAction.getMyId());
+
+        }
+        userSeting.setImageBackground(image);
+        realm.insertOrUpdate(userSeting);
+        realm.commitTransaction();
+        realm.close();
+
+    }
+
+
+    /**
      * 获取用户配置
      */
     public UserSeting userSetingGet() {

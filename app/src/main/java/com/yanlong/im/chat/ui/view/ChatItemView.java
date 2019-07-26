@@ -282,7 +282,10 @@ public class ChatItemView extends LinearLayout {
             case 7:
                 viewMe7.setVisibility(VISIBLE);
                 viewOt7.setVisibility(VISIBLE);
-
+                break;
+            case 8:
+                viewMe1.setVisibility(VISIBLE);
+                viewOt1.setVisibility(VISIBLE);
                 break;
         }
 
@@ -317,6 +320,12 @@ public class ChatItemView extends LinearLayout {
 
     //普通消息
     public void setData1(String msg) {
+        txtMe1.setText(msg);
+        txtOt1.setText(msg);
+    }
+
+    //AT消息
+    public void setDataAt(String msg) {
         txtMe1.setText(msg);
         txtOt1.setText(msg);
     }

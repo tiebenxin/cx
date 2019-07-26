@@ -451,7 +451,7 @@ public class SocketData {
                     //时间要和ack一起返回
                     .setTimestamp(System.currentTimeMillis())
                     .build();
-            Log.d(TAG, "msgSave4Me2: msg"+msg.toString());
+            Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
@@ -460,7 +460,7 @@ public class SocketData {
             /*if(wmsg.getTimestamp()!=0){
                 msgAllBean.setTimestamp(wmsg.getTimestamp());
             }else{*/
-                msgAllBean.setTimestamp(bean.getTimestamp());
+            msgAllBean.setTimestamp(bean.getTimestamp());
             /*}*/
 
             msgAllBean.setSend_state(0);
@@ -492,7 +492,7 @@ public class SocketData {
                     //时间要和ack一起返回
                     // .setTimestamp(System.currentTimeMillis())
                     .build();
-            Log.d(TAG, "msgSave4Me1: msg"+msg.toString());
+            Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
@@ -557,7 +557,6 @@ public class SocketData {
     }
 
 
-
     /***
      * 保存并发送消息
      * @param toId
@@ -567,7 +566,7 @@ public class SocketData {
      * @return
      */
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(true, null,toId, toGid, type, value);
+        return send4Base(true, null, toId, toGid, type, value);
     }
 
     /***
@@ -579,8 +578,8 @@ public class SocketData {
      * @param value
      * @return
      */
-    private static MsgAllBean send4BaseById(String msgId,Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(true, msgId,toId, toGid, type, value);
+    private static MsgAllBean send4BaseById(String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        return send4Base(true, msgId, toId, toGid, type, value);
     }
 
     /***
@@ -592,11 +591,11 @@ public class SocketData {
      * @param value
      * @return
      */
-    private static MsgAllBean send4BaseJustSave(String msgId,Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(false,msgId, toId, toGid, type, value);
+    private static MsgAllBean send4BaseJustSave(String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        return send4Base(false, msgId, toId, toGid, type, value);
     }
 
-    private static MsgAllBean send4Base(boolean isSend,String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
+    private static MsgAllBean send4Base(boolean isSend, String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, type, value);
 
@@ -631,7 +630,7 @@ public class SocketData {
      */
     private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
-        if (toId != null&&toId>0) {//给个人发
+        if (toId != null && toId > 0) {//给个人发
             msg.setToUid(toId);
         }
 
@@ -646,12 +645,12 @@ public class SocketData {
 
         //自动生成uuid
 
-            wmsg.setMsgId(msgid == null?getUUID():msgid);
+        wmsg.setMsgId(msgid == null ? getUUID() : msgid);
 
 
         wmsg.setTimestamp(System.currentTimeMillis());
 
-        if (toGid != null&&toGid.length()>0) {//给群发
+        if (toGid != null && toGid.length() > 0) {//给群发
             wmsg.setGid(toGid);
             Group group = msgDao.getGroup4Id(toGid);
             if (group != null) {
@@ -695,8 +694,12 @@ public class SocketData {
             case VOICE:
                 wmsg.setVoice((MsgBean.VoiceMessage) value);
                 break;
+            case AT:
+                wmsg.setAt((MsgBean.AtMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
+
         }
 
 
@@ -736,6 +739,25 @@ public class SocketData {
 
     }
 
+
+    /**
+     * @param toId
+     * @param txt
+     * @param atType 0. @多个 1. @所有人
+     * @param list   @用户集合
+     * @return
+     * @消息
+     */
+    public static MsgAllBean send4At(Long toId, String toGid, String txt, int atType, List<Long> list) {
+        MsgBean.AtMessage atMessage = MsgBean.AtMessage.newBuilder()
+                .setMsg(txt)
+                .setAtTypeValue(atType)
+                .addAllUid(list)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.AT, atMessage);
+    }
+
+
     /**
      * 戳一戳消息
      *
@@ -762,48 +784,50 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean send4Image(String msgId,Long toId, String toGid, String url,boolean isOriginal) {
+    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal) {
         MsgBean.ImageMessage msg;
-        String extTh="/below-20k";
-        String extPv="/below-200k";
-        if(url.toLowerCase().contains(".gif")){
-            extTh="";
-            extPv="";
+        String extTh = "/below-20k";
+        String extPv = "/below-200k";
+        if (url.toLowerCase().contains(".gif")) {
+            extTh = "";
+            extPv = "";
         }
-        if(isOriginal){
-            msg= MsgBean.ImageMessage.newBuilder()
+        if (isOriginal) {
+            msg = MsgBean.ImageMessage.newBuilder()
                     .setOrigin(url)
-                    .setPreview(url+extPv)
-                    .setThumbnail(url+extTh)
+                    .setPreview(url + extPv)
+                    .setThumbnail(url + extTh)
                     .build();
-        }else{
-            msg= MsgBean.ImageMessage.newBuilder()
-                    .setPreview (url)
-                    .setThumbnail(url+extTh)
+        } else {
+            msg = MsgBean.ImageMessage.newBuilder()
+                    .setPreview(url)
+                    .setThumbnail(url + extTh)
                     .build();
         }
 
 
-        return send4BaseById(msgId,toId, toGid, MsgBean.MessageType.IMAGE, msg);
+        return send4BaseById(msgId, toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
-    public static MsgAllBean send4Image(Long toId, String toGid, String url,String url1,String url2) {
-        MsgBean.ImageMessage msg= MsgBean.ImageMessage.newBuilder()
-                    .setOrigin(url)
-                    .setPreview(url1)
-                    .setThumbnail(url2)
-                    .build();
+
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2) {
+        MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
+                .setOrigin(url)
+                .setPreview(url1)
+                .setThumbnail(url2)
+                .build();
 
 
         return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
-    public static MsgAllBean send4Image(Long toId, String toGid, String url){
-        return send4Image( getUUID(), toId,  toGid,  url,false);
+
+    public static MsgAllBean send4Image(Long toId, String toGid, String url) {
+        return send4Image(getUUID(), toId, toGid, url, false);
     }
 
-    public static MsgAllBean send4ImagePre(String msgId,Long toId, String toGid, String url,boolean isOriginal) {
+    public static MsgAllBean send4ImagePre(String msgId, Long toId, String toGid, String url, boolean isOriginal) {
         //
         //前保存
-          MsgAllBean msgAllBean=new MsgAllBean();
+        MsgAllBean msgAllBean = new MsgAllBean();
         msgAllBean.setMsg_id(msgId);
         UserInfo myinfo = UserAction.getMyInfo();
         msgAllBean.setFrom_uid(myinfo.getUid());
@@ -814,16 +838,16 @@ public class SocketData {
         msgAllBean.setTo_uid(toId);
         msgAllBean.setGid(toGid);
         msgAllBean.setSend_state(-1);
-        ImageMessage image=new ImageMessage();
+        ImageMessage image = new ImageMessage();
         image.setLocalimg(url);
         image.setPreview(url);
         image.setThumbnail(url);
         image.setMsgid(msgId);
-        if(isOriginal){
+        if (isOriginal) {
             image.setOrigin(url);
         }
         msgAllBean.setImage(image);
-        Log.d(TAG, "send4ImagePre: msgId"+msgId);
+        Log.d(TAG, "send4ImagePre: msgId" + msgId);
 
         DaoUtil.update(msgAllBean);
 
@@ -922,7 +946,6 @@ public class SocketData {
                 .build();
         return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
     }
-
 
 
 }

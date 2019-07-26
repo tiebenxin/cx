@@ -85,7 +85,7 @@ public final class MsgBean {
         VOICE(7),
         /**
          * <pre>
-         *&#64;消息
+         *&#64;@消息
          * </pre>
          *
          * <code>AT = 8;</code>

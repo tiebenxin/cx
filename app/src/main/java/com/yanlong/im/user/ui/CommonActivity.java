@@ -6,9 +6,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -39,6 +42,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private UserAction userAction = new UserAction();
     private CheckBox cbVoice;
     private MsgDao msgDao;
+    private LinearLayout viewSelectBackground;
 
 
     @Override
@@ -61,6 +65,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         mTvVersion = findViewById(R.id.tv_version);
         mTvVersion.setText(VersionUtil.getVerName(this));
         cbVoice = findViewById(R.id.cb_voice);
+        viewSelectBackground =  findViewById(R.id.view_select_background);
     }
 
     private void initEvent() {
@@ -71,6 +76,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         mViewClear.setOnClickListener(this);
         mBtnExit.setOnClickListener(this);
         mViewAboutAs.setOnClickListener(this);
+        viewSelectBackground.setOnClickListener(this);
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -134,6 +140,9 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
             case R.id.view_about_as:
                 Intent aboutIntent = new Intent(this, AboutAsActivity.class);
                 startActivity(aboutIntent);
+                break;
+            case R.id.view_select_background:
+                go(BackgroundImageActivity.class);
                 break;
         }
     }

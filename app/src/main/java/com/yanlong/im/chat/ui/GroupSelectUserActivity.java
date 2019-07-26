@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
@@ -60,16 +59,24 @@ public class GroupSelectUserActivity extends AppActivity {
     private int type;
     private ClearEditText edtSearch;
     private RecyclerViewAdapter adapter;
+    private LinearLayout llAtAll;
 
     //自动寻找控件
     private void findViews() {
         gid = getIntent().getStringExtra(GID);
-        type = getIntent().getIntExtra(TYPE,0);
+        type = getIntent().getIntExtra(TYPE, 0);
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         mtListView = findViewById(R.id.mtListView);
         edtSearch = findViewById(R.id.edt_search);
         viewType = findViewById(R.id.view_type);
+        llAtAll =  findViewById(R.id.ll_at_all);
+        if(type == 0){
+            llAtAll.setVisibility(View.GONE);
+        }else{
+            llAtAll.setVisibility(View.VISIBLE);
+        }
+
     }
 
 
@@ -100,13 +107,24 @@ public class GroupSelectUserActivity extends AppActivity {
 
             @Override
             public void onTextChanged(CharSequence sequence, int i, int i1, int i2) {
-                ToastUtil.show(GroupSelectUserActivity.this,sequence.toString()+"");
+                ToastUtil.show(GroupSelectUserActivity.this, sequence.toString() + "");
                 adapter.getFilter().filter(sequence.toString());
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
 
+            }
+        });
+
+        llAtAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra(UID, 0 + "");
+                intent.putExtra(MEMBERNAME, "所有人");
+                setResult(RESULT_OK, intent);
+                finish();
             }
         });
     }
@@ -166,7 +184,7 @@ public class GroupSelectUserActivity extends AppActivity {
         private List<UserInfo> mFilterList = new ArrayList<>();
         private List<UserInfo> mSourceList = new ArrayList<>();
 
-        public void setList(List<UserInfo> list){
+        public void setList(List<UserInfo> list) {
             mFilterList = list;
             mSourceList = list;
         }
@@ -199,7 +217,7 @@ public class GroupSelectUserActivity extends AppActivity {
                     hd.ckSelect.setChecked(false);
 
 
-                    if(type == 0){
+                    if (type == 0) {
                         AlertYesNo alertYesNo = new AlertYesNo();
                         alertYesNo.init(GroupSelectUserActivity.this, "转让群", "确认转让群主吗?", "确定", "取消", new AlertYesNo.Event() {
                             @Override
@@ -221,10 +239,10 @@ public class GroupSelectUserActivity extends AppActivity {
                             }
                         });
                         alertYesNo.show();
-                    }else{
+                    } else {
                         Intent intent = new Intent();
                         intent.putExtra(UID, bean.getUid() + "");
-                        intent.putExtra(MEMBERNAME, bean.getName4Show());
+                        intent.putExtra(MEMBERNAME, bean.getName());
                         setResult(RESULT_OK, intent);
                         finish();
                     }
@@ -266,6 +284,7 @@ public class GroupSelectUserActivity extends AppActivity {
                     filterResults.values = mFilterList;
                     return filterResults;
                 }
+
                 //把过滤后的值返回出来
                 @Override
                 protected void publishResults(CharSequence charSequence, FilterResults filterResults) {

@@ -13,18 +13,27 @@ public class Session extends RealmObject {
     @PrimaryKey
     private String sid;
     //会话类型,0:单人,1群
-    private int type=0;
+    private int type = 0;
     private Long from_uid;
     private String gid;
     private Long up_time;
-    private int unread_count=0;
+    private int unread_count = 0;
     //草稿
     private String draft;
     //是否置顶
-    private int isTop=0;
+    private int isTop = 0;
     //时候静音
-    private int isMute=0;
+    private int isMute = 0;
 
+    private String atMessage;
+
+    public String getAtMessage() {
+        return atMessage;
+    }
+
+    public void setAtMessage(String atMessage) {
+        this.atMessage = atMessage;
+    }
 
     public String getDraft() {
         return draft;
@@ -35,10 +44,10 @@ public class Session extends RealmObject {
     }
 
     public int getIsMute() {
-       // int isMute =0;
+        // int isMute =0;
 
         try {
-            isMute= type==0?new UserDao().findUserInfo(from_uid).getDisturb() :new MsgDao().getGroup4Id(gid).getNotNotify();
+            isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -46,16 +55,16 @@ public class Session extends RealmObject {
         return isMute;
     }
 
-   public void setIsMute(int isMute) {
+    public void setIsMute(int isMute) {
         this.isMute = isMute;
     }
 
     public int getIsTop() {
-       // int isTop=0;
+        // int isTop=0;
         try {
-            isTop= type==0?new UserDao().findUserInfo(from_uid).getIstop() :new MsgDao().getGroup4Id(gid).getIsTop();
+            isTop = type == 0 ? new UserDao().findUserInfo(from_uid).getIstop() : new MsgDao().getGroup4Id(gid).getIsTop();
         } catch (Exception e) {
-          //  e.printStackTrace();
+            //  e.printStackTrace();
         }
 
         return isTop;
