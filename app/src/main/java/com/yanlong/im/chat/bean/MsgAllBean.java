@@ -195,15 +195,6 @@ public class MsgAllBean extends RealmObject {
         if (msg_type == 7) {
             str = "[语音]" ;
         }
-        if (msg_type == 8) {
-            if(isMe()){
-                str = "[有人@我]"+getAtMessage().getMsg();
-            }else{
-                str = getAtMessage().getMsg();
-            }
-
-
-        }
         return str;
     }
 

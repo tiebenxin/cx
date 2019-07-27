@@ -118,7 +118,7 @@ public class MsgDao {
         RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
 
-                .equalTo("msg_type",4)
+                .equalTo("msg_type", 4)
                 .sort("timestamp", Sort.DESCENDING)
 
 
@@ -193,12 +193,11 @@ public class MsgDao {
 
         RealmResults list = realm.where(MsgAllBean.class)
                 .equalTo("gid", gid)
-                .equalTo("msg_type",4)
+                .equalTo("msg_type", 4)
                 .sort("timestamp", Sort.DESCENDING)
                 .findAll();
 
         beans = realm.copyFromRealm(list);
-
 
 
         //翻转列表
@@ -376,36 +375,35 @@ public class MsgDao {
 
     /***
      * 单删某条
-    * @param msgId
+     * @param msgId
      */
     public void msgDel4MsgId(String msgId) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        RealmResults<MsgAllBean> list=null;
+        RealmResults<MsgAllBean> list = null;
 
-            list =  realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findAll();
+        list = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findAll();
 
 
         //删除前先把子表数据干掉!!切记
-        if(list!=null){
-            for (MsgAllBean msg:list) {
-                if(msg.getReceive_red_envelope()!=null)
+        if (list != null) {
+            for (MsgAllBean msg : list) {
+                if (msg.getReceive_red_envelope() != null)
                     msg.getReceive_red_envelope().deleteFromRealm();
-                if(msg.getMsgNotice()!=null)
+                if (msg.getMsgNotice() != null)
                     msg.getMsgNotice().deleteFromRealm();
-                if(msg.getBusiness_card()!=null)
+                if (msg.getBusiness_card() != null)
                     msg.getBusiness_card().deleteFromRealm();
-                if(msg.getStamp()!=null)
+                if (msg.getStamp() != null)
                     msg.getStamp().deleteFromRealm();
-                if(msg.getChat()!=null)
+                if (msg.getChat() != null)
                     msg.getChat().deleteFromRealm();
-                if(msg.getImage()!=null)
+                if (msg.getImage() != null)
                     msg.getImage().deleteFromRealm();
-                if(msg.getRed_envelope()!=null)
+                if (msg.getRed_envelope() != null)
                     msg.getRed_envelope().deleteFromRealm();
-                if(msg.getTransfer()!=null)
+                if (msg.getTransfer() != null)
                     msg.getTransfer().deleteFromRealm();
-
 
 
             }
@@ -625,6 +623,20 @@ public class MsgDao {
         return sum;
     }
 
+
+    /**
+     * 是否有草稿
+     * */
+    public boolean isSaveDraft(String gid) {
+        boolean isSaveDraft = false;
+        Session session = DaoUtil.findOne(Session.class, "gid", gid);
+        if (StringUtil.isNotNull(session.getDraft())) {
+            isSaveDraft = true;
+        }
+        return isSaveDraft;
+    }
+
+
     /***
      * 获取会话
      * @param gid
@@ -664,11 +676,11 @@ public class MsgDao {
 
     /**
      * 存at消息
-     * */
-    public void atMessage(String gid, String atMessage,int type){
+     */
+    public void atMessage(String gid, String atMessage, int type) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        Session session = realm.where(Session.class).equalTo("gid", gid).findFirst() ;
+        Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
 
         if (session != null) {
             session.setAtMessage(atMessage);
@@ -678,7 +690,6 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
     }
-
 
 
     /***
@@ -807,7 +818,7 @@ public class MsgDao {
      * @param uid
      * @return
      */
-    public MsgAllBean msgGetLastGroup4Uid(String gid,Long uid) {
+    public MsgAllBean msgGetLastGroup4Uid(String gid, Long uid) {
         MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
         MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", gid).and().equalTo("from_uid", uid).or().equalTo("to_uid", uid)
@@ -1047,7 +1058,6 @@ public class MsgDao {
 
 
     /**
-     *
      * 修改语音播放模式 0.扬声器  1.听筒
      */
     public void userSetingVoicePlayer(int voicePlayer) {
@@ -1070,7 +1080,7 @@ public class MsgDao {
 
     /**
      * 修改聊天背景图片
-     * */
+     */
     public void userSetingImage(int image) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();

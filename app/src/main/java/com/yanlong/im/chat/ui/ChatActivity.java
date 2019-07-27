@@ -296,7 +296,6 @@ public class ChatActivity extends AppActivity {
 
         }
 
-
     }
 
     //自动寻找控件
@@ -420,7 +419,7 @@ public class ChatActivity extends AppActivity {
                     btnSend.setVisibility(View.GONE);
                 }
 
-                if (isGroup()) {
+                if (isGroup() && !dao.isSaveDraft(toGid)) {
                     if (count == 1 && s.charAt(s.length() - 1) == "@".charAt(0)) { //添加一个字
                         //跳转到@界面
                         Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
