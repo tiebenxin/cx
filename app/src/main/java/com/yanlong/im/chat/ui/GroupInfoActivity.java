@@ -233,6 +233,11 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(ChatActivity.REQ_REFRESH);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
