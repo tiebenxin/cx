@@ -19009,6 +19009,24 @@ public final class MsgBean {
             getAvatarBytes();
 
             /**
+             * <pre>
+             * 群昵称
+             * </pre>
+             *
+             * <code>string membername = 8;</code>
+             */
+            java.lang.String getMembername();
+            /**
+             * <pre>
+             * 群昵称
+             * </pre>
+             *
+             * <code>string membername = 8;</code>
+             */
+            com.google.protobuf.ByteString
+            getMembernameBytes();
+
+            /**
              * <code>.ChatMessage chat = 10000;</code>
              */
             MsgBean.ChatMessage getChat();
@@ -19218,6 +19236,7 @@ public final class MsgBean {
                 gid_ = "";
                 nickname_ = "";
                 avatar_ = "";
+                membername_ = "";
             }
 
             @java.lang.Override
@@ -19283,6 +19302,12 @@ public final class MsgBean {
                                 java.lang.String s = input.readStringRequireUtf8();
 
                                 avatar_ = s;
+                                break;
+                            }
+                            case 66: {
+                                java.lang.String s = input.readStringRequireUtf8();
+
+                                membername_ = s;
                                 break;
                             }
                             case 80002: {
@@ -19888,6 +19913,48 @@ public final class MsgBean {
                 }
             }
 
+            public static final int MEMBERNAME_FIELD_NUMBER = 8;
+            private volatile java.lang.Object membername_;
+            /**
+             * <pre>
+             * 群昵称
+             * </pre>
+             *
+             * <code>string membername = 8;</code>
+             */
+            public java.lang.String getMembername() {
+                java.lang.Object ref = membername_;
+                if (ref instanceof java.lang.String) {
+                    return (java.lang.String) ref;
+                } else {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    membername_ = s;
+                    return s;
+                }
+            }
+            /**
+             * <pre>
+             * 群昵称
+             * </pre>
+             *
+             * <code>string membername = 8;</code>
+             */
+            public com.google.protobuf.ByteString
+            getMembernameBytes() {
+                java.lang.Object ref = membername_;
+                if (ref instanceof java.lang.String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    membername_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+
             public static final int CHAT_FIELD_NUMBER = 10000;
             /**
              * <code>.ChatMessage chat = 10000;</code>
@@ -20341,6 +20408,9 @@ public final class MsgBean {
                 if (!getAvatarBytes().isEmpty()) {
                     com.google.protobuf.GeneratedMessageV3.writeString(output, 7, avatar_);
                 }
+                if (!getMembernameBytes().isEmpty()) {
+                    com.google.protobuf.GeneratedMessageV3.writeString(output, 8, membername_);
+                }
                 if (realMsgCase_ == 10000) {
                     output.writeMessage(10000, (MsgBean.ChatMessage) realMsg_);
                 }
@@ -20434,6 +20504,9 @@ public final class MsgBean {
                 }
                 if (!getAvatarBytes().isEmpty()) {
                     size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, avatar_);
+                }
+                if (!getMembernameBytes().isEmpty()) {
+                    size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, membername_);
                 }
                 if (realMsgCase_ == 10000) {
                     size += com.google.protobuf.CodedOutputStream
@@ -20548,6 +20621,8 @@ public final class MsgBean {
                         .equals(other.getNickname());
                 result = result && getAvatar()
                         .equals(other.getAvatar());
+                result = result && getMembername()
+                        .equals(other.getMembername());
                 result = result && getRealMsgCase().equals(
                         other.getRealMsgCase());
                 if (!result) return false;
@@ -20665,6 +20740,8 @@ public final class MsgBean {
                 hash = (53 * hash) + getNickname().hashCode();
                 hash = (37 * hash) + AVATAR_FIELD_NUMBER;
                 hash = (53 * hash) + getAvatar().hashCode();
+                hash = (37 * hash) + MEMBERNAME_FIELD_NUMBER;
+                hash = (53 * hash) + getMembername().hashCode();
                 switch (realMsgCase_) {
                     case 10000:
                         hash = (37 * hash) + CHAT_FIELD_NUMBER;
@@ -20896,6 +20973,8 @@ public final class MsgBean {
 
                     avatar_ = "";
 
+                    membername_ = "";
+
                     realMsgCase_ = 0;
                     realMsg_ = null;
                     return this;
@@ -20927,6 +21006,7 @@ public final class MsgBean {
                     result.gid_ = gid_;
                     result.nickname_ = nickname_;
                     result.avatar_ = avatar_;
+                    result.membername_ = membername_;
                     if (realMsgCase_ == 10000) {
                         if (chatBuilder_ == null) {
                             result.realMsg_ = realMsg_;
@@ -21139,6 +21219,10 @@ public final class MsgBean {
                     }
                     if (!other.getAvatar().isEmpty()) {
                         avatar_ = other.avatar_;
+                        onChanged();
+                    }
+                    if (!other.getMembername().isEmpty()) {
+                        membername_ = other.membername_;
                         onChanged();
                     }
                     switch (other.getRealMsgCase()) {
@@ -21743,6 +21827,95 @@ public final class MsgBean {
                     checkByteStringIsUtf8(value);
 
                     avatar_ = value;
+                    onChanged();
+                    return this;
+                }
+
+                private java.lang.Object membername_ = "";
+                /**
+                 * <pre>
+                 * 群昵称
+                 * </pre>
+                 *
+                 * <code>string membername = 8;</code>
+                 */
+                public java.lang.String getMembername() {
+                    java.lang.Object ref = membername_;
+                    if (!(ref instanceof java.lang.String)) {
+                        com.google.protobuf.ByteString bs =
+                                (com.google.protobuf.ByteString) ref;
+                        java.lang.String s = bs.toStringUtf8();
+                        membername_ = s;
+                        return s;
+                    } else {
+                        return (java.lang.String) ref;
+                    }
+                }
+                /**
+                 * <pre>
+                 * 群昵称
+                 * </pre>
+                 *
+                 * <code>string membername = 8;</code>
+                 */
+                public com.google.protobuf.ByteString
+                getMembernameBytes() {
+                    java.lang.Object ref = membername_;
+                    if (ref instanceof String) {
+                        com.google.protobuf.ByteString b =
+                                com.google.protobuf.ByteString.copyFromUtf8(
+                                        (java.lang.String) ref);
+                        membername_ = b;
+                        return b;
+                    } else {
+                        return (com.google.protobuf.ByteString) ref;
+                    }
+                }
+                /**
+                 * <pre>
+                 * 群昵称
+                 * </pre>
+                 *
+                 * <code>string membername = 8;</code>
+                 */
+                public Builder setMembername(
+                        java.lang.String value) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+
+                    membername_ = value;
+                    onChanged();
+                    return this;
+                }
+                /**
+                 * <pre>
+                 * 群昵称
+                 * </pre>
+                 *
+                 * <code>string membername = 8;</code>
+                 */
+                public Builder clearMembername() {
+
+                    membername_ = getDefaultInstance().getMembername();
+                    onChanged();
+                    return this;
+                }
+                /**
+                 * <pre>
+                 * 群昵称
+                 * </pre>
+                 *
+                 * <code>string membername = 8;</code>
+                 */
+                public Builder setMembernameBytes(
+                        com.google.protobuf.ByteString value) {
+                    if (value == null) {
+                        throw new NullPointerException();
+                    }
+                    checkByteStringIsUtf8(value);
+
+                    membername_ = value;
                     onChanged();
                     return this;
                 }
@@ -25567,50 +25740,51 @@ public final class MsgBean {
                         "\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022Au",
                 "thRequestMessage\022\024\n\014access_token\030\001 \001(\t\"\'" +
                         "\n\023AuthResponseMessage\022\020\n\010accepted\030\001 \001(\021\"" +
-                        "\325\t\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(\t" +
+                        "\351\t\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(\t" +
                         "\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Uni" +
-                        "versalMessage.WrapMessage\032\353\010\n\013WrapMessag" +
+                        "versalMessage.WrapMessage\032\377\010\n\013WrapMessag" +
                         "e\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014" +
                         ".MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid" +
                         "\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n" +
-                        "\006avatar\030\007 \001(\t\022\035\n\004chat\030\220N \001(\0132\014.ChatMessa" +
-                        "geH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n",
-                "\014red_envelope\030\222N \001(\0132\023.RedEnvelopeMessag" +
-                        "eH\000\022;\n\024receive_red_envelope\030\223N \001(\0132\032.Rec" +
-                        "eiveRedEnvelopeMessageH\000\022%\n\010transfer\030\224N " +
-                        "\001(\0132\020.TransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132" +
-                        "\r.StampMessageH\000\022.\n\rbusiness_card\030\226N \001(\013" +
-                        "2\024.BusinessCardMessageH\000\022\037\n\005voice\030\227N \001(\013" +
-                        "2\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessa" +
-                        "geH\000\0220\n\016request_friend\030\364N \001(\0132\025.RequestF" +
-                        "riendMessageH\000\0225\n\021accept_be_friends\030\365N \001" +
-                        "(\0132\027.AcceptBeFriendsMessageH\000\022.\n\rremove_",
-                "friend\030\366N \001(\0132\024.RemoveFriendMessageH\000\022.\n" +
-                        "\rrequest_group\030\330O \001(\0132\024.RequestGroupMess" +
-                        "ageH\000\0221\n\017accept_be_group\030\331O \001(\0132\025.Accept" +
-                        "BeGroupMessageH\000\0229\n\023remove_group_member\030" +
-                        "\332O \001(\0132\031.RemoveGroupMemberMessageH\000\0229\n\023c" +
-                        "hange_group_master\030\333O \001(\0132\031.ChangeGroupM" +
-                        "asterMessageH\000\0225\n\021change_group_name\030\334O \001" +
-                        "(\0132\027.ChangeGroupNameMessageH\000\022E\n\031change_" +
-                        "group_announcement\030\335O \001(\0132\037.ChangeGroupA" +
-                        "nnouncementMessageH\000\022.\n\rdestroy_group\030\336O",
-                " \001(\0132\024.DestroyGroupMessageH\000\022&\n\tout_grou" +
-                        "p\030\342O \001(\0132\020.OutGroupMessageH\000\022%\n\010conflict" +
-                        "\030\274P \001(\0132\020.ConflictMessageH\000B\n\n\010real_msg*" +
-                        "\216\003\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\r" +
-                        "RED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPER" +
-                        "\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_" +
-                        "CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\022\n\016REQUEST_FRI" +
-                        "END\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_F" +
-                        "RIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_" +
-                        "GROUP\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHAN",
-                "GE_GROUP_MASTER\020j\022\025\n\021CHANGE_GROUP_NAME\020k" +
-                        "\022\035\n\031CHANGE_GROUP_ANNOUNCEMENT\020l\022\021\n\rDESTR" +
-                        "OY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\r\n\010CONFLICT\020\310\001" +
-                        "*b\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRIE" +
-                        "NDS_OR_GROUP_MEMBER\020\001\022\014\n\010NO_SPACE\020\010\022\027\n\023S" +
-                        "ERVICE_UNAVAILABLE\020db\006proto3"
+                        "\006avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\035\n\004cha" +
+                        "t\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\013",
+                "2\r.ImageMessageH\000\022,\n\014red_envelope\030\222N \001(\013" +
+                        "2\023.RedEnvelopeMessageH\000\022;\n\024receive_red_e" +
+                        "nvelope\030\223N \001(\0132\032.ReceiveRedEnvelopeMessa" +
+                        "geH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferMessag" +
+                        "eH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\r" +
+                        "business_card\030\226N \001(\0132\024.BusinessCardMessa" +
+                        "geH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n" +
+                        "\002at\030\230N \001(\0132\n.AtMessageH\000\0220\n\016request_frie" +
+                        "nd\030\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021ac" +
+                        "cept_be_friends\030\365N \001(\0132\027.AcceptBeFriends",
+                "MessageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.Remo" +
+                        "veFriendMessageH\000\022.\n\rrequest_group\030\330O \001(" +
+                        "\0132\024.RequestGroupMessageH\000\0221\n\017accept_be_g" +
+                        "roup\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023" +
+                        "remove_group_member\030\332O \001(\0132\031.RemoveGroup" +
+                        "MemberMessageH\000\0229\n\023change_group_master\030\333" +
+                        "O \001(\0132\031.ChangeGroupMasterMessageH\000\0225\n\021ch" +
+                        "ange_group_name\030\334O \001(\0132\027.ChangeGroupName" +
+                        "MessageH\000\022E\n\031change_group_announcement\030\335" +
+                        "O \001(\0132\037.ChangeGroupAnnouncementMessageH\000",
+                "\022.\n\rdestroy_group\030\336O \001(\0132\024.DestroyGroupM" +
+                        "essageH\000\022&\n\tout_group\030\342O \001(\0132\020.OutGroupM" +
+                        "essageH\000\022%\n\010conflict\030\274P \001(\0132\020.ConflictMe" +
+                        "ssageH\000B\n\n\010real_msg*\216\003\n\013MessageType\022\010\n\004C" +
+                        "HAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025R" +
+                        "ECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005" +
+                        "STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n" +
+                        "\002AT\020\010\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_F" +
+                        "RIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_G" +
+                        "ROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GR",
+                "OUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\025\n" +
+                        "\021CHANGE_GROUP_NAME\020k\022\035\n\031CHANGE_GROUP_ANN" +
+                        "OUNCEMENT\020l\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GR" +
+                        "OUP\020n\022\r\n\010CONFLICT\020\310\001*b\n\nRejectType\022\014\n\010AC" +
+                        "CEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBER\020" +
+                        "\001\022\014\n\010NO_SPACE\020\010\022\027\n\023SERVICE_UNAVAILABLE\020d" +
+                        "b\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -25791,7 +25965,7 @@ public final class MsgBean {
         internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_WrapMessage_descriptor,
-                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "ChangeGroupName", "ChangeGroupAnnouncement", "DestroyGroup", "OutGroup", "Conflict", "RealMsg", });
+                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "ChangeGroupName", "ChangeGroupAnnouncement", "DestroyGroup", "OutGroup", "Conflict", "RealMsg", });
     }
 
     // @@protoc_insertion_point(outer_class_scope)

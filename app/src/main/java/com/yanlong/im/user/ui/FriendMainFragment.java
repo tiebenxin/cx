@@ -325,7 +325,13 @@ public class FriendMainFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshFriend(EventRefreshFriend event) {
-        taskRefreshListData();
+        if (event.isLocal()){
+            taskListData();
+        }else{
+            taskRefreshListData();
+        }
+
+
     }
 
     public void taskRefreshListData() {
@@ -344,6 +350,7 @@ public class FriendMainFragment extends Fragment {
 
         );
     }
+
 
 
     private MsgDao msgDao = new MsgDao();

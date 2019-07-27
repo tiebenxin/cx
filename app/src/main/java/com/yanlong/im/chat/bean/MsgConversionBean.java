@@ -34,6 +34,7 @@ public class MsgConversionBean {
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setFrom_avatar(bean.getAvatar());
         msgAllBean.setFrom_nickname(bean.getNickname());
+        msgAllBean.setFrom_group_nickname(bean.getMembername());
         msgAllBean.setGid(bean.getGid());
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());

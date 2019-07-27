@@ -22,6 +22,7 @@ public class MsgAllBean extends RealmObject {
     private Long from_uid;
     private String from_nickname;
     private String from_avatar;
+    private String from_group_nickname;
     //  private UserInfo from_user;
     private Long to_uid;
  //   private UserInfo to_user;
@@ -87,6 +88,14 @@ public class MsgAllBean extends RealmObject {
     public void setTo_user(UserInfo to_user) {
         this.to_user = to_user;
     }*/
+
+    public String getFrom_group_nickname() {
+        return from_group_nickname;
+    }
+
+    public void setFrom_group_nickname(String from_group_nickname) {
+        this.from_group_nickname = from_group_nickname;
+    }
 
     public String getFrom_nickname() {
         return from_nickname;

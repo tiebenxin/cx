@@ -88,6 +88,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
+import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.AnimationPic;
 import net.cb.cb.library.utils.CallBack;
@@ -105,6 +106,7 @@ import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
@@ -388,11 +390,11 @@ public class ChatActivity extends AppActivity {
             public void onClick(View v) {
 
                 if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
-                    if(edtChat.isAtAll()){
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, edtChat.getText().toString(), 1,edtChat.getUserIdList());
+                    if (edtChat.isAtAll()) {
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, edtChat.getText().toString(), 1, edtChat.getUserIdList());
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
-                    }else{
+                    } else {
                         MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, edtChat.getText().toString(), 0, edtChat.getUserIdList());
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
@@ -983,46 +985,7 @@ public class ChatActivity extends AppActivity {
 
                         msgListData.add(imgMsgBean);
                         notifyData2Buttom();
-                        UpLoadService.onAdd(imgMsgId, file, new UpFileUtil.OssUpCallback() {
-                            @Override
-                            public void success(final String url) {
-                                //2.发送图片
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //alert.dismiss();
-                                        MsgAllBean msgAllbean = SocketData.send4Image(imgMsgId, toUId, toGid, url, isArtworkMaster);
-                                        replaceListDataAndNotify(msgAllbean);
-                                        // showSendObj(msgAllbean);
-                                    }
-                                });
-
-
-                            }
-
-                            @Override
-                            public void fail() {
-                                //alert.dismiss();
-                                //ToastUtil.show(getContext(), "上传失败,请稍候重试");
-
-                            }
-
-                            @Override
-                            public void inProgress(final long progress, final long zong) {
-
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // ToastUtil.show(getContext(), "上传:"+progress);
-                                        // LogUtil.getLog().i("shangchuang","上传:"+progress);
-                                        // mtListView.getListView().getAdapter().notifyItemChanged(pos);
-                                        taskRefreshImage(imgMsgId);
-                                    }
-                                });
-
-
-                            }
-                        });
+                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
                         startService(new Intent(getContext(), UpLoadService.class));
 
 
@@ -1070,6 +1033,21 @@ public class ChatActivity extends AppActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void taskUpImgEvevt(EventUpImgLoadEvent event) {
+        if (event.getState() == 0) {
+            taskRefreshImage(event.getMsgid());
+        } else if (event.getState() == -1) {
+            //处理失败的情况
+
+        } else if (event.getState() == 1) {
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            replaceListDataAndNotify(msgAllbean);
+
+
+        }
+    }
+
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
         switch (seting.getImageBackground()) {
@@ -1101,7 +1079,7 @@ public class ChatActivity extends AppActivity {
                 mtListView.setBackgroundResource(R.mipmap.bg_image9);
                 break;
             default:
-                mtListView.setBackgroundColor(ContextCompat.getColor(this,R.color.gray_100));
+                mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
                 break;
         }
 
@@ -1120,7 +1098,8 @@ public class ChatActivity extends AppActivity {
             if (msgListData.get(i).getMsg_id().equals(msgAllbean.getMsg_id())) {
 
                 msgListData.set(i, msgAllbean);
-                mtListView.getListView().getAdapter().notifyItemChanged(i);
+                Log.d("sss", "onBindViewHolderpayloads->notifyItemChanged: ");
+                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
             }
         }
 
@@ -1136,7 +1115,7 @@ public class ChatActivity extends AppActivity {
         for (int i = 0; i < msgListData.size(); i++) {
             if (msgListData.get(i).getMsg_id().equals(msgid)) {
                 // Log.d("xxxx", "taskRefreshImage: "+msgid);
-                mtListView.getListView().getAdapter().notifyItemChanged(i);
+                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
             }
         }
 
@@ -1178,6 +1157,22 @@ public class ChatActivity extends AppActivity {
         }
 
 
+        @Override
+        public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
+
+            if (payloads == null || payloads.isEmpty()) {
+                onBindViewHolder(holder, position);
+            } else {
+                Log.d("sss", "onBindViewHolderpayloads: " + position);
+                final MsgAllBean msgbean = msgListData.get(position);
+                Integer pg = null;
+                pg = UpLoadService.getProgress(msgbean.getMsg_id());
+
+
+                holder.viewChatItem.setImgageProg(pg);
+            }
+        }
+
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
@@ -1194,12 +1189,12 @@ public class ChatActivity extends AppActivity {
             //昵称处理
             String nikeName = null;
             //5.30
-            String headico = msgbean.getFrom_avatar();
+            // UserInfo fusinfo =msgbean.getFrom_user();
+            String headico = msgbean.getFrom_avatar();//fusinfo.getHead();
             if (isGroup()) {//群聊显示昵称
 
                 //6.14 这里有性能问题
-                //  nikeName = msgbean.getFrom_user().getMkName();
-                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
+                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();//fusinfo.getName();
 
 
             } else {//单聊不显示昵称
@@ -1300,9 +1295,10 @@ public class ChatActivity extends AppActivity {
                     break;
 
                 case 4:
-                    Integer pg = null;
+
                     menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
+                    Integer pg = null;
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
 
@@ -1313,6 +1309,7 @@ public class ChatActivity extends AppActivity {
                             showBigPic(msgbean.getMsg_id(), uri);
                         }
                     }, pg);
+                    // holder.viewChatItem.setImgageProg(pg);
                     break;
                 case 5:
 
@@ -1492,9 +1489,23 @@ public class ChatActivity extends AppActivity {
 
 
                     if (menu.getTitle().equals("删除")) {
-                        msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                        msgListData.remove(msgbean);
-                        mtListView.getListView().getAdapter().notifyDataSetChanged();
+
+                        AlertYesNo alertYesNo = new AlertYesNo();
+                        alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
+                            @Override
+                            public void onON() {
+
+                            }
+
+                            @Override
+                            public void onYes() {
+                                msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                                msgListData.remove(msgbean);
+                                mtListView.getListView().getAdapter().notifyDataSetChanged();
+                            }
+                        });
+                        alertYesNo.show();
+
 
                     } else if (menu.getTitle().equals("转发")) {
                         /*  */
@@ -1641,39 +1652,60 @@ public class ChatActivity extends AppActivity {
     /***
      * 统一处理mkname
      */
-    private Map<String, String> mks = new HashMap<>();
+    private Map<String, UserInfo> mks = new HashMap<>();
 
     /***
      * 获取统一的昵称
      * @param msgListData
      */
     private void taskMkName(List<MsgAllBean> msgListData) {
+        mks.clear();
         for (MsgAllBean msg : msgListData) {
             if (msg.getMsg_type() == 0) {  //通知类型的不处理
                 continue;
             }
             String k = msg.getFrom_uid() + "";
-            if (mks.containsKey(k)) {
-                String v = mks.get(k);
-                if (StringUtil.isNotNull(v))
-                    msg.setFrom_nickname(v);
-            } else {
+            String nkname = "";
+            String head = "";
 
-                String v = "";
-                if (msg.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
-                    Group ginfo = msgDao.getGroup4Id(toGid);
-                    if (ginfo != null)
-                        v = ginfo.getMygroupName();
-                } else {
-                    UserInfo userInfo = msg.getFrom_user();
-                    if (userInfo != null) {
-                        v = userInfo.getMkName();
+            UserInfo userInfo;
+            if (mks.containsKey(k)) {
+                userInfo = mks.get(k);
+            } else {
+                userInfo = msg.getFrom_user();
+
+                if (isGroup()) {
+                    String gname = "";//获取对方最新的群昵称
+                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
+                    if (gmsg != null) {
+                        gname = gmsg.getFrom_group_nickname();
+                    }
+
+
+                    if (StringUtil.isNotNull(gname)) {
+                        userInfo.setName(gname);
                     }
                 }
-                mks.put(k, v);
-                if (StringUtil.isNotNull(v))
-                    msg.setFrom_nickname(v);
+
+
+                mks.put(k, userInfo);
             }
+
+
+            nkname = userInfo.getName();
+
+
+            if (StringUtil.isNotNull(userInfo.getMkName())) {
+                nkname = userInfo.getMkName();
+            }
+
+            head = userInfo.getHead();
+
+
+            Log.d("tak", "taskName: " + nkname);
+
+            msg.setFrom_nickname(nkname);
+            msg.setFrom_avatar(head);
 
 
         }

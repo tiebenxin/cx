@@ -79,9 +79,11 @@ public class ChatItemView extends LinearLayout {
 
     private LinearLayout viewMe4;
     private ProgressBar imgMeUp;
+    private View viewMeUp;
+    private TextView txtMeUp;
     private LinearLayout viewOt4;
-/*    private com.facebook.drawee.view.SimpleDraweeView imgOt4;
-    private com.facebook.drawee.view.SimpleDraweeView imgMe4;*/
+    /*    private com.facebook.drawee.view.SimpleDraweeView imgOt4;
+        private com.facebook.drawee.view.SimpleDraweeView imgMe4;*/
     private ImageView imgOt4;
     private ImageView imgMe4;
 
@@ -152,10 +154,12 @@ public class ChatItemView extends LinearLayout {
         imgMeErr = (ImageView) rootView.findViewById(R.id.img_me_err);
 
         viewOt4 = (LinearLayout) rootView.findViewById(R.id.view_ot_4);
-        imgOt4 =  rootView.findViewById(R.id.img_ot_4);
+        imgOt4 = rootView.findViewById(R.id.img_ot_4);
         viewMe4 = (LinearLayout) rootView.findViewById(R.id.view_me_4);
         imgMeUp = (ProgressBar) rootView.findViewById(R.id.img_me_up);
-        imgMe4 =  rootView.findViewById(R.id.img_me_4);
+        viewMeUp = rootView.findViewById(R.id.view_me_up);
+        txtMeUp = (TextView) rootView.findViewById(R.id.txt_me_up);
+        imgMe4 = rootView.findViewById(R.id.img_me_4);
 
         viewOt5 = (LinearLayout) rootView.findViewById(R.id.view_ot_5);
         imgOt5 = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_5);
@@ -186,12 +190,12 @@ public class ChatItemView extends LinearLayout {
 
         viewOt7 = (VoiceView) rootView.findViewById(R.id.view_ot_7);
         viewMe7 = (VoiceView) rootView.findViewById(R.id.view_me_7);
-        viewOtTouch =  rootView.findViewById(R.id.view_me_touch);
-        viewMeTouch =  rootView.findViewById(R.id.view_ot_touch);
+        viewOtTouch = rootView.findViewById(R.id.view_me_touch);
+        viewMeTouch = rootView.findViewById(R.id.view_ot_touch);
 
     }
 
-    public void setOnLongClickListener(OnLongClickListener onLongClick){
+    public void setOnLongClickListener(OnLongClickListener onLongClick) {
 
 
         viewOtTouch.setOnLongClickListener(onLongClick);
@@ -203,10 +207,10 @@ public class ChatItemView extends LinearLayout {
 
     }
 
-    public void setHeadOnLongClickListener(OnLongClickListener onLongClick){
+    public void setHeadOnLongClickListener(OnLongClickListener onLongClick) {
 
 
-      //  imgMeHead.setOnLongClickListener(onLongClick);
+        //  imgMeHead.setOnLongClickListener(onLongClick);
         imgOtHead.setOnLongClickListener(onLongClick);
 
 
@@ -297,7 +301,7 @@ public class ChatItemView extends LinearLayout {
             txtMeName.setText(nikeName);
             txtOtName.setText(nikeName);
             txtOtName.setVisibility(VISIBLE);
-          //  txtMeName.setVisibility(VISIBLE);
+            //  txtMeName.setVisibility(VISIBLE);
             txtMeName.setVisibility(GONE);
         } else {
             txtOtName.setVisibility(GONE);
@@ -429,9 +433,9 @@ public class ChatItemView extends LinearLayout {
     }
 
     //语音
-    public void setData7(int second, boolean isRead,boolean isPlay, final OnClickListener onk) {
-        viewOt7.init(isMe, second, isRead,isPlay);
-        viewMe7.init(isMe, second, isRead,isPlay);
+    public void setData7(int second, boolean isRead, boolean isPlay, final OnClickListener onk) {
+        viewOt7.init(isMe, second, isRead, isPlay);
+        viewMe7.init(isMe, second, isRead, isPlay);
 
       /*  OnClickListener nonk = new OnClickListener() {
             @Override
@@ -464,15 +468,15 @@ public class ChatItemView extends LinearLayout {
     }
 
     //图片消息
-    public void setData4(String url, final EventPic eventPic,Integer pg) {
+    public void setData4(String url, final EventPic eventPic, Integer pg) {
         if (url != null) {
-            setData4(Uri.parse(url), eventPic,pg);
+            setData4(Uri.parse(url), eventPic, pg);
 
         }
 
     }
 
-    public void setData4(final Uri uri, final EventPic eventPic,Integer pg) {
+    public void setData4(final Uri uri, final EventPic eventPic, Integer pg) {
         if (uri != null) {
 
           /*  if (uri.getPath().toLowerCase().endsWith(".gif")) {
@@ -485,8 +489,8 @@ public class ChatItemView extends LinearLayout {
             }*/
 
 
-           int width = DensityUtil.dip2px(getContext(),150);
-           int height =  DensityUtil.dip2px(getContext(),180);
+            int width = DensityUtil.dip2px(getContext(), 150);
+            int height = DensityUtil.dip2px(getContext(), 180);
             /* ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
                     .setResizeOptions(new ResizeOptions(width, height))
                     .build();
@@ -511,7 +515,7 @@ public class ChatItemView extends LinearLayout {
             imgMe4.setController(controller2);*/
 
 
-            RequestListener requestListener=new RequestListener() {
+            RequestListener requestListener = new RequestListener() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
                     return false;
@@ -519,8 +523,30 @@ public class ChatItemView extends LinearLayout {
 
                 @Override
                 public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
-                      imgMe4.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-                       imgOt4.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                    int w = 100, h = 100;
+                    //配置图片和加载圈的大小
+                    if (resource instanceof GifDrawable) {
+                        GifDrawable bt2 = (GifDrawable) resource;
+                        if(bt2!=null){
+                            w = bt2.getFirstFrame().getWidth();
+                            h = bt2.getFirstFrame().getHeight();
+                        }
+
+                    } else if (resource instanceof Bitmap) {
+                        Bitmap bt = (Bitmap) resource;
+                        w = bt.getWidth();
+                        h = bt.getHeight();
+                    }
+
+                    imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
+                    imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
+
+                    ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
+
+                    lp.width = w;
+                    lp.height = h;
+                    viewMeUp.setLayoutParams(lp);
 
                     return false;
                 }
@@ -528,41 +554,36 @@ public class ChatItemView extends LinearLayout {
 
             };
 
-                    RequestOptions rOptions = new RequestOptions();
-
+            RequestOptions rOptions = new RequestOptions();
 
 
             RequestManager in = Glide.with(getContext());
 
-            RequestBuilder rb ;
-            if (uri.getPath().toLowerCase().endsWith(".gif")){
+            RequestBuilder rb;
+            if (uri.getPath().toLowerCase().endsWith(".gif")) {
                 Log.e("gif", "setData4: isgif");
                 rb = in.asGif();
                 rOptions.priority(Priority.NORMAL).diskCacheStrategy(DiskCacheStrategy.NONE);
-            }else{
+            } else {
                 rb = in.asBitmap();
-                rOptions .override(width, height)
+                rOptions.override(width, height)
                         .priority(Priority.HIGH).diskCacheStrategy(DiskCacheStrategy.ALL);
             }
 
 
-            rb .apply(rOptions).listener(requestListener).load(uri);
+            rb.apply(rOptions).listener(requestListener).load(uri);
 
 
             rb.into(imgMe4);
             rb.into(imgOt4);
 
-            if(pg!=null&&pg!=100){
 
-                imgMeUp.setProgress(pg);
-                imgMeUp.setVisibility(VISIBLE);
-                imgMeErr.setVisibility(GONE);
-            }else{
-                imgMeUp.setVisibility(GONE);
-
+            //
+            if (netState == -1) {
+                setImgageProg(0);
+            } else {
+                setImgageProg(null);
             }
-
-
 
 
         }
@@ -578,6 +599,22 @@ public class ChatItemView extends LinearLayout {
             viewOtTouch.setOnClickListener(onk);
         }
 
+    }
+
+    public void setImgageProg(Integer pg) {
+        if (pg != null && pg != 100) {
+
+
+            viewMeUp.setVisibility(VISIBLE);
+            txtMeUp.setText(pg + "%");
+
+
+            imgMeErr.setVisibility(GONE);
+        } else {
+            viewMeUp.setVisibility(GONE);
+
+
+        }
     }
 
     public interface EventPic {
@@ -614,7 +651,10 @@ public class ChatItemView extends LinearLayout {
         initEvent();
     }
 
+    private int netState;
+
     public void setErr(int state) {
+        this.netState = state;
         switch (state) {
             case 0://正常
                 imgMeErr.clearAnimation();
@@ -634,10 +674,13 @@ public class ChatItemView extends LinearLayout {
 
 
                 break;
+            case -1://图片待发送
+                imgMeErr.clearAnimation();
+                imgMeErr.setVisibility(INVISIBLE);
+                break;
             default: // 其他状态如-1:待发送
-                    imgMeErr.clearAnimation();
-                    imgMeErr.setVisibility(INVISIBLE);
-                    break;
+
+                break;
 
         }
 
