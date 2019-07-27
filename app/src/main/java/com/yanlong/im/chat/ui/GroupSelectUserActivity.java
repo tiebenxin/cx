@@ -171,6 +171,11 @@ public class GroupSelectUserActivity extends AppActivity {
             for (int i = 0; i < list.size(); i++) {
                 if (group.getMaster().equals(list.get(i).getUid() + "")) {
                     list.remove(i);
+                    if(type != 0){
+                        llAtAll.setVisibility(View.VISIBLE);
+                    }else{
+                        llAtAll.setVisibility(View.GONE);
+                    }
                 }
             }
             return list;
