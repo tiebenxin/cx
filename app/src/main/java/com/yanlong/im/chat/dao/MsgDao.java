@@ -655,14 +655,31 @@ public class MsgDao {
 
         if (session != null) {
             session.setDraft(draft);
+            session.setMessageType(2);
             realm.insertOrUpdate(session);
         }
-
-
         realm.commitTransaction();
         realm.close();
-
     }
+
+    /**
+     * 存at消息
+     * */
+    public void atMessage(String gid, String atMessage,int type){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        Session session = realm.where(Session.class).equalTo("gid", gid).findFirst() ;
+
+        if (session != null) {
+            session.setAtMessage(atMessage);
+            session.setMessageType(type);
+            realm.insertOrUpdate(session);
+        }
+        realm.commitTransaction();
+        realm.close();
+    }
+
+
 
     /***
      * 获取红点的值

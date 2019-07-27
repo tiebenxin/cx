@@ -24,8 +24,18 @@ public class Session extends RealmObject {
     private int isTop = 0;
     //时候静音
     private int isMute = 0;
+    //  0.单个人 1.所有人 2.草稿
+    private int messageType = 1000;
 
     private String atMessage;
+
+    public int getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(int messageType) {
+        this.messageType = messageType;
+    }
 
     public String getAtMessage() {
         return atMessage;

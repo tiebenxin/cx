@@ -18,6 +18,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.test.bean.Test2Bean;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MediaBackUtil;
@@ -119,14 +120,14 @@ public class ChatServer extends Service {
             //通知界面刷新
             EventBus.getDefault().post(new EventRefreshMainMsg());
 
-         //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
-            for (MsgBean.UniversalMessage.WrapMessage msg :bean.getWrapMsgList()) {
+            //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
+            for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
                 onMsgbranch(msg);
 
             }
         }
 
-        public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg){
+        public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
             LogUtil.getLog().d(TAG, "<<<<<<<<<<收到类型:" + msg.getMsgType());
 
             taskUpUserinfo(msg);
@@ -154,10 +155,10 @@ public class ChatServer extends Service {
                     msgDao.remidCount("friend_apply");
                     //  ToastUtil.show(getApplicationContext(), "请求入群");
 
-                            for(MsgBean.GroupNoticeMessage ntm:msg.getRequestGroup().getNoticeMessageList()){
+                    for (MsgBean.GroupNoticeMessage ntm : msg.getRequestGroup().getNoticeMessageList()) {
 
-                                msgDao.groupAcceptAdd(msg.getGid(), ntm.getUid(),ntm.getNickname(),ntm.getAvatar());
-                            }
+                        msgDao.groupAcceptAdd(msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
+                    }
 
 
                     EventBus.getDefault().post(new EventRefreshMainMsg());
@@ -170,24 +171,24 @@ public class ChatServer extends Service {
                 case CHANGE_GROUP_MASTER:
                     // ToastUtil.show(getApplicationContext(), "转让群");
                     return;
-                case CHANGE_GROUP_NAME :
+                case CHANGE_GROUP_NAME:
                     //  ToastUtil.show(getApplicationContext(), "修改群名");
-                    msgDao.groupNameUpadte(msg.getGid(),msg.getChangeGroupName().getName());
+                    msgDao.groupNameUpadte(msg.getGid(), msg.getChangeGroupName().getName());
 
                     return;
-                case CHANGE_GROUP_ANNOUNCEMENT  :
+                case CHANGE_GROUP_ANNOUNCEMENT:
                     //  ToastUtil.show(getApplicationContext(), "修改群公告");
                     return;
                 case DESTROY_GROUP:
                     // ToastUtil.show(getApplicationContext(), "销毁群");
-                    String gname=msg.getDestroyGroup().getName();
-                    String icon=msg.getDestroyGroup().getAvatar();
-                    msgDao.groupExit(msg.getGid(),gname,icon,1);
+                    String gname = msg.getDestroyGroup().getName();
+                    String icon = msg.getDestroyGroup().getAvatar();
+                    msgDao.groupExit(msg.getGid(), gname, icon, 1);
                     return;
                 case REMOVE_GROUP_MEMBER:
                     //  ToastUtil.show(getApplicationContext(), "删除群成员");
-                    String gname2=msg.getRemoveGroupMember().getName();
-                    String icon2=msg.getRemoveGroupMember().getAvatar();
+                    String gname2 = msg.getRemoveGroupMember().getName();
+                    String icon2 = msg.getRemoveGroupMember().getAvatar();
                     //6.19 依旧保持不禁用右上角更高
                     //msgDao.groupExit(msg.getRemoveGroupMember().getGid(),gname2,icon2,1);
                     return;
@@ -198,7 +199,12 @@ public class ChatServer extends Service {
                     // ToastUtil.show(getApplicationContext(), "账号已经被登录");
                     EventBus.getDefault().post(new EventLoginOut4Conflict());
                     return;
-
+                case AT:
+                    if(updateAtMessage(msg)){
+                        return;
+                    }else{
+                        break;
+                    }
             }
 
 
@@ -241,24 +247,56 @@ public class ChatServer extends Service {
 
         }
     };
-  private   UserDao userDao=new UserDao();
+    private UserDao userDao = new UserDao();
+
     /***
      * 更新用户头像等资料
      * @param msg
      */
     private void taskUpUserinfo(MsgBean.UniversalMessage.WrapMessage msg) {
-       if(msg.getMsgType().getNumber()>100){//通知类消息
-        return;
-       }
+        if (msg.getMsgType().getNumber() > 100) {//通知类消息
+            return;
+        }
 
-      // msg.getMembername();
+        // msg.getMembername();
         userDao.userHeadNameUpdate(msg.getFromUid(), msg.getAvatar(), msg.getNickname());
-       //需要更新通讯录的展示吗?
-        EventRefreshFriend event=new EventRefreshFriend();
+        //需要更新通讯录的展示吗?
+        EventRefreshFriend event = new EventRefreshFriend();
         event.setLocal(true);
         EventBus.getDefault().post(event);
 
     }
+
+    private boolean updateAtMessage(MsgBean.UniversalMessage.WrapMessage msg) {
+        boolean isAt = false;
+
+        MsgDao msgDao = new MsgDao();
+        String gid = msg.getGid();
+        String message = msg.getAt().getMsg();
+        int atType = msg.getAt().getAtType().getNumber();
+        if (atType == 0) {
+            List<Long> list = msg.getAt().getUidList();
+            if (list == null)
+                isAt = false;
+
+            Long uid = UserAction.getMyId();
+            for (int i = 0; i < list.size(); i++) {
+                if (uid.equals(list.get(i))) {
+                    Log.v(TAG, "有人@我" + uid);
+                    msgDao.atMessage(gid, message, atType);
+                    palydingdong();
+                    isAt = true;
+                }
+            }
+        } else {
+            Log.v(TAG, "@所有人");
+            msgDao.atMessage(gid, message, atType);
+            palydingdong();
+            isAt = true;
+        }
+        return isAt;
+    }
+
 
     private long playTimeOld = 0;
 
@@ -269,19 +307,20 @@ public class ChatServer extends Service {
         playTimeOld = System.currentTimeMillis();
 
 
-
         MediaBackUtil.palydingdong(getApplicationContext());
 
     }
+
     private long playVBTimeOld = 0;
+
     //振动
     private void playVibration() {
         if (System.currentTimeMillis() - playVBTimeOld < 500) {
             return;
         }
-        playVBTimeOld= System.currentTimeMillis();
+        playVBTimeOld = System.currentTimeMillis();
 
-        MediaBackUtil.playVibration(getApplicationContext(),200);
+        MediaBackUtil.playVibration(getApplicationContext(), 200);
     }
 
 
@@ -318,7 +357,7 @@ public class ChatServer extends Service {
         mNetworkChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                LogUtil.getLog().d(TAG, ">>>>>网路状态改变"+NetUtil.isNetworkConnected());
+                LogUtil.getLog().d(TAG, ">>>>>网路状态改变" + NetUtil.isNetworkConnected());
                 if (NetUtil.isNetworkConnected()) {//链接成功
                     onStartCommand(null, 0, 0);
                 } else {//链接失败

@@ -14,7 +14,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -116,7 +119,7 @@ public class MsgMainFragment extends Fragment {
 
         mtListView.getLoadView().setStateNormal();
 
-        SocketUtil.getSocketUtil().addEvent(socketEvent=new SocketEvent() {
+        SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
 
@@ -143,8 +146,8 @@ public class MsgMainFragment extends Fragment {
                 getActivityMe().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("tyad", "run: state"+state);
-                        actionBar.setTitle(state?"消息":"消息(连接中...)");
+                        Log.d("tyad", "run: state" + state);
+                        actionBar.setTitle(state ? "消息" : "消息(连接中...)");
 
                         viewNetwork.setVisibility(state ? View.GONE : View.VISIBLE);
                     }
@@ -242,7 +245,7 @@ public class MsgMainFragment extends Fragment {
     public void onStart() {
         super.onStart();
         //7.18 进来的时候显示有网的状态
-        socketEvent.onLine( true);
+        socketEvent.onLine(true);
     }
 
     @Override
@@ -251,8 +254,8 @@ public class MsgMainFragment extends Fragment {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivityMe(),scanResult);
-            QRCodeManage.goToActivity(getActivityMe(),bean);
+            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivityMe(), scanResult);
+            QRCodeManage.goToActivity(getActivityMe(), bean);
             //将扫描出的信息显示出来
         }
     }
@@ -323,17 +326,19 @@ public class MsgMainFragment extends Fragment {
         super.onResume();
         taskListData();
     }
+
     private MainActivity mainActivity;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mainActivity=(MainActivity) getActivity();
+        mainActivity = (MainActivity) getActivity();
 
     }
 
     private MainActivity getActivityMe() {
-        if(mainActivity==null){
-            return (MainActivity)getActivity();
+        if (mainActivity == null) {
+            return (MainActivity) getActivity();
         }
         return mainActivity;
     }
@@ -361,7 +366,7 @@ public class MsgMainFragment extends Fragment {
 
 
                 UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-                if(finfo!=null){
+                if (finfo != null) {
                     icon = finfo.getHead();
                     title = finfo.getName4Show();
                 }
@@ -373,7 +378,10 @@ public class MsgMainFragment extends Fragment {
                     info = msginfo.getMsg_typeStr();
                 }
 
-
+                if (StringUtil.isNotNull(bean.getDraft())) {
+                    info = "草稿:" + bean.getDraft();
+                }
+                holder.txtInfo.setText(info);
 
             } else if (bean.getType() == 1) {//群
                 Group ginfo = msgDao.getGroup4Id(bean.getGid());
@@ -382,41 +390,64 @@ public class MsgMainFragment extends Fragment {
                     //获取最后一条群消息
                     msginfo = msgDao.msgGetLast4Gid(bean.getGid());
                     title = ginfo.getName();
-                   if (msginfo != null) {
-                       if(msginfo.getMsg_type()==0){//通知不要加谁发的消息
-                           info = msginfo.getMsg_typeStr();
-                       }else{
-                           String name="";
-                           if(msginfo.getFrom_uid().longValue()!=UserAction.getMyId().longValue()){//自己的不加昵称
-                               name=msginfo.getFrom_nickname()+" : ";
-                               UserInfo fuser = msginfo.getFrom_user();
+                    if (msginfo != null) {
+                        if (msginfo.getMsg_type() == 0) {//通知不要加谁发的消息
+                            info = msginfo.getMsg_typeStr();
+                        } else {
+                            String name = "";
+                            if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+                                name = msginfo.getFrom_nickname() + " : ";
+                                UserInfo fuser = msginfo.getFrom_user();
 
-                               if(fuser!=null&&StringUtil.isNotNull(fuser.getMkName())){
-                                   name=fuser.getMkName()+" : ";
+                                if (fuser != null && StringUtil.isNotNull(fuser.getMkName())) {
+                                    name = fuser.getMkName() + " : ";
 
-                               }
-                           }
+                                }
+                            }
 
-
-                           info =name+ msginfo.getMsg_typeStr();
-                       }
+                            info = name + msginfo.getMsg_typeStr();
+                        }
 
                     }
                 } else {
                     Log.e("taf", "11来消息的时候没有创建群");
                 }
 
+                int type = bean.getMessageType();
+                switch (type) {
+                    case 0:
+                        if (StringUtil.isNotNull(bean.getAtMessage())) {
+                            SpannableStringBuilder style = new SpannableStringBuilder();
+                            style.append("[有人@你]:" + bean.getAtMessage());
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            holder.txtInfo.setText(style);
+                        }
+                        break;
+                    case 1:
+                        if (StringUtil.isNotNull(bean.getAtMessage())) {
+                            SpannableStringBuilder style = new SpannableStringBuilder();
+                            style.append("[@所有人]:" + bean.getAtMessage());
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            holder.txtInfo.setText(style);
+                        }
+                        break;
+                    case 2:
+                        if (StringUtil.isNotNull(bean.getDraft())) {
+                            info = "草稿:" + bean.getDraft();
+                        }
+                        holder.txtInfo.setText(info);
+                        break;
+                    default:
+                        holder.txtInfo.setText(info);
+                        break;
+                }
             }
 
-
-            if(StringUtil.isNotNull(bean.getDraft())){
-                info="草稿:"+bean.getDraft();
-            }
 
             holder.imgHead.setImageURI(Uri.parse(icon));
-
             holder.txtName.setText(title);
-            holder.txtInfo.setText(info);
             holder.sb.setButtonBackground(R.color.transparent);
             holder.sb.setNum(bean.getUnread_count());
 
@@ -440,7 +471,7 @@ public class MsgMainFragment extends Fragment {
                     taskDelSissen(bean.getFrom_uid(), bean.getGid());
                 }
             });
-            holder.viewIt.setBackgroundColor(bean.getIsTop()==0?Color.WHITE:Color.parseColor("#f1f1f1"));
+            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
 
         }
 
@@ -515,9 +546,9 @@ public class MsgMainFragment extends Fragment {
                         }
                     });
                 }
-            }else{//缓存个人的信息
-                Long fuid=s.getFrom_uid();
-                UserInfo uinfo=userDao.findUserInfo(fuid);
+            } else {//缓存个人的信息
+                Long fuid = s.getFrom_uid();
+                UserInfo uinfo = userDao.findUserInfo(fuid);
                 if (uinfo == null) {
                     dids.add(fuid.toString());
 
@@ -594,8 +625,6 @@ public class MsgMainFragment extends Fragment {
 
         mtListView.notifyDataSetChange();
     }
-
-
 
 
     private void taskDelSissen(Long from_uid, String gid) {

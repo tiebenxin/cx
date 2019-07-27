@@ -233,7 +233,6 @@ public class ChatActivity extends AppActivity {
 
                     }
 
-
                     //从数据库读取消息
                     taskRefreshMessage();
                 }
@@ -399,8 +398,6 @@ public class ChatActivity extends AppActivity {
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
                     }
-
-
                 } else {
                     //发送普通消息
                     MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, edtChat.getText().toString());
@@ -1452,8 +1449,6 @@ public class ChatActivity extends AppActivity {
                         } else {
                             menus.add(0, new OptionMenu("扬声器播放"));
                         }
-
-
                     }
 
                     if (msgbean.getSend_state() == 0) {
