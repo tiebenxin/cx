@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
+import android.text.Spanned;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,6 +54,15 @@ public class ActionbarView extends LinearLayout {
 	}
 	public void setTitleMore(String title) {
 		if(StringUtil.isNotNull(title)){
+			txtTitleMore.setText(title);
+			txtTitleMore.setVisibility(VISIBLE);
+		}else {
+			txtTitleMore.setVisibility(GONE);
+		}
+
+	}
+	public void setTitleMore(Spanned title) {
+		if(StringUtil.isNotNull(title.toString())){
 			txtTitleMore.setText(title);
 			txtTitleMore.setVisibility(VISIBLE);
 		}else {

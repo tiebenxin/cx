@@ -32,6 +32,8 @@
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/img_head"
                 style="@style/app_img_head"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_marginRight="@dimen/app_margin_item" />
 
             <LinearLayout

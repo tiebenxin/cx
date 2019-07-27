@@ -1587,7 +1587,7 @@ public class ChatActivity extends AppActivity {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeWx(finfo.getLastonline()));
+                actionbar.setTitleMore(TimeToString.getTimeOline(finfo.getLastonline()));
             }
 
 
