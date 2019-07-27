@@ -86,7 +86,6 @@
                 android:paddingLeft="15dp"
                 android:text="66''"
                 android:textColor="@color/black"
-
                 android:textSize="15sp" />
 
             <ImageView

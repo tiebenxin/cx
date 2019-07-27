@@ -419,7 +419,7 @@ public class ChatActivity extends AppActivity {
                     btnSend.setVisibility(View.GONE);
                 }
 
-                if (isGroup() && !dao.isSaveDraft(toGid)) {
+                if (isGroup() && dao.isSaveDraft(toGid)) {
                     if (count == 1 && s.charAt(s.length() - 1) == "@".charAt(0)) { //添加一个字
                         //跳转到@界面
                         Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
@@ -899,13 +899,13 @@ public class ChatActivity extends AppActivity {
 
     @Override
     protected void onStop() {
-        taskDarftSet();
+
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-
+        taskDarftSet();
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
