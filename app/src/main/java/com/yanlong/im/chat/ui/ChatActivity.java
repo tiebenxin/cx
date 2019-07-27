@@ -134,7 +134,7 @@ import retrofit2.Response;
 
 public class ChatActivity extends AppActivity {
     //返回需要刷新的
-    private static final int REQ_REFRESH = 7779;
+    public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
@@ -1027,7 +1027,7 @@ public class ChatActivity extends AppActivity {
 
             MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), "向你推荐一个人");
             showSendObj(msgAllbean);
-        } else if (requestCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
+        } else if (resultCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
             mks.clear();
             taskRefreshMessage();
         }
