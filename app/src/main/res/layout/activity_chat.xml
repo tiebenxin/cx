@@ -41,8 +41,8 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical|bottom"
                     android:orientation="horizontal"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp">
 
                     <ImageView
                         android:id="@+id/btn_voice"
