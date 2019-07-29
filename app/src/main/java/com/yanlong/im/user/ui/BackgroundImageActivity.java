@@ -1,5 +1,7 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,6 +12,8 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.jrmf360.tools.utils.ScreenUtil;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -21,6 +25,7 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.view.ShowBigImgActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +38,9 @@ public class BackgroundImageActivity extends AppActivity {
 
     private HeadView headView;
     private MultiListView mtListView;
-    private int[] images = {R.mipmap.thumbnail_image1, R.mipmap.thumbnail_image2, R.mipmap.thumbnail_image3,
+    private int[] images = {R.mipmap.thumbnail_image0, R.mipmap.thumbnail_image1, R.mipmap.thumbnail_image2, R.mipmap.thumbnail_image3,
             R.mipmap.thumbnail_image4, R.mipmap.thumbnail_image5, R.mipmap.thumbnail_image6,
-            R.mipmap.thumbnail_image7, R.mipmap.thumbnail_image8, R.mipmap.thumbnail_image9};
+            R.mipmap.thumbnail_image7, R.mipmap.thumbnail_image8};
     private List<BackgroundImageBean> list = new ArrayList<>();
 
     @Override
@@ -83,20 +88,20 @@ public class BackgroundImageActivity extends AppActivity {
     private void initData() {
         UserSeting userSeting = new MsgDao().userSetingGet();
         int back = userSeting.getImageBackground();
-        if(back == 0){
+        if (back == 0) {
             for (int i = 0; i < images.length; i++) {
                 BackgroundImageBean imageBean = new BackgroundImageBean();
                 imageBean.setImage(images[i]);
                 imageBean.setSelect(false);
                 list.add(imageBean);
             }
-        }else{
+        } else {
             for (int i = 0; i < images.length; i++) {
                 BackgroundImageBean imageBean = new BackgroundImageBean();
                 imageBean.setImage(images[i]);
-                if((back-1) == i){
+                if ((back - 1) == i) {
                     imageBean.setSelect(true);
-                }else{
+                } else {
                     imageBean.setSelect(false);
                 }
                 list.add(imageBean);
@@ -126,6 +131,38 @@ public class BackgroundImageActivity extends AppActivity {
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Intent intent = new Intent(context, ShowBigImgActivity.class);
+                    String head = "android.resource://" + getPackageName() + "/";
+                    switch (i) {
+                        case 0:
+                            return;
+                        case 1:
+                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image1);
+                            break;
+                        case 2:
+                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image2);
+                            break;
+                        case 3:
+                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image3);
+                            break;
+                        case 4:
+                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image4);
+                            break;
+                        case 5:
+                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image5);
+                            break;
+                        case 6:
+                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image6);
+                            break;
+                        case 7:
+                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image7);
+                            break;
+                        case 8:
+                            intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image8);
+                            break;
+                    }
+                    startActivity(intent);
+
 
                 }
             });
@@ -171,9 +208,6 @@ public class BackgroundImageActivity extends AppActivity {
             }
         }
     }
-
-
-
 
 
 }

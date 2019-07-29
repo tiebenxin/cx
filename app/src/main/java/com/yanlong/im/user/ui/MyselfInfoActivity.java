@@ -290,6 +290,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     public void onEventMainThread(EventMyUserInfo event) {
         if (event.type == 1) {
             UserInfo userInfo = event.getUserInfo();
+            imageHead = userInfo.getHead();
             mImgHead.setImageURI(userInfo.getHead());
         }
     }

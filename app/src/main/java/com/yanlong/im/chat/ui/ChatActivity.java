@@ -418,8 +418,11 @@ public class ChatActivity extends AppActivity {
                 } else {
                     btnSend.setVisibility(View.GONE);
                 }
+                Log.v("onTextChanged1","isGroup"+toGid);
+                Log.v("onTextChanged1","isSaveDraft"+ dao.isSaveDraft(toGid));
 
-                if (isGroup() && dao.isSaveDraft(toGid)) {
+                if (isGroup() && !dao.isSaveDraft(toGid)) {
+                    Log.v("onTextChanged","isGroup"+toGid);
                     if (count == 1 && s.charAt(s.length() - 1) == "@".charAt(0)) { //添加一个字
                         //跳转到@界面
                         Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
@@ -1048,31 +1051,31 @@ public class ChatActivity extends AppActivity {
         UserSeting seting = new MsgDao().userSetingGet();
         switch (seting.getImageBackground()) {
             case 1:
-                mtListView.setBackgroundResource(R.mipmap.bg_image1);
+                mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
                 break;
             case 2:
-                mtListView.setBackgroundResource(R.mipmap.bg_image2);
+                mtListView.setBackgroundResource(R.mipmap.bg_image1);
                 break;
             case 3:
-                mtListView.setBackgroundResource(R.mipmap.bg_image3);
+                mtListView.setBackgroundResource(R.mipmap.bg_image2);
                 break;
             case 4:
-                mtListView.setBackgroundResource(R.mipmap.bg_image4);
+                mtListView.setBackgroundResource(R.mipmap.bg_image3);
                 break;
             case 5:
-                mtListView.setBackgroundResource(R.mipmap.bg_image5);
+                mtListView.setBackgroundResource(R.mipmap.bg_image4);
                 break;
             case 6:
-                mtListView.setBackgroundResource(R.mipmap.bg_image6);
+                mtListView.setBackgroundResource(R.mipmap.bg_image5);
                 break;
             case 7:
-                mtListView.setBackgroundResource(R.mipmap.bg_image7);
+                mtListView.setBackgroundResource(R.mipmap.bg_image6);
                 break;
             case 8:
-                mtListView.setBackgroundResource(R.mipmap.bg_image8);
+                mtListView.setBackgroundResource(R.mipmap.bg_image7);
                 break;
             case 9:
-                mtListView.setBackgroundResource(R.mipmap.bg_image9);
+                mtListView.setBackgroundResource(R.mipmap.bg_image8);
                 break;
             default:
                 mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
@@ -1729,7 +1732,9 @@ public class ChatActivity extends AppActivity {
         if (session == null)
             return;
         if (StringUtil.isNotNull(session.getDraft())) {
+            //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
+            dao.sessionDraft(toGid,toUId,"");
         }
     }
 

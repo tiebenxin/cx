@@ -20,6 +20,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -70,12 +71,12 @@ public class GroupSelectUserActivity extends AppActivity {
         mtListView = findViewById(R.id.mtListView);
         edtSearch = findViewById(R.id.edt_search);
         viewType = findViewById(R.id.view_type);
-        llAtAll =  findViewById(R.id.ll_at_all);
-        if(type == 0){
-            llAtAll.setVisibility(View.GONE);
-        }else{
-            llAtAll.setVisibility(View.VISIBLE);
-        }
+        llAtAll = findViewById(R.id.ll_at_all);
+//        if(type == 0){
+//            llAtAll.setVisibility(View.GONE);
+//        }else{
+//            llAtAll.setVisibility(View.VISIBLE);
+//        }
 
     }
 
@@ -152,6 +153,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     listData = delectMaster(response.body().getData());
+                    showAtAll(response.body().getData());
                     Collections.sort(listData);
                     adapter.setList(listData);
                     mtListView.notifyDataSetChange();
@@ -171,16 +173,21 @@ public class GroupSelectUserActivity extends AppActivity {
             for (int i = 0; i < list.size(); i++) {
                 if (group.getMaster().equals(list.get(i).getUid() + "")) {
                     list.remove(i);
-                    if(type != 0){
-                        llAtAll.setVisibility(View.VISIBLE);
-                    }else{
-                        llAtAll.setVisibility(View.GONE);
-                    }
                 }
             }
             return list;
         }
         return null;
+    }
+
+
+    private void showAtAll(Group group) {
+        long uid = UserAction.getMyId();
+        String master = group.getMaster();
+        if (master.equals(uid+"") && type != 0) {
+            llAtAll.setVisibility(View.VISIBLE);
+        }
+
     }
 
 

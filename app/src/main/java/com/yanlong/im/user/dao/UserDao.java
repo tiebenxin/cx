@@ -33,6 +33,24 @@ public class UserDao {
         realm.close();
     }
 
+
+    /**
+     * 更新好友状态
+     * @param type 0:陌生人或者群友,1:自己,2:通讯录,3黑名单(不区分和陌生人)
+     * */
+    public void updeteUserUtype(Long uid,int type){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+        if(userInfo != null){
+            userInfo.setuType(type);
+            realm.insertOrUpdate(userInfo);
+        }
+        realm.commitTransaction();
+        realm.close();
+    }
+
+
     /***
      * 如果存在了就不更新
      * @param userInfo
