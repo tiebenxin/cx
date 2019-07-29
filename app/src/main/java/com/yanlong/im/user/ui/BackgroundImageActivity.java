@@ -1,11 +1,9 @@
 package com.yanlong.im.user.ui;
 
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -128,6 +126,13 @@ public class BackgroundImageActivity extends AppActivity {
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+                }
+            });
+
+            viewHolder.ckThumbnailImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     setSelect(i);
                 }
             });
@@ -166,6 +171,9 @@ public class BackgroundImageActivity extends AppActivity {
             }
         }
     }
+
+
+
 
 
 }
