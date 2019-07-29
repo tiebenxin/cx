@@ -210,7 +210,7 @@ public class ChatActivity extends AppActivity {
                         notbean.setMsgNotice(note);
 
                         msgListData.add(notbean);
-                        mtListView.notifyDataSetChange();
+                       notifyData();
                     } else {
 
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null) {//忽略图片上传的刷新
@@ -1361,7 +1361,7 @@ public class ChatActivity extends AppActivity {
                                     @Override
                                     public void onStart(Uri var1) {
 
-                                        mtListView.getListView().getAdapter().notifyDataSetChanged();
+                                       notifyData();
 
 
                                     }
@@ -1369,14 +1369,14 @@ public class ChatActivity extends AppActivity {
                                     @Override
                                     public void onStop(Uri var1) {
 
-                                        mtListView.getListView().getAdapter().notifyDataSetChanged();
+                                       notifyData();
 
                                     }
 
                                     @Override
                                     public void onComplete(Uri var1) {
 
-                                        mtListView.getListView().getAdapter().notifyDataSetChanged();
+                                       notifyData();
                                     }
                                 });
                             }
@@ -1385,7 +1385,7 @@ public class ChatActivity extends AppActivity {
                             if (msgbean.isRead() == false) {
                                 msgAction.msgRead(msgbean.getMsg_id(), true);
                                 msgbean.setRead(true);
-                                mtListView.getListView().getAdapter().notifyDataSetChanged();
+                               notifyData();
                             }
 
 
@@ -1495,7 +1495,7 @@ public class ChatActivity extends AppActivity {
                             public void onYes() {
                                 msgDao.msgDel4MsgId(msgbean.getMsg_id());
                                 msgListData.remove(msgbean);
-                                mtListView.getListView().getAdapter().notifyDataSetChanged();
+                               notifyData();
                             }
                         });
                         alertYesNo.show();
@@ -1552,13 +1552,12 @@ public class ChatActivity extends AppActivity {
 
 
     private void notifyData2Buttom() {
-
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        notifyData();
         mtListView.getListView().scrollToPosition(msgListData.size());
     }
 
     private void notifyData() {
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
+        mtListView.notifyDataSetChange();
     }
 
     private MsgAction msgAction = new MsgAction();
@@ -1602,7 +1601,7 @@ public class ChatActivity extends AppActivity {
         notifyData2Buttom();
 
         taskMkName(msgListData);
-        mtListView.notifyDataSetChange();
+       notifyData();
     }
 
     //  private boolean flag_isHistory = false;
@@ -1617,7 +1616,8 @@ public class ChatActivity extends AppActivity {
         msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
         //ToastUtil.show(getContext(),"历史"+msgListData.size());
         taskMkName(msgListData);
-        mtListView.getListView().getAdapter().notifyDataSetChanged();
+
+        notifyData();
 
         mtListView.getListView().smoothScrollToPosition(0);
 
@@ -1636,7 +1636,7 @@ public class ChatActivity extends AppActivity {
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
-        mtListView.notifyDataSetChange();
+       notifyData();
 
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context, 20f));
 
