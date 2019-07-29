@@ -196,7 +196,7 @@ public class GroupRobotActivity extends AppActivity {
     private void taskInfo() {
 
 
-        msgAction.robotInfo(rid, new CallBack<ReturnBean<RobotInfoBean>>() {
+        msgAction.robotInfo(rid,gid, new CallBack<ReturnBean<RobotInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<RobotInfoBean>> call, Response<ReturnBean<RobotInfoBean>> response) {
                 if (response.body() == null) {

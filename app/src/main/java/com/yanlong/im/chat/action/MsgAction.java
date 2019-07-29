@@ -394,8 +394,8 @@ public class MsgAction {
      * @param gid
      * @param callback
      */
-    public void robotInfo(String gid, Callback<ReturnBean<RobotInfoBean>> callback){
-        NetUtil.getNet().exec(server.robotInfo(gid), callback);
+    public void robotInfo(String robotid,String gid, Callback<ReturnBean<RobotInfoBean>> callback){
+        NetUtil.getNet().exec(server.robotInfo(robotid,gid), callback);
     }
 
 

@@ -88,7 +88,7 @@ public interface MsgServer {
 
     @POST("/group/get-robot-detail")
     @FormUrlEncoded
-    Call<ReturnBean<RobotInfoBean>> robotInfo(@Field("robotid") String robotid);
+    Call<ReturnBean<RobotInfoBean>> robotInfo(@Field("robotid") String robotid,@Field("gid") String gid);
 
     @POST("group/change-master")
     @FormUrlEncoded
