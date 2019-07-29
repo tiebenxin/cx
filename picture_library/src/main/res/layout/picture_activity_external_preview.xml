@@ -42,24 +42,8 @@
             android:id="@+id/preview_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-        <TextView
-            android:id="@+id/txt_big"
-            android:layout_gravity="center_horizontal|bottom"
-            android:textColor="#ffffff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="50dp"
-            android:padding="10dp"
-            android:background="@color/bar_grey_90"
-            android:text="查看原图"/>
 
-        <com.luck.picture.lib.view.bigImg.LargeImageView
-            android:id="@+id/img_large"
-            android:visibility="gone"
-            android:scrollbars="vertical|horizontal"
-            android:layout_width="match_parent"
-android:background="@color/black"
-            android:layout_height="match_parent" />
+
     </FrameLayout>
 
 
