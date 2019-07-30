@@ -14,6 +14,16 @@ public class ImageMessage extends RealmObject {
 
     private String localimg;//本地图
 
+    private boolean isReadOrigin=false;//是否已经阅读原图
+
+    public boolean isReadOrigin() {
+        return isReadOrigin;
+    }
+
+    public void setReadOrigin(boolean readOrigin) {
+        isReadOrigin = readOrigin;
+    }
+
     public String getLocalimg() {
         return localimg;
     }

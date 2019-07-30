@@ -3,6 +3,7 @@ package com.yanlong.im.chat.dao;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Remind;
@@ -1110,5 +1111,39 @@ public class MsgDao {
         return userSeting;
     }
 
+    /***
+     * 获取原始图的已读状态
+     * @param originUrl
+     * @return
+     */
+    public boolean ImgReadStatGet(String originUrl) {
+        if(originUrl.startsWith("file:")){
+            return true;
+        }
+        ImageMessage img = DaoUtil.findOne(ImageMessage.class, "origin", originUrl);
+        if (img != null) {
+            return img.isReadOrigin();
+        }
+        return false;
+    }
+
+    /***
+     * 图片已读写入
+     * @param originUrl
+     * @param isread
+     */
+    public void  ImgReadStatSet(String originUrl,boolean isread) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        ImageMessage img = realm.where(ImageMessage.class).equalTo("origin", originUrl).findFirst();
+        if (img != null) {
+            img.setReadOrigin(isread);
+            realm.insertOrUpdate(img);
+        }
+
+        realm.commitTransaction();
+        realm.close();
+
+    }
 
 }
