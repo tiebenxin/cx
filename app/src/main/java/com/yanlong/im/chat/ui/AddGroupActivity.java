@@ -26,6 +26,7 @@ import retrofit2.Response;
 
 public class AddGroupActivity extends AppActivity {
     public static final String GID = "gid";
+    public static final String INVITER = "inviter";
     private HeadView mHeadView;
     private SimpleDraweeView mSdGroupHead;
     private TextView mTvGroupName;
@@ -33,6 +34,7 @@ public class AddGroupActivity extends AppActivity {
     private Button mBtnAddGroup;
     private MsgAction msgAction;
     private String gid;
+    private String inviter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +71,7 @@ public class AddGroupActivity extends AppActivity {
         mBtnAddGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                taskAddGroup(gid);
+                taskAddGroup(gid,inviter);
             }
         });
     }
@@ -78,6 +80,7 @@ public class AddGroupActivity extends AppActivity {
     private void initData() {
         msgAction = new MsgAction();
         gid = getIntent().getStringExtra(GID);
+        inviter = getIntent().getStringExtra(INVITER);
         taskGroupInfo(gid);
     }
 
@@ -99,11 +102,11 @@ public class AddGroupActivity extends AppActivity {
     }
 
 
-    private void taskAddGroup(final String gid){
+    private void taskAddGroup(final String gid,final String inviter){
         UserInfo userInfo = UserAction.getMyInfo();
         Long uid = userInfo.getUid();
         String name = userInfo.getName();
-        new MsgAction().joinGroup(gid, uid,name,new CallBack<ReturnBean<GroupJoinBean>>() {
+        new MsgAction().joinGroup(gid, uid,name,inviter,new CallBack<ReturnBean<GroupJoinBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
                 if(response.body() == null){

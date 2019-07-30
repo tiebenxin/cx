@@ -35,6 +35,7 @@ public class QRCodeManage {
     //YLIM://ADDGROUP?id=xxx
     public static final String HEAD = "YLIM:"; //二维码头部
     public static final String ID = "id";
+    public static final String UID = "uid";
 
     public static final String ADD_FRIEND_FUNCHTION = "ADDFRIEND"; //添加好友
     public static final String ADD_GROUP_FUNCHTION = "ADDGROUP"; //添加群
@@ -117,19 +118,15 @@ public class QRCodeManage {
                     }
                 }
             } else if (bean.getFunction().equals(ADD_GROUP_FUNCHTION)) {
-                if (!TextUtils.isEmpty(bean.getParameterValue(ID))) {
-//                    Intent intent = new Intent(activity, AddGroupActivity.class);
-//                    intent.putExtra(AddGroupActivity.GID, bean.getParameterValue(ID));
-//                    activity.startActivity(intent);
-
-                    taskGroupInfo(bean.getParameterValue(ID),activity);
+                if (!TextUtils.isEmpty(bean.getParameterValue(ID)) && !TextUtils.isEmpty(bean.getParameterValue(UID))) {
+                    taskGroupInfo(bean.getParameterValue(ID),bean.getParameterValue(UID),activity);
                 }
             }
         }
     }
 
 
-    private static void taskGroupInfo(final String gid, final Activity activity) {
+    private static void taskGroupInfo(final String gid, final String inviter, final Activity activity) {
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -148,6 +145,7 @@ public class QRCodeManage {
 
                         if (!isNot) {
                             Intent intent = new Intent(activity, AddGroupActivity.class);
+                            intent.putExtra(AddGroupActivity.INVITER,inviter);
                             intent.putExtra(AddGroupActivity.GID, gid);
                             activity.startActivity(intent);
                         } else {
@@ -158,11 +156,13 @@ public class QRCodeManage {
 
                     } else {
                         Intent intent = new Intent(activity, AddGroupActivity.class);
+                        intent.putExtra(AddGroupActivity.INVITER,inviter);
                         intent.putExtra(AddGroupActivity.GID, gid);
                         activity.startActivity(intent);
                     }
                 } else {
                     Intent intent = new Intent(activity, AddGroupActivity.class);
+                    intent.putExtra(AddGroupActivity.INVITER,inviter);
                     intent.putExtra(AddGroupActivity.GID, gid);
                     activity.startActivity(intent);
                 }

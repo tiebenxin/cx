@@ -4,7 +4,7 @@ public class GroupUserInfo {
 
     private String uid;
 
-    private String membername;
+    private String nickname;
 
     private String avatar;
 
@@ -17,12 +17,12 @@ public class GroupUserInfo {
         this.uid = uid;
     }
 
-    public String getMembername() {
-        return membername;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setMembername(String membername) {
-        this.membername = membername;
+    public void setNickname(String membername) {
+        this.nickname = membername;
     }
 
     public String getAvatar() {

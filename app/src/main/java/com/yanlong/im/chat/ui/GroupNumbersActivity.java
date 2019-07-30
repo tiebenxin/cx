@@ -278,12 +278,9 @@ public class GroupNumbersActivity extends AppActivity {
             }
         };
         if(type==TYPE_ADD){
-            msgACtion.groupAdd(gid, listDataTop,callback);
+            msgACtion.groupAdd(gid, listDataTop, UserAction.getMyId()+"",callback);
         }else{
             msgACtion.groupRemove(gid, listDataTop,callback);
-
-
-
         }
 
     }

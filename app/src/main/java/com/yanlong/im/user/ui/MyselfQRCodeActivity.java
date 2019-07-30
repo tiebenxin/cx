@@ -120,6 +120,8 @@ public class MyselfQRCodeActivity extends AppActivity {
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
         } else {
             Intent intent = getIntent();
+            UserInfo userInfo = UserAction.getMyInfo();
+
             groupId = intent.getStringExtra(GROUP_ID);
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
@@ -128,6 +130,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, groupId);
+            qrCodeBean.setParameterValue(QRCodeManage.UID,userInfo.getUid()+"");
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
         }
         try {

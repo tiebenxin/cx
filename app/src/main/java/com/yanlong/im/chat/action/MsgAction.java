@@ -44,19 +44,15 @@ public class MsgAction {
 
 
     public void groupCreate(final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<Group>> callback) {
-        /*List<Long> ulist = new ArrayList<>();
-
-         */
         List<GroupUserInfo> listDataTop2 = new ArrayList<>();
         for (int i = 0; i < listDataTop.size(); i++) {
             GroupUserInfo userInfo = new GroupUserInfo();
-            userInfo.setUid(listDataTop.get(i).getUid()+"");
-            userInfo.setMembername(listDataTop.get(i).getName());
+            userInfo.setUid(listDataTop.get(i).getUid() + "");
+            userInfo.setNickname(listDataTop.get(i).getName());
             userInfo.setAvatar(listDataTop.get(i).getHead());
             listDataTop2.add(userInfo);
 
         }
-
         NetUtil.getNet().exec(server.groupCreate(name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -96,18 +92,6 @@ public class MsgAction {
         NetUtil.getNet().exec(server.groupRemove(id, gson.toJson(ulist)), callback);
     }
 
-    public void groupAdd(String id, List<UserInfo> members, CallBack<ReturnBean> callback) {
-        List<GroupUserInfo> groupUserInfos = new ArrayList<>();
-        for (int i = 0; i < members.size(); i++) {
-            GroupUserInfo groupUserInfo = new GroupUserInfo();
-            groupUserInfo.setUid(members.get(i).getUid()+"");
-            groupUserInfo.setAvatar(members.get(i).getHead());
-            groupUserInfo.setMembername(members.get(i).getName());
-            groupUserInfos.add(groupUserInfo);
-        }
-        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos)), callback);
-    }
-
     public void groupDestroy(final String id, final CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupDestroy(id), new CallBack<ReturnBean>() {
             @Override
@@ -121,6 +105,18 @@ public class MsgAction {
             }
         });
 
+    }
+
+    public void groupAdd(String id, List<UserInfo> members,String inviter, CallBack<ReturnBean> callback) {
+        List<GroupUserInfo> groupUserInfos = new ArrayList<>();
+        for (int i = 0; i < members.size(); i++) {
+            GroupUserInfo groupUserInfo = new GroupUserInfo();
+            groupUserInfo.setUid(members.get(i).getUid() + "");
+            groupUserInfo.setAvatar(members.get(i).getHead());
+            groupUserInfo.setNickname(members.get(i).getName());
+            groupUserInfos.add(groupUserInfo);
+        }
+        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos),inviter), callback);
     }
 
 
@@ -301,8 +297,8 @@ public class MsgAction {
     /**
      * 加入群聊
      */
-    public void joinGroup(String gid, Long uid, String membername, Callback<ReturnBean<GroupJoinBean>> callback) {
-        NetUtil.getNet().exec(server.joinGroup(gid, uid, membername), callback);
+    public void joinGroup(String gid, Long uid, String nickname, String inviter, Callback<ReturnBean<GroupJoinBean>> callback) {
+        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname, inviter), callback);
     }
 
 
@@ -346,18 +342,16 @@ public class MsgAction {
 
     /**
      * 删除群申请
-     * */
-    public void groupRequestDelect(String aid){
+     */
+    public void groupRequestDelect(String aid) {
         dao.groupAcceptRemove(aid);
     }
 
 
-
-
     /**
      * 修改群公告
-     * */
-    public void changeGroupAnnouncement(String gid, String announcement, Callback<ReturnBean> callback){
+     */
+    public void changeGroupAnnouncement(String gid, String announcement, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement), callback);
     }
 
@@ -367,8 +361,8 @@ public class MsgAction {
      * @param key
      * @param callback
      */
-    public void robotSearch(String key, Callback<ReturnBean<List<RobotInfoBean>>> callback){
-        NetUtil.getNet().exec(server.robotSearch( key), callback);
+    public void robotSearch(String key, Callback<ReturnBean<List<RobotInfoBean>>> callback) {
+        NetUtil.getNet().exec(server.robotSearch(key), callback);
     }
 
     /***
@@ -376,8 +370,8 @@ public class MsgAction {
      * @param gid
      * @param callback
      */
-    public void robotChange(String gid,String rid, Callback<ReturnBean> callback){
-        NetUtil.getNet().exec(server.robotChange(gid,rid), callback);
+    public void robotChange(String gid, String rid, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.robotChange(gid, rid), callback);
     }
 
     /***
@@ -385,30 +379,31 @@ public class MsgAction {
      * @param gid
      * @param callback
      */
-    public void robotDel(String gid, Callback<ReturnBean> callback){
+    public void robotDel(String gid, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.robotChange(gid, "-1"), callback);
     }
 
     /**
      * 查看详情
+     *
      * @param gid
      * @param callback
      */
-    public void robotInfo(String robotid,String gid, Callback<ReturnBean<RobotInfoBean>> callback){
-        NetUtil.getNet().exec(server.robotInfo(robotid,gid), callback);
+    public void robotInfo(String robotid, String gid, Callback<ReturnBean<RobotInfoBean>> callback) {
+        NetUtil.getNet().exec(server.robotInfo(robotid, gid), callback);
     }
 
 
-    public void msgRead(String msgId,boolean isRead){
-        dao.msgRead(msgId,isRead);
+    public void msgRead(String msgId, boolean isRead) {
+        dao.msgRead(msgId, isRead);
     }
 
 
     /**
      * 转让群
-     * */
-    public void changeMaster(String gid,String uid,String membername,Callback<ReturnBean> callback){
-        NetUtil.getNet().exec(server.changeMaster(gid,uid,membername), callback);
+     */
+    public void changeMaster(String gid, String uid, String membername, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.changeMaster(gid, uid, membername), callback);
     }
 
 

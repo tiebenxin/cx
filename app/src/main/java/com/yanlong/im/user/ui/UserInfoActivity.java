@@ -89,8 +89,8 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void initView() {
-        viewJoinGroupType =  findViewById(R.id.view_join_group_type);
-        tvJoinGroupType =  findViewById(R.id.tv_join_group_type);
+        viewJoinGroupType = findViewById(R.id.view_join_group_type);
+        tvJoinGroupType = findViewById(R.id.tv_join_group_type);
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         viewHead = findViewById(R.id.view_head);
@@ -444,12 +444,11 @@ public class UserInfoActivity extends AppActivity {
         type = userDao.findUserInfo4Friend(id) == null ? 1 : 0;
         if (type == 1) {
             UserInfo info = userDao.findUserInfo(id);
-            if (info.getuType() != null && info.getuType() == 3) {
+            if (info != null && info.getuType() != null && info.getuType() == 3) {
                 type = 2;
             }
         }
     }
-
 
 
 }

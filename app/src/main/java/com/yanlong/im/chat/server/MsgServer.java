@@ -29,7 +29,7 @@ public interface MsgServer {
 
     @POST("/group/append-members")
     @FormUrlEncoded
-    Call<ReturnBean> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson);
+    Call<ReturnBean> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson,@Field("inviter") String inviter);
 
     @POST("/group/quit")
     @FormUrlEncoded
@@ -60,7 +60,7 @@ public interface MsgServer {
 
     @POST("/group/request-join")
     @FormUrlEncoded
-    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid, @Field("membername") String membername);
+    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid, @Field("nickname") String membername,@Field("inviter") String inviter);
 
     @POST("/group/change-group-name")
     @FormUrlEncoded
