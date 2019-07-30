@@ -103,10 +103,37 @@
             <LinearLayout style="@style/app_layout_list2">
 
                 <LinearLayout
+                    android:id="@+id/view_join_group_type"
+                    style="@style/app_layout_list2_item"
+                    android:visibility="visible">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="进群方式" />
+
+                    <TextView
+                        android:id="@+id/tv_join_group_type"
+                        style="@style/app_txt_title_2"
+                        android:textColor="@color/gray_300"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:text="扫码进群"/>
+
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto"
+                        android:visibility="invisible"/>
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/view_black"
                     style="@style/app_layout_list2_item">
 
                     <TextView
+                        android:id="@+id/tv_black"
                         style="@style/app_txt_title_2"
                         android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"

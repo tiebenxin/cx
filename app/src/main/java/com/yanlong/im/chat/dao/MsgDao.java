@@ -630,7 +630,7 @@ public class MsgDao {
     public boolean isSaveDraft(String gid) {
         boolean isSaveDraft = false;
         Session session = DaoUtil.findOne(Session.class, "gid", gid);
-        if (StringUtil.isNotNull(session.getDraft())) {
+        if (session != null && StringUtil.isNotNull(session.getDraft())) {
             isSaveDraft = true;
         }
         return isSaveDraft;

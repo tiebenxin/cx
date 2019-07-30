@@ -418,11 +418,8 @@ public class ChatActivity extends AppActivity {
                 } else {
                     btnSend.setVisibility(View.GONE);
                 }
-                Log.v("onTextChanged1","isGroup"+toGid);
-                Log.v("onTextChanged1","isSaveDraft"+ dao.isSaveDraft(toGid));
 
                 if (isGroup() && !dao.isSaveDraft(toGid)) {
-                    Log.v("onTextChanged","isGroup"+toGid);
                     if (count == 1 && s.charAt(s.length() - 1) == "@".charAt(0)) { //添加一个字
                         //跳转到@界面
                         Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);

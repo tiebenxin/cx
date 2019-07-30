@@ -191,7 +191,29 @@ public class MsgForwardActivity extends AppActivity {
                             }
                         });
 
+                    }else if(msgAllBean.getAtMessage() != null){
+
+                        alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getAtMessage().getMsg(), null, "发送", new AlertForward.Event() {
+                            @Override
+                            public void onON() {
+
+                            }
+
+                            @Override
+                            public void onYes(String content) {
+                                // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
+
+                                Long toUId=bean.getFrom_uid();
+                                String toGid=bean.getGid();
+                                SocketData.send4Chat(toUId, toGid, msgAllBean.getAtMessage().getMsg());
+                                if(StringUtil.isNotNull(content)){
+                                    SocketData.send4Chat(toUId, toGid, content);
+                                }
+                                finish();
+                            }
+                        });
                     }
+
 
                     alertForward.show();
 

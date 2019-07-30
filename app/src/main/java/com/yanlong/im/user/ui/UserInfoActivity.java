@@ -65,27 +65,32 @@ public class UserInfoActivity extends AppActivity {
     private Button mBtnAdd;
     private Button btnMsg;
 
-    private int type; //0.已经是好友 1.不是好友添加好友
+    private int type; //0.已经是好友 1.不是好友添加好友 2.黑名单
     private int isApply;//是否是好友申请 0 不是 1.是
+    private int joinType;//0 不显示  1.显示
     private Long id;
     private String sayHi;
     private UserAction userAction;
     private String mkName;
     private String name;
+    private TextView tvBlack;
+    private LinearLayout viewJoinGroupType;
+    private TextView tvJoinGroupType;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userinfo);
-        findViews();
+        initView();
         initEvent();
         initData();
     }
 
 
-    //自动寻找控件
-    private void findViews() {
+    private void initView() {
+        viewJoinGroupType =  findViewById(R.id.view_join_group_type);
+        tvJoinGroupType =  findViewById(R.id.tv_join_group_type);
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         viewHead = findViewById(R.id.view_head);
@@ -102,29 +107,12 @@ public class UserInfoActivity extends AppActivity {
         mBtnAdd = findViewById(R.id.btn_add);
         mTvRemark = findViewById(R.id.tv_remark);
         mViewSettingName = findViewById(R.id.view_setting_name);
-
+        tvBlack = findViewById(R.id.tv_black);
         id = getIntent().getLongExtra(ID, 0);
         sayHi = getIntent().getStringExtra(SAY_HI);
-        isApply = getIntent().getIntExtra(IS_APPLY,0);
+        isApply = getIntent().getIntExtra(IS_APPLY, 0);
         taskFindExist();
-        if (type == 0) {
-            mLayoutMsg.setVisibility(View.VISIBLE);
-            mBtnAdd.setVisibility(View.GONE);
-            mViewSettingName.setVisibility(View.VISIBLE);
-        } else if (type == 1) {
-            mLayoutMsg.setVisibility(View.GONE);
-            mBtnAdd.setVisibility(View.VISIBLE);
-            mViewSettingName.setVisibility(View.GONE);
-            if (TextUtils.isEmpty(sayHi)) {
-                mTvRemark.setVisibility(View.GONE);
-            } else {
-                mTvRemark.setVisibility(View.VISIBLE);
-                mTvRemark.setText(sayHi);
-            }
-        }
-
     }
-
 
     //自动生成的控件事件
     private void initEvent() {
@@ -154,20 +142,24 @@ public class UserInfoActivity extends AppActivity {
         viewBlack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(UserInfoActivity.this, "拉入黑名单",
-                        "确定将此-好友拉入黑名单吗?", "确定", "取消", new AlertYesNo.Event() {
-                            @Override
-                            public void onON() {
+                if (type == 0) {
+                    final AlertYesNo alertYesNo = new AlertYesNo();
+                    alertYesNo.init(UserInfoActivity.this, "拉入黑名单",
+                            "确定将此-好友拉入黑名单吗?", "确定", "取消", new AlertYesNo.Event() {
+                                @Override
+                                public void onON() {
 
-                            }
+                                }
 
-                            @Override
-                            public void onYes() {
-                                taskFriendBlack(id);
-                            }
-                        });
-                alertYesNo.show();
+                                @Override
+                                public void onYes() {
+                                    taskFriendBlack(id);
+                                }
+                            });
+                    alertYesNo.show();
+                } else if (type == 2) {
+                    taskFriendBlackRemove(id);
+                }
             }
         });
 
@@ -271,6 +263,30 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
+    private void setItemShow(int type) {
+        if (type == 0) {
+            mLayoutMsg.setVisibility(View.VISIBLE);
+            mBtnAdd.setVisibility(View.GONE);
+            mViewSettingName.setVisibility(View.VISIBLE);
+            tvBlack.setText("加入黑名单");
+        } else if (type == 1) {
+            mLayoutMsg.setVisibility(View.GONE);
+            mBtnAdd.setVisibility(View.VISIBLE);
+            mViewSettingName.setVisibility(View.GONE);
+            if (TextUtils.isEmpty(sayHi)) {
+                mTvRemark.setVisibility(View.GONE);
+            } else {
+                mTvRemark.setVisibility(View.VISIBLE);
+                mTvRemark.setText(sayHi);
+            }
+        } else if (type == 2) {
+            mLayoutMsg.setVisibility(View.VISIBLE);
+            mBtnAdd.setVisibility(View.GONE);
+            mViewSettingName.setVisibility(View.VISIBLE);
+            tvBlack.setText("解除黑名单");
+        }
+    }
+
     private void taskUserInfo(Long id) {
         userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
             @Override
@@ -282,16 +298,21 @@ public class UserInfoActivity extends AppActivity {
                 imgHead.setImageURI(Uri.parse("" + info.getHead()));
                 txtMkname.setText(info.getName4Show());
                 mkName = info.getMkName();
-                txtPrNo.setText("常聊号: "+info.getImid());
-                txtNkname.setText("昵称: "+info.getName());
+                txtPrNo.setText("常聊号: " + info.getImid());
+                txtNkname.setText("昵称: " + info.getName());
                 name = info.getName();
 
+                if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
+                    type = 2;
+                }
+
+                setItemShow(type);
                 imgHead.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         List<LocalMedia> selectList = new ArrayList<>();
                         LocalMedia lc = new LocalMedia();
-                        lc.setPath(info.getHead());
+                        lc.setCompressPath(info.getHead());
                         selectList.add(lc);
                         PictureSelector.create(UserInfoActivity.this)
                                 .themeStyle(R.style.picture_default_style)
@@ -324,7 +345,7 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-    private void taskFriendBlack(Long id) {
+    private void taskFriendBlack(final Long id) {
         userAction.friendBlack(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -332,13 +353,34 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
-                ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
+                type = 2;
+                tvBlack.setText("解除黑名单");
+                userDao.updeteUserUtype(id, 3);
+                ToastUtil.show(context, response.body().getMsg());
 
             }
         });
     }
 
-    private void taskDelFriend(Long id) {
+
+    private void taskFriendBlackRemove(Long uid) {
+        userAction.friendBlackRemove(uid, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                type = 0;
+                tvBlack.setText("加入黑名单");
+                userDao.updeteUserUtype(id, 2);
+                ToastUtil.show(context, response.body().getMsg());
+
+            }
+        });
+    }
+
+
+    private void taskDelFriend(final Long id) {
         userAction.friendDel(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -348,7 +390,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 //刷新好友和退出
                 if (response.body().isOk()) {
-
+                    userDao.updeteUserUtype(id, 0);
                     EventBus.getDefault().post(new EventRefreshFriend());
                     finish();
                 }
@@ -400,7 +442,14 @@ public class UserInfoActivity extends AppActivity {
      */
     private void taskFindExist() {
         type = userDao.findUserInfo4Friend(id) == null ? 1 : 0;
+        if (type == 1) {
+            UserInfo info = userDao.findUserInfo(id);
+            if (info.getuType() != null && info.getuType() == 3) {
+                type = 2;
+            }
+        }
     }
+
 
 
 }
