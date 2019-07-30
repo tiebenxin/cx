@@ -85,7 +85,7 @@ public final class MsgBean {
         VOICE(7),
         /**
          * <pre>
-         *&#64;@消息
+         *&#64;消息
          * </pre>
          *
          * <code>AT = 8;</code>
@@ -601,6 +601,124 @@ public final class MsgBean {
         }
 
         // @@protoc_insertion_point(enum_scope:RejectType)
+    }
+
+    /**
+     * <pre>
+     * 进群方式
+     * </pre>
+     *
+     * Protobuf enum {@code JoinGroupType}
+     */
+    public enum JoinGroupType
+            implements com.google.protobuf.ProtocolMessageEnum {
+        /**
+         * <pre>
+         * 扫码
+         * </pre>
+         *
+         * <code>QRCODE = 0;</code>
+         */
+        QRCODE(0),
+        /**
+         * <pre>
+         * 被动
+         * </pre>
+         *
+         * <code>PASSIVE = 1;</code>
+         */
+        PASSIVE(1),
+        UNRECOGNIZED(-1),
+        ;
+
+        /**
+         * <pre>
+         * 扫码
+         * </pre>
+         *
+         * <code>QRCODE = 0;</code>
+         */
+        public static final int QRCODE_VALUE = 0;
+        /**
+         * <pre>
+         * 被动
+         * </pre>
+         *
+         * <code>PASSIVE = 1;</code>
+         */
+        public static final int PASSIVE_VALUE = 1;
+
+
+        public final int getNumber() {
+            if (this == UNRECOGNIZED) {
+                throw new java.lang.IllegalArgumentException(
+                        "Can't get the number of an unknown enum value.");
+            }
+            return value;
+        }
+
+        /**
+         * @deprecated Use {@link #forNumber(int)} instead.
+         */
+        @java.lang.Deprecated
+        public static JoinGroupType valueOf(int value) {
+            return forNumber(value);
+        }
+
+        public static JoinGroupType forNumber(int value) {
+            switch (value) {
+                case 0: return QRCODE;
+                case 1: return PASSIVE;
+                default: return null;
+            }
+        }
+
+        public static com.google.protobuf.Internal.EnumLiteMap<JoinGroupType>
+        internalGetValueMap() {
+            return internalValueMap;
+        }
+        private static final com.google.protobuf.Internal.EnumLiteMap<
+                JoinGroupType> internalValueMap =
+                new com.google.protobuf.Internal.EnumLiteMap<JoinGroupType>() {
+                    public JoinGroupType findValueByNumber(int number) {
+                        return JoinGroupType.forNumber(number);
+                    }
+                };
+
+        public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+            return getDescriptor().getValues().get(ordinal());
+        }
+        public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+            return getDescriptor();
+        }
+        public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+            return MsgBean.getDescriptor().getEnumTypes().get(2);
+        }
+
+        private static final JoinGroupType[] VALUES = values();
+
+        public static JoinGroupType valueOf(
+                com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+            if (desc.getType() != getDescriptor()) {
+                throw new java.lang.IllegalArgumentException(
+                        "EnumValueDescriptor is not for this type.");
+            }
+            if (desc.getIndex() == -1) {
+                return UNRECOGNIZED;
+            }
+            return VALUES[desc.getIndex()];
+        }
+
+        private final int value;
+
+        private JoinGroupType(int value) {
+            this.value = value;
+        }
+
+        // @@protoc_insertion_point(enum_scope:JoinGroupType)
     }
 
     public interface ChatMessageOrBuilder extends
@@ -10586,6 +10704,15 @@ public final class MsgBean {
          * <code>uint64 inviter = 2;</code>
          */
         long getInviter();
+
+        /**
+         * <code>.JoinGroupType join_type = 3;</code>
+         */
+        int getJoinTypeValue();
+        /**
+         * <code>.JoinGroupType join_type = 3;</code>
+         */
+        MsgBean.JoinGroupType getJoinType();
     }
     /**
      * <pre>
@@ -10605,6 +10732,7 @@ public final class MsgBean {
         private RequestGroupMessage() {
             noticeMessage_ = java.util.Collections.emptyList();
             inviter_ = 0L;
+            joinType_ = 0;
         }
 
         @java.lang.Override
@@ -10644,6 +10772,12 @@ public final class MsgBean {
                         case 16: {
 
                             inviter_ = input.readUInt64();
+                            break;
+                        }
+                        case 24: {
+                            int rawValue = input.readEnum();
+
+                            joinType_ = rawValue;
                             break;
                         }
                     }
@@ -10717,6 +10851,22 @@ public final class MsgBean {
             return inviter_;
         }
 
+        public static final int JOIN_TYPE_FIELD_NUMBER = 3;
+        private int joinType_;
+        /**
+         * <code>.JoinGroupType join_type = 3;</code>
+         */
+        public int getJoinTypeValue() {
+            return joinType_;
+        }
+        /**
+         * <code>.JoinGroupType join_type = 3;</code>
+         */
+        public MsgBean.JoinGroupType getJoinType() {
+            MsgBean.JoinGroupType result = MsgBean.JoinGroupType.valueOf(joinType_);
+            return result == null ? MsgBean.JoinGroupType.UNRECOGNIZED : result;
+        }
+
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
@@ -10735,6 +10885,9 @@ public final class MsgBean {
             if (inviter_ != 0L) {
                 output.writeUInt64(2, inviter_);
             }
+            if (joinType_ != MsgBean.JoinGroupType.QRCODE.getNumber()) {
+                output.writeEnum(3, joinType_);
+            }
         }
 
         public int getSerializedSize() {
@@ -10749,6 +10902,10 @@ public final class MsgBean {
             if (inviter_ != 0L) {
                 size += com.google.protobuf.CodedOutputStream
                         .computeUInt64Size(2, inviter_);
+            }
+            if (joinType_ != MsgBean.JoinGroupType.QRCODE.getNumber()) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeEnumSize(3, joinType_);
             }
             memoizedSize = size;
             return size;
@@ -10770,6 +10927,7 @@ public final class MsgBean {
                     .equals(other.getNoticeMessageList());
             result = result && (getInviter()
                     == other.getInviter());
+            result = result && joinType_ == other.joinType_;
             return result;
         }
 
@@ -10787,6 +10945,8 @@ public final class MsgBean {
             hash = (37 * hash) + INVITER_FIELD_NUMBER;
             hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
                     getInviter());
+            hash = (37 * hash) + JOIN_TYPE_FIELD_NUMBER;
+            hash = (53 * hash) + joinType_;
             hash = (29 * hash) + unknownFields.hashCode();
             memoizedHashCode = hash;
             return hash;
@@ -10929,6 +11089,8 @@ public final class MsgBean {
                 }
                 inviter_ = 0L;
 
+                joinType_ = 0;
+
                 return this;
             }
 
@@ -10963,6 +11125,7 @@ public final class MsgBean {
                     result.noticeMessage_ = noticeMessageBuilder_.build();
                 }
                 result.inviter_ = inviter_;
+                result.joinType_ = joinType_;
                 result.bitField0_ = to_bitField0_;
                 onBuilt();
                 return result;
@@ -11033,6 +11196,9 @@ public final class MsgBean {
                 }
                 if (other.getInviter() != 0L) {
                     setInviter(other.getInviter());
+                }
+                if (other.joinType_ != 0) {
+                    setJoinTypeValue(other.getJoinTypeValue());
                 }
                 onChanged();
                 return this;
@@ -11326,6 +11492,50 @@ public final class MsgBean {
                 onChanged();
                 return this;
             }
+
+            private int joinType_ = 0;
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public int getJoinTypeValue() {
+                return joinType_;
+            }
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public Builder setJoinTypeValue(int value) {
+                joinType_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public MsgBean.JoinGroupType getJoinType() {
+                MsgBean.JoinGroupType result = MsgBean.JoinGroupType.valueOf(joinType_);
+                return result == null ? MsgBean.JoinGroupType.UNRECOGNIZED : result;
+            }
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public Builder setJoinType(MsgBean.JoinGroupType value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                joinType_ = value.getNumber();
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public Builder clearJoinType() {
+
+                joinType_ = 0;
+                onChanged();
+                return this;
+            }
             public final Builder setUnknownFields(
                     final com.google.protobuf.UnknownFieldSet unknownFields) {
                 return this;
@@ -11407,6 +11617,15 @@ public final class MsgBean {
          * <code>uint64 inviter = 2;</code>
          */
         long getInviter();
+
+        /**
+         * <code>.JoinGroupType join_type = 3;</code>
+         */
+        int getJoinTypeValue();
+        /**
+         * <code>.JoinGroupType join_type = 3;</code>
+         */
+        MsgBean.JoinGroupType getJoinType();
     }
     /**
      * <pre>
@@ -11426,6 +11645,7 @@ public final class MsgBean {
         private AcceptBeGroupMessage() {
             noticeMessage_ = java.util.Collections.emptyList();
             inviter_ = 0L;
+            joinType_ = 0;
         }
 
         @java.lang.Override
@@ -11465,6 +11685,12 @@ public final class MsgBean {
                         case 16: {
 
                             inviter_ = input.readUInt64();
+                            break;
+                        }
+                        case 24: {
+                            int rawValue = input.readEnum();
+
+                            joinType_ = rawValue;
                             break;
                         }
                     }
@@ -11538,6 +11764,22 @@ public final class MsgBean {
             return inviter_;
         }
 
+        public static final int JOIN_TYPE_FIELD_NUMBER = 3;
+        private int joinType_;
+        /**
+         * <code>.JoinGroupType join_type = 3;</code>
+         */
+        public int getJoinTypeValue() {
+            return joinType_;
+        }
+        /**
+         * <code>.JoinGroupType join_type = 3;</code>
+         */
+        public MsgBean.JoinGroupType getJoinType() {
+            MsgBean.JoinGroupType result = MsgBean.JoinGroupType.valueOf(joinType_);
+            return result == null ? MsgBean.JoinGroupType.UNRECOGNIZED : result;
+        }
+
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
@@ -11556,6 +11798,9 @@ public final class MsgBean {
             if (inviter_ != 0L) {
                 output.writeUInt64(2, inviter_);
             }
+            if (joinType_ != MsgBean.JoinGroupType.QRCODE.getNumber()) {
+                output.writeEnum(3, joinType_);
+            }
         }
 
         public int getSerializedSize() {
@@ -11570,6 +11815,10 @@ public final class MsgBean {
             if (inviter_ != 0L) {
                 size += com.google.protobuf.CodedOutputStream
                         .computeUInt64Size(2, inviter_);
+            }
+            if (joinType_ != MsgBean.JoinGroupType.QRCODE.getNumber()) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeEnumSize(3, joinType_);
             }
             memoizedSize = size;
             return size;
@@ -11591,6 +11840,7 @@ public final class MsgBean {
                     .equals(other.getNoticeMessageList());
             result = result && (getInviter()
                     == other.getInviter());
+            result = result && joinType_ == other.joinType_;
             return result;
         }
 
@@ -11608,6 +11858,8 @@ public final class MsgBean {
             hash = (37 * hash) + INVITER_FIELD_NUMBER;
             hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
                     getInviter());
+            hash = (37 * hash) + JOIN_TYPE_FIELD_NUMBER;
+            hash = (53 * hash) + joinType_;
             hash = (29 * hash) + unknownFields.hashCode();
             memoizedHashCode = hash;
             return hash;
@@ -11750,6 +12002,8 @@ public final class MsgBean {
                 }
                 inviter_ = 0L;
 
+                joinType_ = 0;
+
                 return this;
             }
 
@@ -11784,6 +12038,7 @@ public final class MsgBean {
                     result.noticeMessage_ = noticeMessageBuilder_.build();
                 }
                 result.inviter_ = inviter_;
+                result.joinType_ = joinType_;
                 result.bitField0_ = to_bitField0_;
                 onBuilt();
                 return result;
@@ -11854,6 +12109,9 @@ public final class MsgBean {
                 }
                 if (other.getInviter() != 0L) {
                     setInviter(other.getInviter());
+                }
+                if (other.joinType_ != 0) {
+                    setJoinTypeValue(other.getJoinTypeValue());
                 }
                 onChanged();
                 return this;
@@ -12144,6 +12402,50 @@ public final class MsgBean {
             public Builder clearInviter() {
 
                 inviter_ = 0L;
+                onChanged();
+                return this;
+            }
+
+            private int joinType_ = 0;
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public int getJoinTypeValue() {
+                return joinType_;
+            }
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public Builder setJoinTypeValue(int value) {
+                joinType_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public MsgBean.JoinGroupType getJoinType() {
+                MsgBean.JoinGroupType result = MsgBean.JoinGroupType.valueOf(joinType_);
+                return result == null ? MsgBean.JoinGroupType.UNRECOGNIZED : result;
+            }
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public Builder setJoinType(MsgBean.JoinGroupType value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                joinType_ = value.getNumber();
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>.JoinGroupType join_type = 3;</code>
+             */
+            public Builder clearJoinType() {
+
+                joinType_ = 0;
                 onChanged();
                 return this;
             }
@@ -25722,69 +26024,71 @@ public final class MsgBean {
                         "roupNoticeMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avatar" +
                         "\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\"E\n\026InviteJoinGr" +
                         "oupMessage\022+\n\016notice_message\030\001 \001(\0132\023.Gro" +
-                        "upNoticeMessage\"S\n\023RequestGroupMessage\022+" +
+                        "upNoticeMessage\"v\n\023RequestGroupMessage\022+" +
                         "\n\016notice_message\030\001 \003(\0132\023.GroupNoticeMess" +
-                        "age\022\017\n\007inviter\030\002 \001(\004\"T\n\024AcceptBeGroupMes" +
-                        "sage\022+\n\016notice_message\030\001 \003(\0132\023.GroupNoti" +
-                        "ceMessage\022\017\n\007inviter\030\002 \001(\004\"E\n\030RemoveGrou" +
-                        "pMemberMessage\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 ",
-                "\001(\t\022\014\n\004name\030\003 \001(\t\";\n\030ChangeGroupMasterMe" +
-                        "ssage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"&" +
-                        "\n\026ChangeGroupNameMessage\022\014\n\004name\030\001 \001(\t\"6" +
-                        "\n\036ChangeGroupAnnouncementMessage\022\024\n\014anno" +
-                        "uncement\030\001 \001(\t\"@\n\023DestroyGroupMessage\022\013\n" +
-                        "\003uid\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t" +
-                        "\"\021\n\017ConflictMessage\"\036\n\017OutGroupMessage\022\013" +
-                        "\n\003gid\030\001 \001(\t\"e\n\nAckMessage\022 \n\013reject_type" +
-                        "\030\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002 \001(\t\022" +
-                        "\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022Au",
-                "thRequestMessage\022\024\n\014access_token\030\001 \001(\t\"\'" +
-                        "\n\023AuthResponseMessage\022\020\n\010accepted\030\001 \001(\021\"" +
-                        "\351\t\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(\t" +
-                        "\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Uni" +
-                        "versalMessage.WrapMessage\032\377\010\n\013WrapMessag" +
-                        "e\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014" +
-                        ".MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid" +
-                        "\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n" +
-                        "\006avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\035\n\004cha" +
-                        "t\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\013",
-                "2\r.ImageMessageH\000\022,\n\014red_envelope\030\222N \001(\013" +
-                        "2\023.RedEnvelopeMessageH\000\022;\n\024receive_red_e" +
-                        "nvelope\030\223N \001(\0132\032.ReceiveRedEnvelopeMessa" +
-                        "geH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferMessag" +
-                        "eH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\r" +
-                        "business_card\030\226N \001(\0132\024.BusinessCardMessa" +
-                        "geH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n" +
-                        "\002at\030\230N \001(\0132\n.AtMessageH\000\0220\n\016request_frie" +
-                        "nd\030\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021ac" +
-                        "cept_be_friends\030\365N \001(\0132\027.AcceptBeFriends",
-                "MessageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.Remo" +
-                        "veFriendMessageH\000\022.\n\rrequest_group\030\330O \001(" +
-                        "\0132\024.RequestGroupMessageH\000\0221\n\017accept_be_g" +
-                        "roup\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023" +
-                        "remove_group_member\030\332O \001(\0132\031.RemoveGroup" +
-                        "MemberMessageH\000\0229\n\023change_group_master\030\333" +
-                        "O \001(\0132\031.ChangeGroupMasterMessageH\000\0225\n\021ch" +
-                        "ange_group_name\030\334O \001(\0132\027.ChangeGroupName" +
-                        "MessageH\000\022E\n\031change_group_announcement\030\335" +
-                        "O \001(\0132\037.ChangeGroupAnnouncementMessageH\000",
-                "\022.\n\rdestroy_group\030\336O \001(\0132\024.DestroyGroupM" +
-                        "essageH\000\022&\n\tout_group\030\342O \001(\0132\020.OutGroupM" +
-                        "essageH\000\022%\n\010conflict\030\274P \001(\0132\020.ConflictMe" +
-                        "ssageH\000B\n\n\010real_msg*\216\003\n\013MessageType\022\010\n\004C" +
-                        "HAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025R" +
-                        "ECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005" +
-                        "STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n" +
-                        "\002AT\020\010\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_F" +
-                        "RIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_G" +
-                        "ROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GR",
-                "OUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\025\n" +
-                        "\021CHANGE_GROUP_NAME\020k\022\035\n\031CHANGE_GROUP_ANN" +
-                        "OUNCEMENT\020l\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GR" +
-                        "OUP\020n\022\r\n\010CONFLICT\020\310\001*b\n\nRejectType\022\014\n\010AC" +
-                        "CEPTED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBER\020" +
-                        "\001\022\014\n\010NO_SPACE\020\010\022\027\n\023SERVICE_UNAVAILABLE\020d" +
-                        "b\006proto3"
+                        "age\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162" +
+                        "\016.JoinGroupType\"w\n\024AcceptBeGroupMessage\022" +
+                        "+\n\016notice_message\030\001 \003(\0132\023.GroupNoticeMes" +
+                        "sage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\016",
+                "2\016.JoinGroupType\"E\n\030RemoveGroupMemberMes" +
+                        "sage\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004nam" +
+                        "e\030\003 \001(\t\";\n\030ChangeGroupMasterMessage\022\013\n\003u" +
+                        "id\030\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"&\n\026ChangeGr" +
+                        "oupNameMessage\022\014\n\004name\030\001 \001(\t\"6\n\036ChangeGr" +
+                        "oupAnnouncementMessage\022\024\n\014announcement\030\001" +
+                        " \001(\t\"@\n\023DestroyGroupMessage\022\013\n\003uid\030\001 \003(\004" +
+                        "\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"\021\n\017Confli" +
+                        "ctMessage\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 \001(" +
+                        "\t\"e\n\nAckMessage\022 \n\013reject_type\030\001 \001(\0162\013.R",
+                "ejectType\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030" +
+                        "\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022AuthRequestM" +
+                        "essage\022\024\n\014access_token\030\001 \001(\t\"\'\n\023AuthResp" +
+                        "onseMessage\022\020\n\010accepted\030\001 \001(\021\"\351\t\n\020Univer" +
+                        "salMessage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to_uid" +
+                        "\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMess" +
+                        "age.WrapMessage\032\377\010\n\013WrapMessage\022\021\n\ttimes" +
+                        "tamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageTy" +
+                        "pe\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003" +
+                        "gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 ",
+                "\001(\t\022\022\n\nmembername\030\010 \001(\t\022\035\n\004chat\030\220N \001(\0132\014" +
+                        ".ChatMessageH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMe" +
+                        "ssageH\000\022,\n\014red_envelope\030\222N \001(\0132\023.RedEnve" +
+                        "lopeMessageH\000\022;\n\024receive_red_envelope\030\223N" +
+                        " \001(\0132\032.ReceiveRedEnvelopeMessageH\000\022%\n\010tr" +
+                        "ansfer\030\224N \001(\0132\020.TransferMessageH\000\022\037\n\005sta" +
+                        "mp\030\225N \001(\0132\r.StampMessageH\000\022.\n\rbusiness_c" +
+                        "ard\030\226N \001(\0132\024.BusinessCardMessageH\000\022\037\n\005vo" +
+                        "ice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\013" +
+                        "2\n.AtMessageH\000\0220\n\016request_friend\030\364N \001(\0132",
+                "\025.RequestFriendMessageH\000\0225\n\021accept_be_fr" +
+                        "iends\030\365N \001(\0132\027.AcceptBeFriendsMessageH\000\022" +
+                        ".\n\rremove_friend\030\366N \001(\0132\024.RemoveFriendMe" +
+                        "ssageH\000\022.\n\rrequest_group\030\330O \001(\0132\024.Reques" +
+                        "tGroupMessageH\000\0221\n\017accept_be_group\030\331O \001(" +
+                        "\0132\025.AcceptBeGroupMessageH\000\0229\n\023remove_gro" +
+                        "up_member\030\332O \001(\0132\031.RemoveGroupMemberMess" +
+                        "ageH\000\0229\n\023change_group_master\030\333O \001(\0132\031.Ch" +
+                        "angeGroupMasterMessageH\000\0225\n\021change_group" +
+                        "_name\030\334O \001(\0132\027.ChangeGroupNameMessageH\000\022",
+                "E\n\031change_group_announcement\030\335O \001(\0132\037.Ch" +
+                        "angeGroupAnnouncementMessageH\000\022.\n\rdestro" +
+                        "y_group\030\336O \001(\0132\024.DestroyGroupMessageH\000\022&" +
+                        "\n\tout_group\030\342O \001(\0132\020.OutGroupMessageH\000\022%" +
+                        "\n\010conflict\030\274P \001(\0132\020.ConflictMessageH\000B\n\n" +
+                        "\010real_msg*\216\003\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005I" +
+                        "MAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED" +
+                        "_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n" +
+                        "\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\022\n\016R" +
+                        "EQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021",
+                "\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017" +
+                        "ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMBER" +
+                        "\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\025\n\021CHANGE_GR" +
+                        "OUP_NAME\020k\022\035\n\031CHANGE_GROUP_ANNOUNCEMENT\020" +
+                        "l\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\r\n\010C" +
+                        "ONFLICT\020\310\001*b\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037" +
+                        "\n\033NOT_FRIENDS_OR_GROUP_MEMBER\020\001\022\014\n\010NO_SP" +
+                        "ACE\020\010\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGr" +
+                        "oupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001b\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -25887,13 +26191,13 @@ public final class MsgBean {
         internal_static_RequestGroupMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_RequestGroupMessage_descriptor,
-                new java.lang.String[] { "NoticeMessage", "Inviter", });
+                new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", });
         internal_static_AcceptBeGroupMessage_descriptor =
                 getDescriptor().getMessageTypes().get(15);
         internal_static_AcceptBeGroupMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AcceptBeGroupMessage_descriptor,
-                new java.lang.String[] { "NoticeMessage", "Inviter", });
+                new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", });
         internal_static_RemoveGroupMemberMessage_descriptor =
                 getDescriptor().getMessageTypes().get(16);
         internal_static_RemoveGroupMemberMessage_fieldAccessorTable = new
