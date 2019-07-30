@@ -103,23 +103,23 @@ public class TimeToString {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp);
         long disparity=new Double((now-timestamp)/1000.0).longValue();//差距秒
-        String timestr=YYYY_MM_DD(timestamp)+"在线";
+        String timestr=YYYY_MM_DD(timestamp)+"";
 
         if(todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)&&todayCalendar.get(Calendar.DAY_OF_YEAR) <= (calendar.get(Calendar.DAY_OF_YEAR)+7)){
-            timestr=(todayCalendar.get(Calendar.DAY_OF_YEAR)-calendar.get(Calendar.DAY_OF_YEAR))+"天前在线";
+            timestr=(todayCalendar.get(Calendar.DAY_OF_YEAR)-calendar.get(Calendar.DAY_OF_YEAR))+"天前";
         }
         if(todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)&&todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR)+2)){
-            timestr="前天 "+ HH_MM(timestamp)+"在线";
+            timestr="前天 "+ HH_MM(timestamp)+"";
         }
         if(todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)&&todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR)+1)){
-            timestr="昨天 "+ HH_MM(timestamp)+"在线";
+            timestr="昨天 "+ HH_MM(timestamp)+"";
         }
         if(todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)&&todayCalendar.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)){
-            timestr= new Long(disparity/60/60).intValue()+"小时前在线";
+            timestr= new Long(disparity/60/60).intValue()+"小时前";
         }
         if (disparity<60*60){
 
-            timestr=  "<font color='#276baa'>"+new Long(disparity/60).intValue()+"分钟前在线</font>";
+            timestr=  "<font color='#276baa'>"+new Long(disparity/60).intValue()+"分钟前</font>";
         }
         if (disparity<2*60){
             timestr=  "<font color='#276baa'>刚刚在线</font>";
