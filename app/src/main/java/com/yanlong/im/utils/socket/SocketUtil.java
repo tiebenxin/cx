@@ -253,7 +253,7 @@ public class SocketUtil {
     //重连检测时长
     private long recontTime =5 * 1000;
     //心跳步长
-    private long heartbeatStep = 30 * 1000;
+    private long heartbeatStep = 10 * 1000;
 //private boolean heartbeatStart=false;
     /***
      * 心跳线程
@@ -274,7 +274,16 @@ public class SocketUtil {
                 try {
                     while (isRun() && indexVer == threadVer) {
                    // while (heartbeatStart){
-                        sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_HEARTBEAT, null), null);
+                        if(System.currentTimeMillis()-heartbeatTime>heartbeatStep*1.5){//心跳超时
+                            //重启
+                            stop();
+
+                        }else{
+                            sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_HEARTBEAT, null), null);
+
+                        }
+
+
 
                         Thread.sleep(heartbeatStep);
 
@@ -601,6 +610,7 @@ public class SocketUtil {
     }
 
     private int testindex = 0;
+    private long heartbeatTime=0;
 
     /***
      * 拆包和包处理
@@ -632,6 +642,7 @@ public class SocketUtil {
                     break;
                 case PROTOBUF_HEARTBEAT:
                     LogUtil.getLog().i(TAG, ">>>-----<收到心跳" + testindex);
+                    heartbeatTime=System.currentTimeMillis();
                     testindex++;
                     break;
                 case AUTH:
@@ -649,6 +660,7 @@ public class SocketUtil {
                         setRunState(2);
 
                         //开始心跳
+                        heartbeatTime=System.currentTimeMillis();
                         heartbeatThread();
                         //开始启动消息重发队列
                         sendListThread();
