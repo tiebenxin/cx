@@ -1,10 +1,12 @@
 package com.yanlong.im.user.ui;
 
 import android.Manifest;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -60,6 +62,7 @@ import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.luck.picture.lib.view.bigImg.LargeImageView;
 import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.utils.StringUtil;
@@ -68,6 +71,7 @@ import net.cb.cb.library.view.TestView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -115,53 +119,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
         left_back.setOnClickListener(this);
 
-       // imgLarge = findViewById(com.luck.picture.lib.R.id.img_large);
-     /*   txtBig = findViewById(com.luck.picture.lib.R.id.txt_big);
-        txtBig.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showBigImage(indexPath);
-            }
-        });*/
-       /* imgLarge.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                imgLarge.setVisibility(View.GONE);
-
-            }
-        });
-        imgLarge.setOnLoadStateChangeListener(new BlockImageLoader.OnLoadStateChangeListener() {
-            @Override
-            public void onLoadStart(int loadType, Object param) {
-
-            }
-
-            @Override
-            public void onLoadFinished(int loadType, Object param, boolean success, Throwable throwable) {
-
-
-            }
-        });
-       imgLarge.setOnImageLoadListener(new BlockImageLoader.OnImageLoadListener() {
-            @Override
-            public void onBlockImageLoadFinished() {
-
-                imgLarge.setAlpha(1);
-                dismissDialog();
-               // ToastUtil.show(getApplicationContext(),"加载完成");
-            }
-
-            @Override
-            public void onLoadImageSize(int imageWidth, int imageHeight) {
-
-            }
-
-            @Override
-            public void onLoadFail(Exception e) {
-                ToastUtil.show(getApplicationContext(),"加载失败,请重试");
-                dismissDialog();
-            }
-        });*/
         initViewPageAdapterData();
     }
 
@@ -175,23 +132,23 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
-            loadDataThread = new loadDataThread(path, 2);
+            loadDataThread = new loadDataThread(path, 2,imgLarge);
             loadDataThread.start();
         } else {
             // 有可能本地图片
             try {
-               /*String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
-                        System.currentTimeMillis() + ".png", directory_path);
-                PictureFileUtils.copyFile(path, dirPath);*/
 
-                Log.d("showBigImage", "showBigImage: "+path);
+
+              //  Log.d("showBigImage", "showBigImage: "+path);
                 imgLarge.setImage(new FileBitmapDecoderFactory(path));
 
 
             } catch (Exception e) {
 
-                dismissDialog();
+
                 e.printStackTrace();
+            }finally {
+                dismissDialog();
             }
         }
 
@@ -207,11 +164,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(position);
         indexPath = images.get(position).getPath();
-       /* if(StringUtil.isNotNull(indexPath)){
-            txtBig.setVisibility(View.VISIBLE);
-        }else{
-            txtBig.setVisibility(View.GONE);
-        }*/
+
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -223,11 +176,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             public void onPageSelected(int position) {
                 tv_title.setText(position + 1 + "/" + images.size());
                 indexPath = images.get(position).getPath();
-               /* if(StringUtil.isNotNull(indexPath)){
-                    txtBig.setVisibility(View.VISIBLE);
-                }else{
-                    txtBig.setVisibility(View.GONE);
-                }*/
+
             }
 
             @Override
@@ -268,6 +217,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
         //当前图片路径
 
+        private MsgDao msgDao=new MsgDao();
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View contentView = inflater.inflate(com.luck.picture.lib.R.layout.picture_image_preview, container, false);
@@ -279,24 +229,81 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             final LargeImageView imgLarge = contentView.findViewById(com.luck.picture.lib.R.id.img_large);
             final TextView txtBig= contentView.findViewById(com.luck.picture.lib.R.id.txt_big);
             final String imgpath=images.get(position).getPath();
+            Log.d("atg", "----:imgpath "+imgpath);
             imgLarge.setTag(imgpath);
+
             txtBig.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     txtBig.setVisibility(View.GONE);
                     showBigImage(imgLarge,imgpath);
                     //这边要改成已读
+                    msgDao.ImgReadStatSet(imgpath,true);
                 }
             });
 
 
-                if(StringUtil.isNotNull(imgpath )){
-                    txtBig.setVisibility(View.VISIBLE);
-                }else{
-                    txtBig.setVisibility(View.GONE);
+            if(StringUtil.isNotNull(imgpath )){
+                txtBig.setVisibility(View.VISIBLE);
+            }else{
+                txtBig.setVisibility(View.GONE);
+            }
+
+            boolean readStat=msgDao.ImgReadStatGet(imgpath);
+
+            if(readStat){
+                txtBig.setVisibility(View.GONE);
+                txtBig.callOnClick();
+            }else{
+                txtBig.setVisibility(View.VISIBLE);
+            }
+
+            //查看大图------------------------
+            imgLarge.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // imgLarge.setVisibility(View.GONE);
+                    finish();
+
+                }
+            });
+            imgLarge.setOnLoadStateChangeListener(new BlockImageLoader.OnLoadStateChangeListener() {
+                @Override
+                public void onLoadStart(int loadType, Object param) {
+
                 }
 
-            LocalMedia media = images.get(position);
+                @Override
+                public void onLoadFinished(int loadType, Object param, boolean success, Throwable throwable) {
+
+
+                }
+            });
+            imgLarge.setOnImageLoadListener(new BlockImageLoader.OnImageLoadListener() {
+                @Override
+                public void onBlockImageLoadFinished() {
+
+                    imgLarge.setAlpha(1);
+                    dismissDialog();
+                    // ToastUtil.show(getApplicationContext(),"加载完成");
+                }
+
+                @Override
+                public void onLoadImageSize(int imageWidth, int imageHeight) {
+
+                }
+
+                @Override
+                public void onLoadFail(Exception e) {
+                    ToastUtil.show(getApplicationContext(),"加载失败,请重试");
+                    dismissDialog();
+                }
+            });
+            LocalMedia media=null;
+            if(!readStat){//如果未读,则先显示缩略图
+                media = images.get(position);
+            }
+
             //7.18
            /* if(media.getPath().toLowerCase().contains(".gif")){
                 media.setPictureType("image/gif");
@@ -432,47 +439,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 });
             }
 
-            //查看大图------------------------
-            imgLarge.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                   // imgLarge.setVisibility(View.GONE);
-                    finish();
 
-                }
-            });
-            imgLarge.setOnLoadStateChangeListener(new BlockImageLoader.OnLoadStateChangeListener() {
-                @Override
-                public void onLoadStart(int loadType, Object param) {
-
-                }
-
-                @Override
-                public void onLoadFinished(int loadType, Object param, boolean success, Throwable throwable) {
-
-
-                }
-            });
-            imgLarge.setOnImageLoadListener(new BlockImageLoader.OnImageLoadListener() {
-                @Override
-                public void onBlockImageLoadFinished() {
-
-                    imgLarge.setAlpha(1);
-                    dismissDialog();
-                    // ToastUtil.show(getApplicationContext(),"加载完成");
-                }
-
-                @Override
-                public void onLoadImageSize(int imageWidth, int imageHeight) {
-
-                }
-
-                @Override
-                public void onLoadFail(Exception e) {
-                    ToastUtil.show(getApplicationContext(),"加载失败,请重试");
-                    dismissDialog();
-                }
-            });
 
             (container).addView(contentView, 0);
             return contentView;
@@ -521,7 +488,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private Result scanningQrImage(String path) {
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
-            loadDataThread = new loadDataThread(path, 1);
+            loadDataThread = new loadDataThread(path, 1,null);
             loadDataThread.start();
         } else {
             // 有可能本地图片
@@ -587,7 +554,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         showPleaseDialog();
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
-            loadDataThread = new loadDataThread(path, 0);
+            loadDataThread = new loadDataThread(path, 0,null);
             loadDataThread.start();
         } else {
             // 有可能本地图片
@@ -595,6 +562,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
                         System.currentTimeMillis() + ".png", directory_path);
                 PictureFileUtils.copyFile(path, dirPath);
+                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                Uri uri = Uri.fromFile(new File(dirPath));
+                intent.setData(uri);
+                getApplicationContext().sendBroadcast(intent);
                 ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + dirPath);
                 dismissDialog();
             } catch (IOException e) {
@@ -610,18 +581,21 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     // 进度条线程
     public class loadDataThread extends Thread {
         private String path;
+        private Object obj;
         private int type;
 
-        public loadDataThread(String path, int type) {
+        public loadDataThread(String path, int type,Object obj) {
             super();
+            Log.d("TAG", "------------loadDataThread: "+obj);
             this.path = path;
             this.type = type;
+            this.obj=obj;
         }
 
         @Override
         public void run() {
             try {
-                showLoadingImage(path, type);
+                showLoadingImage(path, type,obj);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -661,6 +635,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 Message message = handler.obtainMessage();
                 message.what = 400;
                 message.obj = obj;
+                ((View)obj).setTag(path);
+                Log.d("TAG", "------------showLoadingImage: "+obj);
                 handler.sendMessage(message);
             }else if(type==1) {
                 Message message = handler.obtainMessage();
@@ -690,8 +666,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 case 400:
 
                     LargeImageView imgLarge=(LargeImageView)msg.obj;
-                    String biPath = (String) imgLarge.getTag();
-                    showBigImage(imgLarge,biPath);
+                    Log.d("atg", "----:imgLarge "+imgLarge);
+                    if(imgLarge!=null){
+                        Log.d("atg", "----:imgLarge getTag"+imgLarge.getTag());
+                        String biPath = (String) imgLarge.getTag();
+                        showBigImage(imgLarge,biPath);
+                    }
+
                     break;
                 case 300:
                     String qrPath = (String) msg.obj;

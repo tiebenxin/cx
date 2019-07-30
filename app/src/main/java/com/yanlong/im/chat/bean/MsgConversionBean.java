@@ -3,10 +3,13 @@ package com.yanlong.im.chat.bean;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
+
+import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.RealmList;
 
@@ -169,12 +172,28 @@ public class MsgConversionBean {
                     if(bean.getAcceptBeGroup().getNoticeMessage(i).getUid()== UserAction.getMyId().longValue()){
                         names +="你,";
                     }else{
-                        names += bean.getAcceptBeGroup().getNoticeMessage(i).getNickname() + ",";
+                        String name=bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
+                        Long uid= bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
+
+                        MsgAllBean gmsg = new MsgDao().msgGetLastGroup4Uid(bean.getGid(), uid);
+                        if (gmsg != null) {
+                            name = StringUtil.isNotNull(gmsg.getFrom_group_nickname())?gmsg.getFrom_group_nickname():name;
+                        }
+
+                        UserInfo userinfo=DaoUtil.findOne(UserInfo.class,"uid",uid);
+                       if(userinfo!=null){
+                           name= StringUtil.isNotNull(userinfo.getMkName())?userinfo.getMkName():name;
+                       }
+
+
+
+                        names += name+ ",";
                     }
 
                 }
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
-                gNotice.setNote(names + "已加入群");
+                String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过扫码":"";
+                gNotice.setNote(names +way+"已加入群");
                 msgAllBean.setMsgNotice(gNotice);
                 break;
             case DESTROY_GROUP://群解散
