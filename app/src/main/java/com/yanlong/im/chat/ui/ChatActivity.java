@@ -1032,15 +1032,20 @@ public class ChatActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
         if (event.getState() == 0) {
+           // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
             //处理失败的情况
+            Log.d("tag", "taskUpImgEvevt -1: ===============>"+event.getMsgid());
 
         } else if (event.getState() == 1) {
+          //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgid());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
 
 
+        }else{
+          //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgid());
         }
     }
 

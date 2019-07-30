@@ -74,7 +74,7 @@ public class UpLoadService extends Service {
     }
 
     private static long oldUptime = 0;
-private static EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
+
     public static void onAdd(final String id, String file,final Boolean isOriginal,final Long toUId,final String toGid) {
         final UpProgress upProgress = new UpProgress();
         upProgress.setId(id);
@@ -85,7 +85,7 @@ private static EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent()
 
             @Override
             public void success(final String url) {
-
+                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
                 // upProgress.setProgress(100);
                 updataProgress(id, 100);
                 eventUpImgLoadEvent.setMsgid(id);
@@ -96,12 +96,15 @@ private static EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent()
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
+               // Log.d("tag", "success : ===============>"+id);
               //  myback.success(url);
 
             }
 
             @Override
             public void fail() {
+                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
+              //  Log.d("tag", "fail : ===============>"+id);
                 //alert.dismiss();
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
@@ -119,9 +122,11 @@ private static EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent()
 
             @Override
             public void inProgress(long progress, long zong) {
-                if (System.currentTimeMillis() - oldUptime < 200) {
+                if (System.currentTimeMillis() - oldUptime < 300) {
                     return;
                 }
+                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
+               // Log.d("tag", "inProgress : ===============>"+id);
                 oldUptime = System.currentTimeMillis();
 
                 int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
