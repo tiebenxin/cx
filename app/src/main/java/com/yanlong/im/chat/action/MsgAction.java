@@ -107,7 +107,7 @@ public class MsgAction {
 
     }
 
-    public void groupAdd(String id, List<UserInfo> members,String inviter, CallBack<ReturnBean> callback) {
+    public void groupAdd(String id, List<UserInfo> members, String inviter, CallBack<ReturnBean> callback) {
         List<GroupUserInfo> groupUserInfos = new ArrayList<>();
         for (int i = 0; i < members.size(); i++) {
             GroupUserInfo groupUserInfo = new GroupUserInfo();
@@ -116,7 +116,7 @@ public class MsgAction {
             groupUserInfo.setNickname(members.get(i).getName());
             groupUserInfos.add(groupUserInfo);
         }
-        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos),inviter), callback);
+        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos), inviter), callback);
     }
 
 
@@ -320,8 +320,8 @@ public class MsgAction {
     /**
      * 同意进群
      */
-    public void groupRequest(final String aid, String gid, String uid, String name, final Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupRequest(gid, uid, name), new Callback<ReturnBean>() {
+    public void groupRequest(final String aid, String gid, String uid, String name, int joinType, String inviter, final Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupRequest(gid, uid, name, joinType, inviter), new Callback<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null)

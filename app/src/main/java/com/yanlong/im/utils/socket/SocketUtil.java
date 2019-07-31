@@ -62,7 +62,6 @@ public class SocketUtil {
         }
 
 
-
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
             //保存消息和处理回执
@@ -149,7 +148,7 @@ public class SocketUtil {
      */
     public void addEvent(SocketEvent event) {
         if (!eventLists.contains(event)) {
-            LogUtil.getLog().i(TAG,">>>>>>添加消息监听");
+            LogUtil.getLog().i(TAG, ">>>>>>添加消息监听");
             eventLists.add(event);
         }
 
@@ -160,7 +159,7 @@ public class SocketUtil {
      * @param event
      */
     public void removeEvent(SocketEvent event) {
-        LogUtil.getLog().i(TAG,">>>>>>移除消息监听");
+        LogUtil.getLog().i(TAG, ">>>>>>移除消息监听");
         eventLists.remove(event);
     }
 
@@ -181,24 +180,17 @@ public class SocketUtil {
         if (isRun())
             return;
         //线程版本+1
-       // threadVer++;
+        // threadVer++;
         setRunState(1);
         try {
             if (socketChannel == null || !socketChannel.isConnected()) {
                 connect();
-
             }
-
         } catch (Exception e) {
             setRunState(0);
             e.printStackTrace();
             stop();
-
-
-
-
         }
-
     }
 
     /***
@@ -218,11 +210,11 @@ public class SocketUtil {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            socketChannel=null;
+        } finally {
+            socketChannel = null;
         }
 
-        LogUtil.getLog().d(TAG,">>>>关闭连接-------------------------");
+        LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
 
     }
 
@@ -239,11 +231,11 @@ public class SocketUtil {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            socketChannel=null;
+        } finally {
+            socketChannel = null;
         }
 
-        LogUtil.getLog().d(TAG,">>>>关闭连接-------------------------");
+        LogUtil.getLog().d(TAG, ">>>>关闭连接-------------------------");
 
     }
 
@@ -251,10 +243,11 @@ public class SocketUtil {
     private boolean isAuthFail = false;
 
     //重连检测时长
-    private long recontTime =5 * 1000;
+    private long recontTime = 5 * 1000;
     //心跳步长
     private long heartbeatStep = 10 * 1000;
 //private boolean heartbeatStart=false;
+
     /***
      * 心跳线程
      */
@@ -273,16 +266,15 @@ public class SocketUtil {
             public void run() {
                 try {
                     while (isRun() && indexVer == threadVer) {
-                   // while (heartbeatStart){
-                        if(System.currentTimeMillis()-heartbeatTime>heartbeatStep*1.5){//心跳超时
+                        // while (heartbeatStart){
+                        if (System.currentTimeMillis() - heartbeatTime > heartbeatStep * 1.5) {//心跳超时
                             //重启
                             stop();
 
-                        }else{
+                        } else {
                             sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_HEARTBEAT, null), null);
 
                         }
-
 
 
                         Thread.sleep(heartbeatStep);
@@ -331,18 +323,17 @@ public class SocketUtil {
     }
 
 
-
-    private  boolean isStart=false;
+    private boolean isStart = false;
 
     /***
      * 启动
      */
     public void startSocket() {
-        if(isStart){
-            LogUtil.getLog().i(TAG,">>>>> 当前正在运行");
+        if (isStart) {
+            LogUtil.getLog().i(TAG, ">>>>> 当前正在运行");
             return;
         }
-        isStart=true;
+        isStart = true;
 
         new Thread(new Runnable() {
 
@@ -350,30 +341,28 @@ public class SocketUtil {
             public void run() {
 
 
-
-                LogUtil.getLog().i(TAG,">>>>>检查socketChannel 空: "+(socketChannel==null));
-                if(socketChannel!=null)
-                LogUtil.getLog().i(TAG,">>>>>检查socketChannel 已连接:"+socketChannel.isConnected());
-                LogUtil.getLog().i(TAG,">>>>>检查运行状态:"+isRun);
-                LogUtil.getLog().i(TAG,">>>>>检查运行线程版本:"+threadVer);
-
+                LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 空: " + (socketChannel == null));
+                if (socketChannel != null)
+                    LogUtil.getLog().i(TAG, ">>>>>检查socketChannel 已连接:" + socketChannel.isConnected());
+                LogUtil.getLog().i(TAG, ">>>>>检查运行状态:" + isRun);
+                LogUtil.getLog().i(TAG, ">>>>>检查运行线程版本:" + threadVer);
 
 
-                while (isStart){
-                    LogUtil.getLog().i(TAG,">>>>>服务器链接检查isRun: "+isRun);
-                    LogUtil.getLog().i(TAG,">>>>>服务器链接socketChannel: "+socketChannel);
-                    if(socketChannel!=null)
-                    LogUtil.getLog().i(TAG,">>>>>服务器链接isConnected: "+socketChannel.isConnected());
-                    if((socketChannel==null||!socketChannel.isConnected())&&isRun==0){//没有启动,就执行启动
+                while (isStart) {
+                    LogUtil.getLog().i(TAG, ">>>>>服务器链接检查isRun: " + isRun);
+                    LogUtil.getLog().i(TAG, ">>>>>服务器链接socketChannel: " + socketChannel);
+                    if (socketChannel != null)
+                        LogUtil.getLog().i(TAG, ">>>>>服务器链接isConnected: " + socketChannel.isConnected());
+                    if ((socketChannel == null || !socketChannel.isConnected()) && isRun == 0) {//没有启动,就执行启动
 
                         //线程版本+1
                         threadVer++;
-                        LogUtil.getLog().i(TAG,">>>>>新线程版本:"+threadVer);
+                        LogUtil.getLog().i(TAG, ">>>>>新线程版本:" + threadVer);
                         SocketUtil.this.run();
-                        LogUtil.getLog().i(TAG,">>>>>新线程结束");
+                        LogUtil.getLog().i(TAG, ">>>>>新线程结束");
 
-                    }else {//已经启动了
-                        LogUtil.getLog().i(TAG,">>>>>跳过当前线程版本:"+threadVer);
+                    } else {//已经启动了
+                        LogUtil.getLog().i(TAG, ">>>>>跳过当前线程版本:" + threadVer);
                     }
 
                     try {
@@ -384,13 +373,6 @@ public class SocketUtil {
                 }
 
 
-
-
-
-
-
-
-
             }
         }).start();
     }
@@ -398,9 +380,9 @@ public class SocketUtil {
     /***
      * 结束socket
      */
-    public void endSocket(){
-        isStart=false;
-    //    System.out.println(">>>endSocket:isRun"+isRun);
+    public void endSocket() {
+        isStart = false;
+        //    System.out.println(">>>endSocket:isRun"+isRun);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -408,7 +390,7 @@ public class SocketUtil {
             }
         }).start();
 
-    //    System.out.println(">>>endSocket:isRun"+isRun);
+        //    System.out.println(">>>endSocket:isRun"+isRun);
 
     }
 
@@ -461,12 +443,9 @@ public class SocketUtil {
     }
 
 
-
-
-
     //1.
     private SSLSocketChannel2 socketChannel;
-  //  private SocketChannel socketChannel;
+    //  private SocketChannel socketChannel;
 
 
     /***
@@ -475,12 +454,11 @@ public class SocketUtil {
     private void connect() throws Exception {
 
         //2.
-        socketChannel = new  SSLSocketChannel2( SocketChannel.open());
+        socketChannel = new SSLSocketChannel2(SocketChannel.open());
         //socketChannel =  SocketChannel.open();
 
 
         socketChannel.configureBlocking(false);
-
 
 
         //---------------------------------------------链接中
@@ -488,20 +466,20 @@ public class SocketUtil {
         if (!socketChannel.connect(new InetSocketAddress(AppConfig.SOCKET_IP, AppConfig.SOCKET_PORT))) {
             //不断地轮询连接状态，直到完成连
             System.out.println(">>>链接中");
-            long ttime=System.currentTimeMillis();
+            long ttime = System.currentTimeMillis();
             while (!socketChannel.finishConnect()) {
 
                 //在等待连接的时间里
                 Thread.sleep(200);
-                System.out.println(">>>链接进行"+(System.currentTimeMillis()-ttime));
-                if(System.currentTimeMillis()-ttime>2*1000){
+                System.out.println(">>>链接进行" + (System.currentTimeMillis() - ttime));
+                if (System.currentTimeMillis() - ttime > 2 * 1000) {
                     System.out.print(">>>链接中超时");
                     break;
                 }
 
             }
             System.out.println(">>>链接执行完毕");
-            if(!socketChannel.isConnected()){
+            if (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
                 throw new NetworkErrorException();
             }
@@ -510,20 +488,19 @@ public class SocketUtil {
             //----------------------------------------------------
 
             //3.
-          if(socketChannel.tryTLS(1) ==0){
-              socketChannel.close();
-              socketChannel=null;
-              LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
-              //证书问题
-              throw new NetworkErrorException();
+            if (socketChannel.tryTLS(1) == 0) {
+                socketChannel.close();
+                socketChannel = null;
+                LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
+                //证书问题
+                throw new NetworkErrorException();
 
-          }else{
-              LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
-              receive();
-              //发送认证请求
-              sendData(SocketData.msg4Auth(), null);
-          }
-
+            } else {
+                LogUtil.getLog().d(TAG, "\n>>>>链接成功:线程ver" + threadVer);
+                receive();
+                //发送认证请求
+                sendData(SocketData.msg4Auth(), null);
+            }
 
 
         }
@@ -610,7 +587,7 @@ public class SocketUtil {
     }
 
     private int testindex = 0;
-    private long heartbeatTime=0;
+    private long heartbeatTime = 0;
 
     /***
      * 拆包和包处理
@@ -642,7 +619,7 @@ public class SocketUtil {
                     break;
                 case PROTOBUF_HEARTBEAT:
                     LogUtil.getLog().i(TAG, ">>>-----<收到心跳" + testindex);
-                    heartbeatTime=System.currentTimeMillis();
+                    heartbeatTime = System.currentTimeMillis();
                     testindex++;
                     break;
                 case AUTH:
@@ -651,7 +628,7 @@ public class SocketUtil {
                     MsgBean.AuthResponseMessage ruthmsg = SocketData.authConversion(indexData);
                     LogUtil.getLog().i(TAG, ">>>-----<鉴权" + ruthmsg.getAccepted());
                     //-------------------------------------------------------------------------test
-                    if (ruthmsg.getAccepted()!=1) {//鉴权失败直接停止
+                    if (ruthmsg.getAccepted() != 1) {//鉴权失败直接停止
                         isAuthFail = true;
                         stop();
                         //6.20 鉴权失败退出登录
@@ -660,7 +637,7 @@ public class SocketUtil {
                         setRunState(2);
 
                         //开始心跳
-                        heartbeatTime=System.currentTimeMillis();
+                        heartbeatTime = System.currentTimeMillis();
                         heartbeatThread();
                         //开始启动消息重发队列
                         sendListThread();

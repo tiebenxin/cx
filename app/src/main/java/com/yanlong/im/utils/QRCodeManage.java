@@ -34,8 +34,9 @@ public class QRCodeManage {
     //YLIM://ADDFRIEND?id=xxx
     //YLIM://ADDGROUP?id=xxx
     public static final String HEAD = "YLIM:"; //二维码头部
-    public static final String ID = "id";
-    public static final String UID = "uid";
+    public static final String ID = "id"; //群id
+    public static final String UID = "uid"; //用户ID
+    public static final String TIME = "time"; //时间戳
 
     public static final String ADD_FRIEND_FUNCHTION = "ADDFRIEND"; //添加好友
     public static final String ADD_GROUP_FUNCHTION = "ADDGROUP"; //添加群

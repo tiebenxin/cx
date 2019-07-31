@@ -72,7 +72,7 @@ public interface MsgServer {
 
     @POST("/group/accept-request")
     @FormUrlEncoded
-    Call<ReturnBean> groupRequest(@Field("gid") String gid, @Field("uid") String uid, @Field("membername") String nickname);
+    Call<ReturnBean> groupRequest(@Field("gid") String gid, @Field("uid") String uid, @Field("nickname") String nickname,@Field("joinType") Integer joinType,@Field("inviter") String inviter);
 
     @POST("/group/edit-announcement")
     @FormUrlEncoded
