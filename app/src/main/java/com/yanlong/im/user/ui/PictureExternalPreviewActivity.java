@@ -139,7 +139,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             try {
 
 
-              //  Log.d("showBigImage", "showBigImage: "+path);
+                Log.d("showBigImage", "showBigImage: "+path);
                 imgLarge.setImage(new FileBitmapDecoderFactory(path));
 
 
@@ -242,87 +242,82 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
             });
 
+            boolean isOriginal=false;//原图
 
-            if(StringUtil.isNotNull(imgpath )){
-                txtBig.setVisibility(View.VISIBLE);
-            }else{
-                txtBig.setVisibility(View.GONE);
-            }
-
+            isOriginal=StringUtil.isNotNull(imgpath );
             boolean readStat=msgDao.ImgReadStatGet(imgpath);
+            if(isOriginal){//是原图
 
-            if(readStat){
-                txtBig.setVisibility(View.GONE);
-                txtBig.callOnClick();
+                if(readStat){//原图已读,就显示
+                    txtBig.setVisibility(View.GONE);
+                    txtBig.callOnClick();
+                }else{
+                    txtBig.setVisibility(View.VISIBLE);
+                }
+
+                //查看大图------------------------
+                imgLarge.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // imgLarge.setVisibility(View.GONE);
+                        finish();
+
+                    }
+                });
+                imgLarge.setOnLoadStateChangeListener(new BlockImageLoader.OnLoadStateChangeListener() {
+                    @Override
+                    public void onLoadStart(int loadType, Object param) {
+
+                    }
+
+                    @Override
+                    public void onLoadFinished(int loadType, Object param, boolean success, Throwable throwable) {
+
+
+                    }
+                });
+                imgLarge.setOnImageLoadListener(new BlockImageLoader.OnImageLoadListener() {
+                    @Override
+                    public void onBlockImageLoadFinished() {
+
+                        imgLarge.setAlpha(1);
+                        dismissDialog();
+                        // ToastUtil.show(getApplicationContext(),"加载完成");
+                    }
+
+                    @Override
+                    public void onLoadImageSize(int imageWidth, int imageHeight) {
+
+                    }
+
+                    @Override
+                    public void onLoadFail(Exception e) {
+                        ToastUtil.show(getApplicationContext(),"加载失败,请重试");
+                        dismissDialog();
+                    }
+                });
+
+
             }else{
-                txtBig.setVisibility(View.VISIBLE);
+                txtBig.setVisibility(View.GONE);
             }
 
-            //查看大图------------------------
-            imgLarge.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // imgLarge.setVisibility(View.GONE);
-                    finish();
-
-                }
-            });
-            imgLarge.setOnLoadStateChangeListener(new BlockImageLoader.OnLoadStateChangeListener() {
-                @Override
-                public void onLoadStart(int loadType, Object param) {
-
-                }
-
-                @Override
-                public void onLoadFinished(int loadType, Object param, boolean success, Throwable throwable) {
 
 
-                }
-            });
-            imgLarge.setOnImageLoadListener(new BlockImageLoader.OnImageLoadListener() {
-                @Override
-                public void onBlockImageLoadFinished() {
 
-                    imgLarge.setAlpha(1);
-                    dismissDialog();
-                    // ToastUtil.show(getApplicationContext(),"加载完成");
-                }
 
-                @Override
-                public void onLoadImageSize(int imageWidth, int imageHeight) {
 
-                }
 
-                @Override
-                public void onLoadFail(Exception e) {
-                    ToastUtil.show(getApplicationContext(),"加载失败,请重试");
-                    dismissDialog();
-                }
-            });
             LocalMedia media=null;
             if(!readStat){//如果未读,则先显示缩略图
                 media = images.get(position);
             }
 
-            //7.18
-           /* if(media.getPath().toLowerCase().contains(".gif")){
-                media.setPictureType("image/gif");
-            }
-*/
 
             if (media != null) {
                 final String pictureType = media.getPictureType();
                 final String path;
-               /* if (media.isCut() && !media.isCompressed()) {
-                    // 裁剪过
-                    path = media.getCutPath();
-                } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
-                    // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
-                    path = media.getCompressPath();
-                } else {
-                    path = media.getPath();
-                }*/
-               //7.22 优先展现压缩
+
                 path = media.getCompressPath();
                 boolean isHttp = PictureMimeType.isHttp(path);
                 // 可以长按保存并且是网络图片显示一个对话框

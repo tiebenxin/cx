@@ -1117,9 +1117,13 @@ public class MsgDao {
      * @return
      */
     public boolean ImgReadStatGet(String originUrl) {
+        if(!StringUtil.isNotNull(originUrl)){
+            return false;
+        }
         if (originUrl.startsWith("file:")) {
             return true;
         }
+
         ImageMessage img = DaoUtil.findOne(ImageMessage.class, "origin", originUrl);
         if (img != null) {
             return img.isReadOrigin();
