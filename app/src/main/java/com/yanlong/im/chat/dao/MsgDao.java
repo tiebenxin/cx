@@ -627,7 +627,7 @@ public class MsgDao {
 
     /**
      * 是否有草稿
-     * */
+     */
     public boolean isSaveDraft(String gid) {
         boolean isSaveDraft = false;
         Session session = DaoUtil.findOne(Session.class, "gid", gid);
@@ -1117,9 +1117,13 @@ public class MsgDao {
      * @return
      */
     public boolean ImgReadStatGet(String originUrl) {
-        if(originUrl.startsWith("file:")){
+        if(!StringUtil.isNotNull(originUrl)){
+            return false;
+        }
+        if (originUrl.startsWith("file:")) {
             return true;
         }
+
         ImageMessage img = DaoUtil.findOne(ImageMessage.class, "origin", originUrl);
         if (img != null) {
             return img.isReadOrigin();
@@ -1132,7 +1136,7 @@ public class MsgDao {
      * @param originUrl
      * @param isread
      */
-    public void  ImgReadStatSet(String originUrl,boolean isread) {
+    public void ImgReadStatSet(String originUrl, boolean isread) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         ImageMessage img = realm.where(ImageMessage.class).equalTo("origin", originUrl).findFirst();
@@ -1143,6 +1147,24 @@ public class MsgDao {
 
         realm.commitTransaction();
         realm.close();
+
+    }
+
+    //修改消息状态
+    public MsgAllBean fixStataMsg(String msgid, int sendState) {
+        MsgAllBean ret=null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+        if (msgAllBean != null) {
+            msgAllBean.setSend_state(sendState);
+            realm.insertOrUpdate(msgAllBean);
+            ret=realm.copyFromRealm(msgAllBean);
+        }
+        realm.commitTransaction();
+        realm.close();
+
+       return ret;
 
     }
 

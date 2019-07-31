@@ -1032,15 +1032,23 @@ public class ChatActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
         if (event.getState() == 0) {
+           // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
             //处理失败的情况
-
-        } else if (event.getState() == 1) {
+            Log.d("tag", "taskUpImgEvevt -1: ===============>"+event.getMsgid());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
 
 
+        } else if (event.getState() == 1) {
+          //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgid());
+            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+            replaceListDataAndNotify(msgAllbean);
+
+
+        }else{
+          //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgid());
         }
     }
 
@@ -1164,7 +1172,7 @@ public class ChatActivity extends AppActivity {
                 Integer pg = null;
                 pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
-
+                holder.viewChatItem.setErr(msgbean.getSend_state());
                 holder.viewChatItem.setImgageProg(pg);
             }
         }
@@ -1418,16 +1426,29 @@ public class ChatActivity extends AppActivity {
                 public void onClick(View v) {
 
                     //从数据拉出来,然后再发送
-                    MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "request_id", msgbean.getRequest_id());
+                    MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgbean.getMsg_id());
 
                     try {
-                        MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
-                        SocketUtil.getSocketUtil().sendData4Msg(bean);
-                        //点击发送的时候如果要改变成发送中的状态
-                        remsg.setSend_state(2);
-                        DaoUtil.update(remsg);
+                        if(remsg.getMsg_type()==4){//图片重发处理7.31
 
-                        taskRefreshMessage();
+
+                            String file=remsg.getImage().getLocalimg();
+                            boolean isArtworkMaster=StringUtil.isNotNull(remsg.getImage().getOrigin()) ?false:true;
+                            MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid,   file, isArtworkMaster);
+                            replaceListDataAndNotify(imgMsgBean);
+                            UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
+                            startService(new Intent(getContext(), UpLoadService.class));
+
+                        }else{
+                            MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
+                            SocketUtil.getSocketUtil().sendData4Msg(bean);
+                            //点击发送的时候如果要改变成发送中的状态
+                            remsg.setSend_state(2);
+                            DaoUtil.update(remsg);
+
+                            taskRefreshMessage();
+                        }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

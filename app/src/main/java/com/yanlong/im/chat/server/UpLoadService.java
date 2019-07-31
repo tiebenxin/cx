@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
@@ -74,7 +75,8 @@ public class UpLoadService extends Service {
     }
 
     private static long oldUptime = 0;
-private static EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
+
+    private static MsgDao msgDao=new MsgDao();
     public static void onAdd(final String id, String file,final Boolean isOriginal,final Long toUId,final String toGid) {
         final UpProgress upProgress = new UpProgress();
         upProgress.setId(id);
@@ -85,7 +87,7 @@ private static EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent()
 
             @Override
             public void success(final String url) {
-
+                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
                 // upProgress.setProgress(100);
                 updataProgress(id, 100);
                 eventUpImgLoadEvent.setMsgid(id);
@@ -96,32 +98,41 @@ private static EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent()
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
+               // Log.d("tag", "success : ===============>"+id);
               //  myback.success(url);
 
             }
 
             @Override
             public void fail() {
+                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
+              //  Log.d("tag", "fail : ===============>"+id);
                 //alert.dismiss();
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
                 //  upProgress.setProgress(100);
                 updataProgress(id, 100);
 
+
                 eventUpImgLoadEvent.setMsgid(id);
                 eventUpImgLoadEvent.setState(-1);
                 eventUpImgLoadEvent.setUrl("");
                 eventUpImgLoadEvent.setOriginal(isOriginal);
+                eventUpImgLoadEvent.setMsgAllBean( msgDao.fixStataMsg(id,1));//写库
                 EventBus.getDefault().post(eventUpImgLoadEvent);
+
+
 
                // myback.fail();
             }
 
             @Override
             public void inProgress(long progress, long zong) {
-                if (System.currentTimeMillis() - oldUptime < 200) {
+                if (System.currentTimeMillis() - oldUptime < 300) {
                     return;
                 }
+                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
+               // Log.d("tag", "inProgress : ===============>"+id);
                 oldUptime = System.currentTimeMillis();
 
                 int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
