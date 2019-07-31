@@ -76,8 +76,12 @@ public class UpFileAction {
     }
     CountDownLatch signal;
 
-    public void upFileSyn(final Context context, final UpFileUtil.OssUpCallback callback, final String filePath) {
+    public void upFileSyn(final Context context, final UpFileUtil.OssUpCallback callback,  String filePath) {
 
+        if(filePath.startsWith("file://")){
+            filePath=filePath.replace("file://","");
+        }
+       final String filep=filePath;
         signal = new CountDownLatch(1);
 
 
@@ -117,13 +121,14 @@ public class UpFileAction {
                                                         public void inProgress(long progress, long zong) {
                                                             callback.inProgress(progress,zong);
                                                         }
-                                                    }, filePath, null);
+                                                    }, filep, null);
                                         }
                                     }).start();
 
 
                                 }else{
                                     signal.countDown();
+                                    callback.fail();
                                     ToastUtil.show(context,"上传失败");
                                 }
 
@@ -133,6 +138,7 @@ public class UpFileAction {
                             @Override
                             public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
                                 signal.countDown();
+                                callback.fail();
                                 super.onFailure(call, t);
                             }
                         });

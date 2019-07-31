@@ -833,11 +833,11 @@ public class SocketData {
         msgAllBean.setFrom_uid(myinfo.getUid());
         msgAllBean.setFrom_avatar(myinfo.getHead());
         msgAllBean.setFrom_nickname(myinfo.getName());
-        msgAllBean.setRequest_id(System.currentTimeMillis()+"");
+        msgAllBean.setRequest_id(System.currentTimeMillis() + "");
         msgAllBean.setTimestamp(System.currentTimeMillis());
         msgAllBean.setMsg_type(4);
         msgAllBean.setTo_uid(toId);
-        msgAllBean.setGid(toGid==null?"":toGid);
+        msgAllBean.setGid(toGid == null ? "" : toGid);
         msgAllBean.setSend_state(-1);
         ImageMessage image = new ImageMessage();
         image.setLocalimg(url);
@@ -853,6 +853,16 @@ public class SocketData {
         DaoUtil.update(msgAllBean);
 
         return msgAllBean;
+    }
+
+    /**
+     * 图片发送失败
+     * @param msgId
+     * @return
+     */
+    public static MsgAllBean send4ImageFail(String msgId) {
+        return msgDao.fixStataMsg(msgId, 1);
+
     }
 
     /***

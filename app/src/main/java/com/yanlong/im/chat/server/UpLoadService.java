@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
@@ -75,6 +76,7 @@ public class UpLoadService extends Service {
 
     private static long oldUptime = 0;
 
+    private static MsgDao msgDao=new MsgDao();
     public static void onAdd(final String id, String file,final Boolean isOriginal,final Long toUId,final String toGid) {
         final UpProgress upProgress = new UpProgress();
         upProgress.setId(id);
@@ -111,11 +113,15 @@ public class UpLoadService extends Service {
                 //  upProgress.setProgress(100);
                 updataProgress(id, 100);
 
+
                 eventUpImgLoadEvent.setMsgid(id);
                 eventUpImgLoadEvent.setState(-1);
                 eventUpImgLoadEvent.setUrl("");
                 eventUpImgLoadEvent.setOriginal(isOriginal);
+                eventUpImgLoadEvent.setMsgAllBean( msgDao.fixStataMsg(id,1));//写库
                 EventBus.getDefault().post(eventUpImgLoadEvent);
+
+
 
                // myback.fail();
             }
