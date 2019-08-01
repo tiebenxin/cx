@@ -16,6 +16,7 @@ import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -451,7 +452,7 @@ public class SocketData {
                     //时间要和ack一起返回
                     .setTimestamp(System.currentTimeMillis())
                     .build();
-            Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
+            //  Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
@@ -784,8 +785,8 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal) {
-        MsgBean.ImageMessage msg;
+    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize) {
+        MsgBean.ImageMessage.Builder msg;
         String extTh = "/below-20k";
         String extPv = "/below-200k";
         if (url.toLowerCase().contains(".gif")) {
@@ -796,17 +797,26 @@ public class SocketData {
             msg = MsgBean.ImageMessage.newBuilder()
                     .setOrigin(url)
                     .setPreview(url + extPv)
-                    .setThumbnail(url + extTh)
-                    .build();
+                    .setThumbnail(url + extTh);
+
         } else {
             msg = MsgBean.ImageMessage.newBuilder()
                     .setPreview(url)
-                    .setThumbnail(url + extTh)
+                    .setThumbnail(url + extTh);
+
+        }
+        MsgBean.ImageMessage msgb;
+        if (imageSize != null) {
+            msgb = msg.setWidth(imageSize.getWidth())
+                    .setHeight(imageSize.getHeight())
+                    .setSize(new Long(imageSize.getSize()).intValue())
                     .build();
+        } else {
+            msgb = msg.build();
         }
 
 
-        return send4BaseById(msgId, toId, toGid, MsgBean.MessageType.IMAGE, msg);
+        return send4BaseById(msgId, toId, toGid, MsgBean.MessageType.IMAGE, msgb);
     }
 
     public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2) {
@@ -821,7 +831,7 @@ public class SocketData {
     }
 
     public static MsgAllBean send4Image(Long toId, String toGid, String url) {
-        return send4Image(getUUID(), toId, toGid, url, false);
+        return send4Image(getUUID(), toId, toGid, url, false, null);
     }
 
     public static MsgAllBean send4ImagePre(String msgId, Long toId, String toGid, String url, boolean isOriginal) {
@@ -857,6 +867,7 @@ public class SocketData {
 
     /**
      * 图片发送失败
+     *
      * @param msgId
      * @return
      */

@@ -12,6 +12,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -83,6 +84,9 @@ public class UpLoadService extends Service {
         //  upProgress.setProgress(0);
         upProgress.setFile(file);
         updataProgress(id, 0);
+        final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(file);
+       // Log.d("TAG", "----------onAdd: "+img.getSizeStr());
+        //Log.d("TAG", "----------: "+img.getWidth());
         upProgress.setCallback(new UpFileUtil.OssUpCallback() {
 
             @Override
@@ -94,7 +98,7 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setState(1);
                 eventUpImgLoadEvent.setUrl(url);
                 eventUpImgLoadEvent.setOriginal(isOriginal);
-                Object msgbean=SocketData.send4Image(id, toUId, toGid, url, isOriginal);
+                Object msgbean=SocketData.send4Image(id, toUId, toGid, url, isOriginal,img);
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);

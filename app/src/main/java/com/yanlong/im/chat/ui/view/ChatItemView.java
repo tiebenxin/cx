@@ -529,8 +529,11 @@ public class ChatItemView extends LinearLayout {
                     if (resource instanceof GifDrawable) {
                         GifDrawable bt2 = (GifDrawable) resource;
                         if(bt2!=null){
-                            w = bt2.getFirstFrame().getWidth();
-                            h = bt2.getFirstFrame().getHeight();
+                            if(bt2.getFirstFrame()!=null){
+                                w = bt2.getFirstFrame().getWidth();
+                                h = bt2.getFirstFrame().getHeight();
+                            }
+
                         }
 
                     } else if (resource instanceof Bitmap) {

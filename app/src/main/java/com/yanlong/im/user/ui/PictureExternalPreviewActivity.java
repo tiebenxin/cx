@@ -64,6 +64,7 @@ import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.QRCodeManage;
 
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
@@ -283,6 +284,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     txtBig.callOnClick();
                 }else{
                     txtBig.setVisibility(View.VISIBLE);
+                    txtBig.setText("查看原图("+ ImgSizeUtil.formatFileSize(images.get(position).getSize()) +")");
                 }
 
                 //查看大图------------------------

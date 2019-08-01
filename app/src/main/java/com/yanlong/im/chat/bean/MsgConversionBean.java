@@ -78,7 +78,7 @@ public class MsgConversionBean {
             case IMAGE:
                 ImageMessage image = new ImageMessage();
                 image.setMsgid(msgAllBean.getMsg_id());
-                Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
+               // Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
 
 
                MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
@@ -93,7 +93,9 @@ public class MsgConversionBean {
                 image.setOrigin(bean.getImage().getOrigin());
                 image.setPreview(bean.getImage().getPreview());
                 image.setThumbnail(bean.getImage().getThumbnail());
-                Log.d("TAG", "ToBean: image"+bean.getImage());
+                image.setWidth(bean.getImage().getWidth());
+                image.setHeight(bean.getImage().getHeight());
+                image.setSize(bean.getImage().getSize());
                 msgAllBean.setImage(image);
                 msgAllBean.setMsg_type(4);
                 break;

@@ -1144,6 +1144,9 @@ public class ChatActivity extends AppActivity {
             LocalMedia lc = new LocalMedia();
             lc.setCompressPath(msgl.getImage().getPreviewShow());
             lc.setPath(msgl.getImage().getOriginShow());
+           // Log.d("tag", "---showBigPic: "+msgl.getImage().getSize());
+            lc.setSize(msgl.getImage().getSize());
+           // lc.setWidth(new Long( msgl.getImage().getSize()).intValue());
             selectList.add(lc);
 
         }

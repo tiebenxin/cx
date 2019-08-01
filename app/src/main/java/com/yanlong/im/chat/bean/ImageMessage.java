@@ -16,6 +16,34 @@ public class ImageMessage extends RealmObject {
 
     private boolean isReadOrigin=false;//是否已经阅读原图
 
+    private long  width = 0; //图宽
+    private long height = 0; //图高
+    private long size=0;//文件大小
+
+    public long getWidth() {
+        return width;
+    }
+
+    public void setWidth(long width) {
+        this.width = width;
+    }
+
+    public long getHeight() {
+        return height;
+    }
+
+    public void setHeight(long height) {
+        this.height = height;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
+    }
+
     public boolean isReadOrigin() {
         return isReadOrigin;
     }
