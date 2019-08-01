@@ -192,7 +192,7 @@ public class MsgConversionBean {
 
                 }
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
-                String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过扫码":"";
+                String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
                 gNotice.setNote(names +way+"已加入群");
                 msgAllBean.setMsgNotice(gNotice);
                 break;
