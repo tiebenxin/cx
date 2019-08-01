@@ -50,7 +50,6 @@ import com.luck.picture.lib.permissions.RxPermissions;
 import com.luck.picture.lib.photoview.OnViewTapListener;
 import com.luck.picture.lib.photoview.PhotoView;
 import com.luck.picture.lib.tools.PictureFileUtils;
-import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.ToastManage;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.luck.picture.lib.view.bigImg.BlockImageLoader;
@@ -67,7 +66,6 @@ import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.TestView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -90,6 +88,7 @@ import io.reactivex.disposables.Disposable;
  * data：17/01/18
  */
 public class PictureExternalPreviewActivity extends PictureBaseActivity implements View.OnClickListener {
+    private  static String TAG="PictureExternalPreviewActivity";
     private ImageButton left_back;
     private TextView tv_title;
     private PreviewViewPager viewPager;
@@ -99,7 +98,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private SimpleFragmentAdapter adapter;
     private LayoutInflater inflater;
     private RxPermissions rxPermissions;
-    private loadDataThread loadDataThread;
+    private LoadDataThread loadDataThread;
     private String[] strings = {"识别二维码", "保存图片", "取消"};
    // private LargeImageView imgLarge;
     //private View txtBig;
@@ -118,8 +117,39 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         directory_path ="/DCIM/Camera/";//getIntent().getStringExtra(PictureConfig.DIRECTORY_PATH);
         images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
         left_back.setOnClickListener(this);
+        initAndPermissions();
 
-        initViewPageAdapterData();
+    }
+    //权限申请和初始化
+    private void initAndPermissions(){
+
+        if (rxPermissions == null) {
+            rxPermissions = new RxPermissions(PictureExternalPreviewActivity.this);
+        }
+        rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE)
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(Boolean aBoolean) {
+                        if (aBoolean) {
+                            initViewPageAdapterData();
+                        } else {
+                            ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_jurisdiction));
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                });
     }
 
     String indexPath;
@@ -132,7 +162,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
-            loadDataThread = new loadDataThread(path, 2,imgLarge);
+            loadDataThread = new LoadDataThread(path, 2,imgLarge);
             loadDataThread.start();
         } else {
             // 有可能本地图片
@@ -260,7 +290,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     @Override
                     public void onClick(View v) {
                         // imgLarge.setVisibility(View.GONE);
-                        finish();
+                        onBackPressed();
 
                     }
                 });
@@ -296,6 +326,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         dismissDialog();
                     }
                 });
+                imgLarge.setOnLongClickListener(onLongClick(imgpath));
 
 
             }else{
@@ -400,38 +431,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
                     }
                 });
-                imageView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        if (rxPermissions == null) {
-                            rxPermissions = new RxPermissions(PictureExternalPreviewActivity.this);
-                        }
-                        rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                .subscribe(new Observer<Boolean>() {
-                                    @Override
-                                    public void onSubscribe(Disposable d) {
-                                    }
-
-                                    @Override
-                                    public void onNext(Boolean aBoolean) {
-                                        if (aBoolean) {
-                                            showDownLoadDialog(path);
-                                        } else {
-                                            ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_jurisdiction));
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
-                                    }
-                                });
-                        return true;
-                    }
-                });
+                imageView.setOnLongClickListener(onLongClick(path));
             }
 
 
@@ -439,6 +439,42 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             (container).addView(contentView, 0);
             return contentView;
         }
+    }
+
+    private View.OnLongClickListener onLongClick(final String path){
+
+        return new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (rxPermissions == null) {
+                    rxPermissions = new RxPermissions(PictureExternalPreviewActivity.this);
+                }
+                rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .subscribe(new Observer<Boolean>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+                            }
+
+                            @Override
+                            public void onNext(Boolean aBoolean) {
+                                if (aBoolean) {
+                                    showDownLoadDialog(path);
+                                } else {
+                                    ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_jurisdiction));
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                            }
+
+                            @Override
+                            public void onComplete() {
+                            }
+                        });
+                return true;
+            }
+        };
     }
 
 
@@ -483,7 +519,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private Result scanningQrImage(String path) {
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
-            loadDataThread = new loadDataThread(path, 1,null);
+            loadDataThread = new LoadDataThread(path, 1,null);
             loadDataThread.start();
         } else {
             // 有可能本地图片
@@ -546,21 +582,27 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
     private void saveImage(String path) {
+        Log.d("TAG", "------------showLoadingImage$:saveImage "+path);
         showPleaseDialog();
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
-            loadDataThread = new loadDataThread(path, 0,null);
+            loadDataThread = new LoadDataThread(path, 0,null);
             loadDataThread.start();
         } else {
+            if(path.toLowerCase().startsWith("file://")){
+                path=path.replace("file://","");
+            }
             // 有可能本地图片
             try {
                 String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
                         System.currentTimeMillis() + ".png", directory_path);
                 PictureFileUtils.copyFile(path, dirPath);
+                //刷新相册的广播
                 Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                 Uri uri = Uri.fromFile(new File(dirPath));
                 intent.setData(uri);
                 getApplicationContext().sendBroadcast(intent);
+
                 ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + dirPath);
                 dismissDialog();
             } catch (IOException e) {
@@ -574,14 +616,14 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
     // 进度条线程
-    public class loadDataThread extends Thread {
+    public class LoadDataThread extends Thread {
         private String path;
         private Object obj;
         private int type;
 
-        public loadDataThread(String path, int type,Object obj) {
+        public LoadDataThread(String path, int type, Object obj) {
             super();
-            Log.d("TAG", "------------loadDataThread: "+obj);
+            Log.d("TAG", "------------LoadDataThread: "+obj);
             this.path = path;
             this.type = type;
             this.obj=obj;
@@ -603,24 +645,35 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     // 下载图片保存至手机
     public void showLoadingImage(String urlPath, int type,Object obj) {
         try {
+            Log.d(TAG, "showLoadingImage: "+urlPath);
             URL u = new URL(urlPath);
+            //网路图片本地化
+            String fName = urlPath.trim();
+            String fileName = fName.substring(fName.lastIndexOf("/")+1);
             String path = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
-                    System.currentTimeMillis() + ".png", directory_path);
-            byte[] buffer = new byte[1024 * 8];
-            int read;
-            int ava = 0;
-            long start = System.currentTimeMillis();
-            BufferedInputStream bin;
-            bin = new BufferedInputStream(u.openStream());
-            BufferedOutputStream bout = new BufferedOutputStream(
-                    new FileOutputStream(path));
-            while ((read = bin.read(buffer)) > -1) {
-                bout.write(buffer, 0, read);
-                ava += read;
-                long speed = ava / (System.currentTimeMillis() - start);
+                    fileName, null);
+            Log.d(TAG, "showLoadingImage path: "+path);
+            if(!new File(path).exists()) {
+                byte[] buffer = new byte[1024 * 8];
+                int read;
+                int ava = 0;
+                long start = System.currentTimeMillis();
+                BufferedInputStream bin;
+                bin = new BufferedInputStream(u.openStream());
+                BufferedOutputStream bout = new BufferedOutputStream(
+                        new FileOutputStream(path));
+                while ((read = bin.read(buffer)) > -1) {
+                    bout.write(buffer, 0, read);
+                    ava += read;
+                    long speed = ava / (System.currentTimeMillis() - start);
+                }
+                bout.flush();
+                bout.close();
+                Log.d(TAG, "showLoadingImage: 不存在,创建");
+            }else{
+                Log.d(TAG, "showLoadingImage: 存在");
             }
-            bout.flush();
-            bout.close();
+
             if (type == 0) {
                 Message message = handler.obtainMessage();
                 message.what = 200;
@@ -642,7 +695,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
         } catch (IOException e) {
-            ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_error) + "\n" + e.getMessage());
+           // ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_error) + "\n" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -655,8 +708,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             switch (msg.what) {
                 case 200:
                     String path = (String) msg.obj;
-                    ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + path);
-                    dismissDialog();
+                   // ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + path);
+                    //dismissDialog();
+                    saveImage(path);
                     break;
                 case 400:
 

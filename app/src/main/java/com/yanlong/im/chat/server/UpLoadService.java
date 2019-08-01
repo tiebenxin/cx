@@ -128,7 +128,7 @@ public class UpLoadService extends Service {
 
             @Override
             public void inProgress(long progress, long zong) {
-                if (System.currentTimeMillis() - oldUptime < 300) {
+                if (System.currentTimeMillis() - oldUptime < 100) {
                     return;
                 }
                 EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();

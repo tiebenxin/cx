@@ -200,7 +200,7 @@ public class ChatActivity extends AppActivity {
                         taskRefreshMessage();
 
                         //5.23 发送失败,对方拒收
-                        MsgAllBean notbean = new MsgAllBean();
+                       /* MsgAllBean notbean = new MsgAllBean();
                         notbean.setMsg_type(0);
                         notbean.setTimestamp(bean.getTimestamp());
                         notbean.setFrom_uid(UserAction.getMyId());
@@ -210,7 +210,8 @@ public class ChatActivity extends AppActivity {
                         notbean.setMsgNotice(note);
 
                         msgListData.add(notbean);
-                       notifyData();
+                       notifyData();*/
+                       ToastUtil.show(getContext(),"消息发送成功,但对方已拒收");
                     } else {
 
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null) {//忽略图片上传的刷新
@@ -507,7 +508,7 @@ public class ChatActivity extends AppActivity {
                         PictureSelector.create(ChatActivity.this)
                                 .openCamera(PictureMimeType.ofImage())
                                 .compress(true)
-                                .forResult(PictureConfig.CHOOSE_REQUEST);
+                                .forResult(PictureConfig.REQUEST_CAMERA);
                     }
 
                     @Override
@@ -964,12 +965,14 @@ public class ChatActivity extends AppActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
+                case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
                     for (LocalMedia localMedia : obt) {
                         String file = localMedia.getCompressPath();
-                        final boolean isArtworkMaster = data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+
+                        final boolean isArtworkMaster =requestCode==PictureConfig.REQUEST_CAMERA?true: data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         if (isArtworkMaster) {
                             //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                             file = localMedia.getPath();
@@ -1689,20 +1692,27 @@ public class ChatActivity extends AppActivity {
             } else {
                 userInfo = msg.getFrom_user();
 
-                if (isGroup()) {
-                    String gname = "";//获取对方最新的群昵称
-                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
-                    if (gmsg != null) {
-                        gname = gmsg.getFrom_group_nickname();
+                if(userInfo==null) {
+                    userInfo=new UserInfo();
+                    userInfo.setName(StringUtil.isNotNull(msg.getFrom_group_nickname())?msg.getFrom_group_nickname():msg.getFrom_nickname());
+                    userInfo.setHead(msg.getFrom_avatar());
+                }else {
+                    if (isGroup()) {
+                        String gname = "";//获取对方最新的群昵称
+                        MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
+                        if (gmsg != null) {
+                            gname = gmsg.getFrom_group_nickname();
+                        }
+
+
+                        if (StringUtil.isNotNull(gname)) {
+                            userInfo.setName(gname);
+                        }
                     }
 
 
-                    if (StringUtil.isNotNull(gname)) {
-                        userInfo.setName(gname);
-                    }
+
                 }
-
-
                 mks.put(k, userInfo);
             }
 
