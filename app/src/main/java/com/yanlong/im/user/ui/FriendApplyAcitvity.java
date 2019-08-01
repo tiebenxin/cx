@@ -45,9 +45,9 @@ public class FriendApplyAcitvity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        mtListView = findViewById(R.id.mtListView);
     }
 
 
@@ -123,8 +123,8 @@ public class FriendApplyAcitvity extends AppActivity {
                     public void onClick(View v) {
                         Intent intent = new Intent(FriendApplyAcitvity.this, UserInfoActivity.class);
                         intent.putExtra(UserInfoActivity.ID, bean.getUid());
-                        intent.putExtra(UserInfoActivity.SAY_HI,bean.getSayHi());
-                        intent.putExtra(UserInfoActivity.IS_APPLY,1);
+                        intent.putExtra(UserInfoActivity.SAY_HI, bean.getSayHi());
+                        intent.putExtra(UserInfoActivity.IS_APPLY, 1);
                         startActivity(intent);
                     }
                 });
@@ -224,12 +224,12 @@ public class FriendApplyAcitvity extends AppActivity {
         });
     }
 
-    private void taskGroupRequestDelect(GroupAccept bean){
+    private void taskGroupRequestDelect(GroupAccept bean) {
         msgAction.groupRequestDelect(bean.getAid());
         taskGetList();
     }
 
-    private void taskDelRequestFriend(Long uid){
+    private void taskDelRequestFriend(Long uid) {
         userAction.delRequestFriend(uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -247,17 +247,17 @@ public class FriendApplyAcitvity extends AppActivity {
 
 
     private void taskRequest(GroupAccept accept) {
-        // 同意进群 未完成  还不能获取一些数据
-        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(),1,"", new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body().isOk()) {
-                    taskGetList();
+        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(),
+                accept.getJoinType(), accept.getInviter() + "", new CallBack<ReturnBean>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                        if (response.body().isOk()) {
+                            taskGetList();
 
-                }
-                ToastUtil.show(getContext(), response.body().getMsg());
-            }
-        });
+                        }
+                        ToastUtil.show(getContext(), response.body().getMsg());
+                    }
+                });
     }
 
 

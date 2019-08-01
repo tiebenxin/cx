@@ -81,7 +81,7 @@ public class MyAppLication extends MainApplication {
         //获取消息推送代理示例
         final PushAgent mPushAgent = PushAgent.getInstance(this);
         //设置通知栏显示数量
-        mPushAgent.setDisplayNotificationNumber(2);
+        mPushAgent.setDisplayNotificationNumber(1);
         //   mPushAgent.setNotificationClickHandler(notificationClickHandler);
 
         //注册推送服务，每次调用register方法都会回调该接口
@@ -114,19 +114,6 @@ public class MyAppLication extends MainApplication {
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).clear();
             }
         });
-
-//        mPushAgent.enable(new IUmengCallback() {
-//            @Override
-//            public void onSuccess() {
-//                Log.e("youmeng", "开启推送成功：-------->  ");
-//            }
-//
-//            @Override
-//            public void onFailure(String s, String s1) {
-//                Log.e("youmeng", "开启推送失败：--------> " + "s:" + s + "s1:" + s1);
-//            }
-//        });
-
 
 
         //注册小米推送
