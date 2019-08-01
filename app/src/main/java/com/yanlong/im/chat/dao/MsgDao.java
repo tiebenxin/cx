@@ -902,6 +902,8 @@ public class MsgDao {
         accept.setUid(fromUid);
         accept.setUname(nickname);
         accept.setHead(head);
+        accept.setInviter(inviter);
+        accept.setJoinType(joinType);
 
         realm.insertOrUpdate(accept);
 

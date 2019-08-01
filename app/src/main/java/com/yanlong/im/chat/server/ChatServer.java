@@ -131,6 +131,8 @@ public class ChatServer extends Service {
         public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
             LogUtil.getLog().d(TAG, "<<<<<<<<<<收到类型:" + msg.getMsgType());
 
+            LogUtil.getLog().d(TAG, "<<<<<<<<<<收到:" + msg);
+
             taskUpUserinfo(msg);
 
             switch (msg.getMsgType()) {
