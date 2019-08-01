@@ -359,16 +359,17 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
 
 
-                boolean isGif = FileUtils.isGif(media.getPath());//PictureMimeType.isGif(pictureType);
+                boolean isGif = FileUtils.isGif(path);//PictureMimeType.isGif(pictureType);
                 final boolean eqLongImg = PictureMimeType.isLongImg(media);
                 imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
                 longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
                 // 压缩过的gif就不是gif了
                 if (isGif && !media.isCompressed()) {
                     Log.v("Glide", "显示gif图");
+                    txtBig.setVisibility(View.GONE);
                     RequestOptions gifOptions = new RequestOptions()
-                            .priority(Priority.NORMAL)
-                            .diskCacheStrategy(DiskCacheStrategy.NONE);
+                            .priority(Priority.LOW)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL);
                     Glide.with(PictureExternalPreviewActivity.this)
                             .asGif()
                             .apply(gifOptions)

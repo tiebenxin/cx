@@ -566,7 +566,7 @@ public class ChatItemView extends LinearLayout {
             if (uri.getPath().toLowerCase().endsWith(".gif")) {
                 Log.e("gif", "setData4: isgif");
                 rb = in.asGif();
-                rOptions.priority(Priority.NORMAL).diskCacheStrategy(DiskCacheStrategy.NONE);
+                rOptions.priority(Priority.LOW).diskCacheStrategy(DiskCacheStrategy.ALL);
             } else {
                 rb = in.asBitmap();
                 rOptions.override(width, height)
