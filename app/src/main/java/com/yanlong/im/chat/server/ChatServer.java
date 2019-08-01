@@ -10,6 +10,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -200,9 +201,9 @@ public class ChatServer extends Service {
                     EventBus.getDefault().post(new EventLoginOut4Conflict());
                     return;
                 case AT:
-                    if(updateAtMessage(msg)){
+                    if (updateAtMessage(msg)) {
                         return;
-                    }else{
+                    } else {
                         break;
                     }
             }

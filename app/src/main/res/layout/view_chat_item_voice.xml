@@ -10,13 +10,10 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-
         <LinearLayout
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:background="@drawable/bg_chat_other"
+            android:background="@drawable/selector_chat_other_touch"
             android:gravity="left|center_vertical">
 
             <ImageView
@@ -33,7 +30,6 @@
                 android:paddingRight="15dp"
                 android:text="66''"
                 android:textColor="@color/black"
-
                 android:textSize="15sp" />
 
             <View
@@ -44,13 +40,13 @@
         </LinearLayout>
 
         <ImageView
-            android:visibility="gone"
             android:id="@+id/img_ot_unread"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="@dimen/app_margin_item"
-            android:src="@mipmap/bg_red_num_small" />
+            android:src="@mipmap/bg_red_num_small"
+            android:visibility="gone" />
 
     </LinearLayout>
 
@@ -62,13 +58,10 @@
         android:gravity="right"
         android:orientation="horizontal">
 
-
         <LinearLayout
-
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_chat_me"
+            android:background="@drawable/selector_chat_me_touch"
             android:gravity="right|center_vertical"
             android:orientation="horizontal"
             android:visibility="visible">
@@ -93,7 +86,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_voice_anim_r" />
-
 
         </LinearLayout>
 

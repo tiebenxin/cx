@@ -361,7 +361,7 @@ public class MsgMainFragment extends Fragment {
             String icon = "";
             String title = "";
             String info = "";
-            MsgAllBean msginfo;
+            MsgAllBean msginfo = null;
             if (bean.getType() == 0) {//单人
 
 
@@ -417,20 +417,36 @@ public class MsgMainFragment extends Fragment {
                 switch (type) {
                     case 0:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            SpannableStringBuilder style = new SpannableStringBuilder();
-                            style.append("[有人@你]:" + bean.getAtMessage());
-                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
-                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            holder.txtInfo.setText(style);
+                            if (msginfo.getMsg_type() == 8) {
+                                SpannableStringBuilder style = new SpannableStringBuilder();
+                                style.append("[有人@你]" + bean.getAtMessage());
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                holder.txtInfo.setText(style);
+                            } else {
+                                SpannableStringBuilder style = new SpannableStringBuilder();
+                                style.append("[有人@你]" + info);
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                holder.txtInfo.setText(style);
+                            }
                         }
                         break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            SpannableStringBuilder style = new SpannableStringBuilder();
-                            style.append("[@所有人]:" + bean.getAtMessage());
-                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
-                            style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            holder.txtInfo.setText(style);
+                            if (msginfo.getMsg_type() == 8) {
+                                SpannableStringBuilder style = new SpannableStringBuilder();
+                                style.append("[@所有人]" + bean.getAtMessage());
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                holder.txtInfo.setText(style);
+                            } else {
+                                SpannableStringBuilder style = new SpannableStringBuilder();
+                                style.append("[@所有人]" + info);
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                holder.txtInfo.setText(style);
+                            }
                         }
                         break;
                     case 2:
@@ -498,14 +514,14 @@ public class MsgMainFragment extends Fragment {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
+                imgHead = convertView.findViewById(R.id.img_head);
                 swipeLayout = convertView.findViewById(R.id.swipeLayout);
                 sb = convertView.findViewById(R.id.sb);
                 viewIt = convertView.findViewById(R.id.view_it);
                 btnDel = convertView.findViewById(R.id.btn_del);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                txtInfo = (TextView) convertView.findViewById(R.id.txt_info);
-                txtTime = (TextView) convertView.findViewById(R.id.txt_time);
+                txtName = convertView.findViewById(R.id.txt_name);
+                txtInfo = convertView.findViewById(R.id.txt_info);
+                txtTime = convertView.findViewById(R.id.txt_time);
             }
 
         }

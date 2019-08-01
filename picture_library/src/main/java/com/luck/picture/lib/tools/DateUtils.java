@@ -1,6 +1,8 @@
 package com.luck.picture.lib.tools;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * author：luck
@@ -82,4 +84,58 @@ public class DateUtils {
         long diff = eTime - sTime;
         return diff > 1000 ? diff / 1000 + "秒" : diff + "毫秒";
     }
+
+
+    /**
+     * 获取某个日期前后N天的日期
+     *
+     * @param beginDate
+     * @param distanceDay 前后几天 如获取前7天日期则传-7即可；如果后7天则传7
+     * @param format      日期格式，默认"yyyy-MM-dd"
+     * @return
+     */
+    public static String getOldDateByDay(Date beginDate, int distanceDay, String format) {
+        if (format == null || format.isEmpty()) {
+            format = "yyyy-MM-dd";
+        }
+        SimpleDateFormat dft = new SimpleDateFormat(format);
+        Calendar date = Calendar.getInstance();
+        date.setTime(beginDate);
+        date.set(Calendar.DATE, date.get(Calendar.DATE) + distanceDay);
+        Date endDate = null;
+        try {
+            endDate = dft.parse(dft.format(date.getTime()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dft.format(endDate);
+    }
+
+    /**
+     * 日期格式字符串转换时间戳
+     */
+    public static String date2TimeStamp(String date, String format) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            return String.valueOf(sdf.parse(date).getTime() / 1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    /**
+     * 时间戳转换日期格式字符串
+     */
+    public static String timeStamp2Date(long time, String format) {
+        if (format == null || format.isEmpty()) {
+            format = "yyyy-MM-dd HH:mm:ss";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        return sdf.format(new Date(time));
+    }
+
+
+
+
 }

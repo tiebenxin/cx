@@ -131,6 +131,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, groupId);
             qrCodeBean.setParameterValue(QRCodeManage.UID,userInfo.getUid()+"");
+            qrCodeBean.setParameterValue(QRCodeManage.TIME,QRCodeManage.getTime(7));
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
         }
         try {

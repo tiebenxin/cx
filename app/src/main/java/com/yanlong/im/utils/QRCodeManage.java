@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import com.google.zxing.Result;
+import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.ui.AddGroupActivity;
@@ -22,6 +23,8 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -215,6 +218,16 @@ public class QRCodeManage {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(s));
         context.startActivity(intent);
     }
+
+
+    public static String getTime (int distanceDay){
+        String time = "";
+        Date date = new Date(System.currentTimeMillis());
+        String changeTime = DateUtils.getOldDateByDay(date,distanceDay,"yyyy-MM-dd HH:mm:ss");
+        time = DateUtils.date2TimeStamp(changeTime,"yyyy-MM-dd HH:mm:ss");
+        return time;
+    }
+
 
 
 }
