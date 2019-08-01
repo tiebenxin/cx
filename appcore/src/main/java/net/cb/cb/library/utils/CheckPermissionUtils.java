@@ -18,6 +18,7 @@ import java.util.List;
  * Created by aleak on 16-4-26.
  * a util for check permission
  */
+@Deprecated
 public class CheckPermissionUtils {
 
     private static final String TAG = "CheckPermissionUtils";

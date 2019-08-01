@@ -158,7 +158,7 @@ public class ChatServer extends Service {
 
                     for (MsgBean.GroupNoticeMessage ntm : msg.getRequestGroup().getNoticeMessageList()) {
 
-                        msgDao.groupAcceptAdd(msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
+                        msgDao.groupAcceptAdd(msg.getRequestGroup().getJoinType().getNumber(),msg.getRequestGroup().getInviter(),msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
                     }
 
 

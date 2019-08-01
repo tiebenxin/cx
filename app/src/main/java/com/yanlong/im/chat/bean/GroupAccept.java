@@ -11,8 +11,28 @@ public class GroupAccept extends RealmObject {
     private String head;
     private String gid;
     private String groupName;
+    //加入类型
+    private Integer joinType;
+    //被要求人
+    private Long inviter;
 
     private Long time;
+
+    public Integer getJoinType() {
+        return joinType;
+    }
+
+    public void setJoinType(Integer joinType) {
+        this.joinType = joinType;
+    }
+
+    public Long getInviter() {
+        return inviter;
+    }
+
+    public void setInviter(Long inviter) {
+        this.inviter = inviter;
+    }
 
     public Long getTime() {
         return time;
