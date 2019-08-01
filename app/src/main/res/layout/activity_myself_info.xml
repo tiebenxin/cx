@@ -152,7 +152,8 @@
 
         <LinearLayout
             android:id="@+id/view_identity"
-            style="@style/app_layout_list2_item">
+            style="@style/app_layout_list2_item"
+            android:visibility="gone">
 
 
             <TextView
@@ -173,7 +174,6 @@
                 android:src="@mipmap/ic_btn_goto" />
         </LinearLayout>
 
-        <View style="@style/app_line" />
     </LinearLayout>
 
 

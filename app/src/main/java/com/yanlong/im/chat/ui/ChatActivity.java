@@ -210,6 +210,7 @@ public class ChatActivity extends AppActivity {
                         notbean.setMsgNotice(note);
 
                         msgListData.add(notbean);
+
                        notifyData();*/
                        ToastUtil.show(getContext(),"消息发送成功,但对方已拒收");
                     } else {
@@ -1372,7 +1373,7 @@ public class ChatActivity extends AppActivity {
                                     @Override
                                     public void onStart(Uri var1) {
 
-                                       notifyData();
+                                        notifyData();
 
 
                                     }
@@ -1380,14 +1381,14 @@ public class ChatActivity extends AppActivity {
                                     @Override
                                     public void onStop(Uri var1) {
 
-                                       notifyData();
+                                        notifyData();
 
                                     }
 
                                     @Override
                                     public void onComplete(Uri var1) {
 
-                                       notifyData();
+                                        notifyData();
                                     }
                                 });
                             }
@@ -1396,7 +1397,7 @@ public class ChatActivity extends AppActivity {
                             if (msgbean.isRead() == false) {
                                 msgAction.msgRead(msgbean.getMsg_id(), true);
                                 msgbean.setRead(true);
-                               notifyData();
+                                notifyData();
                             }
 
 
@@ -1519,7 +1520,7 @@ public class ChatActivity extends AppActivity {
                             public void onYes() {
                                 msgDao.msgDel4MsgId(msgbean.getMsg_id());
                                 msgListData.remove(msgbean);
-                               notifyData();
+                                notifyData();
                             }
                         });
                         alertYesNo.show();
@@ -1625,7 +1626,7 @@ public class ChatActivity extends AppActivity {
         notifyData2Buttom();
 
         taskMkName(msgListData);
-       notifyData();
+        notifyData();
     }
 
     //  private boolean flag_isHistory = false;
@@ -1660,7 +1661,7 @@ public class ChatActivity extends AppActivity {
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
-       notifyData();
+        notifyData();
 
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context, 20f));
 
@@ -1762,7 +1763,7 @@ public class ChatActivity extends AppActivity {
         if (StringUtil.isNotNull(session.getDraft())) {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
-            dao.sessionDraft(toGid,toUId,"");
+            dao.sessionDraft(toGid, toUId, "");
         }
     }
 

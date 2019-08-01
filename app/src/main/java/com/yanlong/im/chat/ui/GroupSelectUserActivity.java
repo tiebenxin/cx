@@ -152,7 +152,11 @@ public class GroupSelectUserActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    listData = delectMaster(response.body().getData());
+                    if(type == 0){
+                        listData = delectMaster(response.body().getData());
+                    }else{
+                        listData = delectMyslfe(response.body().getData());
+                    }
                     showAtAll(response.body().getData());
                     Collections.sort(listData);
                     adapter.setList(listData);
@@ -179,6 +183,21 @@ public class GroupSelectUserActivity extends AppActivity {
         }
         return null;
     }
+
+    private List<UserInfo> delectMyslfe(Group group){
+        Long uid = UserAction.getMyId();
+        List<UserInfo> list = group.getUsers();
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                if (uid.equals(list.get(i).getUid())) {
+                    list.remove(i);
+                }
+            }
+            return list;
+        }
+        return null;
+    }
+
 
 
     private void showAtAll(Group group) {

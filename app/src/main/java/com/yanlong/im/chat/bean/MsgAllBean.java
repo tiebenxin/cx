@@ -17,7 +17,7 @@ public class MsgAllBean extends RealmObject {
     private int send_state = 0;
     //重发的数据对象
     private byte[] send_data;
-    private boolean isRead=false;
+    private boolean isRead = false;
     private String request_id;
     private Long from_uid;
     private String from_nickname;
@@ -25,7 +25,7 @@ public class MsgAllBean extends RealmObject {
     private String from_group_nickname;
     //  private UserInfo from_user;
     private Long to_uid;
- //   private UserInfo to_user;
+    //   private UserInfo to_user;
     private String gid;
 
     private Integer msg_type;
@@ -53,7 +53,7 @@ public class MsgAllBean extends RealmObject {
 
     //private RequestFriendMessage request_friend;
 
-   // private AcceptBeFriendsMessage accept_be_friends;
+    // private AcceptBeFriendsMessage accept_be_friends;
 
     //private AckMessage ack;
 
@@ -66,15 +66,17 @@ public class MsgAllBean extends RealmObject {
     }
 
     public UserInfo getFrom_user() {
-        return DaoUtil.findOne(UserInfo.class,"uid",from_uid);
+        return DaoUtil.findOne(UserInfo.class, "uid", from_uid);
     }
+
     public UserInfo getTo_user() {
-        return DaoUtil.findOne(UserInfo.class,"uid",to_uid);
+        return DaoUtil.findOne(UserInfo.class, "uid", to_uid);
     }
+
     public UserInfo getShow_user() {
-        if(from_uid.longValue()==UserAction.getMyId().longValue()){
+        if (from_uid.longValue() == UserAction.getMyId().longValue()) {
             return getTo_user();
-        }else{
+        } else {
             return getFrom_user();
         }
 
@@ -140,8 +142,9 @@ public class MsgAllBean extends RealmObject {
     public String getGid() {
         return gid;
     }
-    public Group getGroup(){
-        return DaoUtil.findOne(Group.class,"gid",gid);
+
+    public Group getGroup() {
+        return DaoUtil.findOne(Group.class, "gid", gid);
     }
 
 
@@ -169,7 +172,7 @@ public class MsgAllBean extends RealmObject {
         String str = "";
         if (msg_type == 0) {
             //公告:
-            str = ""+getMsgNotice().getNote();
+            str = "" + getMsgNotice().getNote();
 
         }
         if (msg_type == 1) {//普通消息
@@ -181,7 +184,7 @@ public class MsgAllBean extends RealmObject {
 
         }
         if (msg_type == 3) {
-            str = "[常聊红包]"+getRed_envelope().getComment();
+            str = "[常聊红包]" + getRed_envelope().getComment();
         }
         if (msg_type == 4) {
             str = "[图片]";
@@ -190,11 +193,15 @@ public class MsgAllBean extends RealmObject {
             str = "[名片]";// + getBusiness_card().getNickname();
         }
         if (msg_type == 6) {
-            str = "[收款]" ;
+            str = "[收款]";
         }
         if (msg_type == 7) {
-            str = "[语音]" ;
+            str = "[语音]";
         }
+        if (msg_type == 8) {
+            str = getAtMessage().getMsg();
+        }
+
         return str;
     }
 

@@ -247,7 +247,8 @@ public class FriendApplyAcitvity extends AppActivity {
 
 
     private void taskRequest(GroupAccept accept) {
-        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(), new CallBack<ReturnBean>() {
+        // 同意进群 未完成  还不能获取一些数据
+        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(),1,"", new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body().isOk()) {
@@ -275,7 +276,6 @@ public class FriendApplyAcitvity extends AppActivity {
                 } else {
                     // ToastUtil.show(getContext(),response.body().getMsg());
                 }
-
             }
         });
     }

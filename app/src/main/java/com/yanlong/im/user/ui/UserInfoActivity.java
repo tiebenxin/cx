@@ -357,6 +357,7 @@ public class UserInfoActivity extends AppActivity {
                 tvBlack.setText("解除黑名单");
                 userDao.updeteUserUtype(id, 3);
                 ToastUtil.show(context, response.body().getMsg());
+                EventBus.getDefault().post(new EventRefreshFriend());
 
             }
         });
@@ -374,7 +375,7 @@ public class UserInfoActivity extends AppActivity {
                 tvBlack.setText("加入黑名单");
                 userDao.updeteUserUtype(id, 2);
                 ToastUtil.show(context, response.body().getMsg());
-
+                EventBus.getDefault().post(new EventRefreshFriend());
             }
         });
     }
