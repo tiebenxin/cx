@@ -154,6 +154,20 @@ public final class PictureSelector {
         }
     }
 
+    /**
+     * 打开头像大图通用
+     * */
+    public void externalPicturePreviewImage(int position, List<LocalMedia> medias){
+        if (!DoubleUtils.isFastDoubleClick()) {
+            Intent intent = new Intent(getActivity(), PictureImageActivity.class);
+            intent.putExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) medias);
+            intent.putExtra(PictureConfig.EXTRA_POSITION, position);
+            getActivity().startActivity(intent);
+            getActivity().overridePendingTransition(R.anim.a5, 0);
+        }
+    }
+
+
     public void externalPicturePreview1(int position, List<LocalMedia> medias) {
         String url = "scheme://picture/mainDetail";
         if (!DoubleUtils.isFastDoubleClick()) {

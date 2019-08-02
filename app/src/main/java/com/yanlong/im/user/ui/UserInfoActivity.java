@@ -312,12 +312,12 @@ public class UserInfoActivity extends AppActivity {
                     public void onClick(View v) {
                         List<LocalMedia> selectList = new ArrayList<>();
                         LocalMedia lc = new LocalMedia();
-                        lc.setCompressPath(info.getHead());
+                        lc.setPath(info.getHead());
                         selectList.add(lc);
                         PictureSelector.create(UserInfoActivity.this)
                                 .themeStyle(R.style.picture_default_style)
                                 .isGif(false)
-                                .openExternalPreview(0, selectList);
+                                .openExternalPreviewImage(0, selectList);
                     }
                 });
             }
