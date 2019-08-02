@@ -41,6 +41,7 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.luck.picture.lib.PictureExternalPreviewActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.ImageMessage;
 
 import net.cb.cb.library.utils.DensityUtil;
 
@@ -468,15 +469,15 @@ public class ChatItemView extends LinearLayout {
     }
 
     //图片消息
-    public void setData4(String url, final EventPic eventPic, Integer pg) {
+    public void setData4(ImageMessage image, String url, final EventPic eventPic, Integer pg) {
         if (url != null) {
-            setData4(Uri.parse(url), eventPic, pg);
+            setData4(image,Uri.parse(url), eventPic, pg);
 
         }
 
     }
 
-    public void setData4(final Uri uri, final EventPic eventPic, Integer pg) {
+    public void setData4(final ImageMessage image, final Uri uri, final EventPic eventPic, Integer pg) {
         if (uri != null) {
 
           /*  if (uri.getPath().toLowerCase().endsWith(".gif")) {
@@ -489,8 +490,8 @@ public class ChatItemView extends LinearLayout {
             }*/
 
 
-            int width = DensityUtil.dip2px(getContext(), 150);
-            int height = DensityUtil.dip2px(getContext(), 180);
+            final int width = DensityUtil.dip2px(getContext(), 150);
+            final int height = DensityUtil.dip2px(getContext(), 180);
             /* ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
                     .setResizeOptions(new ResizeOptions(width, height))
                     .build();
@@ -526,23 +527,42 @@ public class ChatItemView extends LinearLayout {
 
                     int w = 100, h = 100;
                     //配置图片和加载圈的大小
-                    if (resource instanceof GifDrawable) {
-                        GifDrawable bt2 = (GifDrawable) resource;
-                        if(bt2!=null){
-                            if(bt2.getFirstFrame()!=null){
-                                w = bt2.getFirstFrame().getWidth();
-                                h = bt2.getFirstFrame().getHeight();
+                    if(image==null) {
+                        if (resource instanceof GifDrawable) {
+                            GifDrawable bt2 = (GifDrawable) resource;
+                            if (bt2 != null) {
+                                if (bt2.getFirstFrame() != null) {
+                                    w = bt2.getFirstFrame().getWidth();
+                                    h = bt2.getFirstFrame().getHeight();
+
+                                }
+
                             }
+                            Log.d("TAG", "图片宽高: " + w + "--" + h);
 
+                        } else if (resource instanceof Bitmap) {
+                            Bitmap bt = (Bitmap) resource;
+                            w = bt.getWidth();
+                            h = bt.getHeight();
                         }
+                    }else{
+                        double mh=image.getHeight() ;
+                        double mw=image.getWidth() ;
+                        double cp=1;
+                        if(mh>mw){
+                            cp= height/mh;
+                        }else{
+                             cp= width/mw;
+                        }
+                        w=new Double(mw*cp).intValue();
+                        h=new Double(mh*cp).intValue();
 
-                    } else if (resource instanceof Bitmap) {
-                        Bitmap bt = (Bitmap) resource;
-                        w = bt.getWidth();
-                        h = bt.getHeight();
+
                     }
 
+
                     imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
+
                     imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
 
                     ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();

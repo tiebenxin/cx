@@ -854,6 +854,9 @@ public class SocketData {
         image.setPreview(url);
         image.setThumbnail(url);
         image.setMsgid(msgId);
+         ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
+        image.setWidth(img.getWidth());
+        image.setHeight(img.getHeight());
         if (isOriginal) {
             image.setOrigin(url);
         }
