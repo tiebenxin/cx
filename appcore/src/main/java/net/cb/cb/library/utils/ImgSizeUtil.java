@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
  */
 public class ImgSizeUtil {
     public static ImageSize getAttribute(String loclUrl) {
+        loclUrl=loclUrl.replace("file://","");
         //获取Options对象
         BitmapFactory.Options options = new BitmapFactory.Options();
         //仅做解码处理，不加载到内存

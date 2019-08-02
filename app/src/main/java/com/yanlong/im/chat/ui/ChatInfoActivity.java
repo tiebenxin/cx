@@ -25,6 +25,7 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -255,6 +256,7 @@ public class ChatInfoActivity extends AppActivity {
 
     private void taskDelMsg() {
         msgDao.msgDel(fuid, null);
+        EventBus.getDefault().post(new EventRefreshChat());
     }
 
 

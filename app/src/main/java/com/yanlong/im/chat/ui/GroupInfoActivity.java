@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -33,6 +34,7 @@ import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
@@ -80,6 +82,7 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewGroupManage;
     private CheckBox ckGroupSave;
     private LinearLayout viewGroupVerif;
+    private LinearLayout viewClearChatRecord;
     private CheckBox ckGroupVerif;
     private Button btnDel;
     private Gson gson = new Gson();
@@ -87,33 +90,31 @@ public class GroupInfoActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
-        //  btnAdd = (ImageView) findViewById(R.id.btn_add);
-        //  btnRm = (ImageView) findViewById(R.id.btn_rm);
-        viewGroupName = (LinearLayout) findViewById(R.id.view_group_name);
-        viewGroupMore = (LinearLayout) findViewById(R.id.view_group_more);
-        txtGroupName = (TextView) findViewById(R.id.txt_group_name);
-        viewGroupNick = (LinearLayout) findViewById(R.id.view_group_nick);
-        txtGroupNick = (TextView) findViewById(R.id.txt_group_nick);
-        viewGroupQr = (LinearLayout) findViewById(R.id.view_group_qr);
-        viewGroupNote = (LinearLayout) findViewById(R.id.view_group_note);
-        txtGroupNote = (TextView) findViewById(R.id.txt_group_note);
-        viewLog = (LinearLayout) findViewById(R.id.view_log);
-        viewTop = (LinearLayout) findViewById(R.id.view_top);
-        ckTop = (CheckBox) findViewById(R.id.ck_top);
-        viewDisturb = (LinearLayout) findViewById(R.id.view_disturb);
-        ckDisturb = (CheckBox) findViewById(R.id.ck_disturb);
-        viewGroupSave = (LinearLayout) findViewById(R.id.view_group_save);
-        viewGroupManage = (LinearLayout) findViewById(R.id.view_group_manage);
+        topListView = findViewById(R.id.topListView);
+        viewGroupName = findViewById(R.id.view_group_name);
+        viewGroupMore = findViewById(R.id.view_group_more);
+        txtGroupName = findViewById(R.id.txt_group_name);
+        viewGroupNick = findViewById(R.id.view_group_nick);
+        txtGroupNick = findViewById(R.id.txt_group_nick);
+        viewGroupQr = findViewById(R.id.view_group_qr);
+        viewGroupNote = findViewById(R.id.view_group_note);
+        txtGroupNote = findViewById(R.id.txt_group_note);
+        viewLog = findViewById(R.id.view_log);
+        viewTop = findViewById(R.id.view_top);
+        ckTop = findViewById(R.id.ck_top);
+        viewDisturb = findViewById(R.id.view_disturb);
+        ckDisturb = findViewById(R.id.ck_disturb);
+        viewGroupSave = findViewById(R.id.view_group_save);
+        viewGroupManage = findViewById(R.id.view_group_manage);
 
-        ckGroupVerif = (CheckBox) findViewById(R.id.ck_group_verif);
-        viewGroupVerif = (LinearLayout) findViewById(R.id.view_group_verif);
+        ckGroupVerif = findViewById(R.id.ck_group_verif);
+        viewGroupVerif = findViewById(R.id.view_group_verif);
 
-        ckGroupSave = (CheckBox) findViewById(R.id.ck_group_save);
-        btnDel = (Button) findViewById(R.id.btn_del);
-
+        ckGroupSave = findViewById(R.id.ck_group_save);
+        btnDel = findViewById(R.id.btn_del);
+        viewClearChatRecord = findViewById(R.id.view_clear_chat_record);
     }
 
     @Override
@@ -227,6 +228,28 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid));
+            }
+        });
+
+        viewClearChatRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertYesNo alertYesNo = new AlertYesNo();
+                alertYesNo.init(GroupInfoActivity.this, "清理消息记录", "确定要清楚消息记录吗?", "确定", "取消", new AlertYesNo.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes() {
+                        MsgDao msgDao = new MsgDao();
+                        msgDao.msgDel(null, gid);
+                        EventBus.getDefault().post(new EventRefreshChat());
+                    }
+                });
+                alertYesNo.show();
+
             }
         });
 

@@ -22,28 +22,28 @@
                 android:orientation="vertical">
 
                 <android.support.v7.widget.RecyclerView
-                    android:layout_marginTop="10dp"
                     android:id="@+id/topListView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="@dimen/app_margin_item"
                     android:layout_weight="1" />
 
                 <LinearLayout
-                    android:visibility="gone"
                     android:id="@+id/view_group_more"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <TextView
                         style="@style/app_txt_title_2"
 
-                        android:textColor="@color/gray_300"
                         android:layout_marginRight="@dimen/app_margin_item"
-                        android:text="查看更多群成员" />
+                        android:text="查看更多群成员"
+                        android:textColor="@color/gray_300" />
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -51,18 +51,18 @@
                         android:src="@mipmap/ic_btn_goto" />
                 </LinearLayout>
 
-           <!--     <ImageView
-                    android:id="@+id/btn_add"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:src="@mipmap/ic_group_a" />
+                <!--     <ImageView
+                         android:id="@+id/btn_add"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_marginRight="@dimen/app_margin_item"
+                         android:src="@mipmap/ic_group_a" />
 
-                <ImageView
-                    android:id="@+id/btn_rm"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_group_c" />-->
+                     <ImageView
+                         android:id="@+id/btn_rm"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:src="@mipmap/ic_group_c" />-->
 
             </LinearLayout>
 
@@ -84,9 +84,9 @@
                         android:id="@+id/txt_group_name"
                         style="@style/app_txt_title_2"
                         android:layout_width="0dp"
+                        android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:layout_marginRight="@dimen/app_margin_item"
                         android:textColor="@color/gray_300" />
 
                     <ImageView
@@ -108,8 +108,8 @@
                     <TextView
                         android:id="@+id/txt_group_nick"
                         style="@style/app_txt_title_2"
-                        android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_width="0dp"
+                        android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"
                         android:gravity="right"
                         android:textColor="@color/gray_300" />
@@ -155,9 +155,9 @@
                     <TextView
                         android:id="@+id/txt_group_note"
                         style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:layout_marginRight="@dimen/app_margin_item"
                         android:textColor="@color/gray_300" />
 
                     <ImageView
@@ -169,26 +169,27 @@
 
             </LinearLayout>
 
-        <LinearLayout style="@style/app_layout_list2">
-            <LinearLayout
-                android:id="@+id/view_group_manage"
-                style="@style/app_layout_list2_item">
+            <LinearLayout style="@style/app_layout_list2">
 
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_weight="1"
-                    android:text="群管理" />
+                <LinearLayout
+                    android:id="@+id/view_group_manage"
+                    style="@style/app_layout_list2_item">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="群管理" />
 
 
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@mipmap/ic_btn_goto" />
             </LinearLayout>
 
-        </LinearLayout>
             <LinearLayout style="@style/app_layout_list2">
 
                 <LinearLayout
@@ -206,6 +207,20 @@
                         android:layout_height="wrap_content"
                         android:src="@mipmap/ic_btn_goto" />
                 </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/view_clear_chat_record"
+                    style="@style/app_layout_list2_item">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="清空聊天记录" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
 
@@ -257,9 +272,9 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:visibility="gone"
                     android:id="@+id/view_group_verif"
-                    style="@style/app_layout_list2_item">
+                    style="@style/app_layout_list2_item"
+                    android:visibility="gone">
 
                     <TextView
                         style="@style/app_txt_title_2"
