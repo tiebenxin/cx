@@ -819,11 +819,22 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, MsgBean.MessageType.IMAGE, msgb);
     }
 
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2) {
+    /***
+     * 转发处理
+     * @param toId
+     * @param toGid
+     * @param url
+     * @param url1
+     * @param url2
+     * @return
+     */
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2,int w,int h) {
         MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
                 .setOrigin(url)
                 .setPreview(url1)
                 .setThumbnail(url2)
+                .setWidth(w)
+                .setHeight(h)
                 .build();
 
 
