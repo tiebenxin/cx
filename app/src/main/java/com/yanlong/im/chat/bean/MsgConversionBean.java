@@ -194,8 +194,39 @@ public class MsgConversionBean {
 
                 }
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
-                String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
-                gNotice.setNote(names +way+"已加入群");
+
+
+               String inviterName=bean.getAcceptBeGroup().getInviterName();//邀请者名字
+                if(bean.getAcceptBeGroup().getInviter()== UserAction.getMyId().longValue()){
+                    inviterName="你";
+                }else{
+
+                    MsgAllBean gmsg = new MsgDao().msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
+                    if (gmsg != null) {
+                        inviterName = StringUtil.isNotNull(gmsg.getFrom_group_nickname())?gmsg.getFrom_group_nickname():inviterName;
+                    }
+
+                    UserInfo userinfo=DaoUtil.findOne(UserInfo.class,"uid",bean.getAcceptBeGroup().getInviter());//查询昵称
+                    if(userinfo!=null){
+                        inviterName= StringUtil.isNotNull(userinfo.getMkName())?userinfo.getMkName():inviterName;
+                    }
+
+                }
+
+
+                //A邀请B加入群聊
+                //B通过扫码A分享的二维码加入群聊
+
+
+                String node="";
+                if(bean.getAcceptBeGroup().getJoinTypeValue()==0){//扫码
+                    node=names+"通过扫码"+inviterName+"分享的二维码加入群聊";
+                }else{//被邀请
+                    node=inviterName+"邀请"+names+"加入群聊";
+                }
+
+               // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
+                gNotice.setNote(node);
                 msgAllBean.setMsgNotice(gNotice);
                 break;
             case DESTROY_GROUP://群解散

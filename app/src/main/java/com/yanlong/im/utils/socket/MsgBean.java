@@ -10982,6 +10982,16 @@ public final class MsgBean {
          * <code>.JoinGroupType join_type = 3;</code>
          */
         MsgBean.JoinGroupType getJoinType();
+
+        /**
+         * <code>string inviter_name = 4;</code>
+         */
+        java.lang.String getInviterName();
+        /**
+         * <code>string inviter_name = 4;</code>
+         */
+        com.google.protobuf.ByteString
+        getInviterNameBytes();
     }
     /**
      * <pre>
@@ -11002,6 +11012,7 @@ public final class MsgBean {
             noticeMessage_ = java.util.Collections.emptyList();
             inviter_ = 0L;
             joinType_ = 0;
+            inviterName_ = "";
         }
 
         @java.lang.Override
@@ -11047,6 +11058,12 @@ public final class MsgBean {
                             int rawValue = input.readEnum();
 
                             joinType_ = rawValue;
+                            break;
+                        }
+                        case 34: {
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            inviterName_ = s;
                             break;
                         }
                     }
@@ -11136,6 +11153,40 @@ public final class MsgBean {
             return result == null ? MsgBean.JoinGroupType.UNRECOGNIZED : result;
         }
 
+        public static final int INVITER_NAME_FIELD_NUMBER = 4;
+        private volatile java.lang.Object inviterName_;
+        /**
+         * <code>string inviter_name = 4;</code>
+         */
+        public java.lang.String getInviterName() {
+            java.lang.Object ref = inviterName_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                inviterName_ = s;
+                return s;
+            }
+        }
+        /**
+         * <code>string inviter_name = 4;</code>
+         */
+        public com.google.protobuf.ByteString
+        getInviterNameBytes() {
+            java.lang.Object ref = inviterName_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                inviterName_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
@@ -11157,6 +11208,9 @@ public final class MsgBean {
             if (joinType_ != MsgBean.JoinGroupType.QRCODE.getNumber()) {
                 output.writeEnum(3, joinType_);
             }
+            if (!getInviterNameBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 4, inviterName_);
+            }
         }
 
         public int getSerializedSize() {
@@ -11175,6 +11229,9 @@ public final class MsgBean {
             if (joinType_ != MsgBean.JoinGroupType.QRCODE.getNumber()) {
                 size += com.google.protobuf.CodedOutputStream
                         .computeEnumSize(3, joinType_);
+            }
+            if (!getInviterNameBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, inviterName_);
             }
             memoizedSize = size;
             return size;
@@ -11197,6 +11254,8 @@ public final class MsgBean {
             result = result && (getInviter()
                     == other.getInviter());
             result = result && joinType_ == other.joinType_;
+            result = result && getInviterName()
+                    .equals(other.getInviterName());
             return result;
         }
 
@@ -11216,6 +11275,8 @@ public final class MsgBean {
                     getInviter());
             hash = (37 * hash) + JOIN_TYPE_FIELD_NUMBER;
             hash = (53 * hash) + joinType_;
+            hash = (37 * hash) + INVITER_NAME_FIELD_NUMBER;
+            hash = (53 * hash) + getInviterName().hashCode();
             hash = (29 * hash) + unknownFields.hashCode();
             memoizedHashCode = hash;
             return hash;
@@ -11360,6 +11421,8 @@ public final class MsgBean {
 
                 joinType_ = 0;
 
+                inviterName_ = "";
+
                 return this;
             }
 
@@ -11395,6 +11458,7 @@ public final class MsgBean {
                 }
                 result.inviter_ = inviter_;
                 result.joinType_ = joinType_;
+                result.inviterName_ = inviterName_;
                 result.bitField0_ = to_bitField0_;
                 onBuilt();
                 return result;
@@ -11468,6 +11532,10 @@ public final class MsgBean {
                 }
                 if (other.joinType_ != 0) {
                     setJoinTypeValue(other.getJoinTypeValue());
+                }
+                if (!other.getInviterName().isEmpty()) {
+                    inviterName_ = other.inviterName_;
+                    onChanged();
                 }
                 onChanged();
                 return this;
@@ -11805,6 +11873,75 @@ public final class MsgBean {
                 onChanged();
                 return this;
             }
+
+            private java.lang.Object inviterName_ = "";
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public java.lang.String getInviterName() {
+                java.lang.Object ref = inviterName_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    inviterName_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public com.google.protobuf.ByteString
+            getInviterNameBytes() {
+                java.lang.Object ref = inviterName_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    inviterName_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public Builder setInviterName(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                inviterName_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public Builder clearInviterName() {
+
+                inviterName_ = getDefaultInstance().getInviterName();
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public Builder setInviterNameBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                inviterName_ = value;
+                onChanged();
+                return this;
+            }
             public final Builder setUnknownFields(
                     final com.google.protobuf.UnknownFieldSet unknownFields) {
                 return this;
@@ -11895,6 +12032,16 @@ public final class MsgBean {
          * <code>.JoinGroupType join_type = 3;</code>
          */
         MsgBean.JoinGroupType getJoinType();
+
+        /**
+         * <code>string inviter_name = 4;</code>
+         */
+        java.lang.String getInviterName();
+        /**
+         * <code>string inviter_name = 4;</code>
+         */
+        com.google.protobuf.ByteString
+        getInviterNameBytes();
     }
     /**
      * <pre>
@@ -11915,6 +12062,7 @@ public final class MsgBean {
             noticeMessage_ = java.util.Collections.emptyList();
             inviter_ = 0L;
             joinType_ = 0;
+            inviterName_ = "";
         }
 
         @java.lang.Override
@@ -11960,6 +12108,12 @@ public final class MsgBean {
                             int rawValue = input.readEnum();
 
                             joinType_ = rawValue;
+                            break;
+                        }
+                        case 34: {
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            inviterName_ = s;
                             break;
                         }
                     }
@@ -12049,6 +12203,40 @@ public final class MsgBean {
             return result == null ? MsgBean.JoinGroupType.UNRECOGNIZED : result;
         }
 
+        public static final int INVITER_NAME_FIELD_NUMBER = 4;
+        private volatile java.lang.Object inviterName_;
+        /**
+         * <code>string inviter_name = 4;</code>
+         */
+        public java.lang.String getInviterName() {
+            java.lang.Object ref = inviterName_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                inviterName_ = s;
+                return s;
+            }
+        }
+        /**
+         * <code>string inviter_name = 4;</code>
+         */
+        public com.google.protobuf.ByteString
+        getInviterNameBytes() {
+            java.lang.Object ref = inviterName_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                inviterName_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
         private byte memoizedIsInitialized = -1;
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
@@ -12070,6 +12258,9 @@ public final class MsgBean {
             if (joinType_ != MsgBean.JoinGroupType.QRCODE.getNumber()) {
                 output.writeEnum(3, joinType_);
             }
+            if (!getInviterNameBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 4, inviterName_);
+            }
         }
 
         public int getSerializedSize() {
@@ -12088,6 +12279,9 @@ public final class MsgBean {
             if (joinType_ != MsgBean.JoinGroupType.QRCODE.getNumber()) {
                 size += com.google.protobuf.CodedOutputStream
                         .computeEnumSize(3, joinType_);
+            }
+            if (!getInviterNameBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, inviterName_);
             }
             memoizedSize = size;
             return size;
@@ -12110,6 +12304,8 @@ public final class MsgBean {
             result = result && (getInviter()
                     == other.getInviter());
             result = result && joinType_ == other.joinType_;
+            result = result && getInviterName()
+                    .equals(other.getInviterName());
             return result;
         }
 
@@ -12129,6 +12325,8 @@ public final class MsgBean {
                     getInviter());
             hash = (37 * hash) + JOIN_TYPE_FIELD_NUMBER;
             hash = (53 * hash) + joinType_;
+            hash = (37 * hash) + INVITER_NAME_FIELD_NUMBER;
+            hash = (53 * hash) + getInviterName().hashCode();
             hash = (29 * hash) + unknownFields.hashCode();
             memoizedHashCode = hash;
             return hash;
@@ -12273,6 +12471,8 @@ public final class MsgBean {
 
                 joinType_ = 0;
 
+                inviterName_ = "";
+
                 return this;
             }
 
@@ -12308,6 +12508,7 @@ public final class MsgBean {
                 }
                 result.inviter_ = inviter_;
                 result.joinType_ = joinType_;
+                result.inviterName_ = inviterName_;
                 result.bitField0_ = to_bitField0_;
                 onBuilt();
                 return result;
@@ -12381,6 +12582,10 @@ public final class MsgBean {
                 }
                 if (other.joinType_ != 0) {
                     setJoinTypeValue(other.getJoinTypeValue());
+                }
+                if (!other.getInviterName().isEmpty()) {
+                    inviterName_ = other.inviterName_;
+                    onChanged();
                 }
                 onChanged();
                 return this;
@@ -12715,6 +12920,75 @@ public final class MsgBean {
             public Builder clearJoinType() {
 
                 joinType_ = 0;
+                onChanged();
+                return this;
+            }
+
+            private java.lang.Object inviterName_ = "";
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public java.lang.String getInviterName() {
+                java.lang.Object ref = inviterName_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    inviterName_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public com.google.protobuf.ByteString
+            getInviterNameBytes() {
+                java.lang.Object ref = inviterName_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    inviterName_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public Builder setInviterName(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                inviterName_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public Builder clearInviterName() {
+
+                inviterName_ = getDefaultInstance().getInviterName();
+                onChanged();
+                return this;
+            }
+            /**
+             * <code>string inviter_name = 4;</code>
+             */
+            public Builder setInviterNameBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                inviterName_ = value;
                 onChanged();
                 return this;
             }
@@ -27155,77 +27429,78 @@ public final class MsgBean {
                         "\"C\n\022GroupNoticeMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006a" +
                         "vatar\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\"E\n\026InviteJ" +
                         "oinGroupMessage\022+\n\016notice_message\030\001 \001(\0132" +
-                        "\023.GroupNoticeMessage\"v\n\023RequestGroupMess" +
-                        "age\022+\n\016notice_message\030\001 \003(\0132\023.GroupNotic" +
-                        "eMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003" +
-                        " \001(\0162\016.JoinGroupType\"w\n\024AcceptBeGroupMes" +
-                        "sage\022+\n\016notice_message\030\001 \003(\0132\023.GroupNoti",
-                "ceMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030" +
-                        "\003 \001(\0162\016.JoinGroupType\"E\n\030RemoveGroupMemb" +
-                        "erMessage\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014" +
-                        "\n\004name\030\003 \001(\t\";\n\030ChangeGroupMasterMessage" +
-                        "\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"&\n\026Cha" +
-                        "ngeGroupNameMessage\022\014\n\004name\030\001 \001(\t\"6\n\036Cha" +
-                        "ngeGroupAnnouncementMessage\022\024\n\014announcem" +
-                        "ent\030\001 \001(\t\"@\n\023DestroyGroupMessage\022\013\n\003uid\030" +
-                        "\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"\021\n\017C" +
-                        "onflictMessage\"\036\n\017OutGroupMessage\022\013\n\003gid",
-                "\030\001 \001(\t\"\215\001\n\027ActiveStatChangeMessage\0228\n\013ac" +
-                        "tive_type\030\001 \001(\0162#.ActiveStatChangeMessag" +
-                        "e.ActiveType\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiv" +
-                        "eType\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"e\n\nAckMes" +
-                        "sage\022 \n\013reject_type\030\001 \001(\0162\013.RejectType\022\022" +
-                        "\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\tti" +
-                        "mestamp\030\004 \001(\004\"*\n\022AuthRequestMessage\022\024\n\014a" +
-                        "ccess_token\030\001 \001(\t\"\'\n\023AuthResponseMessage" +
-                        "\022\020\n\010accepted\030\001 \001(\021\"\242\n\n\020UniversalMessage\022" +
-                        "\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007w",
-                "rapMsg\030\221N \003(\0132\035.UniversalMessage.WrapMes" +
-                        "sage\032\270\t\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022" +
-                        "\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_i" +
-                        "d\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020" +
-                        "\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmemb" +
-                        "ername\030\010 \001(\t\022\035\n\004chat\030\220N \001(\0132\014.ChatMessag" +
-                        "eH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014" +
-                        "red_envelope\030\222N \001(\0132\023.RedEnvelopeMessage" +
-                        "H\000\022;\n\024receive_red_envelope\030\223N \001(\0132\032.Rece" +
-                        "iveRedEnvelopeMessageH\000\022%\n\010transfer\030\224N \001",
-                "(\0132\020.TransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r" +
-                        ".StampMessageH\000\022.\n\rbusiness_card\030\226N \001(\0132" +
-                        "\024.BusinessCardMessageH\000\022\037\n\005voice\030\227N \001(\0132" +
-                        "\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessag" +
-                        "eH\000\0220\n\016request_friend\030\364N \001(\0132\025.RequestFr" +
-                        "iendMessageH\000\0225\n\021accept_be_friends\030\365N \001(" +
-                        "\0132\027.AcceptBeFriendsMessageH\000\022.\n\rremove_f" +
-                        "riend\030\366N \001(\0132\024.RemoveFriendMessageH\000\022.\n\r" +
-                        "request_group\030\330O \001(\0132\024.RequestGroupMessa" +
-                        "geH\000\0221\n\017accept_be_group\030\331O \001(\0132\025.AcceptB",
-                "eGroupMessageH\000\0229\n\023remove_group_member\030\332" +
-                        "O \001(\0132\031.RemoveGroupMemberMessageH\000\0229\n\023ch" +
-                        "ange_group_master\030\333O \001(\0132\031.ChangeGroupMa" +
-                        "sterMessageH\000\0225\n\021change_group_name\030\334O \001(" +
-                        "\0132\027.ChangeGroupNameMessageH\000\022E\n\031change_g" +
-                        "roup_announcement\030\335O \001(\0132\037.ChangeGroupAn" +
-                        "nouncementMessageH\000\022.\n\rdestroy_group\030\336O " +
-                        "\001(\0132\024.DestroyGroupMessageH\000\022&\n\tout_group" +
-                        "\030\342O \001(\0132\020.OutGroupMessageH\000\022%\n\010conflict\030" +
-                        "\274P \001(\0132\020.ConflictMessageH\000\0227\n\022active_sta",
-                "t_change\030\275P \001(\0132\030.ActiveStatChangeMessag" +
-                        "eH\000B\n\n\010real_msg*\247\003\n\013MessageType\022\010\n\004CHAT\020" +
-                        "\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEI" +
-                        "VE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAM" +
-                        "P\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020" +
-                        "\010\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIEN" +
-                        "DS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP" +
-                        "\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_" +
-                        "MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\025\n\021CHA" +
-                        "NGE_GROUP_NAME\020k\022\035\n\031CHANGE_GROUP_ANNOUNC",
-                "EMENT\020l\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROUP\020" +
-                        "n\022\r\n\010CONFLICT\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311" +
-                        "\001*b\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FRI" +
-                        "ENDS_OR_GROUP_MEMBER\020\001\022\014\n\010NO_SPACE\020\010\022\027\n\023" +
-                        "SERVICE_UNAVAILABLE\020d*(\n\rJoinGroupType\022\n" +
-                        "\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001b\006proto3"
+                        "\023.GroupNoticeMessage\"\214\001\n\023RequestGroupMes" +
+                        "sage\022+\n\016notice_message\030\001 \003(\0132\023.GroupNoti" +
+                        "ceMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030" +
+                        "\003 \001(\0162\016.JoinGroupType\022\024\n\014inviter_name\030\004 " +
+                        "\001(\t\"\215\001\n\024AcceptBeGroupMessage\022+\n\016notice_m",
+                "essage\030\001 \003(\0132\023.GroupNoticeMessage\022\017\n\007inv" +
+                        "iter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGrou" +
+                        "pType\022\024\n\014inviter_name\030\004 \001(\t\"E\n\030RemoveGro" +
+                        "upMemberMessage\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002" +
+                        " \001(\t\022\014\n\004name\030\003 \001(\t\";\n\030ChangeGroupMasterM" +
+                        "essage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"" +
+                        "&\n\026ChangeGroupNameMessage\022\014\n\004name\030\001 \001(\t\"" +
+                        "6\n\036ChangeGroupAnnouncementMessage\022\024\n\014ann" +
+                        "ouncement\030\001 \001(\t\"@\n\023DestroyGroupMessage\022\013" +
+                        "\n\003uid\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(",
+                "\t\"\021\n\017ConflictMessage\"\036\n\017OutGroupMessage\022" +
+                        "\013\n\003gid\030\001 \001(\t\"\215\001\n\027ActiveStatChangeMessage" +
+                        "\0228\n\013active_type\030\001 \001(\0162#.ActiveStatChange" +
+                        "Message.ActiveType\022\021\n\ttimestamp\030\002 \001(\004\"%\n" +
+                        "\nActiveType\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"e\n\n" +
+                        "AckMessage\022 \n\013reject_type\030\001 \001(\0162\013.Reject" +
+                        "Type\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t" +
+                        "\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022AuthRequestMessag" +
+                        "e\022\024\n\014access_token\030\001 \001(\t\"\'\n\023AuthResponseM" +
+                        "essage\022\020\n\010accepted\030\001 \001(\021\"\242\n\n\020UniversalMe",
+                "ssage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(" +
+                        "\004\022/\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage.W" +
+                        "rapMessage\032\270\t\n\013WrapMessage\022\021\n\ttimestamp\030" +
+                        "\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n" +
+                        "\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005" +
+                        " \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022" +
+                        "\n\nmembername\030\010 \001(\t\022\035\n\004chat\030\220N \001(\0132\014.Chat" +
+                        "MessageH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessage" +
+                        "H\000\022,\n\014red_envelope\030\222N \001(\0132\023.RedEnvelopeM" +
+                        "essageH\000\022;\n\024receive_red_envelope\030\223N \001(\0132",
+                "\032.ReceiveRedEnvelopeMessageH\000\022%\n\010transfe" +
+                        "r\030\224N \001(\0132\020.TransferMessageH\000\022\037\n\005stamp\030\225N" +
+                        " \001(\0132\r.StampMessageH\000\022.\n\rbusiness_card\030\226" +
+                        "N \001(\0132\024.BusinessCardMessageH\000\022\037\n\005voice\030\227" +
+                        "N \001(\0132\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132\n.At" +
+                        "MessageH\000\0220\n\016request_friend\030\364N \001(\0132\025.Req" +
+                        "uestFriendMessageH\000\0225\n\021accept_be_friends" +
+                        "\030\365N \001(\0132\027.AcceptBeFriendsMessageH\000\022.\n\rre" +
+                        "move_friend\030\366N \001(\0132\024.RemoveFriendMessage" +
+                        "H\000\022.\n\rrequest_group\030\330O \001(\0132\024.RequestGrou",
+                "pMessageH\000\0221\n\017accept_be_group\030\331O \001(\0132\025.A" +
+                        "cceptBeGroupMessageH\000\0229\n\023remove_group_me" +
+                        "mber\030\332O \001(\0132\031.RemoveGroupMemberMessageH\000" +
+                        "\0229\n\023change_group_master\030\333O \001(\0132\031.ChangeG" +
+                        "roupMasterMessageH\000\0225\n\021change_group_name" +
+                        "\030\334O \001(\0132\027.ChangeGroupNameMessageH\000\022E\n\031ch" +
+                        "ange_group_announcement\030\335O \001(\0132\037.ChangeG" +
+                        "roupAnnouncementMessageH\000\022.\n\rdestroy_gro" +
+                        "up\030\336O \001(\0132\024.DestroyGroupMessageH\000\022&\n\tout" +
+                        "_group\030\342O \001(\0132\020.OutGroupMessageH\000\022%\n\010con",
+                "flict\030\274P \001(\0132\020.ConflictMessageH\000\0227\n\022acti" +
+                        "ve_stat_change\030\275P \001(\0132\030.ActiveStatChange" +
+                        "MessageH\000B\n\n\010real_msg*\247\003\n\013MessageType\022\010\n" +
+                        "\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n" +
+                        "\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t" +
+                        "\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022" +
+                        "\006\n\002AT\020\010\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE" +
+                        "_FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST" +
+                        "_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_" +
+                        "GROUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022",
+                "\025\n\021CHANGE_GROUP_NAME\020k\022\035\n\031CHANGE_GROUP_A" +
+                        "NNOUNCEMENT\020l\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_" +
+                        "GROUP\020n\022\r\n\010CONFLICT\020\310\001\022\027\n\022ACTIVE_STAT_CH" +
+                        "ANGE\020\311\001*b\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033N" +
+                        "OT_FRIENDS_OR_GROUP_MEMBER\020\001\022\014\n\010NO_SPACE" +
+                        "\020\010\022\027\n\023SERVICE_UNAVAILABLE\020d*(\n\rJoinGroup" +
+                        "Type\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE\020\001b\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -27328,13 +27603,13 @@ public final class MsgBean {
         internal_static_RequestGroupMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_RequestGroupMessage_descriptor,
-                new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", });
+                new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", "InviterName", });
         internal_static_AcceptBeGroupMessage_descriptor =
                 getDescriptor().getMessageTypes().get(15);
         internal_static_AcceptBeGroupMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AcceptBeGroupMessage_descriptor,
-                new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", });
+                new java.lang.String[] { "NoticeMessage", "Inviter", "JoinType", "InviterName", });
         internal_static_RemoveGroupMemberMessage_descriptor =
                 getDescriptor().getMessageTypes().get(16);
         internal_static_RemoveGroupMemberMessage_fieldAccessorTable = new
