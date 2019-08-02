@@ -3,6 +3,8 @@ package com.yanlong.im.user.dao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.CoreEnum;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,25 +26,26 @@ public class UserDao {
      * 纯更新用户信息
      * @param userInfo
      */
-    public void updateUserinfo(UserInfo userInfo){
+    public void updateUserinfo(UserInfo userInfo) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(userInfo);
 
-                realm.commitTransaction();
+        realm.commitTransaction();
         realm.close();
     }
 
 
     /**
      * 更新好友状态
+     *
      * @param type 0:陌生人或者群友,1:自己,2:通讯录,3黑名单(不区分和陌生人)
-     * */
-    public void updeteUserUtype(Long uid,int type){
+     */
+    public void updeteUserUtype(Long uid, int type) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-        if(userInfo != null){
+        if (userInfo != null) {
             userInfo.setuType(type);
             realm.insertOrUpdate(userInfo);
         }
@@ -55,11 +58,11 @@ public class UserDao {
      * 如果存在了就不更新
      * @param userInfo
      */
-    public void saveUserinfo(UserInfo userInfo){
+    public void saveUserinfo(UserInfo userInfo) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         UserInfo u = realm.where(UserInfo.class).equalTo("uid", userInfo.getUid()).findFirst();
-        if(u==null){
+        if (u == null) {
             realm.insertOrUpdate(userInfo);
         }
 
@@ -81,11 +84,11 @@ public class UserDao {
      * 所有好友
      * @return
      */
-    public List<UserInfo> friendGetAll(){
+    public List<UserInfo> friendGetAll() {
         List<UserInfo> res;
         Realm realm = DaoUtil.open();
         RealmResults<UserInfo> ls = realm.where(UserInfo.class).equalTo("uType", 2).sort("tag", Sort.ASCENDING).findAll();
-        res=  realm.copyFromRealm(ls);
+        res = realm.copyFromRealm(ls);
         realm.close();
 
         return res;
@@ -98,11 +101,11 @@ public class UserDao {
      * @return
      */
     public UserInfo findUserInfo4Friend(Long userid) {
-        UserInfo res=null;
+        UserInfo res = null;
         Realm realm = DaoUtil.open();
         UserInfo ls = realm.where(UserInfo.class).equalTo("uType", 2).equalTo("uid", userid).findFirst();
-        if(ls!=null){
-            res=  realm.copyFromRealm(ls);
+        if (ls != null) {
+            res = realm.copyFromRealm(ls);
         }
 
         realm.close();
@@ -113,7 +116,7 @@ public class UserDao {
     /***
      * 清除我的所有好友
      */
-    public void friendMeDel(){
+    public void friendMeDel() {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         RealmResults<UserInfo> ls = realm.where(UserInfo.class).equalTo("uType", 2).sort("tag", Sort.ASCENDING).findAll();
@@ -126,18 +129,18 @@ public class UserDao {
      * 更新好友
      * @param list
      */
-    public void friendMeUpdate( List<UserInfo> list){
+    public void friendMeUpdate(List<UserInfo> list) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
 
         RealmResults<UserInfo> ls = realm.where(UserInfo.class).equalTo("uType", 2).findAll();
-        for (UserInfo u:ls) {
+        for (UserInfo u : ls) {
 
-            boolean isExt=false;
+            boolean isExt = false;
             for (UserInfo userInfo : list) {
-                if(u.getUid().longValue()==userInfo.getUid().longValue()){//在好友列表中
-                    isExt=true;
+                if (u.getUid().longValue() == userInfo.getUid().longValue()) {//在好友列表中
+                    isExt = true;
 
                     //更新用户相关
                     userInfo.toTag();
@@ -150,10 +153,9 @@ public class UserDao {
 
 
             }
-            if(!isExt){//不在好友列表中了,身份改成普通人
+            if (!isExt) {//不在好友列表中了,身份改成普通人
                 u.setuType(0);
             }
-
 
 
         }
@@ -161,30 +163,25 @@ public class UserDao {
         realm.insertOrUpdate(ls);
         //服务器新加的联系人
         for (UserInfo userInfo : list) {
-            boolean isExt=false;
-            for (UserInfo u:ls) {
-                if(u.getUid().longValue()==userInfo.getUid().longValue()){//在好友列表中
-                    isExt=true;
+            boolean isExt = false;
+            for (UserInfo u : ls) {
+                if (u.getUid().longValue() == userInfo.getUid().longValue()) {//在好友列表中
+                    isExt = true;
                 }
             }
 
-            if(!isExt){
+            if (!isExt) {
                 userInfo.toTag();
                 userInfo.setuType(2);
-              //  addTemp.add(userInfo);
+                //  addTemp.add(userInfo);
                 realm.insertOrUpdate(userInfo);
             }
 
         }
 
 
-
-
-
-
         realm.commitTransaction();
         realm.close();
-
 
 
     }
@@ -211,16 +208,16 @@ public class UserDao {
      * @param head
      * @param name
      */
-    public void userHeadNameUpdate(Long uid,String head,String name){
-        if(uid==null)
+    public void userHeadNameUpdate(Long uid, String head, String name) {
+        if (uid == null)
             return;
         Realm realm = DaoUtil.open();
 
         UserInfo u = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-        if(u!=null){
-            if(u.getHead().equals(head)&&u.getName().equals(name)){
+        if (u != null) {
+            if (u.getHead().equals(head) && u.getName().equals(name)) {
 
-            }else {
+            } else {
                 realm.beginTransaction();
                 u.setHead(head);
                 u.setName(name);
@@ -232,5 +229,31 @@ public class UserDao {
 
 
         realm.close();
+    }
+
+
+    /**
+     * 更新好友在线状态
+     *
+     * @param type 0:不在线,1:在线
+     * @param time 离线需要更新离线时间
+     */
+    public void updeteUserOnlineStatus(Long uid, int type, long time) {
+        try {
+            Realm realm = DaoUtil.open();
+            realm.beginTransaction();
+            UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (userInfo != null) {
+                userInfo.setActiveType(type);
+                if (type == CoreEnum.ESureType.NO) {
+                    userInfo.setLastonline(time);
+                }
+                realm.insertOrUpdate(userInfo);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

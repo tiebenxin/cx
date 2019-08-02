@@ -56,8 +56,8 @@ public class FriendMainFragment extends Fragment {
     //自动寻找控件
     private void findViews(View rootView) {
         viewSearch = rootView.findViewById(R.id.view_search);
-        mtListView =  rootView.findViewById(R.id.mtListView);
-        viewType =  rootView.findViewById(R.id.view_type);
+        mtListView = rootView.findViewById(R.id.mtListView);
+        viewType = rootView.findViewById(R.id.view_type);
         actionbar = rootView.findViewById(R.id.action_bar);
     }
 
@@ -214,13 +214,12 @@ public class FriendMainFragment extends Fragment {
                 hd.txtType.setText(bean.getTag());
                 hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
                 hd.txtName.setText(bean.getName4Show());
-                if(bean.getLastonline()>0){
-                    hd.txtTime.setText(TimeToString.getTimeOline(bean.getLastonline()) );
+                if (bean.getLastonline() > 0) {
+                    hd.txtTime.setText(TimeToString.getTimeOline(bean.getLastonline(), bean.getActiveType()));
                     hd.txtTime.setVisibility(View.VISIBLE);
-                }else{
+                } else {
                     hd.txtTime.setVisibility(View.GONE);
                 }
-
 
 
                 UserInfo lastbean = listData.get(position - 1);
@@ -275,10 +274,10 @@ public class FriendMainFragment extends Fragment {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                txtType =  convertView.findViewById(R.id.txt_type);
-                imgHead =  convertView.findViewById(R.id.img_head);
-                txtName =  convertView.findViewById(R.id.txt_name);
-                txtTime =  convertView.findViewById(R.id.txt_time);
+                txtType = convertView.findViewById(R.id.txt_type);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                txtTime = convertView.findViewById(R.id.txt_time);
                 viewType = convertView.findViewById(R.id.view_type);
 
             }
@@ -333,9 +332,9 @@ public class FriendMainFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshFriend(EventRefreshFriend event) {
-        if (event.isLocal()){
+        if (event.isLocal()) {
             taskListData();
-        }else{
+        } else {
             taskRefreshListData();
         }
 
@@ -358,7 +357,6 @@ public class FriendMainFragment extends Fragment {
 
         );
     }
-
 
 
     private MsgDao msgDao = new MsgDao();

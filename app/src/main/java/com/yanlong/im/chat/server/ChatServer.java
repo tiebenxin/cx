@@ -5,20 +5,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.IBinder;
-import android.os.Vibrator;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
-import com.yanlong.im.test.bean.Test2Bean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
@@ -27,15 +19,13 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
-import net.cb.cb.library.AppConfig;
-import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
+import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.ToastUtil;
 
 
 import org.greenrobot.eventbus.EventBus;
@@ -131,7 +121,12 @@ public class ChatServer extends Service {
         public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
             LogUtil.getLog().d(TAG, "<<<<<<<<<<收到类型:" + msg.getMsgType());
 
+
             LogUtil.getLog().d(TAG, "<<<<<<<<<<收到:" + msg);
+
+            if (msg.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
+                return;
+            }
 
             taskUpUserinfo(msg);
 
@@ -160,7 +155,7 @@ public class ChatServer extends Service {
 
                     for (MsgBean.GroupNoticeMessage ntm : msg.getRequestGroup().getNoticeMessageList()) {
 
-                        msgDao.groupAcceptAdd(msg.getRequestGroup().getJoinType().getNumber(),msg.getRequestGroup().getInviter(),msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
+                        msgDao.groupAcceptAdd(msg.getRequestGroup().getJoinType().getNumber(), msg.getRequestGroup().getInviter(), msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
                     }
 
 
@@ -208,6 +203,11 @@ public class ChatServer extends Service {
                     } else {
                         break;
                     }
+                case ACTIVE_STAT_CHANGE:
+                    updateUserOnlineStatus(msg);
+                    EventBus.getDefault().post(new EventRefreshFriend());
+                    EventBus.getDefault().post(new EventUserOnlineChange());
+                    break;
             }
 
 
@@ -372,6 +372,17 @@ public class ChatServer extends Service {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(mNetworkChangeReceiver, intentFilter);
+
+    }
+
+    private void updateUserOnlineStatus(MsgBean.UniversalMessage.WrapMessage msg) {
+        long fromUid = msg.getFromUid();
+        MsgBean.ActiveStatChangeMessage message = msg.getActiveStatChange();
+        if (message == null) {
+            return;
+        }
+        UserDao userDao = new UserDao();
+        userDao.updeteUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
 
     }
 }
