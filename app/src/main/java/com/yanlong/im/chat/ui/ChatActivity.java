@@ -87,6 +87,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.ReturnBean;
@@ -937,8 +938,6 @@ public class ChatActivity extends AppActivity {
             ChatServer.setSessionSolo(toUId);
         }
 
-
-        //刷新页面数据
        /* if (flag_isHistory) {
             flag_isHistory = false;
             return;
@@ -952,7 +951,6 @@ public class ChatActivity extends AppActivity {
     @Override
     protected void onPause() {
         super.onPause();
-
         //取消激活会话
         ChatServer.setSessionNull();
 
@@ -1032,6 +1030,14 @@ public class ChatActivity extends AppActivity {
             taskRefreshMessage();
         }
     }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void taskRefreshMessageEvent(EventRefreshChat event){
+        taskRefreshMessage();
+    }
+
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
@@ -1622,7 +1628,6 @@ public class ChatActivity extends AppActivity {
      * 获取最新的
      */
     private void taskRefreshMessage() {
-
         //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
         msgListData = msgAction.getMsg4User(toGid, toUId, null);
 
