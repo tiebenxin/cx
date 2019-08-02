@@ -1313,7 +1313,7 @@ public class ChatActivity extends AppActivity {
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
 
-                    holder.viewChatItem.setData4(msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
+                    holder.viewChatItem.setData4(msgbean.getImage(),msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
