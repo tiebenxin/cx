@@ -316,7 +316,7 @@ public class UserInfoActivity extends AppActivity {
                         selectList.add(lc);
                         PictureSelector.create(UserInfoActivity.this)
                                 .themeStyle(R.style.picture_default_style)
-                                .isGif(true)
+                                .isGif(false)
                                 .openExternalPreview(0, selectList);
                     }
                 });
