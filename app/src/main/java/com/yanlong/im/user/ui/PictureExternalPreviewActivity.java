@@ -525,12 +525,18 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             loadDataThread = new LoadDataThread(path, 1,null);
             loadDataThread.start();
         } else {
+            Log.d(TAG, "scanningQrImage: path"+path);
             // 有可能本地图片
             try {
-                String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
-                        System.currentTimeMillis() + ".png", directory_path);
+
+               // String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,System.currentTimeMillis() + ".png", directory_path);
                 //PictureFileUtils.copyFile(path, dirPath);
-                Result result = scanningImage(dirPath);
+                if(path.toLowerCase().startsWith("file://")){
+                    path=path.replace("file://","");
+                }
+
+               // Log.d(TAG, "scanningQrImage: dirPath"+dirPath);
+                Result result = scanningImage(path);
                 QRCodeManage.toZhifubao(this, result);
             } catch (Exception e) {
                 ToastUtil.show(mContext, "识别二维码失败");
@@ -597,8 +603,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             }
             // 有可能本地图片
             try {
+                String fileName = getFileExt(path);
                 String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
-                        System.currentTimeMillis() + ".png", directory_path);
+                        fileName, directory_path);
                 PictureFileUtils.copyFile(path, dirPath);
                 //刷新相册的广播
                 Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -651,31 +658,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             Log.d(TAG, "showLoadingImage: "+urlPath);
             URL u = new URL(urlPath);
             //网路图片本地化
-            String fName = urlPath.trim();
-            String fileName = fName.substring(fName.lastIndexOf("/")+1);
+            String fileName = getFileExt(urlPath);
             String path = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
                     fileName, null);
             Log.d(TAG, "showLoadingImage path: "+path);
-            if(!new File(path).exists()) {
-                byte[] buffer = new byte[1024 * 8];
-                int read;
-                int ava = 0;
-                long start = System.currentTimeMillis();
-                BufferedInputStream bin;
-                bin = new BufferedInputStream(u.openStream());
-                BufferedOutputStream bout = new BufferedOutputStream(
-                        new FileOutputStream(path));
-                while ((read = bin.read(buffer)) > -1) {
-                    bout.write(buffer, 0, read);
-                    ava += read;
-                    long speed = ava / (System.currentTimeMillis() - start);
-                }
-                bout.flush();
-                bout.close();
-                Log.d(TAG, "showLoadingImage: 不存在,创建");
-            }else{
-                Log.d(TAG, "showLoadingImage: 存在");
-            }
+            saveFileLocl(u, path);
 
             if (type == 0) {
                 Message message = handler.obtainMessage();
@@ -687,7 +674,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 message.what = 400;
                 message.obj = obj;
                 ((View)obj).setTag(path);
-                Log.d("TAG", "------------showLoadingImage: "+obj);
+
                 handler.sendMessage(message);
             }else if(type==1) {
                 Message message = handler.obtainMessage();
@@ -700,6 +687,53 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         } catch (IOException e) {
            // ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_error) + "\n" + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    /***
+     * 获取文件后缀
+     * @param urlPath
+     * @return
+     */
+    private String getFileExt(String urlPath) {
+        String fName = urlPath.trim();
+        //http://e7-test.oss-cn-beijing.aliyuncs.com/Android/20190802/fe85b909-0bea-4155-a92a-d78052e8638c.png/below-200k
+        int index=fName.lastIndexOf("/");
+        if(fName.lastIndexOf(".")>index){
+            return fName.substring(index+1);
+        }else{
+           String name= fName.substring(fName.lastIndexOf("/",index-1)+1);
+            name=name.replace("/","_");
+            return name;
+        }
+    }
+
+    /***
+     * 文件保存本地
+     * @param u
+     * @param path
+     * @throws IOException
+     */
+    private void saveFileLocl(URL u, String path) throws IOException {
+        if(!new File(path).exists()) {
+            byte[] buffer = new byte[1024 * 8];
+            int read;
+            int ava = 0;
+            long start = System.currentTimeMillis();
+            BufferedInputStream bin;
+            bin = new BufferedInputStream(u.openStream());
+            BufferedOutputStream bout = new BufferedOutputStream(
+                    new FileOutputStream(path));
+            while ((read = bin.read(buffer)) > -1) {
+                bout.write(buffer, 0, read);
+                ava += read;
+                long speed = ava / (System.currentTimeMillis() - start);
+            }
+            bout.flush();
+            bout.close();
+            Log.d(TAG, "showLoadingImage: 不存在,创建");
+        }else{
+            Log.d(TAG, "showLoadingImage: 存在");
         }
     }
 
