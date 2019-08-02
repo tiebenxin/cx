@@ -90,6 +90,7 @@ import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
+import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.AnimationPic;
 import net.cb.cb.library.utils.CallBack;
@@ -213,7 +214,7 @@ public class ChatActivity extends AppActivity {
                         msgListData.add(notbean);
 
                        notifyData();*/
-                       ToastUtil.show(getContext(),"消息发送成功,但对方已拒收");
+                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
 
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null) {//忽略图片上传的刷新
@@ -296,6 +297,7 @@ public class ChatActivity extends AppActivity {
             case CHANGE_GROUP_NAME:
                 taskSessionInfo();
                 break;
+
 
         }
 
@@ -900,6 +902,11 @@ public class ChatActivity extends AppActivity {
         finish();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefresh(EventUserOnlineChange event) {
+        updateUserOnlineStatus();
+    }
+
     @Override
     protected void onStop() {
 
@@ -971,7 +978,7 @@ public class ChatActivity extends AppActivity {
                     for (LocalMedia localMedia : obt) {
                         String file = localMedia.getCompressPath();
 
-                        final boolean isArtworkMaster =requestCode==PictureConfig.REQUEST_CAMERA?true: data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                        final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         if (isArtworkMaster) {
                             //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                             file = localMedia.getPath();
@@ -1042,23 +1049,23 @@ public class ChatActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
         if (event.getState() == 0) {
-           // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
+            // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
             //处理失败的情况
-            Log.d("tag", "taskUpImgEvevt -1: ===============>"+event.getMsgid());
+            Log.d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgid());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
 
 
         } else if (event.getState() == 1) {
-          //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgid());
+            //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgid());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
 
 
-        }else{
-          //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgid());
+        } else {
+            //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgid());
         }
     }
 
@@ -1150,9 +1157,9 @@ public class ChatActivity extends AppActivity {
             LocalMedia lc = new LocalMedia();
             lc.setCompressPath(msgl.getImage().getPreviewShow());
             lc.setPath(msgl.getImage().getOriginShow());
-           // Log.d("tag", "---showBigPic: "+msgl.getImage().getSize());
+            // Log.d("tag", "---showBigPic: "+msgl.getImage().getSize());
             lc.setSize(msgl.getImage().getSize());
-           // lc.setWidth(new Long( msgl.getImage().getSize()).intValue());
+            // lc.setWidth(new Long( msgl.getImage().getSize()).intValue());
             selectList.add(lc);
 
         }
@@ -1442,17 +1449,17 @@ public class ChatActivity extends AppActivity {
                     MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgbean.getMsg_id());
 
                     try {
-                        if(remsg.getMsg_type()==4){//图片重发处理7.31
+                        if (remsg.getMsg_type() == 4) {//图片重发处理7.31
 
 
-                            String file=remsg.getImage().getLocalimg();
-                            boolean isArtworkMaster=StringUtil.isNotNull(remsg.getImage().getOrigin()) ?false:true;
-                            MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid,   file, isArtworkMaster);
+                            String file = remsg.getImage().getLocalimg();
+                            boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
+                            MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
                             replaceListDataAndNotify(imgMsgBean);
                             UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                             startService(new Intent(getContext(), UpLoadService.class));
 
-                        }else{
+                        } else {
                             MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
                             SocketUtil.getSocketUtil().sendData4Msg(bean);
                             //点击发送的时候如果要改变成发送中的状态
@@ -1614,10 +1621,26 @@ public class ChatActivity extends AppActivity {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOline(finfo.getLastonline()));
+                actionbar.setTitleMore(TimeToString.getTimeOline(finfo.getLastonline(), finfo.getActiveType()));
             }
 
 
+        }
+        actionbar.setTitle(title);
+
+    }
+
+    /***
+     * 获取会话信息
+     */
+    private void updateUserOnlineStatus() {
+        String title = "";
+        if (!isGroup()) {
+            UserInfo finfo = userDao.findUserInfo(toUId);
+            title = finfo.getName4Show();
+            if (finfo.getLastonline() > 0) {
+                actionbar.setTitleMore(TimeToString.getTimeOline(finfo.getLastonline(), finfo.getActiveType()));
+            }
         }
         actionbar.setTitle(title);
 
@@ -1701,11 +1724,11 @@ public class ChatActivity extends AppActivity {
             } else {
                 userInfo = msg.getFrom_user();
 
-                if(userInfo==null) {
-                    userInfo=new UserInfo();
-                    userInfo.setName(StringUtil.isNotNull(msg.getFrom_group_nickname())?msg.getFrom_group_nickname():msg.getFrom_nickname());
+                if (userInfo == null) {
+                    userInfo = new UserInfo();
+                    userInfo.setName(StringUtil.isNotNull(msg.getFrom_group_nickname()) ? msg.getFrom_group_nickname() : msg.getFrom_nickname());
                     userInfo.setHead(msg.getFrom_avatar());
-                }else {
+                } else {
                     if (isGroup()) {
                         String gname = "";//获取对方最新的群昵称
                         MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(toGid, msg.getFrom_uid());
@@ -1718,7 +1741,6 @@ public class ChatActivity extends AppActivity {
                             userInfo.setName(gname);
                         }
                     }
-
 
 
                 }
