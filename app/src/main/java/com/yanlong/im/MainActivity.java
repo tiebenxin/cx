@@ -1,5 +1,7 @@
 package com.yanlong.im;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -202,6 +204,7 @@ public class MainActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         taskGetMsgNum();
+        taskClearNotification();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -328,5 +331,12 @@ public class MainActivity extends AppActivity {
         });
     }
 
+    /***
+     * 清理通知栏
+     */
+    private void taskClearNotification(){
+        NotificationManager manager = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancelAll();
+    }
 
 }
