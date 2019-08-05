@@ -95,6 +95,8 @@ public class TimeToString {
                     result = getTime(timestamp, dayTimeFormat);
                 } else if (todayCalendar.get(Calendar.WEEK_OF_YEAR) == calendar.get(Calendar.WEEK_OF_YEAR)) {
                     result = getTime(timestamp, weekNames[calendar.get(Calendar.DAY_OF_WEEK) - 1] + hourTimeFormat);
+                }else {
+                    result = getTime(timestamp, yearTimeFormat);
                 }
             } else {
                 result = getTime(timestamp, yearTimeFormat);
