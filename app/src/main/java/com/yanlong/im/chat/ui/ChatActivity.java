@@ -37,6 +37,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
@@ -957,7 +958,8 @@ public class ChatActivity extends AppActivity {
                         String file = localMedia.getCompressPath();
 
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                        if (isArtworkMaster) {
+                        boolean isGif= FileUtils.isGif(file);
+                        if (isArtworkMaster||isGif) {
                             //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                             file = localMedia.getPath();
                         }
