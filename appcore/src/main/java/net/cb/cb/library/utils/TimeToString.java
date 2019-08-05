@@ -106,7 +106,7 @@ public class TimeToString {
         }
     }
 
-    public static Spanned getTimeOline(Long timestamp) {
+    public static Spanned getTimeOnline(Long timestamp) {
         Long now = new Date().getTime();
         Calendar todayCalendar = Calendar.getInstance();
         Calendar calendar = Calendar.getInstance();
@@ -156,7 +156,7 @@ public class TimeToString {
         return s;
     }
 
-    public static Spanned getTimeOline(Long timestamp, @CoreEnum.ESureType int activeType) {
+    public static Spanned getTimeOnline(Long timestamp, @CoreEnum.ESureType int activeType) {
         if (activeType == CoreEnum.ESureType.YES) {
             String timestr = "<font color='#276baa'>在线</font>";
             return Html.fromHtml(timestr);
@@ -183,7 +183,7 @@ public class TimeToString {
             if (disparity >= 2 * 60 && disparity < 60 * 60) {
                 timestr = "<font color='#276baa'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
             } else if (disparity > 0 && disparity < 2 * 60) {
-                timestr = "<font color='#276baa'>刚刚在线</font>";
+                timestr = "<font color='#276baa'>刚刚</font>";
             }
             return Html.fromHtml(timestr);
         }
