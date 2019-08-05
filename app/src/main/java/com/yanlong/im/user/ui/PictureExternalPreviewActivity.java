@@ -428,7 +428,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         }
 
         //显示gif图片
-        private void showGif(PhotoView imageView, TextView txtBig, String path) {
+        private void showGif(final PhotoView imageView, TextView txtBig, String path) {
             Log.v("Glide", "显示gif图");
             txtBig.setVisibility(View.GONE);
             RequestOptions gifOptions = new RequestOptions()
@@ -440,9 +440,16 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     .load(path)
                     .listener(new RequestListener<GifDrawable>() {
                         @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model
+                        public boolean onLoadFailed(@Nullable GlideException e, final Object model
                                 , Target<GifDrawable> target, boolean isFirstResource) {
                             dismissDialog();
+                            imageView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Glide.with(getApplicationContext()).asBitmap().load(model).into(imageView);
+                                }
+                            });
+
                             return false;
                         }
 
