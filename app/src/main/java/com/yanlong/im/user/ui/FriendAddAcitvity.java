@@ -112,10 +112,10 @@ public class FriendAddAcitvity extends AppActivity {
         }
 
         UMImage thumb =  new UMImage(this, R.mipmap.ic_launcher);
-        UMWeb web = new UMWeb("https://blog.csdn.net/mffandxx/article/details/84103875");
-        web.setTitle("添加好友");//标题
+        UMWeb web = new UMWeb("https://changliaoliao.zhixun5588.com/fx/fxwx.html");
+        web.setTitle("我们一起用“常聊聊”来聊天吧");//标题
         web.setThumb(thumb);  //缩略图
-        web.setDescription("点击跳转加好友");//描述
+        web.setDescription("我正在使用常聊聊，一款为有共同兴趣爱好用户定制打造的聊天交友软件");//描述
         new ShareAction(FriendAddAcitvity.this)
                 .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
                 .setCallback(new UMShareListener() {

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -182,7 +183,8 @@ public class MsgForwardActivity extends AppActivity {
                                // ToastUtil.show(context, msgAllBean.getImage().getThumbnail()+"---\n"+content);
                                 Long toUId=bean.getFrom_uid();
                                 String toGid=bean.getGid();
-                                SocketData.send4Image(toUId, toGid,msgAllBean.getImage().getOrigin(),msgAllBean.getImage().getPreview(),msgAllBean.getImage().getThumbnail());
+                                ImageMessage imagesrc = msgAllBean.getImage();
+                                SocketData.send4Image(toUId, toGid,imagesrc.getOrigin(),imagesrc.getPreview(),imagesrc.getThumbnail(),new Long(imagesrc.getWidth()).intValue(),new Long(imagesrc.getHeight()).intValue());
                                 if(StringUtil.isNotNull(content)){
                                     SocketData.send4Chat(toUId, toGid, content);
                                 }
