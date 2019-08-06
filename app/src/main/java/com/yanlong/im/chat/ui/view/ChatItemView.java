@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -41,6 +42,7 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.luck.picture.lib.PictureExternalPreviewActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -120,6 +122,10 @@ public class ChatItemView extends LinearLayout {
     private boolean isMe;
     private View viewOtTouch;
     private View viewMeTouch;
+    private LinearLayout viewOt8;
+    private AppCompatTextView txtOt8;
+    private LinearLayout viewMe8;
+    private AppCompatTextView txtMe8;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -194,6 +200,12 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch = rootView.findViewById(R.id.view_me_touch);
         viewMeTouch = rootView.findViewById(R.id.view_ot_touch);
 
+        //小助手消息
+        viewOt8 = rootView.findViewById(R.id.view_ot_8);
+        txtOt8 = rootView.findViewById(R.id.txt_ot_8);
+        viewMe8 = rootView.findViewById(R.id.view_me_8);
+        txtMe8 = rootView.findViewById(R.id.txt_me_8);
+
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -254,6 +266,8 @@ public class ChatItemView extends LinearLayout {
         viewOt6.setVisibility(GONE);
         viewMe7.setVisibility(GONE);
         viewOt7.setVisibility(GONE);
+        viewMe8.setVisibility(GONE);
+        viewOt8.setVisibility(GONE);
         switch (type) {
             case 0://公告
                 txtBroadcast.setVisibility(VISIBLE);
@@ -291,6 +305,10 @@ public class ChatItemView extends LinearLayout {
             case 8:
                 viewMe1.setVisibility(VISIBLE);
                 viewOt1.setVisibility(VISIBLE);
+                break;
+            case ChatEnum.EMessageType.ASSISTANT:
+                viewMe8.setVisibility(VISIBLE);
+                viewOt8.setVisibility(VISIBLE);
                 break;
         }
 
@@ -458,6 +476,12 @@ public class ChatItemView extends LinearLayout {
 
     }
 
+    //普通消息
+    public void setDataAssistant(String msg) {
+        txtMe8.setText(msg);
+        txtOt8.setText(msg);
+    }
+
 
     public void setFont(Integer size) {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
@@ -503,11 +527,10 @@ public class ChatItemView extends LinearLayout {
                 imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
 
 
-
                 lp.width = w;
                 lp.height = h;
 
-            }else{
+            } else {
                 lp.width = width;
                 lp.height = height;
             }
@@ -526,8 +549,6 @@ public class ChatItemView extends LinearLayout {
                             Glide.with(getContext()).asBitmap().load(model).into(imgMe4);
                         }
                     });
-
-
 
 
                     return true;

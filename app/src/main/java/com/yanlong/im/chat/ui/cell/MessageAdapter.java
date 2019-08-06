@@ -18,11 +18,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private final ICellEventListener eventListener;
     private List<MsgAllBean> mList;
     private FactoryChatCell factoryChatCell;
+    private final boolean isGroup;//是否群聊
 
-    public MessageAdapter(Context c, ICellEventListener l) {
+    public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
         context = c;
         eventListener = l;
         mList = new ArrayList<>();
+        isGroup = isG;
 
     }
 
@@ -43,6 +45,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
         notifyDataSetChanged();
     }
 
+    public boolean isGroup() {
+        return isGroup;
+    }
+
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
@@ -54,7 +61,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
         ChatCellBase cellBase = (ChatCellBase) viewHolder.itemView.getTag();
-        cellBase.putMessage(mList.get(position));
+        cellBase.putMessage(mList.get(position), position);
     }
 
     @Override
@@ -75,5 +82,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
         }
+    }
+
+    //获取前一条消息
+    public MsgAllBean getPreMessage(int position) {
+        if (mList != null && mList.size() > position) {
+            return mList.get(position);
+        }
+        return null;
     }
 }

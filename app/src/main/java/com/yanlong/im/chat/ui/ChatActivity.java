@@ -779,7 +779,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void initAdapter() {
-        messageAdapter = new MessageAdapter(this, this);
+        messageAdapter = new MessageAdapter(this, this, isGroup());
         FactoryChatCell factoryChatCell = new FactoryChatCell(this, messageAdapter, this);
         messageAdapter.setCellFactory(factoryChatCell);
         mtListView.init(messageAdapter);
@@ -971,8 +971,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         String file = localMedia.getCompressPath();
 
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                        boolean isGif= FileUtils.isGif(file);
-                        if (isArtworkMaster||isGif) {
+                        boolean isGif = FileUtils.isGif(file);
+                        if (isArtworkMaster || isGif) {
                             //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                             file = localMedia.getPath();
                         }
@@ -1184,28 +1184,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
-               // Log.d("sss", "onBindViewHolderpayloads: " + position);
+                // Log.d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
                 //只更新单条处理
 
-                switch (msgbean.getMsg_type()){
-                    case  ChatEnum.EMessageType.IMAGE:
+                switch (msgbean.getMsg_type()) {
+                    case ChatEnum.EMessageType.IMAGE:
                         Integer pg = null;
                         pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pg);
 
-                        if(msgbean.getSend_state()==0){
+                        if (msgbean.getSend_state() == 0) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
                         }
 
                         break;
                 }
-                itemLongClick(holder,msgbean,menus);
+                itemLongClick(holder, msgbean, menus);
 
             }
         }
@@ -1448,6 +1448,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setDataAt(msgbean.getAtMessage().getMsg());
                     break;
+                case ChatEnum.EMessageType.ASSISTANT:
+                    holder.viewChatItem.setDataAssistant(msgbean.getAssistantMessage().getMsg());
+                    break;
+
 
             }
 

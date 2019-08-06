@@ -26,9 +26,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/bg_time"
+        android:gravity="center"
         android:singleLine="false"
         android:text="公告"
-        android:gravity="center"
 
         android:textColor="@color/white" />
 
@@ -60,299 +60,326 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:text="name" />
+
             <LinearLayout
                 android:id="@+id/view_ot_touch"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"  android:orientation="vertical">
-            <!-- 普通消息-->
-            <LinearLayout
-                android:id="@+id/view_ot_1"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
-                android:background="@drawable/bg_chat_other"
-                android:gravity="left|center_vertical"
-
-                android:visibility="gone">
-
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/txt_ot_1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/emoji_font"
-
-                    android:selectAllOnFocus="true"
-                    android:text="我----已经添加你为好友啦"
-                    android:textColor="@color/black"
-                    android:textIsSelectable="false"
-                    android:textSize="15sp" />
-
-
-            </LinearLayout>
-            <!-- 戳一下消息-->
-            <LinearLayout
-                android:id="@+id/view_ot_2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:background="@drawable/bg_chat_other"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
-                    android:src="@mipmap/ic_chat_actionme" />
-
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/txt_ot_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/emoji_font"
-
-                    android:text="我已经添加你为好友啦"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
-
-            </LinearLayout>
-            <!-- 红包消息-->
-            <LinearLayout
-                android:id="@+id/view_ot_3"
-                android:layout_width="211dp"
-                android:layout_height="90dp"
-                android:background="@drawable/bg_chat_other_rp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
+                android:orientation="vertical">
+                <!-- 普通消息-->
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="71dp"
-                    android:gravity="center"
+                    android:id="@+id/view_ot_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:background="@drawable/bg_chat_other"
+                    android:gravity="left|center_vertical"
+
+                    android:visibility="gone">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/txt_ot_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/emoji_font"
+
+                        android:selectAllOnFocus="true"
+                        android:text="我----已经添加你为好友啦"
+                        android:textColor="@color/black"
+                        android:textIsSelectable="false"
+                        android:textSize="15sp" />
+
+
+                </LinearLayout>
+                <!-- 戳一下消息-->
+                <LinearLayout
+                    android:id="@+id/view_ot_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:background="@drawable/bg_chat_other"
                     android:orientation="horizontal"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
+                    android:visibility="gone">
 
                     <ImageView
-                        android:id="@+id/img_ot_rb_state"
                         android:layout_width="wrap_content"
-
                         android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_rb_zfb_n" />
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginRight="4dp"
+                        android:src="@mipmap/ic_chat_actionme" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/txt_ot_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/emoji_font"
+
+                        android:text="我已经添加你为好友啦"
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+                <!-- 红包消息-->
+                <LinearLayout
+                    android:id="@+id/view_ot_3"
+                    android:layout_width="211dp"
+                    android:layout_height="90dp"
+                    android:background="@drawable/bg_chat_other_rp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="71dp"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp">
+
+                        <ImageView
+                            android:id="@+id/img_ot_rb_state"
+                            android:layout_width="wrap_content"
+
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/ic_rb_zfb_n" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/app_margin_item"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/txt_ot_rb_title"
+                                style="@style/app_txt_title_2"
+                                android:text="标题"
+                                android:textColor="@color/white" />
+
+                            <TextView
+                                android:id="@+id/txt_ot_rb_info"
+                                style="@style/app_txt_content_1"
+                                android:layout_marginTop="5dp"
+                                android:text="标题"
+                                android:textColor="@color/white" />
+                        </LinearLayout>
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/app_margin_item"
-                        android:orientation="vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp">
 
                         <TextView
-                            android:id="@+id/txt_ot_rb_title"
-                            style="@style/app_txt_title_2"
-                            android:text="标题"
-                            android:textColor="@color/white" />
-
-                        <TextView
-                            android:id="@+id/txt_ot_rb_info"
+                            android:id="@+id/txt_ot_rp_bt"
                             style="@style/app_txt_content_1"
-                            android:layout_marginTop="5dp"
-                            android:text="标题"
-                            android:textColor="@color/white" />
+                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:text="支付宝红包" />
+
+                        <ImageView
+                            android:id="@+id/img_ot_rb_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/ic_rb_zfb" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+                <!-- 图片消息-->
+                <LinearLayout
+                    android:id="@+id/view_ot_4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left|center_vertical"
+                    android:visibility="gone">
+
+                    <!--<com.facebook.drawee.view.SimpleDraweeView
+                        android:id="@+id/img_ot_4"
+                        android:layout_width="150dp"
+                        android:layout_height="180dp"
+
+                        app:actualImageScaleType="centerInside"
+                        app:placeholderImage="@mipmap/ic_img_def"
+                        app:placeholderImageScaleType="centerInside"
+                         />-->
+                    <ImageView
+                        android:id="@+id/img_ot_4"
+                        android:layout_width="150dp"
+                        android:layout_height="180dp" />
+
+
+                </LinearLayout>
+
+                <!-- 名片消息-->
+
+                <!-- 转账消息-->
+                <LinearLayout
+                    android:id="@+id/view_ot_5"
+                    android:layout_width="211dp"
+                    android:layout_height="90dp"
+                    android:background="@drawable/bg_chat_other_card"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="71dp"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp">
+
+                        <com.facebook.drawee.view.SimpleDraweeView
+                            android:id="@+id/img_ot_5"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            app:placeholderImageScaleType="centerCrop"
+                            app:roundedCornerRadius="3dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/app_margin_item"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/txt_ot_5_title"
+                                style="@style/app_txt_title_2"
+                                android:text="标题" />
+
+                            <TextView
+                                android:id="@+id/txt_ot_5_info"
+                                style="@style/app_txt_content_1"
+                                android:layout_marginTop="5dp"
+                                android:text="标题" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp">
+
+                        <TextView
+                            android:id="@+id/txt_ot_5_bt"
+                            style="@style/app_txt_content_1"
+                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:text="个人名片" />
+
                     </LinearLayout>
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
+                    android:id="@+id/view_ot_6"
+                    android:layout_width="211dp"
+                    android:layout_height="90dp"
+                    android:background="@drawable/bg_chat_other_rp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-                    <TextView
-                        android:id="@+id/txt_ot_rp_bt"
-                        style="@style/app_txt_content_1"
-                        android:layout_width="wrap_content"
-                        android:layout_weight="1"
-                        android:text="支付宝红包" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="71dp"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp">
 
-                    <ImageView
-                        android:id="@+id/img_ot_rb_icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_rb_zfb" />
+                        <ImageView
+                            android:id="@+id/img_ot_ts_state"
+                            android:layout_width="wrap_content"
 
-                </LinearLayout>
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/ic_rb_zfb_n" />
 
-            </LinearLayout>
-            <!-- 图片消息-->
-            <LinearLayout
-                android:id="@+id/view_ot_4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="left|center_vertical"
-                android:visibility="gone">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/app_margin_item"
+                            android:orientation="vertical">
 
-                <!--<com.facebook.drawee.view.SimpleDraweeView
-                    android:id="@+id/img_ot_4"
-                    android:layout_width="150dp"
-                    android:layout_height="180dp"
+                            <TextView
+                                android:id="@+id/txt_ot_ts_title"
+                                style="@style/app_txt_title_2"
+                                android:text="标题"
+                                android:textColor="@color/white" />
 
-                    app:actualImageScaleType="centerInside"
-                    app:placeholderImage="@mipmap/ic_img_def"
-                    app:placeholderImageScaleType="centerInside"
-                     />-->
-                <ImageView
-                    android:id="@+id/img_ot_4"
-                    android:layout_width="150dp"
-                    android:layout_height="180dp" />
+                            <TextView
+                                android:id="@+id/txt_ot_ts_info"
+                                style="@style/app_txt_content_1"
+                                android:layout_marginTop="5dp"
+                                android:text="标题"
+                                android:textColor="@color/white" />
+                        </LinearLayout>
 
-
-            </LinearLayout>
-
-            <!-- 名片消息-->
-
-            <!-- 转账消息-->
-            <LinearLayout
-                android:id="@+id/view_ot_5"
-                android:layout_width="211dp"
-                android:layout_height="90dp"
-                android:background="@drawable/bg_chat_other_card"
-                android:orientation="vertical"
-                android:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="71dp"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <com.facebook.drawee.view.SimpleDraweeView
-                        android:id="@+id/img_ot_5"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        app:placeholderImageScaleType="centerCrop"
-                        app:roundedCornerRadius="3dp" />
+                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/app_margin_item"
-                        android:orientation="vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp">
 
                         <TextView
-                            android:id="@+id/txt_ot_5_title"
-                            style="@style/app_txt_title_2"
-                            android:text="标题" />
-
-                        <TextView
-                            android:id="@+id/txt_ot_5_info"
+                            android:id="@+id/txt_ot_ts_bt"
                             style="@style/app_txt_content_1"
-                            android:layout_marginTop="5dp"
-                            android:text="标题" />
+                            android:layout_width="wrap_content"
+                            android:layout_weight="1"
+                            android:text="支付宝红包" />
+
+                        <ImageView
+                            android:id="@+id/img_ot_ts_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@mipmap/ic_rb_zfb" />
+
                     </LinearLayout>
 
                 </LinearLayout>
 
-                <LinearLayout
+                <!--语音-->
+                <com.yanlong.im.chat.ui.view.VoiceView
+                    android:id="@+id/view_ot_7"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+
+                <!-- 小助手消息-->
+                <LinearLayout
+                    android:id="@+id/view_ot_8"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
+                    android:background="@drawable/bg_chat_other"
+                    android:gravity="left|center_vertical"
+                    android:visibility="gone">
 
-                    <TextView
-                        android:id="@+id/txt_ot_5_bt"
-                        style="@style/app_txt_content_1"
-                        android:layout_width="wrap_content"
-                        android:layout_weight="1"
-                        android:text="个人名片" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/view_ot_6"
-                android:layout_width="211dp"
-                android:layout_height="90dp"
-                android:background="@drawable/bg_chat_other_rp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="71dp"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <ImageView
-                        android:id="@+id/img_ot_ts_state"
-                        android:layout_width="wrap_content"
-
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_rb_zfb_n" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/app_margin_item"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/txt_ot_ts_title"
-                            style="@style/app_txt_title_2"
-                            android:text="标题"
-                            android:textColor="@color/white" />
-
-                        <TextView
-                            android:id="@+id/txt_ot_ts_info"
-                            style="@style/app_txt_content_1"
-                            android:layout_marginTop="5dp"
-                            android:text="标题"
-                            android:textColor="@color/white" />
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp">
-
-                    <TextView
-                        android:id="@+id/txt_ot_ts_bt"
-                        style="@style/app_txt_content_1"
-                        android:layout_width="wrap_content"
-                        android:layout_weight="1"
-                        android:text="支付宝红包" />
-
-                    <ImageView
-                        android:id="@+id/img_ot_ts_icon"
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/txt_ot_8"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@mipmap/ic_rb_zfb" />
+                        android:fontFamily="@font/emoji_font"
+
+                        android:selectAllOnFocus="true"
+                        android:text="我----已经添加你为好友啦"
+                        android:textColor="@color/black"
+                        android:textIsSelectable="false"
+                        android:textSize="15sp" />
+
 
                 </LinearLayout>
-
-            </LinearLayout>
-
-            <!--语音-->
-            <com.yanlong.im.chat.ui.view.VoiceView
-                android:id="@+id/view_ot_7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
             </LinearLayout>
         </LinearLayout>
 
@@ -396,329 +423,352 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="5dp"
                     android:src="@mipmap/ic_net_err" />
+
                 <LinearLayout
                     android:id="@+id/view_me_touch"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"  android:orientation="vertical">
-                <!-- 普通消息-->
-                <LinearLayout
-                    android:id="@+id/view_me_1"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_chat_me"
-
-                    android:gravity="right|center_vertical"
-                    android:visibility="gone">
-
-                    <android.support.v7.widget.AppCompatTextView
-                        android:id="@+id/txt_me_1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/emoji_font"
-                        android:selectAllOnFocus="true"
-                        android:text="我已好友啦"
-                        android:textColor="@color/black"
-                        android:textIsSelectable="false"
-                        android:textSize="15sp" />
-
-                </LinearLayout>
-                <!-- 戳一下消息-->
-                <LinearLayout
-                    android:id="@+id/view_me_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:background="@drawable/bg_chat_me"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginRight="4dp"
-                        android:src="@mipmap/ic_chat_actionme" />
-
-                    <android.support.v7.widget.AppCompatTextView
-                        android:id="@+id/txt_me_2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/emoji_font"
-
-                        android:text="添加你为好友啦"
-                        android:textColor="@color/black"
-                        android:textSize="15sp" />
-
-                </LinearLayout>
-                <!-- 红包消息-->
-                <LinearLayout
-                    android:id="@+id/view_me_3"
-                    android:layout_width="211dp"
-                    android:layout_height="90dp"
-                    android:background="@drawable/bg_chat_me_rp"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
+                    android:orientation="vertical">
+                    <!-- 普通消息-->
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="71dp"
-                        android:gravity="center"
+                        android:id="@+id/view_me_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chat_me"
+
+                        android:gravity="right|center_vertical"
+                        android:visibility="gone">
+
+                        <android.support.v7.widget.AppCompatTextView
+                            android:id="@+id/txt_me_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/emoji_font"
+                            android:selectAllOnFocus="true"
+                            android:text="我已好友啦"
+                            android:textColor="@color/black"
+                            android:textIsSelectable="false"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+                    <!-- 戳一下消息-->
+                    <LinearLayout
+                        android:id="@+id/view_me_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:background="@drawable/bg_chat_me"
                         android:orientation="horizontal"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp">
+                        android:visibility="gone">
 
                         <ImageView
-                            android:id="@+id/img_me_rb_state"
                             android:layout_width="wrap_content"
-
                             android:layout_height="wrap_content"
-                            android:src="@mipmap/ic_rb_zfb_n" />
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginRight="4dp"
+                            android:src="@mipmap/ic_chat_actionme" />
+
+                        <android.support.v7.widget.AppCompatTextView
+                            android:id="@+id/txt_me_2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/emoji_font"
+
+                            android:text="添加你为好友啦"
+                            android:textColor="@color/black"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+                    <!-- 红包消息-->
+                    <LinearLayout
+                        android:id="@+id/view_me_3"
+                        android:layout_width="211dp"
+                        android:layout_height="90dp"
+                        android:background="@drawable/bg_chat_me_rp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="71dp"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
+
+                            <ImageView
+                                android:id="@+id/img_me_rb_state"
+                                android:layout_width="wrap_content"
+
+                                android:layout_height="wrap_content"
+                                android:src="@mipmap/ic_rb_zfb_n" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/app_margin_item"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/txt_me_rb_title"
+                                    style="@style/app_txt_title_2"
+                                    android:text="标题"
+                                    android:textColor="@color/white" />
+
+                                <TextView
+                                    android:id="@+id/txt_me_rb_info"
+                                    style="@style/app_txt_content_1"
+                                    android:layout_marginTop="5dp"
+                                    android:text="标题"
+                                    android:textColor="@color/white" />
+                            </LinearLayout>
+
+                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/app_margin_item"
-                            android:orientation="vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
 
                             <TextView
-                                android:id="@+id/txt_me_rb_title"
-                                style="@style/app_txt_title_2"
-                                android:text="标题"
-                                android:textColor="@color/white" />
-
-                            <TextView
-                                android:id="@+id/txt_me_rb_info"
+                                android:id="@+id/txt_me_rp_bt"
                                 style="@style/app_txt_content_1"
-                                android:layout_marginTop="5dp"
-                                android:text="标题"
-                                android:textColor="@color/white" />
+                                android:layout_width="wrap_content"
+                                android:layout_weight="1"
+                                android:text="支付宝红包" />
+
+                            <ImageView
+                                android:id="@+id/img_me_rb_icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@mipmap/ic_rb_zfb" />
+
                         </LinearLayout>
 
                     </LinearLayout>
-
+                    <!-- 图片消息-->
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp">
-
-                        <TextView
-                            android:id="@+id/txt_me_rp_bt"
-                            style="@style/app_txt_content_1"
-                            android:layout_width="wrap_content"
-                            android:layout_weight="1"
-                            android:text="支付宝红包" />
-
-                        <ImageView
-                            android:id="@+id/img_me_rb_icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@mipmap/ic_rb_zfb" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-                <!-- 图片消息-->
-                <LinearLayout
-                    android:id="@+id/view_me_4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:gravity="right|center_vertical"
-                    android:visibility="gone">
-
-                    <!-- <com.facebook.drawee.view.SimpleDraweeView
-                         android:id="@+id/img_me_4"
-                         android:layout_width="150dp"
-                         android:layout_height="180dp"
-                         app:actualImageScaleType="centerInside"
-                         app:placeholderImage="@mipmap/ic_img_def"
-                         app:placeholderImageScaleType="centerInside"
-                          />-->
-                    <FrameLayout
+                        android:id="@+id/view_me_4"
                         android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
 
-                        android:layout_height="wrap_content">
+                        android:gravity="right|center_vertical"
+                        android:visibility="gone">
 
-                        <ImageView
-                            android:id="@+id/img_me_4"
-                            android:layout_width="150dp"
-                            android:layout_height="180dp"
-
-                            />
-
-                        <LinearLayout
-                            android:id="@+id/view_me_up"
-                            android:layout_gravity="center"
-                            android:gravity="center"
-                            android:orientation="vertical"
+                        <!-- <com.facebook.drawee.view.SimpleDraweeView
+                             android:id="@+id/img_me_4"
+                             android:layout_width="150dp"
+                             android:layout_height="180dp"
+                             app:actualImageScaleType="centerInside"
+                             app:placeholderImage="@mipmap/ic_img_def"
+                             app:placeholderImageScaleType="centerInside"
+                              />-->
+                        <FrameLayout
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@color/black_a_20"
-                          >
-                            <ProgressBar
-                                android:id="@+id/img_me_up"
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
-                                android:indeterminateBehavior="repeat"
-                                android:indeterminateDrawable="@drawable/anim_load"
+
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/img_me_4"
+                                android:layout_width="150dp"
+                                android:layout_height="180dp"
 
                                 />
-                            <TextView
-                                style="@style/app_txt_title_2"
-                                android:id="@+id/txt_me_up"
-                                android:textColor="@color/white"
+
+                            <LinearLayout
+                                android:id="@+id/view_me_up"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content" />
-                        </LinearLayout>
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:background="@color/black_a_20"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <ProgressBar
+                                    android:id="@+id/img_me_up"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:indeterminateBehavior="repeat"
+                                    android:indeterminateDrawable="@drawable/anim_load" />
+
+                                <TextView
+                                    android:id="@+id/txt_me_up"
+                                    style="@style/app_txt_title_2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/white" />
+                            </LinearLayout>
 
 
-                    </FrameLayout>
+                        </FrameLayout>
 
 
-                </LinearLayout>
+                    </LinearLayout>
 
-                <!-- 名片消息-->
-                <LinearLayout
-                    android:id="@+id/view_me_5"
-                    android:layout_width="211dp"
-                    android:layout_height="90dp"
-                    android:background="@drawable/bg_chat_me_card"
-                    android:orientation="vertical"
-                    android:visibility="visible">
-
+                    <!-- 名片消息-->
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="71dp"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp">
+                        android:id="@+id/view_me_5"
+                        android:layout_width="211dp"
+                        android:layout_height="90dp"
+                        android:background="@drawable/bg_chat_me_card"
+                        android:orientation="vertical"
+                        android:visibility="visible">
 
-                        <com.facebook.drawee.view.SimpleDraweeView
-                            android:id="@+id/img_me_5"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            app:placeholderImageScaleType="centerCrop"
-                            app:roundedCornerRadius="3dp" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="71dp"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
+
+                            <com.facebook.drawee.view.SimpleDraweeView
+                                android:id="@+id/img_me_5"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                app:placeholderImageScaleType="centerCrop"
+                                app:roundedCornerRadius="3dp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/app_margin_item"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/txt_me_5_title"
+                                    style="@style/app_txt_title_2"
+                                    android:text="标题" />
+
+                                <TextView
+                                    android:id="@+id/txt_me_5_info"
+                                    style="@style/app_txt_content_1"
+                                    android:layout_marginTop="5dp"
+                                    android:text="标题" />
+                            </LinearLayout>
+
+                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/app_margin_item"
-                            android:orientation="vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
 
                             <TextView
-                                android:id="@+id/txt_me_5_title"
-                                style="@style/app_txt_title_2"
-                                android:text="标题" />
-
-                            <TextView
-                                android:id="@+id/txt_me_5_info"
+                                android:id="@+id/txt_me_5_bt"
                                 style="@style/app_txt_content_1"
-                                android:layout_marginTop="5dp"
-                                android:text="标题" />
+                                android:layout_width="wrap_content"
+                                android:layout_weight="1"
+                                android:text="个人名片" />
+
                         </LinearLayout>
 
                     </LinearLayout>
 
+                    <!-- 转账消息-->
                     <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp">
+                        android:id="@+id/view_me_6"
+                        android:layout_width="211dp"
+                        android:layout_height="90dp"
+                        android:background="@drawable/bg_chat_me_rp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
-                        <TextView
-                            android:id="@+id/txt_me_5_bt"
-                            style="@style/app_txt_content_1"
-                            android:layout_width="wrap_content"
-                            android:layout_weight="1"
-                            android:text="个人名片" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="71dp"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
 
-                    </LinearLayout>
+                            <ImageView
+                                android:id="@+id/img_me_ts_state"
+                                android:layout_width="wrap_content"
 
-                </LinearLayout>
+                                android:layout_height="wrap_content"
+                                android:src="@mipmap/ic_rb_zfb_n" />
 
-                <!-- 转账消息-->
-                <LinearLayout
-                    android:id="@+id/view_me_6"
-                    android:layout_width="211dp"
-                    android:layout_height="90dp"
-                    android:background="@drawable/bg_chat_me_rp"
-                    android:orientation="vertical"
-                    android:visibility="gone">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/app_margin_item"
+                                android:orientation="vertical">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="71dp"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp">
+                                <TextView
+                                    android:id="@+id/txt_me_ts_title"
+                                    style="@style/app_txt_title_2"
+                                    android:text="标题"
+                                    android:textColor="@color/white" />
 
-                        <ImageView
-                            android:id="@+id/img_me_ts_state"
-                            android:layout_width="wrap_content"
+                                <TextView
+                                    android:id="@+id/txt_me_ts_info"
+                                    style="@style/app_txt_content_1"
+                                    android:layout_marginTop="5dp"
+                                    android:text="标题"
+                                    android:textColor="@color/white" />
+                            </LinearLayout>
 
-                            android:layout_height="wrap_content"
-                            android:src="@mipmap/ic_rb_zfb_n" />
+                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/app_margin_item"
-                            android:orientation="vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp">
 
                             <TextView
-                                android:id="@+id/txt_me_ts_title"
-                                style="@style/app_txt_title_2"
-                                android:text="标题"
-                                android:textColor="@color/white" />
-
-                            <TextView
-                                android:id="@+id/txt_me_ts_info"
+                                android:id="@+id/txt_me_ts_bt"
                                 style="@style/app_txt_content_1"
-                                android:layout_marginTop="5dp"
-                                android:text="标题"
-                                android:textColor="@color/white" />
+                                android:layout_width="wrap_content"
+                                android:layout_weight="1"
+                                android:text="支付宝红包" />
+
+                            <ImageView
+                                android:id="@+id/img_me_ts_icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@mipmap/ic_rb_zfb" />
+
                         </LinearLayout>
 
                     </LinearLayout>
-
-                    <LinearLayout
+                    <!--语音-->
+                    <com.yanlong.im.chat.ui.view.VoiceView
+                        android:id="@+id/view_me_7"
                         android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <!-- 小助手消息-->
+                    <LinearLayout
+                        android:id="@+id/view_me_8"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp">
+                        android:background="@drawable/bg_chat_me"
+                        android:gravity="right|center_vertical"
+                        android:visibility="gone">
 
-                        <TextView
-                            android:id="@+id/txt_me_ts_bt"
-                            style="@style/app_txt_content_1"
-                            android:layout_width="wrap_content"
-                            android:layout_weight="1"
-                            android:text="支付宝红包" />
-
-                        <ImageView
-                            android:id="@+id/img_me_ts_icon"
+                        <android.support.v7.widget.AppCompatTextView
+                            android:id="@+id/txt_me_8"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@mipmap/ic_rb_zfb" />
+                            android:fontFamily="@font/emoji_font"
+                            android:selectAllOnFocus="true"
+                            android:text="我已好友啦"
+                            android:textColor="@color/black"
+                            android:textIsSelectable="false"
+                            android:textSize="15sp" />
 
                     </LinearLayout>
-
-                </LinearLayout>
-                <!--语音-->
-                <com.yanlong.im.chat.ui.view.VoiceView
-                    android:id="@+id/view_me_7"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
 
                 </LinearLayout>
             </LinearLayout>

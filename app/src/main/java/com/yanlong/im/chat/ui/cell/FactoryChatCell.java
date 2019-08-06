@@ -5,6 +5,10 @@ import android.view.ViewGroup;
 
 import com.yanlong.im.chat.ChatEnum;
 
+/*
+ * @author Liszt
+ * Description  ChatCell 工厂类
+ * */
 public class FactoryChatCell {
 
     private final Context mContext;
@@ -36,6 +40,9 @@ public class FactoryChatCell {
             case RED_ENVELOPE_RECEIVED:
             case RED_ENVELOPE_SEND:
                 cell = new ChatCellText(mContext, layout, mListener, mAdapter, viewGroup);
+                break;
+            case NOTICE:
+                cell = new ChatCellNotice(mContext, layout, mListener, mAdapter, viewGroup);
                 break;
             default:
                 cell = new ChatCellText(mContext, layout, mListener, mAdapter, viewGroup);
