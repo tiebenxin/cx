@@ -45,7 +45,7 @@ public class AppConfig {
 
     /***
      * 获取系统语言zh0
-+-+.0     * @return
+     * @return
      */
     public static String getLanguage(){
         //系统语言

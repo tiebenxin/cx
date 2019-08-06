@@ -41,6 +41,36 @@ public class Group  extends RealmObject {
     //名称
     private String robotname;
 
+    private String inviter;
+
+    private int joinType; //0.扫码  1.拉人
+
+    private String joinTime;
+
+    public String getInviter() {
+        return inviter;
+    }
+
+    public void setInviter(String inviter) {
+        this.inviter = inviter;
+    }
+
+    public int getJoinType() {
+        return joinType;
+    }
+
+    public void setJoinType(int joinType) {
+        this.joinType = joinType;
+    }
+
+    public String getJoinTime() {
+        return joinTime;
+    }
+
+    public void setJoinTime(String joinTime) {
+        this.joinTime = joinTime;
+    }
+
     public String getRobotname() {
         return robotname;
     }

@@ -245,10 +245,9 @@ public class FriendApplyAcitvity extends AppActivity {
         });
     }
 
-
     private void taskRequest(GroupAccept accept) {
-        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(),
-                accept.getJoinType(), accept.getInviter() + "", new CallBack<ReturnBean>() {
+        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(),accept.getHead(),
+                accept.getJoinType(), accept.getInviter() + "",accept.getInviterName(),new CallBack<ReturnBean>() {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         if (response.body().isOk()) {

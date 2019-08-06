@@ -47,6 +47,9 @@ public class UserInfoActivity extends AppActivity {
     public static final String ID = "id";
     public static final String SAY_HI = "sayHi";
     public static final String IS_APPLY = "isApply";
+    public static final String JOIN_TYPE = "joinType";
+    public static final String JION_TYPE_SHOW = "joinTypeShow";
+    public static final String INVITER = "inviter";
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -67,7 +70,9 @@ public class UserInfoActivity extends AppActivity {
 
     private int type; //0.已经是好友 1.不是好友添加好友 2.黑名单
     private int isApply;//是否是好友申请 0 不是 1.是
-    private int joinType;//0 不显示  1.显示
+    private int joinTypeShow;//0 不显示  1.显示
+    private int joinType;
+    private String inviter;
     private Long id;
     private String sayHi;
     private UserAction userAction;
@@ -111,6 +116,9 @@ public class UserInfoActivity extends AppActivity {
         id = getIntent().getLongExtra(ID, 0);
         sayHi = getIntent().getStringExtra(SAY_HI);
         isApply = getIntent().getIntExtra(IS_APPLY, 0);
+        joinType = getIntent().getIntExtra(JOIN_TYPE, 0);
+        joinTypeShow = getIntent().getIntExtra(JION_TYPE_SHOW, 0);
+        inviter = getIntent().getStringExtra(INVITER);
         taskFindExist();
     }
 
@@ -284,6 +292,15 @@ public class UserInfoActivity extends AppActivity {
             mBtnAdd.setVisibility(View.GONE);
             mViewSettingName.setVisibility(View.VISIBLE);
             tvBlack.setText("解除黑名单");
+        }
+
+        if(joinTypeShow != 0){
+            viewJoinGroupType.setVisibility(View.VISIBLE);
+            if(joinType == 0){
+                tvJoinGroupType.setText(inviter +"分享二维码邀请进群");
+            }else{
+                tvJoinGroupType.setText(inviter +"邀请进群");
+            }
         }
     }
 

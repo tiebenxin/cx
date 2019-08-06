@@ -20,9 +20,9 @@ public final class EncodingHandler {
 	
 	public static Bitmap createQRCode(String str, int widthAndHeight) throws WriterException {
 		Hashtable<EncodeHintType, String> hints = new Hashtable<>();
-        hints.put(EncodeHintType.CHARACTER_SET, "utf-8"); 
+			hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
 		BitMatrix matrix = new MultiFormatWriter().encode(str,
-				BarcodeFormat.QR_CODE, widthAndHeight, widthAndHeight);
+				BarcodeFormat.QR_CODE, widthAndHeight, widthAndHeight,hints);
 		int width = matrix.getWidth();
 		int height = matrix.getHeight();
 		int[] pixels = new int[width * height];

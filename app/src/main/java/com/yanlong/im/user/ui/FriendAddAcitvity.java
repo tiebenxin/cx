@@ -112,7 +112,7 @@ public class FriendAddAcitvity extends AppActivity {
         }
 
         UMImage thumb =  new UMImage(this, R.mipmap.ic_launcher);
-        UMWeb web = new UMWeb("https://changliaoliao.zhixun5588.com/fx/fxwx.html");
+        UMWeb web = new UMWeb("https://changliaoliao.zhixun5588.com/fx/");
         web.setTitle("我们一起用“常聊聊”来聊天吧");//标题
         web.setThumb(thumb);  //缩略图
         web.setDescription("我正在使用常聊聊，一款为有共同兴趣爱好用户定制打造的聊天交友软件");//描述

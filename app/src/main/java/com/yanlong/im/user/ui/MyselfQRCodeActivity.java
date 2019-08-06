@@ -48,7 +48,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import static com.yanlong.im.user.ui.FriendAddAcitvity.PERMISSIONS;
 
 
 public class MyselfQRCodeActivity extends AppActivity {
@@ -130,8 +129,9 @@ public class MyselfQRCodeActivity extends AppActivity {
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, groupId);
-            qrCodeBean.setParameterValue(QRCodeManage.UID,userInfo.getUid()+"");
-            qrCodeBean.setParameterValue(QRCodeManage.TIME,QRCodeManage.getTime(7));
+            qrCodeBean.setParameterValue(QRCodeManage.UID, userInfo.getUid() + "");
+            qrCodeBean.setParameterValue(QRCodeManage.TIME, QRCodeManage.getTime(7));
+            qrCodeBean.setParameterValue(QRCodeManage.NICK_NAME,userInfo.getName());
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
         }
         try {
@@ -201,8 +201,8 @@ public class MyselfQRCodeActivity extends AppActivity {
 
                     @Override
                     public void onError(SHARE_MEDIA share_media, Throwable throwable) {
-                        if(throwable.getMessage().contains("2008")){
-                            ToastUtil.show(context,"请安装微信");
+                        if (throwable.getMessage().contains("2008")) {
+                            ToastUtil.show(context, "请安装微信");
                         }
                     }
 
@@ -217,7 +217,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     public void Bitmap2Bytes(Bitmap bm) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        new  UpFileAction().upFile(this, new UpFileUtil.OssUpCallback() {
+        new UpFileAction().upFile(this, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
                 //2.发送图片
@@ -228,7 +228,7 @@ public class MyselfQRCodeActivity extends AppActivity {
 
             @Override
             public void fail() {
-                ToastUtil.show(getContext(),"二维码生成失败请重试");
+                ToastUtil.show(getContext(), "二维码生成失败请重试");
             }
 
             @Override
@@ -297,7 +297,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             String jsonBean = bundle.getString(SelectUserActivity.RET_JSON);
             UserInfo userInfo = new Gson().fromJson(jsonBean, UserInfo.class);
 
-            Intent intent = new Intent(this,ChatActivity.class);
+            Intent intent = new Intent(this, ChatActivity.class);
             intent.putExtra(ChatActivity.AGM_TOUID, userInfo.getUid());
             startActivity(intent);
             //向服务器发送图片

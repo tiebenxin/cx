@@ -143,7 +143,7 @@ public class GroupCreateActivity extends AppActivity {
 
             hd.txtType.setText(bean.getTag());
             hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
-           // hd.txtName.setText(bean.getName());
+            // hd.txtName.setText(bean.getName());
             hd.txtName.setText(bean.getName4Show());
 
             hd.viewType.setVisibility(View.VISIBLE);
@@ -241,6 +241,7 @@ public class GroupCreateActivity extends AppActivity {
 
         }
     }
+
     //----------------
     public static void showThumb(SimpleDraweeView draweeView, String url, int resizeWidthDp, int resizeHeightDp) {
         if (url == null || "".equals(url))
@@ -290,7 +291,7 @@ public class GroupCreateActivity extends AppActivity {
         }
         final ArrayList<UserInfo> templist = new ArrayList<>();
         templist.addAll(listDataTop);
-        templist.add(0,UserAction.getMyInfo());
+        templist.add(0, UserAction.getMyInfo());
         String name = "";
 
         // "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3507975290,3418373437&fm=27&gp=0.jpg";
@@ -316,7 +317,7 @@ public class GroupCreateActivity extends AppActivity {
         upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
-                msgACtion.groupCreate(fname, icon, templist, new CallBack<ReturnBean<Group>>() {
+                msgACtion.groupCreate(UserAction.getMyInfo().getName(), fname, icon, templist, new CallBack<ReturnBean<Group>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                         actionbar.getViewRight().setEnabled(true);
@@ -359,8 +360,8 @@ public class GroupCreateActivity extends AppActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-     //   ((ViewGroup)mtListView.getListView().getParent()) .removeAllViews();
-     //   ((ViewGroup)topListView.getParent()) .removeAllViews();
+        //   ((ViewGroup)mtListView.getListView().getParent()) .removeAllViews();
+        //   ((ViewGroup)topListView.getParent()) .removeAllViews();
 
     }
 }
