@@ -285,6 +285,7 @@ public class SocketData {
                 if (!oldMsgId.equals(wmsg.getMsgId())) {
                     oldMsgId = wmsg.getMsgId();
                     msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                    LogUtil.getLog().e(TAG, ">>>>>累计 ");
                 } else {
                     LogUtil.getLog().e(TAG, ">>>>>重复消息,为后端擦屁股: " + oldMsgId);
                 }

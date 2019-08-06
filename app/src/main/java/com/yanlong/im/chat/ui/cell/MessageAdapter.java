@@ -87,7 +87,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     //获取前一条消息
     public MsgAllBean getPreMessage(int position) {
         if (mList != null && mList.size() > position) {
-            mList.get(position);
+            return mList.get(position);
         }
         return null;
     }

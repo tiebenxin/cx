@@ -92,6 +92,7 @@ public class UpFileAction {
                             public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, final Response<ReturnBean<AliObsConfigBean>> response) {
                                 Log.d("cc", "upFileSyn: onResponse");
                                 if (response.body() == null) {
+                                    callback.fail();
                                     signal.countDown();
                                     return;
                                 }

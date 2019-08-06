@@ -17,6 +17,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private String msg_id;
     private Long timestamp;
     //0:正常,1:错误,2:发送中
+    @ChatEnum.ESendStatus
     private int send_state = 0;
     //重发的数据对象
     private byte[] send_data;
@@ -340,6 +341,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         this.msgNotice = msgNotice;
     }
 
+    @ChatEnum.ESendStatus
     public int getSend_state() {
         return send_state;
     }
@@ -348,7 +350,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
      * //0:正常,1:错误,2:发送中
      * @param send_state
      */
-    public void setSend_state(int send_state) {
+    public void setSend_state(@ChatEnum.ESendStatus int send_state) {
         this.send_state = send_state;
     }
 
@@ -377,11 +379,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         ChatEnum.EChatCellLayout layout = null;
         switch (msgType) {
             case ChatEnum.EMessageType.NOTICE://通知
-                if (isMe) {
-                    layout = ChatEnum.EChatCellLayout.TEXT_SEND;
-                } else {
-                    layout = ChatEnum.EChatCellLayout.TEXT_RECEIVED;
-                }
+                layout = ChatEnum.EChatCellLayout.NOTICE;
                 break;
             case ChatEnum.EMessageType.TEXT://文本
                 if (isMe) {

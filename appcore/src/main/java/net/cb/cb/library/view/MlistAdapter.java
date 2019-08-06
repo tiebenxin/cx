@@ -49,7 +49,7 @@ class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
     }
