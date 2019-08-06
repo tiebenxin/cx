@@ -41,7 +41,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.SOCKET_PORT = 19991;
                 break;
             case "pre": //美国 usa-test.1616d.top    香港 hk-test.1616d.top
-                AppConfig.DEBUG = true;
+                AppConfig.DEBUG = false;
                 AppConfig.SOCKET_IP = "hk-test.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;

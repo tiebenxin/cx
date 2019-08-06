@@ -471,7 +471,7 @@ public class ChatItemView extends LinearLayout {
     //图片消息
     public void setData4(ImageMessage image, String url, final EventPic eventPic, Integer pg) {
         if (url != null) {
-            setData4(image,Uri.parse(url), eventPic, pg);
+            setData4(image, Uri.parse(url), eventPic, pg);
 
         }
 
@@ -480,96 +480,61 @@ public class ChatItemView extends LinearLayout {
     public void setData4(final ImageMessage image, final Uri uri, final EventPic eventPic, Integer pg) {
         if (uri != null) {
 
-          /*  if (uri.getPath().toLowerCase().endsWith(".gif")) {
-                imgOt4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
-
-                imgMe4.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_INSIDE);
-                //把圆角设置为直角
-                imgOt4.getHierarchy().getRoundingParams().setRoundAsCircle(false);
-                imgMe4.getHierarchy().getRoundingParams().setRoundAsCircle(false);
-            }*/
-
 
             final int width = DensityUtil.dip2px(getContext(), 150);
             final int height = DensityUtil.dip2px(getContext(), 180);
-            /* ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
-                    .setResizeOptions(new ResizeOptions(width, height))
-                    .build();
+
+            //设定大小
+            ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
+            if (image != null) {
+                double mh = image.getHeight();
+                double mw = image.getWidth();
+                double cp = 1;
+                if (mh > mw) {
+                    cp = height / mh;
+                } else {
+                    cp = width / mw;
+                }
+                int w = new Double(mw * cp).intValue();
+                int h = new Double(mh * cp).intValue();
+
+                imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
+
+                imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
 
 
 
-            DraweeController controller1 =
-                    Fresco.newDraweeControllerBuilder()
+                lp.width = w;
+                lp.height = h;
 
-                            .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
-                            .setImageRequest(request)
-                            .build();
-            DraweeController controller2 =
-                    Fresco.newDraweeControllerBuilder()
+            }else{
+                lp.width = width;
+                lp.height = height;
+            }
 
-                            .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
-                            .setImageRequest(request)
-                            .build();
-
-
-            imgOt4.setController(controller1);
-            imgMe4.setController(controller2);*/
+            viewMeUp.setLayoutParams(lp);
 
 
             RequestListener requestListener = new RequestListener() {
                 @Override
-                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target target, boolean isFirstResource) {
-                    return false;
+                public boolean onLoadFailed(@Nullable GlideException e, final Object model, Target target, boolean isFirstResource) {
+                    //加载失败后以静态图加载
+                    imgOt4.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Glide.with(getContext()).asBitmap().load(model).into(imgOt4);
+                            Glide.with(getContext()).asBitmap().load(model).into(imgMe4);
+                        }
+                    });
+
+
+
+
+                    return true;
                 }
 
                 @Override
                 public boolean onResourceReady(Object resource, Object model, Target target, DataSource dataSource, boolean isFirstResource) {
-
-                    int w = 100, h = 100;
-                    //配置图片和加载圈的大小
-                    if(image==null) {
-                        if (resource instanceof GifDrawable) {
-                            GifDrawable bt2 = (GifDrawable) resource;
-                            if (bt2 != null) {
-                                if (bt2.getFirstFrame() != null) {
-                                    w = bt2.getFirstFrame().getWidth();
-                                    h = bt2.getFirstFrame().getHeight();
-
-                                }
-
-                            }
-                            Log.d("TAG", "图片宽高: " + w + "--" + h);
-
-                        } else if (resource instanceof Bitmap) {
-                            Bitmap bt = (Bitmap) resource;
-                            w = bt.getWidth();
-                            h = bt.getHeight();
-                        }
-                    }else{
-                        double mh=image.getHeight() ;
-                        double mw=image.getWidth() ;
-                        double cp=1;
-                        if(mh>mw){
-                            cp= height/mh;
-                        }else{
-                             cp= width/mw;
-                        }
-                        w=new Double(mw*cp).intValue();
-                        h=new Double(mh*cp).intValue();
-
-
-                    }
-
-
-                    imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
-
-                    imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
-
-                    ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
-
-                    lp.width = w;
-                    lp.height = h;
-                    viewMeUp.setLayoutParams(lp);
 
                     return false;
                 }

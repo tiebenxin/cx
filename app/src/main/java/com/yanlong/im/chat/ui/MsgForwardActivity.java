@@ -184,7 +184,8 @@ public class MsgForwardActivity extends AppActivity {
                                 Long toUId=bean.getFrom_uid();
                                 String toGid=bean.getGid();
                                 ImageMessage imagesrc = msgAllBean.getImage();
-                                SocketData.send4Image(toUId, toGid,imagesrc.getOrigin(),imagesrc.getPreview(),imagesrc.getThumbnail(),new Long(imagesrc.getWidth()).intValue(),new Long(imagesrc.getHeight()).intValue());
+                                SocketData.send4Image(toUId, toGid,imagesrc.getOrigin(),imagesrc.getPreview(),imagesrc.getThumbnail(),new Long(imagesrc.getWidth()).intValue(),new Long(imagesrc.getHeight()).intValue(),new Long(imagesrc.getSize()).intValue());
+                                msgDao.ImgReadStatSet(imagesrc.getOrigin(),true);
                                 if(StringUtil.isNotNull(content)){
                                     SocketData.send4Chat(toUId, toGid, content);
                                 }

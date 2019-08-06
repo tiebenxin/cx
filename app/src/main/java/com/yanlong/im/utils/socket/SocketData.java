@@ -828,13 +828,14 @@ public class SocketData {
      * @param url2
      * @return
      */
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2,int w,int h) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2,int w,int h,int size) {
         MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
                 .setOrigin(url)
                 .setPreview(url1)
                 .setThumbnail(url2)
                 .setWidth(w)
                 .setHeight(h)
+                .setSize(size)
                 .build();
 
 
