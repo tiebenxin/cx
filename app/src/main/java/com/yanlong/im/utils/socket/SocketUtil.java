@@ -520,7 +520,8 @@ public class SocketUtil {
             public void run() {
                 try {
 
-                    ByteBuffer readBuf = ByteBuffer.allocate(1024);
+                    //8.6先加大接收容量
+                    ByteBuffer readBuf = ByteBuffer.allocate(102400);
                     int data_size = 0;
                     List<byte[]> temp = new ArrayList<>();
                     while (isRun() && (indexVer == threadVer)) {
@@ -531,7 +532,8 @@ public class SocketUtil {
                             byte[] data = new byte[data_size];
                             readBuf.get(data, 0, data_size);
 
-                            LogUtil.getLog().d(TAG, ">>>接收数据: " + SocketData.bytesToHex(data));
+                            LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketData.bytesToHex(data));
+                            LogUtil.getLog().d(TAG, "<<<<<接收数据总大小: "+ data.length);
 
                             if (SocketData.isHead(data)) {//收到包头
                                 LogUtil.getLog().d(TAG, ">>>接收数据: 是包头");
@@ -543,18 +545,21 @@ public class SocketUtil {
                                     }
 
                                     temp.add(ex);
+                                    LogUtil.getLog().d(TAG, ">>>[包头]剩余数据长度"+ex.length);
                                 }
 
                             } else {//收到包体
                                 LogUtil.getLog().d(TAG, ">>>接收数据: 是包体");
                                 if (temp.size() > 0) {
                                     byte[] oldpk = SocketData.listToBytes(temp);
+                                    LogUtil.getLog().d(TAG, ">>>上一个包大小"+oldpk.length);
                                     temp.clear();
                                     byte[] epk = SocketData.byteMergerAll(oldpk, data);//合成的新包
-
+                                    LogUtil.getLog().d(TAG, ">>>合成包大小"+epk.length);
                                     byte[] ex = doPackage(epk);
                                     if (ex != null) {
                                         temp.add(ex);
+                                        LogUtil.getLog().d(TAG, ">>>[包体]剩余数据长度"+ex.length);
                                     }
                                 } else {//如果没有包头缓存,同样抛掉包体
                                     LogUtil.getLog().d(TAG, ">>>抛掉包体错误数据" + SocketData.bytesToHex(data));
@@ -567,7 +572,7 @@ public class SocketUtil {
 
                             readBuf.clear();
                         }
-                        Thread.sleep(200);
+                        Thread.sleep(50);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -613,7 +618,7 @@ public class SocketUtil {
             switch (type) {
                 case PROTOBUF_MSG:
                     MsgBean.UniversalMessage pmsg = SocketData.msgConversion(indexData);
-                    LogUtil.getLog().i(TAG, ">>>-----<收到消息 长度:" + indexData.length + " rid:" + pmsg.getRequestId());
+                    LogUtil.getLog().i(TAG, ">>>-----<处理消息 长度:" + indexData.length + " rid:" + pmsg.getRequestId());
 
                     event.onMsg(pmsg);
                     break;
