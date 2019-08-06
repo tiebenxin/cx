@@ -17,7 +17,7 @@
         android:layout_marginBottom="10dp"
         android:text="shijian" />
 
-    <TextView
+  <!--  <TextView
         android:id="@+id/tv_broadcast"
         style="@style/app_txt_title_2"
         android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
         android:gravity="center"
         android:singleLine="false"
         android:text="公告"
-        android:textColor="@color/white" />
+        android:textColor="@color/white" />-->
 
     <LinearLayout
         android:id="@+id/ll_root"
@@ -73,8 +73,6 @@
                     android:gravity="right|center_vertical"
                     android:visibility="visible">
 
-                    <!--                android:background="@drawable/bg_chat_other"
-    -->
 
                     <ImageView
                         android:id="@+id/iv_img"

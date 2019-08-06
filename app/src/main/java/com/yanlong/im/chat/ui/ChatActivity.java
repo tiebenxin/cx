@@ -1184,28 +1184,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
-               // Log.d("sss", "onBindViewHolderpayloads: " + position);
+                // Log.d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
                 //只更新单条处理
 
-                switch (msgbean.getMsg_type()){
-                    case  ChatEnum.EMessageType.IMAGE:
+                switch (msgbean.getMsg_type()) {
+                    case ChatEnum.EMessageType.IMAGE:
                         Integer pg = null;
                         pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pg);
 
-                        if(msgbean.getSend_state()==0){
+                        if (msgbean.getSend_state() == 0) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
                         }
 
                         break;
                 }
-                itemLongClick(holder,msgbean,menus);
+                itemLongClick(holder, msgbean, menus);
 
             }
         }

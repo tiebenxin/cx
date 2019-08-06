@@ -41,6 +41,9 @@ public class FactoryChatCell {
             case RED_ENVELOPE_SEND:
                 cell = new ChatCellText(mContext, layout, mListener, mAdapter, viewGroup);
                 break;
+            case NOTICE:
+                cell = new ChatCellNotice(mContext, layout, mListener, mAdapter, viewGroup);
+                break;
             default:
                 cell = new ChatCellText(mContext, layout, mListener, mAdapter, viewGroup);
                 break;

@@ -19,6 +19,7 @@ import static com.yanlong.im.chat.ChatEnum.EMessageType.STAMP;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.TEXT;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.TRANSFER;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.VOICE;
+import static com.yanlong.im.chat.ChatEnum.ESendStatus.PRE_SEND;
 
 public class ChatEnum {
     /*
@@ -30,8 +31,8 @@ public class ChatEnum {
         TEXT_SEND(R.layout.cell_txt_send),
 
         //图片消息
-        IMAGE_RECEIVED(R.layout.cell_txt_received),
-        IMAGE_SEND(R.layout.cell_txt_send),
+        IMAGE_RECEIVED(R.layout.cell_img_received),
+        IMAGE_SEND(R.layout.cell_img_send),
 
         //语音消息
         VOICE_RECEIVED(R.layout.cell_txt_received),
@@ -49,8 +50,8 @@ public class ChatEnum {
 //        VOTE_SEND(R.layout.cell_txt_send),
 
         //动态表情消息
-        EMOTICON_RECEIVED(R.layout.cell_txt_received),
-        EMOTICON_SEND(R.layout.cell_txt_send),
+//        EMOTICON_RECEIVED(R.layout.cell_txt_received),
+//        EMOTICON_SEND(R.layout.cell_txt_send),
 
         //名片消息
         CARD_RECEIVED(R.layout.cell_txt_received),
@@ -62,11 +63,11 @@ public class ChatEnum {
 
 
         //合并转发
-        MULTI_RECEIVED(R.layout.cell_txt_received),
-        MULTI_SEND(R.layout.cell_txt_send),
+//        MULTI_RECEIVED(R.layout.cell_txt_received),
+//        MULTI_SEND(R.layout.cell_txt_send),
 
         //通知消息
-        NOTICE(R.layout.cell_txt_send);
+        NOTICE(R.layout.cell_notice);
 
 
         public final int LayoutId;
@@ -137,5 +138,18 @@ public class ChatEnum {
         int VOICE = 7;//语音
         int AT = 8;//艾特@消息
         int ASSISTANT = 9;//小助手
+    }
+
+    /*
+     * 发送状态
+     * 0:正常,1:错误,2:发送中 -1 预发送
+     * */
+    @IntDef({PRE_SEND,})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ESendStatus {
+        int PRE_SEND = -1; //预发送
+        int NORMAL = 0; //正常
+        int ERROR = 1;//错误
+        int SENDING = 2;//发送中
     }
 }
