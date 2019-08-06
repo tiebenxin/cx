@@ -779,7 +779,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void initAdapter() {
-        messageAdapter = new MessageAdapter(this, this);
+        messageAdapter = new MessageAdapter(this, this, isGroup());
         FactoryChatCell factoryChatCell = new FactoryChatCell(this, messageAdapter, this);
         messageAdapter.setCellFactory(factoryChatCell);
         mtListView.init(messageAdapter);
@@ -971,8 +971,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         String file = localMedia.getCompressPath();
 
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                        boolean isGif= FileUtils.isGif(file);
-                        if (isArtworkMaster||isGif) {
+                        boolean isGif = FileUtils.isGif(file);
+                        if (isArtworkMaster || isGif) {
                             //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                             file = localMedia.getPath();
                         }
@@ -1432,6 +1432,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setDataAt(msgbean.getAtMessage().getMsg());
                     break;
+                case ChatEnum.EMessageType.ASSISTANT:
+                    holder.viewChatItem.setDataAssistant(msgbean.getAssistantMessage().getMsg());
+                    break;
+
 
             }
 

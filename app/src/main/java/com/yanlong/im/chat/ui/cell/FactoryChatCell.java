@@ -5,6 +5,10 @@ import android.view.ViewGroup;
 
 import com.yanlong.im.chat.ChatEnum;
 
+/*
+ * @author Liszt
+ * Description  ChatCell 工厂类
+ * */
 public class FactoryChatCell {
 
     private final Context mContext;

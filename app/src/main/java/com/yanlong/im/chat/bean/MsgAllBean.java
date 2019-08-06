@@ -31,6 +31,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     //   private UserInfo to_user;
     private String gid;
 
+    @ChatEnum.EMessageType
     private Integer msg_type;
 
 
@@ -176,7 +177,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
      */
     public String getMsg_typeStr() {
         String str = "";
-        if (msg_type == 0) {
+        if (msg_type == ChatEnum.EMessageType.NOTICE) {
             //公告:
             str = "" + getMsgNotice().getNote();
 
