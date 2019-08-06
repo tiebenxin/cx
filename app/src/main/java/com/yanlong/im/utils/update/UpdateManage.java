@@ -33,6 +33,7 @@ public class UpdateManage {
     private Context context;
     private AppCompatActivity activity;
     private UpdateAppDialog dialog;
+    private InstallAppUtil installAppUtil;
 
     public UpdateManage(Context context, AppCompatActivity activity) {
         this.context = context;
@@ -40,7 +41,7 @@ public class UpdateManage {
     }
 
 
-    private boolean check(String versions, Context context) {
+    public boolean check(String versions) {
         boolean isUpdate = false;
         if (!versions.equals(VersionUtil.getVerName(context))) {
             clearApk();
@@ -51,7 +52,7 @@ public class UpdateManage {
 
 
     public void uploadApp(String versions, final String content, final String url, boolean isEnforcement) {
-        if (check(versions, context)) {
+        if (check(versions)) {
             final long startsPoint = getFileStart();
             dialog = new UpdateAppDialog();
             dialog.init(activity, "更新", content, new UpdateAppDialog.Event() {
@@ -119,6 +120,11 @@ public class UpdateManage {
                             }
                         }
                     });
+                }
+
+                @Override
+                public void onInstall() {
+                    installAppUtil.install(activity,installAppUtil.getApkPath());
                 }
             });
             if (isEnforcement) {
@@ -230,10 +236,10 @@ public class UpdateManage {
                     break;
                 case COMPLETE:
                     String path = (String) msg.obj;
-                    InstallAppUtil installAppUtil = new InstallAppUtil();
+                    installAppUtil = new InstallAppUtil();
                     installAppUtil.install(activity, path);
                     if (dialog != null) {
-                        dialog.updateStop();
+                        dialog.downloadComplete();
                     }
                     break;
                 case EROE:

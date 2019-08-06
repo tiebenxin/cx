@@ -1669,8 +1669,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (finfo.getLastonline() > 0) {
                 actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType()));
             }
+            actionbar.setTitle(title);
         }
-        actionbar.setTitle(title);
 
     }
 

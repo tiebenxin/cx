@@ -18,7 +18,6 @@ import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
-import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -38,14 +37,11 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
 
     private ClearEditText mEtPhoneContent;
     private EditText mEtIdentifyingCodeContent;
-    private ClearEditText mEtPasswordContent;
-    private ClearEditText mEtNextPasswordContent;
     private Button mBtnRegister;
     private TextView mTvMattersNeedAttention;
     private TextView mTvGetVerificationCode;
     private HeadView mHeadView;
     private UserAction userAction;
-    private EditText mEtNicknameContent;
 
 
     @Override
@@ -70,17 +66,12 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         mBtnRegister = findViewById(R.id.btn_register);
         mTvMattersNeedAttention = findViewById(R.id.tv_matters_need_attention);
         mTvGetVerificationCode = findViewById(R.id.tv_get_verification_code);
-        mEtPasswordContent = findViewById(R.id.et_password_content);
-        mEtNextPasswordContent = findViewById(R.id.et_next_password_content);
-        mEtNicknameContent = findViewById(R.id.et_nickname_content);
         initTvMNA();
     }
 
     private void initEvent() {
         mTvMattersNeedAttention.setOnClickListener(this);
         mTvGetVerificationCode.setOnClickListener(this);
-        mEtPasswordContent.addTextChangedListener(new PasswordTextWather(mEtPasswordContent,this));
-        mEtNextPasswordContent.addTextChangedListener(new PasswordTextWather(mEtNextPasswordContent,this));
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -167,31 +158,16 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     private void register() {
         String phone = mEtPhoneContent.getText().toString();
         String code = mEtIdentifyingCodeContent.getText().toString();
-        String password = mEtPasswordContent.getText().toString();
-        String nextPassword = mEtNextPasswordContent.getText().toString();
-        String nikename = mEtNicknameContent.getText().toString().trim();
+
+        Intent intent = new Intent(this,RegisterUserNameActivity.class);
+        startActivity(intent);
+
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(this, "请输入手机号");
             return;
         }
-        if (TextUtils.isEmpty(password)) {
-            ToastUtil.show(this, "请输入密码");
-            return;
-        }
-        if (TextUtils.isEmpty(nextPassword)) {
-            ToastUtil.show(this, "请再次输入密码");
-            return;
-        }
-        if (!password.equals(nextPassword)) {
-            ToastUtil.show(this, "两次输入密码不一致");
-            return;
-        }
         if (TextUtils.isEmpty(code)) {
             ToastUtil.show(this, "请输入验证码");
-            return;
-        }
-        if (TextUtils.isEmpty(nikename)) {
-            ToastUtil.show(this, "请输入昵称");
             return;
         }
         if(!CheckUtil.isMobileNO(phone)){
@@ -199,7 +175,9 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             return;
         }
 
-        taskRegister(phone, password, code,nikename);
+      //  taskRegister(phone, password, code,nikename);
+
+
 
     }
 
