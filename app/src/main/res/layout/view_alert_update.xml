@@ -79,6 +79,16 @@
             android:background="@color/transparent"
             android:text="确定"
             android:textColor="@color/green_600" />
+
+        <Button
+            android:id="@+id/btn_install"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:text="安装"
+            android:visibility="gone"
+            android:textColor="@color/green_600" />
     </LinearLayout>
 
 </LinearLayout>
