@@ -208,6 +208,8 @@ public class ChatServer extends Service {
                     EventBus.getDefault().post(new EventRefreshFriend());
                     EventBus.getDefault().post(new EventUserOnlineChange());
                     break;
+                case ASSISTANT:
+                    break;
             }
 
 

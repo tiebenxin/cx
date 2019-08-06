@@ -78,15 +78,15 @@ public class MsgConversionBean {
             case IMAGE:
                 ImageMessage image = new ImageMessage();
                 image.setMsgid(msgAllBean.getMsg_id());
-               // Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
+                // Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
 
 
-               MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
+                MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
 
 
-                if(imgMsg!=null){//7.16 替换成上一次本地的图片路径
+                if (imgMsg != null) {//7.16 替换成上一次本地的图片路径
                     image.setLocalimg(imgMsg.getImage().getLocalimg());
-                     Log.d("TAG", "查询到本地图"+image.getLocalimg());
+                    Log.d("TAG", "查询到本地图" + image.getLocalimg());
 
                 }
 
@@ -171,44 +171,43 @@ public class MsgConversionBean {
                 String names = "";
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
                     //7.13 加入替换自己的昵称
-                    if(bean.getAcceptBeGroup().getNoticeMessage(i).getUid()== UserAction.getMyId().longValue()){
-                        names +="你,";
-                    }else{
-                        String name=bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
-                        Long uid= bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
+                    if (bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
+                        names += "你,";
+                    } else {
+                        String name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
+                        Long uid = bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
 
                         MsgAllBean gmsg = new MsgDao().msgGetLastGroup4Uid(bean.getGid(), uid);
                         if (gmsg != null) {
-                            name = StringUtil.isNotNull(gmsg.getFrom_group_nickname())?gmsg.getFrom_group_nickname():name;
+                            name = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : name;
                         }
 
-                        UserInfo userinfo=DaoUtil.findOne(UserInfo.class,"uid",uid);
-                       if(userinfo!=null){
-                           name= StringUtil.isNotNull(userinfo.getMkName())?userinfo.getMkName():name;
-                       }
+                        UserInfo userinfo = DaoUtil.findOne(UserInfo.class, "uid", uid);
+                        if (userinfo != null) {
+                            name = StringUtil.isNotNull(userinfo.getMkName()) ? userinfo.getMkName() : name;
+                        }
 
 
-
-                        names += name+ ",";
+                        names += name + ",";
                     }
 
                 }
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
 
 
-               String inviterName=bean.getAcceptBeGroup().getInviterName();//邀请者名字
-                if(bean.getAcceptBeGroup().getInviter()== UserAction.getMyId().longValue()){
-                    inviterName="你";
-                }else{
+                String inviterName = bean.getAcceptBeGroup().getInviterName();//邀请者名字
+                if (bean.getAcceptBeGroup().getInviter() == UserAction.getMyId().longValue()) {
+                    inviterName = "你";
+                } else {
 
                     MsgAllBean gmsg = new MsgDao().msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
                     if (gmsg != null) {
-                        inviterName = StringUtil.isNotNull(gmsg.getFrom_group_nickname())?gmsg.getFrom_group_nickname():inviterName;
+                        inviterName = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : inviterName;
                     }
 
-                    UserInfo userinfo=DaoUtil.findOne(UserInfo.class,"uid",bean.getAcceptBeGroup().getInviter());//查询昵称
-                    if(userinfo!=null){
-                        inviterName= StringUtil.isNotNull(userinfo.getMkName())?userinfo.getMkName():inviterName;
+                    UserInfo userinfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getAcceptBeGroup().getInviter());//查询昵称
+                    if (userinfo != null) {
+                        inviterName = StringUtil.isNotNull(userinfo.getMkName()) ? userinfo.getMkName() : inviterName;
                     }
 
                 }
@@ -218,14 +217,14 @@ public class MsgConversionBean {
                 //B通过扫码A分享的二维码加入群聊
 
 
-                String node="";
-                if(bean.getAcceptBeGroup().getJoinTypeValue()==0){//扫码
-                    node=names+"通过扫码"+inviterName+"分享的二维码加入群聊";
-                }else{//被邀请
-                    node=inviterName+"邀请"+names+"加入群聊";
+                String node = "";
+                if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
+                    node = names + "通过扫码" + inviterName + "分享的二维码加入群聊";
+                } else {//被邀请
+                    node = inviterName + "邀请" + names + "加入群聊";
                 }
 
-               // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
+                // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
                 gNotice.setNote(node);
                 msgAllBean.setMsgNotice(gNotice);
                 break;
@@ -254,10 +253,10 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(0);
                 MsgNotice gnewAdminNotice = new MsgNotice();
                 gnewAdminNotice.setMsgid(msgAllBean.getMsg_id());
-                if(bean.getChangeGroupMaster().getUid()== UserAction.getMyId().longValue()){
+                if (bean.getChangeGroupMaster().getUid() == UserAction.getMyId().longValue()) {
                     gnewAdminNotice.setNote("你已成为新的群主");
-                }else{
-                    gnewAdminNotice.setNote(bean.getChangeGroupMaster().getMembername()+"已成为新的群主");
+                } else {
+                    gnewAdminNotice.setNote(bean.getChangeGroupMaster().getMembername() + "已成为新的群主");
                 }
 
                 msgAllBean.setMsgNotice(gnewAdminNotice);
@@ -287,15 +286,20 @@ public class MsgConversionBean {
                 msgAllBean.setMsgNotice(ani);
                 break;
             case AT:
-                RealmList<Long> realmList =  new RealmList<>();
+                RealmList<Long> realmList = new RealmList<>();
                 realmList.addAll(bean.getAt().getUidList());
-
                 msgAllBean.setMsg_type(8);
                 AtMessage atMessage = new AtMessage();
                 atMessage.setMsg(bean.getAt().getMsg());
                 atMessage.setAt_type(bean.getAt().getAtType().getNumber());
                 atMessage.setUid(realmList);
                 msgAllBean.setAtMessage(atMessage);
+                break;
+            case ASSISTANT:
+                AssistantMessage assistant = new AssistantMessage();
+                assistant.setMsg(bean.getAssistant().getMsg());
+                msgAllBean.setMsg_type(9);
+                msgAllBean.setAssistantMessage(assistant);
                 break;
             default:
                 return null;

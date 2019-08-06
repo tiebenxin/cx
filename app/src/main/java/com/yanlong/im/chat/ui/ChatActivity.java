@@ -38,6 +38,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -51,6 +52,9 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
+import com.yanlong.im.chat.ui.cell.FactoryChatCell;
+import com.yanlong.im.chat.ui.cell.ICellEventListener;
+import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
@@ -112,7 +116,7 @@ import me.kareluo.ui.PopupMenuView;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class ChatActivity extends AppActivity {
+public class ChatActivity extends AppActivity implements ICellEventListener {
     //返回需要刷新的
     public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
@@ -159,6 +163,7 @@ public class ChatActivity extends AppActivity {
 
     //语音的动画
     private AnimationPic animationPic = new AnimationPic();
+    private MessageAdapter messageAdapter;
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -681,6 +686,7 @@ public class ChatActivity extends AppActivity {
 
 
         mtListView.init(new RecyclerViewAdapter());
+//        initAdapter();
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 
@@ -769,6 +775,13 @@ public class ChatActivity extends AppActivity {
         });
 
 
+    }
+
+    private void initAdapter() {
+        messageAdapter = new MessageAdapter(this, this);
+        FactoryChatCell factoryChatCell = new FactoryChatCell(this, messageAdapter, this);
+        messageAdapter.setCellFactory(factoryChatCell);
+        mtListView.init(messageAdapter);
     }
 
     /***
@@ -1018,10 +1031,9 @@ public class ChatActivity extends AppActivity {
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void taskRefreshMessageEvent(EventRefreshChat event){
+    public void taskRefreshMessageEvent(EventRefreshChat event) {
         taskRefreshMessage();
     }
-
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1146,6 +1158,11 @@ public class ChatActivity extends AppActivity {
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
                 .openExternalPreview1(pos, selectList);
+
+    }
+
+    @Override
+    public void onEvent(ChatEnum.ECellEventType type, Object o1, Object o2) {
 
     }
 
@@ -1304,7 +1321,7 @@ public class ChatActivity extends AppActivity {
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
 
-                    holder.viewChatItem.setData4(msgbean.getImage(),msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
+                    holder.viewChatItem.setData4(msgbean.getImage(), msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
@@ -1576,6 +1593,7 @@ public class ChatActivity extends AppActivity {
     }
 
     private void notifyData() {
+//        messageAdapter.bindData(msgListData, 0);
         mtListView.notifyDataSetChange();
     }
 
