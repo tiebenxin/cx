@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
@@ -857,7 +858,7 @@ public class SocketData {
         msgAllBean.setFrom_nickname(myinfo.getName());
         msgAllBean.setRequest_id(System.currentTimeMillis() + "");
         msgAllBean.setTimestamp(System.currentTimeMillis());
-        msgAllBean.setMsg_type(4);
+        msgAllBean.setMsg_type(ChatEnum.EMessageType.IMAGE);
         msgAllBean.setTo_uid(toId);
         msgAllBean.setGid(toGid == null ? "" : toGid);
         msgAllBean.setSend_state(-1);

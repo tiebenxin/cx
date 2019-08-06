@@ -207,7 +207,7 @@ public class ChatServer extends Service {
                     updateUserOnlineStatus(msg);
                     EventBus.getDefault().post(new EventRefreshFriend());
                     EventBus.getDefault().post(new EventUserOnlineChange());
-                    break;
+                    return;
                 case ASSISTANT:
                     break;
             }
