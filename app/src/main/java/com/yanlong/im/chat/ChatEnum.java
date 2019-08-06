@@ -127,7 +127,7 @@ public class ChatEnum {
         int RED_ENVELOPE = 3;//红包
         int IMAGE = 4;//图片
         int BUSINESS_CARD = 5;//名片
-        int TRANSFER = 6;//转发
+        int TRANSFER = 6;//转账
         int VOICE = 7;//语音
         int AT = 8;//艾特@消息
         int ASSISTANT = 9;//小助手
