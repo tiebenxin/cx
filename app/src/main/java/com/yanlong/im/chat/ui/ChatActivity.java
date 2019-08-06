@@ -5,20 +5,13 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
-import android.media.AudioRecord;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,14 +19,11 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -47,15 +37,14 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
-import com.yanlong.im.chat.bean.MsgNotice;
-import com.yanlong.im.chat.bean.ReceiveRedEnvelopeMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.TransferMessage;
@@ -64,11 +53,12 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
+import com.yanlong.im.chat.ui.cell.FactoryChatCell;
+import com.yanlong.im.chat.ui.cell.ICellEventListener;
+import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
-import com.yanlong.im.pay.ui.MultiRedPacketActivity;
-import com.yanlong.im.pay.ui.SingleRedPacketActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -103,9 +93,7 @@ import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.utils.UpFileAction;
-import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
@@ -117,24 +105,19 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
 import me.kareluo.ui.OptionMenuView;
 import me.kareluo.ui.PopupMenuView;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ChatActivity extends AppActivity {
+public class ChatActivity extends AppActivity implements ICellEventListener {
     //返回需要刷新的
     public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
@@ -181,6 +164,7 @@ public class ChatActivity extends AppActivity {
 
     //语音的动画
     private AnimationPic animationPic = new AnimationPic();
+    private MessageAdapter messageAdapter;
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -703,6 +687,7 @@ public class ChatActivity extends AppActivity {
 
 
         mtListView.init(new RecyclerViewAdapter());
+//        initAdapter();
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 
@@ -791,6 +776,13 @@ public class ChatActivity extends AppActivity {
         });
 
 
+    }
+
+    private void initAdapter() {
+        messageAdapter = new MessageAdapter(this, this);
+        FactoryChatCell factoryChatCell = new FactoryChatCell(this, messageAdapter, this);
+        messageAdapter.setCellFactory(factoryChatCell);
+        mtListView.init(messageAdapter);
     }
 
     /***
@@ -979,7 +971,8 @@ public class ChatActivity extends AppActivity {
                         String file = localMedia.getCompressPath();
 
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                        if (isArtworkMaster) {
+                        boolean isGif= FileUtils.isGif(file);
+                        if (isArtworkMaster||isGif) {
                             //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
                             file = localMedia.getPath();
                         }
@@ -1040,10 +1033,9 @@ public class ChatActivity extends AppActivity {
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void taskRefreshMessageEvent(EventRefreshChat event){
+    public void taskRefreshMessageEvent(EventRefreshChat event) {
         taskRefreshMessage();
     }
-
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1168,6 +1160,11 @@ public class ChatActivity extends AppActivity {
                 .themeStyle(R.style.picture_default_style)
                 .isGif(true)
                 .openExternalPreview1(pos, selectList);
+
+    }
+
+    @Override
+    public void onEvent(ChatEnum.ECellEventType type, Object o1, Object o2) {
 
     }
 
@@ -1326,7 +1323,7 @@ public class ChatActivity extends AppActivity {
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
 
-                    holder.viewChatItem.setData4(msgbean.getImage(),msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
+                    holder.viewChatItem.setData4(msgbean.getImage(), msgbean.getImage().getThumbnailShow(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
@@ -1598,6 +1595,7 @@ public class ChatActivity extends AppActivity {
     }
 
     private void notifyData() {
+//        messageAdapter.bindData(msgListData, 0);
         mtListView.notifyDataSetChange();
     }
 
@@ -1621,7 +1619,7 @@ public class ChatActivity extends AppActivity {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOline(finfo.getLastonline(), finfo.getActiveType()));
+                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType()));
             }
 
 
@@ -1639,7 +1637,7 @@ public class ChatActivity extends AppActivity {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOline(finfo.getLastonline(), finfo.getActiveType()));
+                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType()));
             }
         }
         actionbar.setTitle(title);

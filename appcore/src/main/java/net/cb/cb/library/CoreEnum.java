@@ -10,6 +10,9 @@ import java.lang.annotation.RetentionPolicy;
  * */
 public class CoreEnum {
 
+    /*
+    * 常量0，1
+    * */
     @IntDef({ESureType.NO, ESureType.YES})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESureType {

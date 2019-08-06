@@ -3,6 +3,7 @@ package com.yanlong.im.chat.bean;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -73,20 +74,20 @@ public class MsgConversionBean {
                 chat.setMsgid(msgAllBean.getMsg_id());
                 chat.setMsg(bean.getChat().getMsg());
                 msgAllBean.setChat(chat);
-                msgAllBean.setMsg_type(1);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.TEXT);
                 break;
             case IMAGE:
                 ImageMessage image = new ImageMessage();
                 image.setMsgid(msgAllBean.getMsg_id());
-               // Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
+                // Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
 
 
-               MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
+                MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
 
 
-                if(imgMsg!=null){//7.16 替换成上一次本地的图片路径
+                if (imgMsg != null) {//7.16 替换成上一次本地的图片路径
                     image.setLocalimg(imgMsg.getImage().getLocalimg());
-                     Log.d("TAG", "查询到本地图"+image.getLocalimg());
+                    Log.d("TAG", "查询到本地图" + image.getLocalimg());
 
                 }
 
@@ -97,7 +98,7 @@ public class MsgConversionBean {
                 image.setHeight(bean.getImage().getHeight());
                 image.setSize(bean.getImage().getSize());
                 msgAllBean.setImage(image);
-                msgAllBean.setMsg_type(4);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.IMAGE);
                 break;
 
             case STAMP:// 戳一下消息
@@ -105,7 +106,7 @@ public class MsgConversionBean {
                 stamp.setMsgid(msgAllBean.getMsg_id());
                 stamp.setComment(bean.getStamp().getComment());
                 msgAllBean.setStamp(stamp);
-                msgAllBean.setMsg_type(2);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.STAMP);
                 break;
 
             case VOICE:// 语音消息
@@ -114,7 +115,7 @@ public class MsgConversionBean {
                 voiceMessage.setUrl(bean.getVoice().getUrl());
                 voiceMessage.setTime(bean.getVoice().getDuration());
                 msgAllBean.setVoiceMessage(voiceMessage);
-                msgAllBean.setMsg_type(7);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.VOICE);
                 break;
             case TRANSFER:
                 TransferMessage transferMessage = new TransferMessage();
@@ -124,7 +125,7 @@ public class MsgConversionBean {
                 transferMessage.setTransaction_amount(bean.getTransfer().getTransactionAmount());
 
                 msgAllBean.setTransfer(transferMessage);
-                msgAllBean.setMsg_type(6);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.TRANSFER);
                 break;
             case BUSINESS_CARD:
                 BusinessCardMessage businessCard = new BusinessCardMessage();
@@ -135,7 +136,7 @@ public class MsgConversionBean {
 
                 businessCard.setUid(bean.getBusinessCard().getUid());
                 msgAllBean.setBusiness_card(businessCard);
-                msgAllBean.setMsg_type(5);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.BUSINESS_CARD);
                 break;
             case RED_ENVELOPER:
                 RedEnvelopeMessage envelopeMessage = new RedEnvelopeMessage();
@@ -145,11 +146,11 @@ public class MsgConversionBean {
                 envelopeMessage.setRe_type(bean.getRedEnvelope().getReTypeValue());
                 envelopeMessage.setStyle(bean.getRedEnvelope().getStyleValue());
                 msgAllBean.setRed_envelope(envelopeMessage);
-                msgAllBean.setMsg_type(3);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.RED_ENVELOPE);
                 break;
             case RECEIVE_RED_ENVELOPER:
 
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
                 rbNotice.setNote(bean.getNickname() + "领取红包");
@@ -158,57 +159,56 @@ public class MsgConversionBean {
 
             //需要保存的通知类消息
             case ACCEPT_BE_FRIENDS:// 接收好友请求
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice msgNotice = new MsgNotice();
                 msgNotice.setMsgid(msgAllBean.getMsg_id());
                 msgNotice.setNote(bean.getNickname() + "已加你为好友");
                 msgAllBean.setMsgNotice(msgNotice);
                 break;
             case ACCEPT_BE_GROUP://接受入群请求
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice gNotice = new MsgNotice();
                 gNotice.setMsgid(msgAllBean.getMsg_id());
                 String names = "";
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
                     //7.13 加入替换自己的昵称
-                    if(bean.getAcceptBeGroup().getNoticeMessage(i).getUid()== UserAction.getMyId().longValue()){
-                        names +="你,";
-                    }else{
-                        String name=bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
-                        Long uid= bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
+                    if (bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
+                        names += "你,";
+                    } else {
+                        String name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
+                        Long uid = bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
 
                         MsgAllBean gmsg = new MsgDao().msgGetLastGroup4Uid(bean.getGid(), uid);
                         if (gmsg != null) {
-                            name = StringUtil.isNotNull(gmsg.getFrom_group_nickname())?gmsg.getFrom_group_nickname():name;
+                            name = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : name;
                         }
 
-                        UserInfo userinfo=DaoUtil.findOne(UserInfo.class,"uid",uid);
-                       if(userinfo!=null){
-                           name= StringUtil.isNotNull(userinfo.getMkName())?userinfo.getMkName():name;
-                       }
+                        UserInfo userinfo = DaoUtil.findOne(UserInfo.class, "uid", uid);
+                        if (userinfo != null) {
+                            name = StringUtil.isNotNull(userinfo.getMkName()) ? userinfo.getMkName() : name;
+                        }
 
 
-
-                        names += name+ ",";
+                        names += name + ",";
                     }
 
                 }
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
 
 
-               String inviterName=bean.getAcceptBeGroup().getInviterName();//邀请者名字
-                if(bean.getAcceptBeGroup().getInviter()== UserAction.getMyId().longValue()){
-                    inviterName="你";
-                }else{
+                String inviterName = bean.getAcceptBeGroup().getInviterName();//邀请者名字
+                if (bean.getAcceptBeGroup().getInviter() == UserAction.getMyId().longValue()) {
+                    inviterName = "你";
+                } else {
 
                     MsgAllBean gmsg = new MsgDao().msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
                     if (gmsg != null) {
-                        inviterName = StringUtil.isNotNull(gmsg.getFrom_group_nickname())?gmsg.getFrom_group_nickname():inviterName;
+                        inviterName = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : inviterName;
                     }
 
-                    UserInfo userinfo=DaoUtil.findOne(UserInfo.class,"uid",bean.getAcceptBeGroup().getInviter());//查询昵称
-                    if(userinfo!=null){
-                        inviterName= StringUtil.isNotNull(userinfo.getMkName())?userinfo.getMkName():inviterName;
+                    UserInfo userinfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getAcceptBeGroup().getInviter());//查询昵称
+                    if (userinfo != null) {
+                        inviterName = StringUtil.isNotNull(userinfo.getMkName()) ? userinfo.getMkName() : inviterName;
                     }
 
                 }
@@ -218,20 +218,20 @@ public class MsgConversionBean {
                 //B通过扫码A分享的二维码加入群聊
 
 
-                String node="";
-                if(bean.getAcceptBeGroup().getJoinTypeValue()==0){//扫码
-                    node=names+"通过扫码"+inviterName+"分享的二维码加入群聊";
-                }else{//被邀请
-                    node=inviterName+"邀请"+names+"加入群聊";
+                String node = "";
+                if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
+                    node = names + "通过扫码" + inviterName + "分享的二维码加入群聊";
+                } else {//被邀请
+                    node = inviterName + "邀请" + names + "加入群聊";
                 }
 
-               // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
+                // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
                 gNotice.setNote(node);
                 msgAllBean.setMsgNotice(gNotice);
                 break;
             case DESTROY_GROUP://群解散
                 msgAllBean.setGid(bean.getGid());
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice gdelNotice = new MsgNotice();
                 gdelNotice.setMsgid(msgAllBean.getMsg_id());
                 gdelNotice.setNote("该群已解散");
@@ -242,7 +242,7 @@ public class MsgConversionBean {
             case REMOVE_GROUP_MEMBER:
                 //  ToastUtil.show(getApplicationContext(), "删除群成员");
                 msgAllBean.setGid(bean.getRemoveGroupMember().getGid());
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice grmvNotice = new MsgNotice();
 
                 grmvNotice.setMsgid(msgAllBean.getMsg_id());
@@ -251,13 +251,13 @@ public class MsgConversionBean {
                 break;
             case CHANGE_GROUP_MASTER:
                 msgAllBean.setGid(bean.getGid());
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice gnewAdminNotice = new MsgNotice();
                 gnewAdminNotice.setMsgid(msgAllBean.getMsg_id());
-                if(bean.getChangeGroupMaster().getUid()== UserAction.getMyId().longValue()){
+                if (bean.getChangeGroupMaster().getUid() == UserAction.getMyId().longValue()) {
                     gnewAdminNotice.setNote("你已成为新的群主");
-                }else{
-                    gnewAdminNotice.setNote(bean.getChangeGroupMaster().getMembername()+"已成为新的群主");
+                } else {
+                    gnewAdminNotice.setNote(bean.getChangeGroupMaster().getMembername() + "已成为新的群主");
                 }
 
                 msgAllBean.setMsgNotice(gnewAdminNotice);
@@ -266,36 +266,41 @@ public class MsgConversionBean {
 
                 msgAllBean.setGid(bean.getOutGroup().getGid());
 
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice goutNotice = new MsgNotice();
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setNote(bean.getNickname() + "退出该群");
                 msgAllBean.setMsgNotice(goutNotice);
                 break;
             case CHANGE_GROUP_NAME:
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice info = new MsgNotice();
                 info.setMsgid(msgAllBean.getMsg_id());
                 info.setNote("新群名称:" + bean.getChangeGroupName().getName());
                 msgAllBean.setMsgNotice(info);
                 break;
             case CHANGE_GROUP_ANNOUNCEMENT:
-                msgAllBean.setMsg_type(0);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice ani = new MsgNotice();
                 ani.setMsgid(msgAllBean.getMsg_id());
                 ani.setNote("群公告:" + bean.getChangeGroupAnnouncement().getAnnouncement());
                 msgAllBean.setMsgNotice(ani);
                 break;
             case AT:
-                RealmList<Long> realmList =  new RealmList<>();
+                RealmList<Long> realmList = new RealmList<>();
                 realmList.addAll(bean.getAt().getUidList());
-
-                msgAllBean.setMsg_type(8);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.AT);
                 AtMessage atMessage = new AtMessage();
                 atMessage.setMsg(bean.getAt().getMsg());
                 atMessage.setAt_type(bean.getAt().getAtType().getNumber());
                 atMessage.setUid(realmList);
                 msgAllBean.setAtMessage(atMessage);
+                break;
+            case ASSISTANT:
+                AssistantMessage assistant = new AssistantMessage();
+                assistant.setMsg(bean.getAssistant().getMsg());
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.ASSISTANT);
+                msgAllBean.setAssistantMessage(assistant);
                 break;
             default:
                 return null;

@@ -94,7 +94,9 @@ public class TimeToString {
                 } else if (todayCalendar.get(Calendar.DATE) == (calendar.get(Calendar.DATE) + 1)) {
                     result = getTime(timestamp, dayTimeFormat);
                 } else if (todayCalendar.get(Calendar.WEEK_OF_YEAR) == calendar.get(Calendar.WEEK_OF_YEAR)) {
-                    result = getTime(timestamp, weekNames[calendar.get(Calendar.DAY_OF_WEEK) - 1] + hourTimeFormat);
+                    result = getTime(timestamp, weekNames[calendar.get(Calendar.DAY_OF_WEEK) - 1] + " " + hourTimeFormat);
+                } else {
+                    result = getTime(timestamp, yearTimeFormat);
                 }
             } else {
                 result = getTime(timestamp, yearTimeFormat);
@@ -104,38 +106,6 @@ public class TimeToString {
 
             return "";
         }
-    }
-
-    public static Spanned getTimeOline(Long timestamp) {
-        Long now = new Date().getTime();
-        Calendar todayCalendar = Calendar.getInstance();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timestamp);
-        long disparity = new Double((now - timestamp) / 1000.0).longValue();//差距秒
-        String timestr = YYYY_MM_DD(timestamp) + "";
-
-        if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) <= (calendar.get(Calendar.DAY_OF_YEAR) + 7)) {
-            timestr = (todayCalendar.get(Calendar.DAY_OF_YEAR) - calendar.get(Calendar.DAY_OF_YEAR)) + "天前";
-        }
-        if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 2)) {
-            timestr = "前天 " + HH_MM(timestamp) + "";
-        }
-        if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 1)) {
-            timestr = "昨天 " + HH_MM(timestamp) + "";
-        }
-        if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)) {
-            timestr = new Long(disparity / 60 / 60).intValue() + "小时前";
-        }
-        if (disparity < 60 * 60) {
-
-            timestr = "<font color='#276baa'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
-        }
-        if (disparity < 2 * 60) {
-            timestr = "<font color='#276baa'>刚刚在线</font>";
-        }
-
-
-        return Html.fromHtml(timestr);
     }
 
 
@@ -156,7 +126,7 @@ public class TimeToString {
         return s;
     }
 
-    public static Spanned getTimeOline(Long timestamp, @CoreEnum.ESureType int activeType) {
+    public static Spanned getTimeOnline(Long timestamp, @CoreEnum.ESureType int activeType) {
         if (activeType == CoreEnum.ESureType.YES) {
             String timestr = "<font color='#276baa'>在线</font>";
             return Html.fromHtml(timestr);
@@ -166,25 +136,49 @@ public class TimeToString {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(timestamp);
             long disparity = new Double((now - timestamp) / 1000.0).longValue();//差距秒
-            String timestr = YYYY_MM_DD(timestamp) + "";
+//            String timestr = YYYY_MM_DD(timestamp) + "";
+            String timestr = "";
+            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
+                if (todayCalendar.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)) { //同一天
+                    if (disparity >= 0 && disparity < 2 * 60) { //0 到2 min
+                        timestr = "<font color='#276baa'>刚刚</font>";
+                    } else if (disparity >= 2 * 60 && disparity < 60 * 60) { //2到1小时
+                        timestr = "<font color='#276baa'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
+                    } else if (disparity >= 60 * 60 && disparity <= 24 * 60 * 60) { //1 小时 到24小时
+                        timestr = new Long(disparity / 60 / 60).intValue() + "小时前";
+                    } else {
+                        timestr = YYYY_MM_DD(timestamp) + "";
+                    }
+                } else if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 1)) {
+                    timestr = "昨天 " + HH_MM(timestamp) + "";
+                } else if (todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 2)) {
+                    timestr = "前天 " + HH_MM(timestamp) + "";
+                } else if (todayCalendar.get(Calendar.DAY_OF_YEAR) <= (calendar.get(Calendar.DAY_OF_YEAR) + 7) && todayCalendar.get(Calendar.DAY_OF_YEAR) >= (calendar.get(Calendar.DAY_OF_YEAR) + 3)) {
+                    timestr = (todayCalendar.get(Calendar.DAY_OF_YEAR) - calendar.get(Calendar.DAY_OF_YEAR)) + "天前";
+                } else {
+                    timestr = YYYY_MM_DD(timestamp) + "";
+                }
+            } else {
+                timestr = YYYY_MM_DD(timestamp) + "";
 
-            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) <= (calendar.get(Calendar.DAY_OF_YEAR) + 7)) {
-                timestr = (todayCalendar.get(Calendar.DAY_OF_YEAR) - calendar.get(Calendar.DAY_OF_YEAR)) + "天前";
             }
-            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 2)) {
-                timestr = "前天 " + HH_MM(timestamp) + "";
-            }
-            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 1)) {
-                timestr = "昨天 " + HH_MM(timestamp) + "";
-            }
-            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)) {
-                timestr = new Long(disparity / 60 / 60).intValue() + "小时前";
-            }
-            if (disparity >= 2 * 60 && disparity < 60 * 60) {
-                timestr = "<font color='#276baa'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
-            } else if (disparity > 0 && disparity < 2 * 60) {
-                timestr = "<font color='#276baa'>刚刚在线</font>";
-            }
+//            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) <= (calendar.get(Calendar.DAY_OF_YEAR) + 7)) {
+//                timestr = (todayCalendar.get(Calendar.DAY_OF_YEAR) - calendar.get(Calendar.DAY_OF_YEAR)) + "天前";
+//            }
+//            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 2)) {
+//                timestr = "前天 " + HH_MM(timestamp) + "";
+//            }
+//            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 1)) {
+//                timestr = "昨天 " + HH_MM(timestamp) + "";
+//            }
+//            if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)) {
+//                timestr = new Long(disparity / 60 / 60).intValue() + "小时前";
+//            }
+//            if (disparity >= 2 * 60 && disparity < 60 * 60) {
+//                timestr = "<font color='#276baa'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
+//            } else if (disparity > 0 && disparity < 2 * 60) {
+//                timestr = "<font color='#276baa'>刚刚</font>";
+//            }
             return Html.fromHtml(timestr);
         }
     }

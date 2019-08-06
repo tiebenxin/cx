@@ -1,15 +1,18 @@
 package com.yanlong.im.chat.bean;
 
 
+import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.ui.cell.IChatModel;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.socket.MsgBean;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
-public class MsgAllBean extends RealmObject {
+public class MsgAllBean extends RealmObject implements IChatModel {
     @PrimaryKey
     private String msg_id;
     private Long timestamp;
@@ -50,6 +53,8 @@ public class MsgAllBean extends RealmObject {
     private VoiceMessage voiceMessage;
 
     private AtMessage atMessage;
+
+    private AssistantMessage assistantMessage;
 
     //private RequestFriendMessage request_friend;
 
@@ -152,6 +157,7 @@ public class MsgAllBean extends RealmObject {
         this.gid = gid;
     }
 
+    @ChatEnum.EMessageType
     public Integer getMsg_type() {
         return this.msg_type;
     }
@@ -206,7 +212,7 @@ public class MsgAllBean extends RealmObject {
     }
 
 
-    public void setMsg_type(Integer msg_type) {
+    public void setMsg_type(@ChatEnum.EMessageType Integer msg_type) {
         this.msg_type = msg_type;
     }
 
@@ -317,6 +323,14 @@ public class MsgAllBean extends RealmObject {
         this.atMessage = atMessage;
     }
 
+    public AssistantMessage getAssistantMessage() {
+        return assistantMessage;
+    }
+
+    public void setAssistantMessage(AssistantMessage assistantMessage) {
+        this.assistantMessage = assistantMessage;
+    }
+
     public MsgNotice getMsgNotice() {
         return msgNotice;
     }
@@ -353,6 +367,37 @@ public class MsgAllBean extends RealmObject {
     public boolean isMe() {
 
         return from_uid == UserAction.getMyInfo().getUid().longValue();
+    }
+
+    @Override
+    public ChatEnum.EChatCellLayout getChatCellLayoutId() {
+        @ChatEnum.EMessageType int msgType = getMsg_type();
+        boolean isMe = isMe();
+        ChatEnum.EChatCellLayout layout = null;
+        switch (msgType) {
+            case ChatEnum.EMessageType.NOTICE://通知
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.TEXT_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.TEXT_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.TEXT://文本
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.TEXT_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.TEXT_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.IMAGE://图片
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.IMAGE_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.IMAGE_RECEIVED;
+                }
+                break;
+        }
+        return layout;
     }
 }
 

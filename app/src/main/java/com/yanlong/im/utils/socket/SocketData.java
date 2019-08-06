@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
@@ -819,11 +820,23 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, MsgBean.MessageType.IMAGE, msgb);
     }
 
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2) {
+    /***
+     * 转发处理
+     * @param toId
+     * @param toGid
+     * @param url
+     * @param url1
+     * @param url2
+     * @return
+     */
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2,int w,int h,int size) {
         MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
                 .setOrigin(url)
                 .setPreview(url1)
                 .setThumbnail(url2)
+                .setWidth(w)
+                .setHeight(h)
+                .setSize(size)
                 .build();
 
 
@@ -845,7 +858,7 @@ public class SocketData {
         msgAllBean.setFrom_nickname(myinfo.getName());
         msgAllBean.setRequest_id(System.currentTimeMillis() + "");
         msgAllBean.setTimestamp(System.currentTimeMillis());
-        msgAllBean.setMsg_type(4);
+        msgAllBean.setMsg_type(ChatEnum.EMessageType.IMAGE);
         msgAllBean.setTo_uid(toId);
         msgAllBean.setGid(toGid == null ? "" : toGid);
         msgAllBean.setSend_state(-1);
