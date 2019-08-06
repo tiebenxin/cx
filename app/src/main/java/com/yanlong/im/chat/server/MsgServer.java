@@ -16,7 +16,8 @@ import retrofit2.http.POST;
 public interface MsgServer {
     @POST("/group/create")
     @FormUrlEncoded
-    Call<ReturnBean<Group>> groupCreate(@Field("name") String name, @Field("avatar") String avatar, @Field("@members") String membersJson);
+    Call<ReturnBean<Group>> groupCreate(@Field("nickname") String nickname,@Field("groupName") String groupName,
+                                        @Field("avatar") String avatar, @Field("@members") String membersJson);
 
     @POST("/group/quit")
     @FormUrlEncoded
@@ -29,7 +30,7 @@ public interface MsgServer {
 
     @POST("/group/append-members")
     @FormUrlEncoded
-    Call<ReturnBean> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson,@Field("inviter") String inviter);
+    Call<ReturnBean> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson,@Field("nickname") String nickname);
 
     @POST("/group/quit")
     @FormUrlEncoded
@@ -60,7 +61,9 @@ public interface MsgServer {
 
     @POST("/group/request-join")
     @FormUrlEncoded
-    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid, @Field("nickname") String membername,@Field("inviter") String inviter);
+    Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid,
+                                              @Field("nickname") String nickname,@Field("avatar") String avatar,
+                                              @Field("inviter") String inviter,@Field("inviterName") String inviterName);
 
     @POST("/group/change-group-name")
     @FormUrlEncoded
@@ -72,7 +75,10 @@ public interface MsgServer {
 
     @POST("/group/accept-request")
     @FormUrlEncoded
-    Call<ReturnBean> groupRequest(@Field("gid") String gid, @Field("uid") String uid, @Field("nickname") String nickname,@Field("joinType") Integer joinType,@Field("inviter") String inviter);
+    Call<ReturnBean> groupRequest(@Field("gid") String gid, @Field("newMember") String newMember,
+                                  @Field("newMemberName") String newMemberName,@Field("newMemberAvatar") String newMemberAvatar,
+                                  @Field("joinType") Integer joinType,@Field("inviter") String inviter,
+                                  @Field("inviterName") String inviterName);
 
     @POST("/group/edit-announcement")
     @FormUrlEncoded

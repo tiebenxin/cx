@@ -881,7 +881,7 @@ public class MsgDao {
      * @param fromUid
      * @param nickname
      */
-    public void groupAcceptAdd(int joinType,long inviter,String gid, long fromUid, String nickname, String head) {
+    public void groupAcceptAdd(int joinType,long inviter,String inviterName,String gid, long fromUid, String nickname, String head) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
@@ -903,6 +903,7 @@ public class MsgDao {
         accept.setUname(nickname);
         accept.setHead(head);
         accept.setInviter(inviter);
+        accept.setInviterName(inviterName);
         accept.setJoinType(joinType);
 
         realm.insertOrUpdate(accept);

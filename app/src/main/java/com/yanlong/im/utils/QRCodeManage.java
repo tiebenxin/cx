@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.zxing.Result;
 import com.luck.picture.lib.tools.DateUtils;
@@ -33,17 +34,17 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class QRCodeManage {
-
+    public static final String TAG = "QRCodeManage";
     //YLIM://ADDFRIEND?id=xxx
     //YLIM://ADDGROUP?id=xxx
     public static final String HEAD = "YLIM:"; //二维码头部
     public static final String ID = "id"; //群id
     public static final String UID = "uid"; //用户ID
     public static final String TIME = "time"; //时间戳
+    public static final String NICK_NAME = "nickname";
 
     public static final String ADD_FRIEND_FUNCHTION = "ADDFRIEND"; //添加好友
     public static final String ADD_GROUP_FUNCHTION = "ADDGROUP"; //添加群
-
 
 
     /**
@@ -54,6 +55,7 @@ public class QRCodeManage {
      */
     public static QRCodeBean getQRCodeBean(Context context, String QRCode) {
         QRCodeBean bean = null;
+        Log.v(TAG,"二维码"+QRCode);
         if (!TextUtils.isEmpty(QRCode)) {
             String oneStrs[] = QRCode.split("//");
             if (oneStrs == null || oneStrs.length > 2) {
@@ -123,14 +125,14 @@ public class QRCodeManage {
                 }
             } else if (bean.getFunction().equals(ADD_GROUP_FUNCHTION)) {
                 if (!TextUtils.isEmpty(bean.getParameterValue(ID)) && !TextUtils.isEmpty(bean.getParameterValue(UID))) {
-                    taskGroupInfo(bean.getParameterValue(ID),bean.getParameterValue(UID),activity);
+                    taskGroupInfo(bean.getParameterValue(ID), bean.getParameterValue(UID),bean.getParameterValue(NICK_NAME),activity);
                 }
             }
         }
     }
 
 
-    private static void taskGroupInfo(final String gid, final String inviter, final Activity activity) {
+    private static void taskGroupInfo(final String gid, final String inviter, final String inviterName, final Activity activity) {
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -148,50 +150,48 @@ public class QRCodeManage {
                         }
 
                         if (!isNot) {
-                            Intent intent = new Intent(activity, AddGroupActivity.class);
-                            intent.putExtra(AddGroupActivity.INVITER,inviter);
-                            intent.putExtra(AddGroupActivity.GID, gid);
-                            activity.startActivity(intent);
+                            toAddGourp(gid, inviter, inviterName, activity);
                         } else {
                             Intent intent = new Intent(activity, ChatActivity.class);
-                            intent.putExtra(ChatActivity.AGM_TOGID,gid);
+                            intent.putExtra(ChatActivity.AGM_TOGID, gid);
                             activity.startActivity(intent);
                         }
 
                     } else {
-                        Intent intent = new Intent(activity, AddGroupActivity.class);
-                        intent.putExtra(AddGroupActivity.INVITER,inviter);
-                        intent.putExtra(AddGroupActivity.GID, gid);
-                        activity.startActivity(intent);
+                        toAddGourp(gid, inviter, inviterName, activity);
                     }
                 } else {
-                    Intent intent = new Intent(activity, AddGroupActivity.class);
-                    intent.putExtra(AddGroupActivity.INVITER,inviter);
-                    intent.putExtra(AddGroupActivity.GID, gid);
-                    activity.startActivity(intent);
+                    toAddGourp(gid, inviter, inviterName, activity);
                 }
             }
         });
     }
 
+    private static void toAddGourp(String gid, String inviter, String inviterName, Activity activity) {
+        Intent intent = new Intent(activity, AddGroupActivity.class);
+        intent.putExtra(AddGroupActivity.INVITER, inviter);
+        intent.putExtra(AddGroupActivity.GID, gid);
+        intent.putExtra(AddGroupActivity.INVITER_NAME, inviterName);
+        activity.startActivity(intent);
+    }
 
 
-    public static void toZhifubao(Context mContext,Result result) {
+    public static void toZhifubao(Context mContext, Result result) {
         if (result == null) {
             ToastUtil.show(mContext, "识别二维码失败");
         } else {
             String text = result.getText();
             if (text.contains("qr.alipay.com")) {
-                openAliPay2Pay(mContext,text);
+                openAliPay2Pay(mContext, text);
             } else {
-                QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext,text);
-                QRCodeManage.goToActivity((Activity) mContext,bean);
+                QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext, text);
+                QRCodeManage.goToActivity((Activity) mContext, bean);
             }
 
         }
     }
 
-    private static void openAliPay2Pay(Context mContext,String qrCode) {
+    private static void openAliPay2Pay(Context mContext, String qrCode) {
         if (openAlipayPayPage(mContext, qrCode)) {
 
         } else {
@@ -220,14 +220,13 @@ public class QRCodeManage {
     }
 
 
-    public static String getTime (int distanceDay){
+    public static String getTime(int distanceDay) {
         String time = "";
         Date date = new Date(System.currentTimeMillis());
-        String changeTime = DateUtils.getOldDateByDay(date,distanceDay,"yyyy-MM-dd HH:mm:ss");
-        time = DateUtils.date2TimeStamp(changeTime,"yyyy-MM-dd HH:mm:ss");
+        String changeTime = DateUtils.getOldDateByDay(date, distanceDay, "yyyy-MM-dd HH:mm:ss");
+        time = DateUtils.date2TimeStamp(changeTime, "yyyy-MM-dd HH:mm:ss");
         return time;
     }
-
 
 
 }

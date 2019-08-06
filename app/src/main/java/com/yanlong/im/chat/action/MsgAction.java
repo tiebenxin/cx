@@ -43,7 +43,7 @@ public class MsgAction {
     }
 
 
-    public void groupCreate(final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<Group>> callback) {
+    public void groupCreate(final String nickname, final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<Group>> callback) {
         List<GroupUserInfo> listDataTop2 = new ArrayList<>();
         for (int i = 0; i < listDataTop.size(); i++) {
             GroupUserInfo userInfo = new GroupUserInfo();
@@ -53,7 +53,7 @@ public class MsgAction {
             listDataTop2.add(userInfo);
 
         }
-        NetUtil.getNet().exec(server.groupCreate(name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<Group>>() {
+        NetUtil.getNet().exec(server.groupCreate(nickname, name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body() == null)
@@ -107,7 +107,7 @@ public class MsgAction {
 
     }
 
-    public void groupAdd(String id, List<UserInfo> members, String inviter, CallBack<ReturnBean> callback) {
+    public void groupAdd(String id, List<UserInfo> members, String nickname, CallBack<ReturnBean> callback) {
         List<GroupUserInfo> groupUserInfos = new ArrayList<>();
         for (int i = 0; i < members.size(); i++) {
             GroupUserInfo groupUserInfo = new GroupUserInfo();
@@ -116,7 +116,7 @@ public class MsgAction {
             groupUserInfo.setNickname(members.get(i).getName());
             groupUserInfos.add(groupUserInfo);
         }
-        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos), inviter), callback);
+        NetUtil.getNet().exec(server.groupAdd(id, gson.toJson(groupUserInfos), nickname), callback);
     }
 
 
@@ -294,11 +294,12 @@ public class MsgAction {
         });
     }
 
+
     /**
      * 加入群聊
      */
-    public void joinGroup(String gid, Long uid, String nickname, String inviter, Callback<ReturnBean<GroupJoinBean>> callback) {
-        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname, inviter), callback);
+    public void joinGroup(String gid, Long uid, String nickname, String avatar, String inviter, String inviterName, Callback<ReturnBean<GroupJoinBean>> callback) {
+        NetUtil.getNet().exec(server.joinGroup(gid, uid, nickname, avatar, inviter, inviterName), callback);
     }
 
 
@@ -316,12 +317,13 @@ public class MsgAction {
         NetUtil.getNet().exec(server.changeMemberName(gid, name), callback);
     }
 
-
     /**
      * 同意进群
      */
-    public void groupRequest(final String aid, String gid, String uid, String name, int joinType, String inviter, final Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupRequest(gid, uid, name, joinType, inviter), new Callback<ReturnBean>() {
+    public void groupRequest(final String aid, String gid, String newMember, String newMemberName,
+                             String newMemberAvatar, int joinType, String inviter, String inviterName,
+                             final Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupRequest(gid, newMember, newMemberName, newMemberAvatar, joinType, inviter, inviterName), new Callback<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null)
