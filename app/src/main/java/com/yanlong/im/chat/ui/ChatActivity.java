@@ -709,7 +709,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
         mtListView.init(new RecyclerViewAdapter());
-//        initAdapter();
+//        initAdapter();//messageAdapter
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 

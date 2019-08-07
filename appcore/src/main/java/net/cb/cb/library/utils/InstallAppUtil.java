@@ -1,13 +1,16 @@
 package net.cb.cb.library.utils;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.io.File;
 
@@ -15,7 +18,7 @@ public class InstallAppUtil {
     private AppCompatActivity activity;
     private String apkPath;
     private final int INSTALL_APK_REQUESTCODE = 5631;
-    private final int GET_UNKNOWN_APP_SOURCES = 5632;
+    public static final int GET_UNKNOWN_APP_SOURCES = 5632;
 
     public void onRequestPermissionsResult(AppCompatActivity activity, int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (activity == null)
@@ -37,6 +40,11 @@ public class InstallAppUtil {
         }
     }
 
+
+    public String getApkPath() {
+        return apkPath;
+    }
+
     public void install(AppCompatActivity act, String apkPath) {
         activity = act;
         this.apkPath = apkPath;
@@ -49,10 +57,11 @@ public class InstallAppUtil {
                 install();
             } else {
                 //无权限 申请权限
-                //      ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.REQUEST_INSTALL_PACKAGES}, INSTALL_APK_REQUESTCODE);
-
+//                      ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.REQUEST_INSTALL_PACKAGES}, INSTALL_APK_REQUESTCODE);
+                Log.v("InstallAppUtil", "没有权限申请权限");
                 Uri packageURI = Uri.parse("package:" + activity.getPackageName());
                 Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
+                intent.putExtra("apkPath", apkPath);
                 activity.startActivityForResult(intent, GET_UNKNOWN_APP_SOURCES);
                 ToastUtil.show(activity.getApplicationContext(), "请开启允许安装应用开关");
             }
@@ -62,22 +71,23 @@ public class InstallAppUtil {
     }
 
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        switch (requestCode) {
-            case GET_UNKNOWN_APP_SOURCES:
-                install();
-                break;
-
-            default:
-                break;
-        }
-    }
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        Log.v("InstallAppUtil","install111111111111");
+//        switch (requestCode) {
+//            case GET_UNKNOWN_APP_SOURCES:
+//                Log.v("InstallAppUtil","install");
+//                install();
+//                break;
+//
+//            default:
+//                break;
+//        }
+//    }
 
     /***
      * 只支持缓存目录安装
      */
-    private void install() {
+    public void install() {
         //7.0以上通过FileProvider
         if (Build.VERSION.SDK_INT >= 24) {
             String at = activity.getApplication().getPackageName() + ".app";

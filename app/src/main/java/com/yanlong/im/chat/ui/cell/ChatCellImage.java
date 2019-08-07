@@ -3,7 +3,9 @@ package com.yanlong.im.chat.ui.cell;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.Display;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -19,6 +21,8 @@ import net.cb.cb.library.utils.DensityUtil;
 public class ChatCellImage extends ChatCellBase {
     final int DEFAULT_W = DensityUtil.dip2px(getContext(), 150);
     final int DEFAULT_H = DensityUtil.dip2px(getContext(), 180);
+    int width = DEFAULT_W;
+    int height = DEFAULT_H;
 
     private ImageView imageView;
     private ImageMessage imageMessage;
@@ -42,13 +46,15 @@ public class ChatCellImage extends ChatCellBase {
             return;
         }
         String thumbnail = imageMessage.getThumbnailShow();
+        resetSize();
         RequestOptions rOptions = new RequestOptions();
-        rOptions.override((int) imageMessage.getWidth(), (int) imageMessage.getHeight());
+        rOptions.override(width, height);
         if (isGif(thumbnail)) {
             rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
             Glide.with(getContext())
                     .load(message.getImage().getPreview())
                     .apply(rOptions)
+//                    .thumbnail(0.2f)
                     .into(imageView);
         } else {
             rOptions.centerCrop();
@@ -56,6 +62,25 @@ public class ChatCellImage extends ChatCellBase {
                     .load(message.getImage().getPreview())
                     .apply(rOptions)
                     .into(imageView);
+        }
+
+
+    }
+
+    private void resetSize() {
+        int realW = (int) imageMessage.getWidth();
+        int realH = (int) imageMessage.getHeight();
+        if (realH > 0) {
+            double scale = (realW * 1.00) / realH;
+            if (realW > realH) {
+                width = getBitmapWidth();
+                height = (int) (width / scale);
+            } else if (realW < realH){
+                height = getBitmapHeight();
+                width = (int) (height * scale);
+            }else {
+                width = height = DEFAULT_W;
+            }
         }
 
 
@@ -69,4 +94,31 @@ public class ChatCellImage extends ChatCellBase {
         }
         return false;
     }
+
+    public int getBitmapWidth() {
+        return getScreenWidth(getContext()) / 2;
+    }
+
+    public int getBitmapHeight() {
+        return getScreenHeight(getContext()) / 4;
+    }
+
+    // 获取屏幕的宽度
+    @SuppressWarnings("deprecation")
+    public int getScreenWidth(Context context) {
+        WindowManager manager = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        Display display = manager.getDefaultDisplay();
+        return display.getWidth();
+    }
+
+    // 获取屏幕的高度
+    @SuppressWarnings("deprecation")
+    public int getScreenHeight(Context context) {
+        WindowManager manager = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        Display display = manager.getDefaultDisplay();
+        return display.getHeight();
+    }
+
 }

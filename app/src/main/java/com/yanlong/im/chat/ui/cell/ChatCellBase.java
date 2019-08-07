@@ -38,7 +38,6 @@ public abstract class ChatCellBase implements View.OnClickListener {
         viewRoot = LayoutInflater.from(context).inflate(cellLayout.LayoutId, viewGroup, false);
         mAdapter = adapter;
         viewRoot.setTag(this);
-//        currentPosition = position;
         isGroup = mAdapter.isGroup();
         initView();
         initListener();
@@ -54,7 +53,6 @@ public abstract class ChatCellBase implements View.OnClickListener {
             return;
         }
         tv_time = viewRoot.findViewById(R.id.tv_time);
-//        tv_broadcast = viewRoot.findViewById(R.id.tv_broadcast);
         iv_avatar = viewRoot.findViewById(R.id.iv_avatar);
         tv_name = viewRoot.findViewById(R.id.tv_name);
         iv_error = viewRoot.findViewById(R.id.iv_error);
@@ -74,9 +72,6 @@ public abstract class ChatCellBase implements View.OnClickListener {
             return;
         }
         model = message;
-        if (message.getMsg_type() == ChatEnum.EMessageType.NOTICE) {
-            return;
-        }
         loadAvatar();
         setName();
         setTime();
@@ -87,7 +82,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
      * 设置发送状态
      * */
     private void setSendStatus() {
-        if (model.isMe() && iv_error != null) {
+        if (iv_error != null && model.isMe()) {
             switch (model.getSend_state()) {
                 case ChatEnum.ESendStatus.ERROR:
                     iv_error.clearAnimation();

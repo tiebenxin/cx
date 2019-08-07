@@ -6,12 +6,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.NewVersionBean;
+import com.yanlong.im.utils.update.UpdateManage;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class AboutAsActivity extends AppActivity {
 
@@ -56,7 +66,7 @@ public class AboutAsActivity extends AppActivity {
         mLlCheckVersions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                taskNewVersion();
             }
         });
 
@@ -64,6 +74,33 @@ public class AboutAsActivity extends AppActivity {
             @Override
             public void onClick(View v) {
 
+            }
+        });
+    }
+
+
+    private void taskNewVersion() {
+        new UserAction().getNewVersion(new CallBack<ReturnBean<NewVersionBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<NewVersionBean>> call, Response<ReturnBean<NewVersionBean>> response) {
+                if (response.body() == null || response.body().getData() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    NewVersionBean bean = response.body().getData();
+                    if(!new UpdateManage(context,AboutAsActivity.this).check(bean.getVersion())){
+                        ToastUtil.show(context,"已经是最新版本");
+                        return;
+                    }
+
+                    UpdateManage updateManage = new UpdateManage(context, AboutAsActivity.this);
+                    if (response.body().getData().getForceUpdate() == 0) {
+                        //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                    }else{
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                    }
+                }
             }
         });
     }

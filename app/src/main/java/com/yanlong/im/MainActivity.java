@@ -4,7 +4,9 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
@@ -32,8 +34,10 @@ import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
@@ -277,7 +281,6 @@ public class MainActivity extends AppActivity {
 //        });
     }
 
-
     private void uploadApp() {
         if (!AppConfig.DEBUG) {
             taskNewVersion();
@@ -321,9 +324,8 @@ public class MainActivity extends AppActivity {
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
                     UpdateManage updateManage = new UpdateManage(context, MainActivity.this);
-                    if (response.body().getData().getForceUpdate() == 0) {
-                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                    } else {
+                    if (response.body().getData().getForceUpdate() != 0) {
+                        //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     }
                 }
@@ -331,11 +333,12 @@ public class MainActivity extends AppActivity {
         });
     }
 
+
     /***
      * 清理通知栏
      */
-    private void taskClearNotification(){
-        NotificationManager manager = (NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+    private void taskClearNotification() {
+        NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancelAll();
     }
 

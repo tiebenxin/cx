@@ -2,7 +2,6 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -86,7 +85,7 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.view_setting_password:
-                Intent intent = new Intent(this, SetingPasswordActivity.class);
+                Intent intent = new Intent(this, ChangePasswordActivity.class);
                 startActivity(intent);
                 break;
             case R.id.view_blacklist:

@@ -27,6 +27,7 @@ public class UpdateAppDialog {
     private Button btnCl;
     private Button btnUpdate;
     private ProgressBar mProgressNum;
+    private Button btnInstall;
     private String title;
 
     //自动寻找控件
@@ -37,6 +38,7 @@ public class UpdateAppDialog {
         btnCl = rootview.findViewById(R.id.btn_cl);
         btnUpdate = rootview.findViewById(R.id.btn_update);
         mProgressNum =  rootview.findViewById(R.id.progress_num);
+        btnInstall = rootview.findViewById(R.id.btn_install);
     }
 
 
@@ -55,6 +57,13 @@ public class UpdateAppDialog {
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 event.onUpdate();
+            }
+        });
+
+        btnInstall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                event.onInstall();
             }
         });
 
@@ -98,6 +107,16 @@ public class UpdateAppDialog {
     }
 
 
+    public void downloadComplete(){
+        txtAlertTitle.setText("下载完成");
+        txtAlertMsg.setText("是否安装");
+        txtAlertMsg.setVisibility(View.VISIBLE);
+        mProgressNum.setVisibility(View.GONE);
+        btnUpdate.setVisibility(View.GONE);
+        btnInstall.setVisibility(View.VISIBLE);
+    }
+
+
     public void updateProgress(int progress){
         mProgressNum.setProgress(progress);
     }
@@ -121,6 +140,8 @@ public class UpdateAppDialog {
         void onON();
 
         void onUpdate();
+
+        void onInstall();
     }
 
 
