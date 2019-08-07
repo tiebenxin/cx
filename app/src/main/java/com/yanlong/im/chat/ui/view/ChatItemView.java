@@ -3,15 +3,18 @@ package com.yanlong.im.chat.ui.view;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.provider.Browser;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -501,15 +504,16 @@ public class ChatItemView extends LinearLayout {
 
     private SpannableString setClickableSpan(final String url) {
         SpannableString span = new SpannableString(url);
-//        span.setSpan(new ClickableSpan() {
-//            @Override
-//            public void onClick(@androidx.annotation.NonNull View view) {
-//                Uri uri = Uri.parse(url);
-//                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-//                intent.putExtra(Browser.EXTRA_APPLICATION_ID, getContext().getPackageName());
-//                getContext().startActivity(intent);
-//            }
-//        });
+        span.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(@androidx.annotation.NonNull View view) {
+                Uri uri = Uri.parse(url);
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                intent.putExtra(Browser.EXTRA_APPLICATION_ID, getContext().getPackageName());
+                getContext().startActivity(intent);
+            }
+        }, 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new ForegroundColorSpan(Color.BLUE),0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return span;
     }
 
