@@ -39,7 +39,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer groupvalid; //允许被直接添加至群聊(0:关闭|1:打开)
     private Integer messagenotice;//新消息通知(0:关闭|1:打开)
     private Integer displaydetail;//显示详情(0:关闭|1:打开)
-    private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单)
+    private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单|9:系统用户，如小助手)
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
     @Ignore
     private String membername;//群的昵称
@@ -47,6 +47,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     private Long lastonline;
     private int activeType; //是否在线（0：离线|1：在线）
+    private String describe; //用户描述
 
     public int getActiveType() {
         return activeType;
@@ -309,5 +310,13 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public String getTag() {
         return tag;
+    }
+
+    public String getDescribe() {
+        return describe;
+    }
+
+    public void setDescribe(String describe) {
+        this.describe = describe;
     }
 }

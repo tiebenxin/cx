@@ -182,32 +182,26 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             //公告:
             str = "" + getMsgNotice().getNote();
 
-        }
-        if (msg_type == 1) {//普通消息
+        } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
             str = getChat().getMsg();
 
-        }
-        if (msg_type == 2) {
+        } else if (msg_type == ChatEnum.EMessageType.STAMP) {
             str = "[戳一下]" + getStamp().getComment();
 
-        }
-        if (msg_type == 3) {
+        } else if (msg_type == ChatEnum.EMessageType.RED_ENVELOPE) {
             str = "[常聊红包]" + getRed_envelope().getComment();
-        }
-        if (msg_type == 4) {
+        } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
             str = "[图片]";
-        }
-        if (msg_type == 5) {
+        } else if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {
             str = "[名片]";// + getBusiness_card().getNickname();
-        }
-        if (msg_type == 6) {
+        } else if (msg_type == ChatEnum.EMessageType.TRANSFER) {
             str = "[收款]";
-        }
-        if (msg_type == 7) {
+        } else if (msg_type == ChatEnum.EMessageType.VOICE) {
             str = "[语音]";
-        }
-        if (msg_type == 8) {
+        } else if (msg_type == ChatEnum.EMessageType.AT) {
             str = getAtMessage().getMsg();
+        } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
+            str = "[常聊通知]";
         }
 
         return str;

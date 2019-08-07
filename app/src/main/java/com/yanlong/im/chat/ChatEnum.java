@@ -9,17 +9,10 @@ import net.cb.cb.library.CoreEnum;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import static com.yanlong.im.chat.ChatEnum.EMessageType.ASSISTANT;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.AT;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.BUSINESS_CARD;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.IMAGE;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.NOTICE;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.RED_ENVELOPE;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.STAMP;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.TEXT;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.TRANSFER;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.VOICE;
-import static com.yanlong.im.chat.ChatEnum.ESendStatus.PRE_SEND;
+import static com.yanlong.im.chat.ChatEnum.EAuthStatus.*;
+import static com.yanlong.im.chat.ChatEnum.EUserType.*;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.*;
+import static com.yanlong.im.chat.ChatEnum.ESendStatus.*;
 
 public class ChatEnum {
     /*
@@ -125,7 +118,7 @@ public class ChatEnum {
     /*
      * 消息type
      * */
-    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, ASSISTANT})
+    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int NOTICE = 0; //公告
@@ -134,7 +127,7 @@ public class ChatEnum {
         int RED_ENVELOPE = 3;//红包
         int IMAGE = 4;//图片
         int BUSINESS_CARD = 5;//名片
-        int TRANSFER = 6;//转发
+        int TRANSFER = 6;//转账
         int VOICE = 7;//语音
         int AT = 8;//艾特@消息
         int ASSISTANT = 9;//小助手
@@ -144,12 +137,38 @@ public class ChatEnum {
      * 发送状态
      * 0:正常,1:错误,2:发送中 -1 预发送
      * */
-    @IntDef({PRE_SEND,})
+    @IntDef({PRE_SEND, NORMAL, ERROR, SENDING})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESendStatus {
         int PRE_SEND = -1; //预发送
         int NORMAL = 0; //正常
         int ERROR = 1;//错误
         int SENDING = 2;//发送中
+    }
+
+    /*
+     * 用户类型
+     * 0:陌生人或者群友,1:自己,2:通讯录,3黑名单,4小助手
+     * */
+    @IntDef({STRANGE, SELF, FRIEND, BLACK, EUserType.ASSISTANT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EUserType {
+        int STRANGE = 0; //陌生
+        int SELF = 1; //自己
+        int FRIEND = 2;//通讯录好友
+        int BLACK = 3;//黑名单
+        int ASSISTANT = 4;//小助手
+    }
+
+    /*
+     * 认证状态
+     * 0:未认证|1:已认证未上传证件照|2:已认证已上传证件照
+     * */
+    @IntDef({AUTH_NO, AUTH_FIRST, AUTH_SECOND})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EAuthStatus {
+        int AUTH_NO = 0; // 未认证
+        int AUTH_FIRST = 1; //一级认证，认证但未上传证照
+        int AUTH_SECOND = 2;//二级认证，认证已上传证照
     }
 }

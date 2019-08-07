@@ -34,6 +34,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -69,6 +70,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     private String groupHead;
     private String groupName;
     private String imageUrl;
+    private ImgSizeUtil.ImageSize imgsize;//获取图片大小
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,6 +219,10 @@ public class MyselfQRCodeActivity extends AppActivity {
     public void Bitmap2Bytes(Bitmap bm) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        imgsize=new ImgSizeUtil.ImageSize();
+        imgsize.setWidth(bm.getWidth());
+        imgsize.setHeight(bm.getHeight());
+
         new UpFileAction().upFile(this, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
@@ -301,7 +307,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             intent.putExtra(ChatActivity.AGM_TOUID, userInfo.getUid());
             startActivity(intent);
             //向服务器发送图片
-            SocketData.send4Image(userInfo.getUid(), null, imageUrl);
+            SocketData.send4Image(userInfo.getUid(), null, imageUrl,imgsize);
         }
     }
 

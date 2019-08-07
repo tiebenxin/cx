@@ -8,6 +8,7 @@ import android.util.Log;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
 import com.jrmf360.tools.http.OkHttpModelCallBack;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
@@ -21,6 +22,7 @@ import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
@@ -68,7 +70,7 @@ public class UserAction {
      * @return
      */
     public static UserInfo getMyInfo() {
-        // Log.v("ssss","getMyInfo");
+       // Log.v("ssss","getMyInfo");
         if (myInfo == null) {
             myInfo = new UserDao().myInfo();
         }
@@ -81,7 +83,7 @@ public class UserAction {
      * @return
      */
     public static Long getMyId() {
-        // Log.v("ssss","getMyId");
+       // Log.v("ssss","getMyId");
         return getMyInfo().getUid();
     }
 
@@ -180,7 +182,7 @@ public class UserAction {
     /***
      * 无网登录
      */
-    public void login4tokenNotNet(TokenBean token) {
+    public void login4tokenNotNet( TokenBean token) {
 
         initDB("" + token.getUid());
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
@@ -208,7 +210,7 @@ public class UserAction {
                     callback.onResponse(call, response);
                 } else {
                     callback.onFailure(call, null);
-                }
+                 }
 
 
             }
@@ -268,15 +270,15 @@ public class UserAction {
     /***
      * 好友添加
      */
-    public void friendApply(Long uid, String sayHi, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 1, sayHi), callback);
+    public void friendApply(Long uid,String sayHi, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid, 1,sayHi), callback);
     }
 
     /***
      * 好友同意
      */
     public void friendAgree(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 0, null), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 0,null), callback);
 
     }
 
@@ -284,7 +286,7 @@ public class UserAction {
      * 加黑名单
      */
     public void friendBlack(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 2, null), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 2,null), callback);
 
     }
 
@@ -292,7 +294,7 @@ public class UserAction {
      * 移除黑名单
      */
     public void friendBlackRemove(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 3, null), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 3,null), callback);
     }
 
     /***
@@ -313,8 +315,8 @@ public class UserAction {
 
     /**
      * 删除待同意好友
-     */
-    public void delRequestFriend(Long uid, CallBack<ReturnBean> callback) {
+     * */
+    public void delRequestFriend(Long uid,CallBack<ReturnBean> callback){
         NetUtil.getNet().exec(server.delRequestFriend(uid), callback);
     }
 
@@ -331,6 +333,9 @@ public class UserAction {
 
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
+//                    if (!checkAssitantUserExist()) {//小助手用户不存在
+//                        list.add(createAssitantUser());
+//                    }
                     //更新库
                     dao.friendMeUpdate(list);
 
@@ -361,9 +366,8 @@ public class UserAction {
         NetUtil.getNet().exec(server.friendGet(2), callback);
     }
 
-    private PayAction payAction = new PayAction();
-
-    private void upMyinfoToPay() {
+    private PayAction payAction=new PayAction();
+    private void upMyinfoToPay(){
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
@@ -372,7 +376,7 @@ public class UserAction {
                 if (response.body().isOk()) {
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
-                    JrmfRpClient.updateUserInfo(myInfo.getUid() + "", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
+                    JrmfRpClient.updateUserInfo(myInfo.getUid()+"", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
                         @Override
                         public void onSuccess(BaseModel baseModel) {
 
@@ -384,11 +388,11 @@ public class UserAction {
                         }
                     });
 
+
                 }
             }
         });
     }
-
     /**
      * 设置用户个人资料
      */
@@ -440,6 +444,7 @@ public class UserAction {
 
         return dao.searchUser4key(key);
     }
+
 
 
     /**
@@ -595,6 +600,31 @@ public class UserAction {
      */
     public void getNewVersion(CallBack<ReturnBean<NewVersionBean>> callback) {
         NetUtil.getNet().exec(server.getNewVersion("android"), callback);
+    }
+
+    /*
+     * 检测本地常聊小助手是否存在
+     * */
+    public boolean checkAssitantUserExist() {
+        UserInfo info = dao.findUserInfo(1L);
+        if (info != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public UserInfo createAssitantUser() {
+        UserInfo info = new UserInfo();
+        info.setUid(1L);
+        info.setName("常聊小助手");
+        info.setMkName("常聊小助手");
+        info.setuType(ChatEnum.EUserType.ASSISTANT);
+        info.setFriendvalid(CoreEnum.ESureType.NO);
+        info.setAuthStat(ChatEnum.EAuthStatus.AUTH_SECOND);
+        info.setActiveType(CoreEnum.ESureType.YES);
+        info.setDisturb(CoreEnum.ESureType.NO);
+        info.setLastonline(System.currentTimeMillis());
+        return info;
     }
 
 
