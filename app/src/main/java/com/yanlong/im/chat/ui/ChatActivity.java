@@ -118,6 +118,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class ChatActivity extends AppActivity implements ICellEventListener {
+    private static String TAG="ChatActivity";
     //返回需要刷新的
     public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
@@ -213,16 +214,37 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         @Override
         public void onMsg(final com.yanlong.im.utils.socket.MsgBean.UniversalMessage msgBean) {
+
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+
+             boolean needRefresh=false;
+
                     for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
+                        //8.7 是属于这个会话就刷新
+                        if(!needRefresh){
+                            if(isGroup()){
+                                needRefresh=  msg.getGid().equals(toGid);
+
+                            }else{
+                                needRefresh=msg.getFromUid()==toUId.longValue();
+                            }
+                        }
+
+
                         onMsgbranch(msg);
 
                     }
 
+
                     //从数据库读取消息
-                    taskRefreshMessage();
+                    if(needRefresh){
+                        LogUtil.getLog().i(TAG,"需要刷新");
+                        taskRefreshMessage();
+                    }
+
                 }
             });
 
@@ -1716,7 +1738,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int addItem = msgListData.size();
 
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
-        msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
+        if(msgListData.size()>=20){
+            msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
+
+        }else{
+            msgListData = msgAction.getMsg4User(toGid, toUId, null);
+        }
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
