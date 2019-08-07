@@ -68,7 +68,7 @@ public class UserAction {
      * @return
      */
     public static UserInfo getMyInfo() {
-       // Log.v("ssss","getMyInfo");
+        // Log.v("ssss","getMyInfo");
         if (myInfo == null) {
             myInfo = new UserDao().myInfo();
         }
@@ -81,7 +81,7 @@ public class UserAction {
      * @return
      */
     public static Long getMyId() {
-       // Log.v("ssss","getMyId");
+        // Log.v("ssss","getMyId");
         return getMyInfo().getUid();
     }
 
@@ -180,7 +180,7 @@ public class UserAction {
     /***
      * 无网登录
      */
-    public void login4tokenNotNet( TokenBean token) {
+    public void login4tokenNotNet(TokenBean token) {
 
         initDB("" + token.getUid());
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
@@ -208,7 +208,7 @@ public class UserAction {
                     callback.onResponse(call, response);
                 } else {
                     callback.onFailure(call, null);
-                 }
+                }
 
 
             }
@@ -268,15 +268,15 @@ public class UserAction {
     /***
      * 好友添加
      */
-    public void friendApply(Long uid,String sayHi, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 1,sayHi), callback);
+    public void friendApply(Long uid, String sayHi, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendStat(uid, 1, sayHi), callback);
     }
 
     /***
      * 好友同意
      */
     public void friendAgree(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 0,null), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 0, null), callback);
 
     }
 
@@ -284,7 +284,7 @@ public class UserAction {
      * 加黑名单
      */
     public void friendBlack(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 2,null), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 2, null), callback);
 
     }
 
@@ -292,7 +292,7 @@ public class UserAction {
      * 移除黑名单
      */
     public void friendBlackRemove(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 3,null), callback);
+        NetUtil.getNet().exec(server.friendStat(uid, 3, null), callback);
     }
 
     /***
@@ -313,8 +313,8 @@ public class UserAction {
 
     /**
      * 删除待同意好友
-     * */
-    public void delRequestFriend(Long uid,CallBack<ReturnBean> callback){
+     */
+    public void delRequestFriend(Long uid, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.delRequestFriend(uid), callback);
     }
 
@@ -361,8 +361,9 @@ public class UserAction {
         NetUtil.getNet().exec(server.friendGet(2), callback);
     }
 
-    private PayAction payAction=new PayAction();
-    private void upMyinfoToPay(){
+    private PayAction payAction = new PayAction();
+
+    private void upMyinfoToPay() {
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
@@ -371,7 +372,7 @@ public class UserAction {
                 if (response.body().isOk()) {
                     SignatureBean sign = response.body().getData();
                     String token = sign.getSign();
-                    JrmfRpClient.updateUserInfo(myInfo.getUid()+"", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
+                    JrmfRpClient.updateUserInfo(myInfo.getUid() + "", token, myInfo.getName(), myInfo.getHead(), new OkHttpModelCallBack<BaseModel>() {
                         @Override
                         public void onSuccess(BaseModel baseModel) {
 
@@ -383,11 +384,11 @@ public class UserAction {
                         }
                     });
 
-
                 }
             }
         });
     }
+
     /**
      * 设置用户个人资料
      */
@@ -413,9 +414,6 @@ public class UserAction {
                 callback.onResponse(call, response);
             }
         });
-
-
-
     }
 
     /**
@@ -444,12 +442,29 @@ public class UserAction {
     }
 
 
-
     /**
      * 用户注册
      */
-    public void register(String phone, String password, String captcha, String nickname, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.register(phone, password, captcha, nickname), callback);
+    public void register(String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+        cleanInfo();
+        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid), new CallBack<ReturnBean<TokenBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                super.onResponse(call, response);
+                if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    initDB("" + response.body().getData().getUid());
+                    setToken(response.body().getData());
+                    getMyInfo4Web(response.body().getData().getUid());
+                }
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onFailure(call, t);
+            }
+        });
     }
 
 
@@ -577,9 +592,17 @@ public class UserAction {
 
     /**
      * 版本更新
+     */
+    public void getNewVersion(CallBack<ReturnBean<NewVersionBean>> callback) {
+        NetUtil.getNet().exec(server.getNewVersion("android"), callback);
+    }
+
+
+    /**
+     * 初始化用户密码
      * */
-    public void getNewVersion(CallBack<ReturnBean<NewVersionBean>> callback){
-        NetUtil.getNet().exec(server.getNewVersion("android"),callback);
+    public void initUserPassword(String password,CallBack<ReturnBean> callback){
+        NetUtil.getNet().exec(server.initUserPassword(password),callback);
     }
 
 }

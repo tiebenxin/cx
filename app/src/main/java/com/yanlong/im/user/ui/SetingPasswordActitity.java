@@ -6,12 +6,22 @@ import android.view.View;
 import android.widget.Button;
 
 import com.yanlong.im.R;
+import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.PasswordTextWather;
 
+import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
 import net.cb.cb.library.view.HeadView;
+
+import org.greenrobot.eventbus.EventBus;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * @创建人 shenxin
@@ -38,6 +48,8 @@ public class SetingPasswordActitity extends AppActivity {
         edPassword = findViewById(R.id.ed_password);
         edVerifyPassword = findViewById(R.id.ed_verify_password);
         btnCommit = findViewById(R.id.btn_commit);
+        edPassword.addTextChangedListener(new PasswordTextWather(edPassword,context));
+        edVerifyPassword.addTextChangedListener(new PasswordTextWather(edVerifyPassword,context));
     }
 
     private void initEvent() {
@@ -75,6 +87,34 @@ public class SetingPasswordActitity extends AppActivity {
             ToastUtil.show(context,"两次密码不一致");
             return;
         }
+        taskInitPassword(password);
+    }
+
+    private void taskInitPassword(String password){
+        new UserAction().initUserPassword(password, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if(response.body() == null){
+                    return;
+                }
+                ToastUtil.show(context,response.body().getMsg());
+                if(response.body().isOk()){
+                    taskExit();
+                    finish();
+                }
+            }
+        });
+    }
+
+
+    /***
+     * 退出
+     */
+    private void taskExit() {
+        finish();
+        new UserAction().loginOut();
+        EventBus.getDefault().post(new EventLoginOut());
     }
 
 

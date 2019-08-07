@@ -433,6 +433,7 @@
             android:screenOrientation="portrait" />
 
 
+
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.HEADSET_PLUG" />

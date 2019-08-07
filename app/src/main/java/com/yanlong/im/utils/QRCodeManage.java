@@ -27,6 +27,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.realm.RealmList;
@@ -70,7 +71,7 @@ public class QRCodeManage {
                     if (twoStrs != null && twoStrs.length >= 2) {
                         bean.setFunction(twoStrs[0]);
                         String threeStrs[] = twoStrs[1].split("&");
-                        Map<String, String> parameters = new HashMap<>();
+                        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
                         if (threeStrs != null && threeStrs.length > 0) {
                             for (int i = 0; i < threeStrs.length; i++) {
                                 String fourStrs[] = threeStrs[i].split("=");
