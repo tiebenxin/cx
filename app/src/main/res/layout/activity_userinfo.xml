@@ -131,9 +131,9 @@
             android:orientation="vertical">
 
 
-            <LinearLayout style="@style/app_layout_list2"
+            <LinearLayout
+                style="@style/app_layout_list2"
                 android:layout_marginTop="0dp">
-
 
 
                 <LinearLayout
@@ -191,6 +191,7 @@
 
             </LinearLayout>
 
+
             <Button
                 android:id="@+id/btn_msg"
                 style="@style/app_btn_green"
@@ -199,6 +200,36 @@
                 android:layout_marginRight="@dimen/app_margin_main"
                 android:text="发送消息" />
 
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/view_introduce"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/app_margin_item_top"
+            android:background="@color/white"
+            android:gravity="center_vertical"
+            android:minHeight="48dp"
+            android:paddingLeft="@dimen/app_margin_main"
+            android:paddingRight="@dimen/app_margin_main">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:text="功能介绍"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_introduce"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:text="功能介绍fvhsduhgfuhf9shdfihsdvhssgf规划图然后adfhsdhfsdhfi8撒地方还都是符合非手动"
+                android:textColor="@color/gray_300"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <Button

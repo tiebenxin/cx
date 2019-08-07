@@ -333,9 +333,9 @@ public class UserAction {
 
                 if (response.body().isOk()) {
                     List<UserInfo> list = response.body().getData();
-                    if (!checkAssitantUserExist()) {//小助手用户不存在
-                        list.add(createAssitantUser());
-                    }
+//                    if (!checkAssitantUserExist()) {//小助手用户不存在
+//                        list.add(createAssitantUser());
+//                    }
                     //更新库
                     dao.friendMeUpdate(list);
 

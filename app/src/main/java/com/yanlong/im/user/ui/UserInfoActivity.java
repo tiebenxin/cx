@@ -18,6 +18,7 @@ import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -81,6 +82,8 @@ public class UserInfoActivity extends AppActivity {
     private TextView tvBlack;
     private LinearLayout viewJoinGroupType;
     private TextView tvJoinGroupType;
+    private LinearLayout viewIntroduce;
+    private TextView tv_introduce;
 
 
     @Override
@@ -119,7 +122,30 @@ public class UserInfoActivity extends AppActivity {
         joinType = getIntent().getIntExtra(JOIN_TYPE, 0);
         joinTypeShow = getIntent().getIntExtra(JION_TYPE_SHOW, 0);
         inviter = getIntent().getStringExtra(INVITER);
+        viewIntroduce = findViewById(R.id.view_introduce);
+        tv_introduce = findViewById(R.id.tv_introduce);
+        resetLayout();
         taskFindExist();
+    }
+
+    private void resetLayout() {
+        if (id == 1L) {//是常聊小助手
+            txtMkname.setVisibility(View.VISIBLE);
+            txtNkname.setVisibility(View.GONE);
+            txtPrNo.setVisibility(View.GONE);
+            mViewSettingName.setVisibility(View.GONE);
+            mLayoutMsg.setVisibility(View.GONE);
+            viewIntroduce.setVisibility(View.VISIBLE);
+            mBtnAdd.setVisibility(View.GONE);
+        } else {
+            txtMkname.setVisibility(View.VISIBLE);
+            txtNkname.setVisibility(View.VISIBLE);
+            txtPrNo.setVisibility(View.VISIBLE);
+            mViewSettingName.setVisibility(View.VISIBLE);
+            mLayoutMsg.setVisibility(View.VISIBLE);
+            viewIntroduce.setVisibility(View.GONE);
+            mBtnAdd.setVisibility(View.VISIBLE);
+        }
     }
 
     //自动生成的控件事件
@@ -277,6 +303,7 @@ public class UserInfoActivity extends AppActivity {
             mBtnAdd.setVisibility(View.GONE);
             mViewSettingName.setVisibility(View.VISIBLE);
             tvBlack.setText("加入黑名单");
+            viewIntroduce.setVisibility(View.GONE);
         } else if (type == 1) {
             mLayoutMsg.setVisibility(View.GONE);
             mBtnAdd.setVisibility(View.VISIBLE);
@@ -287,58 +314,67 @@ public class UserInfoActivity extends AppActivity {
                 mTvRemark.setVisibility(View.VISIBLE);
                 mTvRemark.setText(sayHi);
             }
+            viewIntroduce.setVisibility(View.GONE);
         } else if (type == 2) {
             mLayoutMsg.setVisibility(View.VISIBLE);
             mBtnAdd.setVisibility(View.GONE);
             mViewSettingName.setVisibility(View.VISIBLE);
             tvBlack.setText("解除黑名单");
+            viewIntroduce.setVisibility(View.GONE);
         }
 
-        if(joinTypeShow != 0){
+        if (joinTypeShow != 0) {
             viewJoinGroupType.setVisibility(View.VISIBLE);
-            if(joinType == 0){
-                tvJoinGroupType.setText(inviter +"分享二维码邀请进群");
-            }else{
-                tvJoinGroupType.setText(inviter +"邀请进群");
+            if (joinType == 0) {
+                tvJoinGroupType.setText(inviter + "分享二维码邀请进群");
+            } else {
+                tvJoinGroupType.setText(inviter + "邀请进群");
             }
         }
     }
 
     private void taskUserInfo(Long id) {
-        userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                if (response.body() == null || response.body().getData() == null) {
-                    return;
-                }
-                final UserInfo info = response.body().getData();
-                imgHead.setImageURI(Uri.parse("" + info.getHead()));
-                txtMkname.setText(info.getName4Show());
-                mkName = info.getMkName();
-                txtPrNo.setText("常聊号: " + info.getImid());
-                txtNkname.setText("昵称: " + info.getName());
-                name = info.getName();
-
-                if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
-                    type = 2;
-                }
-
-                setItemShow(type);
-                imgHead.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        List<LocalMedia> selectList = new ArrayList<>();
-                        LocalMedia lc = new LocalMedia();
-                        lc.setPath(info.getHead());
-                        selectList.add(lc);
-                        PictureSelector.create(UserInfoActivity.this)
-                                .themeStyle(R.style.picture_default_style)
-                                .isGif(false)
-                                .openExternalPreviewImage(0, selectList);
+        if (id == 1L) {
+            setItemShow(3);
+            UserDao dao = new UserDao();
+            UserInfo info = dao.findUserInfo(id);
+            tv_introduce.setText(info.getDescribe());
+            txtMkname.setText(info.getName());
+        } else {
+            userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                    if (response.body() == null || response.body().getData() == null) {
+                        return;
                     }
-                });
-            }
-        });
+                    final UserInfo info = response.body().getData();
+                    imgHead.setImageURI(Uri.parse("" + info.getHead()));
+                    txtMkname.setText(info.getName4Show());
+                    mkName = info.getMkName();
+                    txtPrNo.setText("常聊号: " + info.getImid());
+                    txtNkname.setText("昵称: " + info.getName());
+                    name = info.getName();
+
+                    if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
+                        type = 2;
+                    }
+                    setItemShow(type);
+                    imgHead.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            List<LocalMedia> selectList = new ArrayList<>();
+                            LocalMedia lc = new LocalMedia();
+                            lc.setPath(info.getHead());
+                            selectList.add(lc);
+                            PictureSelector.create(UserInfoActivity.this)
+                                    .themeStyle(R.style.picture_default_style)
+                                    .isGif(false)
+                                    .openExternalPreviewImage(0, selectList);
+                        }
+                    });
+                }
+            });
+        }
 
     }
 

@@ -1,5 +1,6 @@
 package com.yanlong.im.user.dao;
 
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -87,7 +88,7 @@ public class UserDao {
     public List<UserInfo> friendGetAll() {
         List<UserInfo> res;
         Realm realm = DaoUtil.open();
-        RealmResults<UserInfo> ls = realm.where(UserInfo.class).equalTo("uType", 2).sort("tag", Sort.ASCENDING).findAll();
+        RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup().sort("tag", Sort.ASCENDING).findAll();
         res = realm.copyFromRealm(ls);
         realm.close();
 
@@ -134,7 +135,7 @@ public class UserDao {
         realm.beginTransaction();
 
 
-        RealmResults<UserInfo> ls = realm.where(UserInfo.class).equalTo("uType", 2).findAll();
+        RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("stat", 9).endGroup().findAll();
         for (UserInfo u : ls) {
 
             boolean isExt = false;
@@ -144,7 +145,12 @@ public class UserDao {
 
                     //更新用户相关
                     userInfo.toTag();
-                    userInfo.setuType(2);
+                    if (userInfo.getStat() == 9) {
+                        userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                        userInfo.setLastonline(System.currentTimeMillis());
+                    } else {
+                        userInfo.setuType(2);
+                    }
 
                     realm.copyToRealmOrUpdate(userInfo);
 
