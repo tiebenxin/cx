@@ -844,8 +844,9 @@ public class SocketData {
         return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
 
-    public static MsgAllBean send4Image(Long toId, String toGid, String url) {
-        return send4Image(getUUID(), toId, toGid, url, false, null);
+    public static MsgAllBean send4Image(Long toId, String toGid, String url,ImgSizeUtil.ImageSize imgsize) {
+
+        return send4Image(getUUID(), toId, toGid, url, false, imgsize);
     }
 
     public static MsgAllBean send4ImagePre(String msgId, Long toId, String toGid, String url, boolean isOriginal) {
