@@ -135,7 +135,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 taskClearMsg();
                 break;
             case R.id.btn_exit:
-                loginOut(1);
+                loginOut(UserAction.getMyInfo().isEmptyPassword());
                 break;
             case R.id.view_about_as:
                 Intent aboutIntent = new Intent(this, AboutAsActivity.class);
@@ -147,8 +147,8 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         }
     }
 
-    private void loginOut(int type){
-        if(type == 0){
+    private void loginOut(boolean emptyPassword){
+        if(!emptyPassword){
             AlertYesNo alertYesNo = new AlertYesNo();
             alertYesNo.init(this, "退出", "确定退出吗?", "确定", "取消", new AlertYesNo.Event() {
                 @Override
