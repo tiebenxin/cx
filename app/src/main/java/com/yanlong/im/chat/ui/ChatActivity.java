@@ -300,6 +300,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case REMOVE_GROUP_MEMBER://退出群
                 taskGroupConf();
                 break;
+            case ACCEPT_BE_GROUP://邀请进群刷新
+                taskGroupConf();
+                break;
             case CHANGE_GROUP_NAME:
                 taskSessionInfo();
                 break;
@@ -378,7 +381,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             .putExtra(GroupInfoActivity.AGM_GID, toGid), REQ_REFRESH
                     );
                 } else {
-
                     startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
                             .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
                     );
@@ -1210,6 +1212,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 final MsgAllBean msgbean = msgListData.get(position);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
+
                 //只更新单条处理
 
                 switch (msgbean.getMsg_type()) {
@@ -1227,6 +1230,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         break;
                 }
+
                 itemLongClick(holder, msgbean, menus);
 
             }
@@ -1546,7 +1550,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
 
-                    if (msgbean.getSend_state() == 0) {
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                        if(msgbean.getFrom_uid()!=null&&msgbean.getFrom_uid().longValue()==UserAction.getMyId().longValue()){
+                            menus.add(new OptionMenu("撤回"));
+                        }
+
                         showPop(v, menus, msgbean);
                     }
 
@@ -1610,6 +1618,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         msgDao.userSetingVoicePlayer(1);
                     } else if (menu.getTitle().equals("扬声器播放")) {
                         msgDao.userSetingVoicePlayer(0);
+                    }else if(menu.getTitle().equals("撤回")){
+                        msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                        msgListData.remove(msgbean);
+                        notifyData();
+                        //8.7 这里还要发送撤回指令
+                       // ToastUtil.show(getContext(),"这里还要写发送撤回指令");
+                        SocketData.send4CancelMsg(toUId,toGid,msgbean.getMsg_id());
                     }
                     menuView.dismiss();
                     return true;

@@ -292,6 +292,8 @@ public class SocketData {
 
 
                 msgIds.add(wmsg.getMsgId());
+            }else{
+                LogUtil.getLog().e(TAG, ">>>>>忽略保存消息: " + wmsg.getMsgId());
             }
 
 
@@ -299,6 +301,7 @@ public class SocketData {
 
 
         //3.发送回执
+        LogUtil.getLog().d(TAG, ">>>>>发送回执: " +bean.getRequestId());
         SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
 
 
@@ -700,6 +703,9 @@ public class SocketData {
             case AT:
                 wmsg.setAt((MsgBean.AtMessage) value);
                 break;
+            case CANCEL:
+                wmsg.setCancel((MsgBean.CancelMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 
@@ -830,7 +836,7 @@ public class SocketData {
      * @param url2
      * @return
      */
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2,int w,int h,int size) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2, int w, int h, int size) {
         MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
                 .setOrigin(url)
                 .setPreview(url1)
@@ -844,7 +850,7 @@ public class SocketData {
         return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
 
-    public static MsgAllBean send4Image(Long toId, String toGid, String url,ImgSizeUtil.ImageSize imgsize) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgsize) {
 
         return send4Image(getUUID(), toId, toGid, url, false, imgsize);
     }
@@ -869,7 +875,7 @@ public class SocketData {
         image.setPreview(url);
         image.setThumbnail(url);
         image.setMsgid(msgId);
-         ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
+        ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
         image.setWidth(img.getWidth());
         image.setHeight(img.getHeight());
         if (isOriginal) {
@@ -985,6 +991,19 @@ public class SocketData {
                 .setTransactionAmount(money)
                 .build();
         return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
+    }
+
+    /***
+     * 撤回消息
+     * @param msgId
+     * @return
+     */
+    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId) {
+
+        MsgBean.CancelMessage msg = MsgBean.CancelMessage.newBuilder()
+                .setMsgId(msgId)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.CANCEL, msg);
     }
 
 
