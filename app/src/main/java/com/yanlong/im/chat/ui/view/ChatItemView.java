@@ -513,9 +513,16 @@ public class ChatItemView extends LinearLayout {
             }
             i++;
         }
-        builder.append(msg.substring(preLast));
-        txtMe8.setText(builder);
-        txtOt8.setText(builder);
+        if (preLast == 0) {
+            builder.append(msg.substring(preLast));
+            txtMe8.setMovementMethod(LinkMovementMethod.getInstance());
+            txtOt8.setMovementMethod(LinkMovementMethod.getInstance());
+            txtMe8.setText(builder);
+            txtOt8.setText(builder);
+        } else {
+            txtMe8.setText(msg);
+            txtOt8.setText(msg);
+        }
     }
 
     private SpannableString setClickableSpan(final String url) {
