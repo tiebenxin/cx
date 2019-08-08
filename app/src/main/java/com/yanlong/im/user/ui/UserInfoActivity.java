@@ -14,6 +14,8 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -48,9 +50,8 @@ public class UserInfoActivity extends AppActivity {
     public static final String ID = "id";
     public static final String SAY_HI = "sayHi";
     public static final String IS_APPLY = "isApply";
-    public static final String JOIN_TYPE = "joinType";
+    public static final String GID = "gid";
     public static final String JION_TYPE_SHOW = "joinTypeShow";
-    public static final String INVITER = "inviter";
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -73,7 +74,8 @@ public class UserInfoActivity extends AppActivity {
     private int isApply;//是否是好友申请 0 不是 1.是
     private int joinTypeShow;//0 不显示  1.显示
     private int joinType;
-    private String inviter;
+    private String gid;
+    private String inviterName;
     private Long id;
     private String sayHi;
     private UserAction userAction;
@@ -119,9 +121,8 @@ public class UserInfoActivity extends AppActivity {
         id = getIntent().getLongExtra(ID, 0);
         sayHi = getIntent().getStringExtra(SAY_HI);
         isApply = getIntent().getIntExtra(IS_APPLY, 0);
-        joinType = getIntent().getIntExtra(JOIN_TYPE, 0);
         joinTypeShow = getIntent().getIntExtra(JION_TYPE_SHOW, 0);
-        inviter = getIntent().getStringExtra(INVITER);
+        gid = getIntent().getStringExtra(GID);
         viewIntroduce = findViewById(R.id.view_introduce);
         tv_introduce = findViewById(R.id.tv_introduce);
         resetLayout();
@@ -324,13 +325,9 @@ public class UserInfoActivity extends AppActivity {
         }
 
         if (joinTypeShow != 0) {
-            viewJoinGroupType.setVisibility(View.VISIBLE);
-            if (joinType == 0) {
-                tvJoinGroupType.setText(inviter + "分享二维码邀请进群");
-            } else {
-                tvJoinGroupType.setText(inviter + "邀请进群");
-            }
+            taskGroupInfo(gid);
         }
+
     }
 
     private void taskUserInfo(Long id) {
@@ -375,7 +372,34 @@ public class UserInfoActivity extends AppActivity {
                 }
             });
         }
+    }
 
+
+    private void taskGroupInfo(String gid) {
+        new MsgAction().groupInfo4UserInfo(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    for (UserInfo bean : response.body().getData().getUsers()) {
+                        if(bean.getUid().equals(id)){
+                            viewJoinGroupType.setVisibility(View.VISIBLE);
+                            inviterName = bean.getInviterName();
+                            joinType = bean.getJoinType();
+                            if (joinType == 0) {
+                                tvJoinGroupType.setText(inviterName + "分享二维码邀请进群");
+                            } else {
+                                tvJoinGroupType.setText(inviterName + "邀请进群");
+                            }
+                        }
+                    }
+                }
+            }
+
+        });
     }
 
 

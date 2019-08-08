@@ -49,7 +49,46 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Long lastonline;
     private int activeType; //是否在线（0：离线|1：在线）
     private String describe; //用户描述
+    @Ignore
+    private int joinType;
+    @Ignore
+    private String joinTime;
+    @Ignore
+    private String inviter;
+    @Ignore
+    private String inviterName;
 
+    public String getInviterName() {
+        return inviterName;
+    }
+
+    public void setInviterName(String inviterName) {
+        this.inviterName = inviterName;
+    }
+
+    public int getJoinType() {
+        return joinType;
+    }
+
+    public void setJoinType(int joinType) {
+        this.joinType = joinType;
+    }
+
+    public String getJoinTime() {
+        return joinTime;
+    }
+
+    public void setJoinTime(String joinTime) {
+        this.joinTime = joinTime;
+    }
+
+    public String getInviter() {
+        return inviter;
+    }
+
+    public void setInviter(String inviter) {
+        this.inviter = inviter;
+    }
 
     public boolean isEmptyPassword() {
         return emptyPassword;

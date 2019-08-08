@@ -275,7 +275,6 @@ public class MsgDao {
             group.setMaster(ginfo.getMaster());
         }*/
 
-
         RealmList<UserInfo> nums = new RealmList<>();
         //更新信息到用户表
         for (UserInfo sv : ginfo.getUsers()) {
@@ -292,15 +291,13 @@ public class MsgDao {
         }
         //更新自己的群昵称
         ginfo.getMygroupName();
-
         ginfo.setUsers(nums);
         realm.insertOrUpdate(ginfo);
-
-
         realm.commitTransaction();
         realm.close();
 
     }
+
 
     /***
      * 离线获取群信息

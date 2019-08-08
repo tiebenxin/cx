@@ -1291,7 +1291,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void onClick(View v) {
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid()));
+                                .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid())
+                                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                                .putExtra(UserInfoActivity.GID, toGid));
                     }
                 });
             }

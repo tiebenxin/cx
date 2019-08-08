@@ -99,28 +99,38 @@
 
         <LinearLayout
             android:id="@+id/view_join_group_type"
-            style="@style/app_layout_list2_item"
+            style="@style/app_layout_list2"
+            android:orientation="vertical"
             android:visibility="gone">
 
-            <TextView
-                style="@style/app_txt_title_2"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:layout_weight="1"
-                android:text="进群方式" />
+            <LinearLayout
 
-            <TextView
-                android:id="@+id/tv_join_group_type"
-                style="@style/app_txt_title_2"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:text="扫码进群"
-                android:textColor="@color/gray_300" />
+                style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="进群方式" />
+
+                <TextView
+                    android:id="@+id/tv_join_group_type"
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:text="扫码进群"
+                    android:textColor="@color/gray_300" />
 
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_btn_goto"
-                android:visibility="invisible" />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_btn_goto"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <View
+                style="@style/app_line"
+                android:layout_height="0.5px" />
         </LinearLayout>
 
 
