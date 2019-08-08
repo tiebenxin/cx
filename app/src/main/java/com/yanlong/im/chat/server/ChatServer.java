@@ -108,14 +108,15 @@ public class ChatServer extends Service {
 
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
-            //通知界面刷新
-            EventBus.getDefault().post(new EventRefreshMainMsg());
 
             //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
             for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
                 onMsgbranch(msg);
 
             }
+            //通知界面刷新
+            EventBus.getDefault().post(new EventRefreshMainMsg());
+
         }
 
         public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
@@ -155,7 +156,7 @@ public class ChatServer extends Service {
 
                     for (MsgBean.GroupNoticeMessage ntm : msg.getRequestGroup().getNoticeMessageList()) {
 
-                        msgDao.groupAcceptAdd(msg.getRequestGroup().getJoinType().getNumber(), msg.getRequestGroup().getInviter(),msg.getRequestGroup().getInviterName(), msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
+                        msgDao.groupAcceptAdd(msg.getRequestGroup().getJoinType().getNumber(), msg.getRequestGroup().getInviter(), msg.getRequestGroup().getInviterName(), msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
                     }
 
 
@@ -210,6 +211,18 @@ public class ChatServer extends Service {
                     return;
                 case ASSISTANT:
                     break;
+                case CANCEL:
+                    //删除消息
+
+                    String gid = msg.getGid();
+                    if (!StringUtil.isNotNull(gid)) {
+                        gid = null;
+                    }
+                    long fuid = msg.getFromUid();
+                    msgDao.sessionReadUpdate(gid, fuid, true);
+                    msgDao.msgDel4MsgId(msg.getCancel().getMsgId());
+
+                    return;
             }
 
 

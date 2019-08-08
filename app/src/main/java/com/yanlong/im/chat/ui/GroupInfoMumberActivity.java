@@ -55,17 +55,16 @@ public class GroupInfoMumberActivity extends AppActivity {
     private boolean isSearchMode = false;
 
     //自动寻找控件
-    private void findViews(){
+    private void findViews() {
         headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
-        actionbar=headView.getActionbar();
+        actionbar = headView.getActionbar();
         edtSearch = (net.cb.cb.library.view.ClearEditText) findViewById(R.id.edt_search);
         mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
     }
 
 
-
     //自动生成的控件事件
-    private void initEvent(){
+    private void initEvent() {
         gid = getIntent().getStringExtra(GroupInfoActivity.AGM_GID);
         taskGetInfo();
 
@@ -75,11 +74,14 @@ public class GroupInfoMumberActivity extends AppActivity {
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed(); }
+                onBackPressed();
+            }
+
             @Override
             public void onRight() {
 
-            } });
+            }
+        });
 
 
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -130,17 +132,15 @@ public class GroupInfoMumberActivity extends AppActivity {
 
     private void initData() {
         //顶部处理
-        GridLayoutManager gridLayoutManager =new GridLayoutManager(this,5);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
 
         mtListView.init(new RecyclerViewTopAdapter());
         mtListView.getListView().setLayoutManager(gridLayoutManager);
         mtListView.notifyDataSetChange();
 
 
-
-
-
     }
+
     //自动生成RecyclerViewAdapter
     class RecyclerViewTopAdapter extends RecyclerView.Adapter<RecyclerViewTopAdapter.RCViewTopHolder> {
 
@@ -155,30 +155,33 @@ public class GroupInfoMumberActivity extends AppActivity {
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
 
 
-
-          final  UserInfo number=  ginfo.getUsers().get(position);
-            if(number!=null){
+            final UserInfo number = ginfo.getUsers().get(position);
+            if (number != null) {
 
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
-                holder.txtName.setText(""+number.getName4Show());
+                holder.txtName.setText("" + number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (number.getUid().longValue()==UserAction.getMyId().longValue()){
+                        if (number.getUid().longValue() == UserAction.getMyId().longValue()) {
                             return;
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, number.getUid()));
+                                .putExtra(UserInfoActivity.ID, number.getUid())
+                                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                                .putExtra(UserInfoActivity.GID, gid)
+
+                        );
                     }
                 });
-                if (ginfo.getMaster().equals(""+number.getUid().longValue())) {
+                if (ginfo.getMaster().equals("" + number.getUid().longValue())) {
                     holder.imgGroup.setVisibility(View.VISIBLE);
                 } else {
                     holder.imgGroup.setVisibility(View.GONE);
 
                 }
-            }else{
-                if(isAdmin()&&position==ginfo.getUsers().size()-1){
+            } else {
+                if (isAdmin() && position == ginfo.getUsers().size() - 1) {
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -188,7 +191,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                         }
                     });
 
-                }else{
+                } else {
                     holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -218,6 +221,7 @@ public class GroupInfoMumberActivity extends AppActivity {
             private com.facebook.drawee.view.SimpleDraweeView imgHead;
             private TextView txtName;
             private ImageView imgGroup;
+
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
@@ -230,10 +234,10 @@ public class GroupInfoMumberActivity extends AppActivity {
     }
 
 
-
     private boolean isAdmin() {
         return ginfo.getMaster().equals("" + UserAction.getMyId());
     }
+
     private UserDao userDao = new UserDao();
     private UserAction userAction = new UserAction();
     private MsgAction msgAction = new MsgAction();
@@ -246,8 +250,8 @@ public class GroupInfoMumberActivity extends AppActivity {
         //进入这个信息的时候会统一给的
         List<UserInfo> userInfos = ginfo.getUsers();
 
-        for(int i=userInfos.size()-1;i>0;i--){
-            if(userInfos.get(i)==null){
+        for (int i = userInfos.size() - 1; i > 0; i--) {
+            if (userInfos.get(i) == null) {
                 userInfos.remove(i);
             }
 
@@ -255,7 +259,6 @@ public class GroupInfoMumberActivity extends AppActivity {
 
 
         userInfos = userInfos == null ? new ArrayList() : userInfos;
-
 
 
         return userInfos;
@@ -279,14 +282,14 @@ public class GroupInfoMumberActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
 
-                    actionbar.setTitle("群成员("+ginfo.getUsers().size()+")");
+                    actionbar.setTitle("群成员(" + ginfo.getUsers().size() + ")");
 
-                    if(isAdmin()){
+                    if (isAdmin()) {
 
                         ginfo.getUsers().add(null);
                         ginfo.getUsers().add(null);
 
-                    }else{
+                    } else {
 
                         ginfo.getUsers().add(null);
 
@@ -309,15 +312,15 @@ public class GroupInfoMumberActivity extends AppActivity {
             return;
         List<UserInfo> temp = new ArrayList<>();
         for (UserInfo bean : ginfo.getUsers()) {
-           if(bean!=null){
-               if(bean.getName4Show().contains(key)){
-                   temp.add(bean);
-               }
-           }
+            if (bean != null) {
+                if (bean.getName4Show().contains(key)) {
+                    temp.add(bean);
+                }
+            }
         }
         ginfo.getUsers().clear();
 
-        ginfo.getUsers().addAll(temp) ;
+        ginfo.getUsers().addAll(temp);
 
         mtListView.notifyDataSetChange();
     }

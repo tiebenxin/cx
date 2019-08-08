@@ -194,6 +194,14 @@ public class MsgAction {
 
     }
 
+
+    /**
+     * 获取群信息
+     * */
+    public void groupInfo4UserInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
+        NetUtil.getNet().exec(server.groupInfo(gid),callback);
+    }
+
     /***
      * 根据key查询群
      */

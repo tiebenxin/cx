@@ -352,11 +352,7 @@ public class GroupInfoActivity extends AppActivity {
 
             //6.15加标识
             final UserInfo number = listDataTop.get(position);
-
-
             if (number != null) {
-
-
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 holder.txtName.setText("" + number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -366,7 +362,10 @@ public class GroupInfoActivity extends AppActivity {
                             return;
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, number.getUid()));
+                                .putExtra(UserInfoActivity.ID, number.getUid())
+                                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                                .putExtra(UserInfoActivity.GID, gid));
+
                     }
                 });
                 if (ginfo.getMaster().equals("" + number.getUid().longValue())) {
@@ -538,8 +537,6 @@ public class GroupInfoActivity extends AppActivity {
                         listDataTop.add(null);
                         viewGroupManage.setVisibility(View.VISIBLE);
                     } else {
-
-
                         if (ginfo.getUsers().size() > 19) {
                             viewGroupMore.setVisibility(View.VISIBLE);
                             for (int i = 0; i < 19; i++) {

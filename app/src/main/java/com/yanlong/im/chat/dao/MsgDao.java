@@ -275,7 +275,6 @@ public class MsgDao {
             group.setMaster(ginfo.getMaster());
         }*/
 
-
         RealmList<UserInfo> nums = new RealmList<>();
         //更新信息到用户表
         for (UserInfo sv : ginfo.getUsers()) {
@@ -292,15 +291,13 @@ public class MsgDao {
         }
         //更新自己的群昵称
         ginfo.getMygroupName();
-
         ginfo.setUsers(nums);
         realm.insertOrUpdate(ginfo);
-
-
         realm.commitTransaction();
         realm.close();
 
     }
+
 
     /***
      * 离线获取群信息
@@ -553,6 +550,9 @@ public class MsgDao {
      * @param from_uid 单人id
      */
     public void sessionReadUpdate(String gid, Long from_uid) {
+        sessionReadUpdate(gid,from_uid,false);
+    }
+    public void sessionReadUpdate(String gid, Long from_uid,boolean isCancel) {
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
@@ -561,10 +561,13 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
                 session.setType(1);
-                session.setUnread_count(1);
+
+                session.setUnread_count(isCancel?0:1);
 
             } else {
-                session.setUnread_count(session.getUnread_count() + 1);
+                int num=isCancel?session.getUnread_count()-1:session.getUnread_count() + 1;
+                num=num<0?0:num;
+                session.setUnread_count(num);
             }
             session.setUp_time(System.currentTimeMillis());
 
@@ -576,10 +579,12 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(from_uid);
                 session.setType(0);
-                session.setUnread_count(1);
+                session.setUnread_count(isCancel?0:1);
 
             } else {
-                session.setUnread_count(session.getUnread_count() + 1);
+                int num=isCancel?session.getUnread_count()-1:session.getUnread_count() + 1;
+                num=num<0?0:num;
+                session.setUnread_count(num);
             }
             session.setUp_time(System.currentTimeMillis());
 
