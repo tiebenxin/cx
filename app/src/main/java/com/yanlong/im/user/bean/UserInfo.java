@@ -39,14 +39,25 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer groupvalid; //允许被直接添加至群聊(0:关闭|1:打开)
     private Integer messagenotice;//新消息通知(0:关闭|1:打开)
     private Integer displaydetail;//显示详情(0:关闭|1:打开)
-    private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单)
+    private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单|9:系统用户，如小助手)
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
+    private boolean emptyPassword;// 是否未设置密码
     @Ignore
     private String membername;//群的昵称
     private String sayHi;//待同意好友招呼语
 
     private Long lastonline;
     private int activeType; //是否在线（0：离线|1：在线）
+    private String describe; //用户描述
+
+
+    public boolean isEmptyPassword() {
+        return emptyPassword;
+    }
+
+    public void setEmptyPassword(boolean emptyPassword) {
+        this.emptyPassword = emptyPassword;
+    }
 
     public int getActiveType() {
         return activeType;
@@ -192,6 +203,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     public void setImid(String imid) {
         this.imid = imid;
     }
+
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单(不区分和陌生人)
     public Integer getuType() {
         return uType;
@@ -219,7 +231,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
      * @return
      */
     public String getName4Show() {
-        return StringUtil.isNotNull(mkName)?mkName:name;
+        return StringUtil.isNotNull(mkName) ? mkName : name;
     }
 
 
@@ -232,7 +244,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public String getHead() {
-        return head==null?"":head;
+        return head == null ? "" : head;
     }
 
     public void setHead(String head) {
@@ -252,13 +264,13 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
      * 重设tag
 
      */
-    public void toTag(){
-        String name=StringUtil.isNotNull(this.mkName)?this.mkName:this.name;
-        String[] n= PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
-        if (n==null){
-            setTag( ""+(name.toUpperCase()).charAt(0));
-        }else{
-            setTag(""+n[0].toUpperCase().charAt(0));
+    public void toTag() {
+        String name = StringUtil.isNotNull(this.mkName) ? this.mkName : this.name;
+        String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
+        if (n == null) {
+            setTag("" + (name.toUpperCase()).charAt(0));
+        } else {
+            setTag("" + n[0].toUpperCase().charAt(0));
         }
     }
 
@@ -267,8 +279,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
         Pattern pattern = Pattern.compile("[0-9]");
         Matcher isNum = pattern.matcher(tag);
-        if( isNum.matches() ){
-            tag="#";
+        if (isNum.matches()) {
+            tag = "#";
         }
 
         this.tag = tag;
@@ -277,28 +289,28 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     @Override
     public int compareTo(UserInfo o) {
 
-        int last=getTag().charAt(0);
-        if(getTag().equals("#")){
+        int last = getTag().charAt(0);
+        if (getTag().equals("#")) {
 
 
             return 1;
         }
-        if(o.getTag().equals("#")){
+        if (o.getTag().equals("#")) {
 
             return -1;
         }
 
-        if(getTag().equals("↑")){
+        if (getTag().equals("↑")) {
 
 
             return -1;
         }
-        if(o.getTag().equals("↑")){
+        if (o.getTag().equals("↑")) {
 
             return 1;
         }
 
-        if (last>o.getTag().charAt(0)){
+        if (last > o.getTag().charAt(0)) {
 
             return 1;
         }
@@ -309,5 +321,13 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public String getTag() {
         return tag;
+    }
+
+    public String getDescribe() {
+        return describe;
+    }
+
+    public void setDescribe(String describe) {
+        this.describe = describe;
     }
 }

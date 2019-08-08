@@ -13,12 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
-
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
@@ -141,8 +138,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             ToastUtil.show(RegisterActivity.this, "请填写手机号码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
-            ToastUtil.show(this,"手机号不合法");
+        if (!CheckUtil.isMobileNO(phone)) {
+            ToastUtil.show(this, "手机号不合法");
             return;
         }
 
@@ -159,7 +156,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         String phone = mEtPhoneContent.getText().toString();
         String code = mEtIdentifyingCodeContent.getText().toString();
 
-        Intent intent = new Intent(this,RegisterUserNameActivity.class);
+        Intent intent = new Intent(this, RegisterUserNameActivity.class);
         startActivity(intent);
 
         if (TextUtils.isEmpty(phone)) {
@@ -170,14 +167,12 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             ToastUtil.show(this, "请输入验证码");
             return;
         }
-        if(!CheckUtil.isMobileNO(phone)){
-            ToastUtil.show(this,"手机号不合法");
+        if (!CheckUtil.isMobileNO(phone)) {
+            ToastUtil.show(this, "手机号不合法");
             return;
         }
 
-      //  taskRegister(phone, password, code,nikename);
-
-
+        taskRegister(phone, code);
 
     }
 
@@ -194,45 +189,23 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         });
     }
 
-    private void taskRegister(final String phone, final String password, String captcha, String nickname) {
-        userAction.register(phone, password, captcha,nickname, new CallBack<ReturnBean>() {
+    private void taskRegister(final String phone, String captcha) {
+        userAction.register(phone, captcha, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() == null) {
                     return;
                 }
                 ToastUtil.show(RegisterActivity.this, response.body().getMsg());
-                if(response.body().isOk()){
-                    taskLogin(phone,password);
-                }
-            }
-        });
-    }
-
-
-    private void taskLogin(String phone,String password){
-        new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                if (response.body() == null) {
-                    Intent intent = new Intent(getContext(), PasswordLoginActivity.class);
-                    startActivity(intent);
-                    return;
-                }
                 if (response.body().isOk()) {
-                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    Intent intent = new Intent(getContext(), RegisterUserNameActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-                } else {
-                    Intent intent = new Intent(getContext(), PasswordLoginActivity.class);
-                    startActivity(intent);
-                    ToastUtil.show(getContext(), response.body().getMsg());
+                    finish();
                 }
-                finish();
             }
         });
     }
-
 
 
 }

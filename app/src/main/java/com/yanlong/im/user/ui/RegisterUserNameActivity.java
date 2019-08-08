@@ -1,17 +1,22 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
+import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
-
+import com.yanlong.im.user.action.UserAction;
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * @创建人 shenxin
@@ -66,8 +71,26 @@ public class RegisterUserNameActivity extends AppActivity {
             ToastUtil.show(context,"请输入昵称");
             return;
         }
-        ToastUtil.show(context,"修改完成");
+        taskUserInfoSet(userName);
+    }
 
+
+    private void taskUserInfoSet(String nickname) {
+       new UserAction().myInfoSet(null, null, nickname, null, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(context,response.body().getMsg());
+                if(response.body().isOk()){
+                    Intent intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
     }
 
 

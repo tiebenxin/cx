@@ -36,7 +36,6 @@ android {
     }
 
 
-
     buildTypes {
         release {
             minifyEnabled false
@@ -127,6 +126,7 @@ dependencies {
     api 'com.umeng.umsdk:huawei-basetb:+'
     api 'com.umeng.umsdk:huawei-pushtb:+'
     api 'com.umeng.umsdk:huawei-umengaccs:+'
+    api 'androidx.annotation:annotation:1.0.2'
 
 
 }

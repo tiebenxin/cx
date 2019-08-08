@@ -1,6 +1,7 @@
 package net.cb.cb.library.bean;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class QRCodeBean {
@@ -11,7 +12,7 @@ public class QRCodeBean {
     private String function;
 
     //参数集合
-    private Map<String,String> parameter = new HashMap<>();
+    private LinkedHashMap<String,String> parameter = new LinkedHashMap<>();
 
     public String getHead() {
         return head;
@@ -29,18 +30,17 @@ public class QRCodeBean {
         this.function = function;
     }
 
-    public Map<String, String> getParameter() {
+    public LinkedHashMap<String, String> getParameter() {
         return parameter;
     }
 
-    public void setParameter(Map<String, String> parameter) {
+    public void setParameter(LinkedHashMap<String, String> parameter) {
         this.parameter = parameter;
     }
 
     public void setParameterValue(String key,String value){
         parameter.put(key,value);
     }
-
 
 
     /**
