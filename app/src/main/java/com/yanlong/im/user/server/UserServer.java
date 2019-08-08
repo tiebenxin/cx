@@ -79,7 +79,7 @@ public interface UserServer {
 
     @POST("pub/register")
     @FormUrlEncoded
-    Call<ReturnBean> register(@Field("phone") String phone,@Field("password") String password,@Field("captcha") String captcha,@Field("nickname") String nickname);
+    Call<ReturnBean<TokenBean>> register(@Field("phone") String phone,@Field("captcha") String captcha,@Field("platform") String platform,@Field("devid") String devid);
 
     @POST("pub/login-by-phone-captcha")
     @FormUrlEncoded
@@ -131,4 +131,9 @@ public interface UserServer {
     @POST("friends/del-request-friend")
     @FormUrlEncoded
     Call<ReturnBean> delRequestFriend(@Field("friend") Long friend);
+
+    @POST("user/init-user-password")
+    @FormUrlEncoded
+    Call<ReturnBean> initUserPassword(@Field("password") String password);
+
 }
