@@ -300,6 +300,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case REMOVE_GROUP_MEMBER://退出群
                 taskGroupConf();
                 break;
+            case ACCEPT_BE_GROUP://邀请进群刷新
+                taskGroupConf();
+                break;
             case CHANGE_GROUP_NAME:
                 taskSessionInfo();
                 break;
