@@ -2,9 +2,7 @@ package com.yanlong.im.chat.ui.view;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.provider.Browser;
 import android.support.annotation.Nullable;
@@ -13,6 +11,7 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
@@ -36,19 +35,9 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.controller.AbstractDraweeController;
-import com.facebook.drawee.drawable.ScalingUtils;
-import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.imagepipeline.common.ResizeOptions;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
-import com.luck.picture.lib.PictureExternalPreviewActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
@@ -56,9 +45,11 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
-
-import static com.taobao.accs.client.AccsConfig.build;
 
 public class ChatItemView extends LinearLayout {
     private TextView txtOtName;
@@ -489,17 +480,87 @@ public class ChatItemView extends LinearLayout {
 
     //普通消息
     public void setDataAssistant(String msg) {
+//        msg = "http://baidu.com\n回复报告白拿的\nhttp://baidu.com\n发改委复合物号单位自己\nhttp://baidu.com";
         if (StringUtil.isNotNull(msg)) {
-            Matcher matcher = StringUtil.URL.matcher(msg);
-            if (matcher.find()) {
-                SpannableStringBuilder builder = new SpannableStringBuilder();
-                String url = msg.substring(matcher.start(), matcher.end());
-                builder.append(msg.substring(0, matcher.start()));
-                builder.append(setClickableSpan(url));
-            }
+            StringUtil.testUrl(msg);
+            return;
         }
-        txtMe8.setText(msg);
-        txtOt8.setText(msg);
+//            Matcher matcher = StringUtil.URL.matcher(msg);
+//            List<String> list = new ArrayList<>();
+//            int i = 0;
+//            int preLast = 0;
+//            int len = msg.length();
+//            while (matcher.find()) {
+//                int group = matcher.groupCount();
+//                System.out.println(matcher.group());
+//                if (group > 0) {
+//                    int start = matcher.start();
+//                    int end = matcher.end();
+//                    if (i == 0) {
+//                        if (start != 0) {
+//                            list.add(msg.substring(0, start));
+//                            list.add(msg.substring(start, end));
+//                        } else {
+//                            list.add(msg.substring(0, end));
+//                        }
+//                    } else {
+//                        if (end != len - 1) {
+//                            list.add(msg.substring(preLast, start));
+//                            list.add(msg.substring(start, end));
+//                        }
+//                    }
+//                    preLast = end;
+//                }
+//                i++;
+//            }
+//            list.add(msg.substring(preLast));
+//            int size = list.size();
+//            if (size > 0) {
+//                for (int j = 0; j < size; j++) {
+//                    System.out.println(list.get(j));
+//                }
+//            }
+//        }
+
+//            try {
+//                msg = URLDecoder.decode(msg, "utf-8");
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//            int length = msg.length();
+//            if (matcher.find()) {
+//                SpannableStringBuilder builder = new SpannableStringBuilder();
+//                builder.append(msg.substring(0, matcher.start()));
+//                String url = msg.substring(matcher.start(), matcher.end());
+//                builder.append(setClickableSpan(url));
+//                int group = matcher.groupCount();
+//                for (int i = 0; i < group; i++) {
+//                    SpannableStringBuilder builder = new SpannableStringBuilder();
+//                    int start = matcher.start(i);
+//                    int end = matcher.end(i);
+//                    if (start != 0) {
+//                        builder.append(msg.substring(0, matcher.start(i)));
+//                        String url = msg.substring(matcher.start(), matcher.end());
+//                        builder.append(setClickableSpan(url));
+//                        builder.append(msg.substring(matcher.end()));
+//                    } else {
+//                        if (end == length - 1) {
+//                            builder.append(msg.substring(0, matcher.start(i)));
+//                            String url = msg.substring(matcher.start(), matcher.end());
+//                            builder.append(setClickableSpan(url));
+//                        } else {
+//                            String url = msg.substring(matcher.start(), matcher.end());
+//                            builder.append(setClickableSpan(url));
+//                            builder.append(msg.substring(matcher.end()));
+//                        }
+//                    }
+//                }
+//            } else {
+//                txtMe8.setText(msg);
+//                txtOt8.setText(msg);
+//            }
+//        }
+
     }
 
     private SpannableString setClickableSpan(final String url) {
@@ -513,7 +574,7 @@ public class ChatItemView extends LinearLayout {
                 getContext().startActivity(intent);
             }
         }, 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        span.setSpan(new ForegroundColorSpan(Color.BLUE),0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new ForegroundColorSpan(Color.BLUE), 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return span;
     }
 
@@ -663,6 +724,7 @@ public class ChatItemView extends LinearLayout {
 
     public interface EventPic {
         void onClick(String uri);
+
     }
 
     //名片消息
