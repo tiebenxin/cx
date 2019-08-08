@@ -354,6 +354,8 @@ public class GroupInfoActivity extends AppActivity {
             final UserInfo number = listDataTop.get(position);
             if (number != null) {
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
+
+
                 holder.txtName.setText("" + number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -510,6 +512,16 @@ public class GroupInfoActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
+
+
+
+                    //8.8 如果是有群昵称显示自己群昵称
+                    for (UserInfo number:ginfo.getUsers()){
+                        if(StringUtil.isNotNull(number.getMembername())){
+                            number.setName(number.getMembername());
+                        }
+                    }
+
 
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     txtGroupNote.setText(ginfo.getAnnouncement());
