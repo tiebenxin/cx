@@ -1,12 +1,9 @@
 package com.yanlong.im.chat.ui;
 
 
-import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -20,25 +17,16 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.view.AlertForward;
-import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.TimeToString;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AppActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 /***
  * 消息转换
@@ -136,8 +124,8 @@ public class MsgForwardActivity extends AppActivity {
 
             holder.txtName.setText(title);
 
-           final String mIcon = icon;
-           final String mName = title;
+            final String mIcon = icon;
+            final String mName = title;
 
             holder.viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -149,7 +137,6 @@ public class MsgForwardActivity extends AppActivity {
                     if (msgAllBean.getChat() != null) {//转换文字
 
 
-
                         alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getChat().getMsg(), null, "发送", new AlertForward.Event() {
                             @Override
                             public void onON() {
@@ -158,12 +145,12 @@ public class MsgForwardActivity extends AppActivity {
 
                             @Override
                             public void onYes(String content) {
-                               // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
+                                // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
 
-                                Long toUId=bean.getFrom_uid();
-                                String toGid=bean.getGid();
+                                Long toUId = bean.getFrom_uid();
+                                String toGid = bean.getGid();
                                 SocketData.send4Chat(toUId, toGid, msgAllBean.getChat().getMsg());
-                                if(StringUtil.isNotNull(content)){
+                                if (StringUtil.isNotNull(content)) {
                                     SocketData.send4Chat(toUId, toGid, content);
                                 }
 
@@ -180,13 +167,13 @@ public class MsgForwardActivity extends AppActivity {
 
                             @Override
                             public void onYes(String content) {
-                               // ToastUtil.show(context, msgAllBean.getImage().getThumbnail()+"---\n"+content);
-                                Long toUId=bean.getFrom_uid();
-                                String toGid=bean.getGid();
+                                // ToastUtil.show(context, msgAllBean.getImage().getThumbnail()+"---\n"+content);
+                                Long toUId = bean.getFrom_uid();
+                                String toGid = bean.getGid();
                                 ImageMessage imagesrc = msgAllBean.getImage();
-                                SocketData.send4Image(toUId, toGid,imagesrc.getOrigin(),imagesrc.getPreview(),imagesrc.getThumbnail(),new Long(imagesrc.getWidth()).intValue(),new Long(imagesrc.getHeight()).intValue(),new Long(imagesrc.getSize()).intValue());
-                                msgDao.ImgReadStatSet(imagesrc.getOrigin(),true);
-                                if(StringUtil.isNotNull(content)){
+                                SocketData.send4Image(toUId, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
+                                msgDao.ImgReadStatSet(imagesrc.getOrigin(), true);
+                                if (StringUtil.isNotNull(content)) {
                                     SocketData.send4Chat(toUId, toGid, content);
                                 }
                                 finish();
@@ -194,7 +181,7 @@ public class MsgForwardActivity extends AppActivity {
                             }
                         });
 
-                    }else if(msgAllBean.getAtMessage() != null){
+                    } else if (msgAllBean.getAtMessage() != null) {
 
                         alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getAtMessage().getMsg(), null, "发送", new AlertForward.Event() {
                             @Override
@@ -206,10 +193,10 @@ public class MsgForwardActivity extends AppActivity {
                             public void onYes(String content) {
                                 // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
 
-                                Long toUId=bean.getFrom_uid();
-                                String toGid=bean.getGid();
+                                Long toUId = bean.getFrom_uid();
+                                String toGid = bean.getGid();
                                 SocketData.send4Chat(toUId, toGid, msgAllBean.getAtMessage().getMsg());
-                                if(StringUtil.isNotNull(content)){
+                                if (StringUtil.isNotNull(content)) {
                                     SocketData.send4Chat(toUId, toGid, content);
                                 }
                                 finish();
@@ -258,7 +245,7 @@ public class MsgForwardActivity extends AppActivity {
 
     private void taskListData() {
 
-        listData = msgDao.sessionGetAll();
+        listData = msgDao.sessionGetAll(false);
 
 
         mtListView.notifyDataSetChange();
