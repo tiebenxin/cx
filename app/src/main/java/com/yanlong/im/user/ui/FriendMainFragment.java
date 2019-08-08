@@ -14,7 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
 import com.yanlong.im.chat.ui.SearchFriendGroupActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -230,8 +232,13 @@ public class FriendMainFragment extends Fragment {
                 hd.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, bean.getUid()));
+                        if (bean.getuType() == ChatEnum.EUserType.ASSISTANT) {
+                            startActivity(new Intent(getContext(), ChatActivity.class)
+                                    .putExtra(ChatActivity.AGM_TOUID, bean.getUid()));
+                        } else {
+                            startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                    .putExtra(UserInfoActivity.ID, bean.getUid()));
+                        }
 
 
                     }

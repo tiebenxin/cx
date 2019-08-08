@@ -118,7 +118,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class ChatActivity extends AppActivity implements ICellEventListener {
-    private static String TAG="ChatActivity";
+    private static String TAG = "ChatActivity";
     //返回需要刷新的
     public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
@@ -220,16 +220,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 @Override
                 public void run() {
 
-             boolean needRefresh=false;
+                    boolean needRefresh = false;
 
                     for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
                         //8.7 是属于这个会话就刷新
-                        if(!needRefresh){
-                            if(isGroup()){
-                                needRefresh=  msg.getGid().equals(toGid);
+                        if (!needRefresh) {
+                            if (isGroup()) {
+                                needRefresh = msg.getGid().equals(toGid);
 
-                            }else{
-                                needRefresh=msg.getFromUid()==toUId.longValue();
+                            } else {
+                                needRefresh = msg.getFromUid() == toUId.longValue();
                             }
                         }
 
@@ -240,8 +240,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                     //从数据库读取消息
-                    if(needRefresh){
-                        LogUtil.getLog().i(TAG,"需要刷新");
+                    if (needRefresh) {
+                        LogUtil.getLog().i(TAG, "需要刷新");
                         taskRefreshMessage();
                     }
 
@@ -365,8 +365,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if (isGroup()) {
             actionbar.getBtnRight().setVisibility(View.GONE);
+            viewChatBottom.setVisibility(View.VISIBLE);
         } else {
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
+            if (toUId == 1L){
+                viewChatBottom.setVisibility(View.GONE);
+            }else {
+                viewChatBottom.setVisibility(View.VISIBLE);
+
+            }
         }
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -381,9 +388,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             .putExtra(GroupInfoActivity.AGM_GID, toGid), REQ_REFRESH
                     );
                 } else {
-                    startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
-                            .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
-                    );
+                    if (toUId == 1L) {
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, toUId)
+                                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
+                    } else {
+                        startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
+                                .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
+                        );
+                    }
 
                 }
 
@@ -1551,7 +1564,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
 
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-                        if(msgbean.getFrom_uid()!=null&&msgbean.getFrom_uid().longValue()==UserAction.getMyId().longValue()){
+                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                             menus.add(new OptionMenu("撤回"));
                         }
 
@@ -1618,13 +1631,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         msgDao.userSetingVoicePlayer(1);
                     } else if (menu.getTitle().equals("扬声器播放")) {
                         msgDao.userSetingVoicePlayer(0);
-                    }else if(menu.getTitle().equals("撤回")){
+                    } else if (menu.getTitle().equals("撤回")) {
                         msgDao.msgDel4MsgId(msgbean.getMsg_id());
                         msgListData.remove(msgbean);
                         notifyData();
                         //8.7 这里还要发送撤回指令
-                       // ToastUtil.show(getContext(),"这里还要写发送撤回指令");
-                        SocketData.send4CancelMsg(toUId,toGid,msgbean.getMsg_id());
+                        // ToastUtil.show(getContext(),"这里还要写发送撤回指令");
+                        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
                     }
                     menuView.dismiss();
                     return true;
@@ -1755,10 +1768,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int addItem = msgListData.size();
 
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
-        if(msgListData.size()>=20){
+        if (msgListData.size() >= 20) {
             msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
 
-        }else{
+        } else {
             msgListData = msgAction.getMsg4User(toGid, toUId, null);
         }
 

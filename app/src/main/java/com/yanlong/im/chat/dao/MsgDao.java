@@ -583,9 +583,10 @@ public class MsgDao {
      * @param from_uid 单人id
      */
     public void sessionReadUpdate(String gid, Long from_uid) {
-        sessionReadUpdate(gid,from_uid,false);
+        sessionReadUpdate(gid, from_uid, false);
     }
-    public void sessionReadUpdate(String gid, Long from_uid,boolean isCancel) {
+
+    public void sessionReadUpdate(String gid, Long from_uid, boolean isCancel) {
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
@@ -595,11 +596,11 @@ public class MsgDao {
                 session.setGid(gid);
                 session.setType(1);
 
-                session.setUnread_count(isCancel?0:1);
+                session.setUnread_count(isCancel ? 0 : 1);
 
             } else {
-                int num=isCancel?session.getUnread_count()-1:session.getUnread_count() + 1;
-                num=num<0?0:num;
+                int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
+                num = num < 0 ? 0 : num;
                 session.setUnread_count(num);
             }
             session.setUp_time(System.currentTimeMillis());
@@ -612,11 +613,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(from_uid);
                 session.setType(0);
-                session.setUnread_count(isCancel?0:1);
+                session.setUnread_count(isCancel ? 0 : 1);
 
             } else {
-                int num=isCancel?session.getUnread_count()-1:session.getUnread_count() + 1;
-                num=num<0?0:num;
+                int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
+                num = num < 0 ? 0 : num;
                 session.setUnread_count(num);
             }
             session.setUp_time(System.currentTimeMillis());
@@ -796,12 +797,17 @@ public class MsgDao {
      * 获取所有会话
      * @return
      */
-    public List<Session> sessionGetAll() {
+    public List<Session> sessionGetAll(boolean isAll) {
         List<Session> rts;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-
-        RealmResults<Session> list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+        RealmResults<Session> list;
+        if (isAll) {
+            list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+        } else {
+            list = realm.where(Session.class).beginGroup().notEqualTo("from_uid", 1L).and().isNotNull("from_uid").endGroup().
+                    or().isNotNull("gid").sort("up_time", Sort.DESCENDING).findAll();
+        }
         //6.5 优先读取单独表的配置
 
         for (Session l : list) {
@@ -919,7 +925,7 @@ public class MsgDao {
      * @param fromUid
      * @param nickname
      */
-    public void groupAcceptAdd(int joinType,long inviter,String inviterName,String gid, long fromUid, String nickname, String head) {
+    public void groupAcceptAdd(int joinType, long inviter, String inviterName, String gid, long fromUid, String nickname, String head) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
@@ -1158,7 +1164,7 @@ public class MsgDao {
      * @return
      */
     public boolean ImgReadStatGet(String originUrl) {
-        if(!StringUtil.isNotNull(originUrl)){
+        if (!StringUtil.isNotNull(originUrl)) {
             return false;
         }
         if (originUrl.startsWith("file:")) {
@@ -1193,19 +1199,19 @@ public class MsgDao {
 
     //修改消息状态
     public MsgAllBean fixStataMsg(String msgid, int sendState) {
-        MsgAllBean ret=null;
+        MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
         if (msgAllBean != null) {
             msgAllBean.setSend_state(sendState);
             realm.insertOrUpdate(msgAllBean);
-            ret=realm.copyFromRealm(msgAllBean);
+            ret = realm.copyFromRealm(msgAllBean);
         }
         realm.commitTransaction();
         realm.close();
 
-       return ret;
+        return ret;
 
     }
 
