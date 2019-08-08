@@ -1,7 +1,5 @@
 package net.cb.cb.library.utils;
 
-import android.text.SpannableStringBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
