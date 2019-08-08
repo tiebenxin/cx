@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.dao;
 
+import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -287,6 +288,18 @@ public class MsgDao {
             } else {
                 nums.add(ui);
             }
+            //8.8把群的成员信息存链接表
+            GropLinkInfo gropLinkInfo=realm.where(GropLinkInfo.class).equalTo("gid",ginfo.getGid()).equalTo("uid", sv.getUid()).findFirst();
+            if(gropLinkInfo==null){
+                gropLinkInfo=new GropLinkInfo();
+                gropLinkInfo.setLid(UUID.randomUUID().toString());
+                gropLinkInfo.setGid(ginfo.getGid());
+                gropLinkInfo.setUid(sv.getUid());
+                gropLinkInfo.setMembername(sv.getMembername());
+            }else{
+                gropLinkInfo.setMembername(sv.getMembername());
+            }
+            realm.insertOrUpdate(gropLinkInfo);
 
         }
         //更新自己的群昵称
@@ -296,6 +309,26 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
 
+    }
+
+    /***
+     * 获取群和用户的连接信息
+     * @return
+     */
+    public GropLinkInfo getGropLinkInfo(String gid,Long uid){
+        GropLinkInfo gropLinkInfo=null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        GropLinkInfo info = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
+        if(info!=null){
+            gropLinkInfo=realm.copyFromRealm(info);
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+        return gropLinkInfo;
     }
 
 
@@ -550,9 +583,10 @@ public class MsgDao {
      * @param from_uid 单人id
      */
     public void sessionReadUpdate(String gid, Long from_uid) {
-        sessionReadUpdate(gid,from_uid,false);
+        sessionReadUpdate(gid, from_uid, false);
     }
-    public void sessionReadUpdate(String gid, Long from_uid,boolean isCancel) {
+
+    public void sessionReadUpdate(String gid, Long from_uid, boolean isCancel) {
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
@@ -562,11 +596,11 @@ public class MsgDao {
                 session.setGid(gid);
                 session.setType(1);
 
-                session.setUnread_count(isCancel?0:1);
+                session.setUnread_count(isCancel ? 0 : 1);
 
             } else {
-                int num=isCancel?session.getUnread_count()-1:session.getUnread_count() + 1;
-                num=num<0?0:num;
+                int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
+                num = num < 0 ? 0 : num;
                 session.setUnread_count(num);
             }
             session.setUp_time(System.currentTimeMillis());
@@ -579,11 +613,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(from_uid);
                 session.setType(0);
-                session.setUnread_count(isCancel?0:1);
+                session.setUnread_count(isCancel ? 0 : 1);
 
             } else {
-                int num=isCancel?session.getUnread_count()-1:session.getUnread_count() + 1;
-                num=num<0?0:num;
+                int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
+                num = num < 0 ? 0 : num;
                 session.setUnread_count(num);
             }
             session.setUp_time(System.currentTimeMillis());
@@ -763,12 +797,17 @@ public class MsgDao {
      * 获取所有会话
      * @return
      */
-    public List<Session> sessionGetAll() {
+    public List<Session> sessionGetAll(boolean isAll) {
         List<Session> rts;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-
-        RealmResults<Session> list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+        RealmResults<Session> list;
+        if (isAll) {
+            list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+        } else {
+            list = realm.where(Session.class).beginGroup().notEqualTo("from_uid", 1L).and().isNotNull("from_uid").endGroup().
+                    or().isNotNull("gid").sort("up_time", Sort.DESCENDING).findAll();
+        }
         //6.5 优先读取单独表的配置
 
         for (Session l : list) {
@@ -886,7 +925,7 @@ public class MsgDao {
      * @param fromUid
      * @param nickname
      */
-    public void groupAcceptAdd(int joinType,long inviter,String inviterName,String gid, long fromUid, String nickname, String head) {
+    public void groupAcceptAdd(int joinType, long inviter, String inviterName, String gid, long fromUid, String nickname, String head) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
@@ -1125,7 +1164,7 @@ public class MsgDao {
      * @return
      */
     public boolean ImgReadStatGet(String originUrl) {
-        if(!StringUtil.isNotNull(originUrl)){
+        if (!StringUtil.isNotNull(originUrl)) {
             return false;
         }
         if (originUrl.startsWith("file:")) {
@@ -1160,19 +1199,19 @@ public class MsgDao {
 
     //修改消息状态
     public MsgAllBean fixStataMsg(String msgid, int sendState) {
-        MsgAllBean ret=null;
+        MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
         if (msgAllBean != null) {
             msgAllBean.setSend_state(sendState);
             realm.insertOrUpdate(msgAllBean);
-            ret=realm.copyFromRealm(msgAllBean);
+            ret = realm.copyFromRealm(msgAllBean);
         }
         realm.commitTransaction();
         realm.close();
 
-       return ret;
+        return ret;
 
     }
 

@@ -46,6 +46,44 @@
             </LinearLayout>
         </LinearLayout>
 
+        <LinearLayout style="@style/app_layout_list2">
+
+            <LinearLayout
+                android:id="@+id/view_encode"
+                style="@style/app_layout_list2_item">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="加密" />
+
+                    <TextView
+                        style="@style/app_txt_title_3"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:textColor="@color/gray_300"
+                        android:text="此对话中所发送的信息都已经进行端到端加密" />
+
+                </LinearLayout>
+
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_lock" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+
 
         <LinearLayout style="@style/app_layout_list2">
 

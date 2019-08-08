@@ -44,6 +44,7 @@ import com.yanlong.im.chat.bean.ImageMessage;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.view.WebPageActivity;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -481,86 +482,47 @@ public class ChatItemView extends LinearLayout {
     //普通消息
     public void setDataAssistant(String msg) {
 //        msg = "http://baidu.com\n回复报告白拿的\nhttp://baidu.com\n发改委复合物号单位自己\nhttp://baidu.com";
-        if (StringUtil.isNotNull(msg)) {
-            StringUtil.testUrl(msg);
+        if (!StringUtil.isNotNull(msg)) {
             return;
         }
-//            Matcher matcher = StringUtil.URL.matcher(msg);
-//            List<String> list = new ArrayList<>();
-//            int i = 0;
-//            int preLast = 0;
-//            int len = msg.length();
-//            while (matcher.find()) {
-//                int group = matcher.groupCount();
-//                System.out.println(matcher.group());
-//                if (group > 0) {
-//                    int start = matcher.start();
-//                    int end = matcher.end();
-//                    if (i == 0) {
-//                        if (start != 0) {
-//                            list.add(msg.substring(0, start));
-//                            list.add(msg.substring(start, end));
-//                        } else {
-//                            list.add(msg.substring(0, end));
-//                        }
-//                    } else {
-//                        if (end != len - 1) {
-//                            list.add(msg.substring(preLast, start));
-//                            list.add(msg.substring(start, end));
-//                        }
-//                    }
-//                    preLast = end;
-//                }
-//                i++;
-//            }
-//            list.add(msg.substring(preLast));
-//            int size = list.size();
-//            if (size > 0) {
-//                for (int j = 0; j < size; j++) {
-//                    System.out.println(list.get(j));
-//                }
-//            }
-//        }
+        Matcher matcher = StringUtil.URL.matcher(msg);
+        int i = 0;
+        int preLast = 0;
+        int len = msg.length();
+        SpannableStringBuilder builder = new SpannableStringBuilder();
 
-//            try {
-//                msg = URLDecoder.decode(msg, "utf-8");
-//            } catch (UnsupportedEncodingException e) {
-//                e.printStackTrace();
-//            }
-//            int length = msg.length();
-//            if (matcher.find()) {
-//                SpannableStringBuilder builder = new SpannableStringBuilder();
-//                builder.append(msg.substring(0, matcher.start()));
-//                String url = msg.substring(matcher.start(), matcher.end());
-//                builder.append(setClickableSpan(url));
-//                int group = matcher.groupCount();
-//                for (int i = 0; i < group; i++) {
-//                    SpannableStringBuilder builder = new SpannableStringBuilder();
-//                    int start = matcher.start(i);
-//                    int end = matcher.end(i);
-//                    if (start != 0) {
-//                        builder.append(msg.substring(0, matcher.start(i)));
-//                        String url = msg.substring(matcher.start(), matcher.end());
-//                        builder.append(setClickableSpan(url));
-//                        builder.append(msg.substring(matcher.end()));
-//                    } else {
-//                        if (end == length - 1) {
-//                            builder.append(msg.substring(0, matcher.start(i)));
-//                            String url = msg.substring(matcher.start(), matcher.end());
-//                            builder.append(setClickableSpan(url));
-//                        } else {
-//                            String url = msg.substring(matcher.start(), matcher.end());
-//                            builder.append(setClickableSpan(url));
-//                            builder.append(msg.substring(matcher.end()));
-//                        }
-//                    }
-//                }
-//            } else {
-//                txtMe8.setText(msg);
-//                txtOt8.setText(msg);
-//            }
-//        }
-
+        while (matcher.find()) {
+            int groupCount = matcher.groupCount();
+            if (groupCount > 0) {
+                int start = matcher.start();
+                int end = matcher.end();
+                if (i == 0) {
+                    if (start != 0) {
+                        builder.append(msg.substring(0, start));
+                        builder.append(setClickableSpan(msg.substring(start, end)));
+                    } else {
+                        builder.append(setClickableSpan(msg.substring(start, end)));
+                    }
+                } else {
+                    if (end != len - 1) {
+                        builder.append(msg.substring(preLast, start));
+                        builder.append(setClickableSpan(msg.substring(start, end)));
+                    }
+                }
+                preLast = end;
+            }
+            i++;
+        }
+        if (preLast == 0) {
+            builder.append(msg.substring(preLast));
+            txtMe8.setMovementMethod(LinkMovementMethod.getInstance());
+            txtOt8.setMovementMethod(LinkMovementMethod.getInstance());
+            txtMe8.setText(builder);
+            txtOt8.setText(builder);
+        } else {
+            txtMe8.setText(msg);
+            txtOt8.setText(msg);
+        }
     }
 
     private SpannableString setClickableSpan(final String url) {
@@ -568,9 +530,11 @@ public class ChatItemView extends LinearLayout {
         span.setSpan(new ClickableSpan() {
             @Override
             public void onClick(@androidx.annotation.NonNull View view) {
-                Uri uri = Uri.parse(url);
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                intent.putExtra(Browser.EXTRA_APPLICATION_ID, getContext().getPackageName());
+                Intent intent = new Intent(getContext(), WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL, url);
+//                Uri uri = Uri.parse(url);
+//                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+//                intent.putExtra(Browser.EXTRA_APPLICATION_ID, getContext().getPackageName());
                 getContext().startActivity(intent);
             }
         }, 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

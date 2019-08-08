@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.action;
 
 import com.google.gson.Gson;
+import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
@@ -176,6 +177,17 @@ public class MsgAction {
                         dao.groupNumberSave(response.body().getData());
 
                         response.body().getData().setUsers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
+                        //8.8 取消从数据库里读取群成员信息
+                       for(UserInfo userInfo: response.body().getData().getUsers()) {
+                           GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+                           if(link!=null){
+                               userInfo.setMembername(link.getMembername());
+                           }
+
+
+                       }
+
+
                     }
                     callback.onResponse(call, response);
 
@@ -189,6 +201,16 @@ public class MsgAction {
             body.setCode(0l);
             body.setData(rdata);
             Response<ReturnBean<Group>> response = Response.success(body);
+            //8.8 取消从数据库里读取群成员信息
+            for(UserInfo userInfo: response.body().getData().getUsers()) {
+                GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+                if(link!=null){
+                    userInfo.setMembername(link.getMembername());
+                }
+
+
+            }
+
             callback.onResponse(null, response);
         }
 

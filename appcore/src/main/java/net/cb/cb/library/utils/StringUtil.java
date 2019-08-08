@@ -20,7 +20,6 @@ public class StringUtil {
     public static void testUrl(String msg) {
         msg = "http://baidu.com\n回复报告白拿的\nhttp://baidu.com\n发改委复合物号单位自己\nhttp://baidu.com";
         Matcher matcher = URL.matcher(msg);
-//        matcher.matches();
         List<String> list = new ArrayList<>();
         int i = 0;
         int preLast = 0;
@@ -55,4 +54,5 @@ public class StringUtil {
             }
         }
     }
+
 }

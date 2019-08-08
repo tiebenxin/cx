@@ -222,7 +222,8 @@
             android:gravity="center_vertical"
             android:minHeight="48dp"
             android:paddingLeft="@dimen/app_margin_main"
-            android:paddingRight="@dimen/app_margin_main">
+            android:paddingRight="@dimen/app_margin_main"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -237,7 +238,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="@dimen/app_margin_item"
-                android:text="功能介绍fvhsduhgfuhf9shdfihsdvhssgf规划图然后adfhsdhfsdhfi8撒地方还都是符合非手动"
+                android:text=""
                 android:textColor="@color/gray_300"
                 android:textSize="13sp" />
         </LinearLayout>

@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -26,7 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
@@ -110,6 +110,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
 import me.kareluo.ui.OptionMenuView;
@@ -118,7 +124,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class ChatActivity extends AppActivity implements ICellEventListener {
-    private static String TAG="ChatActivity";
+    private static String TAG = "ChatActivity";
     //返回需要刷新的
     public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
@@ -220,16 +226,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 @Override
                 public void run() {
 
-             boolean needRefresh=false;
+                    boolean needRefresh = false;
 
                     for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
                         //8.7 是属于这个会话就刷新
-                        if(!needRefresh){
-                            if(isGroup()){
-                                needRefresh=  msg.getGid().equals(toGid);
+                        if (!needRefresh) {
+                            if (isGroup()) {
+                                needRefresh = msg.getGid().equals(toGid);
 
-                            }else{
-                                needRefresh=msg.getFromUid()==toUId.longValue();
+                            } else {
+                                needRefresh = msg.getFromUid() == toUId.longValue();
                             }
                         }
 
@@ -240,8 +246,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                     //从数据库读取消息
-                    if(needRefresh){
-                        LogUtil.getLog().i(TAG,"需要刷新");
+                    if (needRefresh) {
+                        LogUtil.getLog().i(TAG, "需要刷新");
                         taskRefreshMessage();
                     }
 
@@ -261,7 +267,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     //ToastUtil.show(context, "发送失败" + bean.getRequestId());
                     MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
-                    msgAllBean.setSend_state(1);
+                    msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
                     //  msgAllBean.setMsg_id("重发" + msgAllBean.getRequest_id());
                     ///这里写库
                     msgAllBean.setSend_data(bean.build().toByteArray());
@@ -365,8 +371,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if (isGroup()) {
             actionbar.getBtnRight().setVisibility(View.GONE);
+            viewChatBottom.setVisibility(View.VISIBLE);
         } else {
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
+            if (toUId == 1L) {
+                viewChatBottom.setVisibility(View.GONE);
+            } else {
+                viewChatBottom.setVisibility(View.VISIBLE);
+
+            }
         }
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -381,9 +394,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             .putExtra(GroupInfoActivity.AGM_GID, toGid), REQ_REFRESH
                     );
                 } else {
-                    startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
-                            .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
-                    );
+                    if (toUId == 1L) {
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, toUId)
+                                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
+                    } else {
+                        startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
+                                .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
+                        );
+                    }
 
                 }
 
@@ -794,7 +813,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         actionbar.post(new Runnable() {
             @Override
             public void run() {
-                taskRefreshMessage();
+//                taskRefreshMessage();
                 taskDraftGet();
             }
         });
@@ -949,11 +968,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         initEvent();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        taskRefreshMessage();
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         //激活当前会话
         if (isGroup()) {
             ChatServer.setSessionGroup(toGid);
@@ -1223,7 +1246,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pg);
 
-                        if (msgbean.getSend_state() == 0) {
+                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
                         }
@@ -1494,7 +1517,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgbean.getMsg_id());
 
                     try {
-                        if (remsg.getMsg_type() == 4) {//图片重发处理7.31
+                        if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
 
 
                             String file = remsg.getImage().getLocalimg();
@@ -1508,7 +1531,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
                             SocketUtil.getSocketUtil().sendData4Msg(bean);
                             //点击发送的时候如果要改变成发送中的状态
-                            remsg.setSend_state(2);
+                            remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                             DaoUtil.update(remsg);
 
                             taskRefreshMessage();
@@ -1539,7 +1562,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 public boolean onLongClick(View v) {
 
                     // ToastUtil.show(getContext(),"长按");
-                    if (msgbean.getMsg_type() == 7) {//为语音单独处理
+                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//为语音单独处理
                         menus.clear();
                         menus.add(new OptionMenu("删除"));
                         if (msgDao.userSetingGet().getVoicePlayer() == 0) {
@@ -1551,7 +1574,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
 
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-                        if(msgbean.getFrom_uid()!=null&&msgbean.getFrom_uid().longValue()==UserAction.getMyId().longValue()){
+                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                             menus.add(new OptionMenu("撤回"));
                         }
 
@@ -1618,13 +1641,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         msgDao.userSetingVoicePlayer(1);
                     } else if (menu.getTitle().equals("扬声器播放")) {
                         msgDao.userSetingVoicePlayer(0);
-                    }else if(menu.getTitle().equals("撤回")){
+                    } else if (menu.getTitle().equals("撤回")) {
                         msgDao.msgDel4MsgId(msgbean.getMsg_id());
                         msgListData.remove(msgbean);
                         notifyData();
                         //8.7 这里还要发送撤回指令
-                       // ToastUtil.show(getContext(),"这里还要写发送撤回指令");
-                        SocketData.send4CancelMsg(toUId,toGid,msgbean.getMsg_id());
+                        // ToastUtil.show(getContext(),"这里还要写发送撤回指令");
+                        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
                     }
                     menuView.dismiss();
                     return true;
@@ -1717,14 +1740,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     /***
      * 获取最新的
      */
+    @SuppressLint("CheckResult")
     private void taskRefreshMessage() {
         //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
-        msgListData = msgAction.getMsg4User(toGid, toUId, null);
+        Observable.just(0)
+                .map(new Function<Integer, List<MsgAllBean>>() {
+                    @Override
+                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+                        List<MsgAllBean> list = msgAction.getMsg4User(toGid, toUId, null);
+                        taskMkName(list);
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+                .subscribe(new Consumer<List<MsgAllBean>>() {
+                    @Override
+                    public void accept(List<MsgAllBean> list) throws Exception {
+                        msgListData = list;
+                        notifyData2Buttom();
+//                        notifyData();
+                    }
+                });
 
-        notifyData2Buttom();
-
-        taskMkName(msgListData);
-        notifyData();
     }
 
     //  private boolean flag_isHistory = false;
@@ -1755,10 +1793,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int addItem = msgListData.size();
 
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
-        if(msgListData.size()>=20){
+        if (msgListData.size() >= 20) {
             msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
 
-        }else{
+        } else {
             msgListData = msgAction.getMsg4User(toGid, toUId, null);
         }
 

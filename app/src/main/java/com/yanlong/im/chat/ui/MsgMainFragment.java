@@ -541,7 +541,7 @@ public class MsgMainFragment extends Fragment {
         if (isSearchMode) {
             return;
         }
-        listData = msgDao.sessionGetAll();
+        listData = msgDao.sessionGetAll(true);
 
         //缓存所有未缓存的群信息
         dids = new ArrayList<>();
