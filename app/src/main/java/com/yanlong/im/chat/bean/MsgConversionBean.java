@@ -302,6 +302,21 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.ASSISTANT);
                 msgAllBean.setAssistantMessage(assistant);
                 break;
+            case CANCEL://撤回消息
+
+                if (bean.getFromUid() == UserAction.getMyId().longValue()) {
+                    msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                    MsgNotice msgCel = new MsgNotice();
+                    msgCel.setMsgid(msgAllBean.getMsg_id());
+                    msgCel.setNote("你撤回了一条消息");
+                    msgAllBean.setMsgNotice(msgCel);
+                }else{//对方撤回的消息当通知处理
+                    return null;
+                }
+
+
+
+                break;
             default:
                 return null;
         }
