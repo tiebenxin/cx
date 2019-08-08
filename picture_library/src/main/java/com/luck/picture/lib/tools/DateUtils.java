@@ -87,6 +87,23 @@ public class DateUtils {
 
 
     /**
+     * 判断二维码时间是否过期
+     *
+     * @param time 二维码时间戳
+     */
+    public static boolean isPastDue(long time) {
+        Date date = new Date(System.currentTimeMillis());
+        SimpleDateFormat dft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String today = dft.format(date);
+        long todayTime = Long.valueOf( date2TimeStamp(today,"yyyy-MM-dd HH:mm:ss"));
+        if ((todayTime / 1000) > (time / 1000)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * 获取某个日期前后N天的日期
      *
      * @param beginDate
@@ -117,7 +134,7 @@ public class DateUtils {
     public static String date2TimeStamp(String date, String format) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(format);
-            return String.valueOf(sdf.parse(date).getTime() / 1000);
+            return String.valueOf(sdf.parse(date).getTime());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -134,8 +151,6 @@ public class DateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(new Date(time));
     }
-
-
 
 
 }
