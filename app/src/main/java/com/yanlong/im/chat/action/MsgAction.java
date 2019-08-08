@@ -201,6 +201,16 @@ public class MsgAction {
             body.setCode(0l);
             body.setData(rdata);
             Response<ReturnBean<Group>> response = Response.success(body);
+            //8.8 取消从数据库里读取群成员信息
+            for(UserInfo userInfo: response.body().getData().getUsers()) {
+                GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+                if(link!=null){
+                    userInfo.setMembername(link.getMembername());
+                }
+
+
+            }
+
             callback.onResponse(null, response);
         }
 
