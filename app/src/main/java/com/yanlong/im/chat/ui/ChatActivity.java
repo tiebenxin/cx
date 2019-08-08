@@ -378,7 +378,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             .putExtra(GroupInfoActivity.AGM_GID, toGid), REQ_REFRESH
                     );
                 } else {
-
                     startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
                             .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
                     );
