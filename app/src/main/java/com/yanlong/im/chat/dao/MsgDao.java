@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.dao;
 
+import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -287,6 +288,18 @@ public class MsgDao {
             } else {
                 nums.add(ui);
             }
+            //8.8把群的成员信息存链接表
+            GropLinkInfo gropLinkInfo=realm.where(GropLinkInfo.class).equalTo("gid",ginfo.getGid()).equalTo("uid", sv.getUid()).findFirst();
+            if(gropLinkInfo==null){
+                gropLinkInfo=new GropLinkInfo();
+                gropLinkInfo.setLid(UUID.randomUUID().toString());
+                gropLinkInfo.setGid(ginfo.getGid());
+                gropLinkInfo.setUid(sv.getUid());
+                gropLinkInfo.setMembername(sv.getMembername());
+            }else{
+                gropLinkInfo.setMembername(sv.getMembername());
+            }
+            realm.insertOrUpdate(gropLinkInfo);
 
         }
         //更新自己的群昵称
@@ -296,6 +309,26 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
 
+    }
+
+    /***
+     * 获取群和用户的连接信息
+     * @return
+     */
+    public GropLinkInfo getGropLinkInfo(String gid,Long uid){
+        GropLinkInfo gropLinkInfo=null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        GropLinkInfo info = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
+        if(info!=null){
+            gropLinkInfo=realm.copyFromRealm(info);
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+        return gropLinkInfo;
     }
 
 

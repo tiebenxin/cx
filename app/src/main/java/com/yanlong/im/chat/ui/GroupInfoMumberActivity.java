@@ -28,6 +28,7 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -281,6 +282,15 @@ public class GroupInfoMumberActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
+
+
+                    //8.8 如果是有群昵称显示自己群昵称
+                    for (UserInfo number:ginfo.getUsers()){
+                        if(StringUtil.isNotNull(number.getMembername())){
+                            number.setName(number.getMembername());
+                        }
+                    }
+
 
                     actionbar.setTitle("群成员(" + ginfo.getUsers().size() + ")");
 
