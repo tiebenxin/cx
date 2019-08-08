@@ -317,7 +317,7 @@ public class FriendMainFragment extends Fragment {
     private void taskListData() {
 
 
-        listData = userDao.friendGetAll();
+        listData = userDao.getAllUserInBook();
 
 
         UserInfo topBean = new UserInfo();

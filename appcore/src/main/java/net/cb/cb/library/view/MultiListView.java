@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.baoyz.widget.PullRefreshLayout;
-import com.baoyz.widget.RefreshDrawable;
 
 import net.cb.cb.library.R;
 
@@ -30,16 +29,17 @@ import static net.cb.cb.library.view.MlistAdapter.LOAD_STATE_NOMORL;
  * @date 2016年3月31日
  */
 public class MultiListView extends LinearLayout {
-	private static final String TAG = "MultiListView";
-	private LoadView loadView;
-	private PullRefreshLayout swipeLayout;
-	private RecyclerView listView;
-	private Context context;
-	private MlistAdapter adt;
-	private Event event;
-	private int resId;
-	//页面大小
-	private Integer pageSize;
+    private static final String TAG = "MultiListView";
+    private LoadView loadView;
+    private PullRefreshLayout swipeLayout;
+    private RecyclerView listView;
+    private Context context;
+    private MlistAdapter adt;
+    private Event event;
+    private int resId;
+    //页面大小
+    private Integer pageSize;
+    private LinearLayoutManager layoutManager;
 
     /***
      * 设置事件设置监听
@@ -65,22 +65,22 @@ public class MultiListView extends LinearLayout {
         return loadView;
     }
 
-	public PullRefreshLayout getSwipeLayout() {
-		return swipeLayout;
-	}
+    public PullRefreshLayout getSwipeLayout() {
+        return swipeLayout;
+    }
 
     public MultiListView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-		// TODO Auto-generated constructor stub
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rootView = inflater.inflate(R.layout.view_re_list, this);
-		this.context = context;
-		loadView = rootView.findViewById(R.id.loadView);
-		swipeLayout = rootView
-				.findViewById(R.id.swipeLayout);
-		listView = rootView.findViewById(R.id.listView);
+        // TODO Auto-generated constructor stub
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View rootView = inflater.inflate(R.layout.view_re_list, this);
+        this.context = context;
+        loadView = rootView.findViewById(R.id.loadView);
+        swipeLayout = rootView
+                .findViewById(R.id.swipeLayout);
+        listView = rootView.findViewById(R.id.listView);
 
         // addView(rootView);
         rootView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
@@ -88,19 +88,20 @@ public class MultiListView extends LinearLayout {
         initView();
     }
 
-	/***
-	 * 初始化控件
-	 */
-	private void initView() {
-	    //定义下拉样式
-		//swipeLayout.setColorSchemeResources(R.color.green_600);
-        swipeLayout.setRefreshDrawable(new MaterialDrawable(context,swipeLayout));
+    /***
+     * 初始化控件
+     */
+    private void initView() {
+        //定义下拉样式
+        //swipeLayout.setColorSchemeResources(R.color.green_600);
+        swipeLayout.setRefreshDrawable(new MaterialDrawable(context, swipeLayout));
 
         swipeLayout.setEnabled(false);
-        listView.setLayoutManager(new LinearLayoutManager(context));
+        layoutManager = new LinearLayoutManager(context);
+        listView.setLayoutManager(layoutManager);
 
-		// ------------------------------------------
-		// 下拉刷新
+        // ------------------------------------------
+        // 下拉刷新
         swipeLayout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -150,6 +151,10 @@ public class MultiListView extends LinearLayout {
         });
 
         // ---------------------------------------
+    }
+
+    public LinearLayoutManager getLayoutManager() {
+        return layoutManager;
     }
 
     /**
@@ -234,33 +239,36 @@ public class MultiListView extends LinearLayout {
      *            ,如果不设置则无下拉刷新
      */
     public void init(Adapter adapter, Event event, int noDataBG) {
-        init(adapter, event, noDataBG, null,null);
+        init(adapter, event, noDataBG, null, null);
     }
 
-    public void init(Adapter adapter,Integer pageSize ,Event event){
-        init(adapter, event, null, pageSize,null);
+    public void init(Adapter adapter, Integer pageSize, Event event) {
+        init(adapter, event, null, pageSize, null);
     }
-    public void init(Adapter adapter,Integer column,Integer pageSize ,Event event){
-        init(adapter, event, null, pageSize,column);
+
+    public void init(Adapter adapter, Integer column, Integer pageSize, Event event) {
+        init(adapter, event, null, pageSize, column);
     }
 
 
-    public void init(Adapter adapter, Event event, Integer noDataBG, Integer pageSize,Integer column) {
-        if(column!=null){
+    public void init(Adapter adapter, Event event, Integer noDataBG, Integer pageSize, Integer column) {
+        if (column != null) {
             listView.setLayoutManager(new GridLayoutManager(getContext(), column));
         }
         adt = new MlistAdapter(context, adapter);
         listView.setAdapter(adt);
-        resId = noDataBG==null? R.mipmap.ic_nodate:noDataBG;
+        resId = noDataBG == null ? R.mipmap.ic_nodate : noDataBG;
         this.pageSize = pageSize;
         setEvent(event);
     }
 
     int lastDataCount = 0;
+
     public void notifyDataSetChange() {
-        Response response=Response.success(null);
+        Response response = Response.success(null);
         notifyDataSetChange(response);
     }
+
     /***
      * 2.改变数据,无论数据是否有变化都得调用
      *
