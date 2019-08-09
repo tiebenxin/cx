@@ -4,15 +4,31 @@ import android.support.annotation.IntDef;
 
 import com.yanlong.im.R;
 
-import net.cb.cb.library.CoreEnum;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import static com.yanlong.im.chat.ChatEnum.EAuthStatus.*;
-import static com.yanlong.im.chat.ChatEnum.EUserType.*;
-import static com.yanlong.im.chat.ChatEnum.EMessageType.*;
-import static com.yanlong.im.chat.ChatEnum.ESendStatus.*;
+import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_FIRST;
+import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_NO;
+import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_SECOND;
+import static com.yanlong.im.chat.ChatEnum.ECellEventType.LONG_CLICK;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.AT;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.BUSINESS_CARD;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.IMAGE;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.NOTICE;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.RED_ENVELOPE;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.STAMP;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.TEXT;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.TRANSFER;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.UNRECOGNIZED;
+import static com.yanlong.im.chat.ChatEnum.EMessageType.VOICE;
+import static com.yanlong.im.chat.ChatEnum.ESendStatus.ERROR;
+import static com.yanlong.im.chat.ChatEnum.ESendStatus.NORMAL;
+import static com.yanlong.im.chat.ChatEnum.ESendStatus.PRE_SEND;
+import static com.yanlong.im.chat.ChatEnum.ESendStatus.SENDING;
+import static com.yanlong.im.chat.ChatEnum.EUserType.BLACK;
+import static com.yanlong.im.chat.ChatEnum.EUserType.FRIEND;
+import static com.yanlong.im.chat.ChatEnum.EUserType.SELF;
+import static com.yanlong.im.chat.ChatEnum.EUserType.STRANGE;
 
 public class ChatEnum {
     /*
@@ -28,8 +44,8 @@ public class ChatEnum {
         IMAGE_SEND(R.layout.cell_img_send),
 
         //语音消息
-        VOICE_RECEIVED(R.layout.cell_txt_received),
-        VOICE_SEND(R.layout.cell_txt_send),
+        VOICE_RECEIVED(R.layout.cell_voice_received),
+        VOICE_SEND(R.layout.cell_voice_send),
 
         //视频消息
 //        VIDEO_RECEIVED(R.layout.cell_txt_received),
@@ -47,8 +63,8 @@ public class ChatEnum {
 //        EMOTICON_SEND(R.layout.cell_txt_send),
 
         //名片消息
-        CARD_RECEIVED(R.layout.cell_txt_received),
-        CARD_SEND(R.layout.cell_txt_send),
+        CARD_RECEIVED(R.layout.cell_card_received),
+        CARD_SEND(R.layout.cell_card_send),
 
         //红包消息
         RED_ENVELOPE_RECEIVED(R.layout.cell_txt_received),
@@ -60,7 +76,10 @@ public class ChatEnum {
 //        MULTI_SEND(R.layout.cell_txt_send),
 
         //通知消息
-        NOTICE(R.layout.cell_notice);
+        NOTICE(R.layout.cell_notice),
+
+        //未知消息
+        UNRECOGNIZED(R.layout.cell_txt_received);
 
 
         public final int LayoutId;
@@ -105,22 +124,24 @@ public class ChatEnum {
     /*
      * cell 点击事件类型
      * */
-    @IntDef({CoreEnum.ESureType.NO, CoreEnum.ESureType.YES})
+    @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, LONG_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
         int IMAGE_CLICK = 1;//点击图片
         int CARD_CLICK = 2;//点击名片
         int RED_ENVELOPE_CLICK = 3;//点击红包
+        int LONG_CLICK = 4;//长按事件
     }
 
 
     /*
      * 消息type
      * */
-    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT})
+    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, UNRECOGNIZED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
+        int UNRECOGNIZED = -1; //未识别
         int NOTICE = 0; //公告
         int TEXT = 1;//文本
         int STAMP = 2;//戳一下

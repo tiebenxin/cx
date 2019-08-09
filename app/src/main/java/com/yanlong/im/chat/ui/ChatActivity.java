@@ -41,6 +41,7 @@ import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -1206,8 +1207,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+
     @Override
-    public void onEvent(ChatEnum.ECellEventType type, Object o1, Object o2) {
+    public void onEvent(int type, MsgAllBean message, Object o2) {
+        if (message == null) {
+            return;
+        }
+        switch (type) {
+            case ChatEnum.ECellEventType.TXT_CLICK:
+                break;
+            case ChatEnum.ECellEventType.IMAGE_CLICK:
+                showBigPic(message.getMsg_id(), message.getImage().getThumbnailShow());
+                break;
+            case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
+
+                break;
+            case ChatEnum.ECellEventType.CARD_CLICK:
+                if (o2 != null && o2 instanceof BusinessCardMessage) {
+                    BusinessCardMessage cardMessage = (BusinessCardMessage) o2;
+                    startActivity(new Intent(getContext(), UserInfoActivity.class)
+                            .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
+                }
+
+                break;
+
+        }
 
     }
 
@@ -1524,11 +1548,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             startService(new Intent(getContext(), UpLoadService.class));
 
                         } else {
-                            MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
-                            SocketUtil.getSocketUtil().sendData4Msg(bean);
                             //点击发送的时候如果要改变成发送中的状态
                             remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                             DaoUtil.update(remsg);
+                            LogUtil.getLog().d(TAG,"点击重复发送"+remsg.getMsg_id());
+                            MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
+                            SocketUtil.getSocketUtil().sendData4Msg(bean);
+
 
                             taskRefreshMessage();
                         }
@@ -1571,7 +1597,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
-                            menus.add(new OptionMenu("撤回"));
+                            if(System.currentTimeMillis()- msgbean.getTimestamp()<2*60*1000) {//两分钟内可以删除
+                                menus.add(new OptionMenu("撤回"));
+                            }
                         }
 
                         showPop(v, menus, msgbean);
@@ -1638,12 +1666,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     } else if (menu.getTitle().equals("扬声器播放")) {
                         msgDao.userSetingVoicePlayer(0);
                     } else if (menu.getTitle().equals("撤回")) {
-                        msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                        msgListData.remove(msgbean);
-                        notifyData();
-                        //8.7 这里还要发送撤回指令
-                        // ToastUtil.show(getContext(),"这里还要写发送撤回指令");
-                        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+
+                            //收到ack后删除
+                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                            msgListData.remove(msgbean);
+                            notifyData();
+
+                            SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+
+
                     }
                     menuView.dismiss();
                     return true;
@@ -1817,7 +1848,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskMkName(List<MsgAllBean> msgListData) {
         mks.clear();
         for (MsgAllBean msg : msgListData) {
-            if (msg.getMsg_type() == 0) {  //通知类型的不处理
+            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE) {  //通知类型的不处理
                 continue;
             }
             String k = msg.getFrom_uid() + "";

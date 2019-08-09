@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -21,16 +22,17 @@ import static android.view.View.VISIBLE;
 
 public abstract class ChatCellBase implements View.OnClickListener {
 
-    private final ICellEventListener mCellListener;
+    public final ICellEventListener mCellListener;
     private final View viewRoot;
-    private final MessageAdapter mAdapter;
+    public final MessageAdapter mAdapter;
     private TextView tv_time, tv_name;
     private SimpleDraweeView iv_avatar;
-    private final Context mContext;
-    boolean isGroup;
-    private MsgAllBean model;
+    public final Context mContext;
+    public boolean isGroup;
+    public MsgAllBean model;
     private int currentPosition;
     private ImageView iv_error;
+    private View bubbleLayout;
 
     protected ChatCellBase(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
         mContext = context;
@@ -45,7 +47,19 @@ public abstract class ChatCellBase implements View.OnClickListener {
     }
 
     protected void initListener() {
+        if (bubbleLayout != null) {
+            bubbleLayout.setOnClickListener(this);
 
+            bubbleLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (mCellListener != null) {
+                        mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, null);
+                    }
+                    return true;
+                }
+            });
+        }
     }
 
     protected void initView() {
@@ -56,12 +70,16 @@ public abstract class ChatCellBase implements View.OnClickListener {
         iv_avatar = viewRoot.findViewById(R.id.iv_avatar);
         tv_name = viewRoot.findViewById(R.id.tv_name);
         iv_error = viewRoot.findViewById(R.id.iv_error);
+        bubbleLayout = viewRoot.findViewById(R.id.ll_bubble);
 
     }
 
     @Override
     public void onClick(View view) {
-
+        int id = view.getId();
+        if (id == bubbleLayout.getId()) {
+            onBubbleClick();
+        }
     }
 
     /*
@@ -147,8 +165,11 @@ public abstract class ChatCellBase implements View.OnClickListener {
         if (mContext == null || iv_avatar == null) {
             return;
         }
+        RequestOptions options = new RequestOptions();
+        options.centerCrop();
         Glide.with(mContext)
                 .load(model.getFrom_avatar())
+                .apply(options)
                 .into(iv_avatar);
 
     }
@@ -171,6 +192,10 @@ public abstract class ChatCellBase implements View.OnClickListener {
         model = bean;
         this.currentPosition = p;
         showMessage(bean);
+    }
+
+    public void onBubbleClick() {
+
     }
 
 }

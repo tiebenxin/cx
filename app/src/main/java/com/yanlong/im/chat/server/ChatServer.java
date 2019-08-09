@@ -26,6 +26,7 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.TimeToString;
 
 
 import org.greenrobot.eventbus.EventBus;
@@ -103,6 +104,11 @@ public class ChatServer extends Service {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
+
+
+            //收到ack后删除
+         //   msgDao.msgDel4MsgId(msgbean.getMsg_id());
+
 
         }
 
@@ -206,7 +212,9 @@ public class ChatServer extends Service {
                     }
                 case ACTIVE_STAT_CHANGE:
                     updateUserOnlineStatus(msg);
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    EventRefreshFriend event = new EventRefreshFriend();
+                    event.setLocal(true);
+                    EventBus.getDefault().post(event);
                     EventBus.getDefault().post(new EventUserOnlineChange());
                     return;
                 case ASSISTANT:
@@ -396,8 +404,15 @@ public class ChatServer extends Service {
         if (message == null) {
             return;
         }
+        fetchTimeDiff(message.getTimestamp());
         UserDao userDao = new UserDao();
-        userDao.updeteUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
+        userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
 
+    }
+
+    private void fetchTimeDiff(long timestamp) {
+        long current = System.currentTimeMillis();//系统当前时间
+        TimeToString.DIFF_TIME = timestamp - current;
+        LogUtil.getLog().i("服务器时间与本地时间差值=", TimeToString.DIFF_TIME + "");
     }
 }

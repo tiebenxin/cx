@@ -6,10 +6,10 @@ import com.yanlong.im.chat.ui.cell.IChatModel;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.socket.MsgBean;
+
+import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 public class MsgAllBean extends RealmObject implements IChatModel {
@@ -180,7 +180,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         String str = "";
         if (msg_type == ChatEnum.EMessageType.NOTICE) {
             //公告:
-            str = "" + getMsgNotice().getNote();
+            //8.9 过滤拉人通知里面的颜色标签
+            str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
 
         } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
             str = getChat().getMsg();
@@ -206,6 +207,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
         return str;
     }
+
 
 
     public void setMsg_type(@ChatEnum.EMessageType Integer msg_type) {
@@ -388,6 +390,35 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 } else {
                     layout = ChatEnum.EChatCellLayout.IMAGE_RECEIVED;
                 }
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD://名片
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.CARD_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.CARD_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.RED_ENVELOPE://红包
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.RED_ENVELOPE_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.RED_ENVELOPE_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.VOICE://语音
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.VOICE_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.VOICE_RECEIVED;
+                }
+                break;
+
+
+            case ChatEnum.EMessageType.UNRECOGNIZED://未识别
+                layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
+                break;
+            default://未识别
+                layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
                 break;
         }
         return layout;
