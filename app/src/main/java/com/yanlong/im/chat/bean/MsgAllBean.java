@@ -8,6 +8,8 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.utils.StringUtil;
+
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -180,7 +182,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         String str = "";
         if (msg_type == ChatEnum.EMessageType.NOTICE) {
             //公告:
-            str = "" + getMsgNotice().getNote();
+            //8.9 过滤拉人通知里面的颜色标签
+            str = "" + StringUtil.delHTMLTag(getMsgNotice().getNote());
 
         } else if (msg_type == ChatEnum.EMessageType.TEXT) {//普通消息
             str = getChat().getMsg();
@@ -206,6 +209,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
         return str;
     }
+
 
 
     public void setMsg_type(@ChatEnum.EMessageType Integer msg_type) {
