@@ -19,8 +19,8 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import net.cb.cb.library.utils.DensityUtil;
 
 public class ChatCellImage extends ChatCellBase {
-    final int DEFAULT_W = DensityUtil.dip2px(getContext(), 150);
-    final int DEFAULT_H = DensityUtil.dip2px(getContext(), 180);
+    final int DEFAULT_W = DensityUtil.dip2px(getContext(), 120);
+    final int DEFAULT_H = DensityUtil.dip2px(getContext(), 160);
     int width = DEFAULT_W;
     int height = DEFAULT_H;
 
@@ -35,6 +35,7 @@ public class ChatCellImage extends ChatCellBase {
     protected void initView() {
         super.initView();
         imageView = getView().findViewById(R.id.iv_img);
+        imageView.setOnClickListener(this);
     }
 
     @SuppressLint("CheckResult")
@@ -68,22 +69,20 @@ public class ChatCellImage extends ChatCellBase {
     }
 
     private void resetSize() {
-        int realW = (int) imageMessage.getWidth();
-        int realH = (int) imageMessage.getHeight();
-        if (realH > 0) {
-            double scale = (realW * 1.00) / realH;
+        double realW = (int) imageMessage.getWidth();
+        double realH = (int) imageMessage.getHeight();
+        if (realH > 0 && realW > 0) {
+            double scale = 1;
             if (realW > realH) {
-                width = getBitmapWidth();
-                height = (int) (width / scale);
-            } else if (realW < realH){
-                height = getBitmapHeight();
-                width = (int) (height * scale);
-            }else {
-                width = height = DEFAULT_W;
+                scale = DEFAULT_W / realW;
+            } else if (realW < realH) {
+                scale = DEFAULT_H / realH;
+            } else {
+                scale = 1;
             }
+            width = (int) (realW * scale);
+            height = (int) (realH * scale);
         }
-
-
     }
 
     private boolean isGif(String path) {
@@ -94,6 +93,23 @@ public class ChatCellImage extends ChatCellBase {
         }
         return false;
     }
+
+    //    private void resetSize() {
+//        int realW = (int) imageMessage.getWidth();
+//        int realH = (int) imageMessage.getHeight();
+//        if (realH > 0) {
+//            double scale = (realW * 1.00) / realH;
+//            if (realW > realH) {
+//                width = getBitmapWidth();
+//                height = (int) (width / scale);
+//            } else if (realW < realH){
+//                height = getBitmapHeight();
+//                width = (int) (height * scale);
+//            }else {
+//                width = height = DEFAULT_W;
+//            }
+//        }
+//    }
 
     public int getBitmapWidth() {
         return getScreenWidth(getContext()) / 2;
@@ -121,4 +137,11 @@ public class ChatCellImage extends ChatCellBase {
         return display.getHeight();
     }
 
+    @Override
+    public void onBubbleClick() {
+        super.onBubbleClick();
+        if (mCellListener != null && model != null) {
+            mCellListener.onEvent(ChatEnum.ECellEventType.IMAGE_CLICK, model, null);
+        }
+    }
 }

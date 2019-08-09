@@ -41,6 +41,7 @@ import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -1210,8 +1211,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+
     @Override
-    public void onEvent(ChatEnum.ECellEventType type, Object o1, Object o2) {
+    public void onEvent(int type, MsgAllBean message, Object o2) {
+        if (message == null) {
+            return;
+        }
+        switch (type) {
+            case ChatEnum.ECellEventType.TXT_CLICK:
+                break;
+            case ChatEnum.ECellEventType.IMAGE_CLICK:
+                showBigPic(message.getMsg_id(), message.getImage().getThumbnailShow());
+                break;
+            case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
+
+                break;
+            case ChatEnum.ECellEventType.CARD_CLICK:
+                if (o2 != null && o2 instanceof BusinessCardMessage) {
+                    BusinessCardMessage cardMessage = (BusinessCardMessage) o2;
+                    startActivity(new Intent(getContext(), UserInfoActivity.class)
+                            .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
+                }
+
+                break;
+
+        }
 
     }
 
@@ -1821,7 +1845,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskMkName(List<MsgAllBean> msgListData) {
         mks.clear();
         for (MsgAllBean msg : msgListData) {
-            if (msg.getMsg_type() == 0) {  //通知类型的不处理
+            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE) {  //通知类型的不处理
                 continue;
             }
             String k = msg.getFrom_uid() + "";
