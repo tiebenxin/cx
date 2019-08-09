@@ -44,18 +44,7 @@ public class RegisterUserNameActivity extends AppActivity {
     }
 
     private void initEvent(){
-        headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
-            @Override
-            public void onBack() {
-                onBackPressed();
-            }
-
-            @Override
-            public void onRight() {
-
-            }
-        });
-
+        headView.getActionbar().getBtnLeft().setVisibility(View.GONE);
         btnCommit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
