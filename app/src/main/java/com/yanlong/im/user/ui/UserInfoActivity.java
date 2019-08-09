@@ -201,7 +201,9 @@ public class UserInfoActivity extends AppActivity {
         viewComplaint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                go(ComplaintActivity.class);
+                Intent intent = new Intent(UserInfoActivity.this,ComplaintActivity.class);
+                intent.putExtra(ComplaintActivity.UID,id.toString());
+                startActivity(intent);
             }
         });
         viewDel.setOnClickListener(new View.OnClickListener() {
@@ -508,7 +510,6 @@ public class UserInfoActivity extends AppActivity {
                     EventBus.getDefault().post(new EventRefreshFriend());
                     finish();
                 }
-
             }
         });
     }

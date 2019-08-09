@@ -689,12 +689,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             showSendObj(msgAllbean);
                         }
                     });
-
-
                 }
             }
-
-
         }));
 
         //群助手
