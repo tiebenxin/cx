@@ -505,6 +505,7 @@ public class UserInfoActivity extends AppActivity {
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
+                    EventBus.getDefault().post(new EventRefreshFriend());
                     finish();
                 }
 

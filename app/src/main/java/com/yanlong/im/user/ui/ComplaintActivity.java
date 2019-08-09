@@ -20,26 +20,27 @@ public class ComplaintActivity extends AppActivity {
     private net.cb.cb.library.view.MultiListView mtListView;
 
 
-
     //自动寻找控件
-    private void findViews(){
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
-        actionbar=headView.getActionbar();
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+    private void findViews() {
+        headView = findViewById(R.id.headView);
+        actionbar = headView.getActionbar();
+        mtListView = findViewById(R.id.mtListView);
     }
 
 
-
     //自动生成的控件事件
-    private void initEvent(){
+    private void initEvent() {
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed(); }
+                onBackPressed();
+            }
+
             @Override
             public void onRight() {
 
-            } });
+            }
+        });
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
@@ -59,7 +60,7 @@ public class ComplaintActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return null==null?10:0;
+            return null == null ? 10 : 0;
         }
 
         //自动生成控件事件
@@ -87,7 +88,6 @@ public class ComplaintActivity extends AppActivity {
                 super(convertView);
                 txtComplaintTitle = (TextView) convertView.findViewById(R.id.txt_complaint_title);
             }
-
         }
     }
 

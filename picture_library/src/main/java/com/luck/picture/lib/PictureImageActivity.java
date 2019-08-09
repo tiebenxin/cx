@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -222,6 +223,7 @@ public class PictureImageActivity extends PictureBaseActivity implements View.On
                                 public void onLoadFailed(@Nullable Drawable errorDrawable) {
                                     super.onLoadFailed(errorDrawable);
                                     dismissDialog();
+                                    imageView.setImageResource(R.drawable.ic_info_head);
                                 }
 
                                 @Override

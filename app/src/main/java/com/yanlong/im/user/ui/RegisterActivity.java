@@ -155,10 +155,6 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     private void register() {
         String phone = mEtPhoneContent.getText().toString();
         String code = mEtIdentifyingCodeContent.getText().toString();
-
-        Intent intent = new Intent(this, RegisterUserNameActivity.class);
-        startActivity(intent);
-
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(this, "请输入手机号");
             return;
@@ -171,9 +167,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             ToastUtil.show(this, "手机号不合法");
             return;
         }
-
         taskRegister(phone, code);
-
     }
 
 

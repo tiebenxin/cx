@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -12,8 +13,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.jrmf360.tools.utils.ScreenUtil;
-import com.luck.picture.lib.PictureSelector;
-import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -35,13 +34,14 @@ import java.util.List;
  * @创建时间 2019/7/26 0026 9:47
  */
 public class BackgroundImageActivity extends AppActivity {
-
+    public static int IMAGE_POSTION = 1365;
     private HeadView headView;
     private MultiListView mtListView;
     private int[] images = {R.mipmap.thumbnail_image0, R.mipmap.thumbnail_image1, R.mipmap.thumbnail_image2, R.mipmap.thumbnail_image3,
             R.mipmap.thumbnail_image4, R.mipmap.thumbnail_image5, R.mipmap.thumbnail_image6,
             R.mipmap.thumbnail_image7, R.mipmap.thumbnail_image8};
     private List<BackgroundImageBean> list = new ArrayList<>();
+    private BackgrundImageAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +54,13 @@ public class BackgroundImageActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
+        adapter = new BackgrundImageAdapter();
         mtListView = findViewById(R.id.mtListView);
-        mtListView.init(new BackgrundImageAdapter());
+        mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
-        mtListView.getListView().setLayoutManager(new GridLayoutManager(this, 3));
+        mtListView.getListView().setLayoutManager(new GridLayoutManager(this, 3,GridLayoutManager.VERTICAL,false));
         int screenWidth = ScreenUtils.getScreenWidth(this); //屏幕宽度
-        int itemWidth = ScreenUtil.dp2px(this, 90); //每个item的宽度
+        int itemWidth = ScreenUtil.dp2px(this, 115); //每个item的宽度
         mtListView.getListView().addItemDecoration(new SpaceItemDecoration((screenWidth - itemWidth * 3) / 6, this));
 
     }
@@ -110,6 +111,15 @@ public class BackgroundImageActivity extends AppActivity {
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            adapter.setSelect(data.getIntExtra(ShowBigImgActivity.POSTION,0));
+        }
+
+    }
+
     class BackgrundImageAdapter extends RecyclerView.Adapter<BackgrundImageAdapter.BackgroundViewHolder> {
 
         @Override
@@ -133,6 +143,7 @@ public class BackgroundImageActivity extends AppActivity {
                 public void onClick(View v) {
                     Intent intent = new Intent(context, ShowBigImgActivity.class);
                     String head = "android.resource://" + getPackageName() + "/";
+                    intent.putExtra(ShowBigImgActivity.POSTION,i);
                     switch (i) {
                         case 0:
                             return;
@@ -161,8 +172,7 @@ public class BackgroundImageActivity extends AppActivity {
                             intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image8);
                             break;
                     }
-                    startActivity(intent);
-
+                    startActivityForResult(intent,IMAGE_POSTION);
 
                 }
             });
@@ -177,7 +187,7 @@ public class BackgroundImageActivity extends AppActivity {
         }
 
 
-        private void setSelect(int postion) {
+        public void setSelect(int postion) {
             for (int i = 0; i < list.size(); i++) {
                 if (i == postion) {
                     list.get(i).setSelect(true);
