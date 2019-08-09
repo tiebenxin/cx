@@ -1528,11 +1528,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             startService(new Intent(getContext(), UpLoadService.class));
 
                         } else {
-                            MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
-                            SocketUtil.getSocketUtil().sendData4Msg(bean);
                             //点击发送的时候如果要改变成发送中的状态
                             remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                             DaoUtil.update(remsg);
+                            LogUtil.getLog().d(TAG,"点击重复发送"+remsg.getMsg_id());
+                            MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
+                            SocketUtil.getSocketUtil().sendData4Msg(bean);
+
 
                             taskRefreshMessage();
                         }
