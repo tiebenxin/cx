@@ -44,18 +44,7 @@ public class RegisterUserNameActivity extends AppActivity {
     }
 
     private void initEvent(){
-        headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
-            @Override
-            public void onBack() {
-                onBackPressed();
-            }
-
-            @Override
-            public void onRight() {
-
-            }
-        });
-
+        headView.getActionbar().getBtnLeft().setVisibility(View.GONE);
         btnCommit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,8 +71,9 @@ public class RegisterUserNameActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
-                ToastUtil.show(context,response.body().getMsg());
+
                 if(response.body().isOk()){
+                    ToastUtil.show(context,"注册成功");
                     Intent intent = new Intent(getContext(), MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

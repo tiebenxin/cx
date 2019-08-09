@@ -56,7 +56,7 @@ public class QRCodeManage {
      */
     public static QRCodeBean getQRCodeBean(Context context, String QRCode) {
         QRCodeBean bean = null;
-        Log.v(TAG,"二维码"+QRCode);
+        Log.v(TAG, "二维码" + QRCode);
         if (!TextUtils.isEmpty(QRCode)) {
             String oneStrs[] = QRCode.split("//");
             if (oneStrs == null || oneStrs.length > 2) {
@@ -125,8 +125,13 @@ public class QRCodeManage {
                     }
                 }
             } else if (bean.getFunction().equals(ADD_GROUP_FUNCHTION)) {
-                if (!TextUtils.isEmpty(bean.getParameterValue(ID)) && !TextUtils.isEmpty(bean.getParameterValue(UID))) {
-                    taskGroupInfo(bean.getParameterValue(ID), bean.getParameterValue(UID),bean.getParameterValue(NICK_NAME),activity);
+                Log.v(TAG, "time------->" + DateUtils.timeStamp2Date(Long.valueOf(bean.getParameterValue(TIME)), null));
+                if(DateUtils.isPastDue(Long.valueOf(bean.getParameterValue(TIME)))){
+                    ToastUtil.show(activity,"二维码已过期");
+                }else{
+                    if (!TextUtils.isEmpty(bean.getParameterValue(ID)) && !TextUtils.isEmpty(bean.getParameterValue(UID))) {
+                        taskGroupInfo(bean.getParameterValue(ID), bean.getParameterValue(UID), bean.getParameterValue(NICK_NAME), activity);
+                    }
                 }
             }
         }
@@ -226,6 +231,7 @@ public class QRCodeManage {
         Date date = new Date(System.currentTimeMillis());
         String changeTime = DateUtils.getOldDateByDay(date, distanceDay, "yyyy-MM-dd HH:mm:ss");
         time = DateUtils.date2TimeStamp(changeTime, "yyyy-MM-dd HH:mm:ss");
+        Log.v(TAG,"生成时间戳------>"+time);
         return time;
     }
 

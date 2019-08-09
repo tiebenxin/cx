@@ -16,7 +16,8 @@
             android:id="@+id/mtListView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="10dp" />
+            android:layout_marginLeft="22dp"
+            android:paddingTop="20dp" />
     </LinearLayout>
 
 </net.cb.cb.library.view.HeadView>

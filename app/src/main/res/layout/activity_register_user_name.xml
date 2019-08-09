@@ -20,6 +20,7 @@
             android:layout_height="40dp"
             android:paddingLeft="2dp"
             android:paddingRight="2dp"
+            android:maxLength="16"
             android:lines="1"
             android:background="@drawable/bg_edt1"/>
 
