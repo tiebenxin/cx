@@ -5,6 +5,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -259,7 +260,7 @@ public class UserDao {
      * @param type 0:不在线,1:在线
      * @param time 离线需要更新离线时间
      */
-    public void updeteUserOnlineStatus(Long uid, int type, long time) {
+    public void updateUserOnlineStatus(Long uid, int type, long time) {
         try {
             Realm realm = DaoUtil.open();
             realm.beginTransaction();
@@ -268,7 +269,9 @@ public class UserDao {
                 userInfo.setActiveType(type);
                 if (type == CoreEnum.ESureType.NO) {
                     userInfo.setLastonline(time);
+                    LogUtil.getLog().i("updateUserOnlineStatus", uid + "的离线时间=" + time);
                 }
+//                userInfo.setLastonline(time);
                 realm.insertOrUpdate(userInfo);
             }
             realm.commitTransaction();
