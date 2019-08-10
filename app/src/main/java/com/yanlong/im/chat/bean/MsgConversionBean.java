@@ -2,7 +2,6 @@ package com.yanlong.im.chat.bean;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
@@ -29,8 +28,9 @@ public class MsgConversionBean {
         return ToBean(bean, null);
     }
 
-    public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean, MsgBean.UniversalMessage.Builder msg) {
 
+    public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean, MsgBean.UniversalMessage.Builder msg) {
+         MsgDao msgDao=  new MsgDao();
         //手动处理转换
         MsgAllBean msgAllBean = new MsgAllBean();
 
@@ -173,12 +173,12 @@ public class MsgConversionBean {
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
                     //7.13 加入替换自己的昵称
                     if (bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
-                        names += "你,";
+                        names += "你、";
                     } else {
                         String name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
                         Long uid = bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
 
-                        MsgAllBean gmsg = new MsgDao().msgGetLastGroup4Uid(bean.getGid(), uid);
+                        MsgAllBean gmsg =msgDao.msgGetLastGroup4Uid(bean.getGid(), uid);
                         if (gmsg != null) {
                             name = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : name;
                         }
@@ -189,7 +189,7 @@ public class MsgConversionBean {
                         }
 
 
-                        names += name + ",";
+                        names += "\"<font color='#276baa'>"+name + "</font>\"、";
                     }
 
                 }
@@ -201,7 +201,7 @@ public class MsgConversionBean {
                     inviterName = "你";
                 } else {
 
-                    MsgAllBean gmsg = new MsgDao().msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
+                    MsgAllBean gmsg =msgDao.msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
                     if (gmsg != null) {
                         inviterName = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : inviterName;
                     }
@@ -210,6 +210,8 @@ public class MsgConversionBean {
                     if (userinfo != null) {
                         inviterName = StringUtil.isNotNull(userinfo.getMkName()) ? userinfo.getMkName() : inviterName;
                     }
+
+                    inviterName="\"<font color='#276baa'>"+inviterName+ "</font>\"";
 
                 }
 
@@ -220,9 +222,9 @@ public class MsgConversionBean {
 
                 String node = "";
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
-                    node = names + "通过扫码" + inviterName + "分享的二维码加入群聊";
+                    node = names + "通过扫" + inviterName + "分享的二维码加入了群聊";
                 } else {//被邀请
-                    node = inviterName + "邀请" + names + "加入群聊";
+                    node = inviterName + "邀请" + names + "加入了群聊";
                 }
 
                 // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
@@ -304,15 +306,18 @@ public class MsgConversionBean {
                 break;
             case CANCEL://撤回消息
 
+                String rname="";
                 if (bean.getFromUid() == UserAction.getMyId().longValue()) {
-                    msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
-                    MsgNotice msgCel = new MsgNotice();
-                    msgCel.setMsgid(msgAllBean.getMsg_id());
-                    msgCel.setNote("你撤回了一条消息");
-                    msgAllBean.setMsgNotice(msgCel);
+                    rname="你";
                 }else{//对方撤回的消息当通知处理
-                    return null;
+                    rname="\""+msgDao.getUsername4Show(bean.getGid(),bean.getFromUid())+"\"";
+                    //return null;
                 }
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                MsgNotice msgCel = new MsgNotice();
+                msgCel.setMsgid(msgAllBean.getMsg_id());
+                msgCel.setNote(rname+"撤回了一条消息");
+                msgAllBean.setMsgNotice(msgCel);
 
 
 

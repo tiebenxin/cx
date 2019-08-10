@@ -105,6 +105,11 @@ public class ChatServer extends Service {
         @Override
         public void onACK(MsgBean.AckMessage bean) {
 
+
+            //收到ack后删除
+         //   msgDao.msgDel4MsgId(msgbean.getMsg_id());
+
+
         }
 
         @Override

@@ -34,7 +34,6 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
@@ -55,7 +54,6 @@ import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PopView;
 import net.cb.cb.library.view.StrikeButton;
@@ -396,13 +394,15 @@ public class MsgMainFragment extends Fragment {
                         } else {
                             String name = "";
                             if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-                                name = msginfo.getFrom_nickname() + " : ";
+                               /* name = msginfo.getFrom_nickname() + " : ";
                                 UserInfo fuser = msginfo.getFrom_user();
 
                                 if (fuser != null && StringUtil.isNotNull(fuser.getMkName())) {
                                     name = fuser.getMkName() + " : ";
 
-                                }
+                                }*/
+                               //8.9 处理群昵称
+                                name=msgDao.getUsername4Show(msginfo.getGid(),msginfo.getFrom_uid(),msginfo.getFrom_nickname(),msginfo.getFrom_group_nickname())+ " : ";
                             }
 
                             info = name + msginfo.getMsg_typeStr();

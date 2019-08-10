@@ -322,6 +322,11 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".user.ui.ComplaintUploadActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
         <!--实名认证-->
         <activity
             android:name=".user.ui.IdentificationCentreActivity"
@@ -431,7 +436,6 @@
             android:name=".user.ui.BackgroundImageActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-
 
 
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">

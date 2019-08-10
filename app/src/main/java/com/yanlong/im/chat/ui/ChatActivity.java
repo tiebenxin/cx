@@ -690,12 +690,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             showSendObj(msgAllbean);
                         }
                     });
-
-
                 }
             }
-
-
         }));
 
         //群助手
@@ -1609,7 +1605,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
-                            menus.add(new OptionMenu("撤回"));
+                            if(System.currentTimeMillis()- msgbean.getTimestamp()<2*60*1000) {//两分钟内可以删除
+                                menus.add(new OptionMenu("撤回"));
+                            }
                         }
 
                         showPop(v, menus, msgbean);
@@ -1750,22 +1748,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     ClipData mClipData = ClipData.newPlainText(txt, txt);
                     cm.setPrimaryClip(mClipData);
 
-                } else if (menu.getTitle().equals("听筒播放")) {
-                    msgDao.userSetingVoicePlayer(1);
-                } else if (menu.getTitle().equals("扬声器播放")) {
-                    msgDao.userSetingVoicePlayer(0);
-                } else if (menu.getTitle().equals("撤回")) {
-                    msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                    msgListData.remove(msgbean);
-                    notifyData();
-                    //8.7 这里还要发送撤回指令
-                    // ToastUtil.show(getContext(),"这里还要写发送撤回指令");
-                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+                    } else if (menu.getTitle().equals("听筒播放")) {
+                        msgDao.userSetingVoicePlayer(1);
+                    } else if (menu.getTitle().equals("扬声器播放")) {
+                        msgDao.userSetingVoicePlayer(0);
+                    } else if (menu.getTitle().equals("撤回")) {
+
+                            //收到ack后删除
+                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                            msgListData.remove(msgbean);
+                            notifyData();
+
+                            SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+
+
+                    }
+                    menuView.dismiss();
+                    return true;
                 }
-                menuView.dismiss();
-                return true;
-            }
-        });
+            });
 
         menuView.show(v);
     }

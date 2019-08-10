@@ -599,7 +599,7 @@ public class MsgDao {
                 session.setUnread_count(isCancel ? 0 : 1);
 
             } else {
-                int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
+                int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
                 num = num < 0 ? 0 : num;
                 session.setUnread_count(num);
             }
@@ -616,7 +616,7 @@ public class MsgDao {
                 session.setUnread_count(isCancel ? 0 : 1);
 
             } else {
-                int num = isCancel ? session.getUnread_count() - 1 : session.getUnread_count() + 1;
+                int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
                 num = num < 0 ? 0 : num;
                 session.setUnread_count(num);
             }
@@ -1213,6 +1213,71 @@ public class MsgDao {
 
         return ret;
 
+    }
+
+    /***
+     * 获取用户需要展示的群名字
+     * @param gid
+     * @param uid
+     * @return
+     */
+    public String getUsername4Show(String gid, Long uid){
+        return getUsername4Show(gid,uid,null,null);
+    }
+
+    /***
+     * 获取用户需要展示的群名字
+     * @param gid
+     * @param uid
+     * @param uname 用户最新的昵称
+     * @param groupName 群最新的昵称
+     * @return
+     */
+    public String getUsername4Show(String gid, Long uid, String uname, String groupName){
+        String name="";
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        UserInfo userInfo=realm.where(UserInfo.class).equalTo("uid",uid).findFirst();
+        if(userInfo!=null){
+            //1.获取本地用户昵称
+            name=userInfo.getName();
+            //1.5如果有带过来的昵称先显示昵称
+            name=StringUtil.isNotNull(uname)?uname:name;
+
+            //1.8  如果有带过来的群昵称先显示群昵称
+            if(StringUtil.isNotNull(groupName)){
+                name=groupName;
+            }else {
+                GropLinkInfo gropLinkInfo=null;
+                if(StringUtil.isNotNull(gid)){
+                    gropLinkInfo=realm.where(GropLinkInfo.class).equalTo("gid",gid).equalTo("uid",uid).findFirst();
+                }
+
+                if(gropLinkInfo!=null){
+                    //2.获取群成员昵称
+                    name= StringUtil.isNotNull(gropLinkInfo.getMembername())?gropLinkInfo.getMembername():name;
+                }
+            }
+
+
+            //3.获取用户备注名
+            name=StringUtil.isNotNull(userInfo.getMkName())?userInfo.getMkName():name;
+
+
+
+
+        }else{
+            name=StringUtil.isNotNull(uname)?uname:name;
+            name=StringUtil.isNotNull(groupName)?groupName:name;
+
+        }
+
+
+
+        realm.commitTransaction();
+        realm.close();
+
+        return name;
     }
 
 }

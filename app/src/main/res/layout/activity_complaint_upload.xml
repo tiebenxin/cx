@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/tools"
+    android:id="@+id/headView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:headview_title="用户投诉">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            style="@style/app_txt_title_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="对方违规行为描叙:" />
+
+        <EditText
+            android:id="@+id/ed_content"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/bg_edt1"
+            android:gravity="top"
+            android:hint="请描述对方的违规行为,时间和内容"
+            android:padding="5dp"
+            android:textSize="16sp" />
+
+
+        <TextView
+            style="@style/app_txt_title_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="违规截图:" />
+
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@+id/image_view"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="15dp"
+            app:placeholderImage="@mipmap/ic_img_def" />
+
+        <Button
+            android:id="@+id/btn_commit"
+            style="@style/app_btn_green"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginRight="10dp"
+            android:text="确定" />
+    </LinearLayout>
+</net.cb.cb.library.view.HeadView>

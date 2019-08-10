@@ -633,5 +633,12 @@ public class UserAction {
         NetUtil.getNet().exec(server.initUserPassword(password), callback);
     }
 
-}
+    /**
+     * 投诉
+     */
+    public void userComplaint(int complaintType, String illegalDescription, String illegalImage, String respondentGid, String respondentUid, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.userComplaint(complaintType, illegalDescription, illegalImage, respondentGid, respondentUid), callback);
+    }
 
+
+}
