@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,15 +37,16 @@ public class VoiceView extends LinearLayout {
 
     //自动寻找控件
     private void findViews(View rootView) {
-        viewOtVoice =  rootView.findViewById(R.id.view_ot_voice);
-        txtOtVoice =  rootView.findViewById(R.id.txt_ot_voice);
-        viewOtP =  rootView.findViewById(R.id.view_ot_p);
-        imgOtUnRead =  rootView.findViewById(R.id.img_ot_unread);
-        viewMeVoice =  rootView.findViewById(R.id.view_me_voice);
-        viewMeP =  rootView.findViewById(R.id.view_me_p);
-        txtMeVoice =  rootView.findViewById(R.id.txt_me_voice);
-        imgOtIcon =  rootView.findViewById(R.id.img_ot_icon);
-        imgMeIcon =  rootView.findViewById(R.id.img_me_icon);
+        viewOtVoice = (LinearLayout) rootView.findViewById(R.id.view_ot_voice);
+        txtOtVoice = (TextView) rootView.findViewById(R.id.txt_ot_voice);
+        viewOtP = (View) rootView.findViewById(R.id.view_ot_p);
+        imgOtUnRead = (View) rootView.findViewById(R.id.img_ot_unread);
+        viewMeVoice = (LinearLayout) rootView.findViewById(R.id.view_me_voice);
+        viewMeP = (View) rootView.findViewById(R.id.view_me_p);
+        txtMeVoice = (TextView) rootView.findViewById(R.id.txt_me_voice);
+        imgOtIcon = (ImageView) rootView.findViewById(R.id.img_ot_icon);
+        imgMeIcon = (ImageView) rootView.findViewById(R.id.img_me_icon);
+
 
         viewOtVoice.setVisibility(GONE);
         viewMeVoice.setVisibility(GONE);
@@ -79,6 +81,8 @@ public class VoiceView extends LinearLayout {
         } else {
             ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
             ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
+            ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);
+            ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
         }
 
 
@@ -86,12 +90,12 @@ public class VoiceView extends LinearLayout {
         int wsum = getScreenWidth() - DensityUtil.dip2px(getContext(), 74) * 2;//-DensityUtil.dip2px(getContext(),35);
         float x = DensityUtil.dip2px(getContext(), 60);//viewOtP.getX();
         int w = new Float((wsum - x) / 60 * (s)).intValue();
-        LayoutParams lp = (LayoutParams) viewMeP.getLayoutParams();
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) viewMeP.getLayoutParams();
         lp.width = w;
         lp.weight = 1;
         viewMeP.setLayoutParams(lp);
 
-        lp = (LayoutParams) viewOtP.getLayoutParams();
+        lp = (LinearLayout.LayoutParams) viewOtP.getLayoutParams();
         lp.width = w;
         viewOtP.setLayoutParams(lp);
 

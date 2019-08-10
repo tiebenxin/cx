@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -389,7 +390,7 @@ public class MsgMainFragment extends Fragment {
                     msginfo = msgDao.msgGetLast4Gid(bean.getGid());
                     title = ginfo.getName();
                     if (msginfo != null) {
-                        if (msginfo.getMsg_type() == 0) {//通知不要加谁发的消息
+                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE||msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
                             info = msginfo.getMsg_typeStr();
                         } else {
                             String name = "";

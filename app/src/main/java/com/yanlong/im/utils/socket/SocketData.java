@@ -12,6 +12,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
@@ -572,7 +573,7 @@ public class SocketData {
      * @return
      */
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(true, null, toId, toGid, type, value);
+        return send4Base(true,true, null, toId, toGid, type, value);
     }
 
     /***
@@ -585,7 +586,7 @@ public class SocketData {
      * @return
      */
     private static MsgAllBean send4BaseById(String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(true, msgId, toId, toGid, type, value);
+        return send4Base(true,true, msgId, toId, toGid, type, value);
     }
 
     /***
@@ -598,15 +599,15 @@ public class SocketData {
      * @return
      */
     private static MsgAllBean send4BaseJustSave(String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(false, msgId, toId, toGid, type, value);
+        return send4Base(true,false, msgId, toId, toGid, type, value);
     }
 
-    private static MsgAllBean send4Base(boolean isSend, String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
+    private static MsgAllBean send4Base(boolean isSave,boolean isSend, String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, type, value);
 
 
-        if (msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
+        if (isSave&&msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
 
             msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
         }
@@ -1003,7 +1004,12 @@ public class SocketData {
         MsgBean.CancelMessage msg = MsgBean.CancelMessage.newBuilder()
                 .setMsgId(msgId)
                 .build();
-        return send4Base(toId, toGid, MsgBean.MessageType.CANCEL, msg);
+
+        String id=getUUID();
+        MsgAllBean msgAllBean=send4Base(false,true,id,toId, toGid, MsgBean.MessageType.CANCEL, msg);
+        ChatServer.addCanceLsit(id,msgAllBean);
+
+        return  msgAllBean;
     }
 
 

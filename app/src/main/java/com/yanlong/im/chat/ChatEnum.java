@@ -67,8 +67,8 @@ public class ChatEnum {
         CARD_SEND(R.layout.cell_card_send),
 
         //红包消息
-        RED_ENVELOPE_RECEIVED(R.layout.cell_txt_received),
-        RED_ENVELOPE_SEND(R.layout.cell_txt_send),
+        RED_ENVELOPE_RECEIVED(R.layout.cell_redenvelope_received),
+        RED_ENVELOPE_SEND(R.layout.cell_redenvelope_send),
 
 
         //合并转发
@@ -77,6 +77,9 @@ public class ChatEnum {
 
         //通知消息
         NOTICE(R.layout.cell_notice),
+
+        //小助手消息
+        ASSISTANT(R.layout.cell_txt_received),
 
         //未知消息
         UNRECOGNIZED(R.layout.cell_txt_received);
@@ -152,6 +155,7 @@ public class ChatEnum {
         int VOICE = 7;//语音
         int AT = 8;//艾特@消息
         int ASSISTANT = 9;//小助手
+        int MSG_CENCAL = 10; //撤回消息
     }
 
     /*

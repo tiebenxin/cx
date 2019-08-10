@@ -1,15 +1,25 @@
 package com.yanlong.im.chat.dao;
 
+import com.yanlong.im.chat.bean.AssistantMessage;
+import com.yanlong.im.chat.bean.AtMessage;
+import com.yanlong.im.chat.bean.BusinessCardMessage;
+import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgCancel;
+import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.ReceiveRedEnvelopeMessage;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.StampMessage;
+import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
+import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -435,8 +445,57 @@ public class MsgDao {
                     msg.getRed_envelope().deleteFromRealm();
                 if (msg.getTransfer() != null)
                     msg.getTransfer().deleteFromRealm();
+                if(msg.getMsgCancel()!=null)
+                    msg.getMsgCancel().deleteFromRealm();
 
 
+            }
+            list.deleteAllFromRealm();
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /***
+     * 撤回消息
+     * @param msgCancelId
+     */
+    public void msgDel4Cancel(String msgid,String msgCancelId) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        RealmResults<MsgAllBean> list = null;
+
+        list = realm.where(MsgAllBean.class).equalTo("msg_id", msgCancelId).findAll();
+        MsgAllBean cancel=realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+
+        //删除前先把子表数据干掉!!切记
+        if (list != null) {
+            for (MsgAllBean msg : list) {
+                if (msg.getReceive_red_envelope() != null)
+                    msg.getReceive_red_envelope().deleteFromRealm();
+                if (msg.getMsgNotice() != null)
+                    msg.getMsgNotice().deleteFromRealm();
+                if (msg.getBusiness_card() != null)
+                    msg.getBusiness_card().deleteFromRealm();
+                if (msg.getStamp() != null)
+                    msg.getStamp().deleteFromRealm();
+                if (msg.getChat() != null)
+                    msg.getChat().deleteFromRealm();
+                if (msg.getImage() != null)
+                    msg.getImage().deleteFromRealm();
+                if (msg.getRed_envelope() != null)
+                    msg.getRed_envelope().deleteFromRealm();
+                if (msg.getTransfer() != null)
+                    msg.getTransfer().deleteFromRealm();
+                if(msg.getMsgCancel()!=null)
+                    msg.getMsgCancel().deleteFromRealm();
+
+                if(cancel!=null){
+                    cancel.setTimestamp(msg.getTimestamp());
+                    realm.insertOrUpdate(cancel);
+                }
             }
             list.deleteAllFromRealm();
         }
@@ -453,6 +512,28 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         realm.where(MsgAllBean.class).findAll().deleteAllFromRealm();
+        //这里要清除关联表
+        realm.where(ChatMessage.class).findAll().deleteAllFromRealm();
+        realm.where(ImageMessage.class).findAll().deleteAllFromRealm();
+        realm.where(RedEnvelopeMessage.class).findAll().deleteAllFromRealm();
+        realm.where(ReceiveRedEnvelopeMessage.class).findAll().deleteAllFromRealm();
+        realm.where(TransferMessage.class).findAll().deleteAllFromRealm();
+        realm.where(StampMessage.class).findAll().deleteAllFromRealm();
+        realm.where(BusinessCardMessage.class).findAll().deleteAllFromRealm();
+        realm.where(MsgNotice.class).findAll().deleteAllFromRealm();
+        realm.where(MsgCancel.class).findAll().deleteAllFromRealm();
+        realm.where(VoiceMessage.class).findAll().deleteAllFromRealm();
+        realm.where(AtMessage.class).findAll().deleteAllFromRealm();
+        realm.where(AssistantMessage.class).findAll().deleteAllFromRealm();
+
+        //清理角标
+        RealmResults<Session> sessions = realm.where(Session.class).findAll();
+        for(Session session:sessions){
+            session.setUnread_count(0);
+            realm.insertOrUpdate(session);
+        }
+
+
         realm.commitTransaction();
         realm.close();
 
@@ -623,6 +704,10 @@ public class MsgDao {
             session.setUp_time(System.currentTimeMillis());
 
 
+
+        }
+        if(isCancel){//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
+            session.setMessageType(1000);
         }
 
         DaoUtil.update(session);

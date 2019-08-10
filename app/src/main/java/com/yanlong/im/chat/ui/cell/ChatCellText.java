@@ -40,7 +40,11 @@ public class ChatCellText extends ChatCellBase {
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
-        setText(message.getChat().getMsg());
+        if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
+            setText(message.getChat().getMsg());
+        } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
+            setText(message.getAssistantMessage().getMsg());
+        }
     }
 
     private void setText(String msg) {
