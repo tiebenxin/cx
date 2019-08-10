@@ -136,4 +136,9 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean> initUserPassword(@Field("password") String password);
 
+    @POST("complaint/user-complaint")
+    @FormUrlEncoded
+    Call<ReturnBean> userComplaint(@Field("complaintType") Integer complaintType,@Field("illegalDescription") String illegalDescription,
+                                   @Field("illegalImage") String illegalImage,@Field("respondentGid") String respondentGid,@Field("respondentUid") String respondentUid);
+
 }

@@ -15,8 +15,14 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.dao.MsgDao;
 
 import net.cb.cb.library.utils.TimeToString;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import me.kareluo.ui.OptionMenu;
 
 import static android.view.View.VISIBLE;
 
@@ -30,9 +36,10 @@ public abstract class ChatCellBase implements View.OnClickListener {
     public final Context mContext;
     public boolean isGroup;
     public MsgAllBean model;
-    private int currentPosition;
+    public int currentPosition;
     private ImageView iv_error;
-    private View bubbleLayout;
+    public View bubbleLayout;
+    private List<OptionMenu> menus;
 
     protected ChatCellBase(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
         mContext = context;
@@ -43,7 +50,6 @@ public abstract class ChatCellBase implements View.OnClickListener {
         isGroup = mAdapter.isGroup();
         initView();
         initListener();
-
     }
 
     protected void initListener() {
@@ -54,7 +60,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
                 @Override
                 public boolean onLongClick(View v) {
                     if (mCellListener != null) {
-                        mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, null);
+                        mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, menus, bubbleLayout);
                     }
                     return true;
                 }
@@ -94,6 +100,50 @@ public abstract class ChatCellBase implements View.OnClickListener {
         setName();
         setTime();
         setSendStatus();
+        initMenu();
+    }
+
+    private void initMenu() {
+        menus = new ArrayList<>();
+        switch (model.getMsg_type()) {
+            case ChatEnum.EMessageType.NOTICE:
+                break;
+            case ChatEnum.EMessageType.TEXT:
+                menus.add(new OptionMenu("复制"));
+                menus.add(new OptionMenu("转发"));
+                menus.add(new OptionMenu("删除"));
+                break;
+            case ChatEnum.EMessageType.STAMP:
+                menus.add(new OptionMenu("删除"));
+                break;
+            case ChatEnum.EMessageType.RED_ENVELOPE:
+                menus.add(new OptionMenu("删除"));
+                break;
+            case ChatEnum.EMessageType.IMAGE:
+                menus.add(new OptionMenu("转发"));
+                menus.add(new OptionMenu("删除"));
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                menus.add(new OptionMenu("删除"));
+                break;
+            case ChatEnum.EMessageType.VOICE:
+                menus.add(new OptionMenu("删除"));
+                MsgDao msgDao = new MsgDao();
+                if (msgDao.userSetingGet().getVoicePlayer() == 0) {
+                    menus.add(0, new OptionMenu("听筒播放"));
+                } else {
+                    menus.add(0, new OptionMenu("扬声器播放"));
+                }
+                break;
+            case ChatEnum.EMessageType.AT:
+                menus.add(new OptionMenu("复制"));
+                menus.add(new OptionMenu("转发"));
+                menus.add(new OptionMenu("删除"));
+                break;
+            case ChatEnum.EMessageType.ASSISTANT:
+                break;
+
+        }
     }
 
     /*
@@ -132,7 +182,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
         if (tv_time == null) {
             return;
         }
-        if (currentPosition > 0 && (model.getTimestamp() - mAdapter.getPreMessage(currentPosition - 1).getTimestamp()) < (60 * 1000)) {
+        if (currentPosition > 0 && (model.getTimestamp() - mAdapter.getPositionMessage(currentPosition - 1).getTimestamp()) < (60 * 1000)) {
             tv_time.setVisibility(View.GONE);
         } else {
             tv_time.setVisibility(VISIBLE);

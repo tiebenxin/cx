@@ -700,12 +700,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             showSendObj(msgAllbean);
                         }
                     });
-
-
                 }
             }
-
-
         }));
 
         //群助手
@@ -1223,7 +1219,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
     @Override
-    public void onEvent(int type, MsgAllBean message, Object o2) {
+    public void onEvent(int type, MsgAllBean message, Object... args) {
         if (message == null) {
             return;
         }
@@ -1237,12 +1233,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
-                if (o2 != null && o2 instanceof BusinessCardMessage) {
-                    BusinessCardMessage cardMessage = (BusinessCardMessage) o2;
+                if (args[0] != null && args[0] instanceof BusinessCardMessage) {
+                    BusinessCardMessage cardMessage = (BusinessCardMessage) args[0];
                     startActivity(new Intent(getContext(), UserInfoActivity.class)
                             .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
                 }
 
+                break;
+
+            case ChatEnum.ECellEventType.LONG_CLICK:
+                List<OptionMenu> menus = (List<OptionMenu>) args[0];
+                View view = (View) args[1];
+                if (view != null && menus != null && menus.size() > 0) {
+                    showPop(view, menus, message);
+                }
                 break;
 
         }
@@ -1569,7 +1573,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //点击发送的时候如果要改变成发送中的状态
                             remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                             DaoUtil.update(remsg);
-                            LogUtil.getLog().d(TAG,"点击重复发送"+remsg.getMsg_id());
+                            LogUtil.getLog().d(TAG, "点击重复发送" + remsg.getMsg_id());
                             MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
                             SocketUtil.getSocketUtil().sendData4Msg(bean);
 
@@ -1637,6 +1641,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
             });
         }
+
 
         /***
          * 长按的气泡处理
@@ -1708,6 +1713,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             menuView.show(v);
         }
+
 
 
         //自动寻找ViewHold
@@ -1786,6 +1792,80 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             actionbar.setTitle(title);
         }
 
+    }
+
+    /***
+     * 长按的气泡处理
+     * @param v
+     * @param menus
+     * @param msgbean
+     */
+    private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean) {
+        //禁止滑动
+        //mtListView.getListView().setNestedScrollingEnabled(true);
+
+        final PopupMenuView menuView = new PopupMenuView(getContext());
+        menuView.setMenuItems(menus);
+        menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
+            @Override
+            public boolean onOptionMenuClick(int position, OptionMenu menu) {
+                //放开滑动
+                // mtListView.getListView().setNestedScrollingEnabled(true);
+
+
+                if (menu.getTitle().equals("删除")) {
+
+                    AlertYesNo alertYesNo = new AlertYesNo();
+                    alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
+                        @Override
+                        public void onON() {
+
+                        }
+
+                        @Override
+                        public void onYes() {
+                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                            msgListData.remove(msgbean);
+                            notifyData();
+                        }
+                    });
+                    alertYesNo.show();
+
+
+                } else if (menu.getTitle().equals("转发")) {
+                    /*  */
+                    startActivity(new Intent(getContext(), MsgForwardActivity.class)
+                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
+                    );
+
+                } else if (menu.getTitle().equals("复制")) {//只有文本
+                    String txt = msgbean.getChat().getMsg();
+
+                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData mClipData = ClipData.newPlainText(txt, txt);
+                    cm.setPrimaryClip(mClipData);
+
+                    } else if (menu.getTitle().equals("听筒播放")) {
+                        msgDao.userSetingVoicePlayer(1);
+                    } else if (menu.getTitle().equals("扬声器播放")) {
+                        msgDao.userSetingVoicePlayer(0);
+                    } else if (menu.getTitle().equals("撤回")) {
+
+                            //收到ack后删除
+                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                            msgListData.remove(msgbean);
+                            notifyData();
+
+                            SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+
+
+                    }
+                    menuView.dismiss();
+                    return true;
+                }
+            });
+
+        menuView.show(v);
     }
 
 

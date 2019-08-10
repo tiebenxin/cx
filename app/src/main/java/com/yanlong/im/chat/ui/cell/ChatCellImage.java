@@ -19,8 +19,9 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import net.cb.cb.library.utils.DensityUtil;
 
 public class ChatCellImage extends ChatCellBase {
-    final int DEFAULT_W = DensityUtil.dip2px(getContext(), 120);
-    final int DEFAULT_H = DensityUtil.dip2px(getContext(), 160);
+    //w/h = 3/4
+    final int DEFAULT_W = DensityUtil.dip2px(getContext(), 135);
+    final int DEFAULT_H = DensityUtil.dip2px(getContext(), 180);
     int width = DEFAULT_W;
     int height = DEFAULT_H;
 
@@ -68,22 +69,22 @@ public class ChatCellImage extends ChatCellBase {
 
     }
 
-    private void resetSize() {
-        double realW = (int) imageMessage.getWidth();
-        double realH = (int) imageMessage.getHeight();
-        if (realH > 0 && realW > 0) {
-            double scale = 1;
-            if (realW > realH) {
-                scale = DEFAULT_W / realW;
-            } else if (realW < realH) {
-                scale = DEFAULT_H / realH;
-            } else {
-                scale = 1;
-            }
-            width = (int) (realW * scale);
-            height = (int) (realH * scale);
-        }
-    }
+//    private void resetSize() {
+//        double realW = (int) imageMessage.getWidth();
+//        double realH = (int) imageMessage.getHeight();
+//        if (realH > 0 && realW > 0) {
+//            double scale = 1;
+//            if (realW > realH) {
+//                scale = DEFAULT_W / realW;
+//            } else if (realW < realH) {
+//                scale = DEFAULT_H / realH;
+//            } else {
+//                scale = 1;
+//            }
+//            width = (int) (realW * scale);
+//            height = (int) (realH * scale);
+//        }
+//    }
 
     private boolean isGif(String path) {
         if (!TextUtils.isEmpty(path)) {
@@ -94,22 +95,24 @@ public class ChatCellImage extends ChatCellBase {
         return false;
     }
 
-    //    private void resetSize() {
-//        int realW = (int) imageMessage.getWidth();
-//        int realH = (int) imageMessage.getHeight();
-//        if (realH > 0) {
-//            double scale = (realW * 1.00) / realH;
-//            if (realW > realH) {
+    private void resetSize() {
+        int realW = (int) imageMessage.getWidth();
+        int realH = (int) imageMessage.getHeight();
+        if (realH > 0) {
+            double scale = (realW * 1.00) / realH;
+            if (realW > realH) {
 //                width = getBitmapWidth();
-//                height = (int) (width / scale);
-//            } else if (realW < realH){
+                width = DEFAULT_W;
+                height = (int) (width / scale);
+            } else if (realW < realH) {
 //                height = getBitmapHeight();
-//                width = (int) (height * scale);
-//            }else {
-//                width = height = DEFAULT_W;
-//            }
-//        }
-//    }
+                height = DEFAULT_H;
+                width = (int) (height * scale);
+            } else {
+                width = height = DEFAULT_H;
+            }
+        }
+    }
 
     public int getBitmapWidth() {
         return getScreenWidth(getContext()) / 2;

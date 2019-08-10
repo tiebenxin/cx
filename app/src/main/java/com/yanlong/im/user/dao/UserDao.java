@@ -165,9 +165,12 @@ public class UserDao {
                         userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
                         userInfo.setLastonline(System.currentTimeMillis());
                     } else {
-                        userInfo.setuType(2);
+                        userInfo.setuType(ChatEnum.EUserType.FRIEND);
                     }
-
+                    //服务器用户最后在线时间小于本地最后在线时间，则不更新最后在线时间
+                    if (userInfo.getLastonline() < u.getLastonline()) {
+                        userInfo.setLastonline(u.getLastonline());
+                    }
                     realm.copyToRealmOrUpdate(userInfo);
 
 
@@ -269,9 +272,8 @@ public class UserDao {
                 userInfo.setActiveType(type);
                 if (type == CoreEnum.ESureType.NO) {
                     userInfo.setLastonline(time);
-                    LogUtil.getLog().i("updateUserOnlineStatus", uid + "的离线时间=" + time);
+//                    LogUtil.getLog().i("updateUserOnlineStatus", uid + "的离线时间=" + time);
                 }
-//                userInfo.setLastonline(time);
                 realm.insertOrUpdate(userInfo);
             }
             realm.commitTransaction();

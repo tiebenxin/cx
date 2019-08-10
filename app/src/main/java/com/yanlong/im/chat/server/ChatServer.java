@@ -438,8 +438,8 @@ public class ChatServer extends Service {
     }
 
     private void fetchTimeDiff(long timestamp) {
-        long current = System.currentTimeMillis();//系统当前时间
+        long current = System.currentTimeMillis();//本地系统当前时间
         TimeToString.DIFF_TIME = timestamp - current;
-        LogUtil.getLog().i("服务器时间与本地时间差值=", TimeToString.DIFF_TIME + "");
+//        LogUtil.getLog().i("服务器时间与本地时间差值=", TimeToString.DIFF_TIME + "");
     }
 }

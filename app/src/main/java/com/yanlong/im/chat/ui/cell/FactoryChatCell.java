@@ -55,6 +55,9 @@ public class FactoryChatCell {
             case VOICE_SEND:
                 cell = new ChatCellVoice(mContext, layout, mListener, mAdapter, viewGroup);
                 break;
+            case ASSISTANT:
+                cell = new ChatCellText(mContext, layout, mListener, mAdapter, viewGroup);
+                break;
             default:
                 cell = new ChatCellUnrecognized(mContext, layout, mListener, mAdapter, viewGroup);
                 break;

@@ -65,6 +65,16 @@ public class MessageAdapter extends RecyclerView.Adapter {
     }
 
     @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position, @NonNull List payloads) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(viewHolder, position, payloads);
+        } else {
+            ChatCellBase cellBase = (ChatCellBase) viewHolder.itemView.getTag();
+            cellBase.putMessage(mList.get(position), position);
+        }
+    }
+
+    @Override
     public int getItemCount() {
         return mList != null ? mList.size() : 0;
 
@@ -84,11 +94,16 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    //获取前一条消息
-    public MsgAllBean getPreMessage(int position) {
+    //获取某位置消息
+    public MsgAllBean getPositionMessage(int position) {
         if (mList != null && mList.size() > position) {
             return mList.get(position);
         }
         return null;
     }
+
+    public int getMessagePosition(MsgAllBean bean) {
+        return mList.indexOf(bean);
+    }
+
 }
