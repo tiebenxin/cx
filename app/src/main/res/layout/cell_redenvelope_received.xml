@@ -17,18 +17,6 @@
         android:layout_marginBottom="10dp"
         android:text="shijian" />
 
-    <!-- <TextView
-         android:id="@+id/tv_broadcast"
-         style="@style/app_txt_title_2"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_gravity="center_horizontal"
-         android:background="@drawable/bg_time"
-         android:gravity="center"
-         android:singleLine="false"
-         android:text="公告"
-         android:textColor="@color/white" />-->
-
     <LinearLayout
         android:id="@+id/ll_root"
         android:layout_width="wrap_content"
@@ -60,25 +48,71 @@
 
             <LinearLayout
                 android:id="@+id/ll_bubble"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_chat_other"
+                android:layout_width="230dp"
+                android:layout_height="90dp"
+                android:background="@drawable/bg_chat_other_rp"
                 android:gravity="left|center_vertical"
+                android:orientation="vertical"
                 android:visibility="visible">
 
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/tv_content"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="71dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <ImageView
+                        android:id="@+id/iv_rb_state"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_rb_zfb_n" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/app_margin_item"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_rb_title"
+                            style="@style/app_txt_title_2"
+                            android:text="恭喜发财，大吉大利"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tv_rb_info"
+                            style="@style/app_txt_content_1"
+                            android:layout_marginTop="5dp"
+                            android:text="标题"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/emoji_font"
                     android:gravity="center_vertical"
-                    android:maxWidth="260dp"
-                    android:minHeight="30dp"
-                    android:selectAllOnFocus="true"
-                    android:text=""
-                    android:textColor="@color/black"
-                    android:textIsSelectable="false"
-                    android:textSize="15sp" />
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+
+                    <TextView
+                        android:id="@+id/tv_rb_type"
+                        style="@style/app_txt_content_1"
+                        android:layout_width="180dp"
+                        android:layout_weight="1"
+                        android:text="支付宝红包" />
+
+                    <ImageView
+                        android:id="@+id/iv_rb_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_rb_zfb" />
+
+                </LinearLayout>
 
             </LinearLayout>
 

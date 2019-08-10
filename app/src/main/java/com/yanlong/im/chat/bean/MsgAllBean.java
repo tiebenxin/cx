@@ -1,6 +1,8 @@
 package com.yanlong.im.chat.bean;
 
 
+import androidx.annotation.Nullable;
+
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.ui.cell.IChatModel;
 import com.yanlong.im.user.action.UserAction;
@@ -408,7 +410,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.VOICE_RECEIVED;
                 }
                 break;
-
+            case ChatEnum.EMessageType.ASSISTANT://未识别
+                layout = ChatEnum.EChatCellLayout.ASSISTANT;
+                break;
 
             case ChatEnum.EMessageType.UNRECOGNIZED://未识别
                 layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
@@ -418,6 +422,19 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                 break;
         }
         return layout;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof MsgAllBean) {
+            if (((MsgAllBean) obj).msg_id.equals(this.msg_id)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

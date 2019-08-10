@@ -61,7 +61,7 @@ public class VoiceView extends LinearLayout {
 
     }
 
-    public void init(final boolean isMe, final int second, boolean isRead,boolean isPlay) {
+    public void init(final boolean isMe, final int second, boolean isRead, boolean isPlay) {
 
         if (isMe) {
             viewMeVoice.setVisibility(VISIBLE);
@@ -73,18 +73,16 @@ public class VoiceView extends LinearLayout {
         }
         txtOtVoice.setText(second + "''");
         txtMeVoice.setText(second + "''");
-        if(isPlay){
-            ( (AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
-            ( (AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
-            ( (AnimationDrawable) imgMeIcon.getDrawable()).start();
-            ( (AnimationDrawable) imgOtIcon.getDrawable()).start();
-        }else{
-
-            ( (AnimationDrawable) imgMeIcon.getDrawable()).stop();
-
-            ( (AnimationDrawable) imgOtIcon.getDrawable()).stop();
-
-          //
+        if (isPlay) {
+            ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
+            ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
+            ((AnimationDrawable) imgMeIcon.getDrawable()).start();
+            ((AnimationDrawable) imgOtIcon.getDrawable()).start();
+        } else {
+            ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
+            ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
+            ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);
+            ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
         }
 
 
