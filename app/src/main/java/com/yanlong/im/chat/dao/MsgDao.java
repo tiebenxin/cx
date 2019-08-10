@@ -6,6 +6,7 @@ import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.Remind;
 import com.yanlong.im.chat.bean.Session;
@@ -435,8 +436,57 @@ public class MsgDao {
                     msg.getRed_envelope().deleteFromRealm();
                 if (msg.getTransfer() != null)
                     msg.getTransfer().deleteFromRealm();
+                if(msg.getMsgCancel()!=null)
+                    msg.getMsgCancel().deleteFromRealm();
 
 
+            }
+            list.deleteAllFromRealm();
+        }
+
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /***
+     * 撤回消息
+     * @param msgCancelId
+     */
+    public void msgDel4Cancel(String msgid,String msgCancelId) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        RealmResults<MsgAllBean> list = null;
+
+        list = realm.where(MsgAllBean.class).equalTo("msg_id", msgCancelId).findAll();
+        MsgAllBean cancel=realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+
+        //删除前先把子表数据干掉!!切记
+        if (list != null) {
+            for (MsgAllBean msg : list) {
+                if (msg.getReceive_red_envelope() != null)
+                    msg.getReceive_red_envelope().deleteFromRealm();
+                if (msg.getMsgNotice() != null)
+                    msg.getMsgNotice().deleteFromRealm();
+                if (msg.getBusiness_card() != null)
+                    msg.getBusiness_card().deleteFromRealm();
+                if (msg.getStamp() != null)
+                    msg.getStamp().deleteFromRealm();
+                if (msg.getChat() != null)
+                    msg.getChat().deleteFromRealm();
+                if (msg.getImage() != null)
+                    msg.getImage().deleteFromRealm();
+                if (msg.getRed_envelope() != null)
+                    msg.getRed_envelope().deleteFromRealm();
+                if (msg.getTransfer() != null)
+                    msg.getTransfer().deleteFromRealm();
+                if(msg.getMsgCancel()!=null)
+                    msg.getMsgCancel().deleteFromRealm();
+
+                if(cancel!=null){
+                    cancel.setTimestamp(msg.getTimestamp());
+                    realm.insertOrUpdate(cancel);
+                }
             }
             list.deleteAllFromRealm();
         }

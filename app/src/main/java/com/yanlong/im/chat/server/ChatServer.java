@@ -129,7 +129,7 @@ public class ChatServer extends Service {
                 //处理撤回消息
                 if(cancelList.containsKey(msgid)){
                    MsgAllBean msgAllBean= cancelList.get(msgid);
-                    msgDao.msgDel4MsgId(msgAllBean.getMsgCancel().getMsgidCancel());
+                    msgDao.msgDel4Cancel(msgid,msgAllBean.getMsgCancel().getMsgidCancel());
                     cancelList.remove(msgid);
                 }
 
@@ -248,7 +248,7 @@ public class ChatServer extends Service {
                 case ASSISTANT:
                     break;
                 case CANCEL:
-                    //删除消息
+                    //撤回消息
 
                     String gid = msg.getGid();
                     if (!StringUtil.isNotNull(gid)) {
@@ -256,7 +256,7 @@ public class ChatServer extends Service {
                     }
                     long fuid = msg.getFromUid();
                     msgDao.sessionReadUpdate(gid, fuid, true);
-                    msgDao.msgDel4MsgId(msg.getCancel().getMsgId());
+                    msgDao.msgDel4Cancel(msg.getMsgId(),msg.getCancel().getMsgId());
 
                     return;
             }
