@@ -232,12 +232,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
+
+
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
 
                             } else {
                                 needRefresh = msg.getFromUid() == toUId.longValue();
                             }
+
+
+                             if(msg.getMsgType()== MsgBean.MessageType.OUT_GROUP){//提出群的消息是以个人形式发的
+
+                                needRefresh = msg.getOutGroup().getGid().equals(toGid);
+                            }
+
+                             if(msg.getMsgType()== MsgBean.MessageType.REMOVE_GROUP_MEMBER ){//提出群的消息是以个人形式发的
+
+                                needRefresh = msg.getRemoveGroupMember().getGid().equals(toGid);
+                            }
+
                         }
 
 
