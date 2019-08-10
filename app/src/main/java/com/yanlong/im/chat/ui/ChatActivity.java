@@ -955,7 +955,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventExitChat event) {
-        finish();
+        onBackPressed();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
