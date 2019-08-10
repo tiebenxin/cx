@@ -51,6 +51,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private BusinessCardMessage business_card;
 
     private MsgNotice msgNotice;
+    private MsgCancel msgCancel;
 
     private VoiceMessage voiceMessage;
 
@@ -104,6 +105,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public void setFrom_group_nickname(String from_group_nickname) {
         this.from_group_nickname = from_group_nickname;
+    }
+
+    public MsgCancel getMsgCancel() {
+        return msgCancel;
+    }
+
+    public void setMsgCancel(MsgCancel msgCancel) {
+        this.msgCancel = msgCancel;
     }
 
     public String getFrom_nickname() {
@@ -203,6 +212,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = getAtMessage().getMsg();
         } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
             str = "[常聊通知]";
+        }else if(msg_type == ChatEnum.EMessageType.MSG_CENCAL) {//撤回消息
+            str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
         }
 
         return str;

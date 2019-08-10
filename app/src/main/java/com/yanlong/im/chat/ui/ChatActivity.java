@@ -265,9 +265,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 @Override
                 public void run() {
 
+                    //撤回处理
+                    if(bean.getWrapMsg(0).getMsgType()== MsgBean.MessageType.CANCEL){
+                        ToastUtil.show(getContext(),"撤回失败");
+                        return;
+                    }
+
+
 
                     //ToastUtil.show(context, "发送失败" + bean.getRequestId());
                     MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
+                    if(msgAllBean.getMsg_type().intValue()==ChatEnum.EMessageType.MSG_CENCAL){//取消的指令不保存到数据库
+                        return;
+                    }
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
                     //  msgAllBean.setMsg_id("重发" + msgAllBean.getRequest_id());
                     ///这里写库
@@ -1361,6 +1371,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (msgbean.getMsgNotice() != null)
                         holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                     break;
+                case ChatEnum.EMessageType.MSG_CENCAL:
+                    if (msgbean.getMsgCancel() != null)
+                        holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                    break;
                 case 1:
 
                     menus.add(new OptionMenu("复制"));
@@ -1602,7 +1616,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                             if(System.currentTimeMillis()- msgbean.getTimestamp()<2*60*1000) {//两分钟内可以删除
-                                menus.add(new OptionMenu("撤回"));
+                                boolean isExist=false;
+                                for (OptionMenu optionMenu:menus){
+                                   if( optionMenu.getTitle().equals("撤回")){
+                                       isExist=true;
+                                   }
+                                }
+
+                                if(!isExist){
+                                    menus.add(new OptionMenu("撤回"));
+                                }
+
                             }
                         }
 
@@ -1671,10 +1695,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         msgDao.userSetingVoicePlayer(0);
                     } else if (menu.getTitle().equals("撤回")) {
 
-                            //收到ack后删除
-                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                            msgListData.remove(msgbean);
-                            notifyData();
+
 
                             SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
 
