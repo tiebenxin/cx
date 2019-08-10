@@ -4,22 +4,41 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.FutureTarget;
+import com.bumptech.glide.request.target.BaseTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.SizeReadyCallback;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
+import com.facebook.binaryresource.FileBinaryResource;
+import com.facebook.cache.common.SimpleCacheKey;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.gson.Gson;
 import com.google.zxing.WriterException;
+import com.luck.picture.lib.PictureExternalPreviewActivity;
+import com.luck.picture.lib.tools.ScreenUtils;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareListener;
@@ -49,6 +68,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 
 public class MyselfQRCodeActivity extends AppActivity {
@@ -93,6 +113,8 @@ public class MyselfQRCodeActivity extends AppActivity {
         UMShareAPI.get(this);
     }
 
+
+
     private void initEvent() {
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -110,8 +132,8 @@ public class MyselfQRCodeActivity extends AppActivity {
 
     private void initData() {
         QRCodeBean qrCodeBean = new QRCodeBean();
+        UserInfo userInfo = UserAction.getMyInfo();
         if (type == 0) {
-            UserInfo userInfo = UserAction.getMyInfo();
             String uid = userInfo.getUid() + "";
             mImgHead.setImageURI(userInfo.getHead() + "");
             mTvUserName.setText(userInfo.getName() + "");
@@ -119,10 +141,10 @@ public class MyselfQRCodeActivity extends AppActivity {
             qrCodeBean.setFunction(QRCodeManage.ADD_FRIEND_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, uid);
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
+
+
         } else {
             Intent intent = getIntent();
-            UserInfo userInfo = UserAction.getMyInfo();
-
             groupId = intent.getStringExtra(GROUP_ID);
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
@@ -137,12 +159,34 @@ public class MyselfQRCodeActivity extends AppActivity {
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
         }
         try {
-            Bitmap bitmap = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(this, 300));
-            mCrCode.setImageBitmap(bitmap);
+            if(type == 0){
+                Glide.with(MyselfQRCodeActivity.this)
+                        .asBitmap()
+                        .load(userInfo.getHead())
+                        .into(new SimpleTarget<Bitmap>(150,150) {
+                            @Override
+                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                super.onLoadFailed(errorDrawable);
+                            }
+
+                            @Override
+                            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                                Bitmap bitmap = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(MyselfQRCodeActivity.this, 300),
+                                        DensityUtil.dip2px(MyselfQRCodeActivity.this, 300),resource);
+                                mCrCode.setImageBitmap(bitmap);
+                            }
+                        });
+
+            }else{
+                Bitmap bitmap = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(this, 300));
+                mCrCode.setImageBitmap(bitmap);
+            }
+
         } catch (WriterException e) {
             e.printStackTrace();
         }
     }
+
 
     private void initPopup() {
         popupSelectView = new PopupSelectView(this, strings);

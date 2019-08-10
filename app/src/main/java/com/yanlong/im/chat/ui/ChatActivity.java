@@ -832,18 +832,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (open == null) {
             open = txtVoice.getVisibility() == View.GONE ? true : false;
         }
-
-
         if (open) {
-
             showBtType(2);
         } else {
             showVoice(false);
             hideBt();
-
         }
-
-
     }
 
     private void showVoice(boolean show) {
