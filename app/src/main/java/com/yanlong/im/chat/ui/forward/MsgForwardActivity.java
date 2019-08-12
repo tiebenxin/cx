@@ -1,8 +1,10 @@
 package com.yanlong.im.chat.ui.forward;
 
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,6 +19,7 @@ import com.yanlong.im.databinding.ActivityMsgForwardBinding;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -29,13 +32,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     public static final String AGM_JSON = "JSON";
     private ActionbarView actionbar;
     private ActivityMsgForwardBinding ui;
-    private UserDao userDao = new UserDao();
+    //    private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
     private MsgAllBean msgAllBean;
 
 
     @CustomTabView.ETabPosition
     private int currentPager = CustomTabView.ETabPosition.LEFT;
+    private String json;
 
 
     //自动寻找控件
@@ -46,8 +50,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     //自动生成的控件事件
     private void initEvent() {
-        String json = getIntent().getStringExtra(AGM_JSON);
-        msgAllBean = new Gson().fromJson(json, MsgAllBean.class);
+        json = getIntent().getStringExtra(AGM_JSON);
+        msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -101,6 +105,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             rosterFragment.setForwardListener(new IForwardRosterListener() {
                 @Override
                 public void onSelectMuc() {
+                    Intent intent = new Intent(MsgForwardActivity.this, GroupSelectActivity.class);
+                    intent.putExtra(AGM_JSON, json);
+                    startActivityForResult(intent, 0);
 
                 }
 
@@ -209,6 +216,17 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
         alertForward.show();
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 0) {
+//                String json = data.getStringExtra(ACK)
+                finish();
+            }
+        }
     }
 
     //自动生成RecyclerViewAdapter
