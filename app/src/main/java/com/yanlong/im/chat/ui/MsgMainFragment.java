@@ -147,8 +147,22 @@ public class MsgMainFragment extends Fragment {
                     public void run() {
                         Log.d("tyad", "run: state" + state);
                         actionBar.setTitle(state ? "消息" : "消息(连接中...)");
+                        if(state){
+                            viewNetwork.setVisibility(View.GONE);
+                        }else{
+                            viewNetwork.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
 
-                        viewNetwork.setVisibility(state ? View.GONE : View.VISIBLE);
+                                    viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
+
+
+                                }
+                            }, 10 * 1000);
+                        }
+
+
+
                     }
                 });
 
