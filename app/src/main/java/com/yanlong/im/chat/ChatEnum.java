@@ -155,6 +155,7 @@ public class ChatEnum {
         int VOICE = 7;//语音
         int AT = 8;//艾特@消息
         int ASSISTANT = 9;//小助手
+        int MSG_CENCAL = 10; //撤回消息
     }
 
     /*

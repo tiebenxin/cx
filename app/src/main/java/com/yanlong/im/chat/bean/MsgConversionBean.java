@@ -313,11 +313,12 @@ public class MsgConversionBean {
                     rname="\""+msgDao.getUsername4Show(bean.getGid(),bean.getFromUid())+"\"";
                     //return null;
                 }
-                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
-                MsgNotice msgCel = new MsgNotice();
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
+                MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgAllBean.getMsg_id());
                 msgCel.setNote(rname+"撤回了一条消息");
-                msgAllBean.setMsgNotice(msgCel);
+                msgCel.setMsgidCancel(bean.getCancel().getMsgId());
+                msgAllBean.setMsgCancel(msgCel);
 
 
 

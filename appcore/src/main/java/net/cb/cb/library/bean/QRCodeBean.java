@@ -1,6 +1,5 @@
 package net.cb.cb.library.bean;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

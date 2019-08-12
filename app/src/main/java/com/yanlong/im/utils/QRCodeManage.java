@@ -18,10 +18,13 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.MyselfInfoActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
+import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -158,6 +161,7 @@ public class QRCodeManage {
                         if (!isNot) {
                             toAddGourp(gid, inviter, inviterName, activity);
                         } else {
+                            EventBus.getDefault().post(new EventExitChat());
                             Intent intent = new Intent(activity, ChatActivity.class);
                             intent.putExtra(ChatActivity.AGM_TOGID, gid);
                             activity.startActivity(intent);

@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -146,8 +147,22 @@ public class MsgMainFragment extends Fragment {
                     public void run() {
                         Log.d("tyad", "run: state" + state);
                         actionBar.setTitle(state ? "消息" : "消息(连接中...)");
+                        if(state){
+                            viewNetwork.setVisibility(View.GONE);
+                        }else{
+                            viewNetwork.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
 
-                        viewNetwork.setVisibility(state ? View.GONE : View.VISIBLE);
+                                    viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
+
+
+                                }
+                            }, 10 * 1000);
+                        }
+
+
+
                     }
                 });
 
@@ -389,7 +404,7 @@ public class MsgMainFragment extends Fragment {
                     msginfo = msgDao.msgGetLast4Gid(bean.getGid());
                     title = ginfo.getName();
                     if (msginfo != null) {
-                        if (msginfo.getMsg_type() == 0) {//通知不要加谁发的消息
+                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE||msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
                             info = msginfo.getMsg_typeStr();
                         } else {
                             String name = "";

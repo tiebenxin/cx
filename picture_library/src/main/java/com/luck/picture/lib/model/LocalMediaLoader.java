@@ -39,7 +39,7 @@ public class LocalMediaLoader {
     private static final String NOT_GIF = "!='image/gif'";
     private static final int AUDIO_DURATION = 500;// 过滤掉小于500毫秒的录音
     //图片最大过滤
-    private static final long IMG_DURATION = 20 * 1024 * 1024;// 过滤掉小于500毫秒的录音
+    private static final long IMG_DURATION = 20 * 1000 * 1000;// 过滤掉大图
     private int type = PictureConfig.TYPE_IMAGE;
     private FragmentActivity activity;
     private boolean isGif;

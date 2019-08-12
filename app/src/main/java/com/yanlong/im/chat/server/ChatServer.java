@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
@@ -19,6 +20,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
@@ -27,11 +29,15 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /***
  * 聊天服务
@@ -42,6 +48,18 @@ public class ChatServer extends Service {
     private static Long SESSION_FUID;//单人会话id
     private static String SESSION_SID;//会话id
     private MsgDao msgDao = new MsgDao();
+
+    //撤回消息
+    private static Map<String ,MsgAllBean> cancelList=new ConcurrentHashMap<>();
+
+    /***
+     * 添加测试消息
+     * @param msg_id 返回的消息id
+     * @param msgBean 要撤回的消息
+     */
+    public static void addCanceLsit(String msg_id, MsgAllBean msgBean){
+        cancelList.put(msg_id,msgBean);
+    }
 
     /***
      * 静音
@@ -106,8 +124,18 @@ public class ChatServer extends Service {
         public void onACK(MsgBean.AckMessage bean) {
 
 
-            //收到ack后删除
-         //   msgDao.msgDel4MsgId(msgbean.getMsg_id());
+
+            for (String msgid:bean.getMsgIdList()){
+                //处理撤回消息
+                if(cancelList.containsKey(msgid)){
+                   MsgAllBean msgAllBean= cancelList.get(msgid);
+                    msgDao.msgDel4Cancel(msgid,msgAllBean.getMsgCancel().getMsgidCancel());
+                    cancelList.remove(msgid);
+                }
+
+            }
+
+
 
 
         }
@@ -220,7 +248,7 @@ public class ChatServer extends Service {
                 case ASSISTANT:
                     break;
                 case CANCEL:
-                    //删除消息
+                    //撤回消息
 
                     String gid = msg.getGid();
                     if (!StringUtil.isNotNull(gid)) {
@@ -228,7 +256,7 @@ public class ChatServer extends Service {
                     }
                     long fuid = msg.getFromUid();
                     msgDao.sessionReadUpdate(gid, fuid, true);
-                    msgDao.msgDel4MsgId(msg.getCancel().getMsgId());
+                    msgDao.msgDel4Cancel(msg.getMsgId(),msg.getCancel().getMsgId());
 
                     return;
             }
@@ -265,7 +293,6 @@ public class ChatServer extends Service {
 
         @Override
         public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {
-
         }
 
         @Override
