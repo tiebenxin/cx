@@ -125,11 +125,7 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
                     if (listener == null) {
                         return;
                     }
-                    if (position == 0) {
-                        listener.onSelectMuc();
-                    } else {
-                        listener.onForward(bean.getUid(), "", bean.getHead(), bean.getName4Show());
-                    }
+                    listener.onForward(bean.getUid(), "", bean.getHead(), bean.getName4Show());
 
                 }
             });
@@ -148,7 +144,10 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
             ll_root.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    if (listener == null) {
+                        return;
+                    }
+                    listener.onSelectMuc();
                 }
             });
         }
