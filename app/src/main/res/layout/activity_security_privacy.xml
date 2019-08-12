@@ -53,6 +53,23 @@
             android:text="关闭后,你不会被其他用户通过产品号找到." />
 
 
+        <LinearLayout
+            android:id="@+id/view_setting_password"
+            style="@style/app_layout_list2_item">
+
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_weight="1"
+                android:text="设置登录密码" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto" />
+        </LinearLayout>
+
         <LinearLayout style="@style/app_layout_list2_item">
 
             <TextView
@@ -70,23 +87,6 @@
 
         <View style="@style/app_line" />
 
-
-        <LinearLayout
-            android:id="@+id/view_setting_password"
-            style="@style/app_layout_list2_item">
-
-
-            <TextView
-                style="@style/app_txt_title_2"
-                android:layout_marginRight="@dimen/app_margin_item"
-                android:layout_weight="1"
-                android:text="设置登录密码" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_btn_goto" />
-        </LinearLayout>
 
         <TextView
             style="@style/app_txt_content_2"

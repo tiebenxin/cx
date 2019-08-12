@@ -5,40 +5,21 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.FutureTarget;
-import com.bumptech.glide.request.target.BaseTarget;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.SizeReadyCallback;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
-import com.facebook.binaryresource.FileBinaryResource;
-import com.facebook.cache.common.SimpleCacheKey;
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.gson.Gson;
 import com.google.zxing.WriterException;
-import com.luck.picture.lib.PictureExternalPreviewActivity;
-import com.luck.picture.lib.tools.ScreenUtils;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareListener;
@@ -68,7 +49,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 
 public class MyselfQRCodeActivity extends AppActivity {
@@ -91,6 +71,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     private String groupName;
     private String imageUrl;
     private ImgSizeUtil.ImageSize imgsize;//获取图片大小
+    private SimpleDraweeView imageCodeHead;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +86,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         mHeadView = findViewById(R.id.headView);
         mImgHead = findViewById(R.id.img_head);
         mTvUserName = findViewById(R.id.tv_user_name);
+        imageCodeHead =  findViewById(R.id.image_code_head);
         mCrCode = findViewById(R.id.cr_code);
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
@@ -112,7 +94,6 @@ public class MyselfQRCodeActivity extends AppActivity {
         type = getIntent().getIntExtra(TYPE, 0);
         UMShareAPI.get(this);
     }
-
 
 
     private void initEvent() {
@@ -155,30 +136,19 @@ public class MyselfQRCodeActivity extends AppActivity {
             qrCodeBean.setParameterValue(QRCodeManage.ID, groupId);
             qrCodeBean.setParameterValue(QRCodeManage.UID, userInfo.getUid() + "");
             qrCodeBean.setParameterValue(QRCodeManage.TIME, QRCodeManage.getTime(7));
-            qrCodeBean.setParameterValue(QRCodeManage.NICK_NAME,userInfo.getName());
+            qrCodeBean.setParameterValue(QRCodeManage.NICK_NAME, userInfo.getName());
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
         }
         try {
-            if(type == 0){
-                Glide.with(MyselfQRCodeActivity.this)
-                        .asBitmap()
-                        .load(userInfo.getHead())
-                        .into(new SimpleTarget<Bitmap>(150,150) {
-                            @Override
-                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                super.onLoadFailed(errorDrawable);
-                            }
+            if (type == 0) {
+                imageCodeHead.setImageURI(userInfo.getHead() + "");
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.blank_code);
+                Bitmap bitmapCode = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(MyselfQRCodeActivity.this, 350),
+                        DensityUtil.dip2px(MyselfQRCodeActivity.this, 350), bitmap);
+                mCrCode.setImageBitmap(bitmapCode);
 
-                            @Override
-                            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                                Bitmap bitmap = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(MyselfQRCodeActivity.this, 300),
-                                        DensityUtil.dip2px(MyselfQRCodeActivity.this, 300),resource);
-                                mCrCode.setImageBitmap(bitmap);
-                            }
-                        });
-
-            }else{
-                Bitmap bitmap = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(this, 300));
+            } else {
+                Bitmap bitmap = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(this, 350));
                 mCrCode.setImageBitmap(bitmap);
             }
 
@@ -263,7 +233,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     public void Bitmap2Bytes(Bitmap bm) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        imgsize=new ImgSizeUtil.ImageSize();
+        imgsize = new ImgSizeUtil.ImageSize();
         imgsize.setWidth(bm.getWidth());
         imgsize.setHeight(bm.getHeight());
 
@@ -351,7 +321,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             intent.putExtra(ChatActivity.AGM_TOUID, userInfo.getUid());
             startActivity(intent);
             //向服务器发送图片
-            SocketData.send4Image(userInfo.getUid(), null, imageUrl,imgsize);
+            SocketData.send4Image(userInfo.getUid(), null, imageUrl, imgsize);
         }
     }
 

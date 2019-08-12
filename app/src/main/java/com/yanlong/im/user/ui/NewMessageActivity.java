@@ -70,6 +70,17 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
     private void initData() {
         userAction = new UserAction();
         uid = UserAction.getMyId();
+        UserInfo userInfo = UserAction.getMyInfo();
+        if (userInfo.getMessagenotice() == 0) {
+            mCbReceiveMessage.setChecked(false);
+        } else {
+            mCbReceiveMessage.setChecked(true);
+        }
+        if (userInfo.getDisplaydetail() == 0) {
+            mCbMessageInfo.setChecked(false);
+        } else {
+            mCbMessageInfo.setChecked(true);
+        }
         taskUserInfo(uid);
         taskSetingGet();
     }
