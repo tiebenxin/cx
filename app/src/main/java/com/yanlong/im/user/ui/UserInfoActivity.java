@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -145,7 +146,7 @@ public class UserInfoActivity extends AppActivity {
             mViewSettingName.setVisibility(View.VISIBLE);
             mLayoutMsg.setVisibility(View.VISIBLE);
             viewIntroduce.setVisibility(View.GONE);
-            mBtnAdd.setVisibility(View.VISIBLE);
+           // mBtnAdd.setVisibility(View.VISIBLE);
         }
     }
 
@@ -392,9 +393,11 @@ public class UserInfoActivity extends AppActivity {
                             inviterName = bean.getInviterName();
                             joinType = bean.getJoinType();
                             if (joinType == 0) {
-                                tvJoinGroupType.setText(inviterName + "分享二维码邀请进群");
+                                String content =  "<font color='#276baa'>" + inviterName + "</font> 分享二维码邀请进群";
+                                tvJoinGroupType.setText(Html.fromHtml(content));
                             } else {
-                                tvJoinGroupType.setText(inviterName + "邀请进群");
+                                String content =  "<font color='#276baa'>" + inviterName + "</font> 邀请进群";
+                                tvJoinGroupType.setText(Html.fromHtml(content));
                             }
                         }
                     }

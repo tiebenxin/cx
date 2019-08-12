@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui;
 
 import android.os.Bundle;
+import android.service.autofill.UserData;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
@@ -9,6 +10,7 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -29,6 +31,8 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
     private CheckBox mCbMessageVoice;
     private CheckBox mCbMessageShake;
     private UserAction userAction;
+    private UserInfo userInfo;
+    private UserDao userDao;
     private long uid;
     private int isClick;
 
@@ -70,7 +74,8 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
     private void initData() {
         userAction = new UserAction();
         uid = UserAction.getMyId();
-        UserInfo userInfo = UserAction.getMyInfo();
+        userInfo = UserAction.getMyInfo();
+        userDao = new UserDao();
         if (userInfo.getMessagenotice() == 0) {
             mCbReceiveMessage.setChecked(false);
         } else {
@@ -105,10 +110,10 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                     }
                     break;
                 case R.id.cb_message_voice:
-                    taskSetingSet(null,isChecked);
+                    taskSetingSet(null, isChecked);
                     break;
                 case R.id.cb_message_shake:
-                    taskSetingSet(isChecked,null);
+                    taskSetingSet(isChecked, null);
                     break;
             }
         }
@@ -122,6 +127,14 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                 if (response.body() == null) {
                     return;
                 }
+                if(userInfo.getMessagenotice() == 0){
+                    userInfo.setMessagenotice(1);
+                    userDao.updateUserinfo(userInfo);
+                }else{
+                    userInfo.setMessagenotice(0);
+                    userDao.updateUserinfo(userInfo);
+                }
+
                 ToastUtil.show(NewMessageActivity.this, response.body().getMsg());
             }
         });
@@ -135,6 +148,14 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                 if (response.body() == null) {
                     return;
                 }
+                if(userInfo.getDisplaydetail() == 0){
+                    userInfo.setDisplaydetail(1);
+                    userDao.updateUserinfo(userInfo);
+                }else{
+                    userInfo.setDisplaydetail(0);
+                    userDao.updateUserinfo(userInfo);
+                }
+
                 ToastUtil.show(NewMessageActivity.this, response.body().getMsg());
             }
         });
@@ -179,8 +200,8 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
         mCbMessageShake.setOnCheckedChangeListener(this);
     }
 
-    private void taskSetingSet(Boolean sk,Boolean vic) {
-        msgDao.userSetingUpdate(sk,vic);
+    private void taskSetingSet(Boolean sk, Boolean vic) {
+        msgDao.userSetingUpdate(sk, vic);
     }
 
 

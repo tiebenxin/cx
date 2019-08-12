@@ -172,6 +172,13 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 if(response.body() == null){
                     return;
                 }
+                if(userInfo.getImidfind() == 0){
+                    userInfo.setImidfind(1);
+                    userDao.updateUserinfo(userInfo);
+                }else{
+                    userInfo.setImidfind(0);
+                    userDao.updateUserinfo(userInfo);
+                }
                 ToastUtil.show(SecurityPrivacyActivity.this,response.body().getMsg());
             }
         });
@@ -185,6 +192,15 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 if(response.body() == null){
                     return;
                 }
+
+                if(userInfo.getFriendvalid() == 0){
+                    userInfo.setFriendvalid(1);
+                    userDao.updateUserinfo(userInfo);
+                }else{
+                    userInfo.setFriendvalid(0);
+                    userDao.updateUserinfo(userInfo);
+                }
+
                 ToastUtil.show(SecurityPrivacyActivity.this,response.body().getMsg());
             }
         });
