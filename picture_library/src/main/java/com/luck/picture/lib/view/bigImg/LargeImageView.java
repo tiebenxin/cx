@@ -374,7 +374,7 @@ public class LargeImageView extends View implements BlockImageLoader.OnImageLoad
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.e(TAG, "onDraw: " );
+       // Log.e(TAG, "onDraw: " );
         int viewWidth = getWidth();
         int viewHeight = getHeight();
         if (viewWidth == 0) {
@@ -414,7 +414,7 @@ public class LargeImageView extends View implements BlockImageLoader.OnImageLoad
             imageRect.bottom = (int) Math.ceil((bottom - mOffsetY) * imageScale);
 
             int saveCount = canvas.save();
-            Log.e(TAG, "onDraw: mid" );
+           // Log.e(TAG, "onDraw: mid" );
             //如果是大图就需要继续加载图片块，如果不是大图直接用默认的
             DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
             if (mDrawable == null || !imageBlockImageLoader.hasLoad() || (imageBlockImageLoader.getWidth() * imageBlockImageLoader.getHeight() > (displayMetrics.widthPixels * displayMetrics.heightPixels))) {
@@ -456,7 +456,7 @@ public class LargeImageView extends View implements BlockImageLoader.OnImageLoad
                 }
             }
             canvas.restoreToCount(saveCount);
-            Log.e(TAG, "onDraw: over" );
+           // Log.e(TAG, "onDraw: over" );
         }
     }
 
