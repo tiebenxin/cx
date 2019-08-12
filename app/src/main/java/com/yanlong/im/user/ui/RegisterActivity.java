@@ -26,6 +26,7 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
 import net.cb.cb.library.view.HeadView;
+import net.cb.cb.library.view.WebPageActivity;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -110,7 +111,9 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         ClickableSpan clickProtocol = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                ToastUtil.show(RegisterActivity.this, "点击用户协议");
+                Intent intent = new Intent(RegisterActivity.this,WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL,"https://changliaoliao.zhixun5588.com/yhxy.html");
+                startActivity(intent);
             }
         };
         style.setSpan(clickProtocol, 15, 23, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -120,7 +123,10 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         ClickableSpan clickPolicy = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                ToastUtil.show(RegisterActivity.this, "点击隐私政策");
+                Intent intent = new Intent(RegisterActivity.this,WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL,"https://changliaoliao.zhixun5588.com/yszc.html");
+                startActivity(intent);
+
             }
         };
         style.setSpan(clickPolicy, 24, 31, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

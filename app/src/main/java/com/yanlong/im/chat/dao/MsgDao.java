@@ -880,6 +880,7 @@ public class MsgDao {
 
     /***
      * 获取所有会话
+     * @param isAll 是否剔除小助手，true不剔除，false剔除
      * @return
      */
     public List<Session> sessionGetAll(boolean isAll) {

@@ -260,11 +260,12 @@ public class GroupSelectUserActivity extends AppActivity {
                             public void onYes() {
                                 Intent intent = new Intent();
                                 intent.putExtra(UID, bean.getUid() + "");
-                                if (!TextUtils.isEmpty(bean.getMembername())) {
+                               /* if (!TextUtils.isEmpty(bean.getMembername())) {
                                     intent.putExtra(MEMBERNAME, bean.getMembername());
                                 } else {
-                                    intent.putExtra(MEMBERNAME, bean.getName4Show());
-                                }
+                                    intent.putExtra(MEMBERNAME, bean.getName());
+                                }*/
+                                intent.putExtra(MEMBERNAME, bean.getName());
                                 setResult(RET_CODE_SELECTUSR, intent);
                                 finish();
                             }

@@ -3,6 +3,8 @@ package com.yanlong.im.user.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,9 +14,13 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
@@ -27,7 +33,9 @@ import com.yanlong.im.utils.QRCodeManage;
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
+import net.cb.cb.library.zxing.encoding.EncodingHandler;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -129,6 +137,7 @@ public class MyFragment extends Fragment {
         UserInfo userInfo = UserAction.getMyInfo();
         if (userInfo != null) {
             imgHead.setImageURI(userInfo.getHead() + "");
+
             txtName.setText(userInfo.getName());
             mTvInfo.setText("常聊号: " + userInfo.getImid() + "");
         }

@@ -42,15 +42,27 @@
                 android:layout_marginTop="11dp"
                 android:textSize="17sp"/>
 
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/img_head"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginTop="40dp">
+
             <ImageView
                 android:id="@+id/cr_code"
                 android:layout_width="270dp"
                 android:layout_height="270dp"
-                android:scaleType="fitXY"
-                app:layout_constraintTop_toBottomOf="@id/img_head"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:layout_marginTop="40dp"/>
+                android:scaleType="fitXY"/>
+
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/image_code_head"
+                    android:layout_gravity="center"
+                    android:layout_width="54dp"
+                    android:layout_height="54dp"/>
+            </FrameLayout>
 
         </android.support.constraint.ConstraintLayout>
     </LinearLayout>

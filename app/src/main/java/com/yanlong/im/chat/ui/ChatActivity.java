@@ -57,6 +57,7 @@ import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
+import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.chat.ui.view.ChatItemView;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
@@ -112,7 +113,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -944,6 +944,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //清理会话数量
         taskCleanRead();
         AudioPlayManager.getInstance().stopPlay();
+        Log.v(TAG,"onBackPressed");
         super.onBackPressed();
     }
 
