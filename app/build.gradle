@@ -98,6 +98,10 @@ android {
         }
     }
 
+    dataBinding {
+        enabled = true
+    }
+
 
 }
 

@@ -137,7 +137,7 @@
 
         <!--消息转发-->
         <activity
-            android:name=".chat.ui.MsgForwardActivity"
+            android:name=".chat.ui.forward.MsgForwardActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"></activity>
         <!--群信息-->

@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/headView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:headview_title="选择一个聊天">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <net.cb.cb.library.view.HeadView
+        android:id="@+id/headView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        app:headview_title="选择一个聊天">
 
-        <TextView
-            style="@style/app_txt_content_1"
-            android:paddingLeft="@dimen/app_margin_main"
-            android:paddingTop="2dp"
-            android:paddingRight="@dimen/app_margin_main"
-            android:paddingBottom="2dp"
-            android:text="最近聊天" />
-
-        <View style="@style/app_line" />
-
-        <net.cb.cb.library.view.MultiListView
-            android:id="@+id/mtListView"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <FrameLayout
+                android:id="@+id/fl_content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
-</net.cb.cb.library.view.HeadView>
+            <net.cb.cb.library.view.CustomTabView
+                android:id="@+id/tab_view"
+                android:layout_width="match_parent"
+                android:layout_height="60dp" />
+
+            <!--<include layout="@layout/layout_tab_custom" />-->
+
+        </LinearLayout>
+
+    </net.cb.cb.library.view.HeadView>
+</layout>
