@@ -171,7 +171,7 @@ public class UpFileUtil {
             @Override
             public void onFailure(OSSRequest request, ClientException clientException, ServiceException serviceException) {
                 ossUpCallback.fail();
-                LogUtil.getLog().e("uplog", "---->上传异常:" + serviceException.getRawMessage());
+                LogUtil.getLog().e("uplog", "---->上传异常:"+clientException.getMessage()+"\n" + serviceException.getRawMessage());
                 try{
                     ToastUtil.show(context, "上传失败");
                 }catch (Exception e){
