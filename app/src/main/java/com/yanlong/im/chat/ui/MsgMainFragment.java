@@ -147,9 +147,9 @@ public class MsgMainFragment extends Fragment {
                     public void run() {
                         Log.d("tyad", "run: state" + state);
                         actionBar.setTitle(state ? "消息" : "消息(连接中...)");
-                        if(state){
+                        if (state) {
                             viewNetwork.setVisibility(View.GONE);
-                        }else{
+                        } else {
                             viewNetwork.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -160,7 +160,6 @@ public class MsgMainFragment extends Fragment {
                                 }
                             }, 10 * 1000);
                         }
-
 
 
                     }
@@ -404,7 +403,7 @@ public class MsgMainFragment extends Fragment {
                     msginfo = msgDao.msgGetLast4Gid(bean.getGid());
                     title = ginfo.getName();
                     if (msginfo != null) {
-                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE||msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
                             info = msginfo.getMsg_typeStr();
                         } else {
                             String name = "";
@@ -416,8 +415,8 @@ public class MsgMainFragment extends Fragment {
                                     name = fuser.getMkName() + " : ";
 
                                 }*/
-                               //8.9 处理群昵称
-                                name=msgDao.getUsername4Show(msginfo.getGid(),msginfo.getFrom_uid(),msginfo.getFrom_nickname(),msginfo.getFrom_group_nickname())+ " : ";
+                                //8.9 处理群昵称
+                                name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
                             }
 
                             info = name + msginfo.getMsg_typeStr();
