@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -240,6 +241,15 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         }
 
         @Override
+        public void finishUpdate(@NonNull ViewGroup container) {
+            try {
+                super.finishUpdate(container);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
         public boolean isViewFromObject(View view, Object object) {
             return view == object;
         }
@@ -258,8 +268,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             final SubsamplingScaleImageView longImg = contentView.findViewById(com.luck.picture.lib.R.id.longImg);
             final LargeImageView imgLarge = contentView.findViewById(com.luck.picture.lib.R.id.img_large);
             final TextView txtBig = contentView.findViewById(com.luck.picture.lib.R.id.txt_big);
-
-
 
 
             //1.先显示中图
@@ -301,7 +309,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 //3.是否已读原图
                 boolean readStat = msgDao.ImgReadStatGet(imgpath);
 
-                imgLargeEvent(txtBig,imgLarge, imgpath);
+                imgLargeEvent(txtBig, imgLarge, imgpath);
 
                 if (readStat) {//原图已读,就显示
                     txtBig.setVisibility(View.GONE);
@@ -310,7 +318,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     txtBig.setVisibility(View.VISIBLE);
                     txtBig.setText("查看原图(" + ImgSizeUtil.formatFileSize(images.get(position).getSize()) + ")");
                 }
-
 
 
             } else {
@@ -795,17 +802,20 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if (loadDataThread != null && handler != null) {
+            handler.removeCallbacks(loadDataThread);
+            loadDataThread = null;
+            handler = null;
+        }
+//        super.onBackPressed();
         finish();
         overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
     }
 
     @Override
     protected void onDestroy() {
+        viewPager.setAdapter(null);
         super.onDestroy();
-        if (loadDataThread != null) {
-            handler.removeCallbacks(loadDataThread);
-            loadDataThread = null;
-        }
+
     }
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.Display;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -18,6 +19,9 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.DensityUtil;
 
+/*
+ * 图片消息
+ * */
 public class ChatCellImage extends ChatCellBase {
     //w/h = 3/4
     final int DEFAULT_W = DensityUtil.dip2px(getContext(), 135);
@@ -36,7 +40,7 @@ public class ChatCellImage extends ChatCellBase {
     protected void initView() {
         super.initView();
         imageView = getView().findViewById(R.id.iv_img);
-        imageView.setOnClickListener(this);
+//        imageView.setOnClickListener(this);
     }
 
     @SuppressLint("CheckResult")
@@ -52,7 +56,7 @@ public class ChatCellImage extends ChatCellBase {
         RequestOptions rOptions = new RequestOptions();
         rOptions.override(width, height);
         if (isGif(thumbnail)) {
-            rOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+            rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
             Glide.with(getContext())
                     .load(message.getImage().getPreview())
                     .apply(rOptions)
@@ -138,6 +142,16 @@ public class ChatCellImage extends ChatCellBase {
                 .getSystemService(Context.WINDOW_SERVICE);
         Display display = manager.getDefaultDisplay();
         return display.getHeight();
+    }
+
+    @Override
+    public void onClick(View view) {
+        super.onClick(view);
+        if (view.getId() == imageView.getId()) {
+            if (mCellListener != null && model != null) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.IMAGE_CLICK, model, new Object());
+            }
+        }
     }
 
     @Override

@@ -21,6 +21,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -178,6 +179,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private MessageAdapter messageAdapter;
     private int lastOffset;
     private int lastPosition;
+    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -831,6 +833,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
+        mtListView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+            }
+        });
+
 
         //处理键盘
         SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
@@ -855,15 +864,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
         //6.15 先加载完成界面,后刷数据
-        actionbar.post(new
-
-                               Runnable() {
-                                   @Override
-                                   public void run() {
+        actionbar.post(new Runnable() {
+            @Override
+            public void run() {
 //                taskRefreshMessage();
-                                       taskDraftGet();
-                                   }
-                               });
+                taskDraftGet();
+            }
+        });
 
 
     }
@@ -949,7 +956,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 隐藏底部所有面板
      */
     private void hideBt() {
-
         viewFunc.setVisibility(View.GONE);
         viewEmoji.setVisibility(View.GONE);
 
@@ -970,7 +976,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //清理会话数量
         taskCleanRead();
         AudioPlayManager.getInstance().stopPlay();
-        Log.v(TAG,"onBackPressed");
+        Log.v(TAG, "onBackPressed");
         super.onBackPressed();
     }
 
@@ -1266,7 +1272,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 showBigPic(message.getMsg_id(), message.getImage().getThumbnailShow());
                 break;
             case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
-
+                if (args[0] != null && args[0] instanceof RedEnvelopeMessage) {
+                    RedEnvelopeMessage red = (RedEnvelopeMessage) args[0];
+                    if ((red.isValid() || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                        taskPayRbDetail(red.getId());
+                    } else {
+                        taskPayRbGet(message.getFrom_uid(), red.getId());
+                    }
+                }
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
                 if (args[0] != null && args[0] instanceof BusinessCardMessage) {
@@ -1282,6 +1295,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 View view = (View) args[1];
                 if (view != null && menus != null && menus.size() > 0) {
                     showPop(view, menus, message);
+                }
+                break;
+            case ChatEnum.ECellEventType.TRANSFER_CLICK:
+                if (args[0] != null && args[0] instanceof TransferMessage) {
+                    TransferMessage transfer = (TransferMessage) args[0];
+                    tsakTransGet(transfer.getId());
                 }
                 break;
 
@@ -1451,7 +1470,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         public void onClick(boolean isInvalid) {
                             if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                 //ToastUtil.show(getContext(), "红包详情");
-                                taskPayRbDatail(rid);
+                                taskPayRbDetail(rid);
 
                             } else {
                                 taskPayRbGet(touid, rid);
@@ -2250,7 +2269,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 红包详情
      * @param rid
      */
-    private void taskPayRbDatail(final String rid) {
+    private void taskPayRbDetail(final String rid) {
      /*   if (!isGroup()) {
             return;
         }*/
@@ -2333,6 +2352,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
+    }
+
+    private void scroll() {
+
     }
 
 

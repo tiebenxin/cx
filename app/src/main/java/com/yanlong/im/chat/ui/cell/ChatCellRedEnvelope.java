@@ -9,16 +9,18 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.utils.socket.MsgBean;
 
 /*
- * 红包消息
+ * 红包消息及转账消息
  * */
 public class ChatCellRedEnvelope extends ChatCellBase {
 
     private TextView tv_rb_title, tv_rb_info, tv_rb_type;
     private ImageView iv_rb_state, iv_rb_icon;
     private RedEnvelopeMessage redEnvelopeMessage;
+    private TransferMessage transfer;
 
     protected ChatCellRedEnvelope(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
         super(context, cellLayout, listener, adapter, viewGroup);
@@ -37,36 +39,69 @@ public class ChatCellRedEnvelope extends ChatCellBase {
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
-        redEnvelopeMessage = message.getRed_envelope();
-        if (redEnvelopeMessage.isValid()) {//失效
-            iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
-            if (message.isMe()) {
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
-            } else {
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
-            }
-            tv_rb_info.setText("已领取");
-        } else {
-            iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
-            if (message.isMe()) {
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp);
-            } else {
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp);
-            }
-            tv_rb_info.setText("领取红包");
-        }
-        tv_rb_title.setText(redEnvelopeMessage.getComment());
+        boolean invalid = false;
+        String title = "";
+        String info = "";
+        String typeName = "";
+        int typeIcon = R.color.transparent;
 
-        if (redEnvelopeMessage.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
-            tv_rb_type.setText("云红包");
-        } else {
-            tv_rb_type.setText("支付宝");
+        if (message.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE) {
+            redEnvelopeMessage = message.getRed_envelope();
+            invalid = redEnvelopeMessage.isValid();
+            title = redEnvelopeMessage.getComment();
+            if (invalid) {
+                info = "已领取";
+            } else {
+                info = "领取红包";
+            }
+            if (redEnvelopeMessage.getRe_type().intValue() == MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY_VALUE) {
+                typeName = "云红包";
+            } else {
+                typeName = "支付宝";
+            }
+        } else if (message.getMsg_type() == ChatEnum.EMessageType.TRANSFER) {
+            transfer = message.getTransfer();
+            invalid = false;
+            title = transfer.getTransaction_amount() + "元";
+            info = transfer.getComment();
+            typeName = "好友转账";
+
         }
-        iv_rb_icon.setImageResource(R.color.transparent);
+        setMessage(invalid, title, info, typeName, typeIcon);
     }
 
     @Override
     public void onBubbleClick() {
         super.onBubbleClick();
+        if (mCellListener != null) {
+            if (messageType == ChatEnum.EMessageType.RED_ENVELOPE) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.RED_ENVELOPE_CLICK, model, redEnvelopeMessage);
+            } else if (messageType == ChatEnum.EMessageType.TRANSFER) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.TRANSFER_CLICK, model, transfer);
+            }
+        }
+    }
+
+    private void setMessage(boolean invalid, String title, String info, String typeName, int typeIcon) {
+        if (invalid) {//失效
+            iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
+            if (model.isMe()) {
+                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
+            } else {
+                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
+            }
+        } else {
+            iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
+            if (model.isMe()) {
+                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp);
+            } else {
+                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp);
+            }
+        }
+        tv_rb_title.setText(title);
+        tv_rb_info.setText(info);
+        tv_rb_type.setText(typeName);
+        iv_rb_icon.setImageResource(typeIcon);
+
     }
 }
