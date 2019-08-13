@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -31,6 +32,8 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     private LinearLayout mViewBlacklist;
     private HeadView mHeadView;
     private UserAction userAction;
+    private UserInfo userInfo;
+    private UserDao userDao;
     private long uid;
     private int isClick;
 
@@ -72,12 +75,32 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
 
             }
         });
+
+
     }
 
 
     private void initData(){
+         userDao = new UserDao();
         userAction = new UserAction();
         uid = UserAction.getMyId();
+        userInfo = UserAction.getMyInfo();
+        if(userInfo.getPhonefind() == 0){
+            mCbFindPhone.setChecked(false);
+        }else{
+            mCbFindPhone.setChecked(true);
+        }
+        if(userInfo.getImidfind() == 0){
+            mCbFindProductNumber.setChecked(false);
+        }else{
+            mCbFindProductNumber.setChecked(true);
+        }
+
+        if(userInfo.getFriendvalid() == 0){
+            mCbVerification.setChecked(false);
+        }else{
+            mCbVerification.setChecked(true);
+        }
         taskUserInfo(uid);
     }
 
@@ -130,6 +153,13 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 if(response.body() == null){
                     return;
                 }
+                if(userInfo.getPhonefind() == 0){
+                    userInfo.setPhonefind(1);
+                    userDao.updateUserinfo(userInfo);
+                }else{
+                    userInfo.setPhonefind(0);
+                    userDao.updateUserinfo(userInfo);
+                }
                 ToastUtil.show(SecurityPrivacyActivity.this,response.body().getMsg());
             }
         });
@@ -141,6 +171,13 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
             public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if(response.body() == null){
                     return;
+                }
+                if(userInfo.getImidfind() == 0){
+                    userInfo.setImidfind(1);
+                    userDao.updateUserinfo(userInfo);
+                }else{
+                    userInfo.setImidfind(0);
+                    userDao.updateUserinfo(userInfo);
                 }
                 ToastUtil.show(SecurityPrivacyActivity.this,response.body().getMsg());
             }
@@ -155,6 +192,15 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
                 if(response.body() == null){
                     return;
                 }
+
+                if(userInfo.getFriendvalid() == 0){
+                    userInfo.setFriendvalid(1);
+                    userDao.updateUserinfo(userInfo);
+                }else{
+                    userInfo.setFriendvalid(0);
+                    userDao.updateUserinfo(userInfo);
+                }
+
                 ToastUtil.show(SecurityPrivacyActivity.this,response.body().getMsg());
             }
         });

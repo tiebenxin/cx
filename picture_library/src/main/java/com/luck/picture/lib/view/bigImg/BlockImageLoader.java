@@ -109,6 +109,8 @@ public class BlockImageLoader {
         recycleMap(loadData.currentScaleDataMap);
     }
 
+
+
     public void stopLoad() {
         if (mLoadData != null) {
             if (DEBUG) {
@@ -900,6 +902,7 @@ public class BlockImageLoader {
                 }
                 decodingOptions.inSampleSize = scale;
                 // 加载clipRect的区域的图片块
+                //Log.d(TAG,">>>>>>>>>>>>>>>图片：decodeRegion1");
                 bitmap = decoder.decodeRegion(clipImageRect, decodingOptions);
             } catch (OutOfMemoryError e) {
                 e.printStackTrace();
@@ -962,6 +965,7 @@ public class BlockImageLoader {
         return bitmap;
     }
 
+
     private static class LoadThumbnailTask extends TaskQueue.Task {
 
         private int scale;
@@ -998,9 +1002,20 @@ public class BlockImageLoader {
         protected void doInBackground() {
             BitmapFactory.Options decodingOptions = new BitmapFactory.Options();
             decodingOptions.inSampleSize = scale;
+          //  decodingOptions.inMutable = true;
+           // decodingOptions.inBitmap
+            /*if(bitmap!=null){
+                Log.d(TAG,">>>>>>>>>>>>>>>图片：清理了");
+                bitmap.recycle();
+            }*/
+
             try {
+                Log.d(TAG,">>>>>>>>>>>>>>>图片：decodeRegion"+imageWidth+"--"+imageHeight);
                 bitmap = decoder.decodeRegion(new Rect(0, 0, imageWidth, imageHeight),
                         decodingOptions);
+                if(bitmap==null){
+                    Log.d(TAG,">>>>>>>>>>>>>>>图片：bitmapnull"+imageWidth+"--"+imageHeight);
+                }
             } catch (OutOfMemoryError e) {
                 e.printStackTrace();
                 throwable = e;

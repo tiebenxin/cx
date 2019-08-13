@@ -44,7 +44,6 @@ public class GroupManageActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_manage);
         initView();
-
         initData();
     }
 

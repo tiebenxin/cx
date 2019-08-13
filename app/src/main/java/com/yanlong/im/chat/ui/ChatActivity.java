@@ -970,6 +970,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //清理会话数量
         taskCleanRead();
         AudioPlayManager.getInstance().stopPlay();
+        Log.v(TAG,"onBackPressed");
         super.onBackPressed();
     }
 
