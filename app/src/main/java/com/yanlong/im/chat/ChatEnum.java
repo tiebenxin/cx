@@ -71,6 +71,19 @@ public class ChatEnum {
         RED_ENVELOPE_SEND(R.layout.cell_redenvelope_send),
 
 
+        //转账消息
+        TRANSFER_RECEIVED(R.layout.cell_redenvelope_received),
+        TRANSFER_SEND(R.layout.cell_redenvelope_send),
+
+        //戳一下消息
+        STAMP_RECEIVED(R.layout.cell_stamp_received),
+        STAMP_SEND(R.layout.cell_stamp_send),
+
+        //@消息, 共用文本消息布局
+        AT_RECEIVED(R.layout.cell_txt_received),
+        AT_SEND(R.layout.cell_txt_send),
+
+
         //合并转发
 //        MULTI_RECEIVED(R.layout.cell_txt_received),
 //        MULTI_SEND(R.layout.cell_txt_send),
@@ -127,7 +140,7 @@ public class ChatEnum {
     /*
      * cell 点击事件类型
      * */
-    @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, LONG_CLICK})
+    @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, LONG_CLICK, ECellEventType.TRANSFER_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -135,6 +148,7 @@ public class ChatEnum {
         int CARD_CLICK = 2;//点击名片
         int RED_ENVELOPE_CLICK = 3;//点击红包
         int LONG_CLICK = 4;//长按事件
+        int TRANSFER_CLICK = 5;//点击转账
     }
 
 
@@ -196,4 +210,5 @@ public class ChatEnum {
         int AUTH_FIRST = 1; //一级认证，认证但未上传证照
         int AUTH_SECOND = 2;//二级认证，认证已上传证照
     }
+
 }

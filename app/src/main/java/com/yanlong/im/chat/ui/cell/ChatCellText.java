@@ -23,6 +23,9 @@ import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.regex.Matcher;
 
+/*
+ * 文本消息，@消息，小助手消息
+ * */
 public class ChatCellText extends ChatCellBase {
 
     private TextView tv_content;
@@ -42,6 +45,8 @@ public class ChatCellText extends ChatCellBase {
         super.showMessage(message);
         if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
             setText(message.getChat().getMsg());
+        } else if (message.getMsg_type() == ChatEnum.EMessageType.AT) {
+            setText(message.getAtMessage().getMsg());
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
             setText(message.getAssistantMessage().getMsg());
         }

@@ -15,6 +15,9 @@ import com.yanlong.im.chat.ui.view.VoiceView;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.IAudioPlayListener;
 
+/*
+ * 语音
+ * */
 public class ChatCellVoice extends ChatCellBase {
 
     private VoiceView v_voice;

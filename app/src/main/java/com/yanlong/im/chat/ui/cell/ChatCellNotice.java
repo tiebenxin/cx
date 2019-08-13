@@ -9,6 +9,9 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
+/*
+* 通知消息
+* */
 public class ChatCellNotice extends ChatCellBase {
 
     private TextView tv_content;

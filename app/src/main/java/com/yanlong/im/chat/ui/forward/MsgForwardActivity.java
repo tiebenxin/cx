@@ -133,7 +133,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_msg_forward);
-//        setContentView(R.layout.activity_msg_forward);
         findViews();
         initEvent();
         showFragment(currentPager);

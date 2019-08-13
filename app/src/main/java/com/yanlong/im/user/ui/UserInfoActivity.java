@@ -28,6 +28,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
@@ -45,6 +46,10 @@ import retrofit2.Response;
 
 /***
  * 资料界面
+ * txtMkname显示优先级;
+ * 是好友，有备注，优先显示
+ * 非好友，有群聊备注
+ * 用户昵称
  */
 public class UserInfoActivity extends AppActivity {
     public static final int SETING_REMARK = 1000;
@@ -53,6 +58,7 @@ public class UserInfoActivity extends AppActivity {
     public static final String IS_APPLY = "isApply";
     public static final String GID = "gid";
     public static final String JION_TYPE_SHOW = "joinTypeShow";
+    public static final String MUC_NICK = "mucNick";//群昵称
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -87,6 +93,8 @@ public class UserInfoActivity extends AppActivity {
     private TextView tvJoinGroupType;
     private LinearLayout viewIntroduce;
     private TextView tv_introduce;
+    private String mucNick;
+    private UserInfo userInfoLocal;
 
 
     @Override
@@ -124,6 +132,7 @@ public class UserInfoActivity extends AppActivity {
         isApply = getIntent().getIntExtra(IS_APPLY, 0);
         joinTypeShow = getIntent().getIntExtra(JION_TYPE_SHOW, 0);
         gid = getIntent().getStringExtra(GID);
+        mucNick = getIntent().getStringExtra(MUC_NICK);
         viewIntroduce = findViewById(R.id.view_introduce);
         tv_introduce = findViewById(R.id.tv_introduce);
         resetLayout();
@@ -146,7 +155,7 @@ public class UserInfoActivity extends AppActivity {
             mViewSettingName.setVisibility(View.VISIBLE);
             mLayoutMsg.setVisibility(View.VISIBLE);
             viewIntroduce.setVisibility(View.GONE);
-           // mBtnAdd.setVisibility(View.VISIBLE);
+            // mBtnAdd.setVisibility(View.VISIBLE);
         }
     }
 
@@ -202,8 +211,8 @@ public class UserInfoActivity extends AppActivity {
         viewComplaint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(UserInfoActivity.this,ComplaintActivity.class);
-                intent.putExtra(ComplaintActivity.UID,id.toString());
+                Intent intent = new Intent(UserInfoActivity.this, ComplaintActivity.class);
+                intent.putExtra(ComplaintActivity.UID, id.toString());
                 startActivity(intent);
             }
         });
@@ -341,6 +350,7 @@ public class UserInfoActivity extends AppActivity {
             tv_introduce.setText(info.getDescribe());
             txtMkname.setText(info.getName());
         } else {
+            userInfoLocal = userAction.getUserInfoInLocal(id);
             userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
@@ -349,7 +359,7 @@ public class UserInfoActivity extends AppActivity {
                     }
                     final UserInfo info = response.body().getData();
                     imgHead.setImageURI(Uri.parse("" + info.getHead()));
-                    txtMkname.setText(info.getName4Show());
+                    doGetAndSetName(info);
                     mkName = info.getMkName();
                     txtPrNo.setText("常聊号: " + info.getImid());
                     txtNkname.setText("昵称: " + info.getName());
@@ -388,15 +398,15 @@ public class UserInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     for (UserInfo bean : response.body().getData().getUsers()) {
-                        if(bean.getUid().equals(id)){
+                        if (bean.getUid().equals(id)) {
                             viewJoinGroupType.setVisibility(View.VISIBLE);
                             inviterName = bean.getInviterName();
                             joinType = bean.getJoinType();
                             if (joinType == 0) {
-                                String content =  "<font color='#276baa'>" + inviterName + "</font> 分享二维码邀请进群";
+                                String content = "<font color='#276baa'>" + inviterName + "</font> 分享二维码邀请进群";
                                 tvJoinGroupType.setText(Html.fromHtml(content));
                             } else {
-                                String content =  "<font color='#276baa'>" + inviterName + "</font> 邀请进群";
+                                String content = "<font color='#276baa'>" + inviterName + "</font> 邀请进群";
                                 tvJoinGroupType.setText(Html.fromHtml(content));
                             }
                         }
@@ -531,6 +541,15 @@ public class UserInfoActivity extends AppActivity {
                 type = 2;
             }
         }
+    }
+
+    private void doGetAndSetName(UserInfo userInfo) {
+        String userRemark = "";
+        if (userInfoLocal != null) {
+            userRemark = userInfoLocal.getMkName();
+        }
+        txtMkname.setText(StringUtil.getUserName(userRemark, mucNick, userInfo.getName(), userInfo.getUid()));
+
     }
 
 

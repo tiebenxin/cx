@@ -601,14 +601,13 @@ public class UserAction {
     }
 
     /*
-     * 检测本地常聊小助手是否存在
+     * 获取本地用户信息
      * */
-    public boolean checkAssitantUserExist() {
-        UserInfo info = dao.findUserInfo(1L);
-        if (info != null) {
-            return true;
+    public UserInfo getUserInfoInLocal(Long uid) {
+        if (uid == null) {
+            return null;
         }
-        return false;
+        return dao.findUserInfo(uid);
     }
 
     public UserInfo createAssitantUser() {

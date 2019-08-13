@@ -41,11 +41,12 @@ public class FactoryChatCell {
             case RED_ENVELOPE_SEND:
                 cell = new ChatCellRedEnvelope(mContext, layout, mListener, mAdapter, viewGroup);
                 break;
+            case TRANSFER_RECEIVED:
+            case TRANSFER_SEND:
+                cell = new ChatCellRedEnvelope(mContext, layout, mListener, mAdapter, viewGroup);
+                break;
             case NOTICE:
                 cell = new ChatCellNotice(mContext, layout, mListener, mAdapter, viewGroup);
-                break;
-            case UNRECOGNIZED:
-                cell = new ChatCellUnrecognized(mContext, layout, mListener, mAdapter, viewGroup);
                 break;
             case CARD_RECEIVED:
             case CARD_SEND:
@@ -55,8 +56,21 @@ public class FactoryChatCell {
             case VOICE_SEND:
                 cell = new ChatCellVoice(mContext, layout, mListener, mAdapter, viewGroup);
                 break;
+            case STAMP_RECEIVED:
+            case STAMP_SEND:
+                cell = new ChatCellStamp(mContext, layout, mListener, mAdapter, viewGroup);
+                break;
+            case AT_RECEIVED:
+            case AT_SEND:
+                cell = new ChatCellText(mContext, layout, mListener, mAdapter, viewGroup);
+                break;
             case ASSISTANT:
                 cell = new ChatCellText(mContext, layout, mListener, mAdapter, viewGroup);
+                break;
+
+
+            case UNRECOGNIZED:
+                cell = new ChatCellUnrecognized(mContext, layout, mListener, mAdapter, viewGroup);
                 break;
             default:
                 cell = new ChatCellUnrecognized(mContext, layout, mListener, mAdapter, viewGroup);

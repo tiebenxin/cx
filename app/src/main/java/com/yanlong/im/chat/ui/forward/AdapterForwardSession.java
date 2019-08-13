@@ -66,6 +66,7 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
         public void bindData(final com.yanlong.im.chat.bean.Session bean) {
             String icon = "";
             String title = "";
+            boolean isGroup = false;
 
             if (bean.getType() == 0) {//单人
                 userDao = new UserDao();
@@ -75,6 +76,7 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
                     title = finfo.getName4Show();
                 }
             } else if (bean.getType() == 1) {//群
+                isGroup = true;
                 msgDao = new MsgDao();
                 Group ginfo = msgDao.getGroup4Id(bean.getGid());
                 if (ginfo != null) {
@@ -91,11 +93,12 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
             final String finalTitle = title;
             final String finalIcon = icon;
 
+            final boolean finalIsGroup = isGroup;
             viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (listener != null) {
-                        listener.onForward(bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
+                        listener.onForward(finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
                     }
                 }
             });

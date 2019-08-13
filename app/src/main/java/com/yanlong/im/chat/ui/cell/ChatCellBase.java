@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui.cell;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +41,11 @@ public abstract class ChatCellBase implements View.OnClickListener {
     private ImageView iv_error;
     public View bubbleLayout;
     private List<OptionMenu> menus;
+
+    @ChatEnum.EMessageType
+    int messageType;
+
+    boolean isMe;
 
     protected ChatCellBase(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
         mContext = context;
@@ -96,6 +102,8 @@ public abstract class ChatCellBase implements View.OnClickListener {
             return;
         }
         model = message;
+        messageType = message.getMsg_type();
+        isMe = message.isMe();
         loadAvatar();
         setName();
         setTime();
@@ -211,12 +219,14 @@ public abstract class ChatCellBase implements View.OnClickListener {
     /*
      * 加载发送者头像
      * */
+    @SuppressLint("CheckResult")
     private void loadAvatar() {
         if (mContext == null || iv_avatar == null) {
             return;
         }
         RequestOptions options = new RequestOptions();
         options.centerCrop();
+        options.error(R.drawable.ic_info_head);
         Glide.with(mContext)
                 .load(model.getFrom_avatar())
                 .apply(options)

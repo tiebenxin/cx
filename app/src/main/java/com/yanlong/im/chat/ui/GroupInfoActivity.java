@@ -366,7 +366,8 @@ public class GroupInfoActivity extends AppActivity {
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
-                                .putExtra(UserInfoActivity.GID, gid));
+                                .putExtra(UserInfoActivity.GID, gid)
+                                .putExtra(UserInfoActivity.MUC_NICK, number.getName4Show()));
 
                     }
                 });
@@ -514,10 +515,9 @@ public class GroupInfoActivity extends AppActivity {
                     ginfo = response.body().getData();
 
 
-
                     //8.8 如果是有群昵称显示自己群昵称
-                    for (UserInfo number:ginfo.getUsers()){
-                        if(StringUtil.isNotNull(number.getMembername())){
+                    for (UserInfo number : ginfo.getUsers()) {
+                        if (StringUtil.isNotNull(number.getMembername())) {
                             number.setName(number.getMembername());
                         }
                     }

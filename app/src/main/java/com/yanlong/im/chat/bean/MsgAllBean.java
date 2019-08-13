@@ -214,13 +214,12 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = getAtMessage().getMsg();
         } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
             str = "[常聊通知]";
-        }else if(msg_type == ChatEnum.EMessageType.MSG_CENCAL) {//撤回消息
+        } else if (msg_type == ChatEnum.EMessageType.MSG_CENCAL) {//撤回消息
             str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
         }
 
         return str;
     }
-
 
 
     public void setMsg_type(@ChatEnum.EMessageType Integer msg_type) {
@@ -418,6 +417,13 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.RED_ENVELOPE_RECEIVED;
                 }
                 break;
+            case ChatEnum.EMessageType.TRANSFER://转账
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.TRANSFER_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.TRANSFER_RECEIVED;
+                }
+                break;
             case ChatEnum.EMessageType.VOICE://语音
                 if (isMe) {
                     layout = ChatEnum.EChatCellLayout.VOICE_SEND;
@@ -425,7 +431,21 @@ public class MsgAllBean extends RealmObject implements IChatModel {
                     layout = ChatEnum.EChatCellLayout.VOICE_RECEIVED;
                 }
                 break;
-            case ChatEnum.EMessageType.ASSISTANT://未识别
+            case ChatEnum.EMessageType.STAMP://戳一下
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.STAMP_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.STAMP_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.AT://戳一下
+                if (isMe) {
+                    layout = ChatEnum.EChatCellLayout.AT_SEND;
+                } else {
+                    layout = ChatEnum.EChatCellLayout.AT_RECEIVED;
+                }
+                break;
+            case ChatEnum.EMessageType.ASSISTANT://小助手
                 layout = ChatEnum.EChatCellLayout.ASSISTANT;
                 break;
 

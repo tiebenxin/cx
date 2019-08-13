@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -20,11 +21,14 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
@@ -173,6 +177,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //语音的动画
     private AnimationPic animationPic = new AnimationPic();
     private MessageAdapter messageAdapter;
+    private int lastOffset;
+    private int lastPosition;
+    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -242,12 +249,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
 
 
-                             if(msg.getMsgType()== MsgBean.MessageType.OUT_GROUP){//提出群的消息是以个人形式发的
+                            if (msg.getMsgType() == MsgBean.MessageType.OUT_GROUP) {//提出群的消息是以个人形式发的
 
                                 needRefresh = msg.getOutGroup().getGid().equals(toGid);
                             }
 
-                             if(msg.getMsgType()== MsgBean.MessageType.REMOVE_GROUP_MEMBER ){//提出群的消息是以个人形式发的
+                            if (msg.getMsgType() == MsgBean.MessageType.REMOVE_GROUP_MEMBER) {//提出群的消息是以个人形式发的
 
                                 needRefresh = msg.getRemoveGroupMember().getGid().equals(toGid);
                             }
@@ -280,16 +287,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 public void run() {
 
                     //撤回处理
-                    if(bean.getWrapMsg(0).getMsgType()== MsgBean.MessageType.CANCEL){
-                        ToastUtil.show(getContext(),"撤回失败");
+                    if (bean.getWrapMsg(0).getMsgType() == MsgBean.MessageType.CANCEL) {
+                        ToastUtil.show(getContext(), "撤回失败");
                         return;
                     }
 
 
-
                     //ToastUtil.show(context, "发送失败" + bean.getRequestId());
                     MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
-                    if(msgAllBean.getMsg_type().intValue()==ChatEnum.EMessageType.MSG_CENCAL){//取消的指令不保存到数据库
+                    if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CENCAL) {//取消的指令不保存到数据库
                         return;
                     }
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
@@ -386,6 +392,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     //自动生成的控件事件
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
 
 
@@ -808,6 +815,32 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
+        mtListView.getListView().setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    //获取可视的第一个view
+                    View topView = layoutManager.getChildAt(0);
+                    if (topView != null) {
+                        //获取与该view的顶部的偏移量
+                        lastOffset = topView.getTop();
+                        //得到该View的数组位置
+                        lastPosition = layoutManager.getPosition(topView);
+                    }
+                }
+            }
+        });
+
+        mtListView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+            }
+        });
+
+
         //处理键盘
         SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
@@ -923,7 +956,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 隐藏底部所有面板
      */
     private void hideBt() {
-
         viewFunc.setVisibility(View.GONE);
         viewEmoji.setVisibility(View.GONE);
 
@@ -944,7 +976,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //清理会话数量
         taskCleanRead();
         AudioPlayManager.getInstance().stopPlay();
-        Log.v(TAG,"onBackPressed");
+        Log.v(TAG, "onBackPressed");
         super.onBackPressed();
     }
 
@@ -975,6 +1007,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1239,7 +1272,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 showBigPic(message.getMsg_id(), message.getImage().getThumbnailShow());
                 break;
             case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
-
+                if (args[0] != null && args[0] instanceof RedEnvelopeMessage) {
+                    RedEnvelopeMessage red = (RedEnvelopeMessage) args[0];
+                    if ((red.isValid() || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                        taskPayRbDetail(red.getId());
+                    } else {
+                        taskPayRbGet(message.getFrom_uid(), red.getId());
+                    }
+                }
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
                 if (args[0] != null && args[0] instanceof BusinessCardMessage) {
@@ -1255,6 +1295,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 View view = (View) args[1];
                 if (view != null && menus != null && menus.size() > 0) {
                     showPop(view, menus, message);
+                }
+                break;
+            case ChatEnum.ECellEventType.TRANSFER_CLICK:
+                if (args[0] != null && args[0] instanceof TransferMessage) {
+                    TransferMessage transfer = (TransferMessage) args[0];
+                    tsakTransGet(transfer.getId());
                 }
                 break;
 
@@ -1424,7 +1470,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         public void onClick(boolean isInvalid) {
                             if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                 //ToastUtil.show(getContext(), "红包详情");
-                                taskPayRbDatail(rid);
+                                taskPayRbDetail(rid);
 
                             } else {
                                 taskPayRbGet(touid, rid);
@@ -1628,15 +1674,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
-                            if(System.currentTimeMillis()- msgbean.getTimestamp()<2*60*1000) {//两分钟内可以删除
-                                boolean isExist=false;
-                                for (OptionMenu optionMenu:menus){
-                                   if( optionMenu.getTitle().equals("撤回")){
-                                       isExist=true;
-                                   }
+                            if (System.currentTimeMillis() - msgbean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
+                                boolean isExist = false;
+                                for (OptionMenu optionMenu : menus) {
+                                    if (optionMenu.getTitle().equals("撤回")) {
+                                        isExist = true;
+                                    }
                                 }
 
-                                if(!isExist){
+                                if (!isExist) {
                                     menus.add(new OptionMenu("撤回"));
                                 }
 
@@ -1710,8 +1756,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     } else if (menu.getTitle().equals("撤回")) {
 
 
-
-                            SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+                        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
 
 
                     }
@@ -1722,7 +1767,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             menuView.show(v);
         }
-
 
 
         //自动寻找ViewHold
@@ -1750,7 +1794,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void notifyData2Buttom() {
         notifyData();
-        mtListView.getListView().scrollToPosition(msgListData.size());
+        if (lastPosition > 0 && lastOffset > 0) {
+            mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+        } else {
+            mtListView.getListView().scrollToPosition(msgListData.size());
+        }
     }
 
     private void notifyData() {
@@ -1854,25 +1902,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     ClipData mClipData = ClipData.newPlainText(txt, txt);
                     cm.setPrimaryClip(mClipData);
 
-                    } else if (menu.getTitle().equals("听筒播放")) {
-                        msgDao.userSetingVoicePlayer(1);
-                    } else if (menu.getTitle().equals("扬声器播放")) {
-                        msgDao.userSetingVoicePlayer(0);
-                    } else if (menu.getTitle().equals("撤回")) {
+                } else if (menu.getTitle().equals("听筒播放")) {
+                    msgDao.userSetingVoicePlayer(1);
+                } else if (menu.getTitle().equals("扬声器播放")) {
+                    msgDao.userSetingVoicePlayer(0);
+                } else if (menu.getTitle().equals("撤回")) {
 
-                            //收到ack后删除
-                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                            msgListData.remove(msgbean);
-                            notifyData();
+                    //收到ack后删除
+                    msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                    msgListData.remove(msgbean);
+                    notifyData();
 
-                            SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
 
 
-                    }
-                    menuView.dismiss();
-                    return true;
                 }
-            });
+                menuView.dismiss();
+                return true;
+            }
+        });
 
         menuView.show(v);
     }
@@ -2221,7 +2269,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 红包详情
      * @param rid
      */
-    private void taskPayRbDatail(final String rid) {
+    private void taskPayRbDetail(final String rid) {
      /*   if (!isGroup()) {
             return;
         }*/
@@ -2304,6 +2352,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
+    }
+
+    private void scroll() {
+
     }
 
 
