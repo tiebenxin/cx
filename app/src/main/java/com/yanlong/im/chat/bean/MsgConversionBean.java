@@ -30,7 +30,7 @@ public class MsgConversionBean {
 
 
     public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean, MsgBean.UniversalMessage.Builder msg) {
-         MsgDao msgDao=  new MsgDao();
+        MsgDao msgDao = new MsgDao();
         //手动处理转换
         MsgAllBean msgAllBean = new MsgAllBean();
 
@@ -153,7 +153,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
-                rbNotice.setNote(bean.getNickname() + "领取红包");
+                rbNotice.setNote(bean.getNickname() + "领取了红包");
                 msgAllBean.setMsgNotice(rbNotice);
                 break;
 
@@ -178,7 +178,7 @@ public class MsgConversionBean {
                         String name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
                         Long uid = bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
 
-                        MsgAllBean gmsg =msgDao.msgGetLastGroup4Uid(bean.getGid(), uid);
+                        MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(bean.getGid(), uid);
                         if (gmsg != null) {
                             name = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : name;
                         }
@@ -189,7 +189,7 @@ public class MsgConversionBean {
                         }
 
 
-                        names += "\"<font color='#276baa'>"+name + "</font>\"、";
+                        names += "\"<font color='#276baa'>" + name + "</font>\"、";
                     }
 
                 }
@@ -201,7 +201,7 @@ public class MsgConversionBean {
                     inviterName = "你";
                 } else {
 
-                    MsgAllBean gmsg =msgDao.msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
+                    MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
                     if (gmsg != null) {
                         inviterName = StringUtil.isNotNull(gmsg.getFrom_group_nickname()) ? gmsg.getFrom_group_nickname() : inviterName;
                     }
@@ -211,7 +211,7 @@ public class MsgConversionBean {
                         inviterName = StringUtil.isNotNull(userinfo.getMkName()) ? userinfo.getMkName() : inviterName;
                     }
 
-                    inviterName="\"<font color='#276baa'>"+inviterName+ "</font>\"";
+                    inviterName = "\"<font color='#276baa'>" + inviterName + "</font>\"";
 
                 }
 
@@ -248,7 +248,7 @@ public class MsgConversionBean {
                 MsgNotice grmvNotice = new MsgNotice();
 
                 grmvNotice.setMsgid(msgAllBean.getMsg_id());
-                grmvNotice.setNote("您已移除群");
+                grmvNotice.setNote("\"<font color='#276baa'>你</font>\"" + "已被移除群");
                 msgAllBean.setMsgNotice(grmvNotice);
                 break;
             case CHANGE_GROUP_MASTER:
@@ -257,9 +257,9 @@ public class MsgConversionBean {
                 MsgNotice gnewAdminNotice = new MsgNotice();
                 gnewAdminNotice.setMsgid(msgAllBean.getMsg_id());
                 if (bean.getChangeGroupMaster().getUid() == UserAction.getMyId().longValue()) {
-                    gnewAdminNotice.setNote("你已成为新的群主");
+                    gnewAdminNotice.setNote("\"<font color='#276baa'>你</font>\"" + "已成为新的群主");
                 } else {
-                    gnewAdminNotice.setNote(bean.getChangeGroupMaster().getMembername() + "已成为新的群主");
+                    gnewAdminNotice.setNote("\"<font color='#276baa'>" + bean.getChangeGroupMaster().getMembername() + "</font>\"" + "已成为新的群主");
                 }
 
                 msgAllBean.setMsgNotice(gnewAdminNotice);
@@ -271,7 +271,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice goutNotice = new MsgNotice();
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
-                goutNotice.setNote(bean.getNickname() + "退出该群");
+                goutNotice.setNote("\"<font color='#276baa'>" + bean.getNickname() + "</font>\"" + "退出该群");
                 msgAllBean.setMsgNotice(goutNotice);
                 break;
             case CHANGE_GROUP_NAME:
@@ -305,22 +305,19 @@ public class MsgConversionBean {
                 msgAllBean.setAssistantMessage(assistant);
                 break;
             case CANCEL://撤回消息
-
-                String rname="";
+                String rname = "";
                 if (bean.getFromUid() == UserAction.getMyId().longValue()) {
-                    rname="你";
-                }else{//对方撤回的消息当通知处理
-                    rname="\""+msgDao.getUsername4Show(bean.getGid(),bean.getFromUid())+"\"";
-                    //return null;
+                    rname = "\"<font color='#276baa'>你</font>\"";
+                } else {//对方撤回的消息当通知处理
+                    rname = "\"<font color='#276baa'>" + msgDao.getUsername4Show(bean.getGid(), bean.getFromUid()) + "</font>\"";
+
                 }
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
                 MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgAllBean.getMsg_id());
-                msgCel.setNote(rname+"撤回了一条消息");
+                msgCel.setNote(rname + "撤回了一条消息");
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
                 msgAllBean.setMsgCancel(msgCel);
-
-
 
                 break;
             default:

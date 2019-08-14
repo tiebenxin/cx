@@ -136,7 +136,7 @@ public class GroupCreateActivity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder hd, int position) {
+        public void onBindViewHolder(RCViewHolder hd, final int position) {
 
             final UserInfo bean = listData.get(position);
 
@@ -154,6 +154,9 @@ public class GroupCreateActivity extends AppActivity {
                 }
             }
 
+            hd.ckSelect.setOnCheckedChangeListener(null);//清掉监听器
+            hd.ckSelect.setChecked(bean.isChecked());
+
 
             hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -163,6 +166,7 @@ public class GroupCreateActivity extends AppActivity {
                     } else {
                         listDataTop.remove(bean);
                     }
+                    listData.get(position).setChecked(isChecked);
                     topListView.getAdapter().notifyDataSetChanged();
                 }
             });

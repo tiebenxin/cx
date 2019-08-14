@@ -46,14 +46,14 @@ public class GroupNumbersActivity extends AppActivity {
     public static final String AGM_NUMBERS_JSON = "number_json";
     //1:添加,2:删除
     public static final String AGM_TYPE = "type";
-    public static final int TYPE_ADD =1 ;
-    public static final int TYPE_DEL =2 ;
+    public static final int TYPE_ADD = 1;
+    public static final int TYPE_DEL = 2;
 
     private String gid;
     private List<UserInfo> listData;
     private Integer type;
 
-    private Gson gson=new Gson();
+    private Gson gson = new Gson();
 
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
@@ -75,10 +75,11 @@ public class GroupNumbersActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
-        listData=gson.fromJson(getIntent().getStringExtra(AGM_NUMBERS_JSON),new TypeToken<List<UserInfo>>(){}.getType());
+        listData = gson.fromJson(getIntent().getStringExtra(AGM_NUMBERS_JSON), new TypeToken<List<UserInfo>>() {
+        }.getType());
         Collections.sort(listData);
-        type=getIntent().getIntExtra(AGM_TYPE,TYPE_ADD);
-        gid=getIntent().getStringExtra(AGM_GID);
+        type = getIntent().getIntExtra(AGM_TYPE, TYPE_ADD);
+        gid = getIntent().getStringExtra(AGM_GID);
 
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -94,7 +95,7 @@ public class GroupNumbersActivity extends AppActivity {
         });
         actionbar.setTxtRight("确定");
 
-        actionbar.setTitle(type==TYPE_ADD?"加入群":"移出群");
+        actionbar.setTitle(type == TYPE_ADD ? "加入群" : "移出群");
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
         //联动
@@ -142,13 +143,15 @@ public class GroupNumbersActivity extends AppActivity {
             hd.txtName.setText(bean.getName4Show());
 
             hd.viewType.setVisibility(View.VISIBLE);
-            if (position > 0&&listData.size()>1) {
+            if (position > 0 && listData.size() > 1) {
                 UserInfo lastbean = listData.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);
                 }
             }
 
+            hd.ckSelect.setOnCheckedChangeListener(null);//清掉监听器
+            hd.ckSelect.setChecked(bean.isChecked());
 
             hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -241,12 +244,7 @@ public class GroupNumbersActivity extends AppActivity {
     private UserDao userDao = new UserDao();
 
 
-
-
     private void taskListData() {
-
-
-
 
 
         for (int i = 0; i < listData.size(); i++) {
@@ -261,26 +259,26 @@ public class GroupNumbersActivity extends AppActivity {
      * 提交处理
      */
     private void taskOption() {
-        if(listDataTop.size()<1){
-            ToastUtil.show(getContext(),"请至少选择一个用户");
+        if (listDataTop.size() < 1) {
+            ToastUtil.show(getContext(), "请至少选择一个用户");
             return;
         }
         CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body()==null)
+                if (response.body() == null)
                     return;
-                ToastUtil.show(getContext(),response.body().getMsg());
-                if(response.body().isOk()){
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
                     finish();
                 }
 
             }
         };
-        if(type==TYPE_ADD){
-            msgACtion.groupAdd(gid, listDataTop, UserAction.getMyInfo().getName(),callback);
-        }else{
-            msgACtion.groupRemove(gid, listDataTop,callback);
+        if (type == TYPE_ADD) {
+            msgACtion.groupAdd(gid, listDataTop, UserAction.getMyInfo().getName(), callback);
+        } else {
+            msgACtion.groupRemove(gid, listDataTop, callback);
         }
 
     }

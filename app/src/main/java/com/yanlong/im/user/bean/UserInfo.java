@@ -57,6 +57,16 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String inviter;
     @Ignore
     private String inviterName;
+    @Ignore
+    private boolean isChecked = false;
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
 
     public String getInviterName() {
         return inviterName;

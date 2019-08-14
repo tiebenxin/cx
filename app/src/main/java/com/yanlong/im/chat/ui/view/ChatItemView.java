@@ -272,7 +272,7 @@ public class ChatItemView extends LinearLayout {
         viewMe8.setVisibility(GONE);
         viewOt8.setVisibility(GONE);
         switch (type) {
-            case  ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
+            case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告
                 txtBroadcast.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
