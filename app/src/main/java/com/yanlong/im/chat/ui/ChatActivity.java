@@ -21,7 +21,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -177,9 +176,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //语音的动画
     private AnimationPic animationPic = new AnimationPic();
     private MessageAdapter messageAdapter;
-    private int lastOffset;
-    private int lastPosition;
-    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
+//    private int lastOffset;
+//    private int lastPosition;
+//    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -383,7 +382,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showSendObj(MsgAllBean msgAllbean) {
 
         //    msgListData.add(msgAllbean);
-        //    notifyData2Buttom();
+        //    notifyData2Bottom();
         taskRefreshMessage();
 
     }
@@ -812,30 +811,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-        mtListView.getListView().setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager != null) {
-                    //获取可视的第一个view
-                    View topView = layoutManager.getChildAt(0);
-                    if (topView != null) {
-                        //获取与该view的顶部的偏移量
-                        lastOffset = topView.getTop();
-                        //得到该View的数组位置
-                        lastPosition = layoutManager.getPosition(topView);
-                    }
-                }
-            }
-        });
+//        mtListView.getListView().setOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+//                if (layoutManager != null) {
+//                    //获取可视的第一个view
+//                    View topView = layoutManager.getChildAt(0);
+//                    if (topView != null) {
+//                        //获取与该view的顶部的偏移量
+//                        lastOffset = topView.getTop();
+//                        //得到该View的数组位置
+//                        lastPosition = layoutManager.getPosition(topView);
+//                    }
+//                }
+//                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition);
+//            }
+//        });
 
-        mtListView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-
-            }
-        });
+//        mtListView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//
+//            }
+//        });
 
 
         //处理键盘
@@ -1075,7 +1075,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file, isArtworkMaster);
 
                         msgListData.add(imgMsgBean);
-                        notifyData2Buttom();
+                        notifyData2Bottom();
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
                         startService(new Intent(getContext(), UpLoadService.class));
 
@@ -1834,13 +1834,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
 
-    private void notifyData2Buttom() {
+    private void notifyData2Bottom() {
         notifyData();
-        if (lastPosition > 0 && lastOffset > 0) {
-            mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
-        } else {
-            mtListView.getListView().scrollToPosition(msgListData.size());
-        }
+        mtListView.getListView().scrollToPosition(msgListData.size());
     }
 
     private void notifyData() {
@@ -1989,7 +1985,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
-                        notifyData2Buttom();
+                        notifyData2Bottom();
 //                        notifyData();
                     }
                 });
@@ -2394,10 +2390,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
-    }
-
-    private void scroll() {
-
     }
 
 
