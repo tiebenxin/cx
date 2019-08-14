@@ -80,6 +80,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/emoji_font"
                         android:selectAllOnFocus="true"
+                        android:gravity="center_vertical"
                         android:maxWidth="260dp"
                         android:minHeight="30dp"
                         android:text=""
