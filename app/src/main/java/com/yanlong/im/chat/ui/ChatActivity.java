@@ -961,6 +961,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+
     @Override
     public void onBackPressed() {
         if (viewFunc.getVisibility() == View.VISIBLE) {
@@ -978,6 +979,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         AudioPlayManager.getInstance().stopPlay();
         Log.v(TAG, "onBackPressed");
         super.onBackPressed();
+        //oppo 手机 调用 onBackPressed不会finish
+        finish();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1002,7 +1005,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
-
+        Log.v(TAG, "onDestroy");
         super.onDestroy();
 
     }
@@ -1743,8 +1746,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         );
 
                     } else if (menu.getTitle().equals("复制")) {//只有文本
-                        String txt = msgbean.getChat().getMsg();
-
+                        String txt = "";
+                        if(msgbean.getMsg_type() == ChatEnum.EMessageType.AT){
+                            txt = msgbean.getAtMessage().getMsg();
+                        }else{
+                            txt = msgbean.getChat().getMsg();
+                        }
                         ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData mClipData = ClipData.newPlainText(txt, txt);
                         cm.setPrimaryClip(mClipData);
