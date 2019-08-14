@@ -84,6 +84,9 @@ public class SimpleFragmentAdapter extends PagerAdapter {
         final SubsamplingScaleImageView longImg = (SubsamplingScaleImageView) contentView.findViewById(R.id.longImg);
 
         ImageView iv_play = (ImageView) contentView.findViewById(R.id.iv_play);
+        ImageView ivDownload = contentView.findViewById(com.luck.picture.lib.R.id.iv_download);
+        ivDownload.setVisibility(View.GONE);
+
         LocalMedia media = images.get(position);
         if (media != null) {
             final String pictureType = media.getPictureType();

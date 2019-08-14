@@ -1,6 +1,7 @@
 package com.luck.picture.lib;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -50,6 +51,7 @@ import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastManage;
 import com.luck.picture.lib.widget.FolderPopWindow;
 import com.luck.picture.lib.widget.PhotoPopupWindow;
+import com.luck.picture.lib.widget.PhotoPopupWindow.OnItemClickListener;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.UCropMulti;
 import com.yalantis.ucrop.model.CutInfo;
@@ -67,9 +69,8 @@ import io.reactivex.disposables.Disposable;
  * @data：2018/1/27 19:12
  * @描述: Media 选择页面
  */
-public class PictureSelectorActivity extends PictureBaseActivity implements View.OnClickListener,
-        PictureAlbumDirectoryAdapter.OnItemClickListener,
-        PictureImageGridAdapter.OnPhotoSelectChangedListener, PhotoPopupWindow.OnItemClickListener {
+public class PictureSelectorActivity extends PictureBaseActivity implements View.OnClickListener, PictureAlbumDirectoryAdapter.OnItemClickListener,
+        OnPhotoSelectChangedListener, OnItemClickListener {
     private final static String TAG = PictureSelectorActivity.class.getSimpleName();
     private static final int SHOW_DIALOG = 0;
     private static final int DISMISS_DIALOG = 1;
@@ -493,18 +494,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         }
 
         if (id == R.id.picture_id_preview) {
-            List<LocalMedia> selectedImages = adapter.getSelectedImages();
-
-            List<LocalMedia> medias = new ArrayList<>();
-            for (LocalMedia media : selectedImages) {
-                medias.add(media);
-            }
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) medias);
-            bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
-            bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
-            startActivity(PicturePreviewActivity.class, bundle,
-                    config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
+            previewImage(adapter.getSelectedImages(), 0);
             overridePendingTransition(R.anim.a5, 0);
         }
 
@@ -517,7 +507,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
             boolean eqImg = pictureType.startsWith(PictureConfig.IMAGE);
             if (config.minSelectNum > 0 && config.selectionMode == PictureConfig.MULTIPLE) {
                 if (size < config.minSelectNum) {
-                    String str = eqImg ? getString(R.string.picture_min_img_num, config.minSelectNum)
+                    @SuppressLint("StringFormatMatches") String str = eqImg ? getString(R.string.picture_min_img_num, config.minSelectNum)
                             : getString(R.string.picture_min_video_num, config.minSelectNum);
                     ToastManage.s(mContext, str);
                     return;
@@ -546,6 +536,19 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 onResult(images);
             }
         }
+    }
+
+    private void previewImage(List<LocalMedia> selectedImages, int position) {
+        List<LocalMedia> medias = new ArrayList<>();
+        for (LocalMedia media : selectedImages) {
+            medias.add(media);
+        }
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(PictureConfig.EXTRA_PREVIEW_SELECT_LIST, (Serializable) medias);
+        bundle.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
+        bundle.putBoolean(PictureConfig.EXTRA_BOTTOM_PREVIEW, true);
+        startActivity(PicturePreviewActivity.class, bundle,
+                config.selectionMode == PictureConfig.SINGLE ? UCrop.REQUEST_CROP : UCropMulti.REQUEST_MULTI_CROP);
     }
 
     /**
@@ -803,8 +806,13 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
 
     @Override
     public void onPictureClick(LocalMedia media, int position) {
-        List<LocalMedia> images = adapter.getImages();
-        startPreview(images, position);
+//        List<LocalMedia> images = adapter.getImages();
+//        startPreview(images, position);
+        List<LocalMedia> images = new ArrayList<>();
+        images.add(media);
+//        startPreview(images, 0);
+        previewImage(images, 0);
+
     }
 
     /**

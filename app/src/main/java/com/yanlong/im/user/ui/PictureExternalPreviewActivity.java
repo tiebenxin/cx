@@ -326,6 +326,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
             } else {
                 txtBig.setVisibility(View.GONE);
+                ivDownload.setVisibility(View.GONE);
                 imgDownloadEvent(ivDownload, path);
 
             }

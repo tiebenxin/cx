@@ -2,6 +2,7 @@ package com.luck.picture.lib.adapter;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -19,6 +20,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.luck.picture.lib.OnPhotoSelectChangedListener;
+import com.luck.picture.lib.PictureSelectorActivity;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.anim.OptAnimationLoader;
 import com.luck.picture.lib.config.PictureConfig;
@@ -222,17 +225,19 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                         return;
                     }
                     int index = showCamera ? position - 1 : position;
-                    boolean eqResult =
-                            mediaMimeType == PictureConfig.TYPE_IMAGE && enablePreview
-                                    || mediaMimeType == PictureConfig.TYPE_VIDEO && (enablePreviewVideo
-                                    || selectMode == PictureConfig.SINGLE)
-                                    || mediaMimeType == PictureConfig.TYPE_AUDIO && (enablePreviewAudio
-                                    || selectMode == PictureConfig.SINGLE);
-                    if (eqResult) {
-                        imageSelectChangedListener.onPictureClick(image, index);
-                    } else {
-                        changeCheckboxState(contentHolder, image);
-                    }
+                    imageSelectChangedListener.onPictureClick(image, index);
+
+//                    boolean eqResult =
+//                            mediaMimeType == PictureConfig.TYPE_IMAGE && enablePreview
+//                                    || mediaMimeType == PictureConfig.TYPE_VIDEO && (enablePreviewVideo
+//                                    || selectMode == PictureConfig.SINGLE)
+//                                    || mediaMimeType == PictureConfig.TYPE_AUDIO && (enablePreviewAudio
+//                                    || selectMode == PictureConfig.SINGLE);
+//                    if (eqResult) {
+//                        imageSelectChangedListener.onPictureClick(image, index);
+//                    } else {
+//                        changeCheckboxState(contentHolder, image);
+//                    }
                 }
             });
         }
@@ -320,7 +325,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
         if (selectImages.size() >= maxSelectNum && !isChecked) {
             boolean eqImg = pictureType.startsWith(PictureConfig.IMAGE);
-            String str = eqImg ? context.getString(R.string.picture_message_max_num, maxSelectNum)
+            @SuppressLint("StringFormatMatches") String str = eqImg ? context.getString(R.string.picture_message_max_num, maxSelectNum)
                     : context.getString(R.string.picture_message_video_max_num, maxSelectNum);
             ToastManage.s(context, str);
             return;
@@ -404,30 +409,8 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    public interface OnPhotoSelectChangedListener {
-        /**
-         * 拍照回调
-         */
-        void onTakePhoto();
 
-        /**
-         * 已选Media回调
-         *
-         * @param selectImages
-         */
-        void onChange(List<LocalMedia> selectImages);
-
-        /**
-         * 图片预览回调
-         *
-         * @param media
-         * @param position
-         */
-        void onPictureClick(LocalMedia media, int position);
-    }
-
-    public void setOnPhotoSelectChangedListener(OnPhotoSelectChangedListener
-                                                        imageSelectChangedListener) {
+    public void setOnPhotoSelectChangedListener(OnPhotoSelectChangedListener imageSelectChangedListener) {
         this.imageSelectChangedListener = imageSelectChangedListener;
     }
 
