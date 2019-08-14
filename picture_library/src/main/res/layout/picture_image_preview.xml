@@ -15,24 +15,35 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true" />
+
     <com.luck.picture.lib.view.bigImg.LargeImageView
         android:id="@+id/img_large"
-        android:visibility="gone"
-        android:scrollbars="vertical|horizontal"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@color/black"
-        android:layout_height="match_parent" />
+        android:scrollbars="vertical|horizontal"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/txt_big"
-        android:layout_gravity="center_horizontal|bottom"
-        android:textColor="#ffffff"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="50dp"
-        android:padding="10dp"
-        android:visibility="gone"
         android:background="@color/bar_grey_90"
-        android:text="查看原图"/>
+        android:padding="10dp"
+        android:text="查看原图"
+        android:textColor="#ffffff"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/iv_download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/ic_download" />
 
     <ImageView
         android:id="@+id/iv_play"

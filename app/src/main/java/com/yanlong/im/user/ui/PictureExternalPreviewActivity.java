@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -65,6 +66,7 @@ import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.QRCodeManage;
 
+import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -268,6 +270,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             final SubsamplingScaleImageView longImg = contentView.findViewById(com.luck.picture.lib.R.id.longImg);
             final LargeImageView imgLarge = contentView.findViewById(com.luck.picture.lib.R.id.img_large);
             final TextView txtBig = contentView.findViewById(com.luck.picture.lib.R.id.txt_big);
+            final ImageView ivDownload = contentView.findViewById(com.luck.picture.lib.R.id.iv_download);
 
 
             //1.先显示中图
@@ -310,6 +313,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 boolean readStat = msgDao.ImgReadStatGet(imgpath);
 
                 imgLargeEvent(txtBig, imgLarge, imgpath);
+                imgDownloadEvent(ivDownload, imgpath);
 
                 if (readStat) {//原图已读,就显示
                     txtBig.setVisibility(View.GONE);
@@ -322,11 +326,24 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
             } else {
                 txtBig.setVisibility(View.GONE);
+                imgDownloadEvent(ivDownload, path);
+
             }
 
 
             (container).addView(contentView, 0);
             return contentView;
+        }
+
+        private void imgDownloadEvent(ImageView ivDownload, final String imgPath) {
+            ivDownload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    saveImage(imgPath);
+                }
+            });
+
+
         }
 
         //图片事件
