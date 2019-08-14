@@ -73,6 +73,13 @@ public abstract class ChatCellBase implements View.OnClickListener {
                 }
             });
         }
+
+        if (iv_avatar != null && !isMe) {
+            iv_avatar.setOnClickListener(this);
+        }
+        if (iv_error != null) {
+            iv_error.setOnClickListener(this);
+        }
     }
 
     protected void initView() {
@@ -92,6 +99,14 @@ public abstract class ChatCellBase implements View.OnClickListener {
         int id = view.getId();
         if (id == bubbleLayout.getId()) {
             onBubbleClick();
+        } else if (id == iv_avatar.getId()) {
+            if (mCellListener != null && !isMe) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_CLICK, model, new Object());
+            }
+        } else if (id == iv_error.getId()) {
+            if (mCellListener != null) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
+            }
         }
     }
 
@@ -252,6 +267,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
     public Context getContext() {
         return mContext;
     }
+
 
     /*
      * 初始化MsgAllBean, currentPosition

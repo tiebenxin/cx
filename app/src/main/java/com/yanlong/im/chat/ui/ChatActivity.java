@@ -1303,9 +1303,52 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     tsakTransGet(transfer.getId());
                 }
                 break;
+            case ChatEnum.ECellEventType.AVATAR_CLICK:
+                toUserInfoActivity(message);
+                break;
+            case ChatEnum.ECellEventType.RESEND_CLICK:
+                resendMessage(message);
+                break;
 
         }
 
+    }
+
+    //跳转UserInfoActivity
+    private void toUserInfoActivity(MsgAllBean message) {
+        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                .putExtra(UserInfoActivity.ID, message.getFrom_uid())
+                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                .putExtra(UserInfoActivity.GID, toGid)
+                .putExtra(UserInfoActivity.MUC_NICK, message.getFrom_nickname()));
+    }
+
+    //重新发送消息
+    private void resendMessage(MsgAllBean msgbean) {
+        //从数据拉出来,然后再发送
+        MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgbean.getMsg_id());
+
+        try {
+            if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
+                String file = remsg.getImage().getLocalimg();
+                boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
+                MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
+                replaceListDataAndNotify(imgMsgBean);
+                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
+                startService(new Intent(getContext(), UpLoadService.class));
+
+            } else {
+                //点击发送的时候如果要改变成发送中的状态
+                remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                DaoUtil.update(remsg);
+                LogUtil.getLog().d(TAG, "点击重复发送" + remsg.getMsg_id());
+                MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
+                SocketUtil.getSocketUtil().sendData4Msg(bean);
+                taskRefreshMessage();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
