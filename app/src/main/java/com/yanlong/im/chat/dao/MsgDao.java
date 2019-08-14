@@ -107,15 +107,11 @@ public class MsgDao {
         RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                 .lessThan("timestamp", time)
-
                 .sort("timestamp", Sort.DESCENDING)
                 .limit(20)
                 .findAll();
 
         beans = realm.copyFromRealm(list);
-        ;
-
-
         //翻转列表
         Collections.reverse(beans);
         realm.close();

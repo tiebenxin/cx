@@ -757,8 +757,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         // viewFunc.removeView(viewTransfer);
 
 
-        mtListView.init(new RecyclerViewAdapter());
-//        initAdapter();//messageAdapter
+//        mtListView.init(new RecyclerViewAdapter());
+        initAdapter();//messageAdapter
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 
@@ -1410,13 +1410,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 holder.viewChatItem.setOnHead(null);
             } else {
 
+                final String finalNikeName = nikeName;
                 holder.viewChatItem.setOnHead(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
-                                .putExtra(UserInfoActivity.GID, toGid));
+                                .putExtra(UserInfoActivity.GID, toGid)
+                                .putExtra(UserInfoActivity.MUC_NICK, finalNikeName));
                     }
                 });
             }
@@ -1809,7 +1811,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void notifyData() {
-//        messageAdapter.bindData(msgListData, 0);
+        messageAdapter.bindData(msgListData, 0);
         mtListView.notifyDataSetChange();
     }
 

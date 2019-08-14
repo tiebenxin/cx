@@ -10,8 +10,8 @@
         android:id="@+id/rl_title"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:visibility="gone"
-        android:background="?attr/picture.ac_preview.title.bg">
+        android:background="?attr/picture.ac_preview.title.bg"
+        android:visibility="gone">
 
         <ImageButton
             android:id="@+id/left_back"
@@ -36,13 +36,14 @@
     </RelativeLayout>
 
     <FrameLayout
+
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <com.luck.picture.lib.widget.PreviewViewPager
             android:id="@+id/preview_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
 
     </FrameLayout>
 

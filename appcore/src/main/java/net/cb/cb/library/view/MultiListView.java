@@ -39,7 +39,7 @@ public class MultiListView extends LinearLayout {
     private int resId;
     //页面大小
     private Integer pageSize;
-    private LinearLayoutManager layoutManager;
+    private YLLinearLayoutManager layoutManager;
 
     /***
      * 设置事件设置监听
@@ -97,7 +97,7 @@ public class MultiListView extends LinearLayout {
         swipeLayout.setRefreshDrawable(new MaterialDrawable(context, swipeLayout));
 
         swipeLayout.setEnabled(false);
-        layoutManager = new LinearLayoutManager(context);
+        layoutManager = new YLLinearLayoutManager(context);
         listView.setLayoutManager(layoutManager);
 
         // ------------------------------------------
