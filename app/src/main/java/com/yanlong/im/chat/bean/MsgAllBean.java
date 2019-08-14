@@ -387,6 +387,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         ChatEnum.EChatCellLayout layout = null;
         switch (msgType) {
             case ChatEnum.EMessageType.NOTICE://通知
+            case ChatEnum.EMessageType.MSG_CENCAL://撤回
                 layout = ChatEnum.EChatCellLayout.NOTICE;
                 break;
             case ChatEnum.EMessageType.TEXT://文本
