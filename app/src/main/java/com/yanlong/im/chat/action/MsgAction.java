@@ -195,26 +195,37 @@ public class MsgAction {
                 }
             });
         } else {//从缓存中读
-            Group rdata = dao.groupNumberGet(gid);
-
-            ReturnBean<Group> body = new ReturnBean<>();
-            body.setCode(0l);
-            body.setData(rdata);
-            Response<ReturnBean<Group>> response = Response.success(body);
-            //8.8 取消从数据库里读取群成员信息
-            for(UserInfo userInfo: response.body().getData().getUsers()) {
-                GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-                if(link!=null){
-                    userInfo.setMembername(link.getMembername());
-                }
-
-
-            }
-
-            callback.onResponse(null, response);
+            groupInfo4Db(gid, callback);
         }
 
     }
+
+    /***
+     * 从缓存里面读取
+     * @param gid
+     * @param callback
+     */
+    public void groupInfo4Db(String gid, Callback<ReturnBean<Group>> callback) {
+        Group rdata = dao.groupNumberGet(gid);
+
+        ReturnBean<Group> body = new ReturnBean<>();
+        body.setCode(0l);
+        body.setData(rdata);
+        Response<ReturnBean<Group>> response = Response.success(body);
+        //8.8 取消从数据库里读取群成员信息
+        for (UserInfo userInfo : response.body().getData().getUsers()) {
+            GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+            if (link != null) {
+                userInfo.setMembername(link.getMembername());
+            }
+
+
+        }
+
+        callback.onResponse(null, response);
+    }
+
+
 
 
     /**
