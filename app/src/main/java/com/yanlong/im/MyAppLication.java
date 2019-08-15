@@ -29,7 +29,6 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
 
-
     @Override
     public void onCreate() {
         super.onCreate();
