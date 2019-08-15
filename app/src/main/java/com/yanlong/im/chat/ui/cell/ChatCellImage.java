@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,7 +24,6 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.LogUtil;
 
 import static android.view.View.VISIBLE;
 
@@ -49,9 +47,6 @@ public class ChatCellImage extends ChatCellBase {
         super(context, view, listener, adapter);
     }
 
-//    protected ChatCellImage(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
-//        super(context, cellLayout, listener, adapter, viewGroup);
-//    }
 
     @Override
     protected void initView() {
@@ -60,7 +55,6 @@ public class ChatCellImage extends ChatCellBase {
         ll_progress = getView().findViewById(R.id.ll_progress);
         progressBar = getView().findViewById(R.id.progress_bar);
         tv_progress = getView().findViewById(R.id.tv_progress);
-//        imageView.setOnClickListener(this);
     }
 
     @SuppressLint("CheckResult")
@@ -75,41 +69,43 @@ public class ChatCellImage extends ChatCellBase {
     }
 
     private void loadImage(MsgAllBean message) {
-        imageView.setTag(R.id.tag_img, currentPosition);
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
         checkSendStatus();
         RequestOptions rOptions = new RequestOptions();
         rOptions.override(width, height);
+        String tag = (String) imageView.getTag(R.id.tag_img);
         if (isGif(thumbnail)) {
-            rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-            Glide.with(getContext())
-                    .load(message.getImage().getPreview())
-                    .apply(rOptions)
-//                    .thumbnail(0.2f)
-                    .into(imageView);
+            String gif = message.getImage().getPreview();
+            if (!TextUtils.equals(tag, gif)) {
+                imageView.setTag(R.id.tag_img, gif);
+                rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+                glide(rOptions, gif);
+            } else {
+                glide(rOptions, tag);
+            }
+
         } else {
 //            rOptions.centerCrop();
-            rOptions.error(R.drawable.bg_btn_white);
-            rOptions.placeholder(R.drawable.bg_btn_white);
-            Glide.with(getContext())
-                    .load(thumbnail)
-                    .apply(rOptions)
-                    .into(new SimpleTarget<Drawable>() {
-                        @Override
-                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            imageView.setImageDrawable(resource);
-                        }
+            rOptions.error(R.mipmap.default_image);
+            rOptions.placeholder(R.mipmap.default_image);
+            if (!TextUtils.equals(tag, thumbnail)) {
+                imageView.setTag(R.id.tag_img, thumbnail);
+                glide(rOptions, thumbnail);
+            } else {
+                glide(rOptions, tag);
+            }
 
-//                        @Override
-//                        public void onStart() {
-//                            super.onStart();
-//                            imageView.setImageResource(R.drawable.bg_btn_white);
-//
-//                        }
-                    });
         }
 
+    }
+
+    private void glide(RequestOptions rOptions, String gif) {
+        Glide.with(getContext())
+                .load(gif)
+                .apply(rOptions)
+//                    .thumbnail(0.2f)
+                .into(imageView);
     }
 
 
@@ -141,6 +137,11 @@ public class ChatCellImage extends ChatCellBase {
         lp.width = width;
         lp.height = height;
         imageView.setLayoutParams(lp);
+
+        FrameLayout.LayoutParams lp2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        lp2.width = width;
+        lp2.height = height;
+        ll_progress.setLayoutParams(lp2);
     }
 
     @Override
@@ -165,6 +166,7 @@ public class ChatCellImage extends ChatCellBase {
         if (ll_progress == null) {
             return;
         }
+        setSendStatus();
         switch (model.getSend_state()) {
             case ChatEnum.ESendStatus.ERROR:
                 ll_progress.setVisibility(View.GONE);
