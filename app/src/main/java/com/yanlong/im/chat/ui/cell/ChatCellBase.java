@@ -169,7 +169,8 @@ public abstract class ChatCellBase implements View.OnClickListener {
                 break;
 
         }
-        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+        //云红包不能撤回
+        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL&&model.getMsg_type()!=ChatEnum.EMessageType.RED_ENVELOPE) {
             if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                 if (System.currentTimeMillis() - model.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                     menus.add(new OptionMenu("撤回"));
@@ -294,7 +295,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
 
     protected void updateMenu() {
         if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-            if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+            if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue()&&model.getMsg_type()!=ChatEnum.EMessageType.RED_ENVELOPE) {
                 if (System.currentTimeMillis() - model.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                     menus.add(new OptionMenu("撤回"));
                 }
