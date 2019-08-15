@@ -47,7 +47,7 @@ public class ChatCellRedEnvelope extends ChatCellBase {
 
         if (message.getMsg_type() == ChatEnum.EMessageType.RED_ENVELOPE) {
             redEnvelopeMessage = message.getRed_envelope();
-            invalid = redEnvelopeMessage.isValid();
+            invalid = redEnvelopeMessage.getIsInvalid() == 0 ? false : true;
             title = redEnvelopeMessage.getComment();
             if (invalid) {
                 info = "已领取";
