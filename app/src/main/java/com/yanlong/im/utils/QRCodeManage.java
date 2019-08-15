@@ -205,7 +205,7 @@ public class QRCodeManage {
         if (openAlipayPayPage(mContext, qrCode)) {
 
         } else {
-            ToastUtil.show(mContext, "调用失败,请重试");
+            ToastUtil.show(mContext, "请安装支付宝");
         }
     }
 
