@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.server.UpLoadService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +70,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
         if (payloads.isEmpty()) {
             super.onBindViewHolder(viewHolder, position, payloads);
         } else {
-            ChatCellBase cellBase = (ChatCellBase) viewHolder.itemView.getTag();
-            cellBase.putMessage(mList.get(position), position);
+            MsgAllBean msg = mList.get(position);
+            if (msg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
+                ChatCellImage imageCell = (ChatCellImage) viewHolder.itemView.getTag();
+                imageCell.updateMessage(msg);
+                int progress = UpLoadService.getProgress(msg.getMsg_id());
+                imageCell.updateProgress(msg.getSend_state(), progress);
+            }
         }
     }
 
@@ -104,6 +110,16 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     public int getMessagePosition(MsgAllBean bean) {
         return mList.indexOf(bean);
+    }
+
+    //局部刷新
+    public void notifyItemChanged(MsgAllBean bean, @NonNull List payloads) {
+        if (mList.contains(bean)) {
+            int position = mList.indexOf(bean);
+            mList.set(position, bean);
+            notifyItemChanged(position, payloads);
+        }
+
     }
 
 }

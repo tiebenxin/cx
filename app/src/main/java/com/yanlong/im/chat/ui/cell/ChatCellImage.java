@@ -10,9 +10,13 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -25,6 +29,9 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
+
+import static android.view.View.VISIBLE;
 
 /*
  * 图片消息
@@ -38,6 +45,9 @@ public class ChatCellImage extends ChatCellBase {
 
     private ImageView imageView;
     private ImageMessage imageMessage;
+    private ProgressBar progressBar;
+    private TextView tv_progress;
+    private LinearLayout ll_progress;
 
     protected ChatCellImage(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
         super(context, cellLayout, listener, adapter, viewGroup);
@@ -47,6 +57,9 @@ public class ChatCellImage extends ChatCellBase {
     protected void initView() {
         super.initView();
         imageView = getView().findViewById(R.id.iv_img);
+        ll_progress = getView().findViewById(R.id.ll_progress);
+        progressBar = getView().findViewById(R.id.progress_bar);
+        tv_progress = getView().findViewById(R.id.tv_progress);
 //        imageView.setOnClickListener(this);
     }
 
@@ -60,47 +73,87 @@ public class ChatCellImage extends ChatCellBase {
         }
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
+        checkSendStatus();
         RequestOptions rOptions = new RequestOptions();
         rOptions.override(width, height);
         if (isGif(thumbnail)) {
-            rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-            Glide.with(getContext())
-                    .load(message.getImage().getPreview())
-                    .apply(rOptions)
+            if (imageView.getTag() == null) {
+                rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+                Glide.with(getContext())
+                        .load(message.getImage().getPreview())
+                        .apply(rOptions)
 //                    .thumbnail(0.2f)
-                    .into(imageView);
+                        .into(imageView);
+//                imageView.setTag(currentPosition, message.getImage().getPreview());
+            } else {
+                String url = (String) imageView.getTag(currentPosition);
+                if (url.equals(thumbnail)) {
+                    rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+                    Glide.with(getContext())
+                            .load(message.getImage().getPreview())
+                            .apply(rOptions)
+//                    .thumbnail(0.2f)
+                            .into(imageView);
+                } else {
+                    rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+                    Glide.with(getContext())
+                            .load(message.getImage().getPreview())
+                            .apply(rOptions)
+//                    .thumbnail(0.2f)
+                            .into(imageView);
+//                    imageView.setTag(currentPosition, message.getImage().getPreview());
+                }
+
+            }
         } else {
-            rOptions.centerCrop();
-            Glide.with(getContext())
-                    .load(message.getImage().getPreview())
-                    .apply(rOptions)
-                    .into(new SimpleTarget<Drawable>() {
-                        @Override
-                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            imageView.setImageDrawable(resource);
-                        }
-                    });
+            if (imageView.getTag() == null) {
+                rOptions.centerCrop();
+                rOptions.error(R.drawable.bg_btn_white);
+                rOptions.placeholder(R.drawable.bg_btn_white);
+                Glide.with(getContext())
+                        .load(thumbnail)
+                        .apply(rOptions)
+                        .into(new SimpleTarget<Drawable>() {
+                            @Override
+                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                imageView.setImageDrawable(resource);
+                            }
+                        });
+//                imageView.setTag(currentPosition, thumbnail);
+//            imageView.setTag(message.getImage().getPreview());
+            } else {
+                rOptions.centerCrop();
+                rOptions.error(R.drawable.bg_btn_white);
+                rOptions.placeholder(R.drawable.bg_btn_white);
+
+                String url = (String) imageView.getTag(currentPosition);
+                if (url.equals(thumbnail)) {
+                    Glide.with(getContext())
+                            .load(thumbnail)
+                            .apply(rOptions)
+                            .into(new SimpleTarget<Drawable>() {
+                                @Override
+                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                    imageView.setImageDrawable(resource);
+                                }
+                            });
+                } else {
+                    Glide.with(getContext())
+                            .load(thumbnail)
+                            .apply(rOptions)
+                            .into(new SimpleTarget<Drawable>() {
+                                @Override
+                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                                    imageView.setImageDrawable(resource);
+                                }
+                            });
+//                    imageView.setTag(currentPosition, thumbnail);
+
+                }
+            }
         }
-
-
     }
 
-//    private void resetSize() {
-//        double realW = (int) imageMessage.getWidth();
-//        double realH = (int) imageMessage.getHeight();
-//        if (realH > 0 && realW > 0) {
-//            double scale = 1;
-//            if (realW > realH) {
-//                scale = DEFAULT_W / realW;
-//            } else if (realW < realH) {
-//                scale = DEFAULT_H / realH;
-//            } else {
-//                scale = 1;
-//            }
-//            width = (int) (realW * scale);
-//            height = (int) (realH * scale);
-//        }
-//    }
 
     private boolean isGif(String path) {
         if (!TextUtils.isEmpty(path)) {
@@ -117,48 +170,23 @@ public class ChatCellImage extends ChatCellBase {
         if (realH > 0) {
             double scale = (realW * 1.00) / realH;
             if (realW > realH) {
-//                width = getBitmapWidth();
                 width = DEFAULT_W;
                 height = (int) (width / scale);
             } else if (realW < realH) {
-//                height = getBitmapHeight();
                 height = DEFAULT_H;
                 width = (int) (height * scale);
             } else {
                 width = height = DEFAULT_H;
             }
         }
-        ViewGroup.LayoutParams lp = bubbleLayout.getLayoutParams();
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         lp.width = width;
         lp.height = height;
         imageView.setLayoutParams(lp);
 
-    }
-
-    public int getBitmapWidth() {
-        return getScreenWidth(getContext()) / 2;
-    }
-
-    public int getBitmapHeight() {
-        return getScreenHeight(getContext()) / 4;
-    }
-
-    // 获取屏幕的宽度
-    @SuppressWarnings("deprecation")
-    public int getScreenWidth(Context context) {
-        WindowManager manager = (WindowManager) context
-                .getSystemService(Context.WINDOW_SERVICE);
-        Display display = manager.getDefaultDisplay();
-        return display.getWidth();
-    }
-
-    // 获取屏幕的高度
-    @SuppressWarnings("deprecation")
-    public int getScreenHeight(Context context) {
-        WindowManager manager = (WindowManager) context
-                .getSystemService(Context.WINDOW_SERVICE);
-        Display display = manager.getDefaultDisplay();
-        return display.getHeight();
+        if (ll_progress != null) {
+            ll_progress.setLayoutParams(lp);
+        }
     }
 
     @Override
@@ -176,6 +204,44 @@ public class ChatCellImage extends ChatCellBase {
         super.onBubbleClick();
         if (mCellListener != null && model != null) {
             mCellListener.onEvent(ChatEnum.ECellEventType.IMAGE_CLICK, model, new Object());
+        }
+    }
+
+    private void checkSendStatus() {
+        if (ll_progress == null){
+            return;
+        }
+        switch (model.getSend_state()) {
+            case ChatEnum.ESendStatus.ERROR:
+                ll_progress.setVisibility(View.GONE);
+
+                break;
+            case ChatEnum.ESendStatus.PRE_SEND:
+                ll_progress.setVisibility(VISIBLE);
+
+                break;
+            case ChatEnum.ESendStatus.NORMAL:
+                ll_progress.setVisibility(View.GONE);
+
+                break;
+            case ChatEnum.ESendStatus.SENDING:
+                ll_progress.setVisibility(VISIBLE);
+                break;
+        }
+    }
+
+    public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
+        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "updateProgress=" + progress + "status=" + status);
+
+        if (ll_progress != null && progressBar != null && tv_progress != null) {
+            if (progress > 0 && progress < 100) {
+                ll_progress.setVisibility(View.VISIBLE);
+                setSendStatus();
+                tv_progress.setText(progress + "");
+                LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "updateProgress=" + progress);
+            } else {
+                ll_progress.setVisibility(View.GONE);
+            }
         }
     }
 }
