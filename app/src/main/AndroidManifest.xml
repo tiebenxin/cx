@@ -23,12 +23,12 @@
                         android:value="红包"/> -->
         <meta-data
             android:name="JRMF_PARTNER_ID"
-            android:value="closedbate" />
+            android:value="cll0814" />
 
 
         <meta-data
             android:name="JRMF_PARTNER_NAME"
-            android:value="测试红包" />
+            android:value="云红包" />
         <!-- <activity-alias
               android:name="test"
               android:label="测试页面"
