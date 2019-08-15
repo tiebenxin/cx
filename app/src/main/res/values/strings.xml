@@ -26,5 +26,7 @@
     <item name="type_oa" type="id"/>
     <item name="type_system" type="id"/>
 
+    <item name="tag_img" type="id"/>
+
 
 </resources>

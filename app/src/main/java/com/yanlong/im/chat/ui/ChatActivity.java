@@ -1140,7 +1140,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
-        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
+//        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
         if (event.getState() == 0) {
             // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
             taskRefreshImage(event.getMsgid());
@@ -1209,7 +1209,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (msgListData == null)
             return;
 
-        messageAdapter.updateItemAndRefresh(msgAllbean, Collections.singletonList(1));
+        int position = msgListData.indexOf(msgAllbean);
+        if (position > 0 && position < msgListData.size()) {
+//            msgListData.set(position, msgAllbean);
+            messageAdapter.updateItemAndRefresh(msgAllbean, Collections.singletonList(1));
+            mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+        }
+
 
 
     }

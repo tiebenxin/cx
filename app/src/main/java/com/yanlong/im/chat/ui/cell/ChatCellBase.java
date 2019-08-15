@@ -182,7 +182,6 @@ public abstract class ChatCellBase implements View.OnClickListener {
      * 设置发送状态
      * */
     public void setSendStatus() {
-        LogUtil.getLog().i(ChatCellBase.class.getSimpleName(), "--setSendStatus status=" + model.getSend_state());
         if (iv_error != null && model.isMe()) {
             switch (model.getSend_state()) {
                 case ChatEnum.ESendStatus.ERROR:
