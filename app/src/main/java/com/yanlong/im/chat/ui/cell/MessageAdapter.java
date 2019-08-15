@@ -112,4 +112,14 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return mList.indexOf(bean);
     }
 
+    //局部刷新
+    public void notifyItemChanged(MsgAllBean bean, @NonNull List payloads) {
+        if (mList.contains(bean)) {
+            int position = mList.indexOf(bean);
+            mList.set(position, bean);
+            notifyItemChanged(position, payloads);
+        }
+
+    }
+
 }

@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -181,6 +182,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
      * 设置发送状态
      * */
     public void setSendStatus() {
+        LogUtil.getLog().i(ChatCellBase.class.getSimpleName(), "--setSendStatus status=" + model.getSend_state());
         if (iv_error != null && model.isMe()) {
             switch (model.getSend_state()) {
                 case ChatEnum.ESendStatus.ERROR:

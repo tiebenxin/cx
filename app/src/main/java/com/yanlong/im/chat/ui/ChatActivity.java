@@ -111,6 +111,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1137,6 +1138,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
+        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
         if (event.getState() == 0) {
             // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
             taskRefreshImage(event.getMsgid());
@@ -1204,14 +1206,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         if (msgListData == null)
             return;
-        for (int i = 0; i < msgListData.size(); i++) {
-            if (msgListData.get(i).getMsg_id().equals(msgAllbean.getMsg_id())) {
+//        for (int i = 0; i < msgListData.size(); i++) {
+//            if (msgListData.get(i).getMsg_id().equals(msgAllbean.getMsg_id())) {
+//
+//                msgListData.set(i, msgAllbean);
+//                Log.d("sss", "onBindViewHolderpayloads->notifyItemChanged: ");
+//                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
+//            }
+//        }
+        messageAdapter.notifyItemChanged(msgAllbean, Collections.singletonList(1));
 
-                msgListData.set(i, msgAllbean);
-                Log.d("sss", "onBindViewHolderpayloads->notifyItemChanged: ");
-                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-            }
-        }
 
     }
 

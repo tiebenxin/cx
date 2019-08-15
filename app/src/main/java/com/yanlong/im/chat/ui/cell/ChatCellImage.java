@@ -84,7 +84,7 @@ public class ChatCellImage extends ChatCellBase {
                         .apply(rOptions)
 //                    .thumbnail(0.2f)
                         .into(imageView);
-                imageView.setTag(currentPosition, message.getImage().getPreview());
+//                imageView.setTag(currentPosition, message.getImage().getPreview());
             } else {
                 String url = (String) imageView.getTag(currentPosition);
                 if (url.equals(thumbnail)) {
@@ -101,7 +101,7 @@ public class ChatCellImage extends ChatCellBase {
                             .apply(rOptions)
 //                    .thumbnail(0.2f)
                             .into(imageView);
-                    imageView.setTag(currentPosition, message.getImage().getPreview());
+//                    imageView.setTag(currentPosition, message.getImage().getPreview());
                 }
 
             }
@@ -119,7 +119,7 @@ public class ChatCellImage extends ChatCellBase {
                                 imageView.setImageDrawable(resource);
                             }
                         });
-                imageView.setTag(currentPosition, thumbnail);
+//                imageView.setTag(currentPosition, thumbnail);
 //            imageView.setTag(message.getImage().getPreview());
             } else {
                 rOptions.centerCrop();
@@ -147,11 +147,9 @@ public class ChatCellImage extends ChatCellBase {
                                     imageView.setImageDrawable(resource);
                                 }
                             });
-                    imageView.setTag(currentPosition, thumbnail);
+//                    imageView.setTag(currentPosition, thumbnail);
 
                 }
-
-
             }
         }
     }
@@ -210,6 +208,9 @@ public class ChatCellImage extends ChatCellBase {
     }
 
     private void checkSendStatus() {
+        if (ll_progress == null){
+            return;
+        }
         switch (model.getSend_state()) {
             case ChatEnum.ESendStatus.ERROR:
                 ll_progress.setVisibility(View.GONE);
