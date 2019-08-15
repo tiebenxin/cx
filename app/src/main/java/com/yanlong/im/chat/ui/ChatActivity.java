@@ -741,8 +741,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
-            viewFunc.removeView(viewTransfer);
-            viewFunc.removeView(viewTransfer);
+            //viewFunc.removeView(viewTransfer);
             viewChatRobot.setVisibility(View.INVISIBLE);
 
 
@@ -752,7 +751,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         viewFunc.removeView(viewRb);
         //test 6.26
-        // viewFunc.removeView(viewTransfer);
+         viewFunc.removeView(viewTransfer);
 
 
 //        mtListView.init(new RecyclerViewAdapter());
