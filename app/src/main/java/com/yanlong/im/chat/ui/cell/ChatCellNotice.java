@@ -10,8 +10,8 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 /*
-* 通知消息
-* */
+ * 通知消息, 撤回消息
+ * */
 public class ChatCellNotice extends ChatCellBase {
 
     private TextView tv_content;
@@ -29,6 +29,11 @@ public class ChatCellNotice extends ChatCellBase {
     @Override
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
-        tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
+        if (messageType == ChatEnum.EMessageType.NOTICE) {
+            tv_content.setText(Html.fromHtml(message.getMsgNotice().getNote()));
+        } else if (messageType == ChatEnum.EMessageType.MSG_CENCAL) {
+            tv_content.setText(Html.fromHtml(message.getMsgCancel().getNote()));
+
+        }
     }
 }

@@ -21,7 +21,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -177,9 +176,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //语音的动画
     private AnimationPic animationPic = new AnimationPic();
     private MessageAdapter messageAdapter;
-    private int lastOffset;
-    private int lastPosition;
-    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
+//    private int lastOffset;
+//    private int lastPosition;
+//    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -215,13 +214,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                        notifyData();*/
                         ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
-
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null) {//忽略图片上传的刷新
+                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null || UpLoadService.getProgress(bean.getMsgId(0)) == 100) {//忽略图片上传的刷新,图片上传成功后
                             taskRefreshMessage();
                         }
-
                     }
-
                 }
             });
         }
@@ -386,7 +382,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showSendObj(MsgAllBean msgAllbean) {
 
         //    msgListData.add(msgAllbean);
-        //    notifyData2Buttom();
+        //    notifyData2Bottom();
         taskRefreshMessage();
 
     }
@@ -815,30 +811,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-        mtListView.getListView().setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager != null) {
-                    //获取可视的第一个view
-                    View topView = layoutManager.getChildAt(0);
-                    if (topView != null) {
-                        //获取与该view的顶部的偏移量
-                        lastOffset = topView.getTop();
-                        //得到该View的数组位置
-                        lastPosition = layoutManager.getPosition(topView);
-                    }
-                }
-            }
-        });
+//        mtListView.getListView().setOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+//                if (layoutManager != null) {
+//                    //获取可视的第一个view
+//                    View topView = layoutManager.getChildAt(0);
+//                    if (topView != null) {
+//                        //获取与该view的顶部的偏移量
+//                        lastOffset = topView.getTop();
+//                        //得到该View的数组位置
+//                        lastPosition = layoutManager.getPosition(topView);
+//                    }
+//                }
+//                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition);
+//            }
+//        });
 
-        mtListView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-
-            }
-        });
+//        mtListView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//
+//            }
+//        });
 
 
         //处理键盘
@@ -1081,7 +1078,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file, isArtworkMaster);
 
                         msgListData.add(imgMsgBean);
-                        notifyData2Buttom();
+                        notifyData2Bottom();
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
                         startService(new Intent(getContext(), UpLoadService.class));
 
@@ -1306,9 +1303,52 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     tsakTransGet(transfer.getId());
                 }
                 break;
+            case ChatEnum.ECellEventType.AVATAR_CLICK:
+                toUserInfoActivity(message);
+                break;
+            case ChatEnum.ECellEventType.RESEND_CLICK:
+                resendMessage(message);
+                break;
 
         }
 
+    }
+
+    //跳转UserInfoActivity
+    private void toUserInfoActivity(MsgAllBean message) {
+        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                .putExtra(UserInfoActivity.ID, message.getFrom_uid())
+                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                .putExtra(UserInfoActivity.GID, toGid)
+                .putExtra(UserInfoActivity.MUC_NICK, message.getFrom_nickname()));
+    }
+
+    //重新发送消息
+    private void resendMessage(MsgAllBean msgbean) {
+        //从数据拉出来,然后再发送
+        MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgbean.getMsg_id());
+
+        try {
+            if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
+                String file = remsg.getImage().getLocalimg();
+                boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
+                MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
+                replaceListDataAndNotify(imgMsgBean);
+                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
+                startService(new Intent(getContext(), UpLoadService.class));
+
+            } else {
+                //点击发送的时候如果要改变成发送中的状态
+                remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                DaoUtil.update(remsg);
+                LogUtil.getLog().d(TAG, "点击重复发送" + remsg.getMsg_id());
+                MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
+                SocketUtil.getSocketUtil().sendData4Msg(bean);
+                taskRefreshMessage();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -1801,13 +1841,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
 
-    private void notifyData2Buttom() {
+    private void notifyData2Bottom() {
         notifyData();
-        if (lastPosition > 0 && lastOffset > 0) {
-            mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
-        } else {
-            mtListView.getListView().scrollToPosition(msgListData.size());
-        }
+        mtListView.getListView().scrollToPosition(msgListData.size());
     }
 
     private void notifyData() {
@@ -1956,7 +1992,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
-                        notifyData2Buttom();
+                        notifyData2Bottom();
 //                        notifyData();
                     }
                 });
@@ -2361,10 +2397,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
-    }
-
-    private void scroll() {
-
     }
 
 

@@ -17,6 +17,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.utils.TimeToString;
 
@@ -72,6 +73,13 @@ public abstract class ChatCellBase implements View.OnClickListener {
                 }
             });
         }
+
+        if (iv_avatar != null && !isMe) {
+            iv_avatar.setOnClickListener(this);
+        }
+        if (iv_error != null) {
+            iv_error.setOnClickListener(this);
+        }
     }
 
     protected void initView() {
@@ -91,6 +99,14 @@ public abstract class ChatCellBase implements View.OnClickListener {
         int id = view.getId();
         if (id == bubbleLayout.getId()) {
             onBubbleClick();
+        } else if (id == iv_avatar.getId()) {
+            if (mCellListener != null && !isMe) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_CLICK, model, new Object());
+            }
+        } else if (id == iv_error.getId()) {
+            if (mCellListener != null) {
+                mCellListener.onEvent(ChatEnum.ECellEventType.RESEND_CLICK, model, new Object());
+            }
         }
     }
 
@@ -151,6 +167,13 @@ public abstract class ChatCellBase implements View.OnClickListener {
             case ChatEnum.EMessageType.ASSISTANT:
                 break;
 
+        }
+        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+            if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                if (System.currentTimeMillis() - model.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
+                    menus.add(new OptionMenu("撤回"));
+                }
+            }
         }
     }
 
@@ -244,6 +267,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
     public Context getContext() {
         return mContext;
     }
+
 
     /*
      * 初始化MsgAllBean, currentPosition
