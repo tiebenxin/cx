@@ -30,9 +30,13 @@ public class ChatCellText extends ChatCellBase {
 
     private TextView tv_content;
 
-    protected ChatCellText(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
-        super(context, cellLayout, listener, adapter, viewGroup);
+    protected ChatCellText(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
+        super(context, view, listener, adapter);
     }
+
+//    protected ChatCellText(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
+//        super(context, cellLayout, listener, adapter, viewGroup);
+//    }
 
     @Override
     protected void initView() {

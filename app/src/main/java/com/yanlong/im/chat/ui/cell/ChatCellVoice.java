@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.yanlong.im.R;
@@ -25,8 +26,8 @@ public class ChatCellVoice extends ChatCellBase {
     private Uri uri;
     private Handler handler = new Handler(Looper.getMainLooper());
 
-    protected ChatCellVoice(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
-        super(context, cellLayout, listener, adapter, viewGroup);
+    protected ChatCellVoice(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
+        super(context, view, listener, adapter);
     }
 
     @Override

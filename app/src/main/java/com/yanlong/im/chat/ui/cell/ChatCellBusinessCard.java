@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,9 +20,13 @@ public class ChatCellBusinessCard extends ChatCellBase {
     private TextView tv_info;
     private BusinessCardMessage cardMessage;
 
-    protected ChatCellBusinessCard(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
-        super(context, cellLayout, listener, adapter, viewGroup);
+    protected ChatCellBusinessCard(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
+        super(context, view, listener, adapter);
     }
+
+//    protected ChatCellBusinessCard(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
+//        super(context, cellLayout, listener, adapter, viewGroup);
+//    }
 
     @Override
     protected void initView() {

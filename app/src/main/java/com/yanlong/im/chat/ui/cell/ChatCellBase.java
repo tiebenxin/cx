@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,7 @@ import me.kareluo.ui.OptionMenu;
 
 import static android.view.View.VISIBLE;
 
-public abstract class ChatCellBase implements View.OnClickListener {
+public abstract class ChatCellBase extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public final ICellEventListener mCellListener;
     private final View viewRoot;
@@ -49,16 +50,28 @@ public abstract class ChatCellBase implements View.OnClickListener {
 
     boolean isMe;
 
-    protected ChatCellBase(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
+    protected ChatCellBase(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
+        super(view);
         mContext = context;
         mCellListener = listener;
-        viewRoot = LayoutInflater.from(context).inflate(cellLayout.LayoutId, viewGroup, false);
+        this.viewRoot = view;
         mAdapter = adapter;
-        viewRoot.setTag(this);
+//        viewRoot.setTag(this);
         isGroup = mAdapter.isGroup();
         initView();
         initListener();
     }
+
+//    protected ChatCellBase(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
+//        mContext = context;
+//        mCellListener = listener;
+//        viewRoot = LayoutInflater.from(context).inflate(cellLayout.LayoutId, viewGroup, false);
+//        mAdapter = adapter;
+//        viewRoot.setTag(this);
+//        isGroup = mAdapter.isGroup();
+//        initView();
+//        initListener();
+//    }
 
     protected void initListener() {
         if (bubbleLayout != null) {
@@ -67,6 +80,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
             bubbleLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+
                     if (mCellListener != null) {
                         mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, menus, bubbleLayout);
                     }
@@ -170,7 +184,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
 
         }
         //云红包不能撤回
-        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL&&model.getMsg_type()!=ChatEnum.EMessageType.RED_ENVELOPE) {
+        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
             if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                 if (System.currentTimeMillis() - model.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                     menus.add(new OptionMenu("撤回"));
@@ -294,7 +308,7 @@ public abstract class ChatCellBase implements View.OnClickListener {
 
     protected void updateMenu() {
         if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-            if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue()&&model.getMsg_type()!=ChatEnum.EMessageType.RED_ENVELOPE) {
+            if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue() && model.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
                 if (System.currentTimeMillis() - model.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                     menus.add(new OptionMenu("撤回"));
                 }

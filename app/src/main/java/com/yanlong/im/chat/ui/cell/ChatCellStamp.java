@@ -32,8 +32,8 @@ public class ChatCellStamp extends ChatCellBase {
 
     private TextView tv_content;
 
-    protected ChatCellStamp(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
-        super(context, cellLayout, listener, adapter, viewGroup);
+    protected ChatCellStamp(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
+        super(context, view, listener, adapter);
     }
 
     @Override

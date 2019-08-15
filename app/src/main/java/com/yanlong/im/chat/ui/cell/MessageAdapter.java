@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui.cell;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -58,13 +59,15 @@ public class MessageAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         ChatEnum.EChatCellLayout layout = ChatEnum.EChatCellLayout.fromOrdinal(viewType);
-        ChatCellBase cell = factoryChatCell.createCell(layout, viewGroup);
-        return new RecyclerViewHolder(cell.getView());
+        View view = LayoutInflater.from(context).inflate(layout.LayoutId, viewGroup, false);
+//        ChatCellBase cell = factoryChatCell.createCell(layout, viewGroup);
+        ChatCellBase cell = factoryChatCell.createCell(layout, view);
+        return cell;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
-        ChatCellBase cellBase = (ChatCellBase) viewHolder.itemView.getTag();
+        ChatCellBase cellBase = (ChatCellBase) viewHolder;
         cellBase.putMessage(mList.get(position), position);
     }
 
@@ -75,7 +78,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
         } else {
             MsgAllBean msg = mList.get(position);
             if (msg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
-                ChatCellImage imageCell = (ChatCellImage) viewHolder.itemView.getTag();
+//                ChatCellImage imageCell = (ChatCellImage) viewHolder.itemView.getTag();
+                ChatCellImage imageCell = (ChatCellImage) viewHolder;
                 imageCell.updateMessage(msg);
                 int progress = UpLoadService.getProgress(msg.getMsg_id());
                 imageCell.updateProgress(msg.getSend_state(), progress);

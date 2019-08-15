@@ -44,9 +44,13 @@ public class ChatCellImage extends ChatCellBase {
     private TextView tv_progress;
     private LinearLayout ll_progress;
 
-    protected ChatCellImage(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
-        super(context, cellLayout, listener, adapter, viewGroup);
+    protected ChatCellImage(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
+        super(context, view, listener, adapter);
     }
+
+//    protected ChatCellImage(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
+//        super(context, cellLayout, listener, adapter, viewGroup);
+//    }
 
     @Override
     protected void initView() {
@@ -66,86 +70,40 @@ public class ChatCellImage extends ChatCellBase {
         if (imageMessage == null) {
             return;
         }
+        loadImage(message);
+    }
+
+    private void loadImage(MsgAllBean message) {
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
         checkSendStatus();
         RequestOptions rOptions = new RequestOptions();
         rOptions.override(width, height);
         if (isGif(thumbnail)) {
-            if (imageView.getTag() == null) {
-                rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-                Glide.with(getContext())
-                        .load(message.getImage().getPreview())
-                        .apply(rOptions)
+            rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+            Glide.with(getContext())
+                    .load(message.getImage().getPreview())
+                    .apply(rOptions)
 //                    .thumbnail(0.2f)
-                        .into(imageView);
-                imageView.setTag(R.id.tag_img, message.getImage().getPreview());
-            } else {
-                String url = (String) imageView.getTag(currentPosition);
-                if (url.equals(thumbnail)) {
-                    rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-                    Glide.with(getContext())
-                            .load(message.getImage().getPreview())
-                            .apply(rOptions)
-//                    .thumbnail(0.2f)
-                            .into(imageView);
-                } else {
-                    rOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
-                    Glide.with(getContext())
-                            .load(message.getImage().getPreview())
-                            .apply(rOptions)
-//                    .thumbnail(0.2f)
-                            .into(imageView);
-                    imageView.setTag(R.id.tag_img, message.getImage().getPreview());
-                }
+                    .into(imageView);
+            imageView.setTag(R.id.tag_img, message.getImage().getPreview());
 
-            }
         } else {
-            if (imageView.getTag() == null) {
-                rOptions.centerCrop();
-                rOptions.error(R.drawable.bg_btn_white);
-                rOptions.placeholder(R.drawable.bg_btn_white);
-                Glide.with(getContext())
-                        .load(thumbnail)
-                        .apply(rOptions)
-                        .into(new SimpleTarget<Drawable>() {
-                            @Override
-                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                imageView.setImageDrawable(resource);
-                            }
-                        });
-                imageView.setTag(R.id.tag_img, thumbnail);
-            } else {
-                rOptions.centerCrop();
-                rOptions.error(R.drawable.bg_btn_white);
-                rOptions.placeholder(R.drawable.bg_btn_white);
-
-                String url = (String) imageView.getTag(currentPosition);
-                if (url.equals(thumbnail)) {
-                    Glide.with(getContext())
-                            .load(thumbnail)
-                            .apply(rOptions)
-                            .into(new SimpleTarget<Drawable>() {
-                                @Override
-                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                    imageView.setImageDrawable(resource);
-                                }
-                            });
-                } else {
-                    Glide.with(getContext())
-                            .load(thumbnail)
-                            .apply(rOptions)
-                            .into(new SimpleTarget<Drawable>() {
-                                @Override
-                                public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                                    imageView.setImageDrawable(resource);
-                                }
-                            });
-                    imageView.setTag(R.id.tag_img, thumbnail);
-
-                }
-            }
+            rOptions.centerCrop();
+            rOptions.error(R.drawable.bg_btn_white);
+            rOptions.placeholder(R.drawable.bg_btn_white);
+            Glide.with(getContext())
+                    .load(thumbnail)
+                    .apply(rOptions)
+                    .into(new SimpleTarget<Drawable>() {
+                        @Override
+                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                            imageView.setImageDrawable(resource);
+                        }
+                    });
+            imageView.setTag(R.id.tag_img, thumbnail);
         }
+
     }
 
 
@@ -225,6 +183,7 @@ public class ChatCellImage extends ChatCellBase {
     }
 
     public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
+        loadImage(model);
         if (ll_progress != null && progressBar != null && tv_progress != null) {
             checkSendStatus();
             if (progress > 0 && progress < 100) {
