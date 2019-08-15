@@ -380,6 +380,11 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         return from_uid == UserAction.getMyInfo().getUid().longValue();
     }
 
+
+    /*
+    *
+    * 2. 根据messageType绑定布局
+    * */
     @Override
     public ChatEnum.EChatCellLayout getChatCellLayoutId() {
         @ChatEnum.EMessageType int msgType = getMsg_type();

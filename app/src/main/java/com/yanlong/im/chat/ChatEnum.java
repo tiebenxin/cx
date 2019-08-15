@@ -33,7 +33,7 @@ import static com.yanlong.im.chat.ChatEnum.EUserType.STRANGE;
 
 public class ChatEnum {
     /*
-     * 聊天布局枚举
+     *1. 聊天布局枚举
      * */
     public enum EChatCellLayout {
         // 文本消息，接收和发送布局

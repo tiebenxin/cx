@@ -25,7 +25,7 @@ public class ToastUtil {
                 e.printStackTrace();
             }
 
-           // toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.setGravity(Gravity.CENTER, 0, 0);
 
             toast.show();
         }
@@ -42,7 +42,7 @@ public class ToastUtil {
         } catch (Resources.NotFoundException e) {
             e.printStackTrace();
         }
-        //  toast.setGravity(Gravity.CENTER, 0, 0);
+          toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 }
