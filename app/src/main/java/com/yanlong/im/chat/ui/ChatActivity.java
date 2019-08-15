@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -57,6 +58,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
+import com.yanlong.im.chat.ui.cell.ChatCellImage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
@@ -1206,15 +1208,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         if (msgListData == null)
             return;
-//        for (int i = 0; i < msgListData.size(); i++) {
-//            if (msgListData.get(i).getMsg_id().equals(msgAllbean.getMsg_id())) {
-//
-//                msgListData.set(i, msgAllbean);
-//                Log.d("sss", "onBindViewHolderpayloads->notifyItemChanged: ");
-//                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-//            }
-//        }
-        messageAdapter.notifyItemChanged(msgAllbean, Collections.singletonList(1));
+
+        messageAdapter.updateItemAndRefresh(msgAllbean, Collections.singletonList(1));
 
 
     }

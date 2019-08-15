@@ -208,7 +208,7 @@ public class ChatCellImage extends ChatCellBase {
     }
 
     private void checkSendStatus() {
-        if (ll_progress == null){
+        if (ll_progress == null) {
             return;
         }
         switch (model.getSend_state()) {
@@ -231,14 +231,12 @@ public class ChatCellImage extends ChatCellBase {
     }
 
     public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
-        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "updateProgress=" + progress + "status=" + status);
-
         if (ll_progress != null && progressBar != null && tv_progress != null) {
+            checkSendStatus();
             if (progress > 0 && progress < 100) {
                 ll_progress.setVisibility(View.VISIBLE);
                 setSendStatus();
                 tv_progress.setText(progress + "");
-                LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "updateProgress=" + progress);
             } else {
                 ll_progress.setVisibility(View.GONE);
             }
