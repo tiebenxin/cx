@@ -303,7 +303,6 @@
         <!--用户资料-->
         <activity
             android:name=".user.ui.UserInfoActivity"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <!--选择用户-->
         <activity
