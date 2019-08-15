@@ -78,12 +78,13 @@ public class UserInfoActivity extends AppActivity {
     private Button mBtnAdd;
     private Button btnMsg;
 
-    private int type; //0.已经是好友 1.不是好友添加好友 2.黑名单
+    private int type; //0.已经是好友 1.不是好友添加好友 2.黑名单 3.自己
     private int isApply;//是否是好友申请 0 不是 1.是
     private int joinTypeShow;//0 不显示  1.显示
     private int joinType;
     private String gid;
     private String inviterName;
+    private Long inviter;
     private Long id;
     private String sayHi;
     private UserAction userAction;
@@ -94,6 +95,7 @@ public class UserInfoActivity extends AppActivity {
     private TextView tvJoinGroupType;
     private LinearLayout viewIntroduce;
     private TextView tv_introduce;
+    private TextView tvJoinGroupName;
     private String mucNick;
     private UserInfo userInfoLocal;
 
@@ -136,6 +138,7 @@ public class UserInfoActivity extends AppActivity {
         mucNick = getIntent().getStringExtra(MUC_NICK);
         viewIntroduce = findViewById(R.id.view_introduce);
         tv_introduce = findViewById(R.id.tv_introduce);
+        tvJoinGroupName = findViewById(R.id.tv_join_group_name);
         resetLayout();
         taskFindExist();
     }
@@ -402,13 +405,34 @@ public class UserInfoActivity extends AppActivity {
                             viewJoinGroupType.setVisibility(View.VISIBLE);
                             inviterName = bean.getInviterName();
                             joinType = bean.getJoinType();
+                            if(!TextUtils.isEmpty(bean.getInviter())){
+                                inviter = Long.valueOf(bean.getInviter());
+                            }
+
                             if (joinType == 0) {
+                                tvJoinGroupName.setText(inviterName);
                                 String content = "<font color='#276baa'>" + inviterName + "</font> 分享二维码邀请进群";
-                                tvJoinGroupType.setText(Html.fromHtml(content));
+                                tvJoinGroupType.setText("分享二维码邀请进群");
                             } else {
                                 String content = "<font color='#276baa'>" + inviterName + "</font> 邀请进群";
-                                tvJoinGroupType.setText(Html.fromHtml(content));
+                                tvJoinGroupName.setText(inviterName);
+                                tvJoinGroupType.setText("邀请进群");
                             }
+
+                            tvJoinGroupName.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if(inviter.equals(UserAction.getMyId())){
+                                        Intent intent = new Intent(UserInfoActivity.this, MyselfInfoActivity.class);
+                                        startActivity(intent);
+                                    }else{
+                                        startActivity(new Intent(UserInfoActivity.this, UserInfoActivity.class)
+                                                .putExtra(UserInfoActivity.ID, inviter));
+                                    }
+
+
+                                }
+                            });
                         }
                     }
                 }
@@ -534,6 +558,11 @@ public class UserInfoActivity extends AppActivity {
      * 判断用户是否在好友里面
      */
     private void taskFindExist() {
+        if(id.equals(UserAction.getMyId())){
+            type = 3;
+            return;
+        }
+
         type = userDao.findUserInfo4Friend(id) == null ? 1 : 0;
         if (type == 1) {
             UserInfo info = userDao.findUserInfo(id);
