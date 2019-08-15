@@ -1751,79 +1751,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
 
-        /***
-         * 长按的气泡处理
-         * @param v
-         * @param menus
-         * @param msgbean
-         */
-        private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean) {
-            //禁止滑动
-            //mtListView.getListView().setNestedScrollingEnabled(true);
 
-            final PopupMenuView menuView = new PopupMenuView(getContext());
-            menuView.setMenuItems(menus);
-            menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
-                @Override
-                public boolean onOptionMenuClick(int position, OptionMenu menu) {
-                    //放开滑动
-                    // mtListView.getListView().setNestedScrollingEnabled(true);
-
-
-                    if (menu.getTitle().equals("删除")) {
-
-                        AlertYesNo alertYesNo = new AlertYesNo();
-                        alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
-                            @Override
-                            public void onON() {
-
-                            }
-
-                            @Override
-                            public void onYes() {
-                                msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                                msgListData.remove(msgbean);
-                                notifyData();
-                            }
-                        });
-                        alertYesNo.show();
-
-
-                    } else if (menu.getTitle().equals("转发")) {
-                        /*  */
-                        startActivity(new Intent(getContext(), MsgForwardActivity.class)
-                                .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
-                        );
-
-                    } else if (menu.getTitle().equals("复制")) {//只有文本
-                        String txt = "";
-                        if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
-                            txt = msgbean.getAtMessage().getMsg();
-                        } else {
-                            txt = msgbean.getChat().getMsg();
-                        }
-                        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData mClipData = ClipData.newPlainText(txt, txt);
-                        cm.setPrimaryClip(mClipData);
-
-                    } else if (menu.getTitle().equals("听筒播放")) {
-                        msgDao.userSetingVoicePlayer(1);
-                    } else if (menu.getTitle().equals("扬声器播放")) {
-                        msgDao.userSetingVoicePlayer(0);
-                    } else if (menu.getTitle().equals("撤回")) {
-
-
-                        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
-
-
-                    }
-                    menuView.dismiss();
-                    return true;
-                }
-            });
-
-            menuView.show(v);
-        }
 
 
         //自动寻找ViewHold
@@ -1848,6 +1776,79 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
+    /***
+     * 长按的气泡处理
+     * @param v
+     * @param menus
+     * @param msgbean
+     */
+    private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean) {
+        //禁止滑动
+        //mtListView.getListView().setNestedScrollingEnabled(true);
+
+        final PopupMenuView menuView = new PopupMenuView(getContext());
+        menuView.setMenuItems(menus);
+        menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
+            @Override
+            public boolean onOptionMenuClick(int position, OptionMenu menu) {
+                //放开滑动
+                // mtListView.getListView().setNestedScrollingEnabled(true);
+
+
+                if (menu.getTitle().equals("删除")) {
+
+                    AlertYesNo alertYesNo = new AlertYesNo();
+                    alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
+                        @Override
+                        public void onON() {
+
+                        }
+
+                        @Override
+                        public void onYes() {
+                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                            msgListData.remove(msgbean);
+                            notifyData();
+                        }
+                    });
+                    alertYesNo.show();
+
+
+                } else if (menu.getTitle().equals("转发")) {
+                    /*  */
+                    startActivity(new Intent(getContext(), MsgForwardActivity.class)
+                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
+                    );
+
+                } else if (menu.getTitle().equals("复制")) {//只有文本
+                    String txt = "";
+                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
+                        txt = msgbean.getAtMessage().getMsg();
+                    } else {
+                        txt = msgbean.getChat().getMsg();
+                    }
+                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData mClipData = ClipData.newPlainText(txt, txt);
+                    cm.setPrimaryClip(mClipData);
+
+                } else if (menu.getTitle().equals("听筒播放")) {
+                    msgDao.userSetingVoicePlayer(1);
+                } else if (menu.getTitle().equals("扬声器播放")) {
+                    msgDao.userSetingVoicePlayer(0);
+                } else if (menu.getTitle().equals("撤回")) {
+
+
+                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+
+
+                }
+                menuView.dismiss();
+                return true;
+            }
+        });
+
+        menuView.show(v);
+    }
 
     private void notifyData2Bottom() {
         notifyData();
@@ -1904,79 +1905,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
-    /***
-     * 长按的气泡处理
-     * @param v
-     * @param menus
-     * @param msgbean
-     */
-    private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean) {
-        //禁止滑动
-        //mtListView.getListView().setNestedScrollingEnabled(true);
-
-        final PopupMenuView menuView = new PopupMenuView(getContext());
-        menuView.setMenuItems(menus);
-        menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
-            @Override
-            public boolean onOptionMenuClick(int position, OptionMenu menu) {
-                //放开滑动
-                // mtListView.getListView().setNestedScrollingEnabled(true);
-
-
-                if (menu.getTitle().equals("删除")) {
-
-                    AlertYesNo alertYesNo = new AlertYesNo();
-                    alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
-                        @Override
-                        public void onON() {
-
-                        }
-
-                        @Override
-                        public void onYes() {
-                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                            msgListData.remove(msgbean);
-                            notifyData();
-                        }
-                    });
-                    alertYesNo.show();
-
-
-                } else if (menu.getTitle().equals("转发")) {
-                    /*  */
-                    startActivity(new Intent(getContext(), MsgForwardActivity.class)
-                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
-                    );
-
-                } else if (menu.getTitle().equals("复制")) {//只有文本
-                    String txt = msgbean.getChat().getMsg();
-
-                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData mClipData = ClipData.newPlainText(txt, txt);
-                    cm.setPrimaryClip(mClipData);
-
-                } else if (menu.getTitle().equals("听筒播放")) {
-                    msgDao.userSetingVoicePlayer(1);
-                } else if (menu.getTitle().equals("扬声器播放")) {
-                    msgDao.userSetingVoicePlayer(0);
-                } else if (menu.getTitle().equals("撤回")) {
-
-                    //收到ack后删除
-                    msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                    msgListData.remove(msgbean);
-                    notifyData();
-
-                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
-
-
-                }
-                menuView.dismiss();
-                return true;
-            }
-        });
-
-        menuView.show(v);
-    }
 
 
     /***
