@@ -101,11 +101,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return super.getItemViewType(position);
     }
 
-    static class RecyclerViewHolder extends RecyclerView.ViewHolder {
-        public RecyclerViewHolder(@NonNull View itemView) {
-            super(itemView);
-        }
-    }
+//    static class RecyclerViewHolder extends RecyclerView.ViewHolder {
+//        public RecyclerViewHolder(@NonNull View itemView) {
+//            super(itemView);
+//        }
+//    }
 
     //获取某位置消息
     public MsgAllBean getPositionMessage(int position) {
@@ -116,7 +116,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     }
 
     //局部刷新
-    public void updateItemAndRefresh(MsgAllBean bean, @NonNull List payloads) {
+    public void updateItemAndRefresh(MsgAllBean bean) {
         int position = mList.indexOf(bean);
         if (position > 0 && position < mList.size()) {
             mList.remove(position);

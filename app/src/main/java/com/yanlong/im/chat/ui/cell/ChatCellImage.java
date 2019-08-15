@@ -25,6 +25,7 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 
 import static android.view.View.VISIBLE;
 
@@ -74,6 +75,7 @@ public class ChatCellImage extends ChatCellBase {
     }
 
     private void loadImage(MsgAllBean message) {
+        imageView.setTag(R.id.tag_img, currentPosition);
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
         checkSendStatus();
@@ -86,10 +88,8 @@ public class ChatCellImage extends ChatCellBase {
                     .apply(rOptions)
 //                    .thumbnail(0.2f)
                     .into(imageView);
-            imageView.setTag(R.id.tag_img, message.getImage().getPreview());
-
         } else {
-            rOptions.centerCrop();
+//            rOptions.centerCrop();
             rOptions.error(R.drawable.bg_btn_white);
             rOptions.placeholder(R.drawable.bg_btn_white);
             Glide.with(getContext())
@@ -100,8 +100,14 @@ public class ChatCellImage extends ChatCellBase {
                         public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                             imageView.setImageDrawable(resource);
                         }
+
+//                        @Override
+//                        public void onStart() {
+//                            super.onStart();
+//                            imageView.setImageResource(R.drawable.bg_btn_white);
+//
+//                        }
                     });
-            imageView.setTag(R.id.tag_img, thumbnail);
         }
 
     }
@@ -135,10 +141,6 @@ public class ChatCellImage extends ChatCellBase {
         lp.width = width;
         lp.height = height;
         imageView.setLayoutParams(lp);
-
-        if (ll_progress != null) {
-            ll_progress.setLayoutParams(lp);
-        }
     }
 
     @Override
@@ -189,7 +191,7 @@ public class ChatCellImage extends ChatCellBase {
             if (progress > 0 && progress < 100) {
                 ll_progress.setVisibility(View.VISIBLE);
                 setSendStatus();
-                tv_progress.setText(progress + "");
+                tv_progress.setText(progress + "%");
             } else {
                 ll_progress.setVisibility(View.GONE);
             }

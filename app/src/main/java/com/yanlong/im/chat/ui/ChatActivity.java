@@ -753,7 +753,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         viewFunc.removeView(viewRb);
         //test 6.26
-         viewFunc.removeView(viewTransfer);
+        viewFunc.removeView(viewTransfer);
 
 
 //        mtListView.init(new RecyclerViewAdapter());
@@ -1081,12 +1081,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file, isArtworkMaster);
 
                         msgListData.add(imgMsgBean);
-                        notifyData2Bottom();
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
                         startService(new Intent(getContext(), UpLoadService.class));
-
-
                     }
+                    notifyData2Bottom();
 
 
                     break;
@@ -1211,12 +1209,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int position = msgListData.indexOf(msgAllbean);
         if (position > 0 && position < msgListData.size()) {
 //            msgListData.set(position, msgAllbean);
-            messageAdapter.updateItemAndRefresh(msgAllbean, Collections.singletonList(1));
+            messageAdapter.updateItemAndRefresh(msgAllbean);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
         }
-
-
-
     }
 
     /***
@@ -1751,9 +1746,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
 
-
-
-
         //自动寻找ViewHold
         @Override
         public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
@@ -1904,7 +1896,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
     }
-
 
 
     /***
