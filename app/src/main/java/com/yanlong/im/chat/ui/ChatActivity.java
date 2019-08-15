@@ -176,7 +176,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //语音的动画
     private AnimationPic animationPic = new AnimationPic();
     private MessageAdapter messageAdapter;
-//    private int lastOffset;
+    private int currentPager;
+    //    private int lastOffset;
 //    private int lastPosition;
 //    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
 
@@ -1789,9 +1790,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     } else if (menu.getTitle().equals("复制")) {//只有文本
                         String txt = "";
-                        if(msgbean.getMsg_type() == ChatEnum.EMessageType.AT){
+                        if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
                             txt = msgbean.getAtMessage().getMsg();
-                        }else{
+                        } else {
                             txt = msgbean.getChat().getMsg();
                         }
                         ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -1847,7 +1848,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void notifyData() {
-        messageAdapter.bindData(msgListData, 0);
+        messageAdapter.bindData(msgListData, currentPager);
         mtListView.notifyDataSetChange();
     }
 
@@ -2029,9 +2030,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
         if (msgListData.size() >= 20) {
             msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
+            currentPager++;
 
         } else {
             msgListData = msgAction.getMsg4User(toGid, toUId, null);
+            currentPager = 0;
         }
 
         addItem = msgListData.size() - addItem;

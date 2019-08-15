@@ -10,6 +10,8 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,6 +29,9 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
+
+import static android.view.View.VISIBLE;
 
 /*
  * 图片消息
@@ -68,6 +73,7 @@ public class ChatCellImage extends ChatCellBase {
         }
         String thumbnail = imageMessage.getThumbnailShow();
         resetSize();
+        checkSendStatus();
         RequestOptions rOptions = new RequestOptions();
         rOptions.override(width, height);
         if (isGif(thumbnail)) {
@@ -166,18 +172,15 @@ public class ChatCellImage extends ChatCellBase {
         if (realH > 0) {
             double scale = (realW * 1.00) / realH;
             if (realW > realH) {
-//                width = getBitmapWidth();
                 width = DEFAULT_W;
                 height = (int) (width / scale);
             } else if (realW < realH) {
-//                height = getBitmapHeight();
                 height = DEFAULT_H;
                 width = (int) (height * scale);
             } else {
                 width = height = DEFAULT_H;
             }
         }
-//        ViewGroup.LayoutParams lp = bubbleLayout.getLayoutParams();
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         lp.width = width;
         lp.height = height;
@@ -206,15 +209,38 @@ public class ChatCellImage extends ChatCellBase {
         }
     }
 
+    private void checkSendStatus() {
+        switch (model.getSend_state()) {
+            case ChatEnum.ESendStatus.ERROR:
+                ll_progress.setVisibility(View.GONE);
+
+                break;
+            case ChatEnum.ESendStatus.PRE_SEND:
+                ll_progress.setVisibility(VISIBLE);
+
+                break;
+            case ChatEnum.ESendStatus.NORMAL:
+                ll_progress.setVisibility(View.GONE);
+
+                break;
+            case ChatEnum.ESendStatus.SENDING:
+                ll_progress.setVisibility(VISIBLE);
+                break;
+        }
+    }
+
     public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
+        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "updateProgress=" + progress + "status=" + status);
+
         if (ll_progress != null && progressBar != null && tv_progress != null) {
-            if (status == ChatEnum.ESendStatus.SENDING && (progress > 0 && progress < 100)) {
+            if (progress > 0 && progress < 100) {
                 ll_progress.setVisibility(View.VISIBLE);
-                tv_progress.setText(progress + "");
                 setSendStatus();
+                tv_progress.setText(progress + "");
+                LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "updateProgress=" + progress);
+            } else {
+                ll_progress.setVisibility(View.GONE);
             }
-        } else {
-            ll_progress.setVisibility(View.GONE);
         }
     }
 }

@@ -120,10 +120,10 @@ public abstract class ChatCellBase implements View.OnClickListener {
         model = message;
         messageType = message.getMsg_type();
         isMe = message.isMe();
+        setSendStatus();
         loadAvatar();
         setName();
         setTime();
-        setSendStatus();
         initMenu();
     }
 
