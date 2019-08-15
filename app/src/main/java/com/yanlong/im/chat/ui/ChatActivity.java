@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -57,6 +58,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
+import com.yanlong.im.chat.ui.cell.ChatCellImage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
@@ -111,6 +113,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,7 +179,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //语音的动画
     private AnimationPic animationPic = new AnimationPic();
     private MessageAdapter messageAdapter;
-//    private int lastOffset;
+    private int currentPager;
+    //    private int lastOffset;
 //    private int lastPosition;
 //    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
 
@@ -214,7 +218,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                        notifyData();*/
                         ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null || UpLoadService.getProgress(bean.getMsgId(0)) == 100) {//忽略图片上传的刷新,图片上传成功后
+                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
                             taskRefreshMessage();
                         }
                     }
@@ -739,8 +743,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
-            viewFunc.removeView(viewTransfer);
-            viewFunc.removeView(viewTransfer);
+            //viewFunc.removeView(viewTransfer);
             viewChatRobot.setVisibility(View.INVISIBLE);
 
 
@@ -750,7 +753,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         viewFunc.removeView(viewRb);
         //test 6.26
-        // viewFunc.removeView(viewTransfer);
+         viewFunc.removeView(viewTransfer);
 
 
 //        mtListView.init(new RecyclerViewAdapter());
@@ -1136,6 +1139,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
+        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
         if (event.getState() == 0) {
             // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
             taskRefreshImage(event.getMsgid());
@@ -1203,14 +1207,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         if (msgListData == null)
             return;
-        for (int i = 0; i < msgListData.size(); i++) {
-            if (msgListData.get(i).getMsg_id().equals(msgAllbean.getMsg_id())) {
 
-                msgListData.set(i, msgAllbean);
-                Log.d("sss", "onBindViewHolderpayloads->notifyItemChanged: ");
-                mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-            }
-        }
+        messageAdapter.updateItemAndRefresh(msgAllbean, Collections.singletonList(1));
+
 
     }
 
@@ -1274,11 +1273,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
                 if (args[0] != null && args[0] instanceof RedEnvelopeMessage) {
                     RedEnvelopeMessage red = (RedEnvelopeMessage) args[0];
-                    if ((red.isValid() || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                    //8.15 红包状态修改
+                    boolean invalid = red.getIsInvalid() == 0 ? false : true;
+                    if ((invalid || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                         taskPayRbDetail(red.getId());
                     } else {
                         taskPayRbGet(message.getFrom_uid(), red.getId());
                     }
+
                 }
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
@@ -1789,9 +1791,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     } else if (menu.getTitle().equals("复制")) {//只有文本
                         String txt = "";
-                        if(msgbean.getMsg_type() == ChatEnum.EMessageType.AT){
+                        if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
                             txt = msgbean.getAtMessage().getMsg();
-                        }else{
+                        } else {
                             txt = msgbean.getChat().getMsg();
                         }
                         ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -1847,7 +1849,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void notifyData() {
-        messageAdapter.bindData(msgListData, 0);
+        messageAdapter.bindData(msgListData, currentPager);
         mtListView.notifyDataSetChange();
     }
 
@@ -2029,9 +2031,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
         if (msgListData.size() >= 20) {
             msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
+            currentPager++;
 
         } else {
             msgListData = msgAction.getMsg4User(toGid, toUId, null);
+            currentPager = 0;
         }
 
         addItem = msgListData.size() - addItem;

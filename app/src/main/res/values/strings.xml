@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">常聊</string>
+
+    <!--消息type类型-->
+    <item name="type_text_received" type="id"/>
+    <item name="type_text_send" type="id"/>
+    <item name="type_voice_received" type="id"/>
+    <item name="type_voice_send" type="id"/>
+    <item name="type_video_received" type="id"/>
+    <item name="type_video_send" type="id"/>
+    <item name="type_emoticon_received" type="id"/>
+    <item name="type_emoticon_send" type="id"/>
+    <item name="type_map_received" type="id"/>
+    <item name="type_map_send" type="id"/>
+    <item name="type_business_card_received" type="id"/>
+    <item name="type_business_card_send" type="id"/>
+    <item name="type_work_login_received" type="id"/>
+    <item name="type_work_login_send" type="id"/>
+    <item name="type_image_received" type="id"/>
+    <item name="type_image_send" type="id"/>
+    <item name="type_vote_received" type="id"/>
+    <item name="type_vote_send" type="id"/>
+    <item name="type_secret_received" type="id"/>
+    <item name="type_action" type="id"/>
+    <item name="type_notice" type="id"/>
+    <item name="type_oa" type="id"/>
+    <item name="type_system" type="id"/>
+
+
 </resources>

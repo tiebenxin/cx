@@ -93,7 +93,7 @@
             <TextView
                 style="@style/app_txt_content_1"
                 android:layout_marginTop="2dp"
-                android:text="第三方红包" />
+                android:text="云红包" />
         </LinearLayout>
 
         <LinearLayout

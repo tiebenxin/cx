@@ -64,7 +64,7 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/bg_edt_chat"
                             android:fontFamily="@font/emoji_font"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:maxLength="200"
                             android:maxLines="3"
                             android:minHeight="34dp"

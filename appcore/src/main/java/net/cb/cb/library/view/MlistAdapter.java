@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import net.cb.cb.library.R;
+import net.cb.cb.library.utils.LogUtil;
 
 import java.util.List;
 
@@ -40,15 +41,14 @@ class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
-
-        try{
-            if(payloads==null ||payloads.isEmpty()){
+        try {
+            if (payloads == null || payloads.isEmpty()) {
                 super.onBindViewHolder(holder, position, payloads);
-            }else{
-                adapter.onBindViewHolder(holder, position,payloads);
+            } else {
+                adapter.onBindViewHolder(holder, position, payloads);
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -98,9 +98,9 @@ class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 @Override
                 public int getSpanSize(int position) {
 
-                        if (position == getItemCount() - 1) {
-                            return ((GridLayoutManager) layoutManager).getSpanCount();
-                        }
+                    if (position == getItemCount() - 1) {
+                        return ((GridLayoutManager) layoutManager).getSpanCount();
+                    }
                     return 1;
                 }
             });
