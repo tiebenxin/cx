@@ -1274,11 +1274,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case ChatEnum.ECellEventType.RED_ENVELOPE_CLICK:
                 if (args[0] != null && args[0] instanceof RedEnvelopeMessage) {
                     RedEnvelopeMessage red = (RedEnvelopeMessage) args[0];
-                    if ((red.isValid() || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
+                    //8.15 红包状态修改
+                    boolean invalid = red.getIsInvalid() == 0 ? false : true;
+                    if ((invalid || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                         taskPayRbDetail(red.getId());
                     } else {
                         taskPayRbGet(message.getFrom_uid(), red.getId());
                     }
+
                 }
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
