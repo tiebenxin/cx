@@ -214,7 +214,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                        notifyData();*/
                         ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null || UpLoadService.getProgress(bean.getMsgId(0)) == 100) {//忽略图片上传的刷新,图片上传成功后
+                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
                             taskRefreshMessage();
                         }
                     }
