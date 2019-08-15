@@ -26,6 +26,10 @@ public class FactoryChatCell {
         position = p;
     }
 
+
+/*
+* 3. 根据布局创建cell实例对象
+* */
     public ChatCellBase createCell(ChatEnum.EChatCellLayout layout, ViewGroup viewGroup) {
         ChatCellBase cell = null;
         switch (layout) {

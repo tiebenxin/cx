@@ -10,6 +10,7 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
@@ -149,6 +150,14 @@ public class UpFileUtil {
         } else {
             putObjectRequest = new PutObjectRequest(btName, objkey, imgbyte);
         }
+
+        putObjectRequest.setRetryCallback(new OSSRetryCallback() {
+            @Override
+            public void onRetryCallback() {
+                Log.v(TAG,"重试回调------------------>");
+            }
+        });
+
 
         putObjectRequest.setProgressCallback(new OSSProgressCallback() {
 
