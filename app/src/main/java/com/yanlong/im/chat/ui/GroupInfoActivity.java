@@ -508,7 +508,7 @@ public class GroupInfoActivity extends AppActivity {
     }
 
     private void taskGetInfo() {
-        msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+        CallBack callBack=     new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
@@ -569,7 +569,10 @@ public class GroupInfoActivity extends AppActivity {
                     initData();
                 }
             }
-        });
+        };
+
+        msgAction.groupInfo4Db(gid, callBack);
+        msgAction.groupInfo(gid, callBack);
     }
 
 
