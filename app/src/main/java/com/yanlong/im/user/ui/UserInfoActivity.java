@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -180,7 +181,6 @@ public class UserInfoActivity extends AppActivity {
                 startActivity(new Intent(getContext(), ChatActivity.class)
                         .putExtra(ChatActivity.AGM_TOUID, id));
                 finish();
-
             }
         });
 

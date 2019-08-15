@@ -1,12 +1,13 @@
 package com.yanlong.im.utils.audio;
 
 import android.annotation.TargetApi;
-import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -21,12 +22,13 @@ import com.yanlong.im.chat.dao.MsgDao;
 import net.cb.cb.library.utils.DownloadUtil;
 
 import java.io.File;
+import java.io.IOException;
 
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 import static android.media.AudioAttributes.CONTENT_TYPE_SPEECH;
 import static android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 
-public class AudioPlayManager {
+public class AudioPlayManager implements SensorEventListener {
     private static final String TAG = "LQR_AudioPlayManager";
     private MediaPlayer _mediaPlayer;
     private IAudioPlayListener _playListener;
@@ -35,6 +37,7 @@ public class AudioPlayManager {
     //  private SensorManager _sensorManager;
     private static AudioManager _audioManager;
     private PowerManager _powerManager;
+    private SensorManager _sensorManager;
     private PowerManager.WakeLock _wakeLock;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
     private Context context;
@@ -46,119 +49,146 @@ public class AudioPlayManager {
         return SingletonHolder.sInstance;
     }
 
-//    @TargetApi(11)
-//    public void onSensorChanged(SensorEvent event) {
-//        float range = event.values[0];
-//        if (this._sensor != null && this._mediaPlayer != null) {
-//            if (this._mediaPlayer.isPlaying()) {
-//                if ((double) range > 0.0D) {
-//                    if (this._audioManager.getMode() == 0) {
-//                        return;
-//                    }
-//
-//                    this._audioManager.setMode(AudioManager.MODE_IN_CALL);
+    @TargetApi(11)
+    public void onSensorChanged(SensorEvent event) {
+        MsgDao msgDao = new MsgDao();
+        UserSeting userSeting = msgDao.userSetingGet();
+        int voice = userSeting.getVoicePlayer();
+        float range = event.values[0];
+        if (this._sensor != null && this._mediaPlayer != null) {
+            if (this._mediaPlayer.isPlaying()) {
+                if ((double) range > 0.0D) {
+                    if (this._audioManager.getMode() == 0) {
+                        return;
+                    }
+
+                    if (voice == 0) {
+                        changeToSpeaker();
+                    } else {
+                        changeToReceiver();
+                    }
+
+//                    this._audioManager.setMode(0);
 //                    this._audioManager.setSpeakerphoneOn(true);
-//
-//                    final int positions = this._mediaPlayer.getCurrentPosition();
-//
-//                    try {
-//                        this._mediaPlayer.reset();
-//                        this._mediaPlayer.setAudioStreamType(3);
-//                        this._mediaPlayer.setVolume(1.0F, 1.0F);
-//                        this._mediaPlayer.setDataSource(this.context, this._playingUri);
-//                        this._mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                            public void onPrepared(MediaPlayer mp) {
-//                                mp.seekTo(positions);
-//                            }
-//                        });
-//                        this._mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-//                            public void onSeekComplete(MediaPlayer mp) {
-//                                mp.start();
-//                            }
-//                        });
-//                        this._mediaPlayer.prepareAsync();
-//                    } catch (IOException var5) {
-//                        var5.printStackTrace();
-//                    }
-//
-//                    this.setScreenOn();
-//                } else {
-//                    this.setScreenOff();
-//                    if (Build.VERSION.SDK_INT >= 11) {
-//                        if (this._audioManager.getMode() == 3) {
-//                            return;
-//                        }
-//
-//                        this._audioManager.setMode(3);
-//                    } else {
-//                        if (this._audioManager.getMode() == 2) {
-//                            return;
-//                        }
-//
-//                        this._audioManager.setMode(2);
-//                    }
-//
-//                    this._audioManager.setSpeakerphoneOn(false);
-//                    this.replay();
-//                }
-//            } else if ((double) range > 0.0D) {
-//                if (this._audioManager.getMode() == 0) {
-//                    return;
-//                }
-//
+                    final int positions = this._mediaPlayer.getCurrentPosition();
+
+                    try {
+                        this._mediaPlayer.reset();
+                        this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
+                        this._mediaPlayer.setVolume(1.0F, 1.0F);
+                     //   this._mediaPlayer.setDataSource(this.context, this._playingUri);
+                        String path = context.getExternalCacheDir().getAbsolutePath();
+                        File file = new File(path, getFileName(this._playingUri.toString()));
+                        if (file.exists()) {
+                            Log.v(TAG, "本地播放" + file.getPath());
+
+                            this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
+                        } else {
+                            Log.v(TAG, "在线播放--" + this._playingUri);
+                            this._mediaPlayer.setDataSource(context, this._playingUri);
+                            downloadAudio(context, this._playingUri.toString());
+                        }
+
+
+                        this._mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            public void onPrepared(MediaPlayer mp) {
+                                mp.seekTo(positions);
+                            }
+                        });
+                        this._mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                            public void onSeekComplete(MediaPlayer mp) {
+                                mp.start();
+                            }
+                        });
+                        this._mediaPlayer.prepareAsync();
+                    } catch (IOException var5) {
+                        var5.printStackTrace();
+                    }
+
+                    this.setScreenOn();
+                } else {
+                    this.setScreenOff();
+                    if (Build.VERSION.SDK_INT >= 11) {
+                        if (this._audioManager.getMode() == 3) {
+                            return;
+                        }
+
+                        this._audioManager.setMode(3);
+                    } else {
+                        if (this._audioManager.getMode() == 2) {
+                            return;
+                        }
+
+                        this._audioManager.setMode(2);
+                    }
+
+                    this._audioManager.setSpeakerphoneOn(false);
+                    this.replay();
+                }
+            } else if ((double) range > 0.0D) {
+                if (this._audioManager.getMode() == 0) {
+                    return;
+                }
+
+                if (voice == 0) {
+                    changeToSpeaker();
+                } else {
+                    changeToReceiver();
+                }
+
 //                this._audioManager.setMode(0);
 //                this._audioManager.setSpeakerphoneOn(true);
-//                this.setScreenOn();
-//            }
-//
-//        }
-//    }
+                this.setScreenOn();
+            }
 
-//    @TargetApi(21)
-//    private void setScreenOff() {
-//        if (this._wakeLock == null) {
-//            if (Build.VERSION.SDK_INT >= 21) {
-//                this._wakeLock = this._powerManager.newWakeLock(32, "AudioPlayManager");
-//            } else {
-//                Log.e(TAG, "Does not support on level " + Build.VERSION.SDK_INT);
-//            }
-//        }
-//
-//        if (this._wakeLock != null) {
-//            this._wakeLock.acquire();
-//        }
-//
-//    }
-//
-//    private void setScreenOn() {
-//        if (this._wakeLock != null) {
-//            this._wakeLock.setReferenceCounted(false);
-//            this._wakeLock.release();
-//            this._wakeLock = null;
-//        }
-//
-//    }
+        }
+    }
 
-//    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-//    }
-//
-//    private void replay() {
-//        try {
-//            this._mediaPlayer.reset();
-//            this._mediaPlayer.setAudioStreamType(0);
-//            this._mediaPlayer.setVolume(1.0F, 1.0F);
-//            this._mediaPlayer.setDataSource(this.context, this._playingUri);
-//            this._mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                public void onPrepared(MediaPlayer mp) {
-//                    mp.start();
-//                }
-//            });
-//            this._mediaPlayer.prepareAsync();
-//        } catch (IOException var2) {
-//            var2.printStackTrace();
-//        }
-//
-//    }
+    @TargetApi(21)
+    private void setScreenOff() {
+        if (this._wakeLock == null) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                this._wakeLock = this._powerManager.newWakeLock(32, "AudioPlayManager");
+            } else {
+                Log.e(TAG, "Does not support on level " + Build.VERSION.SDK_INT);
+            }
+        }
+
+        if (this._wakeLock != null) {
+            this._wakeLock.acquire();
+        }
+
+    }
+
+    private void setScreenOn() {
+        if (this._wakeLock != null) {
+            this._wakeLock.setReferenceCounted(false);
+            this._wakeLock.release();
+            this._wakeLock = null;
+        }
+
+    }
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    private void replay() {
+        try {
+            this._mediaPlayer.reset();
+            this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
+            this._mediaPlayer.setVolume(1.0F, 1.0F);
+            this._mediaPlayer.setDataSource(this.context, this._playingUri);
+            this._mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                }
+            });
+            this._mediaPlayer.prepareAsync();
+        } catch (IOException var2) {
+            var2.printStackTrace();
+        }
+
+    }
 
     public void startPlay(Context context, Uri audioUri, IAudioPlayListener playListener) {
         if (context != null && audioUri != null) {
@@ -184,6 +214,11 @@ public class AudioPlayManager {
                 this._powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
                 this._audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
+				 if (!this._audioManager.isWiredHeadsetOn()) {
+                    this._sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+                    this._sensor = this._sensorManager.getDefaultSensor(8);
+                    this._sensorManager.registerListener(this, this._sensor, 3);
+                }
 
                 MsgDao msgDao = new MsgDao();
                 UserSeting userSeting = msgDao.userSetingGet();
@@ -339,11 +374,11 @@ public class AudioPlayManager {
             this.muteAudioFocus(this._audioManager, false);
         }
 
-//        if (this._sensorManager != null) {
-//            this._sensorManager.unregisterListener(this);
-//        }
-//
-//        this._sensorManager = null;
+        if (this._sensorManager != null) {
+            this._sensorManager.unregisterListener(this);
+        }
+
+        this._sensorManager = null;
         this._sensor = null;
         this._powerManager = null;
         this._audioManager = null;
@@ -360,7 +395,7 @@ public class AudioPlayManager {
                 this._mediaPlayer.release();
                 this._mediaPlayer = null;
             } catch (IllegalStateException var2) {
-                ;
+
             }
         }
 
