@@ -6,12 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,7 +25,6 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.LogUtil;
 
 import static android.view.View.VISIBLE;
 
@@ -84,7 +79,7 @@ public class ChatCellImage extends ChatCellBase {
                         .apply(rOptions)
 //                    .thumbnail(0.2f)
                         .into(imageView);
-//                imageView.setTag(currentPosition, message.getImage().getPreview());
+                imageView.setTag(R.id.tag_img, message.getImage().getPreview());
             } else {
                 String url = (String) imageView.getTag(currentPosition);
                 if (url.equals(thumbnail)) {
@@ -101,7 +96,7 @@ public class ChatCellImage extends ChatCellBase {
                             .apply(rOptions)
 //                    .thumbnail(0.2f)
                             .into(imageView);
-//                    imageView.setTag(currentPosition, message.getImage().getPreview());
+                    imageView.setTag(R.id.tag_img, message.getImage().getPreview());
                 }
 
             }
@@ -119,8 +114,7 @@ public class ChatCellImage extends ChatCellBase {
                                 imageView.setImageDrawable(resource);
                             }
                         });
-//                imageView.setTag(currentPosition, thumbnail);
-//            imageView.setTag(message.getImage().getPreview());
+                imageView.setTag(R.id.tag_img, thumbnail);
             } else {
                 rOptions.centerCrop();
                 rOptions.error(R.drawable.bg_btn_white);
@@ -147,7 +141,7 @@ public class ChatCellImage extends ChatCellBase {
                                     imageView.setImageDrawable(resource);
                                 }
                             });
-//                    imageView.setTag(currentPosition, thumbnail);
+                    imageView.setTag(R.id.tag_img, thumbnail);
 
                 }
             }
