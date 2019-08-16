@@ -81,7 +81,7 @@
                         android:fontFamily="@font/emoji_font"
                         android:selectAllOnFocus="true"
                         android:gravity="center_vertical"
-                        android:maxWidth="200dp"
+                        android:maxWidth="210dp"
                         android:minHeight="30dp"
                         android:text=""
                         android:textColor="@color/black"

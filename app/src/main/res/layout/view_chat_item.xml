@@ -82,7 +82,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/emoji_font"
-
+                        android:maxWidth="210dp"
                         android:selectAllOnFocus="true"
                         android:text="我----已经添加你为好友啦"
                         android:textColor="@color/black"
@@ -153,6 +153,7 @@
                             <TextView
                                 android:id="@+id/txt_ot_rb_title"
                                 style="@style/app_txt_title_2"
+                                android:textSize="14sp"
                                 android:text="标题"
                                 android:textColor="@color/white" />
 
@@ -391,7 +392,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingLeft="57dp">
+        android:paddingLeft="30dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -444,6 +445,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/emoji_font"
+                            android:maxWidth="210dp"
                             android:selectAllOnFocus="true"
                             android:text="我已好友啦"
                             android:textColor="@color/black"
@@ -513,6 +515,7 @@
                                 <TextView
                                     android:id="@+id/txt_me_rb_title"
                                     style="@style/app_txt_title_2"
+                                    android:textSize="14sp"
                                     android:text="标题"
                                     android:textColor="@color/white" />
 

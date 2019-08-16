@@ -142,7 +142,7 @@ public class ChatEnum {
      * cell 点击事件类型
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
-            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK})
+            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -153,6 +153,7 @@ public class ChatEnum {
         int TRANSFER_CLICK = 5;//点击转账
         int AVATAR_CLICK = 6;//点击头像
         int RESEND_CLICK = 7;//点击重新发送
+        int AVATAR_LONG_CLICK = 8;//头像长按事件
     }
 
 

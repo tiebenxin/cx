@@ -6,16 +6,15 @@ import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.ui.view.YLinkMovementMethod;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -48,9 +47,11 @@ public class ChatCellText extends ChatCellBase {
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
-            setText(message.getChat().getMsg());
+//            setText(message.getChat().getMsg());
+            tv_content.setText(message.getChat().getMsg());
         } else if (message.getMsg_type() == ChatEnum.EMessageType.AT) {
-            setText(message.getAtMessage().getMsg());
+//            setText(message.getAtMessage().getMsg());
+            tv_content.setText(message.getAtMessage().getMsg());
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
             setText(message.getAssistantMessage().getMsg());
         }
@@ -92,7 +93,7 @@ public class ChatCellText extends ChatCellBase {
             if (preLast != 0) {
                 builder.append(msg.substring(preLast));
                 tv_content.setText(builder);
-                tv_content.setMovementMethod(LinkMovementMethod.getInstance());
+                tv_content.setMovementMethod(YLinkMovementMethod.getInstance());
             } else {
                 tv_content.setText(msg);
             }

@@ -38,7 +38,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.DEBUG = true;
                 AppConfig.SOCKET_PORT = 19991;
-                //break;
+//                break;
             case "pre": //美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;
                 AppConfig.SOCKET_IP = "hk-test.1616d.top";
@@ -64,7 +64,6 @@ public class MyAppLication extends MainApplication {
     private void initRedPacket() {
         //设置为测试环境
         JrmfClient.isDebug(AppConfig.DEBUG);
-
         /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
         JrmfClient.init(this);
         com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);

@@ -79,6 +79,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     }
 
+    private void resetTitle(@CustomTabView.ETabPosition int tab) {
+        if (tab == CustomTabView.ETabPosition.RIGHT) {
+            ui.headView.setTitle("选择一个联系人");
+        } else if (tab == CustomTabView.ETabPosition.LEFT) {
+            ui.headView.setTitle("选择一个聊天");
+        }
+    }
+
     private void showFragment(@CustomTabView.ETabPosition int tab) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment newFragment = fragmentManager.findFragmentByTag(tab + "");
@@ -94,6 +102,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         ft.attach(newFragment);
         ft.commitAllowingStateLoss();
         currentPager = tab;
+        resetTitle(currentPager);
     }
 
     private void prepareFragment(Fragment fragment) {

@@ -59,7 +59,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 //        viewRoot.setTag(this);
         isGroup = mAdapter.isGroup();
         initView();
-        initListener();
+//        initListener();
     }
 
 //    protected ChatCellBase(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
@@ -91,6 +91,17 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 
         if (iv_avatar != null && !isMe) {
             iv_avatar.setOnClickListener(this);
+            if (isGroup) {
+                iv_avatar.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        if (mCellListener != null) {
+                            mCellListener.onEvent(ChatEnum.ECellEventType.AVATAR_LONG_CLICK, model, new Object());
+                        }
+                        return true;
+                    }
+                });
+            }
         }
         if (iv_error != null) {
             iv_error.setOnClickListener(this);
@@ -135,6 +146,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         model = message;
         messageType = message.getMsg_type();
         isMe = message.isMe();
+        initListener();
         setSendStatus();
         loadAvatar();
         setName();
