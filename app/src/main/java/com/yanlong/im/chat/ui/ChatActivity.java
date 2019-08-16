@@ -177,10 +177,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private AnimationPic animationPic = new AnimationPic();
     private MessageAdapter messageAdapter;
     private int currentPager;
-    //    private int lastOffset;
-//    private int lastPosition;
-//    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
+    private int lastOffset = -1;
+    private int lastPosition = -1;
     private boolean isNewAdapter = false;
+//    private boolean canScrollBottom = true;//是否能滑动到底部;
 
 
     private boolean isGroup() {
@@ -815,31 +815,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-//        mtListView.getListView().setOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//                if (layoutManager != null) {
-//                    //获取可视的第一个view
-//                    View topView = layoutManager.getChildAt(0);
-//                    if (topView != null) {
-//                        //获取与该view的顶部的偏移量
-//                        lastOffset = topView.getTop();
-//                        //得到该View的数组位置
-//                        lastPosition = layoutManager.getPosition(topView);
-//                    }
-//                }
-//                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition);
-//            }
-//        });
-
-//        mtListView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//
-//            }
-//        });
+        mtListView.getListView().setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    //获取可视的第一个view
+                    View topView = layoutManager.getChildAt(0);
+                    if (topView != null) {
+                        //获取与该view的顶部的偏移量
+                        lastOffset = topView.getTop();
+                        //得到该View的数组位置
+                        lastPosition = layoutManager.getPosition(topView);
+                    }
+                }
+                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+            }
+        });
 
 
         //处理键盘
@@ -947,10 +940,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         mtListView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mtListView.getListView().scrollToPosition(msgListData.size());
+                scrollListView(true);
             }
         }, 100);
 
+    }
+
+    /*
+     * @param isMustBottom 是否必须滑动到底部
+     * */
+    private void scrollListView(boolean isMustBottom) {
+        if (msgListData != null) {
+            int length = msgListData.size();
+            if (isMustBottom) {
+                mtListView.getListView().scrollToPosition(length);
+            } else {
+                if (lastPosition >= 0 && lastPosition < length) {
+                    mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+                } else {
+                    mtListView.getListView().scrollToPosition(length);
+                }
+            }
+        }
     }
 
     /***
@@ -1727,8 +1738,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
 
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL ) {
-                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()&& msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
                             if (System.currentTimeMillis() - msgbean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                                 boolean isExist = false;
                                 for (OptionMenu optionMenu : menus) {
@@ -1851,7 +1862,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void notifyData2Bottom() {
         notifyData();
-        mtListView.getListView().scrollToPosition(msgListData.size());
+        scrollListView(false);
     }
 
     private void notifyData() {
