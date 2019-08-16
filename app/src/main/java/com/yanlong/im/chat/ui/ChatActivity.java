@@ -1138,7 +1138,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
-//        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
+        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
         if (event.getState() == 0) {
             // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
             taskRefreshImage(event.getMsgid());
@@ -1315,6 +1315,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 break;
             case ChatEnum.ECellEventType.RESEND_CLICK:
                 resendMessage(message);
+                break;
+            case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
+                edtChat.addAtSpan("@", message.getFrom_nickname(), message.getFrom_uid());
                 break;
 
         }
@@ -1854,6 +1857,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void notifyData() {
         if (isNewAdapter) {
             messageAdapter.bindData(msgListData, currentPager);
+            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "currentPager=" + currentPager);
         }
         mtListView.notifyDataSetChange();
     }

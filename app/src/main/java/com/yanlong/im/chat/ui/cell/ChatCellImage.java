@@ -24,6 +24,7 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 
 import static android.view.View.VISIBLE;
 
@@ -172,11 +173,9 @@ public class ChatCellImage extends ChatCellBase {
         switch (model.getSend_state()) {
             case ChatEnum.ESendStatus.ERROR:
                 ll_progress.setVisibility(View.GONE);
-
                 break;
             case ChatEnum.ESendStatus.PRE_SEND:
                 ll_progress.setVisibility(VISIBLE);
-
                 break;
             case ChatEnum.ESendStatus.NORMAL:
                 ll_progress.setVisibility(View.GONE);
@@ -190,12 +189,17 @@ public class ChatCellImage extends ChatCellBase {
 
     public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
         loadImage(model);
+        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "发送状态=" + status + "--发送进度=" + progress);
         if (ll_progress != null && progressBar != null && tv_progress != null) {
             checkSendStatus();
-            if (progress > 0 && progress < 100) {
-                ll_progress.setVisibility(View.VISIBLE);
-                setSendStatus();
-                tv_progress.setText(progress + "%");
+            if (status == ChatEnum.ESendStatus.NORMAL) {
+                if (progress > 0 && progress < 100) {
+                    ll_progress.setVisibility(View.VISIBLE);
+//                setSendStatus();
+                    tv_progress.setText(progress + "%");
+                } else {
+                    ll_progress.setVisibility(View.GONE);
+                }
             } else {
                 ll_progress.setVisibility(View.GONE);
             }
