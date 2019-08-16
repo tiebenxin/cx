@@ -1534,6 +1534,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     holder.viewChatItem.setData3(isInvalid, title, info, type, R.color.transparent, new ChatItemView.EventRP() {
                         @Override
                         public void onClick(boolean isInvalid) {
+
+                            if (!isInvalid) {//红包没拆,先检查已经领完没
+                                taskPayRbCheck(msgbean, rid);
+
+                            }
+
+
                             if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                 //ToastUtil.show(getContext(), "红包详情");
                                 taskPayRbDetail(rid);
@@ -2290,6 +2297,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
+    }
+
+    /***
+     * 红包是否已经被抢
+     * @param rid
+     */
+    private void taskPayRbCheck(MsgAllBean msgAllBean, final String rid) {
+
+
+        msgAllBean.getRed_envelope().setIsInvalid(0);
+        msgDao.redEnvelopeOpen(rid, true);
+        replaceListDataAndNotify(msgAllBean);
     }
 
     private Group groupInfo;
