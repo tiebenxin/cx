@@ -12,10 +12,22 @@
         app:actionbar_rightIcon="@mipmap/ic_msg_more"
         app:actionbar_showIconLeft="false"
         app:actionbar_txtTitle="消息" />
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <LinearLayout style="@style/app_layout_list2">
+
+    <net.cb.cb.library.view.MultiListView
+        android:id="@+id/mtListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view_search"
+
+         />
+    <LinearLayout   android:id="@+id/view_search" style="@style/app_layout_list2">
 
         <LinearLayout
+
             style="@style/app_layout_list2_item"
             android:paddingRight="0dp">
 
@@ -73,9 +85,5 @@
 
     </LinearLayout>
 
-    <net.cb.cb.library.view.MultiListView
-
-        android:id="@+id/mtListView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+</RelativeLayout>
 </LinearLayout>

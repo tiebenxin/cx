@@ -1727,8 +1727,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
 
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL && msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
-                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL ) {
+                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()&& msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
                             if (System.currentTimeMillis() - msgbean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                                 boolean isExist = false;
                                 for (OptionMenu optionMenu : menus) {

@@ -79,6 +79,7 @@ public class MsgMainFragment extends Fragment {
     private View rootView;
     private net.cb.cb.library.view.ActionbarView actionBar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
+    private View viewSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
 
     private LinearLayout viewPopGroup;
@@ -100,6 +101,7 @@ public class MsgMainFragment extends Fragment {
     private void findViews(View rootView) {
         actionBar = (net.cb.cb.library.view.ActionbarView) rootView.findViewById(R.id.actionBar);
         edtSearch = (net.cb.cb.library.view.ClearEditText) rootView.findViewById(R.id.edt_search);
+        viewSearch = rootView.findViewById(R.id.view_search);
         mtListView = (net.cb.cb.library.view.MultiListView) rootView.findViewById(R.id.mtListView);
         viewNetwork = rootView.findViewById(R.id.view_network);
 
@@ -117,6 +119,53 @@ public class MsgMainFragment extends Fragment {
         mtListView.init(new RecyclerViewAdapter());
 
         mtListView.getLoadView().setStateNormal();
+
+        //滚动处理-------------------------------------
+       //1. 需要整理成util
+        //2.需要创建一个相对layout,并且改变控件顺序,设置 mtListView底部对齐
+
+        mtListView.getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView rv, int dx, int dy) {
+                super.onScrolled(rv, dx, dy);
+                int vset= rv.computeVerticalScrollOffset() ;
+
+                if(viewSearch.getTag()!=null&&vset>(int)viewSearch.getTag()){
+                    vset=(int)viewSearch.getTag();
+                }
+
+                viewSearch.setTranslationY(-vset);
+
+
+            }
+        });
+        final Runnable uiRun=new Runnable() {
+            @Override
+            public void run() {
+
+                ViewGroup.LayoutParams lp = viewSearch.getLayoutParams();
+                int h=viewSearch.getMeasuredHeight();
+                if(lp instanceof ViewGroup.MarginLayoutParams){
+                    ViewGroup.MarginLayoutParams lps=   ((ViewGroup.MarginLayoutParams) lp);
+                    h+=lps.topMargin+lps.bottomMargin;
+                    viewSearch.setTag(h);
+                }
+                mtListView.getListView().setPadding(0,h,0,0);
+                //这里marpin设置为-h
+                ViewGroup.MarginLayoutParams lp2 = (ViewGroup.MarginLayoutParams) mtListView.getLayoutParams();
+                lp2.topMargin=-h;
+                mtListView.setLayoutParams(lp2);
+
+                mtListView.getListView().setClipToPadding(false);
+
+                mtListView.getListView().scrollBy(0,-h);
+
+            }
+        };
+
+        viewSearch.post(uiRun);
+
+        //-------------------------------
 
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
@@ -158,7 +207,7 @@ public class MsgMainFragment extends Fragment {
 
 
                                 }
-                            }, 10 * 1000);
+                            }, 1 * 1000);
                         }
 
 

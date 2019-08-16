@@ -236,6 +236,7 @@ public class ChatItemView extends LinearLayout {
     //自动生成的控件事件
     private void initEvent() {
 
+
     }
 
     /***
@@ -338,6 +339,10 @@ public class ChatItemView extends LinearLayout {
             txtTime.setVisibility(VISIBLE);
         }
 
+        viewMeTouch.setOnClickListener(null);
+        viewOtTouch.setOnClickListener(null);
+        viewMeTouch.setOnLongClickListener(null);
+        viewOtTouch.setOnLongClickListener(null);
     }
 
     //公告
