@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,7 +57,6 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
-import com.yanlong.im.chat.ui.cell.ChatCellImage;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
@@ -113,7 +111,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,6 +180,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //    private int lastOffset;
 //    private int lastPosition;
 //    private boolean isNeedScrollBottom = true;//是否需要滑动到底部
+    private boolean isNewAdapter = false;
+
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -755,9 +754,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //test 6.26
         viewFunc.removeView(viewTransfer);
 
-
-//        mtListView.init(new RecyclerViewAdapter());
-        initAdapter();//messageAdapter
+        if (!isNewAdapter) {
+            mtListView.init(new RecyclerViewAdapter());
+        } else {
+            initAdapter();//messageAdapter
+        }
         mtListView.getLoadView().setStateNormal();
         mtListView.setEvent(new MultiListView.Event() {
 
@@ -1208,8 +1209,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         int position = msgListData.indexOf(msgAllbean);
         if (position > 0 && position < msgListData.size()) {
-//            msgListData.set(position, msgAllbean);
-            messageAdapter.updateItemAndRefresh(msgAllbean);
+            if (!isNewAdapter) {
+                msgListData.set(position, msgAllbean);
+            } else {
+                messageAdapter.updateItemAndRefresh(msgAllbean);
+            }
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
         }
     }
@@ -1720,7 +1724,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
 
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL && msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
                         if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                             if (System.currentTimeMillis() - msgbean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                                 boolean isExist = false;
@@ -1848,7 +1852,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void notifyData() {
-        messageAdapter.bindData(msgListData, currentPager);
+        if (isNewAdapter) {
+            messageAdapter.bindData(msgListData, currentPager);
+        }
         mtListView.notifyDataSetChange();
     }
 

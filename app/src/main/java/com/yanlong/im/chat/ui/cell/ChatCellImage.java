@@ -138,10 +138,12 @@ public class ChatCellImage extends ChatCellBase {
         lp.height = height;
         imageView.setLayoutParams(lp);
 
-        FrameLayout.LayoutParams lp2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        lp2.width = width;
-        lp2.height = height;
-        ll_progress.setLayoutParams(lp2);
+        if (ll_progress != null) {
+            FrameLayout.LayoutParams lp2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            lp2.width = width;
+            lp2.height = height;
+            ll_progress.setLayoutParams(lp2);
+        }
     }
 
     @Override
