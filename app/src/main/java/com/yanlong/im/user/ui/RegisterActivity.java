@@ -107,7 +107,6 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     private void initTvMNA() {
         final SpannableStringBuilder style = new SpannableStringBuilder();
         style.append("点击\"注册\"即表示已阅读并同意《用户使用协议》和《隐私权政策》");
-
         ClickableSpan clickProtocol = new ClickableSpan() {
             @Override
             public void onClick(View widget) {

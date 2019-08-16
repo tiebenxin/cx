@@ -21,6 +21,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -55,7 +56,7 @@ public class ChatInfoActivity extends AppActivity {
     private CheckBox ckDisturb;
     private LinearLayout viewLogClean;
     private LinearLayout viewFeedback;
-  //  private Session session;
+    //  private Session session;
     private UserInfo fUserInfo;
 
 
@@ -104,7 +105,7 @@ public class ChatInfoActivity extends AppActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 fUserInfo.setIstop(isChecked ? 1 : 0);
                 taskSaveInfo();
-                taskUpSwitch(null,fUserInfo.getIstop());
+                taskUpSwitch(null, fUserInfo.getIstop());
             }
         });
         ckDisturb.setChecked(fUserInfo.getDisturb() == 1);
@@ -113,7 +114,7 @@ public class ChatInfoActivity extends AppActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 fUserInfo.setDisturb(isChecked ? 1 : 0);
                 taskSaveInfo();
-                taskUpSwitch(fUserInfo.getDisturb(),null);
+                taskUpSwitch(fUserInfo.getDisturb(), null);
             }
         });
         viewLogClean.setOnClickListener(new View.OnClickListener() {
@@ -146,12 +147,22 @@ public class ChatInfoActivity extends AppActivity {
         });
 
 
+        viewFeedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ChatInfoActivity.this, ComplaintActivity.class);
+                intent.putExtra(ComplaintActivity.UID, fuid.toString());
+                startActivity(intent);
+            }
+        });
     }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         setResult(ChatActivity.REQ_REFRESH);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -205,7 +216,7 @@ public class ChatInfoActivity extends AppActivity {
                         public void onClick(View v) {
                             finish();
                             EventBus.getDefault().post(new EventExitChat());
-                            startActivity(new Intent(getContext(),GroupCreateActivity.class));
+                            startActivity(new Intent(getContext(), GroupCreateActivity.class));
                         }
                     });
                     break;
@@ -264,12 +275,12 @@ public class ChatInfoActivity extends AppActivity {
         msgAction.sessionSwitch(fuid, isMute, istop, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body()==null)
+                if (response.body() == null)
                     return;
-                if (response.body().isOk()){
+                if (response.body().isOk()) {
 
-                }else {
-                    ToastUtil.show(getContext(),response.body().getMsg());
+                } else {
+                    ToastUtil.show(getContext(), response.body().getMsg());
 
                 }
             }

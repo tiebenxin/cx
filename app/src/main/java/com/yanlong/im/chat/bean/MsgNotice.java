@@ -1,5 +1,8 @@
 package com.yanlong.im.chat.bean;
 
+
+import com.umeng.commonsdk.debug.I;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -8,10 +11,21 @@ import io.realm.annotations.PrimaryKey;
  * 通知消息
  */
 public class MsgNotice extends RealmObject {
+    public static final int MSG_TYPE_DEFAULT = 7897;
+
     @PrimaryKey
     private String msgid;
     private Long uid;
     private String note;
+    private Integer msgType = MSG_TYPE_DEFAULT;
+
+    public Integer getMsgType() {
+        return msgType;
+    }
+
+    public void setMsgType(Integer msgType) {
+        this.msgType = msgType;
+    }
 
     public Long getUid() {
         return uid;
@@ -36,4 +50,6 @@ public class MsgNotice extends RealmObject {
     public void setMsgid(String msgid) {
         this.msgid = msgid;
     }
+
+
 }

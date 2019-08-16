@@ -345,6 +345,11 @@ public class ChatItemView extends LinearLayout {
         txtBroadcast.setText(Html.fromHtml(msghtml));
     }
 
+    public void setData0(SpannableStringBuilder stringBuilder){
+        txtBroadcast.setText(stringBuilder);
+        txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
     //普通消息
     public void setData1(String msg) {
         txtMe1.setText(msg);
