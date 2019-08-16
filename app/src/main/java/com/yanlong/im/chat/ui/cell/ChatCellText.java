@@ -48,9 +48,11 @@ public class ChatCellText extends ChatCellBase {
     protected void showMessage(MsgAllBean message) {
         super.showMessage(message);
         if (message.getMsg_type() == ChatEnum.EMessageType.TEXT) {
-            setText(message.getChat().getMsg());
+//            setText(message.getChat().getMsg());
+            tv_content.setText(message.getChat().getMsg());
         } else if (message.getMsg_type() == ChatEnum.EMessageType.AT) {
-            setText(message.getAtMessage().getMsg());
+//            setText(message.getAtMessage().getMsg());
+            tv_content.setText(message.getAtMessage().getMsg());
         } else if (message.getMsg_type() == ChatEnum.EMessageType.ASSISTANT) {
             setText(message.getAssistantMessage().getMsg());
         }
