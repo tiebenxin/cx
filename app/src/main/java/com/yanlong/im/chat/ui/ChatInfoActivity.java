@@ -160,7 +160,7 @@ public class ChatInfoActivity extends AppActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        setResult(ChatActivity.REQ_REFRESH);
+//        setResult(ChatActivity.REQ_REFRESH);
     }
 
     @Override
@@ -216,7 +216,7 @@ public class ChatInfoActivity extends AppActivity {
                         public void onClick(View v) {
                             finish();
                             EventBus.getDefault().post(new EventExitChat());
-                            startActivity(new Intent(getContext(), GroupCreateActivity.class));
+                            startActivity(new Intent(getContext(), GroupCreateActivity.class).putExtra(GroupCreateActivity.AGM_SELECT_UID, ""+fUserInfo.getUid()));
                         }
                     });
                     break;
