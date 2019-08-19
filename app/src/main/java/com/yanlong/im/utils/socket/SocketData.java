@@ -10,6 +10,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
@@ -975,6 +976,15 @@ public class SocketData {
             msgSave4Me(umsg, 0);
             return MsgConversionBean.ToBean(umsg.getWrapMsg(0));
         }
+        //8.19 收到红包给自己增加一条消息
+        String mid=getUUID();
+        MsgNotice note=new MsgNotice();
+        note.setMsgid(mid);
+        note.setMsgType(8);
+       String name= msgDao.getUsername4Show(toGid,toId);
+        note.setNote("你领取了\"<font color='#276baa' id='" + toId+ "'>" + name + "</font>" + "的云红包");
+        msgDao.noteMsgAddRb(mid,note);
+
 
 
         return send4Base(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);

@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.dao;
 
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -28,6 +29,7 @@ import net.cb.cb.library.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -1360,6 +1362,41 @@ public class MsgDao {
         realm.close();
 
         return name;
+    }
+
+
+    /***
+     *
+     * @param msgid
+     * @param note
+     * @return
+     */
+    public MsgAllBean noteMsgAddRb(String msgid, MsgNotice note) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+        if (msgAllBean == null) {
+            msgAllBean=new MsgAllBean();
+            msgAllBean.setMsg_id(msgid);
+            UserInfo userinfo = UserAction.getMyInfo();
+            msgAllBean.setFrom_uid(userinfo.getUid());
+            msgAllBean.setFrom_avatar(userinfo.getHead());
+            msgAllBean.setFrom_nickname(userinfo.getName());
+
+        }
+
+        msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+        msgAllBean.setMsgNotice(note);
+        msgAllBean.setTimestamp(new Date().getTime());
+
+        realm.insertOrUpdate(msgAllBean);
+
+        realm.commitTransaction();
+        realm.close();
+
+        return ret;
+
     }
 
 }
