@@ -47,8 +47,10 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
+import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.Session;
@@ -71,6 +73,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
@@ -110,6 +113,10 @@ import net.cb.cb.library.view.MultiListView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1419,6 +1426,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
 
+    private List<HtmlBean> htmlTransition(String html) {
+        List<HtmlBean> list = new ArrayList<>();
+        Document doc = Jsoup.parse(html);
+        Elements fonts = doc.select("font");
+        for (Element element : fonts) {
+            HtmlBean bean = new HtmlBean();
+            String id = element.id();
+            String name = element.text();
+            bean.setId(id);
+            bean.setName(name);
+            list.add(bean);
+        }
+        return list;
+    }
+
+
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
@@ -1538,9 +1561,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             switch (msgbean.getMsg_type()) {
                 case 0:
-                    // holder.viewChatItem.setShowType(0, msgbean.isMe(), null, "昵称", null);
-                    if (msgbean.getMsgNotice() != null)
+                    if (msgbean.getMsgNotice() != null) {
                         holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
+
+                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
+                            holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
+                        }else{
+                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
+                                    msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
+                        }
+                    }
                     break;
                 case ChatEnum.EMessageType.MSG_CENCAL:
                     if (msgbean.getMsgCancel() != null)

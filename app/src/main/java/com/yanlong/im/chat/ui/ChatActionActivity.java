@@ -28,7 +28,7 @@ public class ChatActionActivity extends AppActivity {
     private TextView txtMsg;
     private LinearLayout viewNo;
     private LinearLayout viewYes;
-private  Vibrator vibrator;
+    private Vibrator vibrator;
     private MsgAllBean msgAllbean;
 
     //自动寻找控件
@@ -46,13 +46,13 @@ private  Vibrator vibrator;
 
         byte[] data = getIntent().getByteArrayExtra(AGM_DATA);
         try {
-            MsgBean.UniversalMessage.WrapMessage wrapMessage= MsgBean.UniversalMessage.WrapMessage.parseFrom(data);
-          msgAllbean=  MsgConversionBean.ToBean(wrapMessage);
+            MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.parseFrom(data);
+            msgAllbean = MsgConversionBean.ToBean(wrapMessage);
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }
 
-        imgHead.setImageURI(Uri.parse(""+msgAllbean.getFrom_user().getHead()));
+        imgHead.setImageURI(Uri.parse("" + msgAllbean.getFrom_user().getHead()));
         txtName.setText(msgAllbean.getFrom_user().getName());
         txtMsg.setText(msgAllbean.getStamp().getComment());
         viewNo.setOnClickListener(new View.OnClickListener() {
@@ -67,7 +67,7 @@ private  Vibrator vibrator;
             public void onClick(View v) {
 
                 startActivity(new Intent(getContext(), ChatActivity.class)
-                                .putExtra(ChatActivity.AGM_TOUID,msgAllbean.getFrom_uid()));
+                        .putExtra(ChatActivity.AGM_TOUID, msgAllbean.getFrom_uid()));
 
                 finish();
             }
@@ -75,18 +75,18 @@ private  Vibrator vibrator;
 
         playVibration();
     }
+
     //振动
-    private void playVibration(){
+    private void playVibration() {
 
-        vibrator = MediaBackUtil.playVibration(getContext(),2000);
+        vibrator = MediaBackUtil.playVibration(getContext(), 2000);
     }
-
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(vibrator!=null){
+        if (vibrator != null) {
             vibrator.cancel();
         }
 
