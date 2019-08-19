@@ -106,7 +106,7 @@ public class MsgDao {
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
-        RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
+        RealmResults list = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and().beginGroup()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                 .lessThan("timestamp", time)
                 .sort("timestamp", Sort.DESCENDING)
@@ -1371,7 +1371,7 @@ public class MsgDao {
      * @param note
      * @return
      */
-    public MsgAllBean noteMsgAddRb(String msgid, MsgNotice note) {
+    public MsgAllBean noteMsgAddRb(String msgid,Long toUid,String gid, MsgNotice note) {
         MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
@@ -1379,10 +1379,13 @@ public class MsgDao {
         if (msgAllBean == null) {
             msgAllBean=new MsgAllBean();
             msgAllBean.setMsg_id(msgid);
+            gid=gid==null?"":gid;
+            msgAllBean.setGid(gid);
             UserInfo userinfo = UserAction.getMyInfo();
-            msgAllBean.setFrom_uid(userinfo.getUid());
-            msgAllBean.setFrom_avatar(userinfo.getHead());
-            msgAllBean.setFrom_nickname(userinfo.getName());
+            msgAllBean.setFrom_uid(toUid);
+
+            msgAllBean.setTo_uid(userinfo.getUid());
+
 
         }
 
