@@ -1782,11 +1782,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                             String file = remsg.getImage().getLocalimg();
-                            boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
-                            MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
-                            replaceListDataAndNotify(imgMsgBean);
-                            UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
-                            startService(new Intent(getContext(), UpLoadService.class));
+                            if (!TextUtils.isEmpty(file)) {
+                                boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
+                                MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
+                                replaceListDataAndNotify(imgMsgBean);
+                                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
+                                startService(new Intent(getContext(), UpLoadService.class));
+                            }else {
+                                //点击发送的时候如果要改变成发送中的状态
+                                remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                                DaoUtil.update(remsg);
+                                LogUtil.getLog().d(TAG, "点击重复发送" + remsg.getMsg_id());
+                                MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
+                                SocketUtil.getSocketUtil().sendData4Msg(bean);
+                                taskRefreshMessage();
+                            }
 
                         } else {
                             //点击发送的时候如果要改变成发送中的状态
