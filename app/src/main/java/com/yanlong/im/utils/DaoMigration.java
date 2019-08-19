@@ -36,7 +36,7 @@ public class DaoMigration implements RealmMigration {
                     .addRealmListField("dogs", schema.get("Dog"));*/
 
             schema.get("MsgNotice")
-                    .addRealmObjectField("msgType", schema.get("MsgType"))
+                    .addField("msgType",Integer.class)
             ;
             oldVersion++;
         }
