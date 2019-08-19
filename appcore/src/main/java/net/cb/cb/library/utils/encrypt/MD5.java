@@ -7,6 +7,9 @@ import java.security.NoSuchAlgorithmException;
 
 public class MD5 {
     public static String md5(String string) {
+        if(true)//test
+            return string;
+
         if (TextUtils.isEmpty(string)) {
             return "";
         }
@@ -22,7 +25,7 @@ public class MD5 {
                 }
                 result += temp;
             }
-            return result;
+            return result.toLowerCase();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
