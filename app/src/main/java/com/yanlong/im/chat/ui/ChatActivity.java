@@ -829,16 +829,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (layoutManager != null) {
                     //获取可视的第一个view
-                    View topView = layoutManager.getChildAt(0);
+                    lastPosition = layoutManager.findLastVisibleItemPosition();
+                    View topView = layoutManager.getChildAt(lastPosition);
                     if (topView != null) {
-                        //获取与该view的顶部的偏移量
-                        lastOffset = topView.getTop();
+                        //获取与该view的底部的偏移量
+                        lastOffset = topView.getBottom();
                         //得到该View的数组位置
-                        lastPosition = layoutManager.getPosition(topView);
+//                        lastPosition = layoutManager.getPosition(topView);
                     }
                     saveScrollPosition();
                 }
-//                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
             }
         });
 
@@ -987,7 +988,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 mtListView.getListView().scrollToPosition(length);
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
-                    if (isCanScrollBottom()) {
+                    if (isCanScrollBottom() && mtListView.getListView().canScrollVertically(1)) {
                         mtListView.getListView().scrollToPosition(length);
                     } else {
                         mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
@@ -998,10 +999,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
                         if (config != null) {
                             if (config.getUserId() == UserAction.getMyId()) {
-                                if (config.getUid() > 0 && config.getUid() == toUId) {
+                                if (toUId != null && config.getUid() > 0 && config.getUid() == toUId) {
                                     lastPosition = config.getLastPosition();
                                     lastOffset = config.getLastOffset();
-                                } else if (!TextUtils.isEmpty(config.getChatId()) && config.getChatId().equals(toGid)) {
+                                } else if (!TextUtils.isEmpty(config.getChatId()) && !TextUtils.isEmpty(toGid) && config.getChatId().equals(toGid)) {
                                     lastPosition = config.getLastPosition();
                                     lastOffset = config.getLastOffset();
                                 }
@@ -1010,7 +1011,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
                     if (lastPosition >= 0 && lastPosition < length) {
-                        if (isCanScrollBottom()) {
+                        if (isCanScrollBottom() && mtListView.getListView().canScrollVertically(1)) {
                             mtListView.getListView().scrollToPosition(length);
                         } else {
                             mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
@@ -1365,9 +1366,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     BusinessCardMessage cardMessage = (BusinessCardMessage) args[0];
                     //自己的不跳转
-                    if(cardMessage.getUid().longValue()!=UserAction.getMyId().longValue())
-                    startActivity(new Intent(getContext(), UserInfoActivity.class)
-                            .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
+                    if (cardMessage.getUid().longValue() != UserAction.getMyId().longValue())
+                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
                 }
 
                 break;
@@ -1582,10 +1583,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     break;
                 case ChatEnum.EMessageType.MSG_CENCAL:
-                    if (msgbean.getMsgCancel() != null){
+                    if (msgbean.getMsgCancel() != null) {
                         if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                             holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
-                        }else{
+                        } else {
                             holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
                                     msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
                         }
@@ -1669,9 +1670,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
-                                    if(msgbean.getBusiness_card().getUid().longValue()!=UserAction.getMyId().longValue())
-                                    startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                            .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
+                                    if (msgbean.getBusiness_card().getUid().longValue() != UserAction.getMyId().longValue())
+                                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                                .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
                                 }
                             });
                     break;
@@ -1788,7 +1789,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 replaceListDataAndNotify(imgMsgBean);
                                 UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                                 startService(new Intent(getContext(), UpLoadService.class));
-                            }else {
+                            } else {
                                 //点击发送的时候如果要改变成发送中的状态
                                 remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                                 DaoUtil.update(remsg);
