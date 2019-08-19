@@ -976,14 +976,20 @@ public class SocketData {
             msgSave4Me(umsg, 0);
             return MsgConversionBean.ToBean(umsg.getWrapMsg(0));
         }
+
         //8.19 收到红包给自己增加一条消息
         String mid=getUUID();
         MsgNotice note=new MsgNotice();
         note.setMsgid(mid);
         note.setMsgType(8);
-       String name= msgDao.getUsername4Show(toGid,toId);
-        note.setNote("你领取了\"<font color='#276baa' id='" + toId+ "'>" + name + "</font>" + "的云红包");
-        msgDao.noteMsgAddRb(mid,note);
+        String name= msgDao.getUsername4Show(toGid,toId);
+        String rname="<font color='#276baa' id='" + toId+ "'>" + name + "</font>";
+        if(toId.longValue() == UserAction.getMyId().longValue()){
+            rname="自己";
+        }
+        note.setNote("你领取了\""+rname + "的云红包");
+        msgDao.noteMsgAddRb(mid,toId,toGid,note);
+
 
 
 

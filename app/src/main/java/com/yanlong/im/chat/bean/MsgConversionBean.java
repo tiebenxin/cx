@@ -163,8 +163,15 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
-                rbNotice.setMsgType(7);
-                rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "领取了你的云红包");
+
+                //jyj 8.19
+                if(bean.getFromUid()==UserAction.getMyId().longValue()){
+                    rbNotice.setNote("你领取了自己的云红包");
+                }else{
+                    rbNotice.setMsgType(7);
+                    rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "领取了你的云红包");
+                }
+
                 msgAllBean.setMsgNotice(rbNotice);
                 break;
 
@@ -184,7 +191,8 @@ public class MsgConversionBean {
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
                     //7.13 加入替换自己的昵称
                     if (bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
-                        names += "你、";
+                        names +=  "\"<font value ='1'> 你、</font>\"、";
+
                     } else {
                         String name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
                         Long uid = bean.getAcceptBeGroup().getNoticeMessage(i).getUid();
@@ -199,7 +207,7 @@ public class MsgConversionBean {
                             name = StringUtil.isNotNull(userinfo.getMkName()) ? userinfo.getMkName() : name;
                         }
 
-                        names += "\"<font color='#276baa' " + uid + ">" + name + "</font>\"、";
+                        names += "\"<font id='" + uid + "' value ='2'>" + name + "</font>\"、";
                     }
 
                 }
@@ -208,7 +216,7 @@ public class MsgConversionBean {
 
                 String inviterName = bean.getAcceptBeGroup().getInviterName();//邀请者名字
                 if (bean.getAcceptBeGroup().getInviter() == UserAction.getMyId().longValue()) {
-                    inviterName = "你";
+                    inviterName = "\"<font value ='3'> 你</font>\"";
                 } else {
                     MsgAllBean gmsg = msgDao.msgGetLastGroup4Uid(bean.getGid(), bean.getAcceptBeGroup().getInviter());
                     if (gmsg != null) {
@@ -221,7 +229,7 @@ public class MsgConversionBean {
                         inviterName = StringUtil.isNotNull(userinfo.getMkName()) ? userinfo.getMkName() : inviterName;
                     }
 
-                    inviterName = "\"<font color='#276baa' id='" + bean.getAcceptBeGroup().getInviter() + "'>" + inviterName + "</font>\"";
+                    inviterName = "\"<font id='" + bean.getAcceptBeGroup().getInviter() + "'  value ='4'>" + inviterName + "</font>\"";
 
                 }
 
@@ -324,7 +332,8 @@ public class MsgConversionBean {
                 if (bean.getFromUid() == UserAction.getMyId().longValue()) {
                     rname = "你";
                 } else {//对方撤回的消息当通知处理
-                    rname = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                    msgCel.setMsgType(9);
+                    rname =  "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" +  msgDao.getUsername4Show(bean.getGid(), bean.getFromUid()) + "</font>\"";
                 }
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
 

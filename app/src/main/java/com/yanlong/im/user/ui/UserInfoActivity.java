@@ -411,10 +411,8 @@ public class UserInfoActivity extends AppActivity {
 
                             if (joinType == 0) {
                                 tvJoinGroupName.setText(inviterName);
-                                String content = "<font color='#276baa'>" + inviterName + "</font> 分享二维码邀请进群";
                                 tvJoinGroupType.setText("分享二维码邀请进群");
                             } else {
-                                String content = "<font color='#276baa'>" + inviterName + "</font> 邀请进群";
                                 tvJoinGroupName.setText(inviterName);
                                 tvJoinGroupType.setText("邀请进群");
                             }
@@ -429,8 +427,6 @@ public class UserInfoActivity extends AppActivity {
                                         startActivity(new Intent(UserInfoActivity.this, UserInfoActivity.class)
                                                 .putExtra(UserInfoActivity.ID, inviter));
                                     }
-
-
                                 }
                             });
                         }

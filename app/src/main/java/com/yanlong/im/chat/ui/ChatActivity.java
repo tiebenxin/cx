@@ -649,8 +649,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 });
                 alertTouch.show();
                 alertTouch.setEdHintOrSize(null, 15);
-
-
             }
         });
         //名片
@@ -1364,7 +1362,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
                 if (args[0] != null && args[0] instanceof BusinessCardMessage) {
+
                     BusinessCardMessage cardMessage = (BusinessCardMessage) args[0];
+                    //自己的不跳转
+                    if(cardMessage.getUid().longValue()!=UserAction.getMyId().longValue())
                     startActivity(new Intent(getContext(), UserInfoActivity.class)
                             .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
                 }
@@ -1572,8 +1573,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             switch (msgbean.getMsg_type()) {
                 case 0:
                     if (msgbean.getMsgNotice() != null) {
-                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-
                         if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         } else {
@@ -1583,8 +1582,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     break;
                 case ChatEnum.EMessageType.MSG_CENCAL:
-                    if (msgbean.getMsgCancel() != null)
-                        holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                    if (msgbean.getMsgCancel() != null){
+                        if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
+                            holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                        }else{
+                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
+                                    msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
+                        }
+                    }
                     break;
                 case 1:
 
@@ -1664,7 +1669,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
-
+                                    if(msgbean.getBusiness_card().getUid().longValue()!=UserAction.getMyId().longValue())
                                     startActivity(new Intent(getContext(), UserInfoActivity.class)
                                             .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
                                 }
