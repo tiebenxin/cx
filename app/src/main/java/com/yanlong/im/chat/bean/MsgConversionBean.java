@@ -163,8 +163,15 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice rbNotice = new MsgNotice();
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
-                rbNotice.setMsgType(7);
-                rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "领取了你的云红包");
+
+                //jyj 8.19
+                if(bean.getFromUid()==UserAction.getMyId().longValue()){
+                    rbNotice.setNote("你领取了自己的云红包");
+                }else{
+                    rbNotice.setMsgType(7);
+                    rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "领取了你的云红包");
+                }
+
                 msgAllBean.setMsgNotice(rbNotice);
                 break;
 

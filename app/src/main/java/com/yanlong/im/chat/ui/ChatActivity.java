@@ -1308,7 +1308,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 break;
             case ChatEnum.ECellEventType.CARD_CLICK:
                 if (args[0] != null && args[0] instanceof BusinessCardMessage) {
+
                     BusinessCardMessage cardMessage = (BusinessCardMessage) args[0];
+                    //自己的不跳转
+                    if(cardMessage.getUid().longValue()!=UserAction.getMyId().longValue())
                     startActivity(new Intent(getContext(), UserInfoActivity.class)
                             .putExtra(UserInfoActivity.ID, cardMessage.getUid()));
                 }
@@ -1608,7 +1611,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
-
+                                    if(msgbean.getBusiness_card().getUid().longValue()!=UserAction.getMyId().longValue())
                                     startActivity(new Intent(getContext(), UserInfoActivity.class)
                                             .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
                                 }
