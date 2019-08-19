@@ -1527,8 +1527,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     break;
                 case ChatEnum.EMessageType.MSG_CENCAL:
-                    if (msgbean.getMsgCancel() != null)
-                        holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                    if (msgbean.getMsgCancel() != null){
+                        if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
+                            holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                        }else{
+                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
+                                    msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
+                        }
+                    }
                     break;
                 case 1:
 

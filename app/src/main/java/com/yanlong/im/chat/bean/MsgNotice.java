@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.bean;
 
 
-import com.umeng.commonsdk.debug.I;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;

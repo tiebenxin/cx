@@ -324,7 +324,8 @@ public class MsgConversionBean {
                 if (bean.getFromUid() == UserAction.getMyId().longValue()) {
                     rname = "你";
                 } else {//对方撤回的消息当通知处理
-                    rname = msgDao.getUsername4Show(bean.getGid(), bean.getFromUid());
+                    msgCel.setMsgType(9);
+                    rname =  "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" +  msgDao.getUsername4Show(bean.getGid(), bean.getFromUid()) + "</font>\"";
                 }
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
 

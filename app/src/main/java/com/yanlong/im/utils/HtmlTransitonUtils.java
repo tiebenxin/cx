@@ -49,6 +49,9 @@ public class HtmlTransitonUtils {
                 case 8:
                     setType8(context, style, list);
                     break;
+                case 9:
+                    setType9(context, style, list);
+                    break;
             }
 
         }
@@ -200,6 +203,36 @@ public class HtmlTransitonUtils {
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         builder.append("的云红包");
+    }
+
+
+    private void setType9(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
+        for (final HtmlBean bean : list) {
+            String content = "'" + bean.getName() + "'";
+            builder.append(content);
+
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length() - 1;
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                    context.startActivity(intent);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("撤回了一条消息");
     }
 
 

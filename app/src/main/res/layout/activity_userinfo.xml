@@ -19,7 +19,6 @@
             <LinearLayout
                 android:id="@+id/view_head"
                 style="@style/app_layout_list1_item"
-
                 android:layout_height="89dp">
 
                 <com.facebook.drawee.view.SimpleDraweeView
