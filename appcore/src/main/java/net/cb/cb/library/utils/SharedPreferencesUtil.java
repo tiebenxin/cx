@@ -29,7 +29,8 @@ public class SharedPreferencesUtil {
         FIRST_TIME("first_time"),
         PHONE("phone"),
         IMAGE_HEAD("image_head"),
-        DEV_ID("uid");
+        DEV_ID("uid"),
+        SCROLL("scroll");
 
         private String name;
 
@@ -125,4 +126,5 @@ public class SharedPreferencesUtil {
     public SharedPreferences getSharedPreferences() {
         return sharedPreferences;
     }
+
 }
