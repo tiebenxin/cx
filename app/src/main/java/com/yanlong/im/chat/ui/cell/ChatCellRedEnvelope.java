@@ -2,7 +2,6 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.content.Context;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -86,18 +85,23 @@ public class ChatCellRedEnvelope extends ChatCellBase {
     private void setMessage(boolean invalid, String title, String info, String typeName, int typeIcon) {
         if (invalid) {//失效
             iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_n);
-            if (model.isMe()) {
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
-            } else {
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
-            }
+//            if (model.isMe()) {
+//                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
+//            } else {
+//                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
+//            }
+            bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_h_me_touch : R.drawable.selector_rp_h_other_touch);
+
+
         } else {
             iv_rb_state.setImageResource(R.mipmap.ic_rb_zfb_un);
-            if (model.isMe()) {
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp);
-            } else {
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp);
-            }
+//            if (model.isMe()) {
+//                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_me_rp);
+//            } else {
+//                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_other_rp);
+//            }
+            bubbleLayout.setBackgroundResource(model.isMe() ? R.drawable.selector_rp_me_touch : R.drawable.selector_rp_other_touch);
+
         }
         tv_rb_title.setText(title);
         tv_rb_info.setText(info);

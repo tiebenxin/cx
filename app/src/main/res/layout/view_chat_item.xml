@@ -72,7 +72,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
-                    android:background="@drawable/bg_chat_other"
+                    android:background="@drawable/selector_chat_other_touch"
                     android:gravity="left|center_vertical"
 
                     android:visibility="gone">
@@ -97,7 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
-                    android:background="@drawable/bg_chat_other"
+                    android:background="@drawable/selector_chat_other_touch"
                     android:orientation="horizontal"
                     android:visibility="gone">
 
@@ -153,9 +153,9 @@
                             <TextView
                                 android:id="@+id/txt_ot_rb_title"
                                 style="@style/app_txt_title_2"
-                                android:textSize="14sp"
                                 android:text="标题"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/txt_ot_rb_info"
@@ -217,13 +217,11 @@
                 </LinearLayout>
 
                 <!-- 名片消息-->
-
-                <!-- 转账消息-->
                 <LinearLayout
                     android:id="@+id/view_ot_5"
                     android:layout_width="211dp"
                     android:layout_height="90dp"
-                    android:background="@drawable/bg_chat_other_card"
+                    android:background="@drawable/selector_card_other_touch"
                     android:orientation="vertical"
                     android:visibility="visible">
 
@@ -363,7 +361,7 @@
                     android:id="@+id/view_ot_8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_chat_other"
+                    android:background="@drawable/selector_chat_other_touch"
                     android:gravity="left|center_vertical"
                     android:visibility="gone">
 
@@ -435,7 +433,7 @@
                         android:id="@+id/view_me_1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chat_me"
+                        android:background="@drawable/selector_chat_me_touch"
 
                         android:gravity="right|center_vertical"
                         android:visibility="gone">
@@ -459,7 +457,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
 
-                        android:background="@drawable/bg_chat_me"
+                        android:background="@drawable/selector_chat_me_touch"
                         android:orientation="horizontal"
                         android:visibility="gone">
 
@@ -515,9 +513,9 @@
                                 <TextView
                                     android:id="@+id/txt_me_rb_title"
                                     style="@style/app_txt_title_2"
-                                    android:textSize="14sp"
                                     android:text="标题"
-                                    android:textColor="@color/white" />
+                                    android:textColor="@color/white"
+                                    android:textSize="14sp" />
 
                                 <TextView
                                     android:id="@+id/txt_me_rb_info"
@@ -617,7 +615,7 @@
                         android:id="@+id/view_me_5"
                         android:layout_width="211dp"
                         android:layout_height="90dp"
-                        android:background="@drawable/bg_chat_me_card"
+                        android:background="@drawable/selector_card_me_touch"
                         android:orientation="vertical"
                         android:visibility="visible">
 
@@ -756,7 +754,7 @@
                         android:id="@+id/view_me_8"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chat_me"
+                        android:background="@drawable/selector_chat_me_touch"
                         android:gravity="right|center_vertical"
                         android:visibility="gone">
 

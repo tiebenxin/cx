@@ -70,7 +70,7 @@
                     android:id="@+id/ll_bubble"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_chat_me"
+                    android:background="@drawable/selector_chat_me_touch"
                     android:gravity="right|center_vertical"
                     android:visibility="visible">
 
