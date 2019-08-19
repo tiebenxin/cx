@@ -647,8 +647,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 });
                 alertTouch.show();
                 alertTouch.setEdHintOrSize(null, 15);
-
-
             }
         });
         //名片
@@ -1516,8 +1514,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             switch (msgbean.getMsg_type()) {
                 case 0:
                     if (msgbean.getMsgNotice() != null) {
-                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-
                         if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         }else{
