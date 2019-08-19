@@ -19,21 +19,19 @@ public class DaoUtil {
 
     //放在初始化中
     public void initConfig(String dbName) {
-        if(AppConfig.DEBUG){
+       // if(AppConfig.DEBUG){
             config = new RealmConfiguration.Builder()
                     .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
                     .schemaVersion(0)
                     .deleteRealmIfMigrationNeeded()//声明版本冲突时自动删除原数据库，开发时候打开
                     .build();
-        }else{
+      /*  }else{
             config = new RealmConfiguration.Builder()
                     .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
                     .schemaVersion(1)
                     .migration(new DaoMigration())//数据库版本升级处理
-                  //  .deleteRealmIfMigrationNeeded()//声明版本冲突时自动删除原数据库，开发时候打开
-//                .inMemory()// 声明数据库只在内存中持久化
                     .build();
-        }
+        }*/
 
 
     }

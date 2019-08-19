@@ -31,6 +31,7 @@ import net.cb.cb.library.utils.NetIntrtceptor;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.encrypt.MD5;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,8 +114,9 @@ public class UserAction {
      * 账号密码登录
      */
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+
         cleanInfo();
-        NetUtil.getNet().exec(server.login(pwd, phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login( MD5.md5(pwd), phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -514,7 +516,8 @@ public class UserAction {
      * 修改用户密码
      */
     public void setUserPassword(String newPassword, String oldPassword, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.setUserPassword(newPassword, oldPassword), callback);
+
+        NetUtil.getNet().exec(server.setUserPassword( MD5.md5(newPassword),  MD5.md5(oldPassword)), callback);
     }
 
     /**
@@ -528,7 +531,8 @@ public class UserAction {
      * 手机号验证码重置密码
      */
     public void changePasswordBySms(String phone, Integer captcha, String password, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.changePasswordBySms(phone, captcha, password), callback);
+
+        NetUtil.getNet().exec(server.changePasswordBySms(phone, captcha, MD5.md5(password)), callback);
     }
 
     /**
@@ -629,7 +633,8 @@ public class UserAction {
      * 初始化用户密码
      */
     public void initUserPassword(String password, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.initUserPassword(password), callback);
+
+        NetUtil.getNet().exec(server.initUserPassword( MD5.md5(password)), callback);
     }
 
     /**
