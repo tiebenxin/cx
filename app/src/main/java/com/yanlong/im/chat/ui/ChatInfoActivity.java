@@ -216,7 +216,7 @@ public class ChatInfoActivity extends AppActivity {
                         public void onClick(View v) {
                             finish();
                             EventBus.getDefault().post(new EventExitChat());
-                            startActivity(new Intent(getContext(), GroupCreateActivity.class));
+                            startActivity(new Intent(getContext(), GroupCreateActivity.class).putExtra(GroupCreateActivity.AGM_SELECT_UID, ""+fUserInfo.getUid()));
                         }
                     });
                     break;
