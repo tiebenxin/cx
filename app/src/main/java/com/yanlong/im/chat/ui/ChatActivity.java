@@ -138,8 +138,8 @@ import retrofit2.Response;
 
 public class ChatActivity extends AppActivity implements ICellEventListener {
     private static String TAG = "ChatActivity";
-    //返回需要刷新的
-    public static final int REQ_REFRESH = 7779;
+    //返回需要刷新的 8.19 取消自动刷新
+   // public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
@@ -430,8 +430,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onRight() {
                 if (isGroup()) {//群聊,单聊
-                    startActivityForResult(new Intent(getContext(), GroupInfoActivity.class)
-                            .putExtra(GroupInfoActivity.AGM_GID, toGid), REQ_REFRESH
+                    startActivity(new Intent(getContext(), GroupInfoActivity.class)
+                            .putExtra(GroupInfoActivity.AGM_GID, toGid)
                     );
                 } else {
                     if (toUId == 1L) {
@@ -439,8 +439,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 .putExtra(UserInfoActivity.ID, toUId)
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
                     } else {
-                        startActivityForResult(new Intent(getContext(), ChatInfoActivity.class)
-                                .putExtra(ChatInfoActivity.AGM_FUID, toUId), REQ_REFRESH
+                        startActivity(new Intent(getContext(), ChatInfoActivity.class)
+                                .putExtra(ChatInfoActivity.AGM_FUID, toUId)
                         );
                     }
 
@@ -1091,13 +1091,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         EventBus.getDefault().register(this);
         findViews();
         initEvent();
+        initData();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+    private void initData() {
         taskRefreshMessage();
     }
+
 
     @Override
     protected void onResume() {
@@ -1195,10 +1195,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), "向你推荐一个人");
             showSendObj(msgAllbean);
-        } else if (resultCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
+        }/* else if (resultCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
             mks.clear();
             taskRefreshMessage();
-        }
+        }*/
     }
 
 

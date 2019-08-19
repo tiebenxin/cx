@@ -160,7 +160,7 @@ public class ChatInfoActivity extends AppActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        setResult(ChatActivity.REQ_REFRESH);
+//        setResult(ChatActivity.REQ_REFRESH);
     }
 
     @Override
