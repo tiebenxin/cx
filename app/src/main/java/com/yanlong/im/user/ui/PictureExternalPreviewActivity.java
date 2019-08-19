@@ -313,12 +313,14 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 boolean readStat = msgDao.ImgReadStatGet(imgpath);
 
                 imgLargeEvent(txtBig, imgLarge, imgpath);
-                imgDownloadEvent(ivDownload, imgpath);
+
 
                 if (readStat) {//原图已读,就显示
                     txtBig.setVisibility(View.GONE);
                     txtBig.callOnClick();
+                    imgDownloadEvent(ivDownload,null, imgpath);
                 } else {
+                    imgDownloadEvent(ivDownload,txtBig, imgpath);
                     txtBig.setVisibility(View.VISIBLE);
                     txtBig.setText("查看原图(" + ImgSizeUtil.formatFileSize(images.get(position).getSize()) + ")");
                 }
@@ -327,7 +329,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             } else {
                 txtBig.setVisibility(View.GONE);
                 ivDownload.setVisibility(View.GONE);
-                imgDownloadEvent(ivDownload, path);
+                imgDownloadEvent(ivDownload,null, path);
 
             }
 
@@ -336,11 +338,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             return contentView;
         }
 
-        private void imgDownloadEvent(ImageView ivDownload, final String imgPath) {
+        private void imgDownloadEvent(ImageView ivDownload, final View txtBig, final String imgPath) {
             ivDownload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     saveImage(imgPath);
+                    if(txtBig!=null)
+                    txtBig.callOnClick();
                 }
             });
 
