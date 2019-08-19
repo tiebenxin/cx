@@ -2,9 +2,6 @@ package com.yanlong.im.chat.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -16,8 +13,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
@@ -189,17 +184,14 @@ public class ChatCellImage extends ChatCellBase {
 
     public void updateProgress(@ChatEnum.ESendStatus int status, int progress) {
         loadImage(model);
-        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "发送状态=" + status + "--发送进度=" + progress);
+//        LogUtil.getLog().i(ChatCellImage.class.getSimpleName(), "发送状态=" + status + "--发送进度=" + progress);
         if (ll_progress != null && progressBar != null && tv_progress != null) {
             checkSendStatus();
-            if (status == ChatEnum.ESendStatus.NORMAL) {
-                if (progress > 0 && progress < 100) {
-                    ll_progress.setVisibility(View.VISIBLE);
+            if (progress > 0 && progress < 100) {
+                ll_progress.setVisibility(View.VISIBLE);
 //                setSendStatus();
-                    tv_progress.setText(progress + "%");
-                } else {
-                    ll_progress.setVisibility(View.GONE);
-                }
+//                tv_progress.setVisibility(VISIBLE);
+                tv_progress.setText(progress + "%");
             } else {
                 ll_progress.setVisibility(View.GONE);
             }

@@ -52,6 +52,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -96,6 +97,7 @@ import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
@@ -187,7 +189,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private int lastOffset = -1;
     private int lastPosition = -1;
     private boolean isNewAdapter = false;
-//    private boolean canScrollBottom = true;//是否能滑动到底部;
 
 
     private boolean isGroup() {
@@ -218,6 +219,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgNotice note = new MsgNotice();
                         note.setNote("消息发送成功,但对方已拒收");
                         notbean.setMsgNotice(note);
+
 
                         msgListData.add(notbean);
 
@@ -836,8 +838,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         //得到该View的数组位置
                         lastPosition = layoutManager.getPosition(topView);
                     }
+                    saveScrollPosition();
                 }
-                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+//                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
             }
         });
 
@@ -875,6 +878,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
     }
+
+    private void saveScrollPosition() {
+        if (lastPosition > 0) {
+            SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
+            ScrollConfig config = new ScrollConfig();
+            config.setUserId(UserAction.getMyId());
+            if (toUId == null) {
+                config.setChatId(toGid);
+            } else {
+                config.setUid(toUId);
+            }
+            config.setLastPosition(lastPosition);
+            config.setLastOffset(lastPosition);
+            sp.save2Json(config, "scroll_config");
+        }
+
+    }
+
+    private void clearScrollPosition() {
+        SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
+        sp.clear();
+    }
+
 
     private void initAdapter() {
         messageAdapter = new MessageAdapter(this, this, isGroup());
@@ -963,9 +989,38 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 mtListView.getListView().scrollToPosition(length);
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
-                    mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+                    if (isCanScrollBottom()) {
+                        mtListView.getListView().scrollToPosition(length);
+                    } else {
+                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+                    }
                 } else {
-                    mtListView.getListView().scrollToPosition(length);
+                    SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
+                    if (sp != null) {
+                        ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
+                        if (config != null) {
+                            if (config.getUserId() == UserAction.getMyId()) {
+                                if (config.getUid() > 0 && config.getUid() == toUId) {
+                                    lastPosition = config.getLastPosition();
+                                    lastOffset = config.getLastOffset();
+                                } else if (!TextUtils.isEmpty(config.getChatId()) && config.getChatId().equals(toGid)) {
+                                    lastPosition = config.getLastPosition();
+                                    lastOffset = config.getLastOffset();
+                                }
+                            }
+                        }
+                    }
+                    LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+                    if (lastPosition >= 0 && lastPosition < length) {
+                        if (isCanScrollBottom()) {
+                            mtListView.getListView().scrollToPosition(length);
+                        } else {
+                            mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+                        }
+//                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+                    } else {
+                        mtListView.getListView().scrollToPosition(length);
+                    }
                 }
             }
         }
@@ -997,6 +1052,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         taskCleanRead();
         AudioPlayManager.getInstance().stopPlay();
         Log.v(TAG, "onBackPressed");
+        clearScrollPosition();
         super.onBackPressed();
         //oppo 手机 调用 onBackPressed不会finish
         finish();
@@ -1523,7 +1579,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-                        }else{
+                        } else {
                             holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
                                     msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
                         }
@@ -2399,6 +2455,54 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
+    }
+
+    private boolean isCanScrollBottom() {
+        if (lastPosition < 0) {
+            SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
+            if (sp != null) {
+                ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
+                if (config != null) {
+                    if (config.getUserId() == UserAction.getMyId()) {
+                        if (config.getUid() > 0 && config.getUid() == toUId) {
+                            lastPosition = config.getLastPosition();
+                            lastOffset = config.getLastOffset();
+                        } else if (!TextUtils.isEmpty(config.getChatId()) && config.getChatId().equals(toGid)) {
+                            lastPosition = config.getLastPosition();
+                            lastOffset = config.getLastOffset();
+                        }
+                    }
+                }
+            }
+        }
+        if (lastPosition >= 0) {
+            int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
+            int size = msgListData.size();
+            int start = size - 1;
+            int height = 0;
+            for (int i = start; i > lastPosition; i--) {
+                View view = mtListView.getListView().getChildAt(start);
+                if (view == null) {
+                    break;
+                }
+                int w = View.MeasureSpec.makeMeasureSpec(ScreenUtils.getScreenWidth(this), View.MeasureSpec.EXACTLY);
+                int h = View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.UNSPECIFIED);
+                view.measure(w, h);
+                if (height + lastOffset < targetHeight) {
+                    height += view.getMeasuredHeight();
+                } else {
+                    //当滑动距离高于屏幕高度的一般，终止当前循环
+                    break;
+                }
+                LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "lastPosition=" + lastPosition + "--height=" + height);
+                if (height + lastOffset < targetHeight) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
 
