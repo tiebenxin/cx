@@ -326,6 +326,26 @@
             </LinearLayout>
 
 
+            <LinearLayout style="@style/app_layout_list2">
+
+                <LinearLayout
+                    android:id="@+id/view_complaint"
+                    style="@style/app_layout_list2_item">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:text="投诉" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/btn_del"
                 style="@style/app_btn_white"

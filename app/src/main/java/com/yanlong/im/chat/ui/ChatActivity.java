@@ -615,7 +615,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
 
-                //   ToastUtil.show(getContext(), "显示红包");
                 taskPayRb();
 
 
@@ -1446,22 +1445,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
 
-    private List<HtmlBean> htmlTransition(String html) {
-        List<HtmlBean> list = new ArrayList<>();
-        Document doc = Jsoup.parse(html);
-        Elements fonts = doc.select("font");
-        for (Element element : fonts) {
-            HtmlBean bean = new HtmlBean();
-            String id = element.id();
-            String name = element.text();
-            bean.setId(id);
-            bean.setName(name);
-            list.add(bean);
-        }
-        return list;
-    }
-
-
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
@@ -1547,7 +1530,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 holder.viewChatItem.setHeadOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        edtChat.addAtSpan("@", msgbean.getFrom_nickname(), msgbean.getFrom_uid());
+                        edtChat.addAtSpan("@", msgbean.getFrom_user().getName(), msgbean.getFrom_uid());
                         return true;
                     }
                 });
@@ -1578,10 +1561,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();
-
             switch (msgbean.getMsg_type()) {
                 case 0:
                     if (msgbean.getMsgNotice() != null) {
+                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         } else {
@@ -1615,10 +1598,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 case 3:
                     menus.add(new OptionMenu("删除"));
-
                     RedEnvelopeMessage rb = msgbean.getRed_envelope();
-
-
                     Boolean isInvalid = rb.getIsInvalid() == 0 ? false : true;
                     String info = isInvalid ? "已领取" : "领取红包";
                     String title = msgbean.getRed_envelope().getComment();
