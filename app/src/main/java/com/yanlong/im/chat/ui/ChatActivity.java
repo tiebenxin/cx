@@ -844,7 +844,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     saveScrollPosition();
                 }
-                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+//                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
             }
         });
 
@@ -996,10 +996,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 mtListView.getListView().scrollToPosition(length);
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
-                    if (isCanScrollBottom() || mtListView.getListView().canScrollVertically(1)) {
+                    if (mtListView.getListView().canScrollVertically(1) || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
                         mtListView.getListView().scrollToPosition(length);
                     } else {
-                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+//                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
                         mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                     }
                 } else {
@@ -1019,7 +1019,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
                     if (lastPosition >= 0 && lastPosition < length) {
-                        if (isCanScrollBottom() || mtListView.getListView().canScrollVertically(1)) {
+                        if (mtListView.getListView().canScrollVertically(1) || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
                             mtListView.getListView().scrollToPosition(length);
                         } else {
                             mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
@@ -2545,7 +2545,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //当滑动距离高于屏幕高度的一般，终止当前循环
                     break;
                 }
-                LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "isCanScrollBottom -- lastPosition=" + lastPosition + "--height=" + height);
+//                LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "isCanScrollBottom -- lastPosition=" + lastPosition + "--height=" + height);
                 if (height + lastOffset < targetHeight) {
                     return true;
                 } else {
