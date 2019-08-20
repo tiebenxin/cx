@@ -221,10 +221,11 @@
                     android:id="@+id/view_ot_5"
                     android:layout_width="211dp"
                     android:layout_height="90dp"
-                    android:background="@drawable/bg_chat_other_card"
+                    android:background="@drawable/selector_card_other_touch"
                     android:orientation="vertical"
                     android:visibility="visible">
                     <!--selector_card_other_touch-->
+                    <!--bg_chat_other_card-->
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -616,11 +617,12 @@
                         android:id="@+id/view_me_5"
                         android:layout_width="211dp"
                         android:layout_height="90dp"
-                        android:background="@drawable/bg_chat_me_card"
+                        android:background="@drawable/selector_card_me_touch"
                         android:orientation="vertical"
                         android:visibility="visible">
 
                         <!--selector_card_me_touch-->
+                        <!--bg_chat_me_card-->
 
                         <LinearLayout
                             android:layout_width="match_parent"
