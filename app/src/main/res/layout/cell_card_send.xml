@@ -71,7 +71,7 @@
                     android:id="@+id/ll_bubble"
                     android:layout_width="211dp"
                     android:layout_height="90dp"
-                    android:background="@drawable/bg_chat_me_card"
+                    android:background="@drawable/selector_card_me_touch"
                     android:gravity="right|center_vertical"
                     android:orientation="vertical"
                     android:visibility="visible">

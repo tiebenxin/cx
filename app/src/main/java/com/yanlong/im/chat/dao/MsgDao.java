@@ -249,7 +249,7 @@ public class MsgDao {
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
-        RealmResults list = realm.where(MsgAllBean.class).equalTo("gid", "").beginGroup()
+        RealmResults list = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and().beginGroup()
                 .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                 //   .lessThan("timestamp",time)
                 .greaterThanOrEqualTo("timestamp", stime)

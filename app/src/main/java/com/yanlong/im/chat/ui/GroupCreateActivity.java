@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -23,20 +24,17 @@ import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.BtnClickUtil;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -48,7 +46,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -63,6 +60,8 @@ public class GroupCreateActivity extends AppActivity {
     private android.support.v7.widget.RecyclerView topListView;
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
+    public static final String AGM_SELECT_UID = "select_uid";
+    private String select_uid;
 
     //自动寻找控件
     private void findViews() {
@@ -77,6 +76,7 @@ public class GroupCreateActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
+        select_uid =getIntent().getStringExtra(AGM_SELECT_UID);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -170,6 +170,20 @@ public class GroupCreateActivity extends AppActivity {
                     topListView.getAdapter().notifyDataSetChanged();
                 }
             });
+            //8.19 已选择用户处理
+            if(StringUtil.isNotNull(select_uid)&& select_uid.equals(""+bean.getUid())){
+
+                if( !listData.get(position).isChecked()){
+
+                    hd.ckSelect.setChecked(true);
+                }
+
+                hd.itemView.setAlpha(0.3f);
+                hd.ckSelect.setEnabled(false);
+            }else{
+                hd.itemView.setAlpha(1f);
+                hd.ckSelect.setEnabled(true);
+            }
 
 
         }
@@ -218,7 +232,7 @@ public class GroupCreateActivity extends AppActivity {
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
 
-            //6.20 内存消耗过大
+
             holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
 
             //  showThumb( holder.imgHead,listDataTop.get(position).getHead(),10,10);

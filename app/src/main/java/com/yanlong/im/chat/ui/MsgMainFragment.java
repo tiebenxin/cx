@@ -207,7 +207,7 @@ public class MsgMainFragment extends Fragment {
 
 
                                 }
-                            }, 1 * 1000);
+                            }, 10 * 1000);
                         }
 
 
@@ -306,7 +306,7 @@ public class MsgMainFragment extends Fragment {
     public void onStart() {
         super.onStart();
         //7.18 进来的时候显示有网的状态
-        socketEvent.onLine(true);
+      //  socketEvent.onLine(true);
     }
 
     @Override
