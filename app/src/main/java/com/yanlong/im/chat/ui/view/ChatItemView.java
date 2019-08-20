@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.provider.Browser;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
@@ -46,10 +45,6 @@ import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 
 public class ChatItemView extends LinearLayout {
@@ -381,17 +376,17 @@ public class ChatItemView extends LinearLayout {
         if (isInvalid) {//失效
             imgMeRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
             imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
-            viewMe3.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
-            viewOt3.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
-//            viewMe3.setBackgroundResource(R.drawable.selector_rp_h_me_touch);
-//            viewOt3.setBackgroundResource(R.drawable.selector_rp_h_other_touch);
+//            viewMe3.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
+//            viewOt3.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
+            viewMe3.setBackgroundResource(R.drawable.selector_rp_h_me_touch);
+            viewOt3.setBackgroundResource(R.drawable.selector_rp_h_other_touch);
         } else {
             imgMeRbState.setImageResource(R.mipmap.ic_rb_zfb_un);
             imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_un);
-            viewMe3.setBackgroundResource(R.drawable.bg_chat_me_rp);
-            viewOt3.setBackgroundResource(R.drawable.bg_chat_other_rp);
-//            viewMe3.setBackgroundResource(R.drawable.selector_rp_me_touch);
-//            viewOt3.setBackgroundResource(R.drawable.selector_rp_other_touch);
+//            viewMe3.setBackgroundResource(R.drawable.bg_chat_me_rp);
+//            viewOt3.setBackgroundResource(R.drawable.bg_chat_other_rp);
+            viewMe3.setBackgroundResource(R.drawable.selector_rp_me_touch);
+            viewOt3.setBackgroundResource(R.drawable.selector_rp_other_touch);
         }
 
         if (eventRP != null) {

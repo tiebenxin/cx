@@ -48,7 +48,6 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
-import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -117,10 +116,6 @@ import net.cb.cb.library.view.MultiListView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -138,6 +133,8 @@ import me.kareluo.ui.OptionMenuView;
 import me.kareluo.ui.PopupMenuView;
 import retrofit2.Call;
 import retrofit2.Response;
+
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 
 public class ChatActivity extends AppActivity implements ICellEventListener {
     private static String TAG = "ChatActivity";
@@ -193,6 +190,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private int lastPosition = -1;
     private boolean isNewAdapter = false;
     private int preTotalSize = 0;//刷新前，总item数
+    private boolean isSoftShow;
+    private Map<Integer, View> viewMap = new HashMap<>();
 
 
     private boolean isGroup() {
@@ -218,6 +217,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                        /* MsgAllBean notbean = new MsgAllBean();
                         notbean.setMsg_type(0);
                         notbean.setTimestamp(bean.getTimestamp());
+
                         notbean.setFrom_uid(UserAction.getMyId());
 
                         MsgNotice note = new MsgNotice();
@@ -284,6 +284,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "需要刷新");
                         taskRefreshMessage();
 //                        taskNewMessage();
+
                     }
 
                 }
@@ -867,18 +868,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager != null) {
-                    //获取可视的第一个view
-                    lastPosition = layoutManager.findLastVisibleItemPosition();
-                    View topView = layoutManager.getChildAt(lastPosition);
-                    if (topView != null) {
-                        //获取与该view的底部的偏移量
-                        lastOffset = topView.getBottom();
-                        //得到该View的数组位置
-//                        lastPosition = layoutManager.getPosition(topView);
+                if (newState == SCROLL_STATE_IDLE) {
+
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager != null) {
+                        //获取可视的第一个view
+                        lastPosition = layoutManager.findLastVisibleItemPosition();
+                        View topView = layoutManager.getChildAt(lastPosition);
+                        if (topView != null) {
+                            //获取与该view的底部的偏移量
+                            lastOffset = topView.getBottom();
+                        }
+                        saveScrollPosition();
                     }
-                    saveScrollPosition();
                 }
 //                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
             }
@@ -896,13 +898,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 btnEmj.setImageLevel(0);
                 showEndMsg();
+                isSoftShow = true;
             }
 
             @Override
             public void keyBoardHide(int h) {
                 viewChatBottom.setPadding(0, 0, 0, 0);
-
-
+                isSoftShow = false;
             }
         });
 
@@ -1031,12 +1033,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (isMustBottom) {
                 mtListView.getListView().scrollToPosition(length);
             } else {
-
                 if (lastPosition >= 0 && lastPosition < length) {
-                    if (isCanScrollBottom() && mtListView.getListView().canScrollVertically(1)) {
+                    //!mtListView.getListView().canScrollVertically(1) 不怎么有效
+                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         mtListView.getListView().scrollToPosition(length);
                     } else {
-                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+//                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+//                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                     }
                 } else {
                     SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -1054,11 +1057,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
                         }
                     }
-                    LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
                     if (lastPosition >= 0 && lastPosition < length) {
-                        if (isCanScrollBottom() && mtListView.getListView().canScrollVertically(1)) {
+                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
                             mtListView.getListView().scrollToPosition(length);
                         } else {
+
                             mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                         }
                     } else {
@@ -1202,7 +1205,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
                         startService(new Intent(getContext(), UpLoadService.class));
                     }
-                    notifyData2Bottom();
+                    notifyData2Bottom(true);
 
 
                     break;
@@ -1494,7 +1497,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         @Override
         public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
-
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
@@ -1529,6 +1531,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
+            viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
 
             //时间戳合并
@@ -2019,9 +2022,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         menuView.show(v);
     }
 
-    private void notifyData2Bottom() {
+    private void notifyData2Bottom(boolean isScrollBottom) {
         notifyData();
-        scrollListView(false);
+        scrollListView(isScrollBottom);
     }
 
     private void notifyData() {
@@ -2095,6 +2098,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 //        preTotalSize = length;
         final long finalTime = time;
+        if (length < 20) {
+            length += 20;
+        }
         final int finalLength = length;
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
@@ -2116,14 +2122,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
-                        notifyData2Bottom();
+                        int len = list.size();
+                        if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
+                            lastPosition = 0;
+                            lastOffset = 0;
+                            clearScrollPosition();
+                        }
+                        notifyData2Bottom(false);
 //                        notifyData();
                     }
                 });
 
     }
-
-    //  private boolean flag_isHistory = false;
 
     /***
      * 查询历史
@@ -2538,6 +2548,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         });
     }
 
+    /*
+     * 判断是否滑动过屏幕一般高度
+     * */
     private boolean isCanScrollBottom() {
         if (lastPosition < 0) {
             SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -2559,10 +2572,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = msgListData.size();
-            int start = size - 1;
+//            int start = size - 1;
             int height = 0;
-            for (int i = start; i > lastPosition; i--) {
-                View view = mtListView.getListView().getChildAt(start);
+            for (int i = lastPosition; i < size - 1; i++) {
+//                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item
+                View view;
+                if (isNewAdapter) {
+                    view = messageAdapter.getItemViewByPosition(i);
+                } else {
+                    view = getViewByPosition(i);
+                }
                 if (view == null) {
                     break;
                 }
@@ -2575,15 +2594,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //当滑动距离高于屏幕高度的一般，终止当前循环
                     break;
                 }
-                LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "lastPosition=" + lastPosition + "--height=" + height);
-                if (height + lastOffset < targetHeight) {
-                    return true;
-                } else {
-                    return false;
-                }
+//                LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "isCanScrollBottom -- lastPosition=" + lastPosition + "--height=" + height);
+            }
+            if (height + lastOffset <= targetHeight) {
+                return true;
             }
         }
         return false;
+    }
+
+    private View getViewByPosition(int position) {
+        if (!viewMap.isEmpty()) {
+            return viewMap.get(position);
+        }
+        return null;
     }
 
 

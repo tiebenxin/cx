@@ -28,7 +28,7 @@ import me.kareluo.ui.OptionMenu;
 
 import static android.view.View.VISIBLE;
 
-public abstract class ChatCellBase extends RecyclerView.ViewHolder implements View.OnClickListener, IMenuSelectListener {
+public abstract class ChatCellBase extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public final ICellEventListener mCellListener;
     private final View viewRoot;
@@ -42,6 +42,13 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private ImageView iv_error;
     public View bubbleLayout;
     private List<OptionMenu> menus;
+
+    IMenuSelectListener menuListener = new IMenuSelectListener() {
+        @Override
+        public void onSelected() {
+            updateSelectedBG(false);
+        }
+    };
 
     @ChatEnum.EMessageType
     int messageType;
@@ -80,7 +87,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                 public boolean onLongClick(View v) {
                     if (mCellListener != null) {
                         updateSelectedBG(true);
-                        mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, menus, bubbleLayout,this);
+                        mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, menus, bubbleLayout, menuListener);
                     }
                     return true;
                 }
@@ -332,8 +339,4 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         }
     }
 
-    @Override
-    public void onSelected() {
-        updateSelectedBG(false);
-    }
 }
