@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.provider.Browser;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
@@ -46,10 +45,6 @@ import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 
 public class ChatItemView extends LinearLayout {

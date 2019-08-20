@@ -217,6 +217,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                        /* MsgAllBean notbean = new MsgAllBean();
                         notbean.setMsg_type(0);
                         notbean.setTimestamp(bean.getTimestamp());
+
                         notbean.setFrom_uid(UserAction.getMyId());
 
                         MsgNotice note = new MsgNotice();
@@ -1165,7 +1166,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
                         startService(new Intent(getContext(), UpLoadService.class));
                     }
-                    notifyData2Bottom();
+                    notifyData2Bottom(true);
 
 
                     break;
@@ -1982,9 +1983,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         menuView.show(v);
     }
 
-    private void notifyData2Bottom() {
+    private void notifyData2Bottom(boolean isScrollBottom) {
         notifyData();
-        scrollListView(false);
+        scrollListView(isScrollBottom);
     }
 
     private void notifyData() {
@@ -2082,7 +2083,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
-                        notifyData2Bottom();
+                        notifyData2Bottom(false);
 //                        notifyData();
                     }
                 });
