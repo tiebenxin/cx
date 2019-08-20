@@ -138,6 +138,20 @@ public class MsgAction {
         return dao.getMsg4User(uid, time);
     }
 
+
+    /*
+     * @param gid 群id
+     * @param uid 私聊用户id
+     * @param time 截止时间
+     * @param size 需要数据size
+     * */
+    public List<MsgAllBean> getMsg4User(String gid, Long uid, Long time, int size) {
+        if (StringUtil.isNotNull(gid)) {
+            return dao.getMsg4Group(gid, time, size);
+        }
+        return dao.getMsg4User(uid, time, size);
+    }
+
     /***
      * 获取全部图片
      * @param gid
@@ -178,14 +192,14 @@ public class MsgAction {
 
                         response.body().getData().setUsers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
                         //8.8 取消从数据库里读取群成员信息
-                       for(UserInfo userInfo: response.body().getData().getUsers()) {
-                           GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-                           if(link!=null){
-                               userInfo.setMembername(link.getMembername());
-                           }
+                        for (UserInfo userInfo : response.body().getData().getUsers()) {
+                            GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+                            if (link != null) {
+                                userInfo.setMembername(link.getMembername());
+                            }
 
 
-                       }
+                        }
 
 
                     }
@@ -226,13 +240,11 @@ public class MsgAction {
     }
 
 
-
-
     /**
      * 获取群信息
-     * */
+     */
     public void groupInfo4UserInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
-        NetUtil.getNet().exec(server.groupInfo(gid),callback);
+        NetUtil.getNet().exec(server.groupInfo(gid), callback);
     }
 
     /***

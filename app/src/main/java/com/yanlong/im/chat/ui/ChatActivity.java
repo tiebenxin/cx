@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -58,6 +59,7 @@ import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
@@ -139,7 +141,7 @@ import retrofit2.Response;
 public class ChatActivity extends AppActivity implements ICellEventListener {
     private static String TAG = "ChatActivity";
     //返回需要刷新的 8.19 取消自动刷新
-   // public static final int REQ_REFRESH = 7779;
+    // public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
@@ -189,6 +191,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private int lastOffset = -1;
     private int lastPosition = -1;
     private boolean isNewAdapter = false;
+    private int preTotalSize = 0;//刷新前，总item数
 
 
     private boolean isGroup() {
@@ -279,6 +282,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (needRefresh) {
                         LogUtil.getLog().i(TAG, "需要刷新");
                         taskRefreshMessage();
+//                        taskNewMessage();
                     }
 
                 }
@@ -839,7 +843,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     saveScrollPosition();
                 }
-                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+//                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
             }
         });
 
@@ -890,6 +894,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             config.setLastPosition(lastPosition);
             config.setLastOffset(lastPosition);
+            if (msgListData != null) {
+                config.setTotalSize(msgListData.size());
+            }
             sp.save2Json(config, "scroll_config");
         }
 
@@ -983,10 +990,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * */
     private void scrollListView(boolean isMustBottom) {
         if (msgListData != null) {
-            int length = msgListData.size();
+            int length = msgListData.size();//刷新后当前size；
             if (isMustBottom) {
                 mtListView.getListView().scrollToPosition(length);
             } else {
+
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isCanScrollBottom() && mtListView.getListView().canScrollVertically(1)) {
                         mtListView.getListView().scrollToPosition(length);
@@ -1016,7 +1024,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else {
                             mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                         }
-//                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                     } else {
                         mtListView.getListView().scrollToPosition(length);
                     }
@@ -1376,8 +1383,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case ChatEnum.ECellEventType.LONG_CLICK:
                 List<OptionMenu> menus = (List<OptionMenu>) args[0];
                 View view = (View) args[1];
+                IMenuSelectListener listener = (IMenuSelectListener) args[2];
                 if (view != null && menus != null && menus.size() > 0) {
-                    showPop(view, menus, message);
+                    showPop(view, menus, message, listener);
                 }
                 break;
             case ChatEnum.ECellEventType.TRANSFER_CLICK:
@@ -1830,11 +1838,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
          * @param msgbean
          * @param menus
          */
-        private void itemLongClick(RCViewHolder holder, final MsgAllBean msgbean, final List<OptionMenu> menus) {
+        private void itemLongClick(final RCViewHolder holder, final MsgAllBean msgbean, final List<OptionMenu> menus) {
             holder.viewChatItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-
+                    holder.viewChatItem.selectTextBubble(true);
                     // ToastUtil.show(getContext(),"长按");
                     if (msgbean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//为语音单独处理
                         menus.clear();
@@ -1864,7 +1872,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
                         }
 
-                        showPop(v, menus, msgbean);
+                        showPop(v, menus, msgbean, new IMenuSelectListener() {
+                            @Override
+                            public void onSelected() {
+                                holder.viewChatItem.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        holder.viewChatItem.selectTextBubble(false);
+                                    }
+                                }, 100);
+                            }
+                        });
                     }
 
                     return true;
@@ -1901,7 +1919,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * @param menus
      * @param msgbean
      */
-    private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean) {
+    private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean, final IMenuSelectListener listener) {
         //禁止滑动
         //mtListView.getListView().setNestedScrollingEnabled(true);
 
@@ -1912,6 +1930,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public boolean onOptionMenuClick(int position, OptionMenu menu) {
                 //放开滑动
                 // mtListView.getListView().setNestedScrollingEnabled(true);
+                if (listener != null) {
+                    listener.onSelected();
+                }
 
 
                 if (menu.getTitle().equals("删除")) {
@@ -1966,6 +1987,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
+        menuView.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                if (listener != null) {
+                    listener.onSelected();
+                }
+                menuView.dismiss();
+
+            }
+        });
+
         menuView.show(v);
     }
 
@@ -1976,8 +2008,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void notifyData() {
         if (isNewAdapter) {
-            messageAdapter.bindData(msgListData, currentPager);
-            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "currentPager=" + currentPager);
+            messageAdapter.bindData(msgListData);
+//            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "currentPager=" + currentPager);
         }
         mtListView.notifyDataSetChange();
     }
@@ -2034,11 +2066,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @SuppressLint("CheckResult")
     private void taskRefreshMessage() {
         //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
+        long time = -1L;
+        int length = 0;
+        if (msgListData != null && msgListData.size() > 0) {
+            length = msgListData.size();
+            MsgAllBean bean = msgListData.get(length - 1);
+            if (bean != null && bean.getTimestamp() != null) {
+                time = bean.getTimestamp();
+            }
+        }
+//        preTotalSize = length;
+        final long finalTime = time;
+        final int finalLength = length;
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
                     @Override
                     public List<MsgAllBean> apply(Integer integer) throws Exception {
-                        List<MsgAllBean> list = msgAction.getMsg4User(toGid, toUId, null);
+                        List<MsgAllBean> list = null;
+                        if (finalTime > 0) {
+                            list = msgAction.getMsg4User(toGid, toUId, null, finalLength);
+                        } else {
+                            list = msgAction.getMsg4User(toGid, toUId, null, 20);
+                        }
                         taskMkName(list);
                         return list;
                     }
@@ -2086,16 +2135,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
         if (msgListData.size() >= 20) {
             msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp()));
-            currentPager++;
+//            currentPager++;
 
         } else {
             msgListData = msgAction.getMsg4User(toGid, toUId, null);
-            currentPager = 0;
+//            currentPager = 0;
         }
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
         notifyData();
+        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "size=" + msgListData.size());
 
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context, 20f));
 
