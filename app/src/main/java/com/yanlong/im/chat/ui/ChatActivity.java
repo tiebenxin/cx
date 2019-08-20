@@ -996,11 +996,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     //!mtListView.getListView().canScrollVertically(1) 不怎么有效
-                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
+                    if (isSoftShow || lastPosition == length - 1 /*|| isCanScrollBottom()*/) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         mtListView.getListView().scrollToPosition(length);
                     } else {
 //                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
-                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
+//                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                     }
                 } else {
                     SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -1019,9 +1019,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
                     if (lastPosition >= 0 && lastPosition < length) {
-                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
+                        if (isSoftShow || lastPosition == length - 1 /*|| isCanScrollBottom()*/) {//允许滑动到底部，或者当前处于底部
                             mtListView.getListView().scrollToPosition(length);
                         } else {
+
                             mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                         }
                     } else {
@@ -1449,6 +1450,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
+        private Map<Integer, View> viewMap = new HashMap<>();
+
         @Override
         public int getItemCount() {
             return msgListData == null ? 0 : msgListData.size();
@@ -1457,7 +1460,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         @Override
         public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
-
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
@@ -2529,12 +2531,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = msgListData.size();
-            int start = size - 1;
+//            int start = size - 1;
             int height = 0;
-            for (int i = start; i > lastPosition; i--) {
-//                View view = mtListView.getListView().getChildAt(start);//只能获取屏幕中可见item
-                View view = mtListView.getLayoutManager().getChildAt(start);
-//                mtListView.getListView().getAdapter().
+            for (int i = lastPosition; i < size - 1; i++) {
+                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item
                 if (view == null) {
                     break;
                 }
@@ -2548,11 +2548,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 }
 //                LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "isCanScrollBottom -- lastPosition=" + lastPosition + "--height=" + height);
-                if (height + lastOffset < targetHeight) {
-                    return true;
-                } else {
-                    return false;
-                }
+            }
+            if (height + lastOffset >= targetHeight) {
+                return true;
             }
         }
         return false;
