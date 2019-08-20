@@ -283,6 +283,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "需要刷新");
                         taskRefreshMessage();
 //                        taskNewMessage();
+
                     }
 
                 }
@@ -2057,6 +2058,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 //        preTotalSize = length;
         final long finalTime = time;
+        if (length < 20) {
+            length += 20;
+        }
         final int finalLength = length;
         Observable.just(0)
                 .map(new Function<Integer, List<MsgAllBean>>() {
