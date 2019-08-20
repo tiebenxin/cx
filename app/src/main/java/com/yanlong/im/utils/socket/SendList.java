@@ -87,10 +87,12 @@ public class SendList {
             String kid = entry.getKey();
             SendListBean bean = entry.getValue();
 
-            if (bean.getReSendNum() < SEND_MAX_NUM) { //在正常发送范围之内
+            if (bean.getReSendNum() <= SEND_MAX_NUM) { //在正常发送范围之内
                 if (now > (bean.getFirstTimeSent() + bean.getReSendNum() * SEND_RE_TIME)) {
-                    LogUtil.getLog().e(TAG, ">>>>符合重发条件" + kid);
+                    LogUtil.getLog().e(TAG, ">>>>符合发送条件" + kid);
                     SocketUtil.getSocketUtil().sendData4Msg(bean.getMsg());
+                }else {
+                    LogUtil.getLog().e(TAG, ">>>>符合重发条件但时间不满足" + kid);
                 }
             } else {//超过发送次数,取消队列,返回失败
                 LogUtil.getLog().e(TAG, ">>>>发送条件次数不符合" + kid);
