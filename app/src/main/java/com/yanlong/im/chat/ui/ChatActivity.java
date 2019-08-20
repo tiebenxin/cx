@@ -48,7 +48,6 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
-import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -116,10 +115,6 @@ import net.cb.cb.library.view.MultiListView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -137,6 +132,8 @@ import me.kareluo.ui.OptionMenuView;
 import me.kareluo.ui.PopupMenuView;
 import retrofit2.Call;
 import retrofit2.Response;
+
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 
 public class ChatActivity extends AppActivity implements ICellEventListener {
     private static String TAG = "ChatActivity";
@@ -192,6 +189,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private int lastPosition = -1;
     private boolean isNewAdapter = false;
     private int preTotalSize = 0;//刷新前，总item数
+    private boolean isSoftShow;
 
 
     private boolean isGroup() {
@@ -831,18 +829,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager != null) {
-                    //获取可视的第一个view
-                    lastPosition = layoutManager.findLastVisibleItemPosition();
-                    View topView = layoutManager.getChildAt(lastPosition);
-                    if (topView != null) {
-                        //获取与该view的底部的偏移量
-                        lastOffset = topView.getBottom();
-                        //得到该View的数组位置
-//                        lastPosition = layoutManager.getPosition(topView);
+                if (newState == SCROLL_STATE_IDLE) {
+
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager != null) {
+                        //获取可视的第一个view
+                        lastPosition = layoutManager.findLastVisibleItemPosition();
+                        View topView = layoutManager.getChildAt(lastPosition);
+                        if (topView != null) {
+                            //获取与该view的底部的偏移量
+                            lastOffset = topView.getBottom();
+                        }
+                        saveScrollPosition();
                     }
-                    saveScrollPosition();
                 }
 //                System.out.println("setOnScrollListener:" + "lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
             }
@@ -860,13 +859,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 btnEmj.setImageLevel(0);
                 showEndMsg();
+                isSoftShow = true;
             }
 
             @Override
             public void keyBoardHide(int h) {
                 viewChatBottom.setPadding(0, 0, 0, 0);
-
-
+                isSoftShow = false;
             }
         });
 
@@ -996,7 +995,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 mtListView.getListView().scrollToPosition(length);
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
-                    if (mtListView.getListView().canScrollVertically(1) || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
+                    //!mtListView.getListView().canScrollVertically(1) 不怎么有效
+                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         mtListView.getListView().scrollToPosition(length);
                     } else {
 //                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
@@ -1019,7 +1019,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
                     if (lastPosition >= 0 && lastPosition < length) {
-                        if (mtListView.getListView().canScrollVertically(1) || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
+                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
                             mtListView.getListView().scrollToPosition(length);
                         } else {
                             mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
@@ -2532,7 +2532,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             int start = size - 1;
             int height = 0;
             for (int i = start; i > lastPosition; i--) {
-                View view = mtListView.getListView().getChildAt(start);
+//                View view = mtListView.getListView().getChildAt(start);//只能获取屏幕中可见item
+                View view = mtListView.getLayoutManager().getChildAt(start);
+//                mtListView.getListView().getAdapter().
                 if (view == null) {
                     break;
                 }
