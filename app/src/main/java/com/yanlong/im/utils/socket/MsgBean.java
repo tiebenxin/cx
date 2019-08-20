@@ -3319,39 +3319,23 @@ public final class MsgBean {
                 implements com.google.protobuf.ProtocolMessageEnum {
             /**
              * <pre>
-             * 支付宝红包
-             * </pre>
-             *
-             * <code>ALIPAY = 0;</code>
-             */
-            ALIPAY(0),
-            /**
-             * <pre>
              * 魔方红包
              * </pre>
              *
-             * <code>MFPAY = 1;</code>
+             * <code>MFPAY = 0;</code>
              */
-            MFPAY(1),
+            MFPAY(0),
             UNRECOGNIZED(-1),
             ;
 
             /**
              * <pre>
-             * 支付宝红包
-             * </pre>
-             *
-             * <code>ALIPAY = 0;</code>
-             */
-            public static final int ALIPAY_VALUE = 0;
-            /**
-             * <pre>
              * 魔方红包
              * </pre>
              *
-             * <code>MFPAY = 1;</code>
+             * <code>MFPAY = 0;</code>
              */
-            public static final int MFPAY_VALUE = 1;
+            public static final int MFPAY_VALUE = 0;
 
 
             public final int getNumber() {
@@ -3372,8 +3356,7 @@ public final class MsgBean {
 
             public static RedEnvelopeType forNumber(int value) {
                 switch (value) {
-                    case 0: return ALIPAY;
-                    case 1: return MFPAY;
+                    case 0: return MFPAY;
                     default: return null;
                 }
             }
@@ -3687,7 +3670,7 @@ public final class MsgBean {
             if (!getIdBytes().isEmpty()) {
                 com.google.protobuf.GeneratedMessageV3.writeString(output, 1, id_);
             }
-            if (reType_ != MsgBean.RedEnvelopeMessage.RedEnvelopeType.ALIPAY.getNumber()) {
+            if (reType_ != MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY.getNumber()) {
                 output.writeEnum(2, reType_);
             }
             if (!getCommentBytes().isEmpty()) {
@@ -3706,7 +3689,7 @@ public final class MsgBean {
             if (!getIdBytes().isEmpty()) {
                 size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, id_);
             }
-            if (reType_ != MsgBean.RedEnvelopeMessage.RedEnvelopeType.ALIPAY.getNumber()) {
+            if (reType_ != MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY.getNumber()) {
                 size += com.google.protobuf.CodedOutputStream
                         .computeEnumSize(2, reType_);
             }
@@ -28916,103 +28899,103 @@ public final class MsgBean {
                         "review\030\002 \001(\t\022\021\n\tthumbnail\030\003 \001(\t\022\r\n\005width" +
                         "\030\004 \001(\r\022\016\n\006height\030\005 \001(\r\022\014\n\004size\030\006 \001(\r\"-\n\014" +
                         "VoiceMessage\022\020\n\010duration\030\001 \001(\r\022\013\n\003url\030\002 " +
-                        "\001(\t\"\360\001\n\022RedEnvelopeMessage\022\n\n\002id\030\001 \001(\t\0224" +
+                        "\001(\t\"\344\001\n\022RedEnvelopeMessage\022\n\n\002id\030\001 \001(\t\0224" +
                         "\n\007re_type\030\002 \001(\0162#.RedEnvelopeMessage.Red" +
                         "EnvelopeType\022\017\n\007comment\030\003 \001(\t\0223\n\005style\030\004" +
                         " \001(\0162$.RedEnvelopeMessage.RedEnvelopeSty" +
-                        "le\"(\n\017RedEnvelopeType\022\n\n\006ALIPAY\020\000\022\t\n\005MFP",
-                "AY\020\001\"(\n\020RedEnvelopeStyle\022\n\n\006NORMAL\020\000\022\010\n\004" +
-                        "LUCK\020\001\"\'\n\031ReceiveRedEnvelopeMessage\022\n\n\002i" +
-                        "d\030\001 \001(\t\"J\n\017TransferMessage\022\n\n\002id\030\001 \001(\t\022\032" +
-                        "\n\022transaction_amount\030\002 \001(\t\022\017\n\007comment\030\003 " +
-                        "\001(\t\"\037\n\014StampMessage\022\017\n\007comment\030\001 \001(\t\"U\n\023" +
-                        "BusinessCardMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avat" +
-                        "ar\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\022\017\n\007comment\030\004 " +
-                        "\001(\t\"j\n\tAtMessage\022\"\n\007at_type\030\001 \001(\0162\021.AtMe" +
-                        "ssage.AtType\022\013\n\003uid\030\002 \003(\004\022\013\n\003msg\030\003 \001(\t\"\037" +
-                        "\n\006AtType\022\014\n\010MULTIPLE\020\000\022\007\n\003ALL\020\001\"\037\n\020Assis",
-                "tantMessage\022\013\n\003msg\030\001 \001(\t\"\037\n\rCancelMessag" +
-                        "e\022\016\n\006msg_id\030\001 \001(\t\"&\n\024RequestFriendMessag" +
-                        "e\022\016\n\006say_hi\030\001 \001(\t\"\030\n\026AcceptBeFriendsMess" +
-                        "age\"\025\n\023RemoveFriendMessage\"C\n\022GroupNotic" +
-                        "eMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avatar\030\002 \001(\t\022\020\n" +
-                        "\010nickname\030\003 \001(\t\"E\n\026InviteJoinGroupMessag" +
-                        "e\022+\n\016notice_message\030\001 \001(\0132\023.GroupNoticeM" +
-                        "essage\"\214\001\n\023RequestGroupMessage\022+\n\016notice" +
-                        "_message\030\001 \003(\0132\023.GroupNoticeMessage\022\017\n\007i" +
-                        "nviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGr",
-                "oupType\022\024\n\014inviter_name\030\004 \001(\t\"\215\001\n\024Accept" +
-                        "BeGroupMessage\022+\n\016notice_message\030\001 \003(\0132\023" +
-                        ".GroupNoticeMessage\022\017\n\007inviter\030\002 \001(\004\022!\n\t" +
-                        "join_type\030\003 \001(\0162\016.JoinGroupType\022\024\n\014invit" +
-                        "er_name\030\004 \001(\t\"E\n\030RemoveGroupMemberMessag" +
-                        "e\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003" +
-                        " \001(\t\";\n\030ChangeGroupMasterMessage\022\013\n\003uid\030" +
-                        "\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"&\n\026ChangeGroup" +
-                        "NameMessage\022\014\n\004name\030\001 \001(\t\"6\n\036ChangeGroup" +
-                        "AnnouncementMessage\022\024\n\014announcement\030\001 \001(",
-                "\t\"@\n\023DestroyGroupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n" +
-                        "\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"\021\n\017ConflictM" +
-                        "essage\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 \001(\t\"\215" +
-                        "\001\n\027ActiveStatChangeMessage\0228\n\013active_typ" +
-                        "e\030\001 \001(\0162#.ActiveStatChangeMessage.Active" +
-                        "Type\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiveType\022\013\n" +
-                        "\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"e\n\nAckMessage\022 \n\013" +
-                        "reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nreques" +
-                        "t_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030" +
-                        "\004 \001(\004\"*\n\022AuthRequestMessage\022\024\n\014access_to",
-                "ken\030\001 \001(\t\"\'\n\023AuthResponseMessage\022\020\n\010acce" +
-                        "pted\030\001 \001(\021\"\356\n\n\020UniversalMessage\022\022\n\nreque" +
-                        "st_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221" +
-                        "N \003(\0132\035.UniversalMessage.WrapMessage\032\204\n\n" +
-                        "\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_t" +
-                        "ype\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022" +
-                        "\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickna" +
-                        "me\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmembername\030\010" +
-                        " \001(\t\022\035\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005i" +
-                        "mage\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014red_enve",
-                "lope\030\222N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024re" +
-                        "ceive_red_envelope\030\223N \001(\0132\032.ReceiveRedEn" +
-                        "velopeMessageH\000\022%\n\010transfer\030\224N \001(\0132\020.Tra" +
-                        "nsferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMe" +
-                        "ssageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024.Busine" +
-                        "ssCardMessageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceM" +
-                        "essageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\ta" +
-                        "ssistant\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006" +
-                        "cancel\030\232N \001(\0132\016.CancelMessageH\000\0220\n\016reque" +
-                        "st_friend\030\364N \001(\0132\025.RequestFriendMessageH",
-                "\000\0225\n\021accept_be_friends\030\365N \001(\0132\027.AcceptBe" +
-                        "FriendsMessageH\000\022.\n\rremove_friend\030\366N \001(\013" +
-                        "2\024.RemoveFriendMessageH\000\022.\n\rrequest_grou" +
-                        "p\030\330O \001(\0132\024.RequestGroupMessageH\000\0221\n\017acce" +
-                        "pt_be_group\030\331O \001(\0132\025.AcceptBeGroupMessag" +
-                        "eH\000\0229\n\023remove_group_member\030\332O \001(\0132\031.Remo" +
-                        "veGroupMemberMessageH\000\0229\n\023change_group_m" +
-                        "aster\030\333O \001(\0132\031.ChangeGroupMasterMessageH" +
-                        "\000\0225\n\021change_group_name\030\334O \001(\0132\027.ChangeGr" +
-                        "oupNameMessageH\000\022E\n\031change_group_announc",
-                "ement\030\335O \001(\0132\037.ChangeGroupAnnouncementMe" +
-                        "ssageH\000\022.\n\rdestroy_group\030\336O \001(\0132\024.Destro" +
-                        "yGroupMessageH\000\022&\n\tout_group\030\342O \001(\0132\020.Ou" +
-                        "tGroupMessageH\000\022%\n\010conflict\030\274P \001(\0132\020.Con" +
-                        "flictMessageH\000\0227\n\022active_stat_change\030\275P " +
-                        "\001(\0132\030.ActiveStatChangeMessageH\000B\n\n\010real_" +
-                        "msg*\302\003\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001" +
-                        "\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVEL" +
-                        "OPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSIN" +
-                        "ESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTA",
-                "NT\020\t\022\n\n\006CANCEL\020\n\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021" +
-                        "ACCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021" +
-                        "\n\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027" +
-                        "\n\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_" +
-                        "MASTER\020j\022\025\n\021CHANGE_GROUP_NAME\020k\022\035\n\031CHANG" +
-                        "E_GROUP_ANNOUNCEMENT\020l\022\021\n\rDESTROY_GROUP\020" +
-                        "m\022\r\n\tOUT_GROUP\020n\022\r\n\010CONFLICT\020\310\001\022\027\n\022ACTIV" +
-                        "E_STAT_CHANGE\020\311\001*r\n\nRejectType\022\014\n\010ACCEPT" +
-                        "ED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBER\020\001\022\014\n" +
-                        "\010NO_SPACE\020\010\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_U",
-                "NAVAILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020" +
-                        "\000\022\013\n\007PASSIVE\020\001b\006proto3"
+                        "le\"\034\n\017RedEnvelopeType\022\t\n\005MFPAY\020\000\"(\n\020RedE",
+                "nvelopeStyle\022\n\n\006NORMAL\020\000\022\010\n\004LUCK\020\001\"\'\n\031Re" +
+                        "ceiveRedEnvelopeMessage\022\n\n\002id\030\001 \001(\t\"J\n\017T" +
+                        "ransferMessage\022\n\n\002id\030\001 \001(\t\022\032\n\022transactio" +
+                        "n_amount\030\002 \001(\t\022\017\n\007comment\030\003 \001(\t\"\037\n\014Stamp" +
+                        "Message\022\017\n\007comment\030\001 \001(\t\"U\n\023BusinessCard" +
+                        "Message\022\013\n\003uid\030\001 \001(\004\022\016\n\006avatar\030\002 \001(\t\022\020\n\010" +
+                        "nickname\030\003 \001(\t\022\017\n\007comment\030\004 \001(\t\"j\n\tAtMes" +
+                        "sage\022\"\n\007at_type\030\001 \001(\0162\021.AtMessage.AtType" +
+                        "\022\013\n\003uid\030\002 \003(\004\022\013\n\003msg\030\003 \001(\t\"\037\n\006AtType\022\014\n\010" +
+                        "MULTIPLE\020\000\022\007\n\003ALL\020\001\"\037\n\020AssistantMessage\022",
+                "\013\n\003msg\030\001 \001(\t\"\037\n\rCancelMessage\022\016\n\006msg_id\030" +
+                        "\001 \001(\t\"&\n\024RequestFriendMessage\022\016\n\006say_hi\030" +
+                        "\001 \001(\t\"\030\n\026AcceptBeFriendsMessage\"\025\n\023Remov" +
+                        "eFriendMessage\"C\n\022GroupNoticeMessage\022\013\n\003" +
+                        "uid\030\001 \001(\004\022\016\n\006avatar\030\002 \001(\t\022\020\n\010nickname\030\003 " +
+                        "\001(\t\"E\n\026InviteJoinGroupMessage\022+\n\016notice_" +
+                        "message\030\001 \001(\0132\023.GroupNoticeMessage\"\214\001\n\023R" +
+                        "equestGroupMessage\022+\n\016notice_message\030\001 \003" +
+                        "(\0132\023.GroupNoticeMessage\022\017\n\007inviter\030\002 \001(\004" +
+                        "\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGroupType\022\024\n\014i",
+                "nviter_name\030\004 \001(\t\"\215\001\n\024AcceptBeGroupMessa" +
+                        "ge\022+\n\016notice_message\030\001 \003(\0132\023.GroupNotice" +
+                        "Message\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 " +
+                        "\001(\0162\016.JoinGroupType\022\024\n\014inviter_name\030\004 \001(" +
+                        "\t\"E\n\030RemoveGroupMemberMessage\022\013\n\003gid\030\001 \001" +
+                        "(\t\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\";\n\030Chan" +
+                        "geGroupMasterMessage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmem" +
+                        "bername\030\002 \001(\t\"&\n\026ChangeGroupNameMessage\022" +
+                        "\014\n\004name\030\001 \001(\t\"6\n\036ChangeGroupAnnouncement" +
+                        "Message\022\024\n\014announcement\030\001 \001(\t\"@\n\023Destroy",
+                "GroupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n\006avatar\030\002 \001(" +
+                        "\t\022\014\n\004name\030\003 \001(\t\"\021\n\017ConflictMessage\"\036\n\017Ou" +
+                        "tGroupMessage\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027ActiveSta" +
+                        "tChangeMessage\0228\n\013active_type\030\001 \001(\0162#.Ac" +
+                        "tiveStatChangeMessage.ActiveType\022\021\n\ttime" +
+                        "stamp\030\002 \001(\004\"%\n\nActiveType\022\013\n\007OFFLINE\020\000\022\n" +
+                        "\n\006ONLINE\020\001\"e\n\nAckMessage\022 \n\013reject_type\030" +
+                        "\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002 \001(\t\022\016" +
+                        "\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022Aut" +
+                        "hRequestMessage\022\024\n\014access_token\030\001 \001(\t\"\'\n",
+                "\023AuthResponseMessage\022\020\n\010accepted\030\001 \001(\021\"\356" +
+                        "\n\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(\t\022" +
+                        "\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Univ" +
+                        "ersalMessage.WrapMessage\032\204\n\n\013WrapMessage" +
+                        "\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014." +
+                        "MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030" +
+                        "\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006" +
+                        "avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\035\n\004chat" +
+                        "\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\0132" +
+                        "\r.ImageMessageH\000\022,\n\014red_envelope\030\222N \001(\0132",
+                "\023.RedEnvelopeMessageH\000\022;\n\024receive_red_en" +
+                        "velope\030\223N \001(\0132\032.ReceiveRedEnvelopeMessag" +
+                        "eH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferMessage" +
+                        "H\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\rb" +
+                        "usiness_card\030\226N \001(\0132\024.BusinessCardMessag" +
+                        "eH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002" +
+                        "at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassistant\030\231N " +
+                        "\001(\0132\021.AssistantMessageH\000\022!\n\006cancel\030\232N \001(" +
+                        "\0132\016.CancelMessageH\000\0220\n\016request_friend\030\364N" +
+                        " \001(\0132\025.RequestFriendMessageH\000\0225\n\021accept_",
+                "be_friends\030\365N \001(\0132\027.AcceptBeFriendsMessa" +
+                        "geH\000\022.\n\rremove_friend\030\366N \001(\0132\024.RemoveFri" +
+                        "endMessageH\000\022.\n\rrequest_group\030\330O \001(\0132\024.R" +
+                        "equestGroupMessageH\000\0221\n\017accept_be_group\030" +
+                        "\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023remov" +
+                        "e_group_member\030\332O \001(\0132\031.RemoveGroupMembe" +
+                        "rMessageH\000\0229\n\023change_group_master\030\333O \001(\013" +
+                        "2\031.ChangeGroupMasterMessageH\000\0225\n\021change_" +
+                        "group_name\030\334O \001(\0132\027.ChangeGroupNameMessa" +
+                        "geH\000\022E\n\031change_group_announcement\030\335O \001(\013",
+                "2\037.ChangeGroupAnnouncementMessageH\000\022.\n\rd" +
+                        "estroy_group\030\336O \001(\0132\024.DestroyGroupMessag" +
+                        "eH\000\022&\n\tout_group\030\342O \001(\0132\020.OutGroupMessag" +
+                        "eH\000\022%\n\010conflict\030\274P \001(\0132\020.ConflictMessage" +
+                        "H\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Active" +
+                        "StatChangeMessageH\000B\n\n\010real_msg*\302\003\n\013Mess" +
+                        "ageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVE" +
+                        "LOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TR" +
+                        "ANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t" +
+                        "\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANC",
+                "EL\020\n\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FR" +
+                        "IENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GR" +
+                        "OUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GRO" +
+                        "UP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\025\n\021" +
+                        "CHANGE_GROUP_NAME\020k\022\035\n\031CHANGE_GROUP_ANNO" +
+                        "UNCEMENT\020l\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GRO" +
+                        "UP\020n\022\r\n\010CONFLICT\020\310\001\022\027\n\022ACTIVE_STAT_CHANG" +
+                        "E\020\311\001*r\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_" +
+                        "FRIENDS_OR_GROUP_MEMBER\020\001\022\014\n\010NO_SPACE\020\010\022" +
+                        "\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAILABLE\020d",
+                "*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSIVE" +
+                        "\020\001b\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
