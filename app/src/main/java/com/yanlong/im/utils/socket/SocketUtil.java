@@ -521,7 +521,7 @@ public class SocketUtil {
                 try {
 
                     //8.6先加大接收容量
-                    ByteBuffer readBuf = ByteBuffer.allocate(102400);
+                    ByteBuffer readBuf = ByteBuffer.allocate(1024);
                     int data_size = 0;
                     List<byte[]> temp = new ArrayList<>();
                     while (isRun() && (indexVer == threadVer)) {
@@ -571,6 +571,8 @@ public class SocketUtil {
                             LogUtil.getLog().d(TAG, ">>>当前缓冲区数: " + temp.size());
 
                             readBuf.clear();
+                        }else{
+                           // LogUtil.getLog().d(TAG, "<<<<<接收缓存: "+ data_size);
                         }
                         Thread.sleep(50);
                     }

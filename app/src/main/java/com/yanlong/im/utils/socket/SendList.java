@@ -59,7 +59,7 @@ public class SendList {
     public static void removeSendList(String keyId) {
         if (!SEND_LIST.containsKey(keyId))
             return;
-        LogUtil.getLog().i(TAG,"SocketUtil$移除队列返回失败"+keyId);
+        LogUtil.getLog().e(TAG,"SocketUtil$移除队列[返回失败]"+keyId);
         SocketUtil.getSocketUtil().getEvent().onSendMsgFailure(SEND_LIST.get(keyId).getMsg());
         SEND_LIST.remove(keyId);
     }
@@ -71,7 +71,7 @@ public class SendList {
     public static void removeSendListJust(String keyId) {
         if (!SEND_LIST.containsKey(keyId))
             return;
-        LogUtil.getLog().i(TAG,"SocketUtil$移除队列不返回失败"+keyId);
+        LogUtil.getLog().i(TAG,"SocketUtil$移除队列"+keyId);
         SEND_LIST.remove(keyId);
     }
 
