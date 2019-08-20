@@ -7,12 +7,14 @@ import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RobotInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.MsgServer;
-import com.yanlong.im.test.server.TestServer;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -20,18 +22,12 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import io.realm.Realm;
-import io.realm.RealmList;
-import io.realm.RealmModel;
-import io.realm.RealmResults;
-import io.realm.Sort;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Field;
+
 
 public class MsgAction {
     private MsgServer server;
@@ -84,13 +80,36 @@ public class MsgAction {
         });
     }
 
-    public void groupRemove(String id, List<UserInfo> members, CallBack<ReturnBean> callback) {
+    public void groupRemove(final String id, List<UserInfo> members, final CallBack<ReturnBean> callback) {
         List<Long> ulist = new ArrayList<>();
-
+        String rname = "";
         for (UserInfo userInfo : members) {
             ulist.add(userInfo.getUid());
+            rname += "<font id='" + userInfo.getUid() + "'>" + userInfo.getName() + "</font>";
         }
-        NetUtil.getNet().exec(server.groupRemove(id, gson.toJson(ulist)), callback);
+        final String finalRname = rname;
+        NetUtil.getNet().exec(server.groupRemove(id, gson.toJson(ulist)), new Callback<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                callback.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    String mid = SocketData.getUUID();
+                    MsgNotice note = new MsgNotice();
+                    note.setMsgid(mid);
+                    note.setMsgType(3);
+                    note.setNote("你将\"" + finalRname + "\"移出群聊");
+                    dao.noteMsgAddRb(mid, UserAction.getMyId(), id, note);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                callback.onFailure(call, t);
+            }
+        });
     }
 
     public void groupDestroy(final String id, final CallBack<ReturnBean> callback) {
@@ -138,6 +157,20 @@ public class MsgAction {
         return dao.getMsg4User(uid, time);
     }
 
+
+    /*
+     * @param gid 群id
+     * @param uid 私聊用户id
+     * @param time 截止时间
+     * @param size 需要数据size
+     * */
+    public List<MsgAllBean> getMsg4User(String gid, Long uid, Long time, int size) {
+        if (StringUtil.isNotNull(gid)) {
+            return dao.getMsg4Group(gid, time, size);
+        }
+        return dao.getMsg4User(uid, time, size);
+    }
+
     /***
      * 获取全部图片
      * @param gid
@@ -178,14 +211,14 @@ public class MsgAction {
 
                         response.body().getData().setUsers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
                         //8.8 取消从数据库里读取群成员信息
-                       for(UserInfo userInfo: response.body().getData().getUsers()) {
-                           GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-                           if(link!=null){
-                               userInfo.setMembername(link.getMembername());
-                           }
+                        for (UserInfo userInfo : response.body().getData().getUsers()) {
+                            GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+                            if (link != null) {
+                                userInfo.setMembername(link.getMembername());
+                            }
 
 
-                       }
+                        }
 
 
                     }
@@ -226,13 +259,11 @@ public class MsgAction {
     }
 
 
-
-
     /**
      * 获取群信息
-     * */
+     */
     public void groupInfo4UserInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
-        NetUtil.getNet().exec(server.groupInfo(gid),callback);
+        NetUtil.getNet().exec(server.groupInfo(gid), callback);
     }
 
     /***

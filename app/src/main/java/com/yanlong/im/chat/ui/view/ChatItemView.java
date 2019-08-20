@@ -350,7 +350,7 @@ public class ChatItemView extends LinearLayout {
         txtBroadcast.setText(Html.fromHtml(msghtml));
     }
 
-    public void setData0(SpannableStringBuilder stringBuilder){
+    public void setData0(SpannableStringBuilder stringBuilder) {
         txtBroadcast.setText(stringBuilder);
         txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
     }
@@ -778,6 +778,36 @@ public class ChatItemView extends LinearLayout {
     public void setOnHead(OnClickListener onk) {
         imgMeHead.setOnClickListener(onk);
         imgOtHead.setOnClickListener(onk);
+    }
+
+    public void selectTextBubble(boolean flag) {
+        viewOtTouch.setSelected(flag);
+        viewMeTouch.setSelected(flag);
+
+        viewOt1.setSelected(flag);
+        viewMe1.setSelected(flag);
+
+        viewOt2.setSelected(flag);
+        viewMe2.setSelected(flag);
+
+        viewOt3.setSelected(flag);
+        viewMe3.setSelected(flag);
+
+        viewOt4.setSelected(flag);
+        viewMe4.setSelected(flag);
+
+        viewOt5.setSelected(flag);
+        viewMe5.setSelected(flag);
+
+        viewOt6.setSelected(flag);
+        viewMe6.setSelected(flag);
+
+        viewOt7.setSelected(flag);
+        viewMe7.setSelected(flag);
+
+        viewOt8.setSelected(flag);
+        viewMe8.setSelected(flag);
+
     }
 
 

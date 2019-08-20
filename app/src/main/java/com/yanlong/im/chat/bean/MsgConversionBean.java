@@ -1,27 +1,14 @@
 package com.yanlong.im.chat.bean;
 
-import android.content.Intent;
-import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.View;
 
-import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.ui.RegisterActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
-
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.view.WebPageActivity;
-
 import io.realm.RealmList;
 
 /***
@@ -144,7 +131,6 @@ public class MsgConversionBean {
                 businessCard.setAvatar(bean.getBusinessCard().getAvatar());
                 businessCard.setComment(bean.getBusinessCard().getComment());
                 businessCard.setNickname(bean.getBusinessCard().getNickname());
-
                 businessCard.setUid(bean.getBusinessCard().getUid());
                 msgAllBean.setBusiness_card(businessCard);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.BUSINESS_CARD);
@@ -212,8 +198,6 @@ public class MsgConversionBean {
 
                 }
                 names = names.length() > 0 ? names.substring(0, names.length() - 1) : names;
-
-
                 String inviterName = bean.getAcceptBeGroup().getInviterName();//邀请者名字
                 if (bean.getAcceptBeGroup().getInviter() == UserAction.getMyId().longValue()) {
                     inviterName = "\"<font value ='3'> 你</font>\"";
@@ -232,12 +216,8 @@ public class MsgConversionBean {
                     inviterName = "\"<font id='" + bean.getAcceptBeGroup().getInviter() + "'  value ='4'>" + inviterName + "</font>\"";
 
                 }
-
-
                 //A邀请B加入群聊
                 //B通过扫码A分享的二维码加入群聊
-
-
                 String node = "";
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
                     gNotice.setMsgType(1);

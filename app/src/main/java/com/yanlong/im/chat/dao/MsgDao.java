@@ -120,6 +120,27 @@ public class MsgDao {
         return beans;
     }
 
+    public List<MsgAllBean> getMsg4User(Long userid, Long time,int size) {
+        if (time == null) {
+            time = 99999999999999l;
+        }
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+
+        RealmResults list = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and().beginGroup()
+                .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+                .lessThan("timestamp", time)
+                .sort("timestamp", Sort.DESCENDING)
+                .limit(size)
+                .findAll();
+
+        beans = realm.copyFromRealm(list);
+        //翻转列表
+        Collections.reverse(beans);
+        realm.close();
+        return beans;
+    }
+
     public List<MsgAllBean> getMsg4UserImg(Long userid) {
 
         List<MsgAllBean> beans = new ArrayList<>();
@@ -195,6 +216,55 @@ public class MsgDao {
         realm.close();
         return beans;
     }
+
+    public List<MsgAllBean> getMsg4Group(String gid, Long time,int size) {
+        if (time == null) {
+            time = 99999999999999l;
+        }
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+
+        RealmResults list = realm.where(MsgAllBean.class)
+                .equalTo("gid", gid)
+                .lessThan("timestamp", time)
+                .sort("timestamp", Sort.DESCENDING)
+                .limit(size)
+                .findAll();
+
+        beans = realm.copyFromRealm(list);
+        ;
+
+
+        //翻转列表
+        Collections.reverse(beans);
+        realm.close();
+        return beans;
+    }
+
+//    public List<MsgAllBean> getMsg4Group(String gid, Long time) {
+//        if (time == null) {
+//            time = 99999999999999l;
+//        }
+//        List<MsgAllBean> beans = new ArrayList<>();
+//        Realm realm = DaoUtil.open();
+//
+//        RealmResults list = realm.where(MsgAllBean.class)
+//                .equalTo("gid", gid)
+//                .lessThan("timestamp", time)
+//
+//                .sort("timestamp", Sort.DESCENDING)
+//                .limit(20)
+//                .findAll();
+//
+//        beans = realm.copyFromRealm(list);
+//        ;
+//
+//
+//        //翻转列表
+//        Collections.reverse(beans);
+//        realm.close();
+//        return beans;
+//    }
 
     public List<MsgAllBean> getMsg4GroupImg(String gid) {
 
@@ -1401,5 +1471,7 @@ public class MsgDao {
         return ret;
 
     }
+
+
 
 }

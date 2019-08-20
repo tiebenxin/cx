@@ -38,15 +38,18 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return this;
     }
 
-    public void bindData(List<MsgAllBean> list, int page) {
-        if (mList == null) {
-            mList = list;
-        } else {
-            if (page == 0) {
-                mList.clear();
-            }
-            mList.addAll(0, list);
-        }
+    public void bindData(List<MsgAllBean> list) {
+//        if (mList == null) {
+//            mList = list;
+//        } else {
+//            if (page == 0) {
+//                mList.clear();
+//            }
+//            mList.addAll(0, list);
+//            mList = list;
+//        }
+        mList = list;
+
         notifyDataSetChanged();
     }
 

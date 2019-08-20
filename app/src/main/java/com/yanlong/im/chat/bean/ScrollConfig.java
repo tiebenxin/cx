@@ -11,6 +11,7 @@ public class ScrollConfig {
     String chatId;//当前群聊id
     int lastPosition;
     int lastOffset;
+    int totalSize;//存储的时候totalsize
 
     public long getUserId() {
         return userId;
@@ -50,5 +51,13 @@ public class ScrollConfig {
 
     public void setLastOffset(int lastOffset) {
         this.lastOffset = lastOffset;
+    }
+
+    public int getTotalSize() {
+        return totalSize;
+    }
+
+    public void setTotalSize(int totalSize) {
+        this.totalSize = totalSize;
     }
 }

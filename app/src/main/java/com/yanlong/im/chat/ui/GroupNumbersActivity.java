@@ -20,6 +20,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
+import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -27,6 +28,8 @@ import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -243,7 +246,6 @@ public class GroupNumbersActivity extends AppActivity {
     private MsgAction msgACtion = new MsgAction();
     private UserDao userDao = new UserDao();
 
-
     private void taskListData() {
 
 
@@ -270,6 +272,9 @@ public class GroupNumbersActivity extends AppActivity {
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
+                    if(type != TYPE_ADD){
+                        EventBus.getDefault().post(new EventUserOnlineChange());
+                    }
                     finish();
                 }
 
