@@ -453,7 +453,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                   @Override
                   public void onMain() {
-                      notifyData2Bottom();
+                      notifyData2Bottom(true);
                   }
               }).run();
 
