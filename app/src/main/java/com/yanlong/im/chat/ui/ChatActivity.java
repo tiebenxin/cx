@@ -2083,14 +2083,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
+                        int len = list.size();
+                        if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
+                            lastPosition = 0;
+                            lastOffset = 0;
+                            clearScrollPosition();
+                        }
                         notifyData2Bottom(false);
 //                        notifyData();
                     }
                 });
 
     }
-
-    //  private boolean flag_isHistory = false;
 
     /***
      * 查询历史
