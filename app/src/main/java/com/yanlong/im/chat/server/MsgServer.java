@@ -23,7 +23,6 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> groupQuit(@Field("gid") String gid);
 
-
     @POST("/group/remove-members")
     @FormUrlEncoded
     Call<ReturnBean> groupRemove(@Field("gid") String gid, @Field("@members") String membersJson);

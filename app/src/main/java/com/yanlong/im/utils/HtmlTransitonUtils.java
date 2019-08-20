@@ -16,7 +16,6 @@ import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 
-import net.cb.cb.library.view.LoadView;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -45,6 +44,9 @@ public class HtmlTransitonUtils {
                 case 2:
                     setType2(context, style, list);
                     break;
+                case 3:
+                    setType3(context, style, list);
+                    break;
                 case 5:
                     setType5(context, style, list);
                     break;
@@ -72,7 +74,7 @@ public class HtmlTransitonUtils {
             if (bean.getType() == 1) {
                 builder.append("你、");
             } else if (bean.getType() == 2) {
-                String content = "'" + bean.getName() + "'、";
+                String content = "\"" + bean.getName() + "\"、";
                 builder.append(content);
 
                 int state = builder.toString().length() - content.length() + 1;
@@ -101,7 +103,7 @@ public class HtmlTransitonUtils {
             if (bean.getType() == 3) {
                 builder.append("你");
             } else if (bean.getType() == 4) {
-                String content = "'" + bean.getName() + "'";
+                String content = "\"" + bean.getName() + "\"";
                 builder.append(content);
 
                 int state = builder.toString().length() - content.length() + 1;
@@ -134,7 +136,7 @@ public class HtmlTransitonUtils {
             if (bean.getType() == 3) {
                 builder.append("你");
             } else if (bean.getType() == 4) {
-                String content = "'" + bean.getName() + "'";
+                String content = "\"" + bean.getName() + "\"";
                 builder.append(content);
 
                 int state = builder.toString().length() - content.length() + 1;
@@ -165,7 +167,7 @@ public class HtmlTransitonUtils {
             if (bean.getType() == 1) {
                 builder.append("你、");
             } else if (bean.getType() == 2) {
-                String content = "'" + bean.getName() + "'、";
+                String content = "\"" + bean.getName() + "\"、";
                 builder.append(content);
 
                 int state = builder.toString().length() - content.length() + 1;
@@ -193,9 +195,37 @@ public class HtmlTransitonUtils {
     }
 
 
+    private void setType3(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
+        builder.append("你将");
+        for (final HtmlBean bean : list) {
+            String content = "\"" + bean.getName() + "\"、";
+            builder.append(content);
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length() - 2;
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    Intent intent = new Intent(context, UserInfoActivity.class);
+                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+                    context.startActivity(intent);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("移出群聊");
+    }
+
     private void setType5(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
         for (final HtmlBean bean : list) {
-            String content = "'" + bean.getName() + "'";
+            String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
             int state = builder.toString().length() - content.length() + 1;
@@ -225,7 +255,7 @@ public class HtmlTransitonUtils {
 
     private void setType6(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
         for (final HtmlBean bean : list) {
-            String content = "'" + bean.getName() + "'";
+            String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
             int state = builder.toString().length() - content.length() + 1;
@@ -255,7 +285,7 @@ public class HtmlTransitonUtils {
 
     private void setType7(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
         for (final HtmlBean bean : list) {
-            String content = "'" + bean.getName() + "'";
+            String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
             int state = builder.toString().length() - content.length() + 1;
@@ -286,7 +316,7 @@ public class HtmlTransitonUtils {
     private void setType8(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
         builder.append("你领取了");
         for (final HtmlBean bean : list) {
-            String content = "'" + bean.getName() + "'";
+            String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
             int state = builder.toString().length() - content.length() + 1;
@@ -316,7 +346,7 @@ public class HtmlTransitonUtils {
 
     private void setType9(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
         for (final HtmlBean bean : list) {
-            String content = "'" + bean.getName() + "'";
+            String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
             int state = builder.toString().length() - content.length() + 1;

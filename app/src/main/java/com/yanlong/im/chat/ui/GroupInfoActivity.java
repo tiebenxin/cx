@@ -30,6 +30,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.user.ui.CommonSetingActivity;
+import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
@@ -83,6 +84,7 @@ public class GroupInfoActivity extends AppActivity {
     private CheckBox ckGroupSave;
     private LinearLayout viewGroupVerif;
     private LinearLayout viewClearChatRecord;
+    private LinearLayout viewComplaint;
     private CheckBox ckGroupVerif;
     private Button btnDel;
     private Gson gson = new Gson();
@@ -111,7 +113,7 @@ public class GroupInfoActivity extends AppActivity {
 
         ckGroupVerif = findViewById(R.id.ck_group_verif);
         viewGroupVerif = findViewById(R.id.view_group_verif);
-
+        viewComplaint = findViewById(R.id.view_complaint);
         ckGroupSave = findViewById(R.id.ck_group_save);
         btnDel = findViewById(R.id.btn_del);
         viewClearChatRecord = findViewById(R.id.view_clear_chat_record);
@@ -253,6 +255,14 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
+        viewComplaint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupInfoActivity.this, ComplaintActivity.class);
+                intent.putExtra(ComplaintActivity.GID, gid);
+                startActivity(intent);
+            }
+        });
 
     }
 
@@ -284,14 +294,9 @@ public class GroupInfoActivity extends AppActivity {
 
         topListView.setLayoutManager(gridLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
-
-
         viewGroupVerif.setVisibility(View.GONE);
-        // ginfo.getNotnotify()
         txtGroupName.setText(ginfo.getName());
         txtGroupNick.setText(ginfo.getMygroupName());
-        //txtGroupNote.setText();
-        //ckGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
         ckTop.setChecked(ginfo.getIsTop() == 1);
@@ -681,6 +686,7 @@ public class GroupInfoActivity extends AppActivity {
                 break;
             }
         }
+
         String json = gson.toJson(userInfos);
         startActivity(new Intent(getContext(), GroupNumbersActivity.class)
                 .putExtra(GroupNumbersActivity.AGM_GID, gid)

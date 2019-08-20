@@ -382,7 +382,6 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
 
     /*
-    *
     * 2. 根据messageType绑定布局
     * */
     @Override
