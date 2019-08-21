@@ -472,14 +472,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 //test 8.21测试发送
-               // if(AppConfig.DEBUG){
-                    String txt= edtChat.getText().toString();
-                    if(txt.startsWith("@000")){
-                        int count= Integer.parseInt(txt.split("_")[1]) ;
-                        taskTestSend(count);
-                        return;
-                    }
-              //  }
+                // if(AppConfig.DEBUG){
+                String txt = edtChat.getText().toString();
+                if (txt.startsWith("@000")) {
+                    int count = Integer.parseInt(txt.split("_")[1]);
+                    taskTestSend(count);
+                    return;
+                }
+                //  }
                 //--------
 
                 if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
@@ -914,20 +914,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void taskTestSend(final int count) {
-        ToastUtil.show(getContext(),"连续发送"+count+"测试开始");
+        ToastUtil.show(getContext(), "连续发送" + count + "测试开始");
         new RunUtils(new RunUtils.Enent() {
             @Override
             public void onRun() {
 
                 try {
-                    for (int i=1;i<=count;i++){
-                        if(i%10==0)
-                            SocketData.send4Chat(toUId, toGid, "连续测试发送"+i+"-------");
-                            else
-                        SocketData.send4Chat(toUId, toGid, "连续测试发送"+i);
+                    for (int i = 1; i <= count; i++) {
+                        if (i % 10 == 0)
+                            SocketData.send4Chat(toUId, toGid, "连续测试发送" + i + "-------");
+                        else
+                            SocketData.send4Chat(toUId, toGid, "连续测试发送" + i);
 
-                        if(i%100==0)
-                            Thread.sleep(2*1000);
+                        if (i % 100 == 0)
+                            Thread.sleep(2 * 1000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -1278,7 +1278,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
-        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
+//        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
         if (event.getState() == 0) {
             // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
             taskRefreshImage(event.getMsgid());
@@ -1348,13 +1348,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             return;
 
         int position = msgListData.indexOf(msgAllbean);
-        if (position > 0 && position < msgListData.size()) {
+        if (position >= 0 && position < msgListData.size()) {
             if (!isNewAdapter) {
                 msgListData.set(position, msgAllbean);
             } else {
                 messageAdapter.updateItemAndRefresh(msgAllbean);
             }
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+//            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
     }
 
@@ -1520,7 +1521,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
-                // Log.d("sss", "onBindViewHolderpayloads: " + position);
+                Log.d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
