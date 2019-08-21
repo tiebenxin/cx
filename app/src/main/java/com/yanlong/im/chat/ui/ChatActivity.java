@@ -98,6 +98,7 @@ import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
@@ -431,6 +432,43 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         }
+        //test 8.20 消息的连续发送测试
+        actionbar.getCenterTitle().setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                ToastUtil.show(getContext(),"连续发送测试开始");
+              new  RunUtils(new RunUtils.Enent() {
+                  @Override
+                  public void onRun() {
+
+                      try {
+                          for (int i=1;i<=1000;i++){
+                              if(i%10==0)
+                                  SocketData.send4Chat(toUId, toGid, "连续测试发送"+i+"-------");
+                                  else
+                              SocketData.send4Chat(toUId, toGid, "连续测试发送"+i);
+
+                              if(i%100==0)
+                                  Thread.sleep(2*1000);
+                          }
+                      } catch (InterruptedException e) {
+                          e.printStackTrace();
+                      }
+                  }
+
+                  @Override
+                  public void onMain() {
+                      notifyData2Bottom(true);
+                  }
+              }).run();
+
+
+
+                return false;
+            }
+        });
+        //--------------------
+
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

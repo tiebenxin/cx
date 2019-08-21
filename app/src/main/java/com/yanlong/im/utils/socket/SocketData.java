@@ -24,6 +24,8 @@ import net.cb.cb.library.utils.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class SocketData {
     private static final String TAG = "SocketData";
@@ -258,7 +260,7 @@ public class SocketData {
     }
 
     //6.6 为后端擦屁股
-    private static String oldMsgId = "";
+    private static CopyOnWriteArrayList<String> oldMsgId = new CopyOnWriteArrayList<>();
 
     /***
      * 保存消息和发送消息回执
@@ -280,12 +282,14 @@ public class SocketData {
                 DaoUtil.update(msgAllBean);
 
                 //6.6 为后端擦屁股
-                if (!oldMsgId.equals(wmsg.getMsgId())) {
-                    oldMsgId = wmsg.getMsgId();
+                if (!oldMsgId.contains(wmsg.getMsgId())) {
+                    if(oldMsgId.size()>=500)
+                        oldMsgId.remove(0);
+                    oldMsgId.add(wmsg.getMsgId())  ;
                     msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
                     LogUtil.getLog().e(TAG, ">>>>>累计 ");
                 } else {
-                    LogUtil.getLog().e(TAG, ">>>>>重复消息,为后端擦屁股: " + oldMsgId);
+                    LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
                 }
 
 

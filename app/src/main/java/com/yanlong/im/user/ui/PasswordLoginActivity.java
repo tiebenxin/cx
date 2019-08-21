@@ -23,6 +23,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -80,6 +81,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         ClickFilter.onClick(mBtnLogin, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputUtil.hideKeyboard(mEtPasswordContent);
                 login();
             }
         });

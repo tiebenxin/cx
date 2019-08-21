@@ -201,7 +201,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[戳一下]" + getStamp().getComment();
 
         } else if (msg_type == ChatEnum.EMessageType.RED_ENVELOPE) {
-            str = "[常聊红包]" + getRed_envelope().getComment();
+            str = "[云红包]" + getRed_envelope().getComment();
         } else if (msg_type == ChatEnum.EMessageType.IMAGE) {
             str = "[图片]";
         } else if (msg_type == ChatEnum.EMessageType.BUSINESS_CARD) {

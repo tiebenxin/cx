@@ -18,6 +18,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack4Btn;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
@@ -78,6 +79,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         mBtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InputUtil.hideKeyboard(mEtPasswordContent);
                 login();
             }
         });
