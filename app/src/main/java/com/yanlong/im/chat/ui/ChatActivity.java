@@ -1337,6 +1337,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             } else {
                 messageAdapter.updateItemAndRefresh(msgAllbean);
             }
+            Log.i(TAG, "replaceListDataAndNotify: 只刷新"+position);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
         }
     }
@@ -1404,9 +1405,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //8.15 红包状态修改
                     boolean invalid = red.getIsInvalid() == 0 ? false : true;
                     if ((invalid || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                        taskPayRbDetail(red.getId());
+                        taskPayRbDetail(message,red.getId());
                     } else {
-                        taskPayRbGet(message.getFrom_uid(), red.getId());
+                        taskPayRbGet(message,message.getFrom_uid(), red.getId());
                     }
 
                 }
@@ -1524,6 +1525,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
 
                         break;
+                        default:
+                            onBindViewHolder(holder,position);
+                            break;
                 }
 
                 itemLongClick(holder, msgbean, menus);
@@ -1659,18 +1663,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         @Override
                         public void onClick(boolean isInvalid) {
 
-                            if (!isInvalid) {//红包没拆,先检查已经领完没
+                            /*if (!isInvalid) {//红包没拆,先检查已经领完没
                                 taskPayRbCheck(msgbean, rid);
 
-                            }
+                            }*/
 
 
                             if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                 //ToastUtil.show(getContext(), "红包详情");
-                                taskPayRbDetail(rid);
+                                taskPayRbDetail(msgbean,rid);
 
                             } else {
-                                taskPayRbGet(touid, rid);
+                                taskPayRbGet(msgbean,touid, rid);
                             }
                         }
                     });
@@ -2372,7 +2376,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     /***
      * 红包收
      */
-    private void taskPayRbGet(final Long toUId, final String rbid) {
+    private void taskPayRbGet(final MsgAllBean msgbean,final Long toUId, final String rbid) {
         //红包开记录 test
 
         //  MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
@@ -2391,10 +2395,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     GrabRpCallBack callBack = new GrabRpCallBack() {
                         @Override
                         public void grabRpResult(GrabRpBean grabRpBean) {
-                            if (grabRpBean.isHadGrabRp()) {
+                            taskPayRbCheck(msgbean, rbid);
+                            if (grabRpBean.getEnvelopeStatus()==0&&grabRpBean.isHadGrabRp()) {
                                 // ToastUtil.show(getContext(), "抢到了红包" + grabRpBean.toString());
+                                //taskPayRbCheck(msgbean, rbid);
                                 MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
                                 showSendObj(msgAllbean);
+
+
+
+                            }
+                            if(grabRpBean.getEnvelopeStatus()==3&&!grabRpBean.isHadGrabRp()){//红包抢完了
+
                             }
                         }
                     };
@@ -2454,7 +2466,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 红包详情
      * @param rid
      */
-    private void taskPayRbDetail(final String rid) {
+    private void taskPayRbDetail(final MsgAllBean msgAllBean,final String rid) {
      /*   if (!isGroup()) {
             return;
         }*/
@@ -2489,7 +2501,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskPayRbCheck(MsgAllBean msgAllBean, final String rid) {
 
 
-        msgAllBean.getRed_envelope().setIsInvalid(0);
+        msgAllBean.getRed_envelope().setIsInvalid(1);
         msgDao.redEnvelopeOpen(rid, true);
         replaceListDataAndNotify(msgAllBean);
     }
