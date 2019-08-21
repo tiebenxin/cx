@@ -25,7 +25,7 @@ public class ToastUtil {
                 e.printStackTrace();
             }
 
-            toast.setGravity(Gravity.CENTER, 0, 0);
+        //    toast.setGravity(Gravity.CENTER, 0, 0);
 
             toast.show();
         }
