@@ -120,7 +120,36 @@ public class MsgDao {
         return beans;
     }
 
-    public List<MsgAllBean> getMsg4User(Long userid, Long time,int size) {
+    public List<MsgAllBean> getMsg4User(Long userid, Long time, boolean isNew) {
+        if (time == null) {
+            time = 99999999999999l;
+        }
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+        RealmResults list;
+        if (isNew) {
+            list = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and().beginGroup()
+                    .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+                    .greaterThan("timestamp", time)
+                    .sort("timestamp", Sort.DESCENDING)
+//                    .limit(20)
+                    .findAll();
+        } else {
+            list = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and().beginGroup()
+                    .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+                    .lessThan("timestamp", time)
+                    .sort("timestamp", Sort.DESCENDING)
+                    .limit(20)
+                    .findAll();
+        }
+        beans = realm.copyFromRealm(list);
+        //翻转列表
+        Collections.reverse(beans);
+        realm.close();
+        return beans;
+    }
+
+    public List<MsgAllBean> getMsg4User(Long userid, Long time, int size) {
         if (time == null) {
             time = 99999999999999l;
         }
@@ -192,32 +221,61 @@ public class MsgDao {
     }
 
 
-    public List<MsgAllBean> getMsg4Group(String gid, Long time) {
+//    public List<MsgAllBean> getMsg4Group(String gid, Long time) {
+//        if (time == null) {
+//            time = 99999999999999l;
+//        }
+//        List<MsgAllBean> beans = new ArrayList<>();
+//        Realm realm = DaoUtil.open();
+//
+//        RealmResults list = realm.where(MsgAllBean.class)
+//                .equalTo("gid", gid)
+//                .lessThan("timestamp", time)
+//
+//                .sort("timestamp", Sort.DESCENDING)
+//                .limit(20)
+//                .findAll();
+//
+//        beans = realm.copyFromRealm(list);
+//        //翻转列表
+//        Collections.reverse(beans);
+//        realm.close();
+//        return beans;
+//    }
+
+    /*
+     * @param isNew true加载最新数据，false加载更多历史数据
+     * */
+    public List<MsgAllBean> getMsg4Group(String gid, Long time, boolean isNew) {
         if (time == null) {
             time = 99999999999999l;
         }
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
-
-        RealmResults list = realm.where(MsgAllBean.class)
-                .equalTo("gid", gid)
-                .lessThan("timestamp", time)
-
-                .sort("timestamp", Sort.DESCENDING)
-                .limit(20)
-                .findAll();
+        RealmResults list;
+        if (isNew) {
+            list = realm.where(MsgAllBean.class)
+                    .equalTo("gid", gid)
+                    .greaterThan("timestamp", time)
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findAll();
+        } else {
+            list = realm.where(MsgAllBean.class)
+                    .equalTo("gid", gid)
+                    .lessThan("timestamp", time)
+                    .sort("timestamp", Sort.DESCENDING)
+                    .limit(20)
+                    .findAll();
+        }
 
         beans = realm.copyFromRealm(list);
-        ;
-
-
         //翻转列表
         Collections.reverse(beans);
         realm.close();
         return beans;
     }
 
-    public List<MsgAllBean> getMsg4Group(String gid, Long time,int size) {
+    public List<MsgAllBean> getMsg4Group(String gid, Long time, int size) {
         if (time == null) {
             time = 99999999999999l;
         }
@@ -367,14 +425,14 @@ public class MsgDao {
                 nums.add(ui);
             }
             //8.8把群的成员信息存链接表
-            GropLinkInfo gropLinkInfo=realm.where(GropLinkInfo.class).equalTo("gid",ginfo.getGid()).equalTo("uid", sv.getUid()).findFirst();
-            if(gropLinkInfo==null){
-                gropLinkInfo=new GropLinkInfo();
+            GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", ginfo.getGid()).equalTo("uid", sv.getUid()).findFirst();
+            if (gropLinkInfo == null) {
+                gropLinkInfo = new GropLinkInfo();
                 gropLinkInfo.setLid(UUID.randomUUID().toString());
                 gropLinkInfo.setGid(ginfo.getGid());
                 gropLinkInfo.setUid(sv.getUid());
                 gropLinkInfo.setMembername(sv.getMembername());
-            }else{
+            } else {
                 gropLinkInfo.setMembername(sv.getMembername());
             }
             realm.insertOrUpdate(gropLinkInfo);
@@ -393,14 +451,14 @@ public class MsgDao {
      * 获取群和用户的连接信息
      * @return
      */
-    public GropLinkInfo getGropLinkInfo(String gid,Long uid){
-        GropLinkInfo gropLinkInfo=null;
+    public GropLinkInfo getGropLinkInfo(String gid, Long uid) {
+        GropLinkInfo gropLinkInfo = null;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
         GropLinkInfo info = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
-        if(info!=null){
-            gropLinkInfo=realm.copyFromRealm(info);
+        if (info != null) {
+            gropLinkInfo = realm.copyFromRealm(info);
         }
 
 
@@ -513,7 +571,7 @@ public class MsgDao {
                     msg.getRed_envelope().deleteFromRealm();
                 if (msg.getTransfer() != null)
                     msg.getTransfer().deleteFromRealm();
-                if(msg.getMsgCancel()!=null)
+                if (msg.getMsgCancel() != null)
                     msg.getMsgCancel().deleteFromRealm();
 
 
@@ -530,13 +588,13 @@ public class MsgDao {
      * 撤回消息
      * @param msgCancelId
      */
-    public void msgDel4Cancel(String msgid,String msgCancelId) {
+    public void msgDel4Cancel(String msgid, String msgCancelId) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         RealmResults<MsgAllBean> list = null;
 
         list = realm.where(MsgAllBean.class).equalTo("msg_id", msgCancelId).findAll();
-        MsgAllBean cancel=realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+        MsgAllBean cancel = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
 
         //删除前先把子表数据干掉!!切记
         if (list != null) {
@@ -557,10 +615,10 @@ public class MsgDao {
                     msg.getRed_envelope().deleteFromRealm();
                 if (msg.getTransfer() != null)
                     msg.getTransfer().deleteFromRealm();
-                if(msg.getMsgCancel()!=null)
+                if (msg.getMsgCancel() != null)
                     msg.getMsgCancel().deleteFromRealm();
 
-                if(cancel!=null){
+                if (cancel != null) {
                     cancel.setTimestamp(msg.getTimestamp());
                     realm.insertOrUpdate(cancel);
                 }
@@ -596,7 +654,7 @@ public class MsgDao {
 
         //清理角标
         RealmResults<Session> sessions = realm.where(Session.class).findAll();
-        for(Session session:sessions){
+        for (Session session : sessions) {
             session.setUnread_count(0);
             realm.insertOrUpdate(session);
         }
@@ -772,9 +830,8 @@ public class MsgDao {
             session.setUp_time(System.currentTimeMillis());
 
 
-
         }
-        if(isCancel){//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
+        if (isCancel) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             session.setMessageType(1000);
         }
 
@@ -1375,8 +1432,8 @@ public class MsgDao {
      * @param uid
      * @return
      */
-    public String getUsername4Show(String gid, Long uid){
-        return getUsername4Show(gid,uid,null,null);
+    public String getUsername4Show(String gid, Long uid) {
+        return getUsername4Show(gid, uid, null, null);
     }
 
     /***
@@ -1387,45 +1444,42 @@ public class MsgDao {
      * @param groupName 群最新的昵称
      * @return
      */
-    public String getUsername4Show(String gid, Long uid, String uname, String groupName){
-        String name="";
+    public String getUsername4Show(String gid, Long uid, String uname, String groupName) {
+        String name = "";
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        UserInfo userInfo=realm.where(UserInfo.class).equalTo("uid",uid).findFirst();
-        if(userInfo!=null){
+        UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+        if (userInfo != null) {
             //1.获取本地用户昵称
-            name=userInfo.getName();
+            name = userInfo.getName();
             //1.5如果有带过来的昵称先显示昵称
-            name=StringUtil.isNotNull(uname)?uname:name;
+            name = StringUtil.isNotNull(uname) ? uname : name;
 
             //1.8  如果有带过来的群昵称先显示群昵称
-            if(StringUtil.isNotNull(groupName)){
-                name=groupName;
-            }else {
-                GropLinkInfo gropLinkInfo=null;
-                if(StringUtil.isNotNull(gid)){
-                    gropLinkInfo=realm.where(GropLinkInfo.class).equalTo("gid",gid).equalTo("uid",uid).findFirst();
+            if (StringUtil.isNotNull(groupName)) {
+                name = groupName;
+            } else {
+                GropLinkInfo gropLinkInfo = null;
+                if (StringUtil.isNotNull(gid)) {
+                    gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
                 }
 
-                if(gropLinkInfo!=null){
+                if (gropLinkInfo != null) {
                     //2.获取群成员昵称
-                    name= StringUtil.isNotNull(gropLinkInfo.getMembername())?gropLinkInfo.getMembername():name;
+                    name = StringUtil.isNotNull(gropLinkInfo.getMembername()) ? gropLinkInfo.getMembername() : name;
                 }
             }
 
 
             //3.获取用户备注名
-            name=StringUtil.isNotNull(userInfo.getMkName())?userInfo.getMkName():name;
+            name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
 
 
-
-
-        }else{
-            name=StringUtil.isNotNull(uname)?uname:name;
-            name=StringUtil.isNotNull(groupName)?groupName:name;
+        } else {
+            name = StringUtil.isNotNull(uname) ? uname : name;
+            name = StringUtil.isNotNull(groupName) ? groupName : name;
 
         }
-
 
 
         realm.commitTransaction();
@@ -1441,15 +1495,15 @@ public class MsgDao {
      * @param note
      * @return
      */
-    public MsgAllBean noteMsgAddRb(String msgid,Long toUid,String gid, MsgNotice note) {
+    public MsgAllBean noteMsgAddRb(String msgid, Long toUid, String gid, MsgNotice note) {
         MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
         if (msgAllBean == null) {
-            msgAllBean=new MsgAllBean();
+            msgAllBean = new MsgAllBean();
             msgAllBean.setMsg_id(msgid);
-            gid=gid==null?"":gid;
+            gid = gid == null ? "" : gid;
             msgAllBean.setGid(gid);
             UserInfo userinfo = UserAction.getMyInfo();
             msgAllBean.setFrom_uid(toUid);
@@ -1471,7 +1525,6 @@ public class MsgDao {
         return ret;
 
     }
-
 
 
 }
