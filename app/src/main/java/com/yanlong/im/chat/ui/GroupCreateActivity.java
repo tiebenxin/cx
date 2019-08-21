@@ -76,7 +76,7 @@ public class GroupCreateActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
-        select_uid =getIntent().getStringExtra(AGM_SELECT_UID);
+        select_uid = getIntent().getStringExtra(AGM_SELECT_UID);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -126,6 +126,22 @@ public class GroupCreateActivity extends AppActivity {
 
     }
 
+    public void selectUser() {
+        listDataTop.clear();
+        for (UserInfo bean : listData) {
+            if (StringUtil.isNotNull(select_uid) && select_uid.equals("" + bean.getUid())) {
+
+                if (!bean.isChecked()) {
+                    listDataTop.add(bean);
+
+                    bean.setChecked(true);
+                    topListView.getAdapter().notifyDataSetChanged();
+                }
+            }
+        }
+
+    }
+
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
 
@@ -171,16 +187,16 @@ public class GroupCreateActivity extends AppActivity {
                 }
             });
             //8.19 已选择用户处理
-            if(StringUtil.isNotNull(select_uid)&& select_uid.equals(""+bean.getUid())){
+            if (StringUtil.isNotNull(select_uid) && select_uid.equals("" + bean.getUid())) {
 
-                if( !listData.get(position).isChecked()){
+                if (!listData.get(position).isChecked()) {
 
                     hd.ckSelect.setChecked(true);
                 }
 
                 hd.itemView.setAlpha(0.3f);
                 hd.ckSelect.setEnabled(false);
-            }else{
+            } else {
                 hd.itemView.setAlpha(1f);
                 hd.ckSelect.setEnabled(true);
             }
@@ -295,6 +311,8 @@ public class GroupCreateActivity extends AppActivity {
             //UserInfo infoBean:
             viewType.putTag(listData.get(i).getTag(), i);
         }
+
+        selectUser();
 
 
     }
