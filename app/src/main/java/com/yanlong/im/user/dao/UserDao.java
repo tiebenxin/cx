@@ -303,7 +303,9 @@ public class UserDao {
                     if (userInfo == null) {
                         continue;
                     }
-                    userInfo.setLastonline(bean.getLastonline());
+                    if (bean.getLastonline() > userInfo.getLastonline()) {//更新数据时间大于本地数据时间，才更新
+                        userInfo.setLastonline(bean.getLastonline());
+                    }
                     userInfo.setActiveType(bean.getActiveType());
                     realm.insertOrUpdate(userInfo);
                 }
