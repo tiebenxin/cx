@@ -409,15 +409,18 @@ public class SocketUtil {
             public void run() {
 
                 try {
-                    ByteBuffer writeBuf = ByteBuffer.wrap(data);
-
+                    ByteBuffer writeBuf = ByteBuffer.allocate(data.length);
+                    writeBuf.put(data);
+                    writeBuf.flip();
                     LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
                     LogUtil.getLog().i(TAG, ">>>发送:" + SocketData.bytesToHex(data));
-                    socketChannel.write(writeBuf);
-
+                   int state= socketChannel.write(writeBuf);
+                    writeBuf.clear();
+                    LogUtil.getLog().i(TAG, ">>>发送状态:" + state);
                 } catch (Exception e) {
                     e.printStackTrace();
                     LogUtil.getLog().e(TAG, ">>>发送失败" + SocketData.bytesToHex(data));
+                    LogUtil.getLog().e(TAG, ">>>发送列队异常" + e.toString());
                     //取消发送队列,返回失败
                     if (msgTag != null) {
                         SendList.removeSendList(msgTag.getRequestId());

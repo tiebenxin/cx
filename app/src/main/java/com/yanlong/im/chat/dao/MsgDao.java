@@ -1472,6 +1472,25 @@ public class MsgDao {
 
     }
 
+    /***
+     * 把发送中的状态修改为发送失败
+     */
+    public void msgSendStateToFail(){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class).equalTo("send_state", ChatEnum.ESendStatus.SENDING).or().equalTo("send_state", ChatEnum.ESendStatus.PRE_SEND).findAll();
+        if(list!=null){
+            for (MsgAllBean ls:list) {
+                ls.setSend_state(ChatEnum.ESendStatus.ERROR);
+            }
+            realm.insertOrUpdate(list);
+        }
+
+        realm.commitTransaction();
+        realm.close();
+    }
+
 
 
 }

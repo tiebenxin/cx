@@ -85,6 +85,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -427,42 +428,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         }
-        //test 8.20 消息的连续发送测试
-        actionbar.getCenterTitle().setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ToastUtil.show(getContext(),"连续发送测试开始");
-              new  RunUtils(new RunUtils.Enent() {
-                  @Override
-                  public void onRun() {
-
-                      try {
-                          for (int i=1;i<=1000;i++){
-                              if(i%10==0)
-                                  SocketData.send4Chat(toUId, toGid, "连续测试发送"+i+"-------");
-                                  else
-                              SocketData.send4Chat(toUId, toGid, "连续测试发送"+i);
-
-                              if(i%100==0)
-                                  Thread.sleep(2*1000);
-                          }
-                      } catch (InterruptedException e) {
-                          e.printStackTrace();
-                      }
-                  }
-
-                  @Override
-                  public void onMain() {
-                      notifyData2Bottom(true);
-                  }
-              }).run();
-
-
-
-                return false;
-            }
-        });
-        //--------------------
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -501,6 +466,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //test 8.21测试发送
+               // if(AppConfig.DEBUG){
+                    String txt= edtChat.getText().toString();
+                    if(txt.startsWith("@000")){
+                        int count= Integer.parseInt(txt.split("_")[1]) ;
+                        taskTestSend(count);
+                        return;
+                    }
+              //  }
+                //--------
 
                 if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
                     if (edtChat.isAtAll()) {
@@ -919,6 +894,34 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         });
 
 
+    }
+
+    private void taskTestSend(final int count) {
+        ToastUtil.show(getContext(),"连续发送"+count+"测试开始");
+        new RunUtils(new RunUtils.Enent() {
+            @Override
+            public void onRun() {
+
+                try {
+                    for (int i=1;i<=count;i++){
+                        if(i%10==0)
+                            SocketData.send4Chat(toUId, toGid, "连续测试发送"+i+"-------");
+                            else
+                        SocketData.send4Chat(toUId, toGid, "连续测试发送"+i);
+
+                        if(i%100==0)
+                            Thread.sleep(2*1000);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onMain() {
+                notifyData2Bottom(false);
+            }
+        }).run();
     }
 
     private void saveScrollPosition() {

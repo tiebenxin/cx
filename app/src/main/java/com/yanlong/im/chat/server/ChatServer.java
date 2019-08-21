@@ -384,10 +384,19 @@ public class ChatServer extends Service {
         LogUtil.getLog().e(TAG, ">>>启动socket,服务已经开启-----------------------------------");
         //SocketUtil.getSocketUtil().stop();
 
+        taskFixSendstate();
+
         SocketUtil.getSocketUtil().startSocket();
 
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    /***
+     * 修改发送状态
+     */
+    private void taskFixSendstate() {
+        msgDao.msgSendStateToFail();
     }
 
     @Override
