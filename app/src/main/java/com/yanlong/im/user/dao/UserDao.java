@@ -5,6 +5,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
@@ -275,6 +276,37 @@ public class UserDao {
 //                    LogUtil.getLog().i("updateUserOnlineStatus", uid + "的离线时间=" + time);
                 }
                 realm.insertOrUpdate(userInfo);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /***
+     * 更新好友
+     * @param list
+     */
+    public void updateUsersOnlineStatus(List<OnlineBean> list) {
+        try {
+            Realm realm = DaoUtil.open();
+            realm.beginTransaction();
+            if (list != null && list.size() > 0) {
+                int len = list.size();
+                for (int i = 0; i < len; i++) {
+                    OnlineBean bean = list.get(i);
+                    if (bean == null) {
+                        continue;
+                    }
+                    UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", bean.getUid()).findFirst();
+                    if (userInfo == null) {
+                        continue;
+                    }
+                    userInfo.setLastonline(bean.getLastonline());
+                    userInfo.setActiveType(bean.getActiveType());
+                    realm.insertOrUpdate(userInfo);
+                }
             }
             realm.commitTransaction();
             realm.close();

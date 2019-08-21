@@ -25,6 +25,8 @@ import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
+import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.TimeToString;
@@ -347,21 +349,26 @@ public class FriendMainFragment extends Fragment {
 
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshOnlineStatus(EventRunState event) {
+        if (event.getRun()) {
+            taskGetUsersOnlineStatus();
+        }
+    }
+
     public void taskRefreshListData() {
         userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
-                                    @Override
-                                    public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                                        taskListData();
-                                    }
+            @Override
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                taskListData();
+            }
 
-                                    @Override
-                                    public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
-                                        super.onFailure(call, t);
-                                        taskListData();
-                                    }
-                                }
-
-        );
+            @Override
+            public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                super.onFailure(call, t);
+                taskListData();
+            }
+        });
     }
 
 
@@ -382,6 +389,21 @@ public class FriendMainFragment extends Fragment {
         msgDao.remidClear("friend_apply");
 
         EventBus.getDefault().post(new EventRefreshMainMsg());
+    }
+
+    public void taskGetUsersOnlineStatus() {
+        userAction.getUsersOnlineStatus(new CallBack<ReturnBean<List<OnlineBean>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<OnlineBean>>> call, Response<ReturnBean<List<OnlineBean>>> response) {
+                taskListData();
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<List<OnlineBean>>> call, Throwable t) {
+                super.onFailure(call, t);
+//                                                taskListData();
+            }
+        });
     }
 
 

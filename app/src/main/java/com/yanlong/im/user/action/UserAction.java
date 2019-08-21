@@ -23,6 +23,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
@@ -116,7 +117,7 @@ public class UserAction {
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         cleanInfo();
-        NetUtil.getNet().exec(server.login( MD5.md5(pwd), phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -517,7 +518,7 @@ public class UserAction {
      */
     public void setUserPassword(String newPassword, String oldPassword, CallBack<ReturnBean> callback) {
 
-        NetUtil.getNet().exec(server.setUserPassword( MD5.md5(newPassword),  MD5.md5(oldPassword)), callback);
+        NetUtil.getNet().exec(server.setUserPassword(MD5.md5(newPassword), MD5.md5(oldPassword)), callback);
     }
 
     /**
@@ -634,7 +635,7 @@ public class UserAction {
      */
     public void initUserPassword(String password, CallBack<ReturnBean> callback) {
 
-        NetUtil.getNet().exec(server.initUserPassword( MD5.md5(password)), callback);
+        NetUtil.getNet().exec(server.initUserPassword(MD5.md5(password)), callback);
     }
 
     /**
@@ -642,6 +643,30 @@ public class UserAction {
      */
     public void userComplaint(int complaintType, String illegalDescription, String illegalImage, String respondentGid, String respondentUid, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.userComplaint(complaintType, illegalDescription, illegalImage, respondentGid, respondentUid), callback);
+    }
+
+
+    /**
+     * 获取通讯录好友在线状态
+     */
+    public void getUsersOnlineStatus(final CallBack<ReturnBean<List<OnlineBean>>> callback) {
+        NetUtil.getNet().exec(server.getUsersOnlineStatus(), new CallBack<ReturnBean<List<OnlineBean>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<OnlineBean>>> call, Response<ReturnBean<List<OnlineBean>>> response) {
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
+                    List<OnlineBean> list = response.body().getData();
+                    dao.updateUsersOnlineStatus(list);
+                }
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<List<OnlineBean>>> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
     }
 
 
