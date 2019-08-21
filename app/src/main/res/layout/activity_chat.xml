@@ -40,14 +40,14 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical|bottom"
                     android:orientation="horizontal"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp">
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp">
 
                     <ImageView
                         android:id="@+id/btn_voice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
+                        android:layout_marginBottom="6dp"
                         android:src="@mipmap/ic_chat_vio" />
 
                     <FrameLayout
@@ -64,11 +64,11 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/bg_edt_chat"
                             android:fontFamily="@font/emoji_font"
-                            android:textSize="16sp"
                             android:maxLength="200"
                             android:maxLines="3"
-                            android:minHeight="34dp"
-                            android:singleLine="false" />
+                            android:minHeight="38dp"
+                            android:singleLine="false"
+                            android:textSize="18sp" />
 
                         <Button
                             android:id="@+id/txt_voice"
@@ -83,7 +83,7 @@
                         android:id="@+id/btn_emj"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
+                        android:layout_marginBottom="6dp"
                         android:src="@drawable/ic_lv_emoji" />
 
                     <FrameLayout
@@ -97,17 +97,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/app_margin_item"
-                            android:layout_marginBottom="5dp"
+                            android:layout_marginBottom="8dp"
                             android:src="@mipmap/ic_chat_fun" />
 
                         <Button
                             android:id="@+id/btn_send"
                             style="@style/app_btn_green_s"
-                            android:layout_width="38dp"
-                            android:layout_height="32dp"
-                            android:layout_marginLeft="6dp"
-
+                            android:layout_width="70dp"
+                            android:layout_height="37dp"
+                            android:layout_marginLeft="8dp"
                             android:text="发送"
+
+                            android:textSize="17sp"
                             android:visibility="gone" />
                     </FrameLayout>
                 </LinearLayout>
