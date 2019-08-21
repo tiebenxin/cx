@@ -15,7 +15,7 @@ import net.cb.cb.library.utils.LogUtil;
 import java.util.List;
 
 //自动生成RecyclerViewAdapter
-class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private LayoutInflater inflater;
     private RecyclerView.Adapter adapter;
@@ -151,4 +151,15 @@ class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
     }
+
+    /*
+     * adapter嵌套，无效方法
+     * */
+    public void notifyItemRangeChange(int start, int size) {
+        if (adapter != null) {
+            adapter.notifyItemRangeInserted(start, size);
+        }
+    }
+
+
 }

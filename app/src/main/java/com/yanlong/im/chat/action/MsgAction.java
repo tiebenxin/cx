@@ -141,20 +141,16 @@ public class MsgAction {
 
 
     /***
+     * @param isNew boolean ,true表示是加载最新数据，false表示加载更多历史数据
      * 获取某个用户的数据
      * @return
      */
-/*    public List<MsgAllBean> getMsg4User(String gid, Long uid, Integer page) {
+
+    public List<MsgAllBean> getMsg4User(String gid, Long uid, Long time, boolean isNew) {
         if (StringUtil.isNotNull(gid)) {
-            return dao.getMsg4Group(gid, page);
+            return dao.getMsg4Group(gid, time, isNew);
         }
-        return dao.getMsg4User(uid, page);
-    }*/
-    public List<MsgAllBean> getMsg4User(String gid, Long uid, Long time) {
-        if (StringUtil.isNotNull(gid)) {
-            return dao.getMsg4Group(gid, time);
-        }
-        return dao.getMsg4User(uid, time);
+        return dao.getMsg4User(uid, time, isNew);
     }
 
 
