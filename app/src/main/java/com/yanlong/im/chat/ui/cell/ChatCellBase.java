@@ -3,9 +3,7 @@ package com.yanlong.im.chat.ui.cell;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -18,9 +16,9 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
 
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import java.util.ArrayList;
@@ -44,6 +42,13 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private ImageView iv_error;
     public View bubbleLayout;
     private List<OptionMenu> menus;
+
+    IMenuSelectListener menuListener = new IMenuSelectListener() {
+        @Override
+        public void onSelected() {
+            updateSelectedBG(false);
+        }
+    };
 
     @ChatEnum.EMessageType
     int messageType;
@@ -80,9 +85,9 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
             bubbleLayout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-
                     if (mCellListener != null) {
-                        mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, menus, bubbleLayout);
+                        updateSelectedBG(true);
+                        mCellListener.onEvent(ChatEnum.ECellEventType.LONG_CLICK, model, menus, bubbleLayout, menuListener);
                     }
                     return true;
                 }
@@ -325,6 +330,12 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
                     menus.add(new OptionMenu("撤回"));
                 }
             }
+        }
+    }
+
+    private void updateSelectedBG(boolean flag) {
+        if (bubbleLayout != null) {
+            bubbleLayout.setSelected(flag);
         }
     }
 

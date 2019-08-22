@@ -15,7 +15,9 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.view.MultiListView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MessageAdapter extends RecyclerView.Adapter {
 
@@ -24,6 +26,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private List<MsgAllBean> mList;
     private FactoryChatCell factoryChatCell;
     private final boolean isGroup;//是否群聊
+
+    private Map<Integer, View> viewMap = new HashMap<>();
 
     public MessageAdapter(Context c, ICellEventListener l, boolean isG) {
         context = c;
@@ -38,15 +42,18 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return this;
     }
 
-    public void bindData(List<MsgAllBean> list, int page) {
-        if (mList == null) {
-            mList = list;
-        } else {
-            if (page == 0) {
-                mList.clear();
-            }
-            mList.addAll(0, list);
-        }
+    public void bindData(List<MsgAllBean> list) {
+//        if (mList == null) {
+//            mList = list;
+//        } else {
+//            if (page == 0) {
+//                mList.clear();
+//            }
+//            mList.addAll(0, list);
+//            mList = list;
+//        }
+        mList = list;
+
         notifyDataSetChanged();
     }
 
@@ -69,6 +76,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
         ChatCellBase cellBase = (ChatCellBase) viewHolder;
         cellBase.putMessage(mList.get(position), position);
+        viewMap.put(position, cellBase.itemView);
     }
 
     @Override
@@ -124,6 +132,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
 //            mList.set(position,bean);
 //            this.notifyItemChanged(position, payloads);
         }
+    }
+
+    public View getItemViewByPosition(int position) {
+        if (!viewMap.isEmpty()) {
+            return viewMap.get(position);
+        }
+        return null;
     }
 
 }

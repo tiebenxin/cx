@@ -19,9 +19,22 @@
 
         android:text="shijian" />
 
+    <LinearLayout
+        android:id="@+id/view_broadcast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/img_broadcast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_rd_note"
+            android:layout_marginRight="10dp"
+            />
     <TextView
         android:id="@+id/txt_broadcast"
-        style="@style/app_txt_title_2"
+        style="@style/app_txt_content_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -31,7 +44,7 @@
         android:text="公告"
 
         android:textColor="@color/white" />
-
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/view_ot"
         android:layout_width="match_parent"
@@ -221,10 +234,11 @@
                     android:id="@+id/view_ot_5"
                     android:layout_width="211dp"
                     android:layout_height="90dp"
-                    android:background="@drawable/bg_chat_other_card"
+                    android:background="@drawable/selector_card_other_touch"
                     android:orientation="vertical"
                     android:visibility="visible">
                     <!--selector_card_other_touch-->
+                    <!--bg_chat_other_card-->
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -616,11 +630,12 @@
                         android:id="@+id/view_me_5"
                         android:layout_width="211dp"
                         android:layout_height="90dp"
-                        android:background="@drawable/bg_chat_me_card"
+                        android:background="@drawable/selector_card_me_touch"
                         android:orientation="vertical"
                         android:visibility="visible">
 
                         <!--selector_card_me_touch-->
+                        <!--bg_chat_me_card-->
 
                         <LinearLayout
                             android:layout_width="match_parent"

@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SendList {
     private static final String TAG = "SendList";
     //重发次数
-    private static int SEND_MAX_NUM = 2;
+    private static int SEND_MAX_NUM = 1;
     //重发时长
     private static long SEND_RE_TIME = 3 * 1000;
 
@@ -59,7 +59,7 @@ public class SendList {
     public static void removeSendList(String keyId) {
         if (!SEND_LIST.containsKey(keyId))
             return;
-        LogUtil.getLog().i(TAG,"SocketUtil$移除队列返回失败"+keyId);
+        LogUtil.getLog().e(TAG,"SocketUtil$移除队列[返回失败]"+keyId);
         SocketUtil.getSocketUtil().getEvent().onSendMsgFailure(SEND_LIST.get(keyId).getMsg());
         SEND_LIST.remove(keyId);
     }
@@ -71,7 +71,7 @@ public class SendList {
     public static void removeSendListJust(String keyId) {
         if (!SEND_LIST.containsKey(keyId))
             return;
-        LogUtil.getLog().i(TAG,"SocketUtil$移除队列不返回失败"+keyId);
+        LogUtil.getLog().i(TAG,"SocketUtil$移除队列"+keyId);
         SEND_LIST.remove(keyId);
     }
 
@@ -87,10 +87,12 @@ public class SendList {
             String kid = entry.getKey();
             SendListBean bean = entry.getValue();
 
-            if (bean.getReSendNum() < SEND_MAX_NUM) { //在正常发送范围之内
+            if (bean.getReSendNum() <= SEND_MAX_NUM) { //在正常发送范围之内
                 if (now > (bean.getFirstTimeSent() + bean.getReSendNum() * SEND_RE_TIME)) {
-                    LogUtil.getLog().e(TAG, ">>>>符合重发条件" + kid);
+                    LogUtil.getLog().e(TAG, ">>>>符合发送条件" + kid);
                     SocketUtil.getSocketUtil().sendData4Msg(bean.getMsg());
+                }else {
+                    LogUtil.getLog().e(TAG, ">>>>符合重发条件但时间不满足" + kid);
                 }
             } else {//超过发送次数,取消队列,返回失败
                 LogUtil.getLog().e(TAG, ">>>>发送条件次数不符合" + kid);

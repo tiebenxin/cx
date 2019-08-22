@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.provider.Browser;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Html;
@@ -46,10 +45,6 @@ import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 
 public class ChatItemView extends LinearLayout {
@@ -57,6 +52,9 @@ public class ChatItemView extends LinearLayout {
     private TextView txtMeName;
     private TextView txtTime;
     private TextView txtBroadcast;
+    private ImageView imgBroadcast;
+    private View viewBroadcast;
+
     private LinearLayout viewOt;
     private com.facebook.drawee.view.SimpleDraweeView imgOtHead;
     private LinearLayout viewOt1;
@@ -137,6 +135,9 @@ public class ChatItemView extends LinearLayout {
         txtOtName = (TextView) rootView.findViewById(R.id.txt_ot_name);
         txtTime = (TextView) rootView.findViewById(R.id.txt_time);
         txtBroadcast = (TextView) rootView.findViewById(R.id.txt_broadcast);
+        imgBroadcast= (ImageView) rootView.findViewById(R.id.img_broadcast);
+        viewBroadcast=rootView.findViewById(R.id.view_broadcast);
+
         viewOt = (LinearLayout) rootView.findViewById(R.id.view_ot);
         imgOtHead = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_head);
         viewOt1 = (LinearLayout) rootView.findViewById(R.id.view_ot_1);
@@ -254,7 +255,7 @@ public class ChatItemView extends LinearLayout {
             viewMe.setVisibility(GONE);
             viewOt.setVisibility(VISIBLE);
         }
-        txtBroadcast.setVisibility(GONE);
+        viewBroadcast.setVisibility(GONE);
         //  imgMeErr.setVisibility(GONE);
         viewMe1.setVisibility(GONE);
         viewOt1.setVisibility(GONE);
@@ -275,7 +276,7 @@ public class ChatItemView extends LinearLayout {
         switch (type) {
             case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告
-                txtBroadcast.setVisibility(VISIBLE);
+                viewBroadcast.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
@@ -350,9 +351,15 @@ public class ChatItemView extends LinearLayout {
         txtBroadcast.setText(Html.fromHtml(msghtml));
     }
 
-    public void setData0(SpannableStringBuilder stringBuilder){
+    public void setData0(SpannableStringBuilder stringBuilder) {
+        imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(stringBuilder);
         txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+    public void showBroadcastIcon(Integer rid){
+        imgBroadcast.setVisibility(VISIBLE);
+        if(rid!=null)
+        imgBroadcast.setImageResource(rid);
     }
 
     //普通消息
@@ -381,17 +388,17 @@ public class ChatItemView extends LinearLayout {
         if (isInvalid) {//失效
             imgMeRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
             imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_n);
-            viewMe3.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
-            viewOt3.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
-//            viewMe3.setBackgroundResource(R.drawable.selector_rp_h_me_touch);
-//            viewOt3.setBackgroundResource(R.drawable.selector_rp_h_other_touch);
+//            viewMe3.setBackgroundResource(R.drawable.bg_chat_me_rp_h);
+//            viewOt3.setBackgroundResource(R.drawable.bg_chat_other_rp_h);
+            viewMe3.setBackgroundResource(R.drawable.selector_rp_h_me_touch);
+            viewOt3.setBackgroundResource(R.drawable.selector_rp_h_other_touch);
         } else {
             imgMeRbState.setImageResource(R.mipmap.ic_rb_zfb_un);
             imgOtRbState.setImageResource(R.mipmap.ic_rb_zfb_un);
-            viewMe3.setBackgroundResource(R.drawable.bg_chat_me_rp);
-            viewOt3.setBackgroundResource(R.drawable.bg_chat_other_rp);
-//            viewMe3.setBackgroundResource(R.drawable.selector_rp_me_touch);
-//            viewOt3.setBackgroundResource(R.drawable.selector_rp_other_touch);
+//            viewMe3.setBackgroundResource(R.drawable.bg_chat_me_rp);
+//            viewOt3.setBackgroundResource(R.drawable.bg_chat_other_rp);
+            viewMe3.setBackgroundResource(R.drawable.selector_rp_me_touch);
+            viewOt3.setBackgroundResource(R.drawable.selector_rp_other_touch);
         }
 
         if (eventRP != null) {
@@ -778,6 +785,36 @@ public class ChatItemView extends LinearLayout {
     public void setOnHead(OnClickListener onk) {
         imgMeHead.setOnClickListener(onk);
         imgOtHead.setOnClickListener(onk);
+    }
+
+    public void selectTextBubble(boolean flag) {
+        viewOtTouch.setSelected(flag);
+        viewMeTouch.setSelected(flag);
+
+        viewOt1.setSelected(flag);
+        viewMe1.setSelected(flag);
+
+        viewOt2.setSelected(flag);
+        viewMe2.setSelected(flag);
+
+        viewOt3.setSelected(flag);
+        viewMe3.setSelected(flag);
+
+        viewOt4.setSelected(flag);
+        viewMe4.setSelected(flag);
+
+        viewOt5.setSelected(flag);
+        viewMe5.setSelected(flag);
+
+        viewOt6.setSelected(flag);
+        viewMe6.setSelected(flag);
+
+        viewOt7.setSelected(flag);
+        viewMe7.setSelected(flag);
+
+        viewOt8.setSelected(flag);
+        viewMe8.setSelected(flag);
+
     }
 
 

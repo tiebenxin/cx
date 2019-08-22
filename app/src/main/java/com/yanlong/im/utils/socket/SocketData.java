@@ -2,16 +2,13 @@ package com.yanlong.im.utils.socket;
 
 import android.util.Log;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
@@ -25,9 +22,10 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class SocketData {
     private static final String TAG = "SocketData";
@@ -262,7 +260,7 @@ public class SocketData {
     }
 
     //6.6 为后端擦屁股
-    private static String oldMsgId = "";
+    private static CopyOnWriteArrayList<String> oldMsgId = new CopyOnWriteArrayList<>();
 
     /***
      * 保存消息和发送消息回执
@@ -284,12 +282,14 @@ public class SocketData {
                 DaoUtil.update(msgAllBean);
 
                 //6.6 为后端擦屁股
-                if (!oldMsgId.equals(wmsg.getMsgId())) {
-                    oldMsgId = wmsg.getMsgId();
+                if (!oldMsgId.contains(wmsg.getMsgId())) {
+                    if(oldMsgId.size()>=500)
+                        oldMsgId.remove(0);
+                    oldMsgId.add(wmsg.getMsgId())  ;
                     msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
                     LogUtil.getLog().e(TAG, ">>>>>累计 ");
                 } else {
-                    LogUtil.getLog().e(TAG, ">>>>>重复消息,为后端擦屁股: " + oldMsgId);
+                    LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
                 }
 
 

@@ -9,6 +9,7 @@ import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 
+import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 
 import java.util.List;
@@ -141,4 +142,8 @@ public interface UserServer {
     Call<ReturnBean> userComplaint(@Field("complaintType") Integer complaintType,@Field("illegalDescription") String illegalDescription,
                                    @Field("illegalImage") String illegalImage,@Field("respondentGid") String respondentGid,@Field("respondentUid") String respondentUid);
 
+
+    @POST("friends/get-friends-online")
+//    @FormUrlEncoded
+    Call<ReturnBean<List<OnlineBean>>> getUsersOnlineStatus();
 }
