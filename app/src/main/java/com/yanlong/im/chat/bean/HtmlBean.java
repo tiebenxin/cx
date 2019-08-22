@@ -1,38 +1,31 @@
 package com.yanlong.im.chat.bean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @创建人 shenxin
- * @创建时间 2019/8/16 0016 14:53
+ * @创建时间 2019/8/22 0022 16:09
  */
 public class HtmlBean {
 
-    private String id;
+    private String gid;
+    private List<HtmlBeanList> list = new ArrayList<>();
 
-    private String name;
-
-    private int type;
-
-    public int getType() {
-        return type;
+    public List<HtmlBeanList> getList() {
+        return list;
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void setList(List<HtmlBeanList> list) {
+        this.list = list;
     }
 
-    public String getId() {
-        return id;
+    public String getGid() {
+        return gid;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setGid(String gid) {
+        this.gid = gid;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

@@ -13,8 +13,8 @@ import android.util.Log;
 import android.view.View;
 
 import com.yanlong.im.chat.bean.HtmlBean;
+import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.user.ui.UserInfoActivity;
-
 
 
 import org.jsoup.Jsoup;
@@ -36,31 +36,31 @@ public class HtmlTransitonUtils {
         SpannableStringBuilder style = new SpannableStringBuilder();
         Log.v(TAG, "html---------------->" + html);
         if (!TextUtils.isEmpty(html)) {
-            List<HtmlBean> list = htmlTransition(html);
+            HtmlBean bean = htmlTransition(html);
             switch (type) {
                 case 1:
-                    setType1(context, style, list);
+                    setType1(context, style, bean);
                     break;
                 case 2:
-                    setType2(context, style, list);
+                    setType2(context, style, bean);
                     break;
                 case 3:
-                    setType3(context, style, list);
+                    setType3(context, style, bean);
                     break;
                 case 5:
-                    setType5(context, style, list);
+                    setType5(context, style, bean);
                     break;
                 case 6:
-                    setType6(context, style, list);
+                    setType6(context, style, bean);
                     break;
                 case 7:
-                    setType7(context, style, list);
+                    setType7(context, style, bean);
                     break;
                 case 8:
-                    setType8(context, style, list);
+                    setType8(context, style, bean);
                     break;
                 case 9:
-                    setType9(context, style, list);
+                    setType9(context, style, bean);
                     break;
             }
 
@@ -69,8 +69,10 @@ public class HtmlTransitonUtils {
         return style;
     }
 
-    private void setType1(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
-        for (final HtmlBean bean : list) {
+    private void setType1(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+
+        for (final HtmlBeanList bean : list) {
             if (bean.getType() == 1) {
                 builder.append("你、");
             } else if (bean.getType() == 2) {
@@ -83,9 +85,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        Intent intent = new Intent(context, UserInfoActivity.class);
-                        intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                        context.startActivity(intent);
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                     }
 
                     @Override
@@ -99,7 +99,7 @@ public class HtmlTransitonUtils {
             }
         }
         builder.append("通过扫");
-        for (final HtmlBean bean : list) {
+        for (final HtmlBeanList bean : list) {
             if (bean.getType() == 3) {
                 builder.append("你");
             } else if (bean.getType() == 4) {
@@ -112,9 +112,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        Intent intent = new Intent(context, UserInfoActivity.class);
-                        intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                        context.startActivity(intent);
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                     }
 
                     @Override
@@ -131,8 +129,9 @@ public class HtmlTransitonUtils {
     }
 
 
-    private void setType2(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
-        for (final HtmlBean bean : list) {
+    private void setType2(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (final HtmlBeanList bean : list) {
             if (bean.getType() == 3) {
                 builder.append("你");
             } else if (bean.getType() == 4) {
@@ -145,9 +144,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        Intent intent = new Intent(context, UserInfoActivity.class);
-                        intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                        context.startActivity(intent);
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                     }
 
                     @Override
@@ -163,7 +160,7 @@ public class HtmlTransitonUtils {
 
         builder.append("邀请");
 
-        for (final HtmlBean bean : list) {
+        for (final HtmlBeanList bean : list) {
             if (bean.getType() == 1) {
                 builder.append("你、");
             } else if (bean.getType() == 2) {
@@ -176,9 +173,7 @@ public class HtmlTransitonUtils {
                 ClickableSpan clickProtocol = new ClickableSpan() {
                     @Override
                     public void onClick(View widget) {
-                        Intent intent = new Intent(context, UserInfoActivity.class);
-                        intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                        context.startActivity(intent);
+                        goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                     }
 
                     @Override
@@ -195,9 +190,10 @@ public class HtmlTransitonUtils {
     }
 
 
-    private void setType3(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
+    private void setType3(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
         builder.append("你将");
-        for (final HtmlBean bean : list) {
+        for (final HtmlBeanList bean : list) {
             String content = "\"" + bean.getName() + "\"、";
             builder.append(content);
             int state = builder.toString().length() - content.length() + 1;
@@ -205,9 +201,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    context.startActivity(intent);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                 }
 
                 @Override
@@ -223,8 +217,9 @@ public class HtmlTransitonUtils {
         builder.append("移出群聊");
     }
 
-    private void setType5(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
-        for (final HtmlBean bean : list) {
+    private void setType5(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (final HtmlBeanList bean : list) {
             String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
@@ -234,9 +229,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    context.startActivity(intent);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                 }
 
                 @Override
@@ -253,8 +246,9 @@ public class HtmlTransitonUtils {
     }
 
 
-    private void setType6(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
-        for (final HtmlBean bean : list) {
+    private void setType6(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (final HtmlBeanList bean : list) {
             String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
@@ -264,9 +258,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    context.startActivity(intent);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                 }
 
                 @Override
@@ -283,8 +275,9 @@ public class HtmlTransitonUtils {
     }
 
 
-    private void setType7(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
-        for (final HtmlBean bean : list) {
+    private void setType7(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (final HtmlBeanList bean : list) {
             String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
@@ -294,9 +287,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    context.startActivity(intent);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                 }
 
                 @Override
@@ -311,13 +302,14 @@ public class HtmlTransitonUtils {
         }
         builder.append("领取了你的云红包");
         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#cc5944"));
-        builder.setSpan(protocolColorSpan,  builder.toString().length()-3,  builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
 
-    private void setType8(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
+    private void setType8(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
         builder.append("你领取了");
-        for (final HtmlBean bean : list) {
+        for (final HtmlBeanList bean : list) {
             String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
@@ -327,9 +319,7 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    context.startActivity(intent);
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                 }
 
                 @Override
@@ -344,13 +334,14 @@ public class HtmlTransitonUtils {
         }
         builder.append("的云红包");
         ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#cc5944"));
-        builder.setSpan(protocolColorSpan,  builder.toString().length()-3,  builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.setSpan(protocolColorSpan, builder.toString().length() - 3, builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
 
-    private void setType9(final Context context, SpannableStringBuilder builder, List<HtmlBean> list) {
-        for (final HtmlBean bean : list) {
-            String content = "\"" + bean.getName() + "\"";
+    private void setType9(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (final HtmlBeanList bean : list) {
+            final String content = "\"" + bean.getName() + "\"";
             builder.append(content);
 
             int state = builder.toString().length() - content.length() + 1;
@@ -359,9 +350,12 @@ public class HtmlTransitonUtils {
             ClickableSpan clickProtocol = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
-                    context.startActivity(intent);
+//                    Intent intent = new Intent(context, UserInfoActivity.class);
+//                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+//                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+//                    context.startActivity(intent);
+
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
                 }
 
                 @Override
@@ -378,12 +372,21 @@ public class HtmlTransitonUtils {
     }
 
 
-    private List<HtmlBean> htmlTransition(String html) {
-        List<HtmlBean> list = new ArrayList<>();
+    private void goToUserInfoActivity(Context context, Long id, String gid) {
+        context.startActivity(new Intent(context, UserInfoActivity.class)
+                .putExtra(UserInfoActivity.ID, id)
+                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
+                .putExtra(UserInfoActivity.GID, gid));
+    }
+
+
+    private HtmlBean htmlTransition(String html) {
+        HtmlBean htmlBean = new HtmlBean();
+        List<HtmlBeanList> list = new ArrayList<>();
         Document doc = Jsoup.parse(html);
         Elements fonts = doc.select("font");
         for (Element element : fonts) {
-            HtmlBean bean = new HtmlBean();
+            HtmlBeanList bean = new HtmlBeanList();
             String id = element.id();
             if (!TextUtils.isEmpty(element.id())) {
                 Log.v(TAG, "id------------>" + element.id());
@@ -397,6 +400,15 @@ public class HtmlTransitonUtils {
             bean.setName(name);
             list.add(bean);
         }
-        return list;
+        htmlBean.setList(list);
+        Elements divs = doc.select("div");
+        if (divs != null && divs.size() > 0) {
+            for (int i = 0; i < divs.size(); i++) {
+                Log.v(TAG, "gid------------>" + divs.get(i).id());
+                htmlBean.setGid(divs.get(i).id());
+            }
+        }
+
+        return htmlBean;
     }
 }
