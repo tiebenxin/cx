@@ -20,6 +20,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -273,7 +274,7 @@ public class GroupNumbersActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     if(type != TYPE_ADD){
-                        EventBus.getDefault().post(new EventUserOnlineChange());
+                        EventBus.getDefault().post(new EventRefreshChat());
                     }
                     finish();
                 }

@@ -16,10 +16,13 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
