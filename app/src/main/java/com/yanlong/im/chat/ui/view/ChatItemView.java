@@ -348,6 +348,7 @@ public class ChatItemView extends LinearLayout {
 
     //公告
     public void setData0(String msghtml) {
+        imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(Html.fromHtml(msghtml));
     }
 
@@ -356,8 +357,8 @@ public class ChatItemView extends LinearLayout {
         txtBroadcast.setText(stringBuilder);
         txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
     }
-    public void showBroadcastIcon(Integer rid){
-        imgBroadcast.setVisibility(VISIBLE);
+    public void showBroadcastIcon(Boolean isShow,Integer rid){
+        imgBroadcast.setVisibility(isShow?VISIBLE:GONE);
         if(rid!=null)
         imgBroadcast.setImageResource(rid);
     }

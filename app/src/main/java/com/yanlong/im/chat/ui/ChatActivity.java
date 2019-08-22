@@ -1631,7 +1631,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case 0:
                     if (msgbean.getMsgNotice() != null) {
                         holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
+                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT||msgbean.getMsgNotice().getMsgType() == 17) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         } else {
                             holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
@@ -1639,7 +1639,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                         //8.22 如果是红包消息类型则显示红包图
                        if(msgbean.getMsgNotice().getMsgType()!=null&&(msgbean.getMsgNotice().getMsgType()==7||msgbean.getMsgNotice().getMsgType()==8||msgbean.getMsgNotice().getMsgType()==17)){
-                            holder.viewChatItem.showBroadcastIcon(null);
+                            holder.viewChatItem.showBroadcastIcon(true,null);
                        }
 
                     }
@@ -1648,9 +1648,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (msgbean.getMsgCancel() != null) {
                         if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                             holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
-                        } else {
-                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
-                                    msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
                         }
                     }
                     break;
