@@ -1637,6 +1637,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
                                     msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
                         }
+                        //8.22 如果是红包消息类型则显示红包图
+                       if(msgbean.getMsgNotice().getMsgType()!=null&&(msgbean.getMsgNotice().getMsgType()==7||msgbean.getMsgNotice().getMsgType()==8||msgbean.getMsgNotice().getMsgType()==17)){
+                            holder.viewChatItem.showBroadcastIcon(null);
+                       }
+
                     }
                     break;
                 case ChatEnum.EMessageType.MSG_CENCAL:
