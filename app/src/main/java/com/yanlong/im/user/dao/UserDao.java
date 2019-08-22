@@ -198,8 +198,12 @@ public class UserDao {
 
             if (!isExt) {
                 userInfo.toTag();
-                userInfo.setuType(2);
-                //  addTemp.add(userInfo);
+                if (userInfo.getStat() == 9) {
+                    userInfo.setuType(ChatEnum.EUserType.ASSISTANT);
+                    userInfo.setLastonline(System.currentTimeMillis());
+                } else {
+                    userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                }
                 realm.insertOrUpdate(userInfo);
             }
 

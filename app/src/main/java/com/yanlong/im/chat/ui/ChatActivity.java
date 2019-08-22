@@ -233,8 +233,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                        notifyData();*/
                         ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
+                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null) {
                             taskRefreshMessage();
+//                            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskRefreshMessage");
                         }
                     }
                 }
@@ -926,8 +927,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         else
                             SocketData.send4Chat(toUId, toGid, "连续测试发送" + i);
 
-                        if (i % 100 == 0)
-                            Thread.sleep(2 * 1000);
+//                        if (i % 100 == 0)
+//                            Thread.sleep(2 * 1000);
+                        Thread.sleep(2000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -1522,7 +1524,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
-                Log.d("sss", "onBindViewHolderpayloads: " + position);
+//                Log.d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
@@ -1556,6 +1558,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
+//            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "onBindViewHolder--position=" + position);
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
 
@@ -1631,7 +1634,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case 0:
                     if (msgbean.getMsgNotice() != null) {
                         holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
+                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT||msgbean.getMsgNotice().getMsgType() == 17) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         } else {
                             holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
@@ -1639,7 +1642,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                         //8.22 如果是红包消息类型则显示红包图
                        if(msgbean.getMsgNotice().getMsgType()!=null&&(msgbean.getMsgNotice().getMsgType()==7||msgbean.getMsgNotice().getMsgType()==8||msgbean.getMsgNotice().getMsgType()==17)){
-                            holder.viewChatItem.showBroadcastIcon(null);
+                            holder.viewChatItem.showBroadcastIcon(true,null);
                        }
 
                     }
@@ -2060,8 +2063,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void notifyData() {
         if (isNewAdapter) {
             messageAdapter.bindData(msgListData);
-//            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "currentPager=" + currentPager);
         }
+//        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "msgListData的size=" + msgListData.size());
         mtListView.notifyDataSetChange();
     }
 
