@@ -247,7 +247,7 @@ public class MsgConversionBean {
                 MsgNotice grmvNotice = new MsgNotice();
 
                 grmvNotice.setMsgid(msgAllBean.getMsg_id());
-                grmvNotice.setNote("你已被移除群");
+                grmvNotice.setNote("你已被移出群");
                 msgAllBean.setMsgNotice(grmvNotice);
                 break;
             case CHANGE_GROUP_MASTER:
