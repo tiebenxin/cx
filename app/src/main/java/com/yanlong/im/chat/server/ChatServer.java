@@ -22,6 +22,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventUserOnlineChange;
@@ -257,7 +258,6 @@ public class ChatServer extends Service {
                     long fuid = msg.getFromUid();
                     msgDao.sessionReadUpdate(gid, fuid, true);
                     msgDao.msgDel4Cancel(msg.getMsgId(),msg.getCancel().getMsgId());
-
                     return;
             }
 
