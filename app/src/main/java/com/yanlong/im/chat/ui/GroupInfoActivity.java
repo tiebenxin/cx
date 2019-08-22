@@ -10,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -269,7 +270,7 @@ public class GroupInfoActivity extends AppActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-      //  setResult(ChatActivity.REQ_REFRESH);
+        //  setResult(ChatActivity.REQ_REFRESH);
     }
 
     @Override
@@ -277,7 +278,6 @@ public class GroupInfoActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
         findViews();
-
 
     }
 
@@ -290,7 +290,10 @@ public class GroupInfoActivity extends AppActivity {
     private void initData() {
         //顶部处理
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
-
+        ckTop.setOnCheckedChangeListener(null);
+        ckDisturb.setOnCheckedChangeListener(null);
+        ckGroupSave.setOnCheckedChangeListener(null);
+        ckGroupVerif.setOnCheckedChangeListener(null);
 
         topListView.setLayoutManager(gridLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
@@ -359,8 +362,6 @@ public class GroupInfoActivity extends AppActivity {
             final UserInfo number = listDataTop.get(position);
             if (number != null) {
                 holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
-
-
                 holder.txtName.setText("" + number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -402,7 +403,6 @@ public class GroupInfoActivity extends AppActivity {
                         }
                     });
                 }
-
             }
         }
 
@@ -513,31 +513,19 @@ public class GroupInfoActivity extends AppActivity {
     }
 
     private void taskGetInfo() {
-        CallBack callBack=     new CallBack<ReturnBean<Group>>() {
+        CallBack callBack = new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
-
-
                     //8.8 如果是有群昵称显示自己群昵称
                     for (UserInfo number : ginfo.getUsers()) {
                         if (StringUtil.isNotNull(number.getMembername())) {
                             number.setName(number.getMembername());
                         }
                     }
-
-
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     txtGroupNote.setText(ginfo.getAnnouncement());
-                  /*  for (int i=0;i<50;i++){
-                        UserInfo teuser=new UserInfo();
-                        teuser.setHead(ginfo.getMembers().get(0).getHead());
-                        teuser.setName(""+i);
-                        teuser.setUid(4546l);
-                        ginfo.getMembers().add(teuser);
-                    }*/
-
                     listDataTop.clear();
                     if (isAdmin()) {
                         if (ginfo.getUsers().size() > 18) {
@@ -569,14 +557,59 @@ public class GroupInfoActivity extends AppActivity {
                         viewGroupManage.setVisibility(View.GONE);
 
                     }
-
-                    // viewGroupMore.setVisibility(View.VISIBLE);
                     initData();
                 }
             }
         };
-
         msgAction.groupInfo4Db(gid, callBack);
+        msgAction.groupInfo(gid, callBack);
+    }
+
+    private void taskGetInfoNetwork() {
+        CallBack callBack = new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                if (response.body().isOk()) {
+                    ginfo = response.body().getData();
+                    //8.8 如果是有群昵称显示自己群昵称
+                    for (UserInfo number : ginfo.getUsers()) {
+                        if (StringUtil.isNotNull(number.getMembername())) {
+                            number.setName(number.getMembername());
+                        }
+                    }
+                    actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
+                    txtGroupNote.setText(ginfo.getAnnouncement());
+                    listDataTop.clear();
+                    if (isAdmin()) {
+                        if (ginfo.getUsers().size() > 18) {
+                            viewGroupMore.setVisibility(View.VISIBLE);
+                            for (int i = 0; i < 18; i++) {
+                                listDataTop.add(ginfo.getUsers().get(i));
+                            }
+                        } else {
+                            listDataTop.addAll(ginfo.getUsers());
+                            viewGroupMore.setVisibility(View.GONE);
+                        }
+                        listDataTop.add(null);
+                        listDataTop.add(null);
+                        viewGroupManage.setVisibility(View.VISIBLE);
+                    } else {
+                        if (ginfo.getUsers().size() > 19) {
+                            viewGroupMore.setVisibility(View.VISIBLE);
+                            for (int i = 0; i < 19; i++) {
+                                listDataTop.add(ginfo.getUsers().get(i));
+                            }
+                        } else {
+                            listDataTop.addAll(ginfo.getUsers());
+                            viewGroupMore.setVisibility(View.GONE);
+                        }
+                        listDataTop.add(null);
+                        viewGroupManage.setVisibility(View.GONE);
+                    }
+                    initData();
+                }
+            }
+        };
         msgAction.groupInfo(gid, callBack);
     }
 
@@ -586,12 +619,11 @@ public class GroupInfoActivity extends AppActivity {
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckTop) {
             @Override
             public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
-
                 if (response.body() == null)
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    initEvent();
+                    taskGetInfoNetwork();
                 }
 
             }
@@ -604,12 +636,11 @@ public class GroupInfoActivity extends AppActivity {
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckDisturb) {
             @Override
             public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
-
                 if (response.body() == null)
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    initEvent();
+                    taskGetInfoNetwork();
                 }
 
             }
@@ -621,12 +652,11 @@ public class GroupInfoActivity extends AppActivity {
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckGroupSave) {
             @Override
             public void onResp(Call<ReturnBean> call, Response<ReturnBean> response) {
-
                 if (response.body() == null)
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    initEvent();
+                    taskGetInfoNetwork();
                 }
             }
         });
@@ -642,7 +672,7 @@ public class GroupInfoActivity extends AppActivity {
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    initEvent();
+                    taskGetInfoNetwork();
                 }
             }
         });
@@ -651,11 +681,8 @@ public class GroupInfoActivity extends AppActivity {
 
     private void taskAdd() {
         List<UserInfo> userInfos = taskGetNumbers();
-
         List<UserInfo> friendsUser = taskGetFriends();
-
         List<UserInfo> temp = new ArrayList<>();
-
         for (UserInfo a : friendsUser) {
             boolean isEx = false;
             for (UserInfo u : userInfos) {
@@ -668,8 +695,6 @@ public class GroupInfoActivity extends AppActivity {
             }
 
         }
-
-
         String json = gson.toJson(temp);
         startActivity(new Intent(getContext(), GroupNumbersActivity.class)
                 .putExtra(GroupNumbersActivity.AGM_GID, gid)

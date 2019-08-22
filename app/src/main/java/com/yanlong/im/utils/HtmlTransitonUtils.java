@@ -310,6 +310,8 @@ public class HtmlTransitonUtils {
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         builder.append("领取了你的云红包");
+        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#cc5944"));
+        builder.setSpan(protocolColorSpan,  builder.toString().length()-3,  builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
 
@@ -341,6 +343,8 @@ public class HtmlTransitonUtils {
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         builder.append("的云红包");
+        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#cc5944"));
+        builder.setSpan(protocolColorSpan,  builder.toString().length()-3,  builder.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
 

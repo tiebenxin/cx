@@ -22,6 +22,10 @@
                         android:name="JRMF_PARTNER_NAME"
                         android:value="红包"/> -->
         <meta-data
+            android:name="com.huawei.hms.client.appid"
+            android:value="appid=100836087" />
+
+        <meta-data
             android:name="JRMF_PARTNER_ID"
             android:value="cll0814" />
 
@@ -54,9 +58,6 @@
         <!--android:name="UMENG_APPKEY"-->
         <!--android:value="5d284fab3fc19520bf000ec9"></meta-data>-->
 
-        <!--<meta-data-->
-        <!--android:name="com.huawei.hms.client.appid"-->
-        <!--android:value="appid=100836087" />-->
 
         <activity
             android:name=".user.ui.StartPageActivity"

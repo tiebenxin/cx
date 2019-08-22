@@ -152,10 +152,11 @@ public class MsgConversionBean {
 
                 //jyj 8.19
                 if(bean.getFromUid()==UserAction.getMyId().longValue()){
-                    rbNotice.setNote("你领取了自己的云红包");
+                    rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
+                    rbNotice.setMsgType(17);
                 }else{
                     rbNotice.setMsgType(7);
-                    rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "领取了你的云红包");
+                    rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包");
                 }
 
                 msgAllBean.setMsgNotice(rbNotice);
@@ -247,7 +248,7 @@ public class MsgConversionBean {
                 MsgNotice grmvNotice = new MsgNotice();
 
                 grmvNotice.setMsgid(msgAllBean.getMsg_id());
-                grmvNotice.setNote("你已被移除群");
+                grmvNotice.setNote("你已被移出群");
                 msgAllBean.setMsgNotice(grmvNotice);
                 break;
             case CHANGE_GROUP_MASTER:

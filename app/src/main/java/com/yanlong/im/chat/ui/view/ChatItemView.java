@@ -52,6 +52,9 @@ public class ChatItemView extends LinearLayout {
     private TextView txtMeName;
     private TextView txtTime;
     private TextView txtBroadcast;
+    private ImageView imgBroadcast;
+    private View viewBroadcast;
+
     private LinearLayout viewOt;
     private com.facebook.drawee.view.SimpleDraweeView imgOtHead;
     private LinearLayout viewOt1;
@@ -132,6 +135,9 @@ public class ChatItemView extends LinearLayout {
         txtOtName = (TextView) rootView.findViewById(R.id.txt_ot_name);
         txtTime = (TextView) rootView.findViewById(R.id.txt_time);
         txtBroadcast = (TextView) rootView.findViewById(R.id.txt_broadcast);
+        imgBroadcast= (ImageView) rootView.findViewById(R.id.img_broadcast);
+        viewBroadcast=rootView.findViewById(R.id.view_broadcast);
+
         viewOt = (LinearLayout) rootView.findViewById(R.id.view_ot);
         imgOtHead = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_head);
         viewOt1 = (LinearLayout) rootView.findViewById(R.id.view_ot_1);
@@ -249,7 +255,7 @@ public class ChatItemView extends LinearLayout {
             viewMe.setVisibility(GONE);
             viewOt.setVisibility(VISIBLE);
         }
-        txtBroadcast.setVisibility(GONE);
+        viewBroadcast.setVisibility(GONE);
         //  imgMeErr.setVisibility(GONE);
         viewMe1.setVisibility(GONE);
         viewOt1.setVisibility(GONE);
@@ -270,7 +276,7 @@ public class ChatItemView extends LinearLayout {
         switch (type) {
             case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告
-                txtBroadcast.setVisibility(VISIBLE);
+                viewBroadcast.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
@@ -342,12 +348,19 @@ public class ChatItemView extends LinearLayout {
 
     //公告
     public void setData0(String msghtml) {
+        imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(Html.fromHtml(msghtml));
     }
 
     public void setData0(SpannableStringBuilder stringBuilder) {
+        imgBroadcast.setVisibility(GONE);
         txtBroadcast.setText(stringBuilder);
         txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+    public void showBroadcastIcon(Boolean isShow,Integer rid){
+        imgBroadcast.setVisibility(isShow?VISIBLE:GONE);
+        if(rid!=null)
+        imgBroadcast.setImageResource(rid);
     }
 
     //普通消息
