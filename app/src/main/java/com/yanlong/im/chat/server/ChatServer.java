@@ -53,6 +53,10 @@ public class ChatServer extends Service {
     //撤回消息
     private static Map<String ,MsgAllBean> cancelList=new ConcurrentHashMap<>();
 
+    public static Map<String, MsgAllBean> getCancelList() {
+        return cancelList;
+    }
+
     /***
      * 添加测试消息
      * @param msg_id 返回的消息id
@@ -131,6 +135,9 @@ public class ChatServer extends Service {
                 if(cancelList.containsKey(msgid)){
                    MsgAllBean msgAllBean= cancelList.get(msgid);
                     msgDao.msgDel4Cancel(msgid,msgAllBean.getMsgCancel().getMsgidCancel());
+
+                    Log.i(TAG, "onACK: 收到取消回执,手动刷新列表");
+                    EventBus.getDefault().post(new EventRefreshChat());
                     cancelList.remove(msgid);
                 }
 

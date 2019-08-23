@@ -596,6 +596,13 @@ public class ChatItemView extends LinearLayout {
             if (image != null) {
                 double mh = image.getHeight();
                 double mw = image.getWidth();
+                if(mh==0){
+                    mh=height;
+                }
+                if(mw==0){
+                    mw=width;
+                }
+
                 double cp = 1;
                 if (mh > mw) {
                     cp = height / mh;
