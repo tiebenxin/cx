@@ -437,6 +437,11 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
+        <!--意见反馈-->
+        <activity
+            android:name=".user.ui.FeedbackActivity"
+            android:screenOrientation="portrait" />
+
 
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">
             <intent-filter>

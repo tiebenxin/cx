@@ -215,26 +215,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 @Override
                 public void run() {
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
+
+
                         taskRefreshMessage();
 
-                        //5.23 发送失败,对方拒收
-                       /* MsgAllBean notbean = new MsgAllBean();
-                        notbean.setMsg_type(0);
-                        notbean.setTimestamp(bean.getTimestamp());
-
-                        notbean.setFrom_uid(UserAction.getMyId());
-
-                        MsgNotice note = new MsgNotice();
-                        note.setNote("消息发送成功,但对方已拒收");
-                        notbean.setMsgNotice(note);
-
-
-                        msgListData.add(notbean);
-
-                       notifyData();*/
                         ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
-                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null) {
+
+                        if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
+                            for (String msgid:bean.getMsgIdList()){
+                                //撤回消息不做刷新
+                                if(ChatServer.getCancelList().containsKey(msgid)){
+                                    Log.i(TAG, "onACK: 收到取消回执,等待刷新列表2");
+                                    return;
+                                }
+
+                            }
+
+
                             taskRefreshMessage();
 //                            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskRefreshMessage");
                         }
@@ -928,9 +926,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         else
                             SocketData.send4Chat(toUId, toGid, "连续测试发送" + i);
 
-//                        if (i % 100 == 0)
-//                            Thread.sleep(2 * 1000);
-                        Thread.sleep(2000);
+                        if (i % 100 == 0)
+                            Thread.sleep(2 * 1000);
+
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();

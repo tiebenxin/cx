@@ -16,10 +16,14 @@ import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -487,6 +491,8 @@ public class SocketData {
         }
         //6.25 移除重发列队
         SendList.removeSendListJust(bean.getRequestId());
+
+
     }
 
     //6.26 消息直接存库
@@ -724,7 +730,7 @@ public class SocketData {
      * @return false 需要忽略
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
-        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER) {
+        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER||wmsg.getMsgType() ==MsgBean.MessageType.CANCEL) {
             return false;
         }
 
