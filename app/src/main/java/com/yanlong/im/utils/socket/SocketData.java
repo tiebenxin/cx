@@ -993,12 +993,8 @@ public class SocketData {
         if(toId.longValue() == UserAction.getMyId().longValue()){
             rname="自己";
         }
-        note.setNote("你领取了\""+rname + "的云红包");
+        note.setNote("你领取了\""+rname + "的云红包" + "<div id= '"+toGid+"'></div>");
         msgDao.noteMsgAddRb(mid,toId,toGid,note);
-
-
-
-
         return send4Base(toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
     }
 

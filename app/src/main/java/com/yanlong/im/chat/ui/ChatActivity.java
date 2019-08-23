@@ -220,6 +220,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
+
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
                             for (String msgid:bean.getMsgIdList()){
                                 //撤回消息不做刷新
@@ -230,7 +231,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                             }
 
+
                             taskRefreshMessage();
+//                            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskRefreshMessage");
                         }
                     }
                 }
@@ -922,8 +925,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         else
                             SocketData.send4Chat(toUId, toGid, "连续测试发送" + i);
 
-                        if (i % 100 == 0)
-                            Thread.sleep(2 * 1000);
+//                        if (i % 100 == 0)
+//                            Thread.sleep(2 * 1000);
+                        Thread.sleep(2000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -1518,7 +1522,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (payloads == null || payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
-                Log.d("sss", "onBindViewHolderpayloads: " + position);
+//                Log.d("sss", "onBindViewHolderpayloads: " + position);
                 final MsgAllBean msgbean = msgListData.get(position);
                 //菜单
                 final List<OptionMenu> menus = new ArrayList<>();
@@ -1552,6 +1556,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
+//            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "onBindViewHolder--position=" + position);
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
 
@@ -2056,8 +2061,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void notifyData() {
         if (isNewAdapter) {
             messageAdapter.bindData(msgListData);
-//            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "currentPager=" + currentPager);
         }
+//        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "msgListData的size=" + msgListData.size());
         mtListView.notifyDataSetChange();
     }
 
