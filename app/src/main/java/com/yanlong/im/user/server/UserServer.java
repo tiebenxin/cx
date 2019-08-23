@@ -144,6 +144,10 @@ public interface UserServer {
 
 
     @POST("friends/get-friends-online")
-//    @FormUrlEncoded
     Call<ReturnBean<List<OnlineBean>>> getUsersOnlineStatus();
+
+    @POST("opinion/user-opinion")
+    @FormUrlEncoded
+    Call<ReturnBean> userOpinion(@Field("opinionDescription") String opinionDescription,@Field("opinionImage") String opinionImage);
+
 }

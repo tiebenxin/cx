@@ -73,7 +73,7 @@ public class AboutAsActivity extends AppActivity {
         mLlService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                go(FeedbackActivity.class);
             }
         });
     }

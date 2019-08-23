@@ -669,5 +669,12 @@ public class UserAction {
         });
     }
 
+    /**
+     * 初始化用户意见反馈
+     */
+    public void userOpinion(String opinionDescription, String opinionImage, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.userOpinion(opinionDescription, opinionImage), callback);
+    }
+
 
 }
