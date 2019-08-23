@@ -80,6 +80,7 @@ import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioPlayListener;
 import com.yanlong.im.utils.audio.IAudioRecord;
+import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -1356,7 +1357,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             } else {
                 messageAdapter.updateItemAndRefresh(msgAllbean);
             }
-            Log.i(TAG, "replaceListDataAndNotify: 只刷新"+position);
+            Log.i(TAG, "replaceListDataAndNotify: 只刷新" + position);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
 //            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
@@ -1425,9 +1426,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //8.15 红包状态修改
                     boolean invalid = red.getIsInvalid() == 0 ? false : true;
                     if ((invalid || message.isMe()) && red.getStyle() == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
-                        taskPayRbDetail(message,red.getId());
+                        taskPayRbDetail(message, red.getId());
                     } else {
-                        taskPayRbGet(message,message.getFrom_uid(), red.getId());
+                        taskPayRbGet(message, message.getFrom_uid(), red.getId());
                     }
 
                 }
@@ -1545,9 +1546,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
 
                         break;
-                        default:
-                            onBindViewHolder(holder,position);
-                            break;
+                    default:
+                        onBindViewHolder(holder, position);
+                        break;
                 }
 
                 itemLongClick(holder, msgbean, menus);
@@ -1557,7 +1558,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder holder, int position) {
+        public void onBindViewHolder(RCViewHolder holder, final int position) {
 //            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "onBindViewHolder--position=" + position);
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
@@ -1634,16 +1635,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case 0:
                     if (msgbean.getMsgNotice() != null) {
                         holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT||msgbean.getMsgNotice().getMsgType() == 17) {
+                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT || msgbean.getMsgNotice().getMsgType() == 17) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         } else {
                             holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
                                     msgbean.getMsgNotice().getNote(), msgbean.getMsgNotice().getMsgType()));
                         }
                         //8.22 如果是红包消息类型则显示红包图
-                       if(msgbean.getMsgNotice().getMsgType()!=null&&(msgbean.getMsgNotice().getMsgType()==7||msgbean.getMsgNotice().getMsgType()==8||msgbean.getMsgNotice().getMsgType()==17)){
-                            holder.viewChatItem.showBroadcastIcon(true,null);
-                       }
+                        if (msgbean.getMsgNotice().getMsgType() != null && (msgbean.getMsgNotice().getMsgType() == 7 || msgbean.getMsgNotice().getMsgType() == 8 || msgbean.getMsgNotice().getMsgType() == 17)) {
+                            holder.viewChatItem.showBroadcastIcon(true, null);
+                        }
 
                     }
                     break;
@@ -1697,10 +1698,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                             if ((isInvalid || msgbean.isMe()) && style == MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.NORMAL_VALUE) {//已领取或者是自己的,看详情,"拼手气的话自己也能抢"
                                 //ToastUtil.show(getContext(), "红包详情");
-                                taskPayRbDetail(msgbean,rid);
+                                taskPayRbDetail(msgbean, rid);
 
                             } else {
-                                taskPayRbGet(msgbean,touid, rid);
+                                taskPayRbGet(msgbean, touid, rid);
                             }
                         }
                     });
@@ -1769,51 +1770,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         @Override
                         public void onClick(final View v) {
 
-                            if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
-                                AudioPlayManager.getInstance().stopPlay();
-
-                            } else {
-                                AudioPlayManager.getInstance().startPlay(context, Uri.parse(vm.getUrl()), new IAudioPlayListener() {
-                                    @Override
-                                    public void onStart(Uri var1) {
-
-                                        notifyData();
-
-
-                                    }
-
-                                    @Override
-                                    public void onStop(Uri var1) {
-
-                                        notifyData();
-
-                                    }
-
-                                    @Override
-                                    public void onComplete(Uri var1) {
-
-                                        notifyData();
-                                    }
-                                });
-                            }
-
-                            //设置为已读
-                            if (msgbean.isRead() == false) {
-                                msgAction.msgRead(msgbean.getMsg_id(), true);
-                                msgbean.setRead(true);
-                                notifyData();
-                            }
+                            playVoice(vm, msgbean, position);
 
 
                         }
                     });
-
-                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
-
-                        //  animationPic.start(msgbean.getMsg_id(),vim);
-                    } else {
-                        // animationPic.stop(msgbean.getMsg_id(),vim);
-                    }
 
 
                     break;
@@ -1964,6 +1925,69 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 super(convertView);
                 viewChatItem = (com.yanlong.im.chat.ui.view.ChatItemView) convertView.findViewById(R.id.view_chat_item);
             }
+        }
+    }
+
+    private void playVoice(VoiceMessage vm, MsgAllBean msgBean, int position) {
+        List<MsgAllBean> list = new ArrayList<>();
+        boolean isAutoPlay = false;
+        if (!msgBean.isRead()) {
+            list.add(msgBean);
+            int length = msgListData.size();
+            if (position < length - 1) {
+                for (int i = position + 1; i < length; i++) {
+                    MsgAllBean bean = msgListData.get(i);
+                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || !bean.isRead()) {
+                        list.add(bean);
+                    }
+                }
+            }
+            if (list.size() > 1) {
+                isAutoPlay = true;
+            }
+        } else {
+            list.add(msgBean);
+        }
+        playVoice(list, vm, isAutoPlay);
+
+        //设置为已读
+        if (!isAutoPlay) {
+            if (msgBean.isRead() == false) {
+                msgAction.msgRead(msgBean.getMsg_id(), true);
+                msgBean.setRead(true);
+                notifyData();
+            }
+        }
+    }
+
+    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
+        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
+            AudioPlayManager.getInstance().stopPlay();
+        } else {
+            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
+                @Override
+                public void onStart(MsgAllBean bean) {
+                    if (bean.isRead() == false) {
+                        msgAction.msgRead(bean.getMsg_id(), true);
+                        bean.setRead(true);
+                    }
+                    notifyData();
+                    LogUtil.getLog().i("AudioPlayManager","onStart--" + bean.getVoiceMessage().getUrl());
+                }
+
+                @Override
+                public void onStop(MsgAllBean bean) {
+                    notifyData();
+                    LogUtil.getLog().i("AudioPlayManager","onStop--" + bean.getVoiceMessage().getUrl());
+
+                }
+
+                @Override
+                public void onComplete(MsgAllBean bean) {
+                    notifyData();
+                    LogUtil.getLog().i("AudioPlayManager","onComplete--" + bean.getVoiceMessage().getUrl());
+                }
+            });
         }
     }
 
@@ -2467,7 +2491,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     /***
      * 红包收
      */
-    private void taskPayRbGet(final MsgAllBean msgbean,final Long toUId, final String rbid) {
+    private void taskPayRbGet(final MsgAllBean msgbean, final Long toUId, final String rbid) {
         //红包开记录 test
 
         //  MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
@@ -2487,16 +2511,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         @Override
                         public void grabRpResult(GrabRpBean grabRpBean) {
                             taskPayRbCheck(msgbean, rbid);
-                            if (grabRpBean.getEnvelopeStatus()==0&&grabRpBean.isHadGrabRp()) {
+                            if (grabRpBean.getEnvelopeStatus() == 0 && grabRpBean.isHadGrabRp()) {
                                 // ToastUtil.show(getContext(), "抢到了红包" + grabRpBean.toString());
                                 //taskPayRbCheck(msgbean, rbid);
                                 MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
                                 showSendObj(msgAllbean);
 
 
-
                             }
-                            if(grabRpBean.getEnvelopeStatus()==3&&!grabRpBean.isHadGrabRp()){//红包抢完了
+                            if (grabRpBean.getEnvelopeStatus() == 3 && !grabRpBean.isHadGrabRp()) {//红包抢完了
 
                             }
                         }
@@ -2557,7 +2580,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 红包详情
      * @param rid
      */
-    private void taskPayRbDetail(final MsgAllBean msgAllBean,final String rid) {
+    private void taskPayRbDetail(final MsgAllBean msgAllBean, final String rid) {
      /*   if (!isGroup()) {
             return;
         }*/

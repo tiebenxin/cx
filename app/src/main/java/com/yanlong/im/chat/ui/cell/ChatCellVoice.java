@@ -59,40 +59,40 @@ public class ChatCellVoice extends ChatCellBase {
         if (AudioPlayManager.getInstance().isPlay(uri)) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
-            AudioPlayManager.getInstance().startPlay(mContext, uri, new IAudioPlayListener() {
-                @Override
-                public void onStart(Uri var1) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
-
-                        }
-                    }, 100);
-                }
-
-
-                @Override
-                public void onStop(Uri var1) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
-                        }
-                    }, 100);
-                }
-
-                @Override
-                public void onComplete(Uri var1) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
-                        }
-
-                    }, 100);
-                }
-            });
+//            AudioPlayManager.getInstance().startPlay(mContext, uri, new IAudioPlayListener() {
+//                @Override
+//                public void onStart(Uri var1) {
+//                    handler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
+//
+//                        }
+//                    }, 100);
+//                }
+//
+//
+//                @Override
+//                public void onStop(Uri var1) {
+//                    handler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
+//                        }
+//                    }, 100);
+//                }
+//
+//                @Override
+//                public void onComplete(Uri var1) {
+//                    handler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
+//                        }
+//
+//                    }, 100);
+//                }
+//            });
         }
         updateRead();
 
