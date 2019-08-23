@@ -127,12 +127,19 @@ public class FindFriendActivity extends AppActivity {
             final UserInfo userInfo = userInfos.get(i);
             viewHolder.mImgHead.setImageURI(userInfo.getHead() + "");
             viewHolder.mTxtName.setText(userInfo.getName());
+
+
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(FindFriendActivity.this,UserInfoActivity.class);
-                    intent.putExtra(UserInfoActivity.ID,userInfo.getUid());
-                    startActivity(intent);
+                    if(userInfo.getUid().equals(UserAction.getMyId())){
+                        Intent intent = new Intent(FindFriendActivity.this,MyselfInfoActivity.class);
+                        startActivity(intent);
+                    }else{
+                        Intent intent = new Intent(FindFriendActivity.this,UserInfoActivity.class);
+                        intent.putExtra(UserInfoActivity.ID,userInfo.getUid());
+                        startActivity(intent);
+                    }
                 }
             });
         }
@@ -156,7 +163,6 @@ public class FindFriendActivity extends AppActivity {
                 mTxtName = itemView.findViewById(R.id.txt_name);
             }
         }
-
     }
 
 
