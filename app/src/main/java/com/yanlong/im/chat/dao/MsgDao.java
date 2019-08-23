@@ -128,15 +128,19 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         RealmResults list;
         if (isNew) {
-            list = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and().beginGroup()
-                    .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+            list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                     .greaterThan("timestamp", time)
                     .sort("timestamp", Sort.DESCENDING)
 //                    .limit(20)
                     .findAll();
         } else {
-            list = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and().beginGroup()
-                    .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+            list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                     .lessThan("timestamp", time)
                     .sort("timestamp", Sort.DESCENDING)
                     .limit(20)
@@ -156,8 +160,10 @@ public class MsgDao {
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
 
-        RealmResults list = realm.where(MsgAllBean.class).beginGroup().equalTo("gid", "").or().isNull("gid").endGroup().and().beginGroup()
-                .equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
+        RealmResults list = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", userid).or().equalTo("to_uid", userid).endGroup()
                 .lessThan("timestamp", time)
                 .sort("timestamp", Sort.DESCENDING)
                 .limit(size)
@@ -595,6 +601,21 @@ public class MsgDao {
 
         list = realm.where(MsgAllBean.class).equalTo("msg_id", msgCancelId).findAll();
         MsgAllBean cancel = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
+        if(cancel==null&&list!=null&&list.size()>0){
+            cancel=new MsgAllBean();
+            MsgAllBean bean = list.get(0);
+            cancel.setMsg_id(msgid);
+            cancel.setRequest_id(""+System.currentTimeMillis());
+            cancel.setFrom_uid(bean.getTo_uid());
+            cancel.setTo_uid(UserAction.getMyId());
+            cancel.setGid(bean.getGid());
+            cancel.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
+            MsgCancel msgCel = new MsgCancel();
+            msgCel.setMsgid(msgid);
+            msgCel.setNote( "你撤回了一条消息");
+            msgCel.setMsgidCancel(msgCancelId);
+            cancel.setMsgCancel(msgCel);
+        }
 
         //删除前先把子表数据干掉!!切记
         if (list != null) {

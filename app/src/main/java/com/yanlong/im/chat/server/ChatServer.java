@@ -22,6 +22,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventUserOnlineChange;
@@ -51,6 +52,10 @@ public class ChatServer extends Service {
 
     //撤回消息
     private static Map<String ,MsgAllBean> cancelList=new ConcurrentHashMap<>();
+
+    public static Map<String, MsgAllBean> getCancelList() {
+        return cancelList;
+    }
 
     /***
      * 添加测试消息
@@ -130,6 +135,9 @@ public class ChatServer extends Service {
                 if(cancelList.containsKey(msgid)){
                    MsgAllBean msgAllBean= cancelList.get(msgid);
                     msgDao.msgDel4Cancel(msgid,msgAllBean.getMsgCancel().getMsgidCancel());
+
+                    Log.i(TAG, "onACK: 收到取消回执,手动刷新列表");
+                    EventBus.getDefault().post(new EventRefreshChat());
                     cancelList.remove(msgid);
                 }
 
