@@ -925,9 +925,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         else
                             SocketData.send4Chat(toUId, toGid, "连续测试发送" + i);
 
-//                        if (i % 100 == 0)
-//                            Thread.sleep(2 * 1000);
-                        Thread.sleep(2000);
+                        if (i % 100 == 0)
+                            Thread.sleep(2 * 1000);
+
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
