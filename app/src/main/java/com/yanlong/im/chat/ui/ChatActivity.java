@@ -1938,7 +1938,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (position < length - 1) {
                 for (int i = position + 1; i < length; i++) {
                     MsgAllBean bean = msgListData.get(i);
-                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || !bean.isRead()) {
+                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isRead()) {
                         list.add(bean);
                     }
                 }

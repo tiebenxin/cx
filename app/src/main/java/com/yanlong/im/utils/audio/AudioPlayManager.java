@@ -502,7 +502,7 @@ public class AudioPlayManager implements SensorEventListener {
     private void play(final Context context, final int position, final boolean isAuto, IVoicePlayListener playListener) {
         LogUtil.getLog().i(TAG, "play=" + position);
         final MsgAllBean bean = playList.get(position);
-        if (bean == null) {
+        if (bean == null && bean.getVoiceMessage() == null) {
             return;
         }
         Uri audioUri = Uri.parse(bean.getVoiceMessage().getUrl());
