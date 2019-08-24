@@ -508,6 +508,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+
                 if (s.length() > 0) {
                     btnSend.setVisibility(View.VISIBLE);
                 } else {
@@ -515,7 +516,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
 
                 if (isGroup() && !dao.isSaveDraft(toGid)) {
-                    if (count == 1 && s.charAt(s.length() - 1) == "@".charAt(0)) { //添加一个字
+                    if (count == 1 && (s.charAt(s.length() - 1) == "@".charAt(0) || s.charAt(s.length() - (s.length() - start)) == "@".charAt(0))) { //添加一个字
                         //跳转到@界面
                         Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
                         intent.putExtra(GroupSelectUserActivity.TYPE, 1);
@@ -528,6 +529,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void afterTextChanged(Editable s) {
+
 
             }
         });
