@@ -19,7 +19,9 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.ImageBean;
 
@@ -122,15 +124,14 @@ public class FeedbackActivity extends AppActivity {
             return;
         }
         String imageUrl = "";
-        if(list != null && list.size() > 0){
+        if (list != null && list.size() > 0) {
             for (int i = 0; i < list.size(); i++) {
-                if(list.get(i).getType() ==1){
-                    imageUrl += list.get(i).getUrl()+",";
+                if (list.get(i).getType() == 1) {
+                    imageUrl += list.get(i).getUrl() + ",";
                 }
             }
         }
 
-        Log.v("FeedbackActivity",imageUrl +"");
         new UserAction().userOpinion(content, imageUrl, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -241,21 +242,44 @@ public class FeedbackActivity extends AppActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    public void showBigImage(int pos) {
+        List<LocalMedia> selectList = new ArrayList<>();
+        if (list == null) {
+            return;
+        }
+
+//        for (int i = 0; i < list.size(); i++) {
+//            if (list.get(i).getType() != 0) {
+//                LocalMedia localMedia = new LocalMedia();
+//                localMedia.setCompressPath(list.get(i).getUrl());
+//                selectList.add(localMedia);
+//            }
+//        }
+        LocalMedia localMedia = new LocalMedia();
+        localMedia.setCompressPath(list.get(pos).getUrl());
+        selectList.add(localMedia);
+
+        PictureSelector.create(this)
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview1(0, selectList);
+    }
+
 
     private class FeedbackAdatper extends RecyclerView.Adapter<FeedbackAdatper.FeedbackViewHolder> {
 
-        public void addImage(ImageBean imageBean){
-            Log.v("FeedbackAdatper",imageBean.getPath().toString());
-            if(list.size() == 6){
+        public void addImage(ImageBean imageBean) {
+            Log.v("FeedbackAdatper", imageBean.getPath().toString());
+            if (list.size() == 6) {
                 list.remove(5);
             }
-            list.add(0,imageBean);
+            list.add(0, imageBean);
             recyclerView.getAdapter().notifyDataSetChanged();
         }
 
-        public void remove(int postion){
+        public void remove(int postion) {
             list.remove(postion);
-            if(list.size() < 6){
+            if (list.size() < 6) {
                 ImageBean imageBean = new ImageBean();
                 imageBean.setType(0);
                 list.add(imageBean);
@@ -272,8 +296,8 @@ public class FeedbackActivity extends AppActivity {
 
 
         @Override
-        public void onBindViewHolder(@android.support.annotation.NonNull FeedbackViewHolder viewHolder, int i) {
-            Log.v("FeedbackAdatper",i+"");
+        public void onBindViewHolder(@android.support.annotation.NonNull FeedbackViewHolder viewHolder, final int i) {
+            Log.v("FeedbackAdatper", i + "");
             ImageBean imageBean = list.get(i);
             if (imageBean.getType() == 0) {
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
@@ -287,7 +311,7 @@ public class FeedbackActivity extends AppActivity {
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        showBigImage(i);
                     }
                 });
 
@@ -312,7 +336,7 @@ public class FeedbackActivity extends AppActivity {
                 imageView = itemView.findViewById(R.id.image_view);
             }
         }
-
     }
+
 
 }
