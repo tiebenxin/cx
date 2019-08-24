@@ -68,7 +68,9 @@
                             android:maxLines="3"
                             android:minHeight="38dp"
                             android:singleLine="false"
-                            android:textSize="18sp" />
+                            android:textSize="15sp" />
+
+                        <!--android:textSize="18sp"-->
 
                         <Button
                             android:id="@+id/txt_voice"
@@ -107,9 +109,9 @@
                             android:layout_height="37dp"
                             android:layout_marginLeft="8dp"
                             android:text="发送"
-
-                            android:textSize="17sp"
+                            android:textSize="15sp"
                             android:visibility="gone" />
+                        <!--   android:textSize="17sp"-->
                     </FrameLayout>
                 </LinearLayout>
 

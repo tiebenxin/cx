@@ -80,6 +80,7 @@ import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioPlayListener;
 import com.yanlong.im.utils.audio.IAudioRecord;
+import com.yanlong.im.utils.audio.IVoicePlayListener;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -1467,6 +1468,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
                 edtChat.addAtSpan("@", message.getFrom_nickname(), message.getFrom_uid());
                 break;
+            case ChatEnum.ECellEventType.VOICE_CLICK:
+//                playVoice();
+                break;
 
         }
 
@@ -1557,7 +1561,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder holder, int position) {
+        public void onBindViewHolder(RCViewHolder holder, final int position) {
 //            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "onBindViewHolder--position=" + position);
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
@@ -1769,51 +1773,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         @Override
                         public void onClick(final View v) {
 
-                            if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
-                                AudioPlayManager.getInstance().stopPlay();
-
-                            } else {
-                                AudioPlayManager.getInstance().startPlay(context, Uri.parse(vm.getUrl()), new IAudioPlayListener() {
-                                    @Override
-                                    public void onStart(Uri var1) {
-
-                                        notifyData();
-
-
-                                    }
-
-                                    @Override
-                                    public void onStop(Uri var1) {
-
-                                        notifyData();
-
-                                    }
-
-                                    @Override
-                                    public void onComplete(Uri var1) {
-
-                                        notifyData();
-                                    }
-                                });
-                            }
-
-                            //设置为已读
-                            if (msgbean.isRead() == false) {
-                                msgAction.msgRead(msgbean.getMsg_id(), true);
-                                msgbean.setRead(true);
-                                notifyData();
-                            }
+                            playVoice(vm, msgbean, position);
 
 
                         }
                     });
-
-                    if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
-
-                        //  animationPic.start(msgbean.getMsg_id(),vim);
-                    } else {
-                        // animationPic.stop(msgbean.getMsg_id(),vim);
-                    }
 
 
                     break;
@@ -1964,6 +1928,84 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 super(convertView);
                 viewChatItem = (com.yanlong.im.chat.ui.view.ChatItemView) convertView.findViewById(R.id.view_chat_item);
             }
+        }
+    }
+
+    private void playVoice(VoiceMessage vm, MsgAllBean msgBean, int position) {
+        List<MsgAllBean> list = new ArrayList<>();
+        boolean isAutoPlay = false;
+        if (!msgBean.isMe() && !msgBean.isRead()) {
+            list.add(msgBean);
+            int length = msgListData.size();
+            if (position < length - 1) {
+                for (int i = position + 1; i < length; i++) {
+                    MsgAllBean bean = msgListData.get(i);
+                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !msgBean.isMe() && !bean.isRead()) {
+                        list.add(bean);
+                    }
+                }
+            }
+            if (list.size() > 1) {
+                isAutoPlay = true;
+            }
+        } else {
+            list.add(msgBean);
+        }
+        playVoice(list, vm, isAutoPlay);
+
+        //设置为已读
+        if (!isAutoPlay) {
+            if (msgBean.isRead() == false) {
+                msgAction.msgRead(msgBean.getMsg_id(), true);
+                msgBean.setRead(true);
+                notifyData();
+            }
+        }
+    }
+
+    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
+        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
+            AudioPlayManager.getInstance().stopPlay();
+        } else {
+            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
+                @Override
+                public void onStart(MsgAllBean bean) {
+                    if (bean.isRead() == false) {
+                        msgAction.msgRead(bean.getMsg_id(), true);
+                        bean.setRead(true);
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyData();
+                        }
+                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
+                }
+
+                @Override
+                public void onStop(MsgAllBean bean) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyData();
+                        }
+                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
+
+                }
+
+                @Override
+                public void onComplete(MsgAllBean bean) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyData();
+                        }
+                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
+                }
+            });
         }
     }
 
@@ -2290,7 +2332,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskMkName(List<MsgAllBean> msgListData) {
         mks.clear();
         for (MsgAllBean msg : msgListData) {
-            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE) {  //通知类型的不处理
+            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {  //通知类型的不处理
                 continue;
             }
             String k = msg.getFrom_uid() + "";
