@@ -1,6 +1,8 @@
 package com.yanlong.im.user.bean;
 
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.SerializedName;
 
 import net.cb.cb.library.utils.StringUtil;

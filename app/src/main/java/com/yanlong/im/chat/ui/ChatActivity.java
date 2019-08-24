@@ -223,9 +223,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     } else {
 
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
-                            for (String msgid:bean.getMsgIdList()){
+                            for (String msgid : bean.getMsgIdList()) {
                                 //撤回消息不做刷新
-                                if(ChatServer.getCancelList().containsKey(msgid)){
+                                if (ChatServer.getCancelList().containsKey(msgid)) {
                                     Log.i(TAG, "onACK: 收到取消回执,等待刷新列表2");
                                     return;
                                 }
@@ -1466,6 +1466,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
                 edtChat.addAtSpan("@", message.getFrom_nickname(), message.getFrom_uid());
                 break;
+            case ChatEnum.ECellEventType.VOICE_CLICK:
+//                playVoice();
+                break;
 
         }
 
@@ -1929,7 +1932,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void playVoice(VoiceMessage vm, MsgAllBean msgBean, int position) {
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
-        if (!msgBean.isRead()) {
+        if (!msgBean.isMe() && !msgBean.isRead()) {
             list.add(msgBean);
             int length = msgListData.size();
             if (position < length - 1) {
@@ -1969,21 +1972,36 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         msgAction.msgRead(bean.getMsg_id(), true);
                         bean.setRead(true);
                     }
-                    notifyData();
-                    LogUtil.getLog().i("AudioPlayManager","onStart--" + bean.getVoiceMessage().getUrl());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyData();
+                        }
+                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
                 }
 
                 @Override
                 public void onStop(MsgAllBean bean) {
-                    notifyData();
-                    LogUtil.getLog().i("AudioPlayManager","onStop--" + bean.getVoiceMessage().getUrl());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyData();
+                        }
+                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
 
                 }
 
                 @Override
                 public void onComplete(MsgAllBean bean) {
-                    notifyData();
-                    LogUtil.getLog().i("AudioPlayManager","onComplete--" + bean.getVoiceMessage().getUrl());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyData();
+                        }
+                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
                 }
             });
         }
@@ -2312,7 +2330,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskMkName(List<MsgAllBean> msgListData) {
         mks.clear();
         for (MsgAllBean msg : msgListData) {
-            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE) {  //通知类型的不处理
+            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {  //通知类型的不处理
                 continue;
             }
             String k = msg.getFrom_uid() + "";
