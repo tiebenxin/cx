@@ -38,7 +38,6 @@ public class ShowBigImgActivity extends AppActivity {
         });
         String uri = getIntent().getStringExtra(AGM_URI);
         postion = getIntent().getIntExtra(POSTION, 0);
-
         uri = uri == null ? "" : uri;
         imgBig.setImageURI(Uri.parse(uri));
         btnCommit.setOnClickListener(new View.OnClickListener() {

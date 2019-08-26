@@ -111,8 +111,6 @@ import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
-import net.cb.cb.library.view.springview.container.DefaultHeader;
-import net.cb.cb.library.view.springview.widget.SpringView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -138,7 +136,7 @@ import retrofit2.Response;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 
 public class ChatActivity2 extends AppActivity implements ICellEventListener {
-    private static String TAG = "ChatActivity";
+    private static String TAG = ChatActivity2.class.getSimpleName();
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
@@ -186,16 +184,13 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     //语音的动画
     private AnimationPic animationPic = new AnimationPic();
     private MessageAdapter messageAdapter;
-    private int currentPager;
     private int lastOffset = -1;
     private int lastPosition = -1;
-    private boolean isNewAdapter = false;
-    private int preTotalSize = 0;//刷新前，总item数
     private boolean isSoftShow;
     private Map<Integer, View> viewMap = new HashMap<>();
     private boolean needRefresh;
     private RecyclerView recyclerView;
-//    private SpringView springView;
+    //    private SpringView springView;
     private RecyclerViewAdapter adapter;
     private LinearLayoutManager layoutManager;
 
@@ -286,9 +281,8 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
                     //从数据库读取消息
                     if (needRefresh) {
-                        LogUtil.getLog().i(TAG, "需要刷新");
-//                        taskRefreshMessage();
                         if (isSoftShow || lastPosition == msgListData.size() - 1 || lastPosition == -1) {
+                            LogUtil.getLog().i(TAG, "需要刷新" + "lastPosition =" + lastPosition);
                             taskRefreshMessage();
                             needRefresh = false;
                         }
@@ -969,20 +963,13 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
 
     private void initAdapter() {
-        if (isNewAdapter) {
-            messageAdapter = new MessageAdapter(this, this, isGroup());
-            FactoryChatCell factoryChatCell = new FactoryChatCell(this, messageAdapter, this);
-            messageAdapter.setCellFactory(factoryChatCell);
-            recyclerView.setAdapter(messageAdapter);
-        } else {
-            adapter = new RecyclerViewAdapter();
-//            FactoryChatCell factoryChatCell = new FactoryChatCell(this, messageAdapter, this);
-//            messageAdapter.setCellFactory(factoryChatCell);
-            layoutManager = new LinearLayoutManager(this);
-            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(adapter);
-        }
+        messageAdapter = new MessageAdapter(this, this, isGroup());
+        FactoryChatCell factoryChatCell = new FactoryChatCell(this, messageAdapter, this);
+        messageAdapter.setCellFactory(factoryChatCell);
+        layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(messageAdapter);
     }
 
     /***
@@ -1059,9 +1046,10 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
      * @param isMustBottom 是否必须滑动到底部
      * */
     private void scrollListView(boolean isMustBottom) {
+        LogUtil.getLog().i(TAG,"scrollListView");
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
-            recyclerView.requestDisallowInterceptTouchEvent(true);
+//            recyclerView.requestDisallowInterceptTouchEvent(true);
             if (isMustBottom) {
 //                recyclerView.scrollToPosition(length);
                 layoutManager.scrollToPosition(length);
@@ -1069,7 +1057,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     //!mtListView.getListView().canScrollVertically(1) 不怎么有效
-                    if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
+                    if (isSoftShow || lastPosition == length - 1 /*|| isCanScrollBottom()*/) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         recyclerView.scrollToPosition(length);
                     } else {
 //                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
@@ -1092,7 +1080,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                         }
                     }
                     if (lastPosition >= 0 && lastPosition < length) {
-                        if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
+                        if (isSoftShow || lastPosition == length - 1 /*|| isCanScrollBottom()*/) {//允许滑动到底部，或者当前处于底部
 //                            recyclerView.scrollToPosition(length);
                             layoutManager.scrollToPosition(length);
 
@@ -1365,13 +1353,10 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
-            if (!isNewAdapter) {
-                msgListData.set(position, msgAllbean);
-            } else {
-                messageAdapter.updateItemAndRefresh(msgAllbean);
-            }
+            msgListData.set(position, msgAllbean);
+            messageAdapter.updateItemAndRefresh(msgAllbean);
             Log.i(TAG, "replaceListDataAndNotify: 只刷新" + position);
-            adapter.notifyItemChanged(position, position);
+            messageAdapter.notifyItemChanged(position, position);
 //            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
     }
@@ -1482,7 +1467,9 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                 edtChat.addAtSpan("@", message.getFrom_nickname(), message.getFrom_uid());
                 break;
             case ChatEnum.ECellEventType.VOICE_CLICK:
-//                playVoice();
+                VoiceMessage voice = (VoiceMessage) args[0];
+                int position = (int) args[1];
+                playVoice(voice, message, position);
                 break;
 
         }
@@ -1782,7 +1769,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                     final VoiceMessage vm = msgbean.getVoiceMessage();
 
 
-                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), vm.getPlayStatus(),new View.OnClickListener() {
+                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), vm.getPlayStatus(), new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
 
@@ -2116,11 +2103,10 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     }
 
     private void notifyData() {
-        if (isNewAdapter) {
-            messageAdapter.bindData(msgListData);
-        }
+        messageAdapter.bindData(msgListData);
+//        }
 //        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "msgListData的size=" + msgListData.size());
-        adapter.notifyDataSetChanged();
+//        messageAdapter.notifyDataSetChanged();
 //        adapter.notifyDataSetChange();
     }
 
@@ -2746,16 +2732,10 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = msgListData.size();
-//            int start = size - 1;
             int height = 0;
             for (int i = lastPosition; i < size - 1; i++) {
-//                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item
-                View view;
-                if (isNewAdapter) {
-                    view = messageAdapter.getItemViewByPosition(i);
-                } else {
-                    view = getViewByPosition(i);
-                }
+                View view = messageAdapter.getItemViewByPosition(i);
+
                 if (view == null) {
                     break;
                 }
@@ -2775,14 +2755,6 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             }
         }
         return false;
-    }
-
-    //TODO:有问题，重新刷新数据size后，前面添加的item，位置会变更，若在刷新数据的时候清理，则，后面不可见的item获取不到
-    private View getViewByPosition(int position) {
-        if (!viewMap.isEmpty()) {
-            return viewMap.get(position);
-        }
-        return null;
     }
 
 
