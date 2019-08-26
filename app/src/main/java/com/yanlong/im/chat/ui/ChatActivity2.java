@@ -1782,7 +1782,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                     final VoiceMessage vm = msgbean.getVoiceMessage();
 
 
-                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), new View.OnClickListener() {
+                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), vm.getPlayStatus(),new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
 

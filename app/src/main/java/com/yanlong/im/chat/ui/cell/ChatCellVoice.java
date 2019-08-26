@@ -40,7 +40,7 @@ public class ChatCellVoice extends ChatCellBase {
         voiceMessage = message.getVoiceMessage();
         if (voiceMessage != null) {
             uri = Uri.parse(voiceMessage.getUrl());
-            v_voice.init(message.isMe(), voiceMessage.getTime(), message.isRead(), AudioPlayManager.getInstance().isPlay(uri));
+            v_voice.init(message.isMe(), voiceMessage.getTime(), message.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
         }
     }
 
@@ -60,7 +60,7 @@ public class ChatCellVoice extends ChatCellBase {
             MsgAction action = new MsgAction();
             action.msgRead(model.getMsg_id(), true);
             model.setRead(true);
-            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
+            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
         }
     }
 }

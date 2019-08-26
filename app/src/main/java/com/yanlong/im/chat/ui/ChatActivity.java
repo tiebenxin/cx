@@ -1769,7 +1769,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     final VoiceMessage vm = msgbean.getVoiceMessage();
 
 
-                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), new View.OnClickListener() {
+                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), vm.getPlayStatus(),new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
 
@@ -1974,6 +1974,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         msgAction.msgRead(bean.getMsg_id(), true);
                         bean.setRead(true);
                     }
+                    VoiceMessage voiceMessage = bean.getVoiceMessage();
+                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1985,6 +1987,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 @Override
                 public void onStop(MsgAllBean bean) {
+                    VoiceMessage voiceMessage = bean.getVoiceMessage();
+                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1997,6 +2001,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 @Override
                 public void onComplete(MsgAllBean bean) {
+                    VoiceMessage voiceMessage = bean.getVoiceMessage();
+                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

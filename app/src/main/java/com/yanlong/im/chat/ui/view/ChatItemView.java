@@ -478,9 +478,9 @@ public class ChatItemView extends LinearLayout {
     }
 
     //语音
-    public void setData7(int second, boolean isRead, boolean isPlay, final OnClickListener onk) {
-        viewOt7.init(isMe, second, isRead, isPlay);
-        viewMe7.init(isMe, second, isRead, isPlay);
+    public void setData7(int second, boolean isRead, boolean isPlay, int playStatus,final OnClickListener onk) {
+        viewOt7.init(isMe, second, isRead, isPlay,playStatus);
+        viewMe7.init(isMe, second, isRead, isPlay,playStatus);
 
       /*  OnClickListener nonk = new OnClickListener() {
             @Override
