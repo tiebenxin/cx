@@ -1396,7 +1396,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setPath(msgl.getImage().getOriginShow());
             // Log.d("tag", "---showBigPic: "+msgl.getImage().getSize());
             lc.setSize(msgl.getImage().getSize());
-            // lc.setWidth(new Long( msgl.getImage().getSize()).intValue());
+             lc.setWidth(new Long( msgl.getImage().getWidth()).intValue());
+             lc.setHeight(new Long( msgl.getImage().getHeight()).intValue());
             selectList.add(lc);
 
         }
