@@ -121,17 +121,17 @@ public class MsgMainFragment extends Fragment {
         mtListView.getLoadView().setStateNormal();
 
         //滚动处理-------------------------------------
-       //1. 需要整理成util
+        //1. 需要整理成util
         //2.需要创建一个相对layout,并且改变控件顺序,设置 mtListView底部对齐
 
         mtListView.getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView rv, int dx, int dy) {
                 super.onScrolled(rv, dx, dy);
-                int vset= rv.computeVerticalScrollOffset() ;
+                int vset = rv.computeVerticalScrollOffset();
 
-                if(viewSearch.getTag()!=null&&vset>(int)viewSearch.getTag()){
-                    vset=(int)viewSearch.getTag();
+                if (viewSearch.getTag() != null && vset > (int) viewSearch.getTag()) {
+                    vset = (int) viewSearch.getTag();
                 }
 
                 viewSearch.setTranslationY(-vset);
@@ -139,26 +139,26 @@ public class MsgMainFragment extends Fragment {
 
             }
         });
-        final Runnable uiRun=new Runnable() {
+        final Runnable uiRun = new Runnable() {
             @Override
             public void run() {
 
                 ViewGroup.LayoutParams lp = viewSearch.getLayoutParams();
-                int h=viewSearch.getMeasuredHeight();
-                if(lp instanceof ViewGroup.MarginLayoutParams){
-                    ViewGroup.MarginLayoutParams lps=   ((ViewGroup.MarginLayoutParams) lp);
-                    h+=lps.topMargin+lps.bottomMargin;
+                int h = viewSearch.getMeasuredHeight();
+                if (lp instanceof ViewGroup.MarginLayoutParams) {
+                    ViewGroup.MarginLayoutParams lps = ((ViewGroup.MarginLayoutParams) lp);
+                    h += lps.topMargin + lps.bottomMargin;
                     viewSearch.setTag(h);
                 }
-                mtListView.getListView().setPadding(0,h,0,0);
+                mtListView.getListView().setPadding(0, h, 0, 0);
                 //这里marpin设置为-h
                 ViewGroup.MarginLayoutParams lp2 = (ViewGroup.MarginLayoutParams) mtListView.getLayoutParams();
-                lp2.topMargin=-h;
+                lp2.topMargin = -h;
                 mtListView.setLayoutParams(lp2);
 
                 mtListView.getListView().setClipToPadding(false);
 
-                mtListView.getListView().scrollBy(0,-h);
+                mtListView.getListView().scrollBy(0, -h);
 
             }
         };
@@ -306,7 +306,7 @@ public class MsgMainFragment extends Fragment {
     public void onStart() {
         super.onStart();
         //7.18 进来的时候显示有网的状态
-      //  socketEvent.onLine(true);
+        //  socketEvent.onLine(true);
     }
 
     @Override
