@@ -4,18 +4,26 @@ import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.ImageBean;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -29,6 +37,8 @@ import net.cb.cb.library.view.HeadView;
 import net.cb.cb.library.view.PopupSelectView;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.annotations.NonNull;
 import retrofit2.Call;
@@ -43,11 +53,12 @@ public class FeedbackActivity extends AppActivity {
     private HeadView headView;
     private EditText edContent;
     private Button btnCommit;
-    private SimpleDraweeView imageView;
-    private String imageUrl;
+    private RecyclerView recyclerView;
     private String[] strings = {"拍照", "相册", "取消"};
     private PopupSelectView popupSelectView;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
+    private List<ImageBean> list = new ArrayList<>();
+    private FeedbackAdatper adatper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +66,17 @@ public class FeedbackActivity extends AppActivity {
         setContentView(R.layout.activity_feedback);
         initView();
         initEvent();
+        initData();
     }
 
     private void initView() {
         headView = findViewById(R.id.headView);
         edContent = findViewById(R.id.ed_content);
         btnCommit = findViewById(R.id.btn_commit);
-        imageView = findViewById(R.id.image_view);
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        adatper = new FeedbackAdatper();
+        recyclerView.setAdapter(adatper);
     }
 
     private void initEvent() {
@@ -82,40 +97,54 @@ public class FeedbackActivity extends AppActivity {
                 commit();
             }
         });
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                initPopup();
-            }
-        });
+//        imageView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                initPopup();
+//            }
+//        });
+    }
+
+
+    private void initData() {
+        ImageBean imageBean = new ImageBean();
+        imageBean.setType(0);
+        list.add(imageBean);
     }
 
 
     private void commit() {
         String content = edContent.getText().toString();
-        if(TextUtils.isEmpty(content)){
-            ToastUtil.show(context,"请填写问题描叙");
+        if (TextUtils.isEmpty(content)) {
+            ToastUtil.show(context, "请填写问题描叙");
             return;
         }
-        if(content.length() <= 6){
-            ToastUtil.show(context,"描叙内容不能少于6个字");
+        if (content.length() <= 6) {
+            ToastUtil.show(context, "描叙内容不能少于6个字");
             return;
         }
+        String imageUrl = "";
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getType() == 1) {
+                    imageUrl += list.get(i).getUrl() + ",";
+                }
+            }
+        }
+
         new UserAction().userOpinion(content, imageUrl, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
-                if(response.body() == null){
+                if (response.body() == null) {
                     return;
                 }
-                if(response.body().isOk()){
-                    ToastUtil.show(context,"提交成功");
+                if (response.body().isOk()) {
+                    ToastUtil.show(context, "提交成功");
                     finish();
                 }
-
             }
         });
-
 
     }
 
@@ -171,14 +200,23 @@ public class FeedbackActivity extends AppActivity {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
                     final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
-                    Uri uri = Uri.fromFile(new File(file));
+                    final Uri uri = Uri.fromFile(new File(file));
                     alert.show();
-                    imageView.setImageURI(uri);
                     new UpFileAction().upFile(getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
-                        public void success(String url) {
-                            alert.dismiss();
-                            imageUrl = url;
+                        public void success(final String url) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    alert.dismiss();
+                                    ImageBean imageBean = new ImageBean();
+                                    imageBean.setType(1);
+                                    imageBean.setUrl(url);
+                                    imageBean.setPath(uri);
+                                    adatper.addImage(imageBean);
+                                }
+                            });
+
                         }
 
                         @Override
@@ -203,5 +241,102 @@ public class FeedbackActivity extends AppActivity {
         permission2Util.onRequestPermissionsResult();
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+    public void showBigImage(int pos) {
+        List<LocalMedia> selectList = new ArrayList<>();
+        if (list == null) {
+            return;
+        }
+
+//        for (int i = 0; i < list.size(); i++) {
+//            if (list.get(i).getType() != 0) {
+//                LocalMedia localMedia = new LocalMedia();
+//                localMedia.setCompressPath(list.get(i).getUrl());
+//                selectList.add(localMedia);
+//            }
+//        }
+        LocalMedia localMedia = new LocalMedia();
+        localMedia.setCompressPath(list.get(pos).getUrl());
+        selectList.add(localMedia);
+
+        PictureSelector.create(this)
+                .themeStyle(R.style.picture_default_style)
+                .isGif(true)
+                .openExternalPreview1(0, selectList);
+    }
+
+
+    private class FeedbackAdatper extends RecyclerView.Adapter<FeedbackAdatper.FeedbackViewHolder> {
+
+        public void addImage(ImageBean imageBean) {
+            Log.v("FeedbackAdatper", imageBean.getPath().toString());
+            if (list.size() == 6) {
+                list.remove(5);
+            }
+            list.add(0, imageBean);
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
+
+        public void remove(int postion) {
+            list.remove(postion);
+            if (list.size() < 6) {
+                ImageBean imageBean = new ImageBean();
+                imageBean.setType(0);
+                list.add(imageBean);
+            }
+            this.notifyDataSetChanged();
+        }
+
+
+        @Override
+        public FeedbackViewHolder onCreateViewHolder(@android.support.annotation.NonNull ViewGroup viewGroup, int i) {
+            View view = inflater.inflate(R.layout.item_feedback, viewGroup, false);
+            return new FeedbackViewHolder(view);
+        }
+
+
+        @Override
+        public void onBindViewHolder(@android.support.annotation.NonNull FeedbackViewHolder viewHolder, final int i) {
+            Log.v("FeedbackAdatper", i + "");
+            ImageBean imageBean = list.get(i);
+            if (imageBean.getType() == 0) {
+                viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        initPopup();
+                    }
+                });
+            } else {
+                viewHolder.imageView.setImageURI(imageBean.getPath());
+                viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showBigImage(i);
+                    }
+                });
+
+            }
+
+        }
+
+        @Override
+        public int getItemCount() {
+            if (list != null && list.size() > 0) {
+                return list.size();
+            }
+            return 0;
+        }
+
+
+        class FeedbackViewHolder extends RecyclerView.ViewHolder {
+            private SimpleDraweeView imageView;
+
+            public FeedbackViewHolder(@android.support.annotation.NonNull View itemView) {
+                super(itemView);
+                imageView = itemView.findViewById(R.id.image_view);
+            }
+        }
+    }
+
 
 }

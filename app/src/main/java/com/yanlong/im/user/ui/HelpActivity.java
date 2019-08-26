@@ -27,6 +27,7 @@ public class HelpActivity extends AppActivity {
     private HelpAdapter hotAdapter;
     private HelpAdapter typeAdapter;
     private HeadView mHeadView;
+    private TextView tvFeedback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,7 @@ public class HelpActivity extends AppActivity {
     private void initView() {
         mEdtSearch = findViewById(R.id.edt_search);
         mHeadView = findViewById(R.id.headView);
+        tvFeedback = findViewById(R.id.tv_feedback);
         mRecyclerViewHot = findViewById(R.id.recyclerView_hot);
         LinearLayoutManager hotManger = new LinearLayoutManager(this);
         mRecyclerViewHot.setLayoutManager(hotManger);
@@ -67,6 +69,13 @@ public class HelpActivity extends AppActivity {
             @Override
             public void onRight() {
 
+            }
+        });
+
+        tvFeedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                go(FeedbackActivity.class);
             }
         });
     }

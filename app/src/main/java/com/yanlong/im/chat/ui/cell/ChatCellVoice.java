@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -14,7 +13,6 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.view.VoiceView;
 import com.yanlong.im.utils.audio.AudioPlayManager;
-import com.yanlong.im.utils.audio.IAudioPlayListener;
 
 /*
  * 语音
@@ -42,59 +40,17 @@ public class ChatCellVoice extends ChatCellBase {
         voiceMessage = message.getVoiceMessage();
         if (voiceMessage != null) {
             uri = Uri.parse(voiceMessage.getUrl());
-            v_voice.init(message.isMe(), voiceMessage.getTime(), message.isRead(), AudioPlayManager.getInstance().isPlay(uri));
+            v_voice.init(message.isMe(), voiceMessage.getTime(), message.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
         }
     }
 
     @Override
     public void onBubbleClick() {
         super.onBubbleClick();
-        playVoice();
-    }
-
-    private void playVoice() {
-        if (uri == null) {
-            return;
+//        playVoice();
+        if (mCellListener != null) {
+            mCellListener.onEvent(ChatEnum.ECellEventType.VOICE_CLICK, model, voiceMessage);
         }
-        if (AudioPlayManager.getInstance().isPlay(uri)) {
-            AudioPlayManager.getInstance().stopPlay();
-        } else {
-            AudioPlayManager.getInstance().startPlay(mContext, uri, new IAudioPlayListener() {
-                @Override
-                public void onStart(Uri var1) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
-
-                        }
-                    }, 100);
-                }
-
-
-                @Override
-                public void onStop(Uri var1) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
-                        }
-                    }, 100);
-                }
-
-                @Override
-                public void onComplete(Uri var1) {
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
-                        }
-
-                    }, 100);
-                }
-            });
-        }
-        updateRead();
 
     }
 
@@ -104,7 +60,7 @@ public class ChatCellVoice extends ChatCellBase {
             MsgAction action = new MsgAction();
             action.msgRead(model.getMsg_id(), true);
             model.setRead(true);
-            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri));
+            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
         }
     }
 }

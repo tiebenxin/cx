@@ -10,8 +10,6 @@ import java.lang.annotation.RetentionPolicy;
 import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_FIRST;
 import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_NO;
 import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_SECOND;
-import static com.yanlong.im.chat.ChatEnum.ECellEventType.LONG_CLICK;
-import static com.yanlong.im.chat.ChatEnum.ECellEventType.RESEND_CLICK;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.AT;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.BUSINESS_CARD;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.IMAGE;
@@ -142,7 +140,7 @@ public class ChatEnum {
      * cell 点击事件类型
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
-            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK})
+            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -154,13 +152,14 @@ public class ChatEnum {
         int AVATAR_CLICK = 6;//点击头像
         int RESEND_CLICK = 7;//点击重新发送
         int AVATAR_LONG_CLICK = 8;//头像长按事件
+        int VOICE_CLICK = 9;//语音消息
     }
 
 
     /*
      * 消息type
      * */
-    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, UNRECOGNIZED})
+    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -214,6 +213,20 @@ public class ChatEnum {
         int AUTH_NO = 0; // 未认证
         int AUTH_FIRST = 1; //一级认证，认证但未上传证照
         int AUTH_SECOND = 2;//二级认证，认证已上传证照
+    }
+
+    /*
+     * 播放状态
+     *
+     * */
+    @IntDef({EPlayStatus.NO_DOWNLOADED, EPlayStatus.NO_PLAY, EPlayStatus.PLAYING, EPlayStatus.PLAYED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EPlayStatus {
+        int NO_DOWNLOADED = 0; // 未下载
+        int NO_PLAY = 1; //未播放
+        int PLAYING = 2; //正播放
+        int STOP_PLAY = 3; //正播放
+        int PLAYED = 4;//已播放
     }
 
 }

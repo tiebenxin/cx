@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:fresco="http://schemas.android.com/tools"
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -40,12 +39,12 @@
             android:text="截图:" />
 
 
-        <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@+id/image_view"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_marginTop="15dp"
-            app:placeholderImage="@mipmap/ic_img_def" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
 
         <Button
             android:id="@+id/btn_commit"
