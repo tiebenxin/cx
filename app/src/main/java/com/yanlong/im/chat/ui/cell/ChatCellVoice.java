@@ -22,7 +22,7 @@ public class ChatCellVoice extends ChatCellBase {
     private VoiceView v_voice;
     private VoiceMessage voiceMessage;
     private Uri uri;
-    private Handler handler = new Handler(Looper.getMainLooper());
+//    private Handler handler = new Handler(Looper.getMainLooper());
 
     protected ChatCellVoice(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -47,9 +47,8 @@ public class ChatCellVoice extends ChatCellBase {
     @Override
     public void onBubbleClick() {
         super.onBubbleClick();
-//        playVoice();
         if (mCellListener != null) {
-            mCellListener.onEvent(ChatEnum.ECellEventType.VOICE_CLICK, model, voiceMessage);
+            mCellListener.onEvent(ChatEnum.ECellEventType.VOICE_CLICK, model, voiceMessage,currentPosition);
         }
 
     }

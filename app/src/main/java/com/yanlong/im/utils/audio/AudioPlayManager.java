@@ -46,6 +46,7 @@ public class AudioPlayManager implements SensorEventListener {
     private Context context;
     private List<MsgAllBean> playList;
     private MsgAllBean currentPlayingMsg;
+    private boolean isAutoPlay;
 
     public AudioPlayManager() {
     }
@@ -363,7 +364,7 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     public void stopPlay() {
-        if (this.voicePlayListener != null && this._playingUri != null && currentPlayingMsg != null) {
+        if (this.voicePlayListener != null && this._playingUri != null) {
 //            this.voicePlayListener.onStop(this._playingUri);
             this.voicePlayListener.onStop(currentPlayingMsg);
         }
@@ -390,7 +391,9 @@ public class AudioPlayManager implements SensorEventListener {
         this._powerManager = null;
         this._audioManager = null;
         this._wakeLock = null;
-        this.voicePlayListener = null;
+        if (!isAutoPlay) {
+            this.voicePlayListener = null;
+        }
         this._playingUri = null;
     }
 
@@ -482,6 +485,7 @@ public class AudioPlayManager implements SensorEventListener {
         playList = beanList;
         if (context != null && playList != null && playList.size() > 0) {
             this.context = context;
+            this.isAutoPlay = isAutoPlay;
             if (!isAutoPlay) {
                 MsgAllBean bean = playList.get(0);
                 if (this.voicePlayListener != null && this._playingUri != null) {
