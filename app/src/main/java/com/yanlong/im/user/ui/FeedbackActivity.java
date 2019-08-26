@@ -19,7 +19,9 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -49,7 +51,7 @@ import retrofit2.Response;
  * @创建时间 2019/8/23 0023 9:26
  */
 public class FeedbackActivity extends AppActivity {
-
+    public static final int SHOW_IMAGE = 9038;
     private HeadView headView;
     private EditText edContent;
     private Button btnCommit;
@@ -74,6 +76,8 @@ public class FeedbackActivity extends AppActivity {
         edContent = findViewById(R.id.ed_content);
         btnCommit = findViewById(R.id.btn_commit);
         recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(3,
+                ScreenUtils.dip2px(this, 10), false));
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         adatper = new FeedbackAdatper();
         recyclerView.setAdapter(adatper);
@@ -97,12 +101,6 @@ public class FeedbackActivity extends AppActivity {
                 commit();
             }
         });
-//        imageView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                initPopup();
-//            }
-//        });
     }
 
 
@@ -231,6 +229,10 @@ public class FeedbackActivity extends AppActivity {
                         }
                     }, file);
                     break;
+                case SHOW_IMAGE:
+                    int postion = data.getIntExtra(FeedbackShowImageActivity.POSTION,0);
+                    adatper.remove(postion);
+                    break;
             }
         }
     }
@@ -242,34 +244,9 @@ public class FeedbackActivity extends AppActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    public void showBigImage(int pos) {
-        List<LocalMedia> selectList = new ArrayList<>();
-        if (list == null) {
-            return;
-        }
-
-//        for (int i = 0; i < list.size(); i++) {
-//            if (list.get(i).getType() != 0) {
-//                LocalMedia localMedia = new LocalMedia();
-//                localMedia.setCompressPath(list.get(i).getUrl());
-//                selectList.add(localMedia);
-//            }
-//        }
-        LocalMedia localMedia = new LocalMedia();
-        localMedia.setCompressPath(list.get(pos).getUrl());
-        selectList.add(localMedia);
-
-        PictureSelector.create(this)
-                .themeStyle(R.style.picture_default_style)
-                .isGif(true)
-                .openExternalPreview1(0, selectList);
-    }
-
-
     private class FeedbackAdatper extends RecyclerView.Adapter<FeedbackAdatper.FeedbackViewHolder> {
 
         public void addImage(ImageBean imageBean) {
-            Log.v("FeedbackAdatper", imageBean.getPath().toString());
             if (list.size() == 6) {
                 list.remove(5);
             }
@@ -278,11 +255,17 @@ public class FeedbackActivity extends AppActivity {
         }
 
         public void remove(int postion) {
-            list.remove(postion);
-            if (list.size() < 6) {
-                ImageBean imageBean = new ImageBean();
-                imageBean.setType(0);
-                list.add(imageBean);
+            if (list.size() == 6) {
+                if(list.get(5).getType() == 0){
+                    list.remove(postion);
+                }else{
+                    list.remove(postion);
+                    ImageBean imageBean = new ImageBean();
+                    imageBean.setType(0);
+                    list.add(imageBean);
+                }
+            }else{
+                list.remove(postion);
             }
             this.notifyDataSetChanged();
         }
@@ -297,9 +280,10 @@ public class FeedbackActivity extends AppActivity {
 
         @Override
         public void onBindViewHolder(@android.support.annotation.NonNull FeedbackViewHolder viewHolder, final int i) {
-            Log.v("FeedbackAdatper", i + "");
+
             ImageBean imageBean = list.get(i);
             if (imageBean.getType() == 0) {
+                viewHolder.imageView.setImageURI("android.resource://"+ getPackageName() +"/"+ R.mipmap.icon_image_add);
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -311,9 +295,14 @@ public class FeedbackActivity extends AppActivity {
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showBigImage(i);
+                        Intent intent = new Intent(FeedbackActivity.this,FeedbackShowImageActivity.class);
+                        intent.putExtra(FeedbackShowImageActivity.URL,list.get(i).getUrl());
+                        intent.putExtra(FeedbackShowImageActivity.POSTION,i);
+                        startActivityForResult(intent,SHOW_IMAGE);
                     }
                 });
+
+
 
             }
 
