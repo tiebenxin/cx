@@ -135,8 +135,8 @@ public class ChatItemView extends LinearLayout {
         txtOtName = (TextView) rootView.findViewById(R.id.txt_ot_name);
         txtTime = (TextView) rootView.findViewById(R.id.txt_time);
         txtBroadcast = (TextView) rootView.findViewById(R.id.txt_broadcast);
-        imgBroadcast= (ImageView) rootView.findViewById(R.id.img_broadcast);
-        viewBroadcast=rootView.findViewById(R.id.view_broadcast);
+        imgBroadcast = (ImageView) rootView.findViewById(R.id.img_broadcast);
+        viewBroadcast = rootView.findViewById(R.id.view_broadcast);
 
         viewOt = (LinearLayout) rootView.findViewById(R.id.view_ot);
         imgOtHead = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_head);
@@ -357,10 +357,11 @@ public class ChatItemView extends LinearLayout {
         txtBroadcast.setText(stringBuilder);
         txtBroadcast.setMovementMethod(LinkMovementMethod.getInstance());
     }
-    public void showBroadcastIcon(Boolean isShow,Integer rid){
-        imgBroadcast.setVisibility(isShow?VISIBLE:GONE);
-        if(rid!=null)
-        imgBroadcast.setImageResource(rid);
+
+    public void showBroadcastIcon(Boolean isShow, Integer rid) {
+        imgBroadcast.setVisibility(isShow ? VISIBLE : GONE);
+        if (rid != null)
+            imgBroadcast.setImageResource(rid);
     }
 
     //普通消息
@@ -478,24 +479,9 @@ public class ChatItemView extends LinearLayout {
     }
 
     //语音
-    public void setData7(int second, boolean isRead, boolean isPlay, final OnClickListener onk) {
-        viewOt7.init(isMe, second, isRead, isPlay);
-        viewMe7.init(isMe, second, isRead, isPlay);
-
-      /*  OnClickListener nonk = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isMe) {
-
-                    onk.onClick(viewMe7.getImgMeIcon());
-                } else {
-                    onk.onClick(viewOt7.getImgOtIcon());
-
-
-                }
-
-            }
-        };*/
+    public void setData7(int second, boolean isRead, boolean isPlay, int playStatus, final OnClickListener onk) {
+        viewOt7.init(isMe, second, isRead, isPlay, playStatus);
+        viewMe7.init(isMe, second, isRead, isPlay, playStatus);
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
 
@@ -596,11 +582,11 @@ public class ChatItemView extends LinearLayout {
             if (image != null) {
                 double mh = image.getHeight();
                 double mw = image.getWidth();
-                if(mh==0){
-                    mh=height;
+                if (mh == 0) {
+                    mh = height;
                 }
-                if(mw==0){
-                    mw=width;
+                if (mw == 0) {
+                    mw = width;
                 }
 
                 double cp = 1;

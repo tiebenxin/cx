@@ -8,6 +8,7 @@ public class VoiceMessage extends RealmObject {
     private String msgid;
     private String url;
     private int time;
+    private int playStatus;
 
     public int getTime() {
         return time;
@@ -31,5 +32,13 @@ public class VoiceMessage extends RealmObject {
 
     public void setMsgid(String msgid) {
         this.msgid = msgid;
+    }
+
+    public int getPlayStatus() {
+        return playStatus;
+    }
+
+    public void setPlayStatus(int playStatus) {
+        this.playStatus = playStatus;
     }
 }

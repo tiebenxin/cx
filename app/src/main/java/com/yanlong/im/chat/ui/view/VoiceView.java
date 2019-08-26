@@ -6,7 +6,6 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -61,7 +60,7 @@ public class VoiceView extends LinearLayout {
 
     }
 
-    public void init(final boolean isMe, final int second, boolean isRead, boolean isPlay) {
+    public void init(final boolean isMe, final int second, boolean isRead, boolean isPlay,int playStatus) {
 
         if (isMe) {
             viewMeVoice.setVisibility(VISIBLE);
@@ -107,6 +106,13 @@ public class VoiceView extends LinearLayout {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics.widthPixels;
+    }
+
+    public void stopPlay() {
+        ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
+        ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
+        ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);
+        ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
     }
 
 

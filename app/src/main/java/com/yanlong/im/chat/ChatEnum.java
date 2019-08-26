@@ -10,8 +10,6 @@ import java.lang.annotation.RetentionPolicy;
 import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_FIRST;
 import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_NO;
 import static com.yanlong.im.chat.ChatEnum.EAuthStatus.AUTH_SECOND;
-import static com.yanlong.im.chat.ChatEnum.ECellEventType.LONG_CLICK;
-import static com.yanlong.im.chat.ChatEnum.ECellEventType.RESEND_CLICK;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.AT;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.BUSINESS_CARD;
 import static com.yanlong.im.chat.ChatEnum.EMessageType.IMAGE;
@@ -215,6 +213,20 @@ public class ChatEnum {
         int AUTH_NO = 0; // 未认证
         int AUTH_FIRST = 1; //一级认证，认证但未上传证照
         int AUTH_SECOND = 2;//二级认证，认证已上传证照
+    }
+
+    /*
+     * 播放状态
+     *
+     * */
+    @IntDef({EPlayStatus.NO_DOWNLOADED, EPlayStatus.NO_PLAY, EPlayStatus.PLAYING, EPlayStatus.PLAYED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EPlayStatus {
+        int NO_DOWNLOADED = 0; // 未下载
+        int NO_PLAY = 1; //未播放
+        int PLAYING = 2; //正播放
+        int STOP_PLAY = 3; //正播放
+        int PLAYED = 4;//已播放
     }
 
 }
