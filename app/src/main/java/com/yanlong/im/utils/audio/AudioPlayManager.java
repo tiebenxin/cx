@@ -243,7 +243,7 @@ public class AudioPlayManager implements SensorEventListener {
                 }
 
                 this.muteAudioFocus(this._audioManager, true);
-                this.voicePlayListener = playListener;
+                AudioPlayManager.this.voicePlayListener = playListener;
                 this._playingUri = audioUri;
                 this._mediaPlayer = new MediaPlayer();
                 this._mediaPlayer = new MediaPlayer();
@@ -379,7 +379,7 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     private void resetAudioPlayManager() {
-        LogUtil.getLog().i(TAG, "resetAudioPlayManager");
+        LogUtil.getLog().i(TAG, "resetAudioPlayManager--" + (voicePlayListener == null));
         if (this._audioManager != null) {
             this.muteAudioFocus(this._audioManager, false);
         }
@@ -395,9 +395,9 @@ public class AudioPlayManager implements SensorEventListener {
         this._playingUri = null;
         if (voicePlayListener != null) {
             voicePlayListener.onReadyToNext();
-            if (!isAutoPlay) {
-                this.voicePlayListener = null;
-            }
+//            if (!isAutoPlay) {
+            this.voicePlayListener = null;
+//            }
         }
     }
 
