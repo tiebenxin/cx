@@ -66,7 +66,7 @@ public class UpLoadService extends Service {
                 while (queue.size() > 0) {
                     UpProgress upProgress = queue.poll();
                     Log.d("上传", "上传: " + upProgress.getId());
-                    upFileAction.upFileSyn(getApplicationContext(), upProgress.getCallback(), upProgress.getFile());
+                    upFileAction.upFileSyn(UpFileAction.PATH.IMG,getApplicationContext(), upProgress.getCallback(), upProgress.getFile());
                 }
                 stopSelf();
                 Log.d("上传", "上传结束");

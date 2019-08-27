@@ -350,7 +350,7 @@ public class GroupCreateActivity extends AppActivity {
 
         //  icon="file://"+file.getAbsolutePath();
 
-        upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
+        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP,getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
                 msgACtion.groupCreate(UserAction.getMyInfo().getName(), fname, icon, templist, new CallBack<ReturnBean<Group>>() {

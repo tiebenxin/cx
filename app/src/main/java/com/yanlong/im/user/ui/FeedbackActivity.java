@@ -200,7 +200,7 @@ public class FeedbackActivity extends AppActivity {
                     final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
                     final Uri uri = Uri.fromFile(new File(file));
                     alert.show();
-                    new UpFileAction().upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                    new UpFileAction().upFile(UpFileAction.PATH.FEEDBACK,getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(final String url) {
                             runOnUiThread(new Runnable() {

@@ -19,6 +19,7 @@ public class AppConfig {
     public static Context APP_CONTEXT;
     public static boolean DEBUG=false;
     public static float FONT =1.0f;
+    public static String UP_PATH ="";
 
     //设置全局字体
     public static void setFont(float font) {

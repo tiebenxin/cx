@@ -180,7 +180,7 @@ public class ComplaintUploadActivity extends AppActivity {
                     Uri uri = Uri.fromFile(new File(file));
                     alert.show();
                     imageView.setImageURI(uri);
-                    new UpFileAction().upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                    new UpFileAction().upFile(UpFileAction.PATH.COMPLAINT,getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(String url) {
                             alert.dismiss();

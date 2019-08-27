@@ -125,7 +125,7 @@ public class UpFileUtil {
      * @param imgPath       图片的本地路径
      */
 
-    public void upFile(final Context context, String keyid, String secret, String token, String endpoint, final String btName, final UpFileUtil.OssUpCallback ossUpCallback, String imgPath, byte[] imgbyte) {
+    public void upFile(String path,final Context context, String keyid, String secret, String token, String endpoint, final String btName, final UpFileUtil.OssUpCallback ossUpCallback, String imgPath, byte[] imgbyte) {
 
         getOSs(context, keyid, secret, token, endpoint);
 
@@ -140,8 +140,9 @@ public class UpFileUtil {
         }
         final String img_name = UUID.randomUUID().toString() + endEx;
 
-        data.setTime(System.currentTimeMillis());
-        final String objkey = "Android/" + simpleDateFormat.format(data) + "/" + img_name;
+        //data.setTime(System.currentTimeMillis());
+        //"Android/" + simpleDateFormat.format(data) + "/"
+        final String objkey =path  + img_name;
 
         PutObjectRequest putObjectRequest;
 
