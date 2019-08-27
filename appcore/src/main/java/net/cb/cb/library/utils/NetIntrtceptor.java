@@ -66,8 +66,8 @@ public class NetIntrtceptor implements Interceptor {
         //post自动追加platform 参数
         RequestBody reqbody = request.body();
 
-        //  if(request.method().equals("POST")){
-
+          if(request.method().equals("POST")){
+              String json="";
         if (reqbody instanceof FormBody) {
             Gson gson= new GsonBuilder().create();
             FormBody gb = (FormBody) reqbody;
@@ -89,18 +89,18 @@ public class NetIntrtceptor implements Interceptor {
 
             }
 
-            String json = gson.toJson(objs);
+             json = gson.toJson(objs);
 
 
-            RequestBody nbody = RequestBody.create(mediaType, json);
-            request=  request.newBuilder()
-                    .method(request.method(), nbody)
-                    .build();
+
 
         }
+              RequestBody nbody = RequestBody.create(mediaType, json);
+              request=  request.newBuilder()
+                      .method(request.method(), nbody)
+                      .build();
 
-
-        //  }
+          }
 
         return request;
 

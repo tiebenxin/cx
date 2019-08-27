@@ -284,11 +284,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             boolean isHttp = PictureMimeType.isHttp(path);
             // 可以长按保存并且是网络图片显示一个对话框
             if (isHttp) {
-                showPleaseDialog();
+
+                showPleaseDialog(path);
             }
 
 
-            final boolean eqLongImg = PictureMimeType.isLongImg(media);
+             boolean eqLongImg = PictureMimeType.isLongImg(media);
+
             imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
             longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
             // 压缩过的gif就不是gif了
@@ -427,7 +429,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         }
 
         //显示普通图片
-        private void showImg(final PhotoView imageView, final SubsamplingScaleImageView longImg, String path, final boolean eqLongImg) {
+        private void showImg(final PhotoView imageView, final SubsamplingScaleImageView longImg, final String path, final boolean eqLongImg) {
             RequestOptions options = new RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.ALL);
             Log.v("Glide", "显示普通图" + path+"eqLongImg"+eqLongImg);
@@ -447,7 +449,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         @Override
                         public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
 
-                            dismissDialog();
+                            dismissDialog(path);
                             if (eqLongImg) {
                                 displayLongPic(resource, longImg);
                             } else {
@@ -562,10 +564,16 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      */
     private void displayLongPic(Bitmap bmp, SubsamplingScaleImageView longImg) {
         Log.i(TAG, "displayLongPic: 显示长图");
-        if(bmp.getHeight()>4000){
 
-            float sp = 4000.0f / bmp.getHeight();
-            bmp= scaleBitmap(bmp,sp);
+        if(bmp.getHeight()>4000||bmp.getWidth()>4000) {
+            if (bmp.getHeight() > bmp.getWidth()) {
+
+                float sp = 4000.0f / bmp.getHeight();
+                bmp = scaleBitmap(bmp, sp);
+            } else {
+                float sp = 4000.0f / bmp.getWidth();
+                bmp = scaleBitmap(bmp, sp);
+            }
         }
 
 
@@ -702,7 +710,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 e.printStackTrace();
             }
         }
-        dialog.dismiss();
+        dismissDialog();
     }
 
 
