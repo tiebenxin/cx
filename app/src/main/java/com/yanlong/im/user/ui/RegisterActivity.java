@@ -21,6 +21,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -197,6 +198,9 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                 }
                 ToastUtil.show(RegisterActivity.this, response.body().getMsg());
                 if (response.body().isOk()) {
+                    SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
+                    preferencesUtil.save2Json(true);
+
                     Intent intent = new Intent(getContext(), RegisterUserNameActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

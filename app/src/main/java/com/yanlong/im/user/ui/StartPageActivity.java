@@ -110,7 +110,14 @@ public class StartPageActivity extends AppActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                goActivity(false);
+                SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
+                Boolean isFiast = preferencesUtil.get4Json(Boolean.class);
+                if (isFiast == null) {
+                    goActivity(true);
+                } else {
+                    goActivity(false);
+                }
+
             }
         }, TIME);
     }
