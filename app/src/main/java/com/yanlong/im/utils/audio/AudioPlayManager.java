@@ -46,7 +46,7 @@ public class AudioPlayManager implements SensorEventListener {
     private Context context;
     private List<MsgAllBean> playList;
     private MsgAllBean currentPlayingMsg;
-    private boolean isAutoPlay;
+    private boolean isAutoPlay = false;
 
     public AudioPlayManager() {
     }
@@ -196,106 +196,107 @@ public class AudioPlayManager implements SensorEventListener {
         }
 
     }
-//
-//    public void startPlay(Context context, Uri audioUri, IAudioPlayListener playListener) {
-//        if (context != null && audioUri != null) {
-//            this.context = context;
-//            if (this._playListener != null && this._playingUri != null) {
-//                this._playListener.onStop(this._playingUri);
-//            }
-//
-//            this.resetMediaPlayer();
-//            this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-//                public void onAudioFocusChange(int focusChange) {
-//                    Log.d(TAG, "OnAudioFocusChangeListener " + focusChange);
-//                    if (AudioPlayManager.this._audioManager != null && focusChange == -1) {
-//                        AudioPlayManager.this._audioManager.abandonAudioFocus(AudioPlayManager.this.afChangeListener);
-//                        AudioPlayManager.this.afChangeListener = null;
-//                        AudioPlayManager.this.resetMediaPlayer();
-//                    }
-//
-//                }
-//            };
-//
-//            try {
-//                this._powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-//                this._audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-//
-//                if (!this._audioManager.isWiredHeadsetOn()) {
-//                    this._sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-//                    this._sensor = this._sensorManager.getDefaultSensor(8);
-//                    this._sensorManager.registerListener(this, this._sensor, 3);
-//                }
-//
-//                MsgDao msgDao = new MsgDao();
-//                UserSeting userSeting = msgDao.userSetingGet();
-//                int voice = userSeting.getVoicePlayer();
-//                if (voice == 0) {
-//                    changeToSpeaker();
-//                } else {
-//                    changeToReceiver();
-//                }
-//
-////                if (!this._audioManager.isWiredHeadsetOn()) {
-////                    this._sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-////                    this._sensor = this._sensorManager.getDefaultSensor(8);
-////                    this._sensorManager.registerListener(this, this._sensor, 3);
-////                }
-//
-//                this.muteAudioFocus(this._audioManager, true);
-//                this._playListener = playListener;
-//                this._playingUri = audioUri;
-//                this._mediaPlayer = new MediaPlayer();
-//                this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//                    public void onCompletion(MediaPlayer mp) {
-//                        if (AudioPlayManager.this._playListener != null) {
-//                            AudioPlayManager.this._playListener.onComplete(AudioPlayManager.this._playingUri);
-//                            AudioPlayManager.this._playListener = null;
-//                            AudioPlayManager.this.context = null;
-//                        }
-//
-//                        AudioPlayManager.this.reset();
-//                    }
-//                });
-//                this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-//                    public boolean onError(MediaPlayer mp, int what, int extra) {
-//                        AudioPlayManager.this.reset();
-//                        return true;
-//                    }
-//                });
-//
-//                String path = context.getExternalCacheDir().getAbsolutePath();
-//                File file = new File(path, getFileName(audioUri.toString()));
-//                if (file.exists()) {
-//                    Log.v(TAG, "本地播放" + file.getPath());
-//
-//                    this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
-//                } else {
-//                    Log.v(TAG, "在线播放--" + audioUri);
-//                    this._mediaPlayer.setDataSource(context, audioUri);
-//                    downloadAudio(context, audioUri.toString());
-//                }
-//
-//                this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
-//                this._mediaPlayer.prepare();
-//                this._mediaPlayer.start();
-//                if (this._playListener != null) {
-//                    this._playListener.onStart(this._playingUri);
-//                }
-//            } catch (Exception var5) {
-//                var5.printStackTrace();
-//                if (this._playListener != null) {
-//                    this._playListener.onStop(audioUri);
-//                    this._playListener = null;
-//                }
-//
-//                this.reset();
-//            }
-//
-//        } else {
-//            Log.e(TAG, "startPlay context or audioUri is null.");
-//        }
-//    }
+
+    public void startPlay(Context context, final MsgAllBean bean, IVoicePlayListener playListener) {
+        currentPlayingMsg = bean;
+        if (context != null && bean != null) {
+            this.context = context;
+            if (bean.getVoiceMessage() == null) {
+                return;
+            }
+            if (this.voicePlayListener != null && this._playingUri != null) {
+                this.voicePlayListener.onStop(bean);
+            }
+
+            Uri audioUri = Uri.parse(bean.getVoiceMessage().getUrl());
+
+            this.resetMediaPlayer();
+            this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+                public void onAudioFocusChange(int focusChange) {
+                    Log.d(TAG, "OnAudioFocusChangeListener " + focusChange);
+                    if (AudioPlayManager.this._audioManager != null && focusChange == -1) {
+                        AudioPlayManager.this._audioManager.abandonAudioFocus(AudioPlayManager.this.afChangeListener);
+                        AudioPlayManager.this.afChangeListener = null;
+                        AudioPlayManager.this.resetMediaPlayer();
+                    }
+
+                }
+            };
+
+            try {
+                this._powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                this._audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+                if (!this._audioManager.isWiredHeadsetOn()) {
+                    this._sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+                    this._sensor = this._sensorManager.getDefaultSensor(8);
+                    this._sensorManager.registerListener(this, this._sensor, 3);
+                }
+
+                MsgDao msgDao = new MsgDao();
+                UserSeting userSeting = msgDao.userSetingGet();
+                int voice = userSeting.getVoicePlayer();
+                if (voice == 0) {
+                    changeToSpeaker();
+                } else {
+                    changeToReceiver();
+                }
+
+                this.muteAudioFocus(this._audioManager, true);
+                this.voicePlayListener = playListener;
+                this._playingUri = audioUri;
+                this._mediaPlayer = new MediaPlayer();
+                this._mediaPlayer = new MediaPlayer();
+                this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    public void onCompletion(MediaPlayer mp) {
+                        LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
+                        if (AudioPlayManager.this.voicePlayListener != null) {
+                            AudioPlayManager.this.voicePlayListener.onComplete(bean);
+                            AudioPlayManager.this._playingUri = null;
+                            AudioPlayManager.this.context = null;
+                        }
+                        AudioPlayManager.this.reset();
+                    }
+                });
+                this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
+                        AudioPlayManager.this.reset();
+                        return true;
+                    }
+                });
+
+                String path = context.getExternalCacheDir().getAbsolutePath();
+                File file = new File(path, getFileName(audioUri.toString()));
+                if (file.exists()) {
+                    Log.v(TAG, "本地播放" + file.getPath());
+
+                    this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
+                } else {
+                    Log.v(TAG, "在线播放--" + bean.getVoiceMessage().getUrl());
+                    this._mediaPlayer.setDataSource(context, audioUri);
+                    downloadAudio(context, audioUri.toString());
+                }
+
+                this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
+                this._mediaPlayer.prepare();
+                this._mediaPlayer.start();
+                if (this.voicePlayListener != null) {
+                    this.voicePlayListener.onStart(bean);
+                }
+            } catch (Exception var5) {
+                var5.printStackTrace();
+                if (this.voicePlayListener != null) {
+                    this.voicePlayListener.onStop(bean);
+                    this.voicePlayListener = null;
+                }
+
+                this.reset();
+            }
+
+        } else {
+            Log.e(TAG, "startPlay context or audioUri is null.");
+        }
+    }
 
 
     /**
@@ -378,6 +379,7 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     private void resetAudioPlayManager() {
+        LogUtil.getLog().i(TAG, "resetAudioPlayManager");
         if (this._audioManager != null) {
             this.muteAudioFocus(this._audioManager, false);
         }
@@ -385,16 +387,18 @@ public class AudioPlayManager implements SensorEventListener {
         if (this._sensorManager != null) {
             this._sensorManager.unregisterListener(this);
         }
-
         this._sensorManager = null;
         this._sensor = null;
         this._powerManager = null;
         this._audioManager = null;
         this._wakeLock = null;
-        if (!isAutoPlay) {
-            this.voicePlayListener = null;
-        }
         this._playingUri = null;
+        if (voicePlayListener != null) {
+            voicePlayListener.onReadyToNext();
+            if (!isAutoPlay) {
+                this.voicePlayListener = null;
+            }
+        }
     }
 
     private void resetMediaPlayer() {
@@ -405,7 +409,7 @@ public class AudioPlayManager implements SensorEventListener {
                 this._mediaPlayer.release();
                 this._mediaPlayer = null;
             } catch (IllegalStateException var2) {
-
+                var2.printStackTrace();
             }
         }
 
@@ -558,6 +562,7 @@ public class AudioPlayManager implements SensorEventListener {
                             if (position == playList.size() - 1) {
                                 AudioPlayManager.this.voicePlayListener = null;
                                 AudioPlayManager.this.context = null;
+
                                 AudioPlayManager.this.reset();
                             } else {
                                 AudioPlayManager.this.reset();

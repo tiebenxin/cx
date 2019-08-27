@@ -237,7 +237,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         imgsize.setWidth(bm.getWidth());
         imgsize.setHeight(bm.getHeight());
 
-        new UpFileAction().upFile(this, new UpFileUtil.OssUpCallback() {
+        new UpFileAction().upFile(UpFileAction.PATH.IMG,this, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
                 //2.发送图片

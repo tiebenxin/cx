@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -429,7 +430,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         private void showImg(final PhotoView imageView, final SubsamplingScaleImageView longImg, String path, final boolean eqLongImg) {
             RequestOptions options = new RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.ALL);
-            Log.v("Glide", "显示普通图" + path);
+            Log.v("Glide", "显示普通图" + path+"eqLongImg"+eqLongImg);
             Glide.with(PictureExternalPreviewActivity.this)
                     .asBitmap()
                     .load(path)
@@ -445,7 +446,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
                         @Override
                         public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                            Log.v("Glide", "onResourceReady");
+
                             dismissDialog();
                             if (eqLongImg) {
                                 displayLongPic(resource, longImg);
@@ -532,7 +533,27 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         };
     }
 
-
+    /**
+     * 缩放
+     * @param origin
+     * @param ratio
+     * @return
+     */
+    private Bitmap scaleBitmap(Bitmap origin, float ratio) {
+        if (origin == null) {
+            return null;
+        }
+        int width = origin.getWidth();
+        int height = origin.getHeight();
+        Matrix matrix = new Matrix();
+        matrix.preScale(ratio, ratio);
+        Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
+        if (newBM.equals(origin)) {
+            return newBM;
+        }
+       // origin.recycle();
+        return newBM;
+    }
     /**
      * 加载长图
      *
@@ -540,6 +561,14 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      * @param longImg
      */
     private void displayLongPic(Bitmap bmp, SubsamplingScaleImageView longImg) {
+        Log.i(TAG, "displayLongPic: 显示长图");
+        if(bmp.getHeight()>4000){
+
+            float sp = 4000.0f / bmp.getHeight();
+            bmp= scaleBitmap(bmp,sp);
+        }
+
+
         longImg.setQuickScaleEnabled(true);
         longImg.setZoomEnabled(true);
         longImg.setPanEnabled(true);

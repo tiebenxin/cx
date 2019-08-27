@@ -118,7 +118,7 @@ public class UploadIdentityActivity extends AppActivity implements View.OnClickL
                     Uri uri = Uri.fromFile(new File(file));
                     alert.show();
                     mIvFront.setImageURI(uri);
-                    new UpFileAction().upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                    new UpFileAction().upFile(UpFileAction.PATH.IMG,getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(String url) {
                             alert.dismiss();
@@ -144,7 +144,7 @@ public class UploadIdentityActivity extends AppActivity implements View.OnClickL
                     Uri uri1 = Uri.fromFile(new File(file1));
                     alert.show();
                     mIvContrary.setImageURI(uri1);
-                    new UpFileAction().upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                    new UpFileAction().upFile(UpFileAction.PATH.IMG,getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(String url) {
                             alert.dismiss();

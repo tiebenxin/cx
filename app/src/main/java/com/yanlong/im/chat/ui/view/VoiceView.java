@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 
 public class VoiceView extends LinearLayout {
     private LinearLayout viewOtVoice;
@@ -60,8 +61,8 @@ public class VoiceView extends LinearLayout {
 
     }
 
-    public void init(final boolean isMe, final int second, boolean isRead, boolean isPlay,int playStatus) {
-
+    public void init(final boolean isMe, final int second, boolean isRead, boolean isPlay, int playStatus) {
+//        LogUtil.getLog().i(VoiceView.class.getSimpleName(), "初始化View--" + "isRead=" + isRead + "--isMe=" + isMe);
         if (isMe) {
             viewMeVoice.setVisibility(VISIBLE);
             viewOtVoice.setVisibility(GONE);

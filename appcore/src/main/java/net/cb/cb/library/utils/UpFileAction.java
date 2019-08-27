@@ -3,9 +3,12 @@ package net.cb.cb.library.utils;
 import android.content.Context;
 import android.util.Log;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.AliObsConfigBean;
 import net.cb.cb.library.bean.ReturnBean;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
 import retrofit2.Call;
@@ -16,6 +19,10 @@ import retrofit2.Response;
  * @date 2016/12/20
  */
 public class UpFileAction {
+    public static enum PATH {
+        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE
+    }
+
     private UpFileServer server;
 
     public UpFileAction() {
@@ -35,16 +42,49 @@ public class UpFileAction {
      * @param callback
      * @param filePath
      */
-    public void upFile(Context context, UpFileUtil.OssUpCallback callback, String filePath) {
-        upFile(context, callback, filePath, null);
+    public void upFile( PATH type,Context context, UpFileUtil.OssUpCallback callback, String filePath) {
+        upFile(type,context, callback, filePath, null);
     }
 
-    public void upFile(Context context, UpFileUtil.OssUpCallback callback, byte[] fileByte) {
-        upFile(context, callback, null, fileByte);
+    public void upFile( PATH type,Context context, UpFileUtil.OssUpCallback callback, byte[] fileByte) {
+        upFile(type,context, callback, null, fileByte);
+    }
+
+    public String getPath(PATH type) {
+        Date data = new Date();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        String pt = "";
+        switch (type) {
+            case IMG:
+                data.setTime(System.currentTimeMillis());
+                pt =  AppConfig.UP_PATH + "/android/" + simpleDateFormat.format(data) + "/";
+                break;
+            case HEAD:
+                pt =  AppConfig.UP_PATH + "/avatar/";
+                break;
+            case HEAD_GROUP:
+                pt =  AppConfig.UP_PATH + "/group-avatar/";
+                break;
+            case COMPLAINT:
+                pt =  AppConfig.UP_PATH + "/android-complaints/";
+                break;
+            case FEEDBACK:
+                pt =  AppConfig.UP_PATH + "/android-feedback/";
+                break;
+            case VOICE:
+                pt =  AppConfig.UP_PATH + "/android-voice/" + simpleDateFormat.format(data) + "/";
+                break;
+            default:
+                data.setTime(System.currentTimeMillis());
+                pt = "/" + AppConfig.UP_PATH + "/android/" + simpleDateFormat.format(data) + "/";
+                break;
+
+        }
+        return pt;
     }
 
 
-    private void upFile(final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte) {
+    private void upFile(final PATH type, final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte) {
 
         NetUtil.getNet().exec(
                 server.aliObs()
@@ -55,17 +95,17 @@ public class UpFileAction {
                             return;
                         }
                         if (response.body().isOk()) {
-                          final  AliObsConfigBean configBean = response.body().getData();
+                            final AliObsConfigBean configBean = response.body().getData();
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    UpFileUtil.getInstance().upFile(context, configBean.getAccessKeyId(),
+                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
                                             configBean.getBucket(), callback, filePath, fileByte);
                                 }
                             }).start();
-                        }else{
-                            ToastUtil.show(context,"上传失败");
+                        } else {
+                            ToastUtil.show(context, "上传失败");
                         }
 
 
@@ -74,77 +114,76 @@ public class UpFileAction {
 
 
     }
+
     CountDownLatch signal;
 
-    public void upFileSyn(final Context context, final UpFileUtil.OssUpCallback callback,  String filePath) {
+    public void upFileSyn(final PATH type, final Context context, final UpFileUtil.OssUpCallback callback, String filePath) {
 
-        if(filePath.startsWith("file://")){
-            filePath=filePath.replace("file://","");
+        if (filePath.startsWith("file://")) {
+            filePath = filePath.replace("file://", "");
         }
-       final String filep=filePath;
+        final String filep = filePath;
         signal = new CountDownLatch(1);
 
 
-                NetUtil.getNet().exec(
-                        server.aliObs()
-                        , new CallBack<ReturnBean<AliObsConfigBean>>() {
-                            @Override
-                            public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, final Response<ReturnBean<AliObsConfigBean>> response) {
-                                Log.d("cc", "upFileSyn: onResponse");
-                                if (response.body() == null) {
-                                    callback.fail();
-                                    signal.countDown();
-                                    return;
+        NetUtil.getNet().exec(
+                server.aliObs()
+                , new CallBack<ReturnBean<AliObsConfigBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, final Response<ReturnBean<AliObsConfigBean>> response) {
+                        Log.d("cc", "upFileSyn: onResponse");
+                        if (response.body() == null) {
+                            callback.fail();
+                            signal.countDown();
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            final AliObsConfigBean configBean = response.body().getData();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
+                                            configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
+                                            configBean.getBucket(), new UpFileUtil.OssUpCallback() {
+
+                                                @Override
+                                                public void success(String url) {
+                                                    Log.d("cc", "upFileSyn: success");
+                                                    signal.countDown();
+                                                    callback.success(url);
+                                                }
+
+                                                @Override
+                                                public void fail() {
+                                                    signal.countDown();
+                                                    callback.fail();
+                                                }
+
+                                                @Override
+                                                public void inProgress(long progress, long zong) {
+                                                    callback.inProgress(progress, zong);
+                                                }
+                                            }, filep, null);
                                 }
-                                if (response.body().isOk()) {
-                                    final  AliObsConfigBean configBean = response.body().getData();
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            UpFileUtil.getInstance().upFile(context, configBean.getAccessKeyId(),
-                                                    configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
-                                                    configBean.getBucket(), new UpFileUtil.OssUpCallback(){
-
-                                                        @Override
-                                                        public void success(String url) {
-                                                            Log.d("cc", "upFileSyn: success");
-                                                            signal.countDown();
-                                                            callback.success(url);
-                                                        }
-
-                                                        @Override
-                                                        public void fail() {
-                                                            signal.countDown();
-                                                            callback.fail();
-                                                        }
-
-                                                        @Override
-                                                        public void inProgress(long progress, long zong) {
-                                                            callback.inProgress(progress,zong);
-                                                        }
-                                                    }, filep, null);
-                                        }
-                                    }).start();
+                            }).start();
 
 
-                                }else{
-                                    signal.countDown();
-                                    callback.fail();
-                                    ToastUtil.show(context,"上传失败");
-                                }
+                        } else {
+                            signal.countDown();
+                            callback.fail();
+                            ToastUtil.show(context, "上传失败");
+                        }
 
 
-                            }
+                    }
 
-                            @Override
-                            public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
-                                signal.countDown();
-                                callback.fail();
-                                super.onFailure(call, t);
-                            }
-                        });
-
-
+                    @Override
+                    public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
+                        signal.countDown();
+                        callback.fail();
+                        super.onFailure(call, t);
+                    }
+                });
 
 
         try {

@@ -68,7 +68,7 @@ public class IAudioRecord implements IAudioRecordListener {
     @Override
     public void onFinish(final Uri audioPath, final int duration) {
         if (audioPath != null) {
-            new UpFileAction().upFile(context, new UpFileUtil.OssUpCallback() {
+            new UpFileAction().upFile(UpFileAction.PATH.VOICE,context, new UpFileUtil.OssUpCallback() {
                 @Override
                 public void success(String url) {
                     if (callback != null) {
