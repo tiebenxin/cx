@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.dao;
 
+import android.text.TextUtils;
+
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -159,7 +161,6 @@ public class MsgDao {
         }
         List<MsgAllBean> beans = new ArrayList<>();
         Realm realm = DaoUtil.open();
-
         RealmResults list = realm.where(MsgAllBean.class)
                 .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                 .and()
@@ -509,10 +510,19 @@ public class MsgDao {
         realm.beginTransaction();
         RealmResults<MsgAllBean> list = null;
         if (StringUtil.isNotNull(gid)) {
-            list = realm.where(MsgAllBean.class).equalTo("gid", gid).findAll();
+            list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                    .findAll();
         } else {
-
-            list = realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).findAll();
+            list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", toUid).or().equalTo("to_uid", toUid).endGroup()
+                    .findAll();
 
         }
 
@@ -601,18 +611,18 @@ public class MsgDao {
 
         list = realm.where(MsgAllBean.class).equalTo("msg_id", msgCancelId).findAll();
         MsgAllBean cancel = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
-        if(cancel==null&&list!=null&&list.size()>0){
-            cancel=new MsgAllBean();
+        if (cancel == null && list != null && list.size() > 0) {
+            cancel = new MsgAllBean();
             MsgAllBean bean = list.get(0);
             cancel.setMsg_id(msgid);
-            cancel.setRequest_id(""+System.currentTimeMillis());
+            cancel.setRequest_id("" + System.currentTimeMillis());
             cancel.setFrom_uid(bean.getTo_uid());
             cancel.setTo_uid(UserAction.getMyId());
             cancel.setGid(bean.getGid());
             cancel.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
             MsgCancel msgCel = new MsgCancel();
             msgCel.setMsgid(msgid);
-            msgCel.setNote( "你撤回了一条消息");
+            msgCel.setNote("你撤回了一条消息");
             msgCel.setMsgidCancel(msgCancelId);
             cancel.setMsgCancel(msgCel);
         }
@@ -1550,18 +1560,58 @@ public class MsgDao {
     /***
      * 把发送中的状态修改为发送失败
      */
-    public void msgSendStateToFail(){
+    public void msgSendStateToFail() {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
         RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class).equalTo("send_state", ChatEnum.ESendStatus.SENDING).or().equalTo("send_state", ChatEnum.ESendStatus.PRE_SEND).findAll();
-        if(list!=null){
-            for (MsgAllBean ls:list) {
+        if (list != null) {
+            for (MsgAllBean ls : list) {
                 ls.setSend_state(ChatEnum.ESendStatus.ERROR);
             }
             realm.insertOrUpdate(list);
         }
 
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    //是否存在该消息
+    public boolean isMsgLockExist(String gid, Long uid) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        if (!TextUtils.isEmpty(gid)) {
+            ret = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                    .and()
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .findFirst();
+        } else if (uid != null) {
+            ret = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
+                    .and()
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                    .findFirst();
+        }
+
+        realm.commitTransaction();
+        realm.close();
+        if (ret != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public void insertOrUpdateMessage(MsgAllBean bean) {
+        if (bean == null) {
+            return;
+        }
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        realm.insertOrUpdate(bean);
         realm.commitTransaction();
         realm.close();
     }
