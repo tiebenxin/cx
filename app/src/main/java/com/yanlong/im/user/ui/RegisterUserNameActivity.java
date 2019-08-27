@@ -71,7 +71,6 @@ public class RegisterUserNameActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
-
                 if(response.body().isOk()){
                     ToastUtil.show(context,"注册成功");
                     Intent intent = new Intent(getContext(), MainActivity.class);
