@@ -114,11 +114,11 @@ public class FeedbackActivity extends AppActivity {
     private void commit() {
         String content = edContent.getText().toString();
         if (TextUtils.isEmpty(content)) {
-            ToastUtil.show(context, "请填写问题描叙");
+            ToastUtil.show(FeedbackActivity.this, "请填写问题描叙");
             return;
         }
-        if (content.length() <= 6) {
-            ToastUtil.show(context, "描叙内容不能少于6个字");
+        if (content.length() < 6) {
+            ToastUtil.show(FeedbackActivity.this, "描叙内容不能少于6个字");
             return;
         }
         String imageUrl = "";
@@ -200,7 +200,7 @@ public class FeedbackActivity extends AppActivity {
                     final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
                     final Uri uri = Uri.fromFile(new File(file));
                     alert.show();
-                    new UpFileAction().upFile(UpFileAction.PATH.FEEDBACK,getContext(), new UpFileUtil.OssUpCallback() {
+                    new UpFileAction().upFile(UpFileAction.PATH.FEEDBACK, getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(final String url) {
                             runOnUiThread(new Runnable() {
@@ -230,7 +230,7 @@ public class FeedbackActivity extends AppActivity {
                     }, file);
                     break;
                 case SHOW_IMAGE:
-                    int postion = data.getIntExtra(FeedbackShowImageActivity.POSTION,0);
+                    int postion = data.getIntExtra(FeedbackShowImageActivity.POSTION, 0);
                     adatper.remove(postion);
                     break;
             }
@@ -249,22 +249,24 @@ public class FeedbackActivity extends AppActivity {
         public void addImage(ImageBean imageBean) {
             if (list.size() == 6) {
                 list.remove(5);
+                list.add(list.size(), imageBean);
+            } else {
+                list.add(list.size() - 1, imageBean);
             }
-            list.add(0, imageBean);
             recyclerView.getAdapter().notifyDataSetChanged();
         }
 
         public void remove(int postion) {
             if (list.size() == 6) {
-                if(list.get(5).getType() == 0){
+                if (list.get(5).getType() == 0) {
                     list.remove(postion);
-                }else{
+                } else {
                     list.remove(postion);
                     ImageBean imageBean = new ImageBean();
                     imageBean.setType(0);
                     list.add(imageBean);
                 }
-            }else{
+            } else {
                 list.remove(postion);
             }
             this.notifyDataSetChanged();
@@ -283,7 +285,7 @@ public class FeedbackActivity extends AppActivity {
 
             ImageBean imageBean = list.get(i);
             if (imageBean.getType() == 0) {
-                viewHolder.imageView.setImageURI("android.resource://"+ getPackageName() +"/"+ R.mipmap.icon_image_add);
+                viewHolder.imageView.setImageURI("android.resource://" + getPackageName() + "/" + R.mipmap.icon_image_add);
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -295,13 +297,12 @@ public class FeedbackActivity extends AppActivity {
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(FeedbackActivity.this,FeedbackShowImageActivity.class);
-                        intent.putExtra(FeedbackShowImageActivity.URL,list.get(i).getUrl());
-                        intent.putExtra(FeedbackShowImageActivity.POSTION,i);
-                        startActivityForResult(intent,SHOW_IMAGE);
+                        Intent intent = new Intent(FeedbackActivity.this, FeedbackShowImageActivity.class);
+                        intent.putExtra(FeedbackShowImageActivity.URL, list.get(i).getUrl());
+                        intent.putExtra(FeedbackShowImageActivity.POSTION, i);
+                        startActivityForResult(intent, SHOW_IMAGE);
                     }
                 });
-
 
 
             }
