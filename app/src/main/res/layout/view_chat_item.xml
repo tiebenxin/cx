@@ -20,6 +20,7 @@
 
 
     //通知消息
+
     <LinearLayout
         android:id="@+id/view_broadcast"
         android:layout_width="wrap_content"
@@ -52,12 +53,12 @@
         android:id="@+id/view_lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/shape_lock"
         android:layout_gravity="center_horizontal"
-        android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        android:padding="3dp"
-        android:orientation="horizontal">
+        android:layout_marginRight="20dp"
+        android:background="@drawable/shape_lock"
+        android:orientation="horizontal"
+        android:padding="3dp">
 
         <ImageView
             android:id="@+id/iv_lock"
@@ -72,11 +73,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:textSize="14sp"
             android:gravity="center"
             android:singleLine="false"
-            android:text="此对话中所发送的信息都已经进行端到端的加密。"
+            android:text="聊天中所有信息已进行端对端加密保护"
             android:textColor="@color/black" />
+
+        <!--            android:textSize="14sp"
+-->
     </LinearLayout>
 
     <LinearLayout
