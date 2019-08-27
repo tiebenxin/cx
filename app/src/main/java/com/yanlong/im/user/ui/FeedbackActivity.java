@@ -114,11 +114,11 @@ public class FeedbackActivity extends AppActivity {
     private void commit() {
         String content = edContent.getText().toString();
         if (TextUtils.isEmpty(content)) {
-            ToastUtil.show(context, "请填写问题描叙");
+            ToastUtil.show(FeedbackActivity.this, "请填写问题描叙");
             return;
         }
-        if (content.length() <= 6) {
-            ToastUtil.show(context, "描叙内容不能少于6个字");
+        if (content.length() < 6) {
+            ToastUtil.show(FeedbackActivity.this, "描叙内容不能少于6个字");
             return;
         }
         String imageUrl = "";
