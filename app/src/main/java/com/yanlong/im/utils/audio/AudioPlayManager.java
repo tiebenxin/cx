@@ -395,9 +395,9 @@ public class AudioPlayManager implements SensorEventListener {
         this._playingUri = null;
         if (voicePlayListener != null) {
             voicePlayListener.onReadyToNext();
-//            if (!isAutoPlay) {
-            this.voicePlayListener = null;
-//            }
+            if (!isAutoPlay) {
+                this.voicePlayListener = null;
+            }
         }
     }
 
