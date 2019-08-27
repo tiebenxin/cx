@@ -35,6 +35,7 @@ import com.yalantis.ucrop.UCropMulti;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.Flowable;
@@ -162,6 +163,7 @@ public class PictureBaseActivity extends FragmentActivity {
             dialog = new PictureDialog(this);
             time_dialog_hide=System.currentTimeMillis();
             Log.i("Dialog", "show: "+System.currentTimeMillis());
+            dialog.show();
             //TODO 这里还没改完
             /*this.getWindow().getDecorView().postDelayed(new Runnable() {
                 @Override
@@ -175,6 +177,44 @@ public class PictureBaseActivity extends FragmentActivity {
             },time_dialog);*/
 
         }
+    }
+
+    private HashMap<String,Boolean> dialogState=new HashMap<>();
+    protected void showPleaseDialog(final String key) {
+        if (!isFinishing()) {
+            dismissDialog();
+            dialog = new PictureDialog(this);
+            dialogState.put(key,true);
+            Log.i("showPleaseDialog", "showPleaseDialog: ------------"+key);
+            //TODO 这里还没改完
+            this.getWindow().getDecorView().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    if(dialogState.containsValue(key)&&dialogState.get(key)){
+                        dialog.show();
+                    }
+
+                }
+            },500);
+
+        }
+    }
+    protected void dismissDialog(final String key) {
+        try {
+            dialogState.remove(key);
+
+            time_dialog_hide=System.currentTimeMillis();
+            Log.i("showPleaseDialog", "dismissDialog: ------------"+key);
+            if (dialog != null && dialog.isShowing()) {
+
+
+                dialog.dismiss();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
