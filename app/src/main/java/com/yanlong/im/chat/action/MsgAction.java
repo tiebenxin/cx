@@ -1,6 +1,9 @@
 package com.yanlong.im.chat.action;
 
+import android.text.TextUtils;
+
 import com.google.gson.Gson;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -26,6 +29,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -477,6 +481,22 @@ public class MsgAction {
      */
     public void changeMaster(String gid, String uid, String membername, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.changeMaster(gid, uid, membername), callback);
+    }
+
+    public MsgAllBean createMessageLock(String gid, Long uid) {
+        MsgAllBean bean = new MsgAllBean();
+        if (!TextUtils.isEmpty(gid)) {
+            bean.setGid(gid);
+            bean.setFrom_uid(UserAction.getMyInfo().getUid());
+        } else if (uid != null) {
+            bean.setFrom_uid(uid);
+        } else {
+            return null;
+        }
+        bean.setMsg_type(ChatEnum.EMessageType.LOCK);
+        bean.setMsg_id(SocketData.getUUID());
+        bean.setTimestamp(0L);
+        return bean;
     }
 
 

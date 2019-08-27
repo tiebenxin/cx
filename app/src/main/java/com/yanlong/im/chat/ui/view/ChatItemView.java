@@ -127,6 +127,7 @@ public class ChatItemView extends LinearLayout {
     private AppCompatTextView txtOt8;
     private LinearLayout viewMe8;
     private AppCompatTextView txtMe8;
+    private View viewLock;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -210,6 +211,10 @@ public class ChatItemView extends LinearLayout {
         viewMe8 = rootView.findViewById(R.id.view_me_8);
         txtMe8 = rootView.findViewById(R.id.txt_me_8);
 
+        //端到端加密提示消息
+        viewLock = rootView.findViewById(R.id.view_lock);
+
+
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -273,6 +278,7 @@ public class ChatItemView extends LinearLayout {
         viewOt7.setVisibility(GONE);
         viewMe8.setVisibility(GONE);
         viewOt8.setVisibility(GONE);
+        viewLock.setVisibility(GONE);
         switch (type) {
             case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告
@@ -315,6 +321,11 @@ public class ChatItemView extends LinearLayout {
             case ChatEnum.EMessageType.ASSISTANT:
                 viewMe8.setVisibility(VISIBLE);
                 viewOt8.setVisibility(VISIBLE);
+                break;
+            case ChatEnum.EMessageType.LOCK:
+                viewLock.setVisibility(VISIBLE);
+                viewMe.setVisibility(GONE);
+                viewOt.setVisibility(GONE);
                 break;
         }
 
