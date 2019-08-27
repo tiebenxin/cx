@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.luck.picture.lib.compress.Luban;
 import com.luck.picture.lib.compress.OnCompressListener;
@@ -150,6 +151,8 @@ public class PictureBaseActivity extends FragmentActivity {
         }
     }
 
+    private int time_dialog=200;
+    private long time_dialog_hide=0;
     /**
      * loading dialog
      */
@@ -157,7 +160,20 @@ public class PictureBaseActivity extends FragmentActivity {
         if (!isFinishing()) {
             dismissDialog();
             dialog = new PictureDialog(this);
-            dialog.show();
+            time_dialog_hide=System.currentTimeMillis();
+            Log.i("Dialog", "show: "+System.currentTimeMillis());
+            //TODO 这里还没改完
+            /*this.getWindow().getDecorView().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i("Dialog", "showDialog: "+(System.currentTimeMillis()-time_dialog_hide));
+                    if(System.currentTimeMillis()-time_dialog_hide>(time_dialog)){
+                        dialog.show();
+                    }
+
+                }
+            },time_dialog);*/
+
         }
     }
 
@@ -166,7 +182,12 @@ public class PictureBaseActivity extends FragmentActivity {
      */
     protected void dismissDialog() {
         try {
+
+            time_dialog_hide=System.currentTimeMillis();
+            Log.i("Dialog", "dismissDialog: "+time_dialog_hide);
             if (dialog != null && dialog.isShowing()) {
+
+
                 dialog.dismiss();
             }
         } catch (Exception e) {

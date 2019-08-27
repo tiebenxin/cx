@@ -44,7 +44,8 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_marginTop="15dp"
-            app:placeholderImage="@mipmap/ic_img_def" />
+            android:background="@color/white"
+            app:placeholderImage="@mipmap/icon_image_add" />
 
         <Button
             android:id="@+id/btn_commit"
