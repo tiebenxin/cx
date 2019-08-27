@@ -1172,6 +1172,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         initData();
 
     }
+
     private void initData() {
         taskRefreshMessage();
     }
@@ -1403,8 +1404,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setPath(msgl.getImage().getOriginShow());
             // Log.d("tag", "---showBigPic: "+msgl.getImage().getSize());
             lc.setSize(msgl.getImage().getSize());
-             lc.setWidth(new Long( msgl.getImage().getWidth()).intValue());
-             lc.setHeight(new Long( msgl.getImage().getHeight()).intValue());
+            lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
+            lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
             selectList.add(lc);
 
         }
@@ -2041,12 +2042,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         @Override
                         public void run() {
                             notifyData();
-                            if (canAutoPlay) {
-                                checkMoreVoice(position);
-                            }
                         }
                     });
 
+                }
+
+                @Override
+                public void onReadyToNext() {
+                    LogUtil.getLog().i("AudioPlayManager", "onReadyToNext--");
+                    if (canAutoPlay) {
+                        checkMoreVoice(position);
+                    }
                 }
             });
         }
@@ -2099,6 +2105,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     });
                     LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
+                }
+
+                @Override
+                public void onReadyToNext() {
+
                 }
             });
         }

@@ -2005,6 +2005,11 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                     });
 //                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
                 }
+
+                @Override
+                public void onReadyToNext() {
+
+                }
             });
         }
     }

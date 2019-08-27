@@ -249,13 +249,12 @@ public class AudioPlayManager implements SensorEventListener {
                 this._mediaPlayer = new MediaPlayer();
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
+                        LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
                         if (AudioPlayManager.this.voicePlayListener != null) {
-                            AudioPlayManager.this.voicePlayListener = null;
+                            AudioPlayManager.this.voicePlayListener.onComplete(bean);
                             AudioPlayManager.this._playingUri = null;
                             AudioPlayManager.this.context = null;
-                            AudioPlayManager.this.voicePlayListener.onComplete(bean);
                         }
-
                         AudioPlayManager.this.reset();
                     }
                 });
@@ -380,6 +379,7 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     private void resetAudioPlayManager() {
+        LogUtil.getLog().i(TAG, "resetAudioPlayManager");
         if (this._audioManager != null) {
             this.muteAudioFocus(this._audioManager, false);
         }
@@ -387,16 +387,18 @@ public class AudioPlayManager implements SensorEventListener {
         if (this._sensorManager != null) {
             this._sensorManager.unregisterListener(this);
         }
-
         this._sensorManager = null;
         this._sensor = null;
         this._powerManager = null;
         this._audioManager = null;
         this._wakeLock = null;
-        if (!isAutoPlay) {
-            this.voicePlayListener = null;
-        }
         this._playingUri = null;
+        if (voicePlayListener != null) {
+            voicePlayListener.onReadyToNext();
+            if (!isAutoPlay) {
+                this.voicePlayListener = null;
+            }
+        }
     }
 
     private void resetMediaPlayer() {
