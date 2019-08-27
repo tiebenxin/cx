@@ -18,7 +18,7 @@ android {
         minSdkVersion 22
         targetSdkVersion 28
         versionCode 6
-        versionName "0.8.6_${releaseTime()}"
+        versionName "0.9.0_${releaseTime()}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "x86", "armeabi", "armeabi-v7a"
