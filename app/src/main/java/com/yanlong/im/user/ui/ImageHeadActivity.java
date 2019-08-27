@@ -189,7 +189,7 @@ public class ImageHeadActivity extends AppActivity {
 
                     alert.show();
                     mSdImageHead.setImageURI(uri);
-                    upFileAction.upFile(getContext(), new UpFileUtil.OssUpCallback() {
+                    upFileAction.upFile(UpFileAction.PATH.HEAD,getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(String url) {
                             alert.dismiss();
