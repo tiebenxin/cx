@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">常聊</string>
+    <string name="app_name">常聊聊</string>
 
     <!--消息type类型-->
     <item name="type_text_received" type="id"/>
