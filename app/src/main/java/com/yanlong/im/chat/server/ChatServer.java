@@ -265,6 +265,8 @@ public class ChatServer extends Service {
                     long fuid = msg.getFromUid();
                     msgDao.sessionReadUpdate(gid, fuid, true);
                     msgDao.msgDel4Cancel(msg.getMsgId(),msg.getCancel().getMsgId());
+                    EventBus.getDefault().post(new EventRefreshChat());
+
                     return;
             }
 

@@ -21,8 +21,10 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
 
+import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.utils.DownloadUtil;
-import net.cb.cb.library.utils.LogUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +48,8 @@ public class AudioPlayManager implements SensorEventListener {
     private Context context;
     private List<MsgAllBean> playList;
     private MsgAllBean currentPlayingMsg;
-    private boolean isAutoPlay = false;
+    private boolean isCanAutoPlay = false;
+    private int currentPosition;
 
     public AudioPlayManager() {
     }
@@ -197,8 +200,10 @@ public class AudioPlayManager implements SensorEventListener {
 
     }
 
-    public void startPlay(Context context, final MsgAllBean bean, IVoicePlayListener playListener) {
+    public void startPlay(Context context, final MsgAllBean bean, int position, boolean canAutoPlay, IVoicePlayListener playListener) {
         currentPlayingMsg = bean;
+        currentPosition = position;
+        isCanAutoPlay = canAutoPlay;
         if (context != null && bean != null) {
             this.context = context;
             if (bean.getVoiceMessage() == null) {
@@ -249,18 +254,18 @@ public class AudioPlayManager implements SensorEventListener {
                 this._mediaPlayer = new MediaPlayer();
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
-                        LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
+//                        LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
                         if (AudioPlayManager.this.voicePlayListener != null) {
                             AudioPlayManager.this.voicePlayListener.onComplete(bean);
                             AudioPlayManager.this._playingUri = null;
                             AudioPlayManager.this.context = null;
                         }
-                        AudioPlayManager.this.reset();
+                        AudioPlayManager.this.reset(true);
                     }
                 });
                 this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                     public boolean onError(MediaPlayer mp, int what, int extra) {
-                        AudioPlayManager.this.reset();
+                        AudioPlayManager.this.reset(false);
                         return true;
                     }
                 });
@@ -290,7 +295,7 @@ public class AudioPlayManager implements SensorEventListener {
                     this.voicePlayListener = null;
                 }
 
-                this.reset();
+                this.reset(false);
             }
 
         } else {
@@ -370,16 +375,16 @@ public class AudioPlayManager implements SensorEventListener {
             this.voicePlayListener.onStop(currentPlayingMsg);
         }
 
-        this.reset();
+        this.reset(false);
     }
 
-    private void reset() {
+    private void reset(boolean isCompleted) {
         this.resetMediaPlayer();
-        this.resetAudioPlayManager();
+        this.resetAudioPlayManager(isCompleted);
     }
 
-    private void resetAudioPlayManager() {
-        LogUtil.getLog().i(TAG, "resetAudioPlayManager--" + (voicePlayListener == null));
+    private void resetAudioPlayManager(boolean isCompleted) {
+//        LogUtil.getLog().i(TAG, "resetAudioPlayManager--" + (voicePlayListener == null));
         if (this._audioManager != null) {
             this.muteAudioFocus(this._audioManager, false);
         }
@@ -394,10 +399,17 @@ public class AudioPlayManager implements SensorEventListener {
         this._wakeLock = null;
         this._playingUri = null;
         if (voicePlayListener != null) {
-            voicePlayListener.onReadyToNext();
-//            if (!isAutoPlay) {
+//            voicePlayListener.onReadyToNext();
+//            if (!isCanAutoPlay) {
             this.voicePlayListener = null;
+
 //            }
+        }
+        if (isCompleted && isCanAutoPlay) {
+            EventVoicePlay eventVoicePlay = new EventVoicePlay();
+            eventVoicePlay.setPosition(currentPosition);
+            eventVoicePlay.setBean(currentPlayingMsg);
+            EventBus.getDefault().post(eventVoicePlay);
         }
     }
 
@@ -489,7 +501,7 @@ public class AudioPlayManager implements SensorEventListener {
         playList = beanList;
         if (context != null && playList != null && playList.size() > 0) {
             this.context = context;
-            this.isAutoPlay = isAutoPlay;
+            this.isCanAutoPlay = isAutoPlay;
             if (!isAutoPlay) {
                 MsgAllBean bean = playList.get(0);
                 if (this.voicePlayListener != null && this._playingUri != null) {
@@ -508,7 +520,7 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     private void play(final Context context, final int position, final boolean isAuto, IVoicePlayListener playListener) {
-        LogUtil.getLog().i(TAG, "play=" + position);
+//        LogUtil.getLog().i(TAG, "play=" + position);
         final MsgAllBean bean = playList.get(position);
         if (bean == null && bean.getVoiceMessage() == null) {
             return;
@@ -556,16 +568,15 @@ public class AudioPlayManager implements SensorEventListener {
                         if (!isAuto) {
                             AudioPlayManager.this.voicePlayListener = null;
                             AudioPlayManager.this.context = null;
-                            AudioPlayManager.this.reset();
+                            AudioPlayManager.this.reset(true);
 
                         } else {
                             if (position == playList.size() - 1) {
                                 AudioPlayManager.this.voicePlayListener = null;
                                 AudioPlayManager.this.context = null;
-
-                                AudioPlayManager.this.reset();
+                                AudioPlayManager.this.reset(true);
                             } else {
-                                AudioPlayManager.this.reset();
+                                AudioPlayManager.this.reset(false);
                                 play(AudioPlayManager.this.context, position + 1, true, voicePlayListener);
                             }
                         }
@@ -575,7 +586,7 @@ public class AudioPlayManager implements SensorEventListener {
             });
             this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    AudioPlayManager.this.reset();
+                    AudioPlayManager.this.reset(false);
                     return true;
                 }
             });
@@ -605,7 +616,7 @@ public class AudioPlayManager implements SensorEventListener {
                 this.voicePlayListener.onStop(bean);
                 this.voicePlayListener = null;
             }
-            this.reset();
+            this.reset(false);
         }
     }
 }
