@@ -300,6 +300,11 @@ public class MsgAction {
             return;
         }*/
 
+    if(saved!=null){
+        NetUtil.getNet().exec(server.groupSave(gid), cb);
+        return;
+    }
+
         Callback<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
