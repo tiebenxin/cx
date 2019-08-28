@@ -15,5 +15,5 @@ public interface IVoicePlayListener {
 
     void onComplete(MsgAllBean bean);
 
-    void onReadyToNext();
+//    void onReadyToNext();
 }
