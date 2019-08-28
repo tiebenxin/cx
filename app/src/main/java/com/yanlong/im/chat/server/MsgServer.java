@@ -47,7 +47,12 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> groupSwitch(@Field("gid") String gid, @Field("needVerification") Integer needVerification);
 
-    @POST("group/get-my-saved")
+    @POST("group/save-to-bookmark")
+    @FormUrlEncoded
+    Call<ReturnBean> groupSave(@Field("gid") String gid);
+
+
+    @POST("group/my-bookmark")
     Call<ReturnBean<List<Group>>> getMySaved();
 
     @POST("/friends/set-friend-disturb")
