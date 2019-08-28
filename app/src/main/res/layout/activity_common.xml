@@ -183,12 +183,28 @@
             <TextView
                 style="@style/app_txt_title_2"
                 android:layout_marginRight="@dimen/app_margin_item"
-                android:layout_weight="1"
                 android:text="关于" />
 
             <TextView
                 android:id="@+id/tv_version"
                 style="@style/app_txt_title_2" />
+
+            <TextView
+                android:id="@+id/tv_new_versions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:textColor="@color/white"
+                android:layout_gravity="center"
+                android:textSize="10sp"
+                android:text="new"
+                android:background="@drawable/shape_new"
+                android:visibility="gone"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
 
             <ImageView
                 android:layout_width="wrap_content"

@@ -1,19 +1,21 @@
 package com.yanlong.im.user.ui;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.NewVersionBean;
+import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -30,6 +32,7 @@ public class AboutAsActivity extends AppActivity {
     private TextView mTvVersionNumber;
     private LinearLayout mLlCheckVersions;
     private LinearLayout mLlService;
+    private TextView tvNewVersions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +48,22 @@ public class AboutAsActivity extends AppActivity {
         mTvVersionNumber = findViewById(R.id.tv_version_number);
         mLlCheckVersions = findViewById(R.id.ll_check_versions);
         mLlService = findViewById(R.id.ll_service);
-        mTvVersionNumber.setText("常聊     "+VersionUtil.getVerName(this));
+        mTvVersionNumber.setText("常聊     " + VersionUtil.getVerName(this));
+        tvNewVersions =  findViewById(R.id.tv_new_versions);
 
+        SharedPreferencesUtil sharedPreferencesUtil = new  SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+        VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
+        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
+            if(new UpdateManage(context,AboutAsActivity.this).check(bean.getVersion())){
+                tvNewVersions.setVisibility(View.VISIBLE);
+            }else{
+                tvNewVersions.setVisibility(View.GONE);
+            }
+        }
     }
 
 
-    private void initEvent(){
+    private void initEvent() {
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -88,8 +101,8 @@ public class AboutAsActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     NewVersionBean bean = response.body().getData();
-                    if(!new UpdateManage(context,AboutAsActivity.this).check(bean.getVersion())){
-                        ToastUtil.show(context,"已经是最新版本");
+                    if (!new UpdateManage(context, AboutAsActivity.this).check(bean.getVersion())) {
+                        ToastUtil.show(context, "已经是最新版本");
                         return;
                     }
 
@@ -97,7 +110,7 @@ public class AboutAsActivity extends AppActivity {
                     if (response.body().getData().getForceUpdate() == 0) {
                         //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                    }else{
+                    } else {
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     }
                 }
