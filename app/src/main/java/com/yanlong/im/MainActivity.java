@@ -1,21 +1,20 @@
 package com.yanlong.im;
 
+import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.umeng.message.IUmengCallback;
-import com.umeng.message.PushAgent;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
@@ -34,10 +33,8 @@ import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
@@ -46,6 +43,9 @@ import net.cb.cb.library.view.ViewPagerSlide;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -327,6 +327,10 @@ public class MainActivity extends AppActivity {
                     if (response.body().getData().getForceUpdate() != 0) {
                         //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                    }else{
+                        if(updateManage.isToDayFirst(bean)){
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                        }
                     }
                 }
             }
@@ -341,5 +345,6 @@ public class MainActivity extends AppActivity {
         NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancelAll();
     }
+
 
 }
