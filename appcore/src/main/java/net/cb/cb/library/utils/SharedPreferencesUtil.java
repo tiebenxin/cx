@@ -31,6 +31,7 @@ public class SharedPreferencesUtil {
         IMAGE_HEAD("image_head"),
         DEV_ID("uid"),
         SCROLL("scroll"),
+        NOTIFICATION("notification"),
         NEW_VESRSION("new_vesrsion");
 
         private String name;

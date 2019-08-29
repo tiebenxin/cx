@@ -382,8 +382,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
 
     /*
-    * 2. 根据messageType绑定布局
-    * */
+     * 2. 根据messageType绑定布局
+     * */
     @Override
     public ChatEnum.EChatCellLayout getChatCellLayoutId() {
         @ChatEnum.EMessageType int msgType = getMsg_type();
@@ -453,7 +453,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             case ChatEnum.EMessageType.ASSISTANT://小助手
                 layout = ChatEnum.EChatCellLayout.ASSISTANT;
                 break;
-
+            case ChatEnum.EMessageType.LOCK://小助手
+                layout = ChatEnum.EChatCellLayout.LOCK;
+                break;
             case ChatEnum.EMessageType.UNRECOGNIZED://未识别
                 layout = ChatEnum.EChatCellLayout.UNRECOGNIZED;
                 break;

@@ -16,6 +16,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -188,8 +189,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 //                    Long toUId = bean.getFrom_uid();
 //                    String toGid = bean.getGid();
                     ImageMessage imagesrc = msgAllBean.getImage();
+                   if( msgAllBean.getFrom_uid()== UserAction.getMyId().longValue()){
+                       imagesrc.setReadOrigin(true);
+                   }
                     SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
-                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), true);
+                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
                     if (StringUtil.isNotNull(content)) {
                         SocketData.send4Chat(toUid, toGid, content);
                     }

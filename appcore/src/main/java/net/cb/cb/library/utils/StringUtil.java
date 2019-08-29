@@ -61,4 +61,21 @@ public class StringUtil {
         }
         return name;
     }
+
+    public static int[] getVersionArr(String version) {
+        if (TextUtils.isEmpty(version)) {
+            return null;
+        }
+        String[] a = version.split("-");
+        String oVersion = a[0];
+        String[] oldArr = oVersion.split(".");
+        int[] arr = null;
+        if (oldArr != null && oldArr.length == 3) {
+            arr = new int[3];
+            arr[0] = Integer.valueOf(oldArr[0]);
+            arr[1] = Integer.valueOf(oldArr[1]);
+            arr[2] = Integer.valueOf(oldArr[2]);
+        }
+        return arr;
+    }
 }
