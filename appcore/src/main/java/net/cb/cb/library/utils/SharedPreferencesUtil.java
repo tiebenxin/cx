@@ -30,7 +30,8 @@ public class SharedPreferencesUtil {
         PHONE("phone"),
         IMAGE_HEAD("image_head"),
         DEV_ID("uid"),
-        SCROLL("scroll");
+        SCROLL("scroll"),
+        NOTIFICATION("notification");
 
         private String name;
 

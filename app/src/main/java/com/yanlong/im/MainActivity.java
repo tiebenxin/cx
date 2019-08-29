@@ -4,25 +4,25 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.util.Log;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.umeng.message.IUmengCallback;
-import com.umeng.message.PushAgent;
+import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
+import com.yanlong.im.chat.ui.MsgMainFragment;
+import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.FriendMainFragment;
-import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -34,10 +34,11 @@ import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.InstallAppUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.StrikeButton;
@@ -50,6 +51,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
+
 public class MainActivity extends AppActivity {
     private ViewPagerSlide viewPage;
     private android.support.design.widget.TabLayout bottomTab;
@@ -61,6 +64,7 @@ public class MainActivity extends AppActivity {
     private StrikeButton sbmsg;
     private StrikeButton sbfriend;
     private StrikeButton sbme;
+    private NotifySettingDialog notifyDialog;
 
     //自动寻找控件
     private void findViews() {
@@ -191,8 +195,12 @@ public class MainActivity extends AppActivity {
     }
 
     @Override
-    protected void onStop() {
+    protected void onStart() {
+        super.onStart();
+    }
 
+    @Override
+    protected void onStop() {
         super.onStop();
     }
 
@@ -209,6 +217,7 @@ public class MainActivity extends AppActivity {
         super.onResume();
         taskGetMsgNum();
         taskClearNotification();
+        checkNotificationOK();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -340,6 +349,87 @@ public class MainActivity extends AppActivity {
     private void taskClearNotification() {
         NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancelAll();
+    }
+
+    /*
+     * 检测通知栏是否开启
+     * */
+    private void checkNotificationOK() {
+        if (canRemindToSetting() && !NotificationsUtils.isNotificationEnabled(MainActivity.this)) {
+            LogUtil.getLog().i(MainActivity.class.getSimpleName(), "无推送权限");
+            notifyDialog = new NotifySettingDialog(MainActivity.this, R.style.MyDialogTheme);
+            notifyDialog.setCancelable(false);
+            notifyDialog.create();
+            notifyDialog.setTitle("温馨提示");
+            notifyDialog.setMessage("由于目前未开通系统通知服务，为不影响使用，将在3秒后前往设置");
+            notifyDialog.show();
+//            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
+//            builder.setTitle("温馨提示");
+//            builder.setMessage("由于目前未开通系统通知服务，为不影响使用，将在3秒后前往设置");
+//            notifyDialog = builder.create();
+//            notifyDialog.show();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDialog.dismiss();
+                    NotificationsUtils.toNotificationSetting(MainActivity.this);
+                    saveNotifyConfig();
+                }
+            }, 3000);
+        } else {
+            LogUtil.getLog().i(MainActivity.class.getSimpleName(), "有推送权限" + canRemindToSetting());
+        }
+    }
+
+    /*
+     * 已经通知或者不是新版本，允许进入设置
+     * */
+    private boolean canRemindToSetting() {
+        SharedPreferencesUtil sp = new SharedPreferencesUtil(NOTIFICATION);
+        if (sp != null) {
+            NotificationConfig config = sp.get4Json(NotificationConfig.class, "notify_config");
+            if (config != null) {
+                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "oldUid=" + config.getUid() + "--newUid=" + userAction.getMyId());
+                if (config.getUid() == userAction.getMyId() && (!isNewVersion(config.getVersion()) || config.isHasNotify())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isNewVersion(String version) {
+        if (TextUtils.isEmpty(version)) {
+            return false;
+        }
+        String newVersion = VersionUtil.getVerName(this);
+        int[] oldArr = StringUtil.getVersionArr(version);
+        int[] newArr = StringUtil.getVersionArr(newVersion);
+        LogUtil.getLog().i(MainActivity.class.getSimpleName(), "newVersion=" + newVersion + "--oldVersion=" + version);
+        if (oldArr != null && newArr != null && oldArr.length == 3 && newArr.length == 3) {
+            if (oldArr[0] < newArr[0]) {
+                return true;
+            } else {
+                if (oldArr[1] < newArr[1]) {
+                    return true;
+                } else {
+                    if (oldArr[2] < newArr[2]) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void saveNotifyConfig() {
+        NotificationConfig config = new NotificationConfig();
+        config.setHasNotify(true);
+        config.setUid(userAction.getMyId());
+        config.setVersion(VersionUtil.getVerName(this));
+        LogUtil.getLog().i(MainActivity.class.getSimpleName(), VersionUtil.getVerName(this));
+        SharedPreferencesUtil sp = new SharedPreferencesUtil(NOTIFICATION);
+        sp.save2Json(config, "notify_config");
     }
 
 }

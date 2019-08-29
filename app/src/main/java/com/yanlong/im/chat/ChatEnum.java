@@ -93,6 +93,9 @@ public class ChatEnum {
         //小助手消息
         ASSISTANT(R.layout.cell_txt_received),
 
+        //小助手消息
+        LOCK(R.layout.cell_lock),
+
         //未知消息
         UNRECOGNIZED(R.layout.cell_txt_received);
 
@@ -159,7 +162,7 @@ public class ChatEnum {
     /*
      * 消息type
      * */
-    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED,EMessageType.LOCK})
+    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED, EMessageType.LOCK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别

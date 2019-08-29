@@ -53,7 +53,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
 //            mList = list;
 //        }
         mList = list;
-
         notifyDataSetChanged();
     }
 
@@ -86,7 +85,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
         } else {
             MsgAllBean msg = mList.get(position);
             if (msg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {
-//                ChatCellImage imageCell = (ChatCellImage) viewHolder.itemView.getTag();
                 ChatCellImage imageCell = (ChatCellImage) viewHolder;
                 imageCell.updateMessage(msg);
                 int progress = UpLoadService.getProgress(msg.getMsg_id());
@@ -109,12 +107,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
         return super.getItemViewType(position);
     }
 
-//    static class RecyclerViewHolder extends RecyclerView.ViewHolder {
-//        public RecyclerViewHolder(@NonNull View itemView) {
-//            super(itemView);
-//        }
-//    }
-
     //获取某位置消息
     public MsgAllBean getPositionMessage(int position) {
         if (mList != null && mList.size() > position) {
@@ -130,7 +122,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
             mList.remove(position);
             mList.add(position, bean);
 //            mList.set(position,bean);
-//            this.notifyItemChanged(position, payloads);
+            this.notifyItemChanged(position, position);
         }
     }
 

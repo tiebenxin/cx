@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.baoyz.widget.PullRefreshLayout;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -194,6 +195,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     //    private SpringView springView;
     private RecyclerViewAdapter adapter;
     private LinearLayoutManager layoutManager;
+    private PullRefreshLayout refreshLayout;
 
 
     private boolean isGroup() {
@@ -371,6 +373,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         actionbar = headView.getActionbar();
 //        mtListView = findViewById(R.id.mtListView);
         recyclerView = findViewById(R.id.recycler_view);
+        refreshLayout = findViewById(R.id.view_refresh);
 //        springView = findViewById(R.id.spring_view);
         btnVoice = findViewById(R.id.btn_voice);
         edtChat = findViewById(R.id.edt_chat);
@@ -787,6 +790,14 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
         initAdapter();//messageAdapter
 
+        refreshLayout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                taskMoreMessage();
+                refreshLayout.setRefreshing(false);
+            }
+        });
+
 //        springView.setEnable(false);
 //        springView.setHeader(new DefaultHeader(this));
 //        springView.setListener(new SpringView.OnFreshListener() {
@@ -1058,7 +1069,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     //!mtListView.getListView().canScrollVertically(1) 不怎么有效
-                    if (isSoftShow || lastPosition == length - 1 /*|| isCanScrollBottom()*/) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
+                    if (isSoftShow || lastPosition == length - 1 || lastPosition == length - 2 /*|| isCanScrollBottom()*/) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         recyclerView.scrollToPosition(length);
                     } else {
 //                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
@@ -2388,7 +2399,12 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     }
 
     private void notifyDataRangeChange(int start, int size) {
-        adapter.notifyItemRangeChanged(start, size);
+        if (adapter != null) {
+            adapter.notifyItemRangeChanged(start, size);
+        }
+        if (messageAdapter != null) {
+            messageAdapter.notifyItemRangeChanged(start, size);
+        }
     }
 
     /***

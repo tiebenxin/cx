@@ -38,21 +38,21 @@ public class MyAppLication extends MainApplication {
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.DEBUG = true;
                 AppConfig.SOCKET_PORT = 19991;
-              //  AppConfig.SOCKET_IP="192.168.10.112";
-              //  AppConfig.SOCKET_PORT=18181;
-                AppConfig.UP_PATH="test-environment";
-//                break;
+                //  AppConfig.SOCKET_IP="192.168.10.112";
+                //  AppConfig.SOCKET_PORT=18181;
+                AppConfig.UP_PATH = "test-environment";
+                break;
             case "pre": //美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;
                 AppConfig.SOCKET_IP = "hk-test.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
-                AppConfig.UP_PATH="development";
+                AppConfig.UP_PATH = "development";
                 break;
             case "release":
                 AppConfig.DEBUG = false;
                 AppConfig.URL_HOST = "https://baidu.com";
-                AppConfig.UP_PATH="product-environment";
+                AppConfig.UP_PATH = "product-environment";
                 break;
         }
         //初始化数据库
@@ -101,12 +101,12 @@ public class MyAppLication extends MainApplication {
                 mPushAgent.enable(new IUmengCallback() {
                     @Override
                     public void onSuccess() {
-                        Log.e(TAG, "PushAgent推送开启成功" );
+                        Log.e(TAG, "PushAgent推送开启成功");
                     }
 
                     @Override
                     public void onFailure(String s, String s1) {
-                        Log.e(TAG, "PushAgent推送开启失败:"+s+s1 );
+                        Log.e(TAG, "PushAgent推送开启失败:" + s + s1);
                     }
                 });
 

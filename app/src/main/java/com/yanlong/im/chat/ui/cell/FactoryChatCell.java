@@ -132,7 +132,9 @@ public class FactoryChatCell {
             case ASSISTANT:
                 cell = new ChatCellText(mContext, view, mListener, mAdapter);
                 break;
-
+            case LOCK:
+                cell = new ChatCellLock(mContext, view, mListener, mAdapter);
+                break;
             case UNRECOGNIZED:
                 cell = new ChatCellUnrecognized(mContext, view, mListener, mAdapter);
                 break;
