@@ -105,6 +105,10 @@ public class UpdateManage {
 
                         @Override
                         public void onResponse(Call call, Response response) {
+                            if(response.code() == 404){
+                                downloadListener.fail("下载失败");
+                                return;
+                            }
                             long length = response.body().contentLength();
                             if (length == 0) {
                                 // 说明文件已经下载完，直接跳转安装就好
