@@ -1617,4 +1617,53 @@ public class MsgDao {
     }
 
 
+    /***
+     * 模糊搜索群聊
+     * @return
+     */
+    public List<Group> getGroupByKey(String key) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        List<Group> ret = new ArrayList<>();
+        RealmResults<Group> groups = realm.where(Group.class).findAll();
+        RealmResults<Group> keyGroups = groups.where().contains("name", key).findAll();
+        if (keyGroups != null) {
+            ret = realm.copyFromRealm(keyGroups);
+        }
+        for (int i = 0; i < groups.size(); i++) {
+            Group g = groups.get(i);
+            if (ret.contains(g)) {
+                continue;
+            } else {
+                RealmList<UserInfo> userInfos = g.getUsers();
+                UserInfo userInfo = userInfos.where().beginGroup().contains("name", key).endGroup().findFirst();
+                if (userInfo != null) {
+                    g.setKeyUser(userInfo);
+                    ret.add(g);
+                } else {
+                    GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class)
+                            .beginGroup().equalTo("gid", g.getGid()).endGroup()
+                            .beginGroup().contains("membername", key).endGroup()
+                            .findFirst();
+                    if (gropLinkInfo != null) {
+                        userInfo = userInfos.where()
+                                .beginGroup().equalTo("uid", gropLinkInfo.getUid()).endGroup()
+                                .findFirst();
+                        if (userInfo != null) {
+                            userInfo.setMembername(gropLinkInfo.getMembername());
+                            g.setKeyUser(userInfo);
+                            ret.add(g);
+                        }
+                    }
+                }
+            }
+        }
+        realm.commitTransaction();
+        realm.close();
+        return ret;
+
+
+    }
+
+
 }

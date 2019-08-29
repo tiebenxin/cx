@@ -19,9 +19,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     @PrimaryKey
     private Long uid;
     @SerializedName("nickname")
-    private String name;
+    private String name;//昵称
     @SerializedName("alias")
-    private String mkName;
+    private String mkName;//备注名
     @SerializedName("gender")
     private int sex;
     private String imid;
