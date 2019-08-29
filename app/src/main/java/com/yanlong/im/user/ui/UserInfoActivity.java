@@ -570,8 +570,8 @@ public class UserInfoActivity extends AppActivity {
 
     private void doGetAndSetName(UserInfo userInfo) {
         String userRemark = "";
-        if (userInfoLocal != null) {
-            userRemark = userInfoLocal.getMkName();
+        if (userInfo != null) {
+            userRemark = userInfo.getMkName();
         }
         txtMkname.setText(StringUtil.getUserName(userRemark, mucNick, userInfo.getName(), userInfo.getUid()));
 
