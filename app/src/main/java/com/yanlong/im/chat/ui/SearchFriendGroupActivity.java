@@ -2,9 +2,14 @@ package com.yanlong.im.chat.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +37,9 @@ public class SearchFriendGroupActivity extends Activity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private List<UserInfo> listDataUser=new ArrayList<>();
-    private List<Group> listDataGroup=new ArrayList<>();
+    private List<UserInfo> listDataUser = new ArrayList<>();
+    private List<Group> listDataGroup = new ArrayList<>();
+    private String key;
 
 
     //自动寻找控件
@@ -86,24 +92,24 @@ public class SearchFriendGroupActivity extends Activity {
 
         @Override
         public int getItemCount() {
-            return listDataGroup.size()+listDataUser.size();
+            return listDataGroup.size() + listDataUser.size();
         }
 
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            String name="";
-            String url="";
+            String name = "";
+            String url = "";
             holder.viewTagGroup.setVisibility(View.GONE);
             holder.viewTagFried.setVisibility(View.GONE);
-            if(listDataUser.size()>position){
-                if(position==0){
+            if (listDataUser.size() > position) {
+                if (position == 0) {
                     holder.viewTagGroup.setVisibility(View.GONE);
                     holder.viewTagFried.setVisibility(View.VISIBLE);
                 }
-               final UserInfo user = listDataUser.get(position);
-                name=user.getName4Show();
-                url=user.getHead();
+                final UserInfo user = listDataUser.get(position);
+                name = user.getName4Show();
+                url = user.getHead();
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -112,15 +118,15 @@ public class SearchFriendGroupActivity extends Activity {
                     }
                 });
 
-            }else{
-                if(position==listDataUser.size()){
+            } else {
+                if (position == listDataUser.size()) {
                     holder.viewTagGroup.setVisibility(View.VISIBLE);
                     holder.viewTagFried.setVisibility(View.GONE);
                 }
-                int p=position-listDataUser.size();
-              final   Group group = listDataGroup.get(p);
-                name=group.getName();
-                url=group.getAvatar();
+                int p = position - listDataUser.size();
+                final Group group = listDataGroup.get(p);
+                name = group.getName();
+                url = group.getAvatar();
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -133,9 +139,22 @@ public class SearchFriendGroupActivity extends Activity {
                 });
             }
 
-            holder.txtName.setText(name);
-            holder.imgHead.setImageURI(Uri.parse(""+url));
+            holder.txtName.setText(getSpan(name,key));
+            holder.imgHead.setImageURI(Uri.parse("" + url));
 
+        }
+
+
+        private Spannable getSpan(String message, String condition) {
+            if (!message.contains(condition)) {
+                return new SpannableString(message);
+            }
+            SpannableString ss = new SpannableString(message);
+            int start = message.indexOf(condition);
+            int end = start + condition.length();
+            ss.setSpan(new ForegroundColorSpan(Color.BLUE), start, end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return ss;
         }
 
 
@@ -172,8 +191,8 @@ public class SearchFriendGroupActivity extends Activity {
     private UserAction userAction = new UserAction();
 
     private void taskSearch() {
-        String key = edtSearch.getText().toString();
-        if(key.length()<=0)
+        key = edtSearch.getText().toString();
+        if (key.length() <= 0)
             return;
         listDataUser = userAction.searchUser4key(key);
         listDataGroup = msgAction.searchGroup4key(key);

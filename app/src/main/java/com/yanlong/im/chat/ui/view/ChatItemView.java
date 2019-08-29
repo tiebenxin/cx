@@ -10,6 +10,7 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -26,6 +27,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
@@ -533,7 +536,7 @@ public class ChatItemView extends LinearLayout {
             }
             i++;
         }
-        if (preLast == 0) {
+        if (preLast != 0) {
             builder.append(msg.substring(preLast));
             txtMe8.setMovementMethod(LinkMovementMethod.getInstance());
             txtOt8.setMovementMethod(LinkMovementMethod.getInstance());
@@ -556,6 +559,12 @@ public class ChatItemView extends LinearLayout {
 //                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 //                intent.putExtra(Browser.EXTRA_APPLICATION_ID, getContext().getPackageName());
                 getContext().startActivity(intent);
+            }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);//去除下划线
             }
         }, 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         span.setSpan(new ForegroundColorSpan(Color.BLUE), 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -1,6 +1,6 @@
 package com.yanlong.im.chat.bean;
 
-import android.text.TextUtils;
+import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.yanlong.im.user.action.UserAction;
@@ -8,16 +8,15 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.utils.StringUtil;
 
-import java.io.Serializable;
-
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 /***
  * 群
  */
-public class Group  extends RealmObject {
+public class Group extends RealmObject {
     @PrimaryKey
     private String gid;
     private String name;
@@ -41,6 +40,9 @@ public class Group  extends RealmObject {
     //名称
     private String robotname;
 
+    @Ignore
+    private UserInfo keyUser;//符合搜索条件key的群成员
+
 
     public String getRobotname() {
         return robotname;
@@ -59,10 +61,10 @@ public class Group  extends RealmObject {
     }
 
     public String getMygroupName() {
-        if(!StringUtil.isNotNull(mygroupName)&&users!=null){
-            for (UserInfo user:users) {
-                if(UserAction.getMyId().longValue()==user.getUid().longValue()){
-                    mygroupName=user.getMembername();
+        if (!StringUtil.isNotNull(mygroupName) && users != null) {
+            for (UserInfo user : users) {
+                if (UserAction.getMyId().longValue() == user.getUid().longValue()) {
+                    mygroupName = user.getMembername();
                     break;
                 }
             }
@@ -91,7 +93,7 @@ public class Group  extends RealmObject {
     }
 
     public RealmList<UserInfo> getUsers() {
-        users= users==null?new RealmList<UserInfo>():users;
+        users = users == null ? new RealmList<UserInfo>() : users;
         return users;
     }
 
@@ -100,7 +102,7 @@ public class Group  extends RealmObject {
     }
 
     public String getName() {
-        name=name==null?"":name;
+        name = name == null ? "" : name;
         return name;
     }
 
@@ -133,7 +135,7 @@ public class Group  extends RealmObject {
     }
 
     public Integer getSaved() {
-        return saved==null?0:saved;
+        return saved == null ? 0 : saved;
     }
 
     public void setSaved(Integer saved) {
@@ -141,7 +143,7 @@ public class Group  extends RealmObject {
     }
 
     public Integer getNotNotify() {
-        return notNotify==null?0:notNotify;
+        return notNotify == null ? 0 : notNotify;
     }
 
     public void setNotNotify(Integer notNotify) {
@@ -149,7 +151,7 @@ public class Group  extends RealmObject {
     }
 
     public Integer getNeedVerification() {
-        return needVerification==null?0:needVerification;
+        return needVerification == null ? 0 : needVerification;
     }
 
     public void setNeedVerification(Integer needVerification) {
@@ -157,10 +159,31 @@ public class Group  extends RealmObject {
     }
 
     public Integer getIsTop() {
-        return isTop==null?0:isTop;
+        return isTop == null ? 0 : isTop;
     }
 
     public void setIsTop(Integer isTop) {
         this.isTop = isTop;
+    }
+
+    public UserInfo getKeyUser() {
+        return keyUser;
+    }
+
+    public void setKeyUser(UserInfo keyUser) {
+        this.keyUser = keyUser;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof Group) {
+            if (((Group) obj).gid.equals(this.gid)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

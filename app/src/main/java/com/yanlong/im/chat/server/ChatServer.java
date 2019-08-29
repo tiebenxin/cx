@@ -423,7 +423,7 @@ public class ChatServer extends Service {
     public void onCreate() {
         super.onCreate();
         LogUtil.getLog().d(TAG, ">>>>>网路状态监听");
-        SocketUtil.getSocketUtil().addEvent(msgEvent);
+        SocketUtil.getSocketUtil().addEvent(msgEvent,0);
         //注册广播用于监听网络状态改变
         mNetworkChangeReceiver = new BroadcastReceiver() {
             @Override
