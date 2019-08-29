@@ -164,10 +164,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         imgLarge.setAlpha(0);
         imgLarge.setVisibility(View.VISIBLE);
 
-        showPleaseDialog();
+
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
+            showPleaseDialog();
             loadDataThread = new LoadDataThread(path, 2, imgLarge);
             loadDataThread.start();
         } else {
@@ -282,11 +283,15 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             final String path = media.getCompressPath();
             boolean isGif = FileUtils.isGif(path);
             boolean isHttp = PictureMimeType.isHttp(path);
+
+
+
             // 可以长按保存并且是网络图片显示一个对话框
-            if (isHttp) {
+           /* if (isHttp) {
 
                 showPleaseDialog(path);
-            }
+            }*/
+
 
 
              boolean eqLongImg = PictureMimeType.isLongImg(media);
@@ -326,12 +331,16 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     imgDownloadEvent(ivDownload,txtBig, imgpath);
                     txtBig.setVisibility(View.VISIBLE);
                     txtBig.setText("查看原图(" + ImgSizeUtil.formatFileSize(images.get(position).getSize()) + ")");
+
+
+
+
                 }
 
 
             } else {
                 txtBig.setVisibility(View.GONE);
-                ivDownload.setVisibility(View.GONE);
+                ivDownload.setVisibility(View.VISIBLE);
                 imgDownloadEvent(ivDownload,null, path);
 
             }
@@ -449,7 +458,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         @Override
                         public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
 
-                            dismissDialog(path);
+                            dismissDialog();
                             if (eqLongImg) {
                                 displayLongPic(resource, longImg);
                             } else {
@@ -681,9 +690,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     private void saveImage(String path) {
         Log.d("TAG", "------------showLoadingImage$:saveImage " + path);
-        showPleaseDialog();
+
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
+            showPleaseDialog();
             loadDataThread = new LoadDataThread(path, 0, null);
             loadDataThread.start();
         } else {

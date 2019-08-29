@@ -6,8 +6,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+
+import com.luck.picture.lib.tools.Constant;
+import com.yanlong.im.user.bean.NewVersionBean;
+import com.yanlong.im.user.bean.VersionBean;
 
 import net.cb.cb.library.utils.InstallAppUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 
@@ -16,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.util.Calendar;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -38,6 +45,32 @@ public class UpdateManage {
     public UpdateManage(Context context, AppCompatActivity activity) {
         this.context = context;
         this.activity = activity;
+    }
+
+    public boolean isToDayFirst(NewVersionBean newVersionBean) {
+        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+        VersionBean bean = preferencesUtil.get4Json(VersionBean.class);
+        Calendar calendar = Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        String newData = month + "-" + day;
+
+        VersionBean versionBean = new VersionBean();
+        versionBean.setTime(newData);
+        versionBean.setVersion(newVersionBean.getVersion());
+        preferencesUtil.save2Json(versionBean);
+        if (bean == null) {
+            return true;
+        } else {
+            if (TextUtils.isEmpty(bean.getTime()) || TextUtils.isEmpty(bean.getVersion())) {
+                return true;
+            } else {
+                if(!newData.equals(bean.getTime()) && !VersionUtil.getVerName(context).equals(newVersionBean.getVersion())){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -124,7 +157,7 @@ public class UpdateManage {
 
                 @Override
                 public void onInstall() {
-                    installAppUtil.install(activity,installAppUtil.getApkPath());
+                    installAppUtil.install(activity, installAppUtil.getApkPath());
                 }
             });
             if (isEnforcement) {

@@ -1,10 +1,14 @@
 package com.yanlong.im;
 
+import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -47,6 +51,9 @@ import net.cb.cb.library.view.ViewPagerSlide;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -195,11 +202,6 @@ public class MainActivity extends AppActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
     }
@@ -336,6 +338,10 @@ public class MainActivity extends AppActivity {
                     if (response.body().getData().getForceUpdate() != 0) {
                         //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
+                    }else{
+                        if(updateManage.isToDayFirst(bean)){
+                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                        }
                     }
                 }
             }

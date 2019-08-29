@@ -2,24 +2,25 @@ package com.yanlong.im.user.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatFontActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.VersionBean;
+import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -43,6 +44,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private CheckBox cbVoice;
     private MsgDao msgDao;
     private LinearLayout viewSelectBackground;
+    private TextView tvNewVersions;
 
 
     @Override
@@ -65,7 +67,18 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         mTvVersion = findViewById(R.id.tv_version);
         mTvVersion.setText(VersionUtil.getVerName(this));
         cbVoice = findViewById(R.id.cb_voice);
-        viewSelectBackground =  findViewById(R.id.view_select_background);
+        viewSelectBackground = findViewById(R.id.view_select_background);
+        tvNewVersions =  findViewById(R.id.tv_new_versions);
+
+        SharedPreferencesUtil sharedPreferencesUtil = new  SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+        VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
+        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
+            if(new UpdateManage(context,CommonActivity.this).check(bean.getVersion())){
+                tvNewVersions.setVisibility(View.VISIBLE);
+            }else{
+                tvNewVersions.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void initEvent() {
@@ -147,8 +160,8 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         }
     }
 
-    private void loginOut(boolean emptyPassword){
-        if(!emptyPassword){
+    private void loginOut(boolean emptyPassword) {
+        if (!emptyPassword) {
             AlertYesNo alertYesNo = new AlertYesNo();
             alertYesNo.init(this, "退出", "确定退出吗?", "确定", "取消", new AlertYesNo.Event() {
                 @Override
@@ -162,7 +175,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 }
             });
             alertYesNo.show();
-        }else{
+        } else {
             go(SetingPasswordActitity.class);
         }
     }

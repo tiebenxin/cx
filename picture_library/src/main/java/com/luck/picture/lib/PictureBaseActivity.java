@@ -164,7 +164,7 @@ public class PictureBaseActivity extends FragmentActivity {
             time_dialog_hide=System.currentTimeMillis();
             Log.i("Dialog", "show: "+System.currentTimeMillis());
             dialog.show();
-            //TODO 这里还没改完
+
             /*this.getWindow().getDecorView().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -186,24 +186,26 @@ public class PictureBaseActivity extends FragmentActivity {
             dialog = new PictureDialog(this);
             dialogState.put(key,true);
             Log.i("showPleaseDialog", "showPleaseDialog: ------------"+key);
-            //TODO 这里还没改完
+
             this.getWindow().getDecorView().postDelayed(new Runnable() {
                 @Override
                 public void run() {
 
-                    if(dialogState.containsValue(key)&&dialogState.get(key)){
+                    if(dialogState.get(key)){
                         dialog.show();
+                    }else{
+                        Log.e("showPleaseDialog", "showPleaseDialog被销毁: ------------"+key);
                     }
 
                 }
-            },500);
+            },200);
 
         }
     }
     protected void dismissDialog(final String key) {
         try {
-            dialogState.remove(key);
 
+            dialogState.put(key,false);
             time_dialog_hide=System.currentTimeMillis();
             Log.i("showPleaseDialog", "dismissDialog: ------------"+key);
             if (dialog != null && dialog.isShowing()) {

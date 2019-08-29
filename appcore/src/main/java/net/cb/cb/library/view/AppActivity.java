@@ -14,7 +14,6 @@ import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
 import net.cb.cb.library.AppConfig;
-import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 /***
  * 统一的activity
