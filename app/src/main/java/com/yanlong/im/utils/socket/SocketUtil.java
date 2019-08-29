@@ -153,6 +153,13 @@ public class SocketUtil {
         }
 
     }
+    public void addEvent(SocketEvent event,int index) {
+        if (!eventLists.contains(event)) {
+            LogUtil.getLog().i(TAG, ">>>>>>添加消息监听");
+            eventLists.add(index,event);
+        }
+
+    }
 
     /***
      * 移除监听
