@@ -1404,6 +1404,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
 
             LocalMedia lc = new LocalMedia();
+            lc.setCutPath(msgl.getImage().getThumbnailShow());
             lc.setCompressPath(msgl.getImage().getPreviewShow());
             lc.setPath(msgl.getImage().getOriginShow());
             // Log.d("tag", "---showBigPic: "+msgl.getImage().getSize());
