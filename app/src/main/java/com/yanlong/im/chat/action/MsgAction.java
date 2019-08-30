@@ -273,8 +273,8 @@ public class MsgAction {
      * 根据key查询群
      */
     public List<Group> searchGroup4key(String key) {
-//        return dao.getGroupByKey(key);
-        return dao.searchGroup4key(key);
+        return dao.getGroupByKey(key);
+//        return dao.searchGroup4key(key);
     }
 
     /***
