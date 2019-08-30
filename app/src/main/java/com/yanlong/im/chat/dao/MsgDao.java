@@ -1625,11 +1625,16 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         List<Group> ret = new ArrayList<>();
+//        List<Group> allGroups = new ArrayList<>();
+
         RealmResults<Group> groups = realm.where(Group.class).findAll();
         RealmResults<Group> keyGroups = groups.where().contains("name", key).findAll();
         if (keyGroups != null) {
             ret = realm.copyFromRealm(keyGroups);
         }
+//        if (groups != null) {
+//            allGroups = realm.copyFromRealm(groups);
+//        }
         for (int i = 0; i < groups.size(); i++) {
             Group g = groups.get(i);
             if (ret.contains(g)) {
@@ -1638,8 +1643,10 @@ public class MsgDao {
                 RealmList<UserInfo> userInfos = g.getUsers();
                 UserInfo userInfo = userInfos.where().beginGroup().contains("name", key).endGroup().findFirst();
                 if (userInfo != null) {
-                    g.setKeyUser(userInfo);
-                    ret.add(g);
+                    Group group = realm.copyFromRealm(g);
+                    UserInfo info = realm.copyFromRealm(userInfo);
+                    group.setKeyUser(info);
+                    ret.add(group);
                 } else {
                     GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class)
                             .beginGroup().equalTo("gid", g.getGid()).endGroup()
@@ -1650,9 +1657,11 @@ public class MsgDao {
                                 .beginGroup().equalTo("uid", gropLinkInfo.getUid()).endGroup()
                                 .findFirst();
                         if (userInfo != null) {
-                            userInfo.setMembername(gropLinkInfo.getMembername());
-                            g.setKeyUser(userInfo);
-                            ret.add(g);
+                            Group group = realm.copyFromRealm(g);
+                            UserInfo info = realm.copyFromRealm(userInfo);
+                            info.setMembername(gropLinkInfo.getMembername());
+                            group.setKeyUser(userInfo);
+                            ret.add(group);
                         }
                     }
                 }

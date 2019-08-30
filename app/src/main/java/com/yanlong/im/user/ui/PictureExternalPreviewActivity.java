@@ -294,15 +294,53 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
 
-             boolean eqLongImg = PictureMimeType.isLongImg(media);
+             final boolean eqLongImg = PictureMimeType.isLongImg(media);
 
             imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
             longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
             // 压缩过的gif就不是gif了
             if (isGif && !media.isCompressed()) {
-                showGif(imageView, txtBig, path);
+               if(!media.getCutPath().equals(media.getCompressPath())) {
+
+                   Glide.with(getApplicationContext()).load(media.getCutPath()).listener(new RequestListener<Drawable>() {
+                       @Override
+                       public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                           showGif(imageView, txtBig, path);
+                           return false;
+                       }
+
+                       @Override
+                       public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                           showGif(imageView, txtBig, path);
+                           return false;
+                       }
+                   }).into(imageView);
+               }else{
+                   showGif(imageView, txtBig, path);
+               }
+
             } else {
-                showImg(imageView, longImg, path, eqLongImg);
+                if(!media.getCutPath().equals(media.getCompressPath())) {
+
+                    Glide.with(PictureExternalPreviewActivity.this)
+                            .asBitmap()
+                            .load(media.getCutPath())
+                            .into(new SimpleTarget<Bitmap>(800, 800) {
+                                @Override
+                                public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                    super.onLoadFailed(errorDrawable);
+                                }
+
+                                @Override
+                                public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                                    imageView.setImageBitmap(resource);
+                                    showImg(imageView, longImg, path, eqLongImg);
+                                }
+                            });
+                }else{
+                    showImg(imageView, longImg, path, eqLongImg);
+                }
+
             }
             imgEvent(imageView, longImg, path);
 
