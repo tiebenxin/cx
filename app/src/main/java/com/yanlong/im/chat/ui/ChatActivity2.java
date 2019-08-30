@@ -1064,7 +1064,8 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 //            recyclerView.requestDisallowInterceptTouchEvent(true);
             if (isMustBottom) {
 //                recyclerView.scrollToPosition(length);
-                layoutManager.scrollToPosition(length);
+//                layoutManager.scrollToPosition(length);
+                layoutManager.scrollToPositionWithOffset(length,0);
 
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
