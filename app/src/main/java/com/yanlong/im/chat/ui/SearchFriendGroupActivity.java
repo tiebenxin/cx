@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -26,10 +27,15 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.view.ActionbarView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /***
  * 搜索群和好友
@@ -89,87 +95,143 @@ public class SearchFriendGroupActivity extends Activity {
         initEvent();
     }
 
+    private Spannable getSpan(String message, String condition) {
+        if (!message.contains(condition)) {
+            return new SpannableString(message);
+        }
+        SpannableString ss = new SpannableString(message);
+        int start = message.indexOf(condition);
+        int end = start + condition.length();
+        ss.setSpan(new ForegroundColorSpan(Color.BLUE), start, end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        return ss;
+    }
+
     //自动生成RecyclerViewAdapter
-    class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
+    class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public int getItemCount() {
-            return listDataGroup.size() + listDataUser.size();
+            if (!TextUtils.isEmpty(key)) {
+                return listDataGroup.size() + listDataUser.size() + 1;
+            } else {
+                return listDataGroup.size() + listDataUser.size();
+
+            }
         }
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder holder, int position) {
-            String name = "";
-            String url = "";
-            holder.viewTagGroup.setVisibility(View.GONE);
-            holder.viewTagFried.setVisibility(View.GONE);
-            if (listDataUser.size() > position) {
-                if (position == 0) {
+        public void onBindViewHolder(RecyclerView.ViewHolder h, int position) {
+            if (h instanceof RSearchViewHolder) {
+                RSearchViewHolder holder = (RSearchViewHolder) h;
+                holder.setKey(key);
+            } else if (h instanceof RCViewHolder) {
+                RCViewHolder holder = (RCViewHolder) h;
+                if (!TextUtils.isEmpty(key)) {
+                    String url = "";
                     holder.viewTagGroup.setVisibility(View.GONE);
-                    holder.viewTagFried.setVisibility(View.VISIBLE);
-                }
-                final UserInfo user = listDataUser.get(position);
-                name = user.getName4Show();
-                url = user.getHead();
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(getApplicationContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, user.getUid()));
-                    }
-                });
-                holder.setContactName(user.getMkName(), user.getName(), key);
-
-            } else {
-                if (position == listDataUser.size()) {
-                    holder.viewTagGroup.setVisibility(View.VISIBLE);
                     holder.viewTagFried.setVisibility(View.GONE);
-                }
-                int p = position - listDataUser.size();
-                final Group group = listDataGroup.get(p);
-                name = group.getName();
-                url = group.getAvatar();
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startActivity(new Intent(getApplicationContext(), ChatActivity.class)
-                                .putExtra(ChatActivity.AGM_TOGID, group.getGid())
+                    if (listDataUser.size() > position - 1) {
+                        if (position == 1) {
+                            holder.viewTagGroup.setVisibility(View.GONE);
+                            holder.viewTagFried.setVisibility(View.VISIBLE);
+                        }
+                        final UserInfo user = listDataUser.get(position - 1);
+//                    name = user.getName4Show();
+                        url = user.getHead();
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startActivity(new Intent(getApplicationContext(), UserInfoActivity.class)
+                                        .putExtra(UserInfoActivity.ID, user.getUid()));
+                            }
+                        });
+                        holder.setContactName(user.getMkName(), user.getName(), key);
 
-                        );
-
+                    } else {
+                        if (position == listDataUser.size() + 1) {
+                            holder.viewTagGroup.setVisibility(View.VISIBLE);
+                            holder.viewTagFried.setVisibility(View.GONE);
+                        }
+                        int p = position - listDataUser.size() - 1;
+                        final Group group = listDataGroup.get(p);
+//                    name = group.getName();
+                        url = group.getAvatar();
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOGID, group.getGid()));
+                            }
+                        });
+                        holder.setGroupName(group, key);
                     }
-                });
-                holder.setGroupName(group, key);
+                    holder.imgHead.setImageURI(Uri.parse("" + url));
+                } else {
+                    String url = "";
+                    holder.viewTagGroup.setVisibility(View.GONE);
+                    holder.viewTagFried.setVisibility(View.GONE);
+                    if (listDataUser.size() > position) {
+                        if (position == 0) {
+                            holder.viewTagGroup.setVisibility(View.GONE);
+                            holder.viewTagFried.setVisibility(View.VISIBLE);
+                        }
+                        final UserInfo user = listDataUser.get(position);
+                        url = user.getHead();
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startActivity(new Intent(getApplicationContext(), UserInfoActivity.class)
+                                        .putExtra(UserInfoActivity.ID, user.getUid()));
+                            }
+                        });
+                        holder.setContactName(user.getMkName(), user.getName(), key);
+
+                    } else {
+                        if (position == listDataUser.size()) {
+                            holder.viewTagGroup.setVisibility(View.VISIBLE);
+                            holder.viewTagFried.setVisibility(View.GONE);
+                        }
+                        int p = position - listDataUser.size();
+                        final Group group = listDataGroup.get(p);
+//                    name = group.getName();
+                        url = group.getAvatar();
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOGID, group.getGid()));
+                            }
+                        });
+                        holder.setGroupName(group, key);
+                    }
+                    holder.imgHead.setImageURI(Uri.parse("" + url));
+                }
             }
 
-//            holder.txtName.setText(getSpan(name, key));
-            holder.imgHead.setImageURI(Uri.parse("" + url));
-
-        }
-
-
-        private Spannable getSpan(String message, String condition) {
-            if (!message.contains(condition)) {
-                return new SpannableString(message);
-            }
-            SpannableString ss = new SpannableString(message);
-            int start = message.indexOf(condition);
-            int end = start + condition.length();
-            ss.setSpan(new ForegroundColorSpan(Color.BLUE), start, end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-            return ss;
         }
 
 
         //自动寻找ViewHold
         @Override
-        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_friend_group, view, false));
-            return holder;
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup view, int viewType) {
+            if (viewType == 0) {
+                RSearchViewHolder holder = new RSearchViewHolder(getLayoutInflater().inflate(R.layout.item_search_net, view, false));
+                return holder;
+            } else {
+                RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_friend_group, view, false));
+                return holder;
+            }
         }
 
+        @Override
+        public int getItemViewType(int position) {
+            if (!TextUtils.isEmpty(key) && position == 0) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
@@ -289,6 +351,30 @@ public class SearchFriendGroupActivity extends Activity {
         }
     }
 
+    public class RSearchViewHolder extends RecyclerView.ViewHolder {
+
+        private final TextView tv_content;
+        private final LinearLayout ll_root;
+
+        public RSearchViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ll_root = itemView.findViewById(R.id.ll_root);
+            tv_content = itemView.findViewById(R.id.tv_content);
+            ll_root.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    taskSearchToNet();
+                }
+            });
+        }
+
+        public void setKey(String key) {
+            String content = "网络查找常聊号:" + key;
+            tv_content.setText(getSpan(content, key));
+        }
+
+    }
+
     private MsgAction msgAction = new MsgAction();
     private UserAction userAction = new UserAction();
 
@@ -299,6 +385,23 @@ public class SearchFriendGroupActivity extends Activity {
         listDataUser = userAction.searchUser4key(key);
         listDataGroup = msgAction.searchGroup4key(key);
         mtListView.notifyDataSetChange();
+    }
+
+    private void taskSearchToNet() {
+        userAction.getUserInfoByKeyword(key, new CallBack<ReturnBean<List<UserInfo>>>(mtListView) {
+            @Override
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                listDataUser.clear();
+                listDataUser.addAll(response.body().getData());
+                listDataGroup.clear();
+                key = "";
+                mtListView.notifyDataSetChange(response);
+            }
+        });
+
     }
 
 }

@@ -21,7 +21,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="12dp"
-                    android:src="@mipmap/ic_msg_search" />
+                    android:src="@mipmap/ic_search" />
 
                 <net.cb.cb.library.view.ClearEditText
                     android:id="@+id/edt_search"
@@ -35,6 +35,7 @@
 
 
         </LinearLayout>
+
         <View style="@style/app_line" />
 
         <net.cb.cb.library.view.MultiListView
