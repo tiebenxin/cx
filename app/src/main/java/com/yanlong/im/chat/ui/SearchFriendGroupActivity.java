@@ -305,16 +305,16 @@ public class SearchFriendGroupActivity extends Activity {
                     } else {
                         txtName.setText(groupName);
                         txtContent.setVisibility(View.VISIBLE);
-                        if (!TextUtils.isEmpty(userMkName)) {
+                        if (!TextUtils.isEmpty(userMkName)) {//好友备注
                             if (userMkName.contains(key)) {
                                 txtContent.setText(getSpan(userMkName, key));
                             } else {
-                                if (!TextUtils.isEmpty(userNickName)) {
+                                if (!TextUtils.isEmpty(userNickName)) {//用户昵称
                                     if (userNickName.contains(key)) {
                                         String content = "包含:" + userMkName + "(" + userNickName + ")";
                                         txtContent.setText(getSpan(content, key));
                                     } else {
-                                        if (!TextUtils.isEmpty(userMucName)) {
+                                        if (!TextUtils.isEmpty(userMucName)) {//群备注
                                             if (userMucName.contains(key)) {
                                                 String content = "包含:" + userMkName + "(" + userMucName + ")";
                                                 txtContent.setText(getSpan(content, key));
