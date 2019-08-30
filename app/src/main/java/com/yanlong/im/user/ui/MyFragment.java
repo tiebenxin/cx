@@ -3,24 +3,19 @@ package com.yanlong.im.user.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
@@ -28,19 +23,22 @@ import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.QRCodeManage;
+import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
-import net.cb.cb.library.zxing.encoding.EncodingHandler;
 
 import retrofit2.Call;
 import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
+
 /***
  * 我
  */
@@ -57,6 +55,7 @@ public class MyFragment extends Fragment {
     private TextView mTvInfo;
     private LinearLayout mViewScanQrcode;
     private LinearLayout mViewHelp;
+    private TextView tvNewVersions;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -71,8 +70,26 @@ public class MyFragment extends Fragment {
         mTvInfo = rootView.findViewById(R.id.tv_info);
         mViewScanQrcode = rootView.findViewById(R.id.view_scan_qrcode);
         mViewHelp = rootView.findViewById(R.id.view_help);
+        tvNewVersions = rootView.findViewById(R.id.tv_new_versions);
+
+        SharedPreferencesUtil sharedPreferencesUtil = new  SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+        VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
+        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
+            if(check(bean.getVersion())){
+                tvNewVersions.setVisibility(View.VISIBLE);
+            }else{
+                tvNewVersions.setVisibility(View.GONE);
+            }
+        }
     }
 
+    public boolean check(String versions) {
+        boolean isUpdate = false;
+        if (!versions.equals(VersionUtil.getVerName(getContext()))) {
+            isUpdate = true;
+        }
+        return isUpdate;
+    }
 
     //自动生成的控件事件
     private void initEvent() {
@@ -130,7 +147,6 @@ public class MyFragment extends Fragment {
             }
         });
     }
-
 
 
     private void initData() {
@@ -200,13 +216,14 @@ public class MyFragment extends Fragment {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivity(),scanResult);
-            QRCodeManage.goToActivity(getActivity(),bean);
+            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivity(), scanResult);
+            QRCodeManage.goToActivity(getActivity(), bean);
             //将扫描出的信息显示出来
         }
     }
 
-    private PayAction payAction=new PayAction();
+    private PayAction payAction = new PayAction();
+
     //钱包
     private void taskWallet() {
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
@@ -217,9 +234,10 @@ public class MyFragment extends Fragment {
                 if (response.body().isOk()) {
                     String token = response.body().getData().getSign();
                     UserInfo minfo = UserAction.getMyInfo();
-                    JrmfWalletClient.intentWallet(getActivity(), ""+ UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+                    JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
                 }
             }
         });
     }
+
 }

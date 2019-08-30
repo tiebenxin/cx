@@ -26,6 +26,8 @@ import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.bean.VersionBean;
+import com.yanlong.im.user.ui.CommonActivity;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
@@ -339,8 +341,17 @@ public class MainActivity extends AppActivity {
                         //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     }else{
+
                         if(updateManage.isToDayFirst(bean)){
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+                        }
+
+                        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
+                            if(new UpdateManage(context, MainActivity.this).check(bean.getVersion())){
+                                sbme.setNum(1);
+                            }else{
+                                sbme.setNum(0);
+                            }
                         }
                     }
                 }
