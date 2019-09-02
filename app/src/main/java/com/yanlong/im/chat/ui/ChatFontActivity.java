@@ -41,10 +41,12 @@ public class ChatFontActivity extends AppActivity {
         seekBar = findViewById(R.id.seekBar);
     }
 
+private Integer size;
 
     //自动生成的控件事件
     private void initEvent() {
-
+        size = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
+        actionbar.setTxtRight("完成");
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -53,6 +55,12 @@ public class ChatFontActivity extends AppActivity {
 
             @Override
             public void onRight() {
+                if(size!=null){
+                    SharedPreferencesUtil util = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT);
+
+                    util.save2Json(size.intValue());
+                }
+                onBackPressed();
 
             }
         });
@@ -60,16 +68,15 @@ public class ChatFontActivity extends AppActivity {
         seekBar.setChangeCallbackListener(new FontSizeView.OnChangeCallbackListener() {
             @Override
             public void onChangeListener(int position) {
-                SharedPreferencesUtil util = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT);
-                Float size = 12 + (position * 3f);
+
+                 size = ((Float)(12 + (position * 3f))).intValue();
                 setTextSize(size.intValue());
-                util.save2Json(size.intValue());
             }
         });
 
-        Integer font_size = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
-        if (font_size != null) {
-            int p=(font_size-12)/3;
+
+        if (size != null) {
+            int p=(size-12)/3;
             seekBar.setDefaultPosition(p);
         }
 
