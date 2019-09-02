@@ -25,9 +25,10 @@ import net.cb.cb.library.view.HeadView;
  */
 public class FeedbackShowImageActivity extends AppActivity {
     public static final String URL = "url";
+    public static final String TYPE = "type";
+    public final static String POSTION = "postion";
     private HeadView headView;
     private SimpleDraweeView imageView;
-    public final static String POSTION = "postion";
     private int postion = 100;
 
 
@@ -46,7 +47,10 @@ public class FeedbackShowImageActivity extends AppActivity {
         headView.getActionbar().getBtnRight().setImageResource(R.mipmap.icon_image_delect);
         postion = getIntent().getIntExtra(POSTION, 0);
         imageView.setImageURI(getIntent().getStringExtra(URL));
-
+        int type = getIntent().getIntExtra(TYPE, 0);
+        if(type == 1){
+            headView.getActionbar().setTitle("用户投诉");
+        }
     }
 
     private void initEvent() {
