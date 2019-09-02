@@ -1148,6 +1148,8 @@ public class MsgDao {
         realm.beginTransaction();
 
         Session session = DaoUtil.findOne(Session.class, "gid", gid);
+        if(session==null)
+            return;
         if (notNotify != null)
             session.setIsMute(notNotify);
 
