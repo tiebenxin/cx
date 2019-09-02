@@ -322,6 +322,10 @@ public class MsgAction {
 
 
     }
+    public void groupSwitchIntimately(final String gid,int intimately,Callback<ReturnBean> callback){
+
+        NetUtil.getNet().exec(server.groupSwitchIntimately(gid, intimately), callback);
+    }
 
     /***
      * 单人详情的开关

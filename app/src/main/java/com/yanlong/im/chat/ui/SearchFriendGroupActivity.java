@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
@@ -95,14 +98,15 @@ public class SearchFriendGroupActivity extends Activity {
         initEvent();
     }
 
-    private Spannable getSpan(String message, String condition) {
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private Spannable getSpan(String message, String condition, int fromIndex) {
         if (!message.contains(condition)) {
             return new SpannableString(message);
         }
         SpannableString ss = new SpannableString(message);
-        int start = message.indexOf(condition);
+        int start = message.indexOf(condition, fromIndex);
         int end = start + condition.length();
-        ss.setSpan(new ForegroundColorSpan(Color.BLUE), start, end,
+        ss.setSpan(new ForegroundColorSpan(getColor(R.color.green_500)), start, end,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         return ss;
@@ -258,15 +262,15 @@ public class SearchFriendGroupActivity extends Activity {
                 if (!TextUtils.isEmpty(mkName)) {
                     if (mkName.contains(key)) {
                         txtContent.setVisibility(View.GONE);
-                        txtName.setText(getSpan(mkName, key));
+                        txtName.setText(getSpan(mkName, key, 0));
                     } else {
                         txtName.setText(mkName);
                         if (!TextUtils.isEmpty(nick)) {
                             txtContent.setVisibility(View.VISIBLE);
                             if (nick.contains(nick)) {
-                                txtContent.setText("昵称:" + getSpan(nick, key));
+                                txtContent.setText("昵称:" + getSpan(nick, key, 3));
                             } else {
-                                txtContent.setText("昵称:" + getSpan(nick, key));
+                                txtContent.setText("昵称:" + getSpan(nick, key, 3));
                             }
                         } else {
                             txtContent.setVisibility(View.GONE);
@@ -276,9 +280,9 @@ public class SearchFriendGroupActivity extends Activity {
                     if (!TextUtils.isEmpty(nick)) {
                         txtContent.setVisibility(View.GONE);
                         if (nick.contains(nick)) {
-                            txtName.setText(getSpan(nick, key));
+                            txtName.setText(getSpan(nick, key, 0));
                         } else {
-                            txtName.setText(getSpan(nick, key));
+                            txtName.setText(getSpan(nick, key, 0));
                         }
                     }
                 }
@@ -301,23 +305,23 @@ public class SearchFriendGroupActivity extends Activity {
                 if (!TextUtils.isEmpty(groupName)) {
                     if (group.getName().contains(key)) {
                         txtContent.setVisibility(View.GONE);
-                        txtName.setText(getSpan(groupName, key));
+                        txtName.setText(getSpan(groupName, key, 0));
                     } else {
                         txtName.setText(groupName);
                         txtContent.setVisibility(View.VISIBLE);
                         if (!TextUtils.isEmpty(userMkName)) {//好友备注
                             if (userMkName.contains(key)) {
-                                txtContent.setText(getSpan(userMkName, key));
+                                txtContent.setText(getSpan(userMkName, key, 0));
                             } else {
                                 if (!TextUtils.isEmpty(userNickName)) {//用户昵称
                                     if (userNickName.contains(key)) {
                                         String content = "包含:" + userMkName + "(" + userNickName + ")";
-                                        txtContent.setText(getSpan(content, key));
+                                        txtContent.setText(getSpan(content, key, 3));
                                     } else {
                                         if (!TextUtils.isEmpty(userMucName)) {//群备注
                                             if (userMucName.contains(key)) {
                                                 String content = "包含:" + userMkName + "(" + userMucName + ")";
-                                                txtContent.setText(getSpan(content, key));
+                                                txtContent.setText(getSpan(content, key, 3));
                                             }
                                         }
                                     }
@@ -327,12 +331,12 @@ public class SearchFriendGroupActivity extends Activity {
                             if (!TextUtils.isEmpty(userNickName)) {
                                 if (userNickName.contains(key)) {
                                     String content = "包含:" + userNickName;
-                                    txtContent.setText(getSpan(content, key));
+                                    txtContent.setText(getSpan(content, key, 0));
                                 } else {
                                     if (!TextUtils.isEmpty(userMucName)) {
                                         if (userMucName.contains(key)) {
                                             String content = "包含:" + userNickName + "(" + userMucName + ")";
-                                            txtContent.setText(getSpan(content, key));
+                                            txtContent.setText(getSpan(content, key, 3));
                                         }
                                     }
                                 }
@@ -340,7 +344,7 @@ public class SearchFriendGroupActivity extends Activity {
                                 if (!TextUtils.isEmpty(userMucName)) {
                                     if (userMucName.contains(key)) {
                                         String content = "包含:" + userMucName;
-                                        txtContent.setText(getSpan(content, key));
+                                        txtContent.setText(getSpan(content, key, 3));
                                     }
                                 }
                             }
@@ -370,7 +374,7 @@ public class SearchFriendGroupActivity extends Activity {
 
         public void setKey(String key) {
             String content = "网络查找常聊号:" + key;
-            tv_content.setText(getSpan(content, key));
+            tv_content.setText(getSpan(content, key, 8));
         }
 
     }

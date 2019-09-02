@@ -30,6 +30,7 @@ public class Group extends RealmObject {
     private Integer saved;// 是否已保存
     private Integer notNotify;// 消息免打扰
     private Integer needVerification;//是否需要群验证
+    private Integer contactIntimately;//是否需要群保护
     @SerializedName("toTop")
     private Integer isTop;
 
@@ -70,6 +71,14 @@ public class Group extends RealmObject {
             }
         }
         return mygroupName;
+    }
+
+    public Integer getContactIntimately() {
+        return contactIntimately;
+    }
+
+    public void setContactIntimately(Integer contactIntimately) {
+        this.contactIntimately = contactIntimately;
     }
 
     public String getAnnouncement() {

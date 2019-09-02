@@ -1148,6 +1148,8 @@ public class MsgDao {
         realm.beginTransaction();
 
         Session session = DaoUtil.findOne(Session.class, "gid", gid);
+        if(session==null)
+            return;
         if (notNotify != null)
             session.setIsMute(notNotify);
 
@@ -1641,7 +1643,11 @@ public class MsgDao {
                 continue;
             } else {
                 RealmList<UserInfo> userInfos = g.getUsers();
-                UserInfo userInfo = userInfos.where().beginGroup().contains("name", key).endGroup().findFirst();
+                UserInfo userInfo = userInfos.where()
+                        .beginGroup().contains("name", key).endGroup()
+                        .or()
+                        .beginGroup().contains("mkName", key).endGroup()
+                        .findFirst();
                 if (userInfo != null) {
                     Group group = realm.copyFromRealm(g);
                     UserInfo info = realm.copyFromRealm(userInfo);
@@ -1650,6 +1656,7 @@ public class MsgDao {
                 } else {
                     GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class)
                             .beginGroup().equalTo("gid", g.getGid()).endGroup()
+                            .and()
                             .beginGroup().contains("membername", key).endGroup()
                             .findFirst();
                     if (gropLinkInfo != null) {
@@ -1660,7 +1667,7 @@ public class MsgDao {
                             Group group = realm.copyFromRealm(g);
                             UserInfo info = realm.copyFromRealm(userInfo);
                             info.setMembername(gropLinkInfo.getMembername());
-                            group.setKeyUser(userInfo);
+                            group.setKeyUser(info);
                             ret.add(group);
                         }
                     }

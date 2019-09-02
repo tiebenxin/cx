@@ -31,20 +31,26 @@
         <!--android:layout_height="match_parent" />-->
 
         <!--</net.cb.cb.library.view.springview.widget.SpringView>-->
-
-        <com.baoyz.widget.PullRefreshLayout
-            android:id="@+id/view_refresh"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view"
+            <com.baoyz.widget.PullRefreshLayout
+                android:id="@+id/view_refresh"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_height="match_parent">
 
-        </com.baoyz.widget.PullRefreshLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fitsSystemWindows="true"/>
+
+            </com.baoyz.widget.PullRefreshLayout>
+
+
+        </LinearLayout>
+
 
 
         <LinearLayout

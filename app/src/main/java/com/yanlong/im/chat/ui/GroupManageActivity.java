@@ -34,6 +34,7 @@ public class GroupManageActivity extends AppActivity {
     private LinearLayout viewGroupRobot;
     private TextView txtGroupRobot;
     private CheckBox mCkGroupVerif;
+    private CheckBox mCkGroupIntimately;
     private MsgAction msgAction;
     private String gid;
     private Group ginfo;
@@ -53,6 +54,7 @@ public class GroupManageActivity extends AppActivity {
         mHeadView = findViewById(R.id.headView);
         mViewGroupTransfer = findViewById(R.id.view_group_transfer);
         mCkGroupVerif = findViewById(R.id.ck_group_verif);
+        mCkGroupIntimately = findViewById(R.id.ck_group_intimately);
         viewGroupRobot = findViewById(R.id.view_group_robot);
         txtGroupRobot = findViewById(R.id.txt_group_robot);
     }
@@ -76,6 +78,13 @@ public class GroupManageActivity extends AppActivity {
                 taskSetState(gid, null, null, null, isChecked ? 1 : 0);
             }
         });
+        //TODO 群成员相互加好友
+        mCkGroupIntimately.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                taskSetIntimatelyState(gid, isChecked ? 1 : 0);
+            }
+        });
 
         mViewGroupTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +96,7 @@ public class GroupManageActivity extends AppActivity {
         });
 
     }
+
 
 
     private void initData(){
@@ -113,6 +123,7 @@ public class GroupManageActivity extends AppActivity {
                     });
                     //群验证
                     mCkGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
+                    mCkGroupIntimately.setChecked(ginfo.getContactIntimately()==1);
                     initEvent();
                 }
             }
@@ -123,6 +134,19 @@ public class GroupManageActivity extends AppActivity {
 
     private void taskSetState(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null)
+                    return;
+                ToastUtil.show(getContext(), response.body().getMsg());
+                if (response.body().isOk()) {
+                    initEvent();
+                }
+            }
+        });
+    }
+    private void taskSetIntimatelyState(String gid, int i) {
+        msgAction.groupSwitchIntimately(gid, i, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null)

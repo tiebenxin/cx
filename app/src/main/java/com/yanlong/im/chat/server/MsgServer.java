@@ -47,6 +47,11 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> groupSwitch(@Field("gid") String gid, @Field("needVerification") Integer needVerification);
 
+
+    @POST("/group/change-group-switch")
+    @FormUrlEncoded
+    Call<ReturnBean> groupSwitchIntimately(@Field("gid") String gid, @Field("contactIntimately") Integer contactIntimately);
+
     @POST("group/get-my-saved")
     Call<ReturnBean<List<Group>>> getMySaved();
 
