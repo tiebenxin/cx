@@ -1665,7 +1665,7 @@ public class MsgDao {
                             Group group = realm.copyFromRealm(g);
                             UserInfo info = realm.copyFromRealm(userInfo);
                             info.setMembername(gropLinkInfo.getMembername());
-                            group.setKeyUser(userInfo);
+                            group.setKeyUser(info);
                             ret.add(group);
                         }
                     }
