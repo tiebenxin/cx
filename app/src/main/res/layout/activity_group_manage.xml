@@ -53,6 +53,28 @@
             android:text="开启后，需要管理员同意才能加入群聊" />
 
         <LinearLayout
+            android:id="@+id/view_group_intimately"
+            style="@style/app_layout_list2_item"
+            android:layout_marginTop="@dimen/app_margin_item_top">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_weight="1"
+                android:text="是否开启群成员保护" />
+
+            <CheckBox
+                android:id="@+id/ck_group_intimately"
+                style="@style/app_check" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/app_txt_content_2"
+            android:paddingLeft="@dimen/app_margin_main"
+            android:paddingRight="@dimen/app_margin_main"
+            android:text="开启后，群成员无法通过该群添加好友" />
+
+        <LinearLayout
             android:id="@+id/view_group_robot"
             style="@style/app_layout_list2_item"
             android:layout_marginTop="@dimen/app_margin_item_top">

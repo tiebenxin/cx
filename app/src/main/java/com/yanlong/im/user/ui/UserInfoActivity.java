@@ -400,7 +400,12 @@ public class UserInfoActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    for (UserInfo bean : response.body().getData().getUsers()) {
+                    Group group = response.body().getData();
+                    //9.2 开启保护就隐藏加好友
+                   if(group.getContactIntimately()==1) {
+                       mBtnAdd.setVisibility(View.GONE);
+                   }
+                    for (UserInfo bean :group.getUsers()) {
                         if (bean.getUid().equals(id)) {
                             viewJoinGroupType.setVisibility(View.VISIBLE);
                             inviterName = bean.getInviterName();
@@ -416,6 +421,7 @@ public class UserInfoActivity extends AppActivity {
                                 tvJoinGroupName.setText(inviterName);
                                 tvJoinGroupType.setText("邀请进群");
                             }
+
 
                             tvJoinGroupName.setOnClickListener(new View.OnClickListener() {
                                 @Override
