@@ -1537,32 +1537,60 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     //重新发送消息
-    private void resendMessage(MsgAllBean msgbean) {
+    private void resendMessage(MsgAllBean msgBean) {
         //从数据拉出来,然后再发送
-        MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgbean.getMsg_id());
+        MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgBean.getMsg_id());
 
         try {
-            if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
-                String file = remsg.getImage().getLocalimg();
-                boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
-                ImageMessage message = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
-                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, message, ChatEnum.EMessageType.IMAGE);
-                replaceListDataAndNotify(imgMsgBean);
-                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
-                startService(new Intent(getContext(), UpLoadService.class));
+            if (reMsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
+                String file = reMsg.getImage().getLocalimg();
+                if (!TextUtils.isEmpty(file)) {
+                    boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? false : true;
+                    ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), file, isArtworkMaster);
+                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
+                    replaceListDataAndNotify(imgMsgBean);
+                    UpLoadService.onAdd(reMsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
+                    startService(new Intent(getContext(), UpLoadService.class));
+                } else {
+                    //点击发送的时候如果要改变成发送中的状态
+                    reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                    DaoUtil.update(reMsg);
+                    LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id());
+                    MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
+                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    taskRefreshMessage();
+                }
+            } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                String url = reMsg.getVoiceMessage().getLocalUrl();
+                if (!TextUtils.isEmpty(url)) {
+                    reMsg.setSend_state(ChatEnum.ESendStatus.PRE_SEND);
+                    replaceListDataAndNotify(reMsg);
+                    uploadVoice(url, reMsg);
+                } else {
+                    //点击发送的时候如果要改变成发送中的状态
+                    reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                    DaoUtil.update(reMsg);
+                    LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id());
+                    MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
+                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    replaceListDataAndNotify(reMsg);
+//                                taskRefreshMessage();
+                }
 
             } else {
                 //点击发送的时候如果要改变成发送中的状态
-                remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
-                DaoUtil.update(remsg);
-                LogUtil.getLog().d(TAG, "点击重复发送" + remsg.getMsg_id());
-                MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
+                reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                DaoUtil.update(reMsg);
+                LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id());
+                MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                 SocketUtil.getSocketUtil().sendData4Msg(bean);
                 taskRefreshMessage();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
 
@@ -1850,46 +1878,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 public void onClick(View v) {
 
                     //从数据拉出来,然后再发送
-                    MsgAllBean remsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgbean.getMsg_id());
-
-                    try {
-                        if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
-                            String file = remsg.getImage().getLocalimg();
-                            if (!TextUtils.isEmpty(file)) {
-                                boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
-                                ImageMessage image = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
-                                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
-                                replaceListDataAndNotify(imgMsgBean);
-                                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
-                                startService(new Intent(getContext(), UpLoadService.class));
-                            } else {
-                                //点击发送的时候如果要改变成发送中的状态
-                                remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
-                                DaoUtil.update(remsg);
-                                LogUtil.getLog().d(TAG, "点击重复发送" + remsg.getMsg_id());
-                                MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
-                                SocketUtil.getSocketUtil().sendData4Msg(bean);
-                                taskRefreshMessage();
-                            }
-                        } else if (remsg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
-//                            if ()
-
-                        } else {
-                            //点击发送的时候如果要改变成发送中的状态
-                            remsg.setSend_state(ChatEnum.ESendStatus.SENDING);
-                            DaoUtil.update(remsg);
-                            LogUtil.getLog().d(TAG, "点击重复发送" + remsg.getMsg_id());
-                            MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(remsg.getSend_data()).toBuilder();
-                            SocketUtil.getSocketUtil().sendData4Msg(bean);
-
-
-                            taskRefreshMessage();
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
+                    resendMessage(msgbean);
                 }
             });
             itemLongClick(holder, msgbean, menus);
