@@ -86,6 +86,9 @@ public class UserAction {
      */
     public static Long getMyId() {
         // Log.v("ssss","getMyId");
+        if (getMyInfo() == null) {
+            return null;
+        }
         return getMyInfo().getUid();
     }
 
@@ -273,23 +276,22 @@ public class UserAction {
     /***
      * 好友添加
      */
-    public void friendApply(Long uid, String sayHi, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 1, sayHi), callback);
+    public void friendApply(Long uid, String sayHi,String contactName, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.requestFriend(uid, sayHi, contactName), callback);
     }
 
     /***
      * 好友同意
      */
-    public void friendAgree(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 0, null), callback);
-
+    public void friendAgree(Long uid,String contactName, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.acceptFriend(uid, contactName), callback);
     }
 
     /***
      * 加黑名单
      */
     public void friendBlack(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 2, null), callback);
+        NetUtil.getNet().exec(server.addBlackList(uid), callback);
 
     }
 
@@ -297,7 +299,7 @@ public class UserAction {
      * 移除黑名单
      */
     public void friendBlackRemove(Long uid, CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.friendStat(uid, 3, null), callback);
+        NetUtil.getNet().exec(server.removeBlackList(uid), callback);
     }
 
     /***
@@ -327,7 +329,7 @@ public class UserAction {
      * 通讯录
      */
     public void friendGet4Me(final CallBack<ReturnBean<List<UserInfo>>> callback) {
-        NetUtil.getNet().exec(server.friendGet(0), new CallBack<ReturnBean<List<UserInfo>>>() {
+        NetUtil.getNet().exec(server.normalFriendsGet(), new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
 
@@ -356,15 +358,24 @@ public class UserAction {
      * 申请列表
      */
     public void friendGet4Apply(CallBack<ReturnBean<List<UserInfo>>> callback) {
-        NetUtil.getNet().exec(server.friendGet(1), callback);
+        NetUtil.getNet().exec(server.requestFriendsGet(), callback);
     }
 
     /***
      * 黑名单
      */
     public void friendGet4Black(CallBack<ReturnBean<List<UserInfo>>> callback) {
-        NetUtil.getNet().exec(server.friendGet(2), callback);
+        NetUtil.getNet().exec(server.blackListFriendsGet(), callback);
     }
+
+    /**
+     * 获取所有好友列表请求
+     * */
+    public void friendGet4All(CallBack<ReturnBean<List<UserInfo>>> callback){
+        NetUtil.getNet().exec(server.getAllFriendsGet(), callback);
+    }
+
+
 
     private PayAction payAction = new PayAction();
 

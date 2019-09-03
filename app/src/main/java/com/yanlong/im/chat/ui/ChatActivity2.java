@@ -49,6 +49,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -108,6 +109,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
@@ -141,7 +143,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     private static String TAG = ChatActivity2.class.getSimpleName();
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
-    private net.cb.cb.library.view.HeadView headView;
+//    private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     //    private MultiListView mtListView;
     private ImageView btnVoice;
@@ -369,8 +371,9 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
     //自动寻找控件
     private void findViews() {
-        headView = findViewById(R.id.headView);
-        actionbar = headView.getActionbar();
+//        headView = findViewById(R.id.headView);
+//        actionbar = headView.getActionbar();
+        actionbar = findViewById(R.id.headView);
 //        mtListView = findViewById(R.id.mtListView);
         recyclerView = findViewById(R.id.recycler_view);
         refreshLayout = findViewById(R.id.view_refresh);
@@ -739,22 +742,32 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         }));
 
 
-        AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
+        AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, /*headView*/actionbar, new IAudioRecord.UrlCallback() {
             @Override
-            public void getUrl(final String url, final int duration) {
-                if (!TextUtils.isEmpty(url)) {
-                    //处理ui放在线程
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // alert.dismiss();
-                            //发送语音消息
-                            MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
-                            showSendObj(msgAllbean);
-                        }
-                    });
-                }
+            public void completeRecord(String file, int duration) {
+                VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgid(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
+//                replaceListDataAndNotify(msg);
+                msgListData.add(msg);
+                notifyData2Bottom(true);
+
+                uploadVoice(file, msg);
             }
+//            @Override
+//            public void getUrl(final String url, final int duration) {
+//                if (!TextUtils.isEmpty(url)) {
+//                    //处理ui放在线程
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            // alert.dismiss();
+//                            //发送语音消息
+//                            MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
+//                            showSendObj(msgAllbean);
+//                        }
+//                    });
+//                }
+//            }
         }));
 
         //群助手
@@ -917,6 +930,42 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
     }
 
+    private void uploadVoice(String file, final MsgAllBean bean) {
+        updateSendStatus(ChatEnum.ESendStatus.SENDING, bean);
+        new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
+            @Override
+            public void success(String url) {
+//                if (callback != null) {
+//                    Log.v("AudioUploadPath", url + "");
+//                    callback.getUrl(url, duration);
+//                }
+//                发送语音消息
+//                MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
+                Log.v(ChatActivity.class.getSimpleName(), "上传语音成功--" + url);
+                VoiceMessage voice = bean.getVoiceMessage();
+                voice.setUrl(url);
+                SocketData.sendMessage(bean);
+//                showSendObj(bean);
+            }
+
+            @Override
+            public void fail() {
+                updateSendStatus(ChatEnum.ESendStatus.ERROR, bean);
+//                ToastUtil.show(context, "发送失败!");
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+            }
+        }, file);
+    }
+
+    private void updateSendStatus(@ChatEnum.ESendStatus int status, MsgAllBean bean) {
+        bean.setSend_state(status);
+        msgDao.fixStataMsg(bean.getMsg_id(), status);
+        replaceListDataAndNotify(bean);
+    }
+
     private void taskTestSend(final int count) {
         ToastUtil.show(getContext(), "连续发送" + count + "测试开始");
         new RunUtils(new RunUtils.Enent() {
@@ -1058,22 +1107,24 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
      * @param isMustBottom 是否必须滑动到底部
      * */
     private void scrollListView(boolean isMustBottom) {
-        LogUtil.getLog().i(TAG, "scrollListView");
+//        LogUtil.getLog().i(TAG, "scrollListView");
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
 //            recyclerView.requestDisallowInterceptTouchEvent(true);
             if (isMustBottom) {
 //                recyclerView.scrollToPosition(length);
 //                layoutManager.scrollToPosition(length);
-                layoutManager.scrollToPositionWithOffset(length,0);
+                layoutManager.scrollToPositionWithOffset(length, 0);
 
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     //!mtListView.getListView().canScrollVertically(1) 不怎么有效
-                    if (isSoftShow || lastPosition == length - 1 || lastPosition == length - 2 /*|| isCanScrollBottom()*/) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
+                    if (isSoftShow || !recyclerView.canScrollVertically(1) || lastPosition == length - 1 || lastPosition == length - 2 /*|| isCanScrollBottom()*/) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         recyclerView.scrollToPosition(length);
+                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- scrollToPosition=" + length);
+
                     } else {
-//                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
+                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
 //                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                     }
                 } else {
@@ -1241,8 +1292,8 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                         //1.上传图片
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
-                        MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file, isArtworkMaster);
-
+                        ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, imageMessage, ChatEnum.EMessageType.IMAGE);
                         msgListData.add(imgMsgBean);
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
                         startService(new Intent(getContext(), UpLoadService.class));
@@ -1512,7 +1563,8 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
                 String file = remsg.getImage().getLocalimg();
                 boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
-                MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
+                ImageMessage message = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
+                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, message, ChatEnum.EMessageType.IMAGE);
                 replaceListDataAndNotify(imgMsgBean);
                 UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                 startService(new Intent(getContext(), UpLoadService.class));
@@ -1829,7 +1881,8 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                             String file = remsg.getImage().getLocalimg();
                             if (!TextUtils.isEmpty(file)) {
                                 boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
-                                MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
+                                ImageMessage image = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
+                                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
                                 replaceListDataAndNotify(imgMsgBean);
                                 UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                                 startService(new Intent(getContext(), UpLoadService.class));
@@ -2090,53 +2143,53 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         }
     }
 
-    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
-        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
-            AudioPlayManager.getInstance().stopPlay();
-        } else {
-            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
-                @Override
-                public void onStart(MsgAllBean bean) {
-                    if (bean.isRead() == false) {
-                        msgAction.msgRead(bean.getMsg_id(), true);
-                        bean.setRead(true);
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
-                }
-
-                @Override
-                public void onStop(MsgAllBean bean) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
-
-                }
-
-                @Override
-                public void onComplete(MsgAllBean bean) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
-                }
-
-
-            });
-        }
-    }
+//    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
+//        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
+//            AudioPlayManager.getInstance().stopPlay();
+//        } else {
+//            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
+//                @Override
+//                public void onStart(MsgAllBean bean) {
+//                    if (bean.isRead() == false) {
+//                        msgAction.msgRead(bean.getMsg_id(), true);
+//                        bean.setRead(true);
+//                    }
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+////                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
+//                }
+//
+//                @Override
+//                public void onStop(MsgAllBean bean) {
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+////                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
+//
+//                }
+//
+//                @Override
+//                public void onComplete(MsgAllBean bean) {
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+////                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
+//                }
+//
+//
+//            });
+//        }
+//    }
 
     /***
      * 长按的气泡处理
