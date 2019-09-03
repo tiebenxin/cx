@@ -13,7 +13,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/shape_notice"
+        android:background="@drawable/bg_chat_item"
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="3dp">
@@ -34,7 +34,7 @@
             android:gravity="center"
             android:singleLine="false"
             android:text="聊天中所有信息已进行端对端加密保护"
-            android:textColor="@color/gray_300" />
+            android:textColor="@color/white" />
     </LinearLayout>
 
 
