@@ -7,6 +7,7 @@ import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
+import com.yanlong.im.chat.bean.ContactNameBean;
 import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
@@ -1148,7 +1149,7 @@ public class MsgDao {
         realm.beginTransaction();
 
         Session session = DaoUtil.findOne(Session.class, "gid", gid);
-        if(session==null)
+        if (session == null)
             return;
         if (notNotify != null)
             session.setIsMute(notNotify);
@@ -1160,6 +1161,38 @@ public class MsgDao {
 
         realm.commitTransaction();
         realm.close();
+    }
+
+
+    /**
+     * 通讯录好友申请添加好友
+     */
+    public void userAcceptAdd(Long uid, String contactName) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        ContactNameBean contactNameBean = realm.where(ContactNameBean.class).equalTo("uid", uid).findFirst();
+        if (contactNameBean == null) {
+            contactNameBean = new ContactNameBean();
+            contactNameBean.setUid(uid);
+            contactNameBean.setContactName(contactName);
+        } else {
+            contactNameBean.setContactName(contactName);
+        }
+
+        realm.insertOrUpdate(contactNameBean);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /**
+     * 获取contactName
+     */
+    public ContactNameBean getContactName(Long uid) {
+        Realm realm = DaoUtil.open();
+        ContactNameBean contactNameBean = realm.where(ContactNameBean.class).equalTo("uid", uid).findFirst();
+
+        return contactNameBean;
     }
 
 

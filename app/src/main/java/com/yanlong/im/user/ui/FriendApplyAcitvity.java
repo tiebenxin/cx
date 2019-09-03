@@ -14,6 +14,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ContactNameBean;
 import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
@@ -114,7 +115,13 @@ public class FriendApplyAcitvity extends AppActivity {
                 holder.btnComit.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         //  ToastUtil.show(context, "准了");
-                        taskFriendAgree(bean.getUid());
+                        ContactNameBean contactNameBean = msgDao.getContactName(bean.getUid());
+                        if(contactNameBean != null && !TextUtils.isEmpty(contactNameBean.getContactName())){
+                            taskFriendAgree(bean.getUid(),contactNameBean.getContactName());
+                        }else{
+                            taskFriendAgree(bean.getUid(),null);
+                        }
+
                     }
                 });
 
@@ -260,8 +267,8 @@ public class FriendApplyAcitvity extends AppActivity {
     }
 
 
-    private void taskFriendAgree(Long uid) {
-        userAction.friendAgree(uid, new CallBack<ReturnBean>() {
+    private void taskFriendAgree(Long uid,String contactName) {
+        userAction.friendAgree(uid,contactName, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

@@ -1,6 +1,5 @@
 package com.yanlong.im.user.bean;
 
-import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
 import java.util.regex.Matcher;
@@ -14,6 +13,24 @@ public class FriendInfoBean implements Comparable<FriendInfoBean>{
     private String imid;
     private int gender;
     private int switchmask;
+    private String alias;
+    private String phoneremark;
+
+    public String getPhoneremark() {
+        return phoneremark;
+    }
+
+    public void setPhoneremark(String phoneremark) {
+        this.phoneremark = phoneremark;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
     public String getNickname() {
         return nickname;
