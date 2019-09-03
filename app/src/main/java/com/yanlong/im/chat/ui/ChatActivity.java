@@ -2004,12 +2004,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void checkMoreVoice(int start, MsgAllBean b) {
 //        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--start=" + start);
         int length = msgListData.size();
+        int index = msgListData.indexOf(b);
+        if (index < 0) {
+            return;
+        }
+        if (index != start) {//修正一下起始位置
+            start = index;
+        }
         MsgAllBean message = null;
         int position = -1;
         if (start < length - 1) {
             for (int i = start + 1; i < length; i++) {
                 MsgAllBean bean = msgListData.get(i);
-//                MsgAllBean bean = msgDao.getNextVoiceMessage(toUId,toGid,b.getTimestamp(),UserAction.getMyInfo().getUid());
                 if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !bean.isRead()) {
                     message = bean;
                     position = i;
@@ -2017,10 +2023,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
             }
         }
-
+//        MsgAllBean bean = msgDao.getNextVoiceMessage(toUId,toGid,b.getTimestamp(),UserAction.getMyInfo().getUid());
         if (message != null) {
             playVoice(message, true, position);
-//            LogUtil.getLog().i("AudioPlayManager", "playVoice--position=" + position);
         }
 
     }

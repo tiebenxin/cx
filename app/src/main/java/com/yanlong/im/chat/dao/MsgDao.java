@@ -545,6 +545,8 @@ public class MsgDao {
                     msg.getRed_envelope().deleteFromRealm();
                 if (msg.getTransfer() != null)
                     msg.getTransfer().deleteFromRealm();
+                if (msg.getVoiceMessage() != null)
+                    msg.getVoiceMessage().deleteFromRealm();
 
 
             }
@@ -589,6 +591,8 @@ public class MsgDao {
                     msg.getTransfer().deleteFromRealm();
                 if (msg.getMsgCancel() != null)
                     msg.getMsgCancel().deleteFromRealm();
+                if (msg.getVoiceMessage() != null)
+                    msg.getVoiceMessage().deleteFromRealm();
 
 
             }
@@ -1688,30 +1692,33 @@ public class MsgDao {
         if (mid == null) {
             return null;
         }
+        // from_uid = 100804 and timestamp >1567493175111 and msg_type = 7 and isRead = false and to_uid = 101303
         if (uid != null) {//私聊
             ret = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.VOICE).endGroup()
                     .and()
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                     .and()
-                    .beginGroup().notEqualTo("from_uid", mid).endGroup()
+                    .beginGroup().equalTo("to_uid", mid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", uid).endGroup()
                     .and()
                     .beginGroup().equalTo("isRead", false).endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
-                    .and()
                     .sort("timestamp", Sort.DESCENDING)
                     .findFirst();
         } else if (!TextUtils.isEmpty(gid)) {//群聊
             ret = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.VOICE).endGroup()
                     .and()
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .and()
                     .beginGroup().notEqualTo("from_uid", mid).endGroup()
                     .and()
                     .beginGroup().equalTo("isRead", false).endGroup()
                     .and()
                     .beginGroup().greaterThan("timestamp", time).endGroup()
-                    .and()
                     .sort("timestamp", Sort.DESCENDING)
                     .findFirst();
         }
