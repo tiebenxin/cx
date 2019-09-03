@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.bean;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
@@ -8,7 +9,9 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
+
 import net.cb.cb.library.utils.StringUtil;
+
 import io.realm.RealmList;
 
 /***
@@ -108,7 +111,12 @@ public class MsgConversionBean {
                 break;
 
             case VOICE:// 语音消息
+                MsgAllBean voiceMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
                 VoiceMessage voiceMessage = new VoiceMessage();
+
+                if (voiceMsg != null && voiceMsg.getVoiceMessage() != null && !TextUtils.isEmpty(voiceMsg.getVoiceMessage().getLocalUrl())) {//保存本地路径到localUrl
+                    voiceMessage.setLocalUrl(voiceMsg.getVoiceMessage().getLocalUrl());
+                }
                 voiceMessage.setMsgid(msgAllBean.getMsg_id());
                 voiceMessage.setUrl(bean.getVoice().getUrl());
                 voiceMessage.setTime(bean.getVoice().getDuration());
@@ -151,12 +159,12 @@ public class MsgConversionBean {
                 rbNotice.setMsgid(msgAllBean.getMsg_id());
 
                 //jyj 8.19
-                if(bean.getFromUid()==UserAction.getMyId().longValue()){
+                if (bean.getFromUid() == UserAction.getMyId().longValue()) {
                     rbNotice.setNote("你领取了自己的<font color='#cc5944'>云红包</font>");
                     rbNotice.setMsgType(17);
-                }else{
+                } else {
                     rbNotice.setMsgType(7);
-                    rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='"+bean.getGid()+"'></div>");
+                    rbNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + bean.getNickname() + "</font>" + "\"领取了你的云红包 <div id='" + bean.getGid() + "'></div>");
                 }
 
                 msgAllBean.setMsgNotice(rbNotice);
@@ -178,7 +186,7 @@ public class MsgConversionBean {
                 for (int i = 0; i < bean.getAcceptBeGroup().getNoticeMessageCount(); i++) {
                     //7.13 加入替换自己的昵称
                     if (bean.getAcceptBeGroup().getNoticeMessage(i).getUid() == UserAction.getMyId().longValue()) {
-                        names +=  "\"<font value ='1'> 你、</font>\"、";
+                        names += "\"<font value ='1'> 你、</font>\"、";
 
                     } else {
                         String name = bean.getAcceptBeGroup().getNoticeMessage(i).getNickname();
@@ -222,10 +230,10 @@ public class MsgConversionBean {
                 String node = "";
                 if (bean.getAcceptBeGroup().getJoinTypeValue() == 0) {//扫码
                     gNotice.setMsgType(1);
-                    node = names + "通过扫" + inviterName + "分享的二维码加入了群聊" + "<div id='"+bean.getGid()+"'></div>";
+                    node = names + "通过扫" + inviterName + "分享的二维码加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
                 } else {//被邀请
                     gNotice.setMsgType(2);
-                    node = inviterName + "邀请" + names + "加入了群聊" + "<div id='"+bean.getGid()+"'></div>";
+                    node = inviterName + "邀请" + names + "加入了群聊" + "<div id='" + bean.getGid() + "'></div>";
                 }
 
                 // String way=bean.getAcceptBeGroup().getJoinTypeValue()==0?"通过xxx扫码":"通过xxx";
@@ -262,7 +270,7 @@ public class MsgConversionBean {
                 } else {
                     gnewAdminNotice.setMsgType(5);
                     gnewAdminNotice.setNote("\"<font color='#276baa' id='" + bean.getChangeGroupMaster().getUid() + "'>"
-                            + bean.getChangeGroupMaster().getMembername() + "</font>\"" + "已成为新群主" + "<div id='"+bean.getGid()+"'></div>");
+                            + bean.getChangeGroupMaster().getMembername() + "</font>\"" + "已成为新群主" + "<div id='" + bean.getGid() + "'></div>");
                 }
                 msgAllBean.setMsgNotice(gnewAdminNotice);
                 break;
@@ -274,7 +282,7 @@ public class MsgConversionBean {
                 MsgNotice goutNotice = new MsgNotice();
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
-                goutNotice.setNote("\"<font color='#276baa' id='" + bean.getChangeGroupMaster().getUid() + "'>" + bean.getNickname() + "</font>\"" + "离开群聊" + "<div id='"+bean.getGid()+"'></div>");
+                goutNotice.setNote("\"<font color='#276baa' id='" + bean.getChangeGroupMaster().getUid() + "'>" + bean.getNickname() + "</font>\"" + "离开群聊" + "<div id='" + bean.getGid() + "'></div>");
                 msgAllBean.setMsgNotice(goutNotice);
                 break;
             case CHANGE_GROUP_NAME:
@@ -314,7 +322,7 @@ public class MsgConversionBean {
                     rname = "你";
                 } else {//对方撤回的消息当通知处理
                     msgCel.setMsgType(9);
-                    rname =  "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" +  msgDao.getUsername4Show(bean.getGid(), bean.getFromUid()) + "</font>\""+ "<div id='"+bean.getGid()+"'></div>";
+                    rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + msgDao.getUsername4Show(bean.getGid(), bean.getFromUid()) + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
                 }
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
 

@@ -212,8 +212,16 @@ public class AudioPlayManager implements SensorEventListener {
             if (this.voicePlayListener != null && this._playingUri != null) {
                 this.voicePlayListener.onStop(bean);
             }
-
-            Uri audioUri = Uri.parse(bean.getVoiceMessage().getUrl());
+            String url = "";
+            if (bean.isMe()) {
+                url = bean.getVoiceMessage().getLocalUrl();
+            } else {
+                url = bean.getVoiceMessage().getUrl();
+            }
+            if (TextUtils.isEmpty(url)) {
+                return;
+            }
+            Uri audioUri = Uri.parse(url);
 
             this.resetMediaPlayer();
             this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
@@ -348,6 +356,31 @@ public class AudioPlayManager implements SensorEventListener {
             public void run() {
                 String path = context.getExternalCacheDir().getAbsolutePath();
                 DownloadUtil.get().download(url, path, getFileName(url));
+            }
+        }).start();
+    }
+
+    private void downloadAudio(final Context context, final String url, DownloadUtil.OnDownloadListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String path = context.getExternalCacheDir().getAbsolutePath();
+                DownloadUtil.get().download(url, path, getFileName(url), new DownloadUtil.OnDownloadListener() {
+                    @Override
+                    public void onDownloadSuccess(File file) {
+
+                    }
+
+                    @Override
+                    public void onDownloading(int progress) {
+
+                    }
+
+                    @Override
+                    public void onDownloadFailed(Exception e) {
+
+                    }
+                });
             }
         }).start();
     }
@@ -497,126 +530,126 @@ public class AudioPlayManager implements SensorEventListener {
         }
     }
 
-    public void startPlay(Context context, boolean isAutoPlay, List<MsgAllBean> beanList, IVoicePlayListener playListener) {
-        playList = beanList;
-        if (context != null && playList != null && playList.size() > 0) {
-            this.context = context;
-            this.isCanAutoPlay = isAutoPlay;
-            if (!isAutoPlay) {
-                MsgAllBean bean = playList.get(0);
-                if (this.voicePlayListener != null && this._playingUri != null) {
-                    this.voicePlayListener.onStop(bean);
-                }
-                play(context, 0, false, playListener);
-
-            } else {
-                play(context, 0, true, playListener);
-            }
-
-
-        } else {
-            Log.e(TAG, "startPlay context or audioUri is null.");
-        }
-    }
-
-    private void play(final Context context, final int position, final boolean isAuto, IVoicePlayListener playListener) {
-//        LogUtil.getLog().i(TAG, "play=" + position);
-        final MsgAllBean bean = playList.get(position);
-        if (bean == null && bean.getVoiceMessage() == null) {
-            return;
-        }
-        Uri audioUri = Uri.parse(bean.getVoiceMessage().getUrl());
-        this.resetMediaPlayer();
-        this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-            public void onAudioFocusChange(int focusChange) {
-                Log.d(TAG, "OnAudioFocusChangeListener " + focusChange);
-                if (AudioPlayManager.this._audioManager != null && focusChange == -1) {
-                    AudioPlayManager.this._audioManager.abandonAudioFocus(AudioPlayManager.this.afChangeListener);
-                    AudioPlayManager.this.afChangeListener = null;
-                    AudioPlayManager.this.resetMediaPlayer();
-                }
-            }
-        };
-
-        try {
-            this._powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            this._audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-
-            if (!this._audioManager.isWiredHeadsetOn()) {
-                this._sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-                this._sensor = this._sensorManager.getDefaultSensor(8);
-                this._sensorManager.registerListener(this, this._sensor, 3);
-            }
-
-            MsgDao msgDao = new MsgDao();
-            UserSeting userSeting = msgDao.userSetingGet();
-            int voice = userSeting.getVoicePlayer();
-            if (voice == 0) {
-                changeToSpeaker();
-            } else {
-                changeToReceiver();
-            }
-
-            this.muteAudioFocus(this._audioManager, true);
-            this.voicePlayListener = playListener;
-            this._playingUri = audioUri;
-            this._mediaPlayer = new MediaPlayer();
-            this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                public void onCompletion(MediaPlayer mp) {
-                    if (AudioPlayManager.this.voicePlayListener != null) {
-                        AudioPlayManager.this.voicePlayListener.onComplete(bean);
-                        if (!isAuto) {
-                            AudioPlayManager.this.voicePlayListener = null;
-                            AudioPlayManager.this.context = null;
-                            AudioPlayManager.this.reset(true);
-
-                        } else {
-                            if (position == playList.size() - 1) {
-                                AudioPlayManager.this.voicePlayListener = null;
-                                AudioPlayManager.this.context = null;
-                                AudioPlayManager.this.reset(true);
-                            } else {
-                                AudioPlayManager.this.reset(false);
-                                play(AudioPlayManager.this.context, position + 1, true, voicePlayListener);
-                            }
-                        }
-                    }
-
-                }
-            });
-            this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    AudioPlayManager.this.reset(false);
-                    return true;
-                }
-            });
-
-            String path = context.getExternalCacheDir().getAbsolutePath();
-            File file = new File(path, getFileName(audioUri.toString()));
-            if (file.exists()) {
-                Log.v(TAG, "本地播放" + file.getPath());
-
-                this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
-            } else {
-                Log.v(TAG, "在线播放--" + audioUri);
-                this._mediaPlayer.setDataSource(context, audioUri);
-                downloadAudio(context, audioUri.toString());
-            }
-
-            this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
-            this._mediaPlayer.prepare();
-            this._mediaPlayer.start();
-            if (this.voicePlayListener != null) {
-                this.voicePlayListener.onStart(bean);
-                currentPlayingMsg = bean;
-            }
-        } catch (Exception var5) {
-            var5.printStackTrace();
-            if (this.voicePlayListener != null) {
-                this.voicePlayListener.onStop(bean);
-                this.voicePlayListener = null;
-            }
-            this.reset(false);
-        }
-    }
+//    public void startPlay(Context context, boolean isAutoPlay, List<MsgAllBean> beanList, IVoicePlayListener playListener) {
+//        playList = beanList;
+//        if (context != null && playList != null && playList.size() > 0) {
+//            this.context = context;
+//            this.isCanAutoPlay = isAutoPlay;
+//            if (!isAutoPlay) {
+//                MsgAllBean bean = playList.get(0);
+//                if (this.voicePlayListener != null && this._playingUri != null) {
+//                    this.voicePlayListener.onStop(bean);
+//                }
+//                play(context, 0, false, playListener);
+//
+//            } else {
+//                play(context, 0, true, playListener);
+//            }
+//
+//
+//        } else {
+//            Log.e(TAG, "startPlay context or audioUri is null.");
+//        }
+//    }
+//
+//    private void play(final Context context, final int position, final boolean isAuto, IVoicePlayListener playListener) {
+////        LogUtil.getLog().i(TAG, "play=" + position);
+//        final MsgAllBean bean = playList.get(position);
+//        if (bean == null && bean.getVoiceMessage() == null) {
+//            return;
+//        }
+//        Uri audioUri = Uri.parse(bean.getVoiceMessage().getUrl());
+//        this.resetMediaPlayer();
+//        this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+//            public void onAudioFocusChange(int focusChange) {
+//                Log.d(TAG, "OnAudioFocusChangeListener " + focusChange);
+//                if (AudioPlayManager.this._audioManager != null && focusChange == -1) {
+//                    AudioPlayManager.this._audioManager.abandonAudioFocus(AudioPlayManager.this.afChangeListener);
+//                    AudioPlayManager.this.afChangeListener = null;
+//                    AudioPlayManager.this.resetMediaPlayer();
+//                }
+//            }
+//        };
+//
+//        try {
+//            this._powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+//            this._audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+//
+//            if (!this._audioManager.isWiredHeadsetOn()) {
+//                this._sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+//                this._sensor = this._sensorManager.getDefaultSensor(8);
+//                this._sensorManager.registerListener(this, this._sensor, 3);
+//            }
+//
+//            MsgDao msgDao = new MsgDao();
+//            UserSeting userSeting = msgDao.userSetingGet();
+//            int voice = userSeting.getVoicePlayer();
+//            if (voice == 0) {
+//                changeToSpeaker();
+//            } else {
+//                changeToReceiver();
+//            }
+//
+//            this.muteAudioFocus(this._audioManager, true);
+//            this.voicePlayListener = playListener;
+//            this._playingUri = audioUri;
+//            this._mediaPlayer = new MediaPlayer();
+//            this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//                public void onCompletion(MediaPlayer mp) {
+//                    if (AudioPlayManager.this.voicePlayListener != null) {
+//                        AudioPlayManager.this.voicePlayListener.onComplete(bean);
+//                        if (!isAuto) {
+//                            AudioPlayManager.this.voicePlayListener = null;
+//                            AudioPlayManager.this.context = null;
+//                            AudioPlayManager.this.reset(true);
+//
+//                        } else {
+//                            if (position == playList.size() - 1) {
+//                                AudioPlayManager.this.voicePlayListener = null;
+//                                AudioPlayManager.this.context = null;
+//                                AudioPlayManager.this.reset(true);
+//                            } else {
+//                                AudioPlayManager.this.reset(false);
+//                                play(AudioPlayManager.this.context, position + 1, true, voicePlayListener);
+//                            }
+//                        }
+//                    }
+//
+//                }
+//            });
+//            this._mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+//                public boolean onError(MediaPlayer mp, int what, int extra) {
+//                    AudioPlayManager.this.reset(false);
+//                    return true;
+//                }
+//            });
+//
+//            String path = context.getExternalCacheDir().getAbsolutePath();
+//            File file = new File(path, getFileName(audioUri.toString()));
+//            if (file.exists()) {
+//                Log.v(TAG, "本地播放" + file.getPath());
+//
+//                this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
+//            } else {
+//                Log.v(TAG, "在线播放--" + audioUri);
+//                this._mediaPlayer.setDataSource(context, audioUri);
+//                downloadAudio(context, audioUri.toString());
+//            }
+//
+//            this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
+//            this._mediaPlayer.prepare();
+//            this._mediaPlayer.start();
+//            if (this.voicePlayListener != null) {
+//                this.voicePlayListener.onStart(bean);
+//                currentPlayingMsg = bean;
+//            }
+//        } catch (Exception var5) {
+//            var5.printStackTrace();
+//            if (this.voicePlayListener != null) {
+//                this.voicePlayListener.onStop(bean);
+//                this.voicePlayListener = null;
+//            }
+//            this.reset(false);
+//        }
+//    }
 }
