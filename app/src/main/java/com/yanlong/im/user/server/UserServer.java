@@ -33,25 +33,41 @@ public interface UserServer {
 
     @POST("/pub/login-by-phone-password")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> login(@Field("password") String password,@Field("phone")String phone,@Field("devid")String devid,@Field("platform")String platform);
+    Call<ReturnBean<TokenBean>> login(@Field("password") String password, @Field("phone") String phone, @Field("devid") String devid, @Field("platform") String platform);
 
     @POST("/user/refresh-access-token")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> login4token(@Field("devid")String devid,@Field("platform")String platform);
+    Call<ReturnBean<TokenBean>> login4token(@Field("devid") String devid, @Field("platform") String platform);
 
     @POST("/user/get-user-info")
     Call<ReturnBean<UserInfo>> getMyInfo();
 
     @POST("/user/get-user-info-by-uid")
     @FormUrlEncoded
-    Call<ReturnBean<UserInfo>> getUserInfo(@Field("uid")Long uid);
+    Call<ReturnBean<UserInfo>> getUserInfo(@Field("uid") Long uid);
 
     @POST("/user/logout")
     Call<ReturnBean> loginOut();
 
     @POST("/friends/set-friend-stat")
     @FormUrlEncoded
-    Call<ReturnBean> friendStat(@Field("friend") Long uid,@Field("opFlag") Integer opFlag,@Field("sayHi") String sayHi);
+    Call<ReturnBean> friendStat(@Field("friend") Long uid, @Field("opFlag") Integer opFlag, @Field("sayHi") String sayHi);
+
+    @POST("/friends/request-friend")
+    @FormUrlEncoded
+    Call<ReturnBean> requestFriend(@Field("friend") Long uid, @Field("sayHi") String sayHi,@Field("contactName") String contactName);
+
+    @POST("/friends/accept-friend")
+    @FormUrlEncoded
+    Call<ReturnBean> acceptFriend(@Field("friend") Long uid,@Field("contactName") String contactName);
+
+    @POST("/friends/add-black-list")
+    @FormUrlEncoded
+    Call<ReturnBean> addBlackList(@Field("friend") Long uid);
+
+    @POST("/friends/remove-black-list")
+    @FormUrlEncoded
+    Call<ReturnBean> removeBlackList(@Field("friend") Long uid);
 
     @POST("/friends/del-friend")
     @FormUrlEncoded
@@ -59,20 +75,32 @@ public interface UserServer {
 
     @POST("/friends/set-friend-alias")
     @FormUrlEncoded
-    Call<ReturnBean> friendMkName(@Field("friend") Long uid,@Field("alias")String mkName);
+    Call<ReturnBean> friendMkName(@Field("friend") Long uid, @Field("alias") String mkName);
 
     @POST("/friends/get-friends")
     @FormUrlEncoded
     Call<ReturnBean<List<UserInfo>>> friendGet(@Field("opFlag") Integer opFlag);
 
+    @POST("/friends/get-normal-friends")
+    Call<ReturnBean<List<UserInfo>>> normalFriendsGet();
+
+    @POST("/friends/get-request-friends")
+    Call<ReturnBean<List<UserInfo>>> requestFriendsGet();
+
+    @POST("/friends/get-black-list-friends")
+    Call<ReturnBean<List<UserInfo>>> blackListFriendsGet();
+
+    @POST("/friends/get-all-friends")
+    Call<ReturnBean<List<UserInfo>>> getAllFriendsGet();
+
     @POST("/user/set-user-info")
     @FormUrlEncoded
-    Call<ReturnBean> userInfoSet(@Field("imid") String imid,@Field("avatar") String avatar,
-                                                   @Field("nickname") String nickname,@Field("gender") Integer gender);
+    Call<ReturnBean> userInfoSet(@Field("imid") String imid, @Field("avatar") String avatar,
+                                 @Field("nickname") String nickname, @Field("gender") Integer gender);
 
     @POST("user/set-user-mask")
     @FormUrlEncoded
-    Call<ReturnBean> userMaskSet(@Field("switchval") Integer switchval,@Field("opFlag") Integer avatar);
+    Call<ReturnBean> userMaskSet(@Field("switchval") Integer switchval, @Field("opFlag") Integer avatar);
 
     @POST("pub/get-sms-captcha")
     @FormUrlEncoded
@@ -80,11 +108,11 @@ public interface UserServer {
 
     @POST("pub/register")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> register(@Field("phone") String phone,@Field("captcha") String captcha,@Field("platform") String platform,@Field("devid") String devid);
+    Call<ReturnBean<TokenBean>> register(@Field("phone") String phone, @Field("captcha") String captcha, @Field("platform") String platform, @Field("devid") String devid);
 
     @POST("pub/login-by-phone-captcha")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") String phone,@Field("captcha") String captcha,@Field("platform") String platform,@Field("devid") String devid);
+    Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") String phone, @Field("captcha") String captcha, @Field("platform") String platform, @Field("devid") String devid);
 
     @POST("user/get-user-info-by-imid")
     @FormUrlEncoded
@@ -96,7 +124,7 @@ public interface UserServer {
 
     @POST("user/set-user-password")
     @FormUrlEncoded
-    Call<ReturnBean> setUserPassword(@Field("newPassword") String newPassword,@Field("oldPassword") String oldPassword);
+    Call<ReturnBean> setUserPassword(@Field("newPassword") String newPassword, @Field("oldPassword") String oldPassword);
 
     @POST("user/get-user-matchphone")
     @FormUrlEncoded
@@ -111,7 +139,7 @@ public interface UserServer {
 
     @POST("/card/real-name-auth")
     @FormUrlEncoded
-    Call<ReturnBean> realNameAuth(@Field("idNumber") String idNumber,@Field("idType") String idType,@Field("name") String name);
+    Call<ReturnBean> realNameAuth(@Field("idNumber") String idNumber, @Field("idType") String idType, @Field("name") String name);
 
     @POST("/card/set-job-type")
     @FormUrlEncoded
@@ -123,7 +151,7 @@ public interface UserServer {
 
     @POST("/card/set-card-photo")
     @FormUrlEncoded
-    Call<ReturnBean> setCardPhoto(@Field("cardBack") String cardBack,@Field("cardFront") String cardFront);
+    Call<ReturnBean> setCardPhoto(@Field("cardBack") String cardBack, @Field("cardFront") String cardFront);
 
     @POST("/pub/get-new-version")
     @FormUrlEncoded
@@ -139,8 +167,8 @@ public interface UserServer {
 
     @POST("complaint/user-complaint")
     @FormUrlEncoded
-    Call<ReturnBean> userComplaint(@Field("complaintType") Integer complaintType,@Field("illegalDescription") String illegalDescription,
-                                   @Field("illegalImage") String illegalImage,@Field("respondentGid") String respondentGid,@Field("respondentUid") String respondentUid);
+    Call<ReturnBean> userComplaint(@Field("complaintType") Integer complaintType, @Field("illegalDescription") String illegalDescription,
+                                   @Field("illegalImage") String illegalImage, @Field("respondentGid") String respondentGid, @Field("respondentUid") String respondentUid);
 
 
     @POST("friends/get-friends-online")
@@ -148,6 +176,6 @@ public interface UserServer {
 
     @POST("opinion/user-opinion")
     @FormUrlEncoded
-    Call<ReturnBean> userOpinion(@Field("opinionDescription") String opinionDescription,@Field("opinionImage") String opinionImage);
+    Call<ReturnBean> userOpinion(@Field("opinionDescription") String opinionDescription, @Field("opinionImage") String opinionImage);
 
 }

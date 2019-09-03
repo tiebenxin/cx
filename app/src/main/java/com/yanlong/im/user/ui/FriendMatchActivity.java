@@ -26,6 +26,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.ClearEditText;
 import net.cb.cb.library.view.HeadView;
@@ -130,7 +131,7 @@ public class FriendMatchActivity extends AppActivity {
 
     private void initData() {
         userAction = new UserAction();
-      //  alert.show("正在匹配中...", false);
+        //  alert.show("正在匹配中...", false);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -209,6 +210,7 @@ public class FriendMatchActivity extends AppActivity {
             holder.txtType.setText(bean.getTag());
             holder.imgHead.setImageURI(bean.getAvatar() + "");
             holder.txtName.setText(bean.getNickname());
+            holder.txtRemark.setText("通讯录: "+bean.getPhoneremark());
 
             if (position != 0) {
                 FriendInfoBean lastbean = list.get(position - 1);
@@ -223,7 +225,22 @@ public class FriendMatchActivity extends AppActivity {
 
             holder.btnAdd.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    taskFriendApply(bean.getUid(), position);
+                    AlertTouch alertTouch = new AlertTouch();
+                    alertTouch.init(FriendMatchActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
+                        @Override
+                        public void onON() {
+
+                        }
+
+                        @Override
+                        public void onYes(String content) {
+                            taskFriendApply(bean.getUid(),content,bean.getPhoneremark(), position);
+                        }
+                    });
+                    alertTouch.show();
+                    alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
+                    alertTouch.setEdHintOrSize(null, 60);
+
                 }
             });
         }
@@ -244,6 +261,7 @@ public class FriendMatchActivity extends AppActivity {
             private SimpleDraweeView imgHead;
             private TextView txtName;
             private Button btnAdd;
+            private TextView txtRemark;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -253,6 +271,7 @@ public class FriendMatchActivity extends AppActivity {
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
                 btnAdd = convertView.findViewById(R.id.btn_add);
+                txtRemark = convertView.findViewById(R.id.txt_remark);
             }
         }
     }
@@ -262,7 +281,7 @@ public class FriendMatchActivity extends AppActivity {
         userAction.getUserMatchPhone(new Gson().toJson(phoneList), new CallBack<ReturnBean<List<FriendInfoBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<FriendInfoBean>>> call, Response<ReturnBean<List<FriendInfoBean>>> response) {
-              //  alert.dismiss();
+                //  alert.dismiss();
                 if (response.body() == null) {
                     return;
                 }
@@ -290,8 +309,8 @@ public class FriendMatchActivity extends AppActivity {
         });
     }
 
-    private void taskFriendApply(Long uid, final int position) {
-        userAction.friendApply(uid, null, new CallBack<ReturnBean>() {
+    private void taskFriendApply(Long uid,String sayHi, String contactName, final int position) {
+        userAction.friendApply(uid, sayHi, contactName, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

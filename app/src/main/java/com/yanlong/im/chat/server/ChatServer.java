@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -177,6 +178,10 @@ public class ChatServer extends Service {
                 case REQUEST_FRIEND:
 
                     //    ToastUtil.show(getApplicationContext(), "请求加好友消息");
+
+                    if(!TextUtils.isEmpty(msg.getRequestFriend().getContactName())){
+                        msgDao.userAcceptAdd(msg.getFromUid(),msg.getRequestFriend().getContactName());
+                    }
 
                     msgDao.remidCount("friend_apply");
                     EventBus.getDefault().post(new EventRefreshMainMsg());

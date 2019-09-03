@@ -100,6 +100,7 @@ public class UserInfoActivity extends AppActivity {
     private UserInfo userInfoLocal;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -281,7 +282,7 @@ public class UserInfoActivity extends AppActivity {
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    taskFriendAgree(id);
+                    taskFriendAgree(id,null);
                 }
             });
         }
@@ -447,7 +448,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskAddFriend(Long id, String sayHi) {
-        userAction.friendApply(id, sayHi, new CallBack<ReturnBean>() {
+        userAction.friendApply(id, sayHi,null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 EventBus.getDefault().post(new EventRefreshFriend());
@@ -539,8 +540,8 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-    private void taskFriendAgree(Long uid) {
-        userAction.friendAgree(uid, new CallBack<ReturnBean>() {
+    private void taskFriendAgree(Long uid,String contactName) {
+        userAction.friendAgree(uid,contactName, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
