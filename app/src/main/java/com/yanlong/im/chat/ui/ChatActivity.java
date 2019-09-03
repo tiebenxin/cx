@@ -2009,6 +2009,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (start < length - 1) {
             for (int i = start + 1; i < length; i++) {
                 MsgAllBean bean = msgListData.get(i);
+//                MsgAllBean bean = msgDao.getNextVoiceMessage(toUId,toGid,b.getTimestamp(),UserAction.getMyInfo().getUid());
                 if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !bean.isRead()) {
                     message = bean;
                     position = i;

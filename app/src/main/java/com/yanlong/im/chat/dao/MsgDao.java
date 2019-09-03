@@ -1148,7 +1148,7 @@ public class MsgDao {
         realm.beginTransaction();
 
         Session session = DaoUtil.findOne(Session.class, "gid", gid);
-        if(session==null)
+        if (session == null)
             return;
         if (notNotify != null)
             session.setIsMute(notNotify);
@@ -1627,16 +1627,11 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         List<Group> ret = new ArrayList<>();
-//        List<Group> allGroups = new ArrayList<>();
-
         RealmResults<Group> groups = realm.where(Group.class).findAll();
         RealmResults<Group> keyGroups = groups.where().contains("name", key).findAll();
         if (keyGroups != null) {
             ret = realm.copyFromRealm(keyGroups);
         }
-//        if (groups != null) {
-//            allGroups = realm.copyFromRealm(groups);
-//        }
         for (int i = 0; i < groups.size(); i++) {
             Group g = groups.get(i);
             if (ret.contains(g)) {
@@ -1679,6 +1674,53 @@ public class MsgDao {
         return ret;
 
 
+    }
+
+
+    /*
+     * 获取下一个待播语音
+     * */
+    public MsgAllBean getNextVoiceMessage(Long uid, String gid, Long time, Long mid) {
+        MsgAllBean ret = null;
+        MsgAllBean bean = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        if (mid == null) {
+            return null;
+        }
+        if (uid != null) {//私聊
+            ret = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.VOICE).endGroup()
+                    .and()
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("from_uid", mid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("isRead", false).endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .and()
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findFirst();
+        } else if (!TextUtils.isEmpty(gid)) {//群聊
+            ret = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.VOICE).endGroup()
+                    .and()
+                    .beginGroup().notEqualTo("from_uid", mid).endGroup()
+                    .and()
+                    .beginGroup().equalTo("isRead", false).endGroup()
+                    .and()
+                    .beginGroup().greaterThan("timestamp", time).endGroup()
+                    .and()
+                    .sort("timestamp", Sort.DESCENDING)
+                    .findFirst();
+        }
+        if (ret != null) {
+            bean = realm.copyFromRealm(ret);
+        }
+        realm.commitTransaction();
+        realm.close();
+        return bean;
     }
 
 

@@ -402,15 +402,17 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     Group group = response.body().getData();
                     //9.2 开启保护就隐藏加好友
-                   if(group.getContactIntimately()==1) {
-                       mBtnAdd.setVisibility(View.GONE);
-                   }
-                    for (UserInfo bean :group.getUsers()) {
+                    if (group.getContactIntimately() != null) {
+                        if (group.getContactIntimately() == 1) {
+                            mBtnAdd.setVisibility(View.GONE);
+                        }
+                    }
+                    for (UserInfo bean : group.getUsers()) {
                         if (bean.getUid().equals(id)) {
                             viewJoinGroupType.setVisibility(View.VISIBLE);
                             inviterName = bean.getInviterName();
                             joinType = bean.getJoinType();
-                            if(!TextUtils.isEmpty(bean.getInviter())){
+                            if (!TextUtils.isEmpty(bean.getInviter())) {
                                 inviter = Long.valueOf(bean.getInviter());
                             }
 
@@ -426,10 +428,10 @@ public class UserInfoActivity extends AppActivity {
                             tvJoinGroupName.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    if(inviter.equals(UserAction.getMyId())){
+                                    if (inviter.equals(UserAction.getMyId())) {
                                         Intent intent = new Intent(UserInfoActivity.this, MyselfInfoActivity.class);
                                         startActivity(intent);
-                                    }else{
+                                    } else {
                                         startActivity(new Intent(UserInfoActivity.this, UserInfoActivity.class)
                                                 .putExtra(UserInfoActivity.ID, inviter));
                                     }
@@ -560,7 +562,7 @@ public class UserInfoActivity extends AppActivity {
      * 判断用户是否在好友里面
      */
     private void taskFindExist() {
-        if(id.equals(UserAction.getMyId())){
+        if (id.equals(UserAction.getMyId())) {
             type = 3;
             return;
         }
