@@ -306,6 +306,7 @@ public class ComplaintUploadActivity extends AppActivity {
                         Intent intent = new Intent(ComplaintUploadActivity.this, FeedbackShowImageActivity.class);
                         intent.putExtra(FeedbackShowImageActivity.URL, list.get(i).getUrl());
                         intent.putExtra(FeedbackShowImageActivity.POSTION, i);
+                        intent.putExtra(FeedbackShowImageActivity.TYPE,1);
                         startActivityForResult(intent, SHOW_IMAGE);
                     }
                 });
