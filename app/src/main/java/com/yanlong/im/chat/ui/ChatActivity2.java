@@ -2143,53 +2143,53 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         }
     }
 
-    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
-        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
-            AudioPlayManager.getInstance().stopPlay();
-        } else {
-            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
-                @Override
-                public void onStart(MsgAllBean bean) {
-                    if (bean.isRead() == false) {
-                        msgAction.msgRead(bean.getMsg_id(), true);
-                        bean.setRead(true);
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
-                }
-
-                @Override
-                public void onStop(MsgAllBean bean) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
-
-                }
-
-                @Override
-                public void onComplete(MsgAllBean bean) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
-                }
-
-
-            });
-        }
-    }
+//    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
+//        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
+//            AudioPlayManager.getInstance().stopPlay();
+//        } else {
+//            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
+//                @Override
+//                public void onStart(MsgAllBean bean) {
+//                    if (bean.isRead() == false) {
+//                        msgAction.msgRead(bean.getMsg_id(), true);
+//                        bean.setRead(true);
+//                    }
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+////                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
+//                }
+//
+//                @Override
+//                public void onStop(MsgAllBean bean) {
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+////                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
+//
+//                }
+//
+//                @Override
+//                public void onComplete(MsgAllBean bean) {
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+////                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
+//                }
+//
+//
+//            });
+//        }
+//    }
 
     /***
      * 长按的气泡处理

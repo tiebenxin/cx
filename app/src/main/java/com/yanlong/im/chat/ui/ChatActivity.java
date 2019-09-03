@@ -2045,7 +2045,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (vm == null || TextUtils.isEmpty(vm.getUrl())) {
             return;
         }
-        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
+        String url = "";
+        if (bean.isMe()) {
+            url = vm.getLocalUrl();
+        } else {
+            url = vm.getUrl();
+        }
+        if (TextUtils.isEmpty(url)) {
+            return;
+        }
+        if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
             AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
@@ -2098,62 +2107,62 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
-    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
-        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
-            AudioPlayManager.getInstance().stopPlay();
-        } else {
-            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
-                @Override
-                public void onStart(MsgAllBean bean) {
-                    if (bean.isRead() == false) {
-                        msgAction.msgRead(bean.getMsg_id(), true);
-                        bean.setRead(true);
-                    }
-                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
-                }
-
-                @Override
-                public void onStop(MsgAllBean bean) {
-                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
-
-                }
-
-                @Override
-                public void onComplete(MsgAllBean bean) {
-                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
-                }
-
+//    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
+//        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
+//            AudioPlayManager.getInstance().stopPlay();
+//        } else {
+//            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
 //                @Override
-//                public void onReadyToNext() {
+//                public void onStart(MsgAllBean bean) {
+//                    if (bean.isRead() == false) {
+//                        msgAction.msgRead(bean.getMsg_id(), true);
+//                        bean.setRead(true);
+//                    }
+//                    VoiceMessage voiceMessage = bean.getVoiceMessage();
+//                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
+//                }
+//
+//                @Override
+//                public void onStop(MsgAllBean bean) {
+//                    VoiceMessage voiceMessage = bean.getVoiceMessage();
+//                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
 //
 //                }
-            });
-        }
-    }
+//
+//                @Override
+//                public void onComplete(MsgAllBean bean) {
+//                    VoiceMessage voiceMessage = bean.getVoiceMessage();
+//                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            notifyData();
+//                        }
+//                    });
+//                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
+//                }
+//
+////                @Override
+////                public void onReadyToNext() {
+////
+////                }
+//            });
+//        }
+//    }
 
     /***
      * 长按的气泡处理
