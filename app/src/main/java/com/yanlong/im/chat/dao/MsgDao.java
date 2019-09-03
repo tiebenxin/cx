@@ -1730,5 +1730,18 @@ public class MsgDao {
         return bean;
     }
 
+    //修改消息状态
+    public void updatePlayStatus(String msgId, @ChatEnum.EPlayStatus int playStatus) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        VoiceMessage message = realm.where(VoiceMessage.class).equalTo("msgid", msgId).findFirst();
+        if (message != null) {
+            message.setPlayStatus(playStatus);
+            realm.insertOrUpdate(message);
+        }
+        realm.commitTransaction();
+        realm.close();
+    }
 
 }

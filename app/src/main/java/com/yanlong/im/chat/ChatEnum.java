@@ -224,7 +224,7 @@ public class ChatEnum {
      * 播放状态
      *
      * */
-    @IntDef({EPlayStatus.NO_DOWNLOADED, EPlayStatus.NO_PLAY, EPlayStatus.PLAYING, EPlayStatus.PLAYED})
+    @IntDef({EPlayStatus.NO_DOWNLOADED, EPlayStatus.NO_PLAY, EPlayStatus.PLAYING, EPlayStatus.STOP_PLAY, EPlayStatus.PLAYED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EPlayStatus {
         int NO_DOWNLOADED = 0; // 未下载

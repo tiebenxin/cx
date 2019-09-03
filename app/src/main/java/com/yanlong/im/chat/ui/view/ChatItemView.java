@@ -43,6 +43,9 @@ import com.bumptech.glide.request.target.Target;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -500,6 +503,13 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
 
 
+    }
+
+    public void updateVoice(MsgAllBean bean) {
+        VoiceMessage voice = bean.getVoiceMessage();
+        String url = bean.isMe() ? voice.getLocalUrl() : voice.getUrl();
+        viewOt7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
+        viewMe7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
     }
 
     //普通消息

@@ -98,6 +98,7 @@ import net.cb.cb.library.utils.AnimationPic;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
@@ -121,6 +122,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1629,6 +1631,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
 
                         break;
+                    case ChatEnum.EMessageType.VOICE:
+                        holder.viewChatItem.updateVoice(msgbean);
+                        break;
                     default:
                         onBindViewHolder(holder, position);
                         break;
@@ -2046,7 +2051,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         return bean;
     }
 
-    private void playVoice(MsgAllBean bean, final boolean canAutoPlay, final int position) {
+    private void playVoice(final MsgAllBean bean, final boolean canAutoPlay, final int position) {
         VoiceMessage vm = bean.getVoiceMessage();
         if (vm == null || TextUtils.isEmpty(vm.getUrl())) {
             return;
@@ -2063,112 +2068,119 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
-            AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
-                @Override
-                public void onStart(MsgAllBean bean) {
-                    bean = amendMsgALlBean(position, bean);
-                    if (bean.isRead() == false) {
-                        msgAction.msgRead(bean.getMsg_id(), true);
-                        bean.setRead(true);
+//            startPlayVoice(bean, canAutoPlay, position);
+            if (!bean.isRead() && !bean.isMe()) {
+                updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_DOWNLOADED);
+                AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.OnDownloadListener() {
+                    @Override
+                    public void onDownloadSuccess(File file) {
+                        updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_PLAY);
+                        startPlayVoice(bean, canAutoPlay, position);
                     }
-                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
-                }
 
-                @Override
-                public void onStop(MsgAllBean bean) {
-                    bean = amendMsgALlBean(position, bean);
-                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
+                    @Override
+                    public void onDownloading(int progress) {
 
-                }
+                    }
 
-                @Override
-                public void onComplete(MsgAllBean bean) {
-                    bean = amendMsgALlBean(position, bean);
-                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyData();
-                        }
-                    });
-
-                }
-            });
+                    @Override
+                    public void onDownloadFailed(Exception e) {
+                        updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_DOWNLOADED);
+                    }
+                });
+            } else {
+                startPlayVoice(bean, canAutoPlay, position);
+            }
         }
     }
 
-//    private void playVoice(List<MsgAllBean> list, VoiceMessage vm, boolean isAutoPlay) {
-//        if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
-//            AudioPlayManager.getInstance().stopPlay();
+    private void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
+        LogUtil.getLog().i(TAG, "updatePlayStatus--" + status);
+        bean = amendMsgALlBean(position, bean);
+        VoiceMessage voiceMessage = bean.getVoiceMessage();
+        if (status == ChatEnum.EPlayStatus.PLAYING) {
+            if (bean.isRead() == false) {
+                msgAction.msgRead(bean.getMsg_id(), true);
+                bean.setRead(true);
+            }
+        }
+        msgDao.updatePlayStatus(voiceMessage.getMsgid(), status);
+
+//        if (status == ChatEnum.EPlayStatus.PLAYING || status == ChatEnum.EPlayStatus.STOP_PLAY) {
+//            msgDao.updatePlayStatus(voiceMessage.getMsgid(), ChatEnum.EPlayStatus.PLAYED);
+//            if (status == ChatEnum.EPlayStatus.PLAYING) {
+//                if (bean.isRead() == false) {
+//                    msgAction.msgRead(bean.getMsg_id(), true);
+//                    bean.setRead(true);
+//                }
+//            }
 //        } else {
-//            AudioPlayManager.getInstance().startPlay(context, isAutoPlay, list, new IVoicePlayListener() {
-//                @Override
-//                public void onStart(MsgAllBean bean) {
-//                    if (bean.isRead() == false) {
-//                        msgAction.msgRead(bean.getMsg_id(), true);
-//                        bean.setRead(true);
-//                    }
-//                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-//                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            notifyData();
-//                        }
-//                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
-//                }
-//
-//                @Override
-//                public void onStop(MsgAllBean bean) {
-//                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-//                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            notifyData();
-//                        }
-//                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
-//
-//                }
-//
-//                @Override
-//                public void onComplete(MsgAllBean bean) {
-//                    VoiceMessage voiceMessage = bean.getVoiceMessage();
-//                    voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            notifyData();
-//                        }
-//                    });
-//                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
-//                }
-//
-////                @Override
-////                public void onReadyToNext() {
-////
-////                }
-//            });
+//            msgDao.updatePlayStatus(voiceMessage.getMsgid(), status);
 //        }
-//    }
+        voiceMessage.setPlayStatus(status);
+        final MsgAllBean finalBean = bean;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+//                notifyData();
+                replaceListDataAndNotify(finalBean);
+            }
+        });
+    }
+
+    private void startPlayVoice(MsgAllBean bean, boolean canAutoPlay, final int position) {
+        AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
+            @Override
+            public void onStart(MsgAllBean bean) {
+
+                updatePlayStatus(bean, position, ChatEnum.EPlayStatus.PLAYING);
+                //bean = amendMsgALlBean(position, bean);
+//                msgDao.updatePlayStatus(bean.getMsg_id(), ChatEnum.EPlayStatus.PLAYED);
+//                VoiceMessage voiceMessage = bean.getVoiceMessage();
+//                voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        notifyData();
+//                    }
+//                });
+//                LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
+            }
+
+            @Override
+            public void onStop(MsgAllBean bean) {
+                updatePlayStatus(bean, position, ChatEnum.EPlayStatus.STOP_PLAY);
+//                LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
+//                bean = amendMsgALlBean(position, bean);
+//                VoiceMessage voiceMessage = bean.getVoiceMessage();
+//                voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        notifyData();
+//                    }
+//                });
+            }
+
+            @Override
+            public void onComplete(MsgAllBean bean) {
+                updatePlayStatus(bean, position, ChatEnum.EPlayStatus.PLAYED);
+//                LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
+
+
+//                bean = amendMsgALlBean(position, bean);
+//                VoiceMessage voiceMessage = bean.getVoiceMessage();
+//                voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        notifyData();
+//                    }
+//                });
+
+            }
+        });
+    }
 
     /***
      * 长按的气泡处理
