@@ -86,6 +86,9 @@ public class UserAction {
      */
     public static Long getMyId() {
         // Log.v("ssss","getMyId");
+        if (getMyInfo() == null) {
+            return null;
+        }
         return getMyInfo().getUid();
     }
 

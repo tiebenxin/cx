@@ -48,6 +48,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -107,6 +108,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
+import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
@@ -184,8 +186,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public static final int REQ_TRANS = 9653;
 
 
-    //语音的动画
-    private AnimationPic animationPic = new AnimationPic();
     private MessageAdapter messageAdapter;
     private int currentPager;
     private int lastOffset = -1;
@@ -737,20 +737,32 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
+//            @Override
+//            public void getUrl(final String url, final int duration) {
+//                if (!TextUtils.isEmpty(url)) {
+//                    //处理ui放在线程
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            // alert.dismiss();
+//                            //发送语音消息
+//                            MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
+//                            showSendObj(msgAllbean);
+//                        }
+//                    });
+//                }
+//            }
+
+
             @Override
-            public void getUrl(final String url, final int duration) {
-                if (!TextUtils.isEmpty(url)) {
-                    //处理ui放在线程
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // alert.dismiss();
-                            //发送语音消息
-                            MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
-                            showSendObj(msgAllbean);
-                        }
-                    });
-                }
+            public void completeRecord(String file, int duration) {
+                VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgid(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
+//                replaceListDataAndNotify(msg);
+                msgListData.add(msg);
+                notifyData2Bottom(true);
+
+                uploadVoice(file, msg);
             }
         }));
 
@@ -865,18 +877,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }
             }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-//                int length = msgListData.size();
-//                if (dy > 0) {//向上滑动才判断
-//                    if (needRefresh && lastPosition >= length - 5) {
-//                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "开始加载最新数据" + "--lastPosition=" + lastPosition + "--length-5=" + (length - 5));
-//                        taskNewMessage();
-//                    }
-//                }
-            }
         });
 
 
@@ -912,6 +912,42 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         });
 
 
+    }
+
+    private void uploadVoice(String file, final MsgAllBean bean) {
+        updateSendStatus(ChatEnum.ESendStatus.SENDING, bean);
+        new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
+            @Override
+            public void success(String url) {
+//                if (callback != null) {
+//                    Log.v("AudioUploadPath", url + "");
+//                    callback.getUrl(url, duration);
+//                }
+//                发送语音消息
+//                MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
+                Log.v(ChatActivity.class.getSimpleName(), "上传语音成功--" + url);
+                VoiceMessage voice = bean.getVoiceMessage();
+                voice.setUrl(url);
+                SocketData.sendMessage(bean);
+//                showSendObj(bean);
+            }
+
+            @Override
+            public void fail() {
+                updateSendStatus(ChatEnum.ESendStatus.ERROR, bean);
+//                ToastUtil.show(context, "发送失败!");
+            }
+
+            @Override
+            public void inProgress(long progress, long zong) {
+            }
+        }, file);
+    }
+
+    private void updateSendStatus(@ChatEnum.ESendStatus int status, MsgAllBean bean) {
+        bean.setSend_state(status);
+        msgDao.fixStataMsg(bean.getMsg_id(), status);
+        replaceListDataAndNotify(bean);
     }
 
     private void taskTestSend(final int count) {
@@ -1234,7 +1270,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         //1.上传图片
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
-                        MsgAllBean imgMsgBean = SocketData.send4ImagePre(imgMsgId, toUId, toGid, "file://" + file, isArtworkMaster);
+                        ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, imageMessage, ChatEnum.EMessageType.IMAGE);
 
                         msgListData.add(imgMsgBean);
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
@@ -1508,7 +1545,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
                 String file = remsg.getImage().getLocalimg();
                 boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
-                MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
+                ImageMessage message = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
+                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, message, ChatEnum.EMessageType.IMAGE);
                 replaceListDataAndNotify(imgMsgBean);
                 UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                 startService(new Intent(getContext(), UpLoadService.class));
@@ -1777,13 +1815,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                     break;
-                case 7:
+                case 7://语音消息
 
                     menus.add(new OptionMenu("删除"));
                     final VoiceMessage vm = msgbean.getVoiceMessage();
-
-
-                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl())), vm.getPlayStatus(), new View.OnClickListener() {
+                    String url = msgbean.isMe() ? vm.getLocalUrl() : vm.getUrl();
+                    holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), vm.getPlayStatus(), new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
                             playVoice(msgbean, position);
@@ -1817,12 +1854,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     try {
                         if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
-
-
                             String file = remsg.getImage().getLocalimg();
                             if (!TextUtils.isEmpty(file)) {
                                 boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
-                                MsgAllBean imgMsgBean = SocketData.send4ImagePre(remsg.getMsg_id(), toUId, toGid, file, isArtworkMaster);
+                                ImageMessage image = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
+                                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
                                 replaceListDataAndNotify(imgMsgBean);
                                 UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                                 startService(new Intent(getContext(), UpLoadService.class));
@@ -1835,6 +1871,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 SocketUtil.getSocketUtil().sendData4Msg(bean);
                                 taskRefreshMessage();
                             }
+                        } else if (remsg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+//                            if ()
 
                         } else {
                             //点击发送的时候如果要改变成发送中的状态
@@ -2021,7 +2059,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (AudioPlayManager.getInstance().isPlay(Uri.parse(vm.getUrl()))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
-//            LogUtil.getLog().i("AudioPlayManager", "startPlay--" + bean.getVoiceMessage().getUrl());
             AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
                 @Override
                 public void onStart(MsgAllBean bean) {
@@ -2052,13 +2089,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             notifyData();
                         }
                     });
-//                    LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
 
                 }
 
                 @Override
                 public void onComplete(MsgAllBean bean) {
-//                    LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
                     bean = amendMsgALlBean(position, bean);
                     VoiceMessage voiceMessage = bean.getVoiceMessage();
                     voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
@@ -2070,14 +2105,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     });
 
                 }
-//
-//                @Override
-//                public void onReadyToNext() {
-//                    LogUtil.getLog().i("AudioPlayManager", "onReadyToNext--");
-//                    if (canAutoPlay) {
-//                        checkMoreVoice(position);
-//                    }
-//                }
             });
         }
     }

@@ -11,7 +11,6 @@ import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 
 
-
 public class IAudioRecord implements IAudioRecordListener {
     private Context context;
     private View view;
@@ -67,26 +66,28 @@ public class IAudioRecord implements IAudioRecordListener {
 
     @Override
     public void onFinish(final Uri audioPath, final int duration) {
+
         if (audioPath != null) {
-            new UpFileAction().upFile(UpFileAction.PATH.VOICE,context, new UpFileUtil.OssUpCallback() {
-                @Override
-                public void success(String url) {
-                    if (callback != null) {
-                        Log.v("AudioUploadPath",url+"");
-                        callback.getUrl(url, duration);
-                    }
-                }
-
-                @Override
-                public void fail() {
-                    ToastUtil.show(context, "发送失败!");
-                }
-
-                @Override
-                public void inProgress(long progress, long zong) {
-
-                }
-            }, audioPath.getPath());
+//            new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
+//                @Override
+//                public void success(String url) {
+//                    if (callback != null) {
+//                        Log.v("AudioUploadPath", url + "");
+//                        callback.getUrl(url, duration);
+//                    }
+//                }
+//
+//                @Override
+//                public void fail() {
+//                    ToastUtil.show(context, "发送失败!");
+//                }
+//
+//                @Override
+//                public void inProgress(long progress, long zong) {
+//
+//                }
+//            }, audioPath.getPath());
+            callback.completeRecord(audioPath.getPath(),duration);
         }
 
     }
@@ -98,7 +99,10 @@ public class IAudioRecord implements IAudioRecordListener {
 
 
     public interface UrlCallback {
-        void getUrl(String url, int duration);
+//        void getUrl(String url, int duration);
+
+        //录制完成
+        void completeRecord(String file,int duration);
 
     }
 

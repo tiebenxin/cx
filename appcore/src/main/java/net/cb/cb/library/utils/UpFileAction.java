@@ -42,12 +42,12 @@ public class UpFileAction {
      * @param callback
      * @param filePath
      */
-    public void upFile( PATH type,Context context, UpFileUtil.OssUpCallback callback, String filePath) {
-        upFile(type,context, callback, filePath, null);
+    public void upFile(PATH type, Context context, UpFileUtil.OssUpCallback callback, String filePath) {
+        upFile(type, context, callback, filePath, null);
     }
 
-    public void upFile( PATH type,Context context, UpFileUtil.OssUpCallback callback, byte[] fileByte) {
-        upFile(type,context, callback, null, fileByte);
+    public void upFile(PATH type, Context context, UpFileUtil.OssUpCallback callback, byte[] fileByte) {
+        upFile(type, context, callback, null, fileByte);
     }
 
     public String getPath(PATH type) {
@@ -57,22 +57,22 @@ public class UpFileAction {
         switch (type) {
             case IMG:
                 data.setTime(System.currentTimeMillis());
-                pt =  AppConfig.UP_PATH + "/android/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.UP_PATH + "/android/" + simpleDateFormat.format(data) + "/";
                 break;
             case HEAD:
-                pt =  AppConfig.UP_PATH + "/avatar/";
+                pt = AppConfig.UP_PATH + "/avatar/";
                 break;
             case HEAD_GROUP:
-                pt =  AppConfig.UP_PATH + "/group-avatar/";
+                pt = AppConfig.UP_PATH + "/group-avatar/";
                 break;
             case COMPLAINT:
-                pt =  AppConfig.UP_PATH + "/android-complaints/";
+                pt = AppConfig.UP_PATH + "/android-complaints/";
                 break;
             case FEEDBACK:
-                pt =  AppConfig.UP_PATH + "/android-feedback/";
+                pt = AppConfig.UP_PATH + "/android-feedback/";
                 break;
             case VOICE:
-                pt =  AppConfig.UP_PATH + "/android-voice/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.UP_PATH + "/android-voice/" + simpleDateFormat.format(data) + "/";
                 break;
             default:
                 data.setTime(System.currentTimeMillis());
@@ -109,6 +109,12 @@ public class UpFileAction {
                         }
 
 
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        callback.fail();
                     }
                 });
 

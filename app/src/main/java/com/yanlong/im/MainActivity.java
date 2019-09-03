@@ -406,7 +406,7 @@ public class MainActivity extends AppActivity {
         if (sp != null) {
             NotificationConfig config = sp.get4Json(NotificationConfig.class, "notify_config");
             if (config != null) {
-                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "oldUid=" + config.getUid() + "--newUid=" + userAction.getMyId());
+//                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "oldUid=" + config.getUid() + "--newUid=" + userAction.getMyId());
                 if (config.getUid() == userAction.getMyId() && (!isNewVersion(config.getVersion()) || config.isHasNotify())) {
                     return false;
                 }

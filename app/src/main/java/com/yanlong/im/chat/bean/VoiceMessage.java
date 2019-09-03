@@ -6,9 +6,10 @@ import io.realm.annotations.PrimaryKey;
 public class VoiceMessage extends RealmObject {
     @PrimaryKey
     private String msgid;
-    private String url;
+    private String url;//上传成功后网络路径
     private int time;
     private int playStatus;
+    private String localUrl;//本地路径
 
     public int getTime() {
         return time;
@@ -40,5 +41,13 @@ public class VoiceMessage extends RealmObject {
 
     public void setPlayStatus(int playStatus) {
         this.playStatus = playStatus;
+    }
+
+    public String getLocalUrl() {
+        return localUrl;
+    }
+
+    public void setLocalUrl(String localUrl) {
+        this.localUrl = localUrl;
     }
 }
