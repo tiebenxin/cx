@@ -187,6 +187,9 @@
 
             </LinearLayout>
 
+        </LinearLayout>
+
+
             <LinearLayout style="@style/app_layout_list2">
 
                 <LinearLayout
@@ -216,7 +219,7 @@
                 android:layout_marginRight="@dimen/app_margin_main"
                 android:text="发送消息" />
 
-        </LinearLayout>
+
 
 
         <LinearLayout

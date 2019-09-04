@@ -151,6 +151,7 @@ public class UserInfoActivity extends AppActivity {
             txtPrNo.setVisibility(View.GONE);
             mViewSettingName.setVisibility(View.GONE);
             mLayoutMsg.setVisibility(View.GONE);
+            btnMsg.setVisibility(View.GONE);
             viewIntroduce.setVisibility(View.VISIBLE);
             mBtnAdd.setVisibility(View.GONE);
         } else {
@@ -159,6 +160,7 @@ public class UserInfoActivity extends AppActivity {
             txtPrNo.setVisibility(View.VISIBLE);
             mViewSettingName.setVisibility(View.VISIBLE);
             mLayoutMsg.setVisibility(View.VISIBLE);
+            btnMsg.setVisibility(View.VISIBLE);
             viewIntroduce.setVisibility(View.GONE);
             // mBtnAdd.setVisibility(View.VISIBLE);
         }
@@ -317,12 +319,14 @@ public class UserInfoActivity extends AppActivity {
     private void setItemShow(int type) {
         if (type == 0) {
             mLayoutMsg.setVisibility(View.VISIBLE);
+            btnMsg.setVisibility(View.VISIBLE);
             mBtnAdd.setVisibility(View.GONE);
             mViewSettingName.setVisibility(View.VISIBLE);
             tvBlack.setText("加入黑名单");
             viewIntroduce.setVisibility(View.GONE);
         } else if (type == 1) {
             mLayoutMsg.setVisibility(View.GONE);
+            btnMsg.setVisibility(View.GONE);
             mBtnAdd.setVisibility(View.VISIBLE);
             mViewSettingName.setVisibility(View.GONE);
             if (TextUtils.isEmpty(sayHi)) {
@@ -334,6 +338,7 @@ public class UserInfoActivity extends AppActivity {
             viewIntroduce.setVisibility(View.GONE);
         } else if (type == 2) {
             mLayoutMsg.setVisibility(View.VISIBLE);
+            btnMsg.setVisibility(View.VISIBLE);
             mBtnAdd.setVisibility(View.GONE);
             mViewSettingName.setVisibility(View.VISIBLE);
             tvBlack.setText("解除黑名单");
@@ -543,10 +548,10 @@ public class UserInfoActivity extends AppActivity {
     private void taskFriendAgree(Long uid,String contactName) {
         userAction.friendAgree(uid,contactName, new CallBack<ReturnBean>() {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null) {
-                    return;
-                }
+                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                    if (response.body() == null) {
+                        return;
+                    }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     EventBus.getDefault().post(new EventRefreshFriend());
