@@ -273,7 +273,13 @@ public class ChatServer extends Service {
                     EventBus.getDefault().post(new EventRefreshChat());
 
                     return;
+                case GROUP_MEMBER_PROTECTION:
+                    msgDao.groupContactIntimatelyUpdate(msg.getGid(),msg.getGroupMemberProtection().getOn());
+
+                    return;
             }
+
+            //↑↑↑9.4 不需要播放收到通知的响声,请return,否则使用break
 
 
             boolean isGroup = StringUtil.isNotNull(msg.getGid());
