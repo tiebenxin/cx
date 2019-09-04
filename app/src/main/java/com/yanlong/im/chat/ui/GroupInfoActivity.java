@@ -205,6 +205,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
                 intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
                 intent.putExtra(CommonSetingActivity.TYPE_LINE, 1);
+                intent.putExtra(CommonSetingActivity.SIZE, 500);
                 intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
                 startActivityForResult(intent, GROUP_NOTE);
             }
