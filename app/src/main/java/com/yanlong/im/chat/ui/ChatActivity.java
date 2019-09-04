@@ -2024,6 +2024,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 });
             } else {
+                int len = downloadList.size();
+                if (len > 0) {//有下载
+                    MsgAllBean msg = downloadList.get(len - 1);
+                    updatePlayStatus(msg, 0, ChatEnum.EPlayStatus.NO_PLAY);
+                }
                 startPlayVoice(bean, canAutoPlay, position);
             }
         }
