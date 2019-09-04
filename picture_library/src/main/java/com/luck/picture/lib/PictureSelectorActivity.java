@@ -15,6 +15,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -58,6 +59,7 @@ import com.yalantis.ucrop.model.CutInfo;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -221,6 +223,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     } else {
                         PictureSelectorActivity.this.isArtworkMaster = false;
                     }
+                    setOriginImageSize();
+
                 }
             });
         } else {
@@ -294,6 +298,20 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         String titleText = picture_title.getText().toString().trim();
         if (config.isCamera) {
             config.isCamera = StringUtils.isCamera(titleText);
+        }
+    }
+
+    private void setOriginImageSize() {
+        if (isArtworkMaster) {
+            String size = getImageSize();
+            if (!TextUtils.isEmpty(size)) {
+                cb_original.setText("原图（" + size + ")");
+            } else {
+                cb_original.setText("原图");
+            }
+        } else {
+            cb_original.setText("原图");
+
         }
     }
 
@@ -802,6 +820,9 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     @Override
     public void onChange(List<LocalMedia> selectImages) {
         changeImageNumber(selectImages);
+        if (isArtworkMaster) {
+            setOriginImageSize();
+        }
     }
 
     @Override
@@ -1142,5 +1163,32 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 startOpenCameraVideo();
                 break;
         }
+    }
+
+    public String getImageSize() {
+        List<LocalMedia> list = adapter.getSelectedImages();
+        String size = "";
+        if (list != null && list.size() > 0) {
+            int len = list.size();
+            int totalSize = 0;
+            for (int i = 0; i < len; i++) {
+                LocalMedia media = list.get(i);
+                File file = new File(media.getPath());
+                if (file != null) {
+                    totalSize += file.length();
+                }
+            }
+            if (totalSize > 0 && totalSize < 1024) { //byte
+                size = totalSize + " b";
+            } else if (totalSize >= 1024 && totalSize < 0.1 * 1024 * 1024) {//1k到0.1M
+                int d = totalSize / 1024;
+                size = d + " k";
+            } else if (totalSize >= 0.1 * 1024 * 1024) {//M
+                double d = totalSize * 1.0 / (1024 * 1024);
+                DecimalFormat df = new DecimalFormat("0.0");//格式化小数
+                size = df.format(d) + " M";
+            }
+        }
+        return size;
     }
 }

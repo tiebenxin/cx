@@ -10,12 +10,14 @@ import com.luck.picture.lib.compress.Luban;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class FileBitmapDecoderFactory implements BitmapDecoderFactory {
     private String path;
+   public static String cache_name = "_cache";
 
     public FileBitmapDecoderFactory(String filePath) {
         super();
@@ -34,7 +36,7 @@ public class FileBitmapDecoderFactory implements BitmapDecoderFactory {
 
 
     public static String getimage(String srcPath) throws IOException {
-        String cache_name = "_cache";
+
         BitmapFactory.Options newOpts = new BitmapFactory.Options();
         // 开始读入图片，此时把options.inJustDecodeBounds 设回true了
         newOpts.inJustDecodeBounds = true;
@@ -50,6 +52,19 @@ public class FileBitmapDecoderFactory implements BitmapDecoderFactory {
             return srcPath;
         }
         File file = new File(srcPath + cache_name);
+
+        /*BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+
+        Bitmap btTemp = BitmapFactory.decodeFile(file.getAbsolutePath(),options);
+
+        try{
+            btTemp.getWidth();
+        }catch(Exception e) {
+            e.printStackTrace();
+            file.delete();
+        }*/
+
         if (file.exists()) {
             return srcPath + cache_name;
         }

@@ -7,11 +7,14 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -20,7 +23,7 @@ public class VoiceView extends LinearLayout {
     private LinearLayout viewOtVoice;
     private TextView txtOtVoice;
     private View viewOtP;
-    private View imgOtUnRead;
+    private ImageView imgOtUnRead;
     private LinearLayout viewMeVoice;
     private View viewMeP;
     private TextView txtMeVoice;
@@ -40,7 +43,7 @@ public class VoiceView extends LinearLayout {
         viewOtVoice = (LinearLayout) rootView.findViewById(R.id.view_ot_voice);
         txtOtVoice = (TextView) rootView.findViewById(R.id.txt_ot_voice);
         viewOtP = (View) rootView.findViewById(R.id.view_ot_p);
-        imgOtUnRead = (View) rootView.findViewById(R.id.img_ot_unread);
+        imgOtUnRead = rootView.findViewById(R.id.img_ot_unread);
         viewMeVoice = (LinearLayout) rootView.findViewById(R.id.view_me_voice);
         viewMeP = (View) rootView.findViewById(R.id.view_me_p);
         txtMeVoice = (TextView) rootView.findViewById(R.id.txt_me_voice);
@@ -62,7 +65,7 @@ public class VoiceView extends LinearLayout {
     }
 
     public void init(final boolean isMe, final int second, boolean isRead, boolean isPlay, int playStatus) {
-//        LogUtil.getLog().i(VoiceView.class.getSimpleName(), "初始化View--" + "isRead=" + isRead + "--isMe=" + isMe);
+//        LogUtil.getLog().i(VoiceView.class.getSimpleName(), "初始化View--" + "isRead=" + isRead + "--isPlay=" + isPlay + "--isMe=" + isMe + "--playStatus=" + playStatus);
         if (isMe) {
             viewMeVoice.setVisibility(VISIBLE);
             viewOtVoice.setVisibility(GONE);
@@ -70,19 +73,33 @@ public class VoiceView extends LinearLayout {
             viewMeVoice.setVisibility(GONE);
             viewOtVoice.setVisibility(VISIBLE);
             imgOtUnRead.setVisibility(isRead ? GONE : VISIBLE);
+            imgOtUnRead.setImageResource(R.mipmap.bg_red_num_small);
         }
         txtOtVoice.setText(second + "''");
         txtMeVoice.setText(second + "''");
-        if (isPlay) {
+        if (isPlay && playStatus == ChatEnum.EPlayStatus.PLAYING) {
+//            LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
             ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
             ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
             ((AnimationDrawable) imgMeIcon.getDrawable()).start();
             ((AnimationDrawable) imgOtIcon.getDrawable()).start();
         } else {
-            ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
-            ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
-            ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);
-            ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
+            if (isRead && playStatus == ChatEnum.EPlayStatus.NO_DOWNLOADED) {
+//                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
+                ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
+                ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
+                ((AnimationDrawable) imgMeIcon.getDrawable()).start();
+                ((AnimationDrawable) imgOtIcon.getDrawable()).start();
+            } else {
+//                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "终止语音动画");
+                ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
+                ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
+                ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);
+                ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
+            }
+        }
+        if (!isMe && !isRead) {
+            setDownloadStatus(playStatus, isRead);
         }
 
 
@@ -100,6 +117,24 @@ public class VoiceView extends LinearLayout {
         viewOtP.setLayoutParams(lp);
 
 
+    }
+
+    public void setDownloadStatus(@ChatEnum.EPlayStatus int state, boolean isRead) {
+//        LogUtil.getLog().i("setDownloadStatus", "playStatus=" + state + "--isRead=" + isRead);
+        switch (state) {
+            case ChatEnum.EPlayStatus.DOWNLOADING://正常
+                if (!isRead) {
+                    imgOtUnRead.setImageResource(R.mipmap.ic_net_load);
+                    Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    imgOtUnRead.startAnimation(rotateAnimation);
+                    imgOtUnRead.setVisibility(VISIBLE);
+                }
+                break;
+            case ChatEnum.EPlayStatus.NO_PLAY:
+                imgOtUnRead.clearAnimation();
+                imgOtUnRead.setVisibility(GONE);
+                break;
+        }
     }
 
     private int getScreenWidth() {

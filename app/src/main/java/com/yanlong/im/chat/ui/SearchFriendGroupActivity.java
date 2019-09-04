@@ -9,10 +9,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
@@ -87,6 +89,30 @@ public class SearchFriendGroupActivity extends Activity {
                 return false;
             }
         });
+
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s == null || TextUtils.isEmpty(s.toString())) {
+                    key = "";
+                    listDataUser.clear();
+                    listDataGroup.clear();
+                    mtListView.notifyDataSetChange();
+                } else {
+                    taskSearch();
+                }
+            }
+        });
     }
 
 
@@ -126,6 +152,7 @@ public class SearchFriendGroupActivity extends Activity {
         }
 
         //自动生成控件事件
+        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder h, int position) {
             if (h instanceof RSearchViewHolder) {
@@ -257,6 +284,7 @@ public class SearchFriendGroupActivity extends Activity {
                 txtContent = (TextView) convertView.findViewById(R.id.txt_content);
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @SuppressLint("SetTextI18n")
             private void setContactName(String mkName, String nick, String key) {
                 if (!TextUtils.isEmpty(mkName)) {
@@ -288,6 +316,7 @@ public class SearchFriendGroupActivity extends Activity {
                 }
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.M)
             private void setGroupName(Group group, String key) {
                 if (group == null) {
                     return;

@@ -80,14 +80,14 @@ public class DownloadUtil {
                     while ((len = is.read(buf)) != -1) {
                         fos.write(buf, 0, len);
                         sum += len;
-                        int progress = (int) (sum * 1.0f / total * 100);
+                        int progress = new Double(sum * 1.0d / total * 100d).intValue();
                         //下载中更新进度条
                         listener.onDownloading(progress);
                     }
                     fos.flush();
                     //下载完成
                     listener.onDownloadSuccess(file);
-                    Log.v("DownloadUtil",file.getAbsolutePath()+"--下载完成");
+                    Log.v("DownloadUtil", file.getAbsolutePath() + "--下载完成");
                 } catch (Exception e) {
                     listener.onDownloadFailed(e);
                 } finally {
@@ -162,7 +162,7 @@ public class DownloadUtil {
                         //下载中更新进度条
                     }
                     fos.flush();
-                    Log.v("DownloadUtil",file.getAbsolutePath()+"--下载完成");
+                    Log.v("DownloadUtil", file.getAbsolutePath() + "--下载完成");
                     //下载完成
                 } catch (Exception e) {
 
@@ -184,8 +184,25 @@ public class DownloadUtil {
     }
 
 
-
     public interface OnDownloadListener {
+
+        /**
+         * 下载成功之后的文件
+         */
+        void onDownloadSuccess(File file);
+
+        /**
+         * 下载进度
+         */
+        void onDownloading(int progress);
+
+        /**
+         * 下载异常信息
+         */
+        void onDownloadFailed(Exception e);
+    }
+
+    public interface IDownloadVoiceListener {
 
         /**
          * 下载成功之后的文件

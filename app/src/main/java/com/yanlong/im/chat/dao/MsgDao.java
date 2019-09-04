@@ -1763,5 +1763,34 @@ public class MsgDao {
         return bean;
     }
 
+    //修改播放消息状态
+    public void updatePlayStatus(String msgId, @ChatEnum.EPlayStatus int playStatus) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        VoiceMessage message = realm.where(VoiceMessage.class).equalTo("msgid", msgId).findFirst();
+        if (message != null) {
+            message.setPlayStatus(playStatus);
+            realm.insertOrUpdate(message);
+        }
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /***
+     * 群成员保护的开关
+     * @param intimately
+     */
+    public void groupContactIntimatelyUpdate(String gid,boolean intimately){
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group group=realm.where(Group.class).equalTo("gid", gid).findFirst();
+        group.setContactIntimately(intimately?1:0);
+        realm.insertOrUpdate(group);
+
+        realm.commitTransaction();
+        realm.close();
+    }
 
 }

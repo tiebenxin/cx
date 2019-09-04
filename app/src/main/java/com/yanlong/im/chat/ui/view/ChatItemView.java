@@ -43,8 +43,12 @@ import com.bumptech.glide.request.target.Target;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
@@ -502,6 +506,13 @@ public class ChatItemView extends LinearLayout {
 
     }
 
+    public void updateVoice(MsgAllBean bean) {
+        VoiceMessage voice = bean.getVoiceMessage();
+        String url = bean.isMe() ? voice.getLocalUrl() : voice.getUrl();
+        viewOt7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
+        viewMe7.init(bean.isMe(), voice.getTime(), bean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), voice.getPlayStatus());
+    }
+
     //普通消息
     public void setDataAssistant(String msg) {
 //        msg = "http://baidu.com\n回复报告白拿的\nhttp://baidu.com\n发改委复合物号单位自己\nhttp://baidu.com";
@@ -770,7 +781,6 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(VISIBLE);
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
-
                 break;
             case 2://等待,发送中
                 imgMeErr.setImageResource(R.mipmap.ic_net_load);
@@ -787,10 +797,9 @@ public class ChatItemView extends LinearLayout {
             default: // 其他状态如-1:待发送
 
                 break;
-
         }
-
     }
+
 
     public void setOnErr(OnClickListener onk) {
         imgMeErr.setOnClickListener(onk);
