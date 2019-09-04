@@ -189,11 +189,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
     private MessageAdapter messageAdapter;
-    private int currentPager;
     private int lastOffset = -1;
     private int lastPosition = -1;
     private boolean isNewAdapter = false;
-    private int preTotalSize = 0;//刷新前，总item数
     private boolean isSoftShow;
     private Map<Integer, View> viewMap = new HashMap<>();
     private boolean needRefresh;
@@ -216,13 +214,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 @Override
                 public void run() {
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
-
-
                         taskRefreshMessage();
-
                         ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
-
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
                             for (String msgid : bean.getMsgIdList()) {
                                 //撤回消息不做刷新
@@ -230,10 +224,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     Log.i(TAG, "onACK: 收到取消回执,等待刷新列表2");
                                     return;
                                 }
-
                             }
-
-
                             taskRefreshMessage();
 //                            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskRefreshMessage");
                         }
@@ -251,53 +242,31 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 public void run() {
 
                     needRefresh = false;
-
                     for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
-
-
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
-
                             } else {
                                 needRefresh = msg.getFromUid() == toUId.longValue();
                             }
 
-
                             if (msg.getMsgType() == MsgBean.MessageType.OUT_GROUP) {//提出群的消息是以个人形式发的
-
                                 needRefresh = msg.getOutGroup().getGid().equals(toGid);
                             }
-
                             if (msg.getMsgType() == MsgBean.MessageType.REMOVE_GROUP_MEMBER) {//提出群的消息是以个人形式发的
-
                                 needRefresh = msg.getRemoveGroupMember().getGid().equals(toGid);
                             }
-
                         }
-
-
                         onMsgbranch(msg);
-
                     }
-
-
                     //从数据库读取消息
                     if (needRefresh) {
                         LogUtil.getLog().i(TAG, "需要刷新");
                         taskRefreshMessage();
-
-//                        if (isSoftShow || lastPosition == msgListData.size() - 1 || lastPosition == -1) {
-//                            taskRefreshMessage();
-//                            needRefresh = false;
-//                        }
                     }
-
                 }
             });
-
-
         }
 
         @Override
@@ -306,14 +275,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
                     //撤回处理
                     if (bean.getWrapMsg(0).getMsgType() == MsgBean.MessageType.CANCEL) {
                         ToastUtil.show(getContext(), "撤回失败");
                         return;
                     }
-
-
                     //ToastUtil.show(context, "发送失败" + bean.getRequestId());
                     MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
                     if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CENCAL) {//取消的指令不保存到数据库
@@ -324,11 +290,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     ///这里写库
                     msgAllBean.setSend_data(bean.build().toByteArray());
                     DaoUtil.update(msgAllBean);
-
-
                     taskRefreshMessage();
-
-
                 }
             });
         }
@@ -364,8 +326,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case CHANGE_GROUP_NAME:
                 taskSessionInfo();
                 break;
-
-
         }
 
     }
@@ -405,7 +365,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     //发送并滑动到列表底部
     private void showSendObj(MsgAllBean msgAllbean) {
-
         //    msgListData.add(msgAllbean);
         //    notifyData2Bottom();
         taskRefreshMessage();
@@ -415,8 +374,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
-
-
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         toUId = toUId == 0 ? null : toUId;
@@ -431,7 +388,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 viewChatBottom.setVisibility(View.GONE);
             } else {
                 viewChatBottom.setVisibility(View.VISIBLE);
-
             }
         }
 
@@ -481,7 +437,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
                 }
                 //  }
-                //--------
 
                 if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
                     if (edtChat.isAtAll()) {
@@ -574,7 +529,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 tv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
                         edtChat.getText().insert(edtChat.getSelectionEnd(), tv.getText());
                     }
                 });
@@ -809,7 +763,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onRefresh() {
-                //  indexPage++;
                 taskMoreMessage();
             }
 
@@ -921,17 +874,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
-//                if (callback != null) {
-//                    Log.v("AudioUploadPath", url + "");
-//                    callback.getUrl(url, duration);
-//                }
-//                发送语音消息
-//                MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
                 Log.v(ChatActivity.class.getSimpleName(), "上传语音成功--" + url);
                 VoiceMessage voice = bean.getVoiceMessage();
                 voice.setUrl(url);
                 SocketData.sendMessage(bean);
-//                showSendObj(bean);
             }
 
             @Override
@@ -1094,12 +1040,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 mtListView.getListView().scrollToPosition(length);
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
-                    //!mtListView.getListView().canScrollVertically(1) 不怎么有效
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
                         mtListView.getListView().scrollToPosition(length);
-                    } else {
-//                        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "scrollListView -- lastPosition=" + lastPosition + "--lastOffset=" + lastOffset);
-//                        mtListView.getLayoutManager().scrollToPositionWithOffset(lastPosition, lastOffset);
                     }
                 } else {
                     SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -1338,7 +1280,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
             //处理失败的情况
-            Log.d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgid());
+//            Log.d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgid());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
 
@@ -1875,9 +1817,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
 
-            //------------------------------------------
-
-
             holder.viewChatItem.setOnErr(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -1975,7 +1914,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
         if (!msgBean.isMe() && !msgBean.isRead()) {
-//            isAutoPlay = true;
             list.add(msgBean);
             int length = msgListData.size();
             if (position < length - 1) {
@@ -1993,17 +1931,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             list.add(msgBean);
         }
         playVoice(msgBean, isAutoPlay, position);
-//        playVoice(list, msgBean.getVoiceMessage(), isAutoPlay);
-
-//        设置为已读
-//        if (!isAutoPlay) {
-//            if (msgBean.isRead() == false) {
-//                msgAction.msgRead(msgBean.getMsg_id(), true);
-//                msgBean.setRead(true);
-//                notifyData();
-//            }
-//        }
-
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
@@ -2068,7 +1995,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
-//            startPlayVoice(bean, canAutoPlay, position);
             if (!bean.isRead() && !bean.isMe()) {
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.DOWNLOADING);
                 AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.OnDownloadListener() {
@@ -2105,18 +2031,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
         msgDao.updatePlayStatus(voiceMessage.getMsgid(), status);
-
-//        if (status == ChatEnum.EPlayStatus.PLAYING || status == ChatEnum.EPlayStatus.STOP_PLAY) {
-//            msgDao.updatePlayStatus(voiceMessage.getMsgid(), ChatEnum.EPlayStatus.PLAYED);
-//            if (status == ChatEnum.EPlayStatus.PLAYING) {
-//                if (bean.isRead() == false) {
-//                    msgAction.msgRead(bean.getMsg_id(), true);
-//                    bean.setRead(true);
-//                }
-//            }
-//        } else {
-//            msgDao.updatePlayStatus(voiceMessage.getMsgid(), status);
-//        }
         voiceMessage.setPlayStatus(status);
         final MsgAllBean finalBean = bean;
         runOnUiThread(new Runnable() {
@@ -2132,18 +2046,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
             @Override
             public void onStart(MsgAllBean bean) {
-
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.PLAYING);
-                //bean = amendMsgALlBean(position, bean);
-//                msgDao.updatePlayStatus(bean.getMsg_id(), ChatEnum.EPlayStatus.PLAYED);
-//                VoiceMessage voiceMessage = bean.getVoiceMessage();
-//                voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYING);
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        notifyData();
-//                    }
-//                });
 //                LogUtil.getLog().i("AudioPlayManager", "onStart--" + bean.getVoiceMessage().getUrl());
             }
 
@@ -2151,33 +2054,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public void onStop(MsgAllBean bean) {
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.STOP_PLAY);
 //                LogUtil.getLog().i("AudioPlayManager", "onStop--" + bean.getVoiceMessage().getUrl());
-//                bean = amendMsgALlBean(position, bean);
-//                VoiceMessage voiceMessage = bean.getVoiceMessage();
-//                voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.STOP_PLAY);
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        notifyData();
-//                    }
-//                });
             }
 
             @Override
             public void onComplete(MsgAllBean bean) {
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.PLAYED);
 //                LogUtil.getLog().i("AudioPlayManager", "onComplete--" + bean.getVoiceMessage().getUrl());
-
-
-//                bean = amendMsgALlBean(position, bean);
-//                VoiceMessage voiceMessage = bean.getVoiceMessage();
-//                voiceMessage.setPlayStatus(ChatEnum.EPlayStatus.PLAYED);
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        notifyData();
-//                    }
-//                });
-
             }
         });
     }
@@ -2280,7 +2162,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (isNewAdapter) {
             messageAdapter.bindData(msgListData);
         }
-//        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "msgListData的size=" + msgListData.size());
         mtListView.notifyDataSetChange();
     }
 
@@ -2388,68 +2269,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     /***
-     * 获取最新的
-     */
-    @SuppressLint("CheckResult")
-    private void taskNewMessage() {
-        //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
-        synchronized (ChatActivity.class) {
-//            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskNewMessage");
-            needRefresh = false;
-            long time = -1L;
-            int length = 0;
-            if (msgListData != null && msgListData.size() > 0) {
-                length = msgListData.size();
-                MsgAllBean bean = msgListData.get(length - 1);
-                if (bean != null && bean.getTimestamp() != null) {
-                    time = bean.getTimestamp();
-                }
-            } else {
-                return;
-            }
-//        preTotalSize = length;
-            final long finalTime = time;
-            if (length < 20) {
-                length += 20;
-            }
-            final int finalLength = length;
-            Observable.just(0)
-                    .map(new Function<Integer, List<MsgAllBean>>() {
-                        @Override
-                        public List<MsgAllBean> apply(Integer integer) throws Exception {
-                            List<MsgAllBean> list = null;
-                            if (finalTime > 0) {
-                                list = msgAction.getMsg4User(toGid, toUId, finalTime, true);
-                            }
-                            taskMkName(list);
-                            return list;
-                        }
-                    }).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
-                    .subscribe(new Consumer<List<MsgAllBean>>() {
-                        @Override
-                        public void accept(List<MsgAllBean> list) throws Exception {
-                            if (list != null && list.size() > 0) {
-
-                                msgListData.addAll(list);
-                                int len = msgListData.size();
-//                            notifyDataRangeChange(len - list.size(), list.size());
-                                mtListView.notifyDataSetChange();
-//                                LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "刷新完成--notifyDataSetChange");
-
-                            }
-                        }
-                    });
-        }
-
-    }
-
-    private void notifyDataRangeChange(int start, int size) {
-        ((MlistAdapter) mtListView.getListView().getAdapter()).notifyItemRangeChange(start, size);
-    }
-
-    /***
      * 查询历史
      * @param history
      */
@@ -2477,17 +2296,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
         if (msgListData.size() >= 20) {
             msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, msgListData.get(0).getTimestamp(), false));
-//            currentPager++;
-
         } else {
             msgListData = msgAction.getMsg4User(toGid, toUId, null, false);
-//            currentPager = 0;
         }
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
         notifyData();
-        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "size=" + msgListData.size());
+//        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "size=" + msgListData.size());
 
         ((LinearLayoutManager) mtListView.getListView().getLayoutManager()).scrollToPositionWithOffset(addItem, DensityUtil.dip2px(context, 20f));
 
