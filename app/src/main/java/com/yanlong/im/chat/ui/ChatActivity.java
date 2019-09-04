@@ -1996,13 +1996,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //        playVoice(list, msgBean.getVoiceMessage(), isAutoPlay);
 
 //        设置为已读
-        if (!isAutoPlay) {
-            if (msgBean.isRead() == false) {
-                msgAction.msgRead(msgBean.getMsg_id(), true);
-                msgBean.setRead(true);
-                notifyData();
-            }
-        }
+//        if (!isAutoPlay) {
+//            if (msgBean.isRead() == false) {
+//                msgAction.msgRead(msgBean.getMsg_id(), true);
+//                msgBean.setRead(true);
+//                notifyData();
+//            }
+//        }
 
     }
 
@@ -2070,7 +2070,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
 //            startPlayVoice(bean, canAutoPlay, position);
             if (!bean.isRead() && !bean.isMe()) {
-                updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_DOWNLOADED);
+                updatePlayStatus(bean, position, ChatEnum.EPlayStatus.DOWNLOADING);
                 AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
