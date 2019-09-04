@@ -7,6 +7,8 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,7 +23,7 @@ public class VoiceView extends LinearLayout {
     private LinearLayout viewOtVoice;
     private TextView txtOtVoice;
     private View viewOtP;
-    private View imgOtUnRead;
+    private ImageView imgOtUnRead;
     private LinearLayout viewMeVoice;
     private View viewMeP;
     private TextView txtMeVoice;
@@ -41,7 +43,7 @@ public class VoiceView extends LinearLayout {
         viewOtVoice = (LinearLayout) rootView.findViewById(R.id.view_ot_voice);
         txtOtVoice = (TextView) rootView.findViewById(R.id.txt_ot_voice);
         viewOtP = (View) rootView.findViewById(R.id.view_ot_p);
-        imgOtUnRead = (View) rootView.findViewById(R.id.img_ot_unread);
+        imgOtUnRead = rootView.findViewById(R.id.img_ot_unread);
         viewMeVoice = (LinearLayout) rootView.findViewById(R.id.view_me_voice);
         viewMeP = (View) rootView.findViewById(R.id.view_me_p);
         txtMeVoice = (TextView) rootView.findViewById(R.id.txt_me_voice);
@@ -95,6 +97,9 @@ public class VoiceView extends LinearLayout {
                 ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
             }
         }
+        if (!isMe && !isRead) {
+            setDownloadStatus(playStatus, isRead);
+        }
 
 
         int s = second > 60 ? 60 : second;
@@ -111,6 +116,20 @@ public class VoiceView extends LinearLayout {
         viewOtP.setLayoutParams(lp);
 
 
+    }
+
+    public void setDownloadStatus(@ChatEnum.EPlayStatus int state, boolean isRead) {
+//        LogUtil.getLog().i("setDownloadStatus", "playStatus=" + state + "--isRead=" + isRead);
+        switch (state) {
+            case ChatEnum.EPlayStatus.DOWNLOADING://正常
+                if (!isRead) {
+                    imgOtUnRead.setImageResource(R.mipmap.ic_net_load);
+                    Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    imgOtUnRead.startAnimation(rotateAnimation);
+                    imgOtUnRead.setVisibility(VISIBLE);
+                }
+                break;
+        }
     }
 
     private int getScreenWidth() {

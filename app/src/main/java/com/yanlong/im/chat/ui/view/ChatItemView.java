@@ -48,6 +48,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
@@ -780,7 +781,6 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(VISIBLE);
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
-
                 break;
             case 2://等待,发送中
                 imgMeErr.setImageResource(R.mipmap.ic_net_load);
@@ -797,10 +797,9 @@ public class ChatItemView extends LinearLayout {
             default: // 其他状态如-1:待发送
 
                 break;
-
         }
-
     }
+
 
     public void setOnErr(OnClickListener onk) {
         imgMeErr.setOnClickListener(onk);
