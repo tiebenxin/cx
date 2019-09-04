@@ -218,7 +218,7 @@ public class FriendMainFragment extends Fragment {
                 hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
                 hd.txtName.setText(bean.getName4Show());
                 if (bean.getLastonline() > 0) {
-                    hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType()));
+                    hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(),false));
                     hd.txtTime.setVisibility(View.VISIBLE);
                 } else {
                     hd.txtTime.setVisibility(View.GONE);
