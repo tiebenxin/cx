@@ -80,7 +80,7 @@ public class DownloadUtil {
                     while ((len = is.read(buf)) != -1) {
                         fos.write(buf, 0, len);
                         sum += len;
-                        int progress = (int) (sum * 1.0f / total * 100);
+                        int progress = new Double (sum * 1.0d / total * 100d).intValue();
                         //下载中更新进度条
                         listener.onDownloading(progress);
                     }
