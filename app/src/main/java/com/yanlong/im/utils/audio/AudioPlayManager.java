@@ -201,7 +201,7 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     public void startPlay(Context context, final MsgAllBean bean, int position, boolean canAutoPlay, IVoicePlayListener playListener) {
-//        LogUtil.getLog().i(TAG, "startPlay--" + bean.getVoiceMessage().getUrl());
+        LogUtil.getLog().i(TAG, "startPlay--" + bean.getVoiceMessage().getUrl());
         if (context != null && bean != null) {
             this.context = context;
             if (bean.getVoiceMessage() == null) {
