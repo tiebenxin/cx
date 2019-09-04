@@ -106,7 +106,7 @@ public class SSLSocketChannel2 {
                     sTOc.clear();
                     int readindex=0;
                     while (sc.read(sTOc) < 1){
-                        Thread.sleep(20);
+                        Thread.sleep(200);
                         readindex++;
                         if(readindex>100){
                            // throw new NetworkErrorException();
