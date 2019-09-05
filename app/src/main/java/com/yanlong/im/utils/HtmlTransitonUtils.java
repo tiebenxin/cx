@@ -12,6 +12,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -38,39 +39,44 @@ public class HtmlTransitonUtils {
         if (!TextUtils.isEmpty(html)) {
             HtmlBean bean = htmlTransition(html);
             switch (type) {
-                case 1: //二维码分享进群
+                case ChatEnum.ENoticeType.ENTER_BY_QRCODE: //二维码分享进群
                     setType1(context, style, bean);
                     break;
-                case 2: //邀请进群
+                case ChatEnum.ENoticeType.INVITED: //邀请进群
                     setType2(context, style, bean);
                     break;
-                case 3: //群主移出群聊
+                case ChatEnum.ENoticeType.KICK: //群主移出群聊
                     setType3(context, style, bean);
                     break;
-                case 5: //群主转让
+                case ChatEnum.ENoticeType.TRANSFER_GROUP_OWNER: //群主转让
                     setType5(context, style, bean);
                     break;
-                case 6: //离开群聊
+                case ChatEnum.ENoticeType.LEAVE: //离开群聊
                     setType6(context, style, bean);
                     break;
-                case 7: // xxx领取了你的云红包
+                case ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED: // xxx领取了你的云红包
                     setType7(context, style, bean);
                     break;
-                case 8: // 你领取的xxx的云红包
+                case ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE: // 你领取的xxx的云红包
                     setType8(context, style, bean);
                     break;
-                case 9: //消息撤回
+                case ChatEnum.ENoticeType.CANCEL: //消息撤回
                     setType9(context, style, bean);
                     break;
-                case 17://自己领取了自己的云红包
+                case ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF://自己领取了自己的云红包
 
                     break;
+                case ChatEnum.ENoticeType.NO_FRI_ERROR://被好友删除，消息发送失败
+                    setType11(context, style, bean);
+                    break;
+
             }
 
         }
 
         return style;
     }
+
 
     private void setType1(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
         List<HtmlBeanList> list = htmlBean.getList();
@@ -372,6 +378,48 @@ public class HtmlTransitonUtils {
             builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         builder.append("撤回了一条消息");
+    }
+
+    private void setType11(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        int index = 0;
+        for (final HtmlBeanList bean : list) {
+            String content;
+            if (index == 0) {
+                content = "\"" + bean.getName() + "\"";
+            } else {
+                content = bean.getName();
+            }
+            builder.append(content);
+            int start, end;
+            if (index == 0) {
+                start = builder.toString().length() - content.length() + 1;
+                end = builder.toString().length() - 1;
+            } else {
+                start = builder.toString().length() - content.length();
+                end = builder.toString().length();
+            }
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (index == 0) {
+                builder.append("开启了好友验证, 请先");
+            }
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            index++;
+        }
     }
 
 

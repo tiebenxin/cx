@@ -169,12 +169,10 @@ public class UserDao {
                         userInfo.setuType(ChatEnum.EUserType.FRIEND);
                     }
                     //服务器用户最后在线时间小于本地最后在线时间，则不更新最后在线时间
-                    if (userInfo.getLastonline() < u.getLastonline()) {
+                    if (u.getLastonline() != null && userInfo != null && userInfo.getLastonline() < u.getLastonline()) {
                         userInfo.setLastonline(u.getLastonline());
                     }
                     realm.copyToRealmOrUpdate(userInfo);
-
-
                 }
 
 
