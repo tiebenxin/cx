@@ -105,6 +105,8 @@ public class UserAction {
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
             return uid;
         }
+
+        Log.v("youmeng","上传deviceToken------------>"+uid);
         return uid;
     }
 
