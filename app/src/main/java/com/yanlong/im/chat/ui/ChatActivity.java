@@ -214,7 +214,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 public void run() {
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
                         taskRefreshMessage();
-                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
+//                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
                             for (String msgid : bean.getMsgIdList()) {
@@ -1664,8 +1664,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             switch (msgbean.getMsg_type()) {
                 case 0:
                     if (msgbean.getMsgNotice() != null) {
-                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
-                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT || msgbean.getMsgNotice().getMsgType() == 17) {
+//                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
+                        if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
+                                || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF
+                                || msgbean.getMsgNotice().getMsgType() == ChatEnum.ENoticeType.BLACK_ERROR) {
                             holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         } else {
                             holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
@@ -2212,7 +2214,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(),true));
+                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
             }
 
 
@@ -2230,7 +2232,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(),true));
+                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
             }
             actionbar.setTitle(title);
         }

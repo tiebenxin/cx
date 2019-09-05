@@ -1192,19 +1192,25 @@ public class SocketData {
 
     //消息被拒
     public static MsgAllBean createMsgBean(MsgBean.AckMessage ack) {
-        MsgAllBean bean = msgDao.getMsgById(ack.getRequestId());
+        MsgAllBean bean = msgDao.getMsgById(ack.getMsgId(0));
         MsgAllBean msg = null;
         if (bean != null) {
             msg = new MsgAllBean();
             String msgId = SocketData.getUUID();
             msg.setMsg_id(msgId);
+            msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
             msg.setFrom_uid(bean.getFrom_uid());
-            msg.setTimestamp(ack.getTimestamp() + 1);
+            long time = System.currentTimeMillis();
+            if (ack.getTimestamp() >= bean.getTimestamp() && bean.getTimestamp() >= time) {
+                msg.setTimestamp(bean.getTimestamp() + 1);
+            } else {
+                msg.setTimestamp(System.currentTimeMillis());
+            }
             msg.setTo_uid(bean.getTo_uid());
             msg.setGid(bean.getGid());
+            msg.setFrom_group_nickname(bean.getFrom_nickname());
             msg.setMsgNotice(createMsgNotice(msgId, ChatEnum.ENoticeType.BLACK_ERROR, getNoticeString(bean, ChatEnum.ENoticeType.BLACK_ERROR)));
         }
-
         return msg;
     }
 
@@ -1221,11 +1227,10 @@ public class SocketData {
         if (bean != null) {
             switch (type) {
                 case ChatEnum.ENoticeType.BLACK_ERROR:
-                    note = "消息已发送，但对方拒收";
+                    note = "消息发送成功，但对方已拒收";
                     break;
                 case ChatEnum.ENoticeType.NO_FRI_ERROR:
-                    note = "\"<font color='#276baa' id='" + bean.getFrom_uid() + "'>" + bean.getFrom_nickname() + "</font>" + "开启了好友验证, 请先" + "\"添加对方为好友 <div id='" + bean.getFrom_uid() + "'></div>";
-
+                    note = "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + bean.getTo_user().getName4Show() + "</font>\"" + "开启了好友验证, 请先" + "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>";
                     break;
             }
         }

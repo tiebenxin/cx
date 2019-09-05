@@ -47,13 +47,13 @@ public class SocketUtil {
 
                 SocketData.msgSave4MeFail(bean);
 
-//                if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {//
-//                    MsgAllBean msg = SocketData.createMsgBean(bean);
-//                    //收到直接存表
-//                    if (msg != null) {
-//                        DaoUtil.update(msg);
-//                    }
-//                }
+                if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {//
+                    MsgAllBean msg = SocketData.createMsgBean(bean);
+                    //收到直接存表
+                    if (msg != null) {
+                        DaoUtil.update(msg);
+                    }
+                }
             }
 
 
