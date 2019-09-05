@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -195,6 +197,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void run() {
                         Log.d("tyad", "run: state" + state);
+                        actionBar.getLoadBar().setVisibility(state ?View.GONE:View.VISIBLE);
                         actionBar.setTitle(state ? "消息" : "消息(连接中...)");
                         if (state) {
                             viewNetwork.setVisibility(View.GONE);

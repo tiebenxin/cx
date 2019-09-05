@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.cb.cb.library.R;
@@ -36,6 +37,7 @@ public class ActionbarView extends LinearLayout {
 	private ImageView btnRight;
 	private View ViewLeft;
 	private LinearLayout ViewRight;
+	private ProgressBar loadBar;
 
 	private Context context;
 	private ListenEvent listenEvent;
@@ -162,6 +164,11 @@ public class ActionbarView extends LinearLayout {
 
 	}
 
+	public ProgressBar getLoadBar() {
+		return loadBar;
+	}
+
+
 	public ActionbarView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = context;
@@ -174,6 +181,7 @@ public class ActionbarView extends LinearLayout {
 		btnRight = rootView.findViewById(R.id.btn_icon_right);
 		ViewLeft = rootView.findViewById(R.id.action_left);
 		ViewRight = rootView.findViewById(R.id.action_right);
+		loadBar =(ProgressBar) rootView.findViewById(R.id.load_bar);
 
 		TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ActionbarView);
 		// 左图标
