@@ -453,7 +453,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".user.ui.PictureExternalPreviewActivity">
+        <activity android:name=".user.ui.PictureExternalPreviewActivity" android:screenOrientation="portrait" android:launchMode="singleTask">
             <intent-filter>
                 <!--协议部分，-->
                 <data

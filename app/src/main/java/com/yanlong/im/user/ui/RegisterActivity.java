@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -190,6 +191,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     }
 
     private void taskRegister(final String phone, String captcha) {
+        Log.v("youmeng","RegisterActivity------->getDevId");
         userAction.register(phone, captcha, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
