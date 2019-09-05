@@ -131,26 +131,32 @@ public class TimeToString {
         return s;
     }
 
-    public static Spanned getTimeOnline(Long timestamp, @CoreEnum.ESureType int activeType) {
+    public static Spanned getTimeOnline(Long timestamp, @CoreEnum.ESureType int activeType, boolean isChat) {
+        String color = "#276baa";
+        if (isChat) {
+            color = "#A1CCF0";
+        }
         if (activeType == CoreEnum.ESureType.YES) {
-            String timestr = "<font color='#A1CCF0'>在线</font>";
+            String timestr = String.format("<font color='%s'>在线</font>", color);
             return Html.fromHtml(timestr);
         } else {
-//            Long now = new Date().getTime() + DIFF_TIME;
             Calendar todayCalendar = Calendar.getInstance();
             Long now = todayCalendar.getTimeInMillis() + DIFF_TIME;//当前服务器时间
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(timestamp);
             long disparity = new Double((now - timestamp) / 1000.0).longValue();//差距秒
-//            String timestr = YYYY_MM_DD(timestamp) + "";
             String timestr = "";
             if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR)) {
                 if (todayCalendar.get(Calendar.DAY_OF_YEAR) == calendar.get(Calendar.DAY_OF_YEAR)) { //同一天
                     LogUtil.getLog().i(TimeToString.class.getSimpleName(), "  时间差=" + disparity);
                     if (disparity >= 0 && disparity < 2 * 60) { //0 到2 min
-                        timestr = "<font color='#A1CCF0'>刚刚</font>";
+//                        timestr = "<font color='#A1CCF0'>刚刚</font>";
+                        timestr = String.format("<font color='%s'>刚刚</font>", color);
+
                     } else if (disparity >= 2 * 60 && disparity < 60 * 60) { //2min到1小时
-                        timestr = "<font color='#A1CCF0'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
+//                        timestr = "<font color='#A1CCF0'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
+                        timestr = String.format("<font color='%s'>" + new Long(disparity / 60).intValue() + "分钟前</font>", color);
+
                     } else if (disparity >= 60 * 60 && disparity <= 24 * 60 * 60) { //1 小时 到24小时
                         timestr = new Long(disparity / 60 / 60).intValue() + "小时前";
                     } else {
@@ -158,9 +164,12 @@ public class TimeToString {
                     }
                 } else if (todayCalendar.get(Calendar.YEAR) == calendar.get(Calendar.YEAR) && todayCalendar.get(Calendar.DAY_OF_YEAR) == (calendar.get(Calendar.DAY_OF_YEAR) + 1)) {//隔一天
                     if (disparity >= 0 && disparity < 2 * 60) { //0 到2 min
-                        timestr = "<font color='#A1CCF0'>刚刚</font>";
+//                        timestr = "<font color='#A1CCF0'>刚刚</font>";
+                        timestr = String.format("<font color='%s'>刚刚</font>", color);
                     } else if (disparity >= 2 * 60 && disparity < 60 * 60) { //2min到1小时
-                        timestr = "<font color='#A1CCF0'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
+//                        timestr = "<font color='#A1CCF0'>" + new Long(disparity / 60).intValue() + "分钟前</font>";
+                        timestr = String.format("<font color='%s'>" + new Long(disparity / 60).intValue() + "分钟前</font>", color);
+
                     } else {
                         timestr = "昨天 " + HH_MM(timestamp) + "";
                     }

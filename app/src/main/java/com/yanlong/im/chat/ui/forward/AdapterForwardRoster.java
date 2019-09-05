@@ -106,7 +106,7 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
             imgHead.setImageURI(Uri.parse("" + bean.getHead()));
             txtName.setText(bean.getName4Show());
             if (bean.getLastonline() > 0) {
-                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType()));
+                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(),false));
                 txtTime.setVisibility(View.VISIBLE);
             } else {
                 txtTime.setVisibility(View.GONE);

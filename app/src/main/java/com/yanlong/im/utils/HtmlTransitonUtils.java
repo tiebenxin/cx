@@ -38,29 +38,32 @@ public class HtmlTransitonUtils {
         if (!TextUtils.isEmpty(html)) {
             HtmlBean bean = htmlTransition(html);
             switch (type) {
-                case 1:
+                case 1: //二维码分享进群
                     setType1(context, style, bean);
                     break;
-                case 2:
+                case 2: //邀请进群
                     setType2(context, style, bean);
                     break;
-                case 3:
+                case 3: //群主移出群聊
                     setType3(context, style, bean);
                     break;
-                case 5:
+                case 5: //群主转让
                     setType5(context, style, bean);
                     break;
-                case 6:
+                case 6: //离开群聊
                     setType6(context, style, bean);
                     break;
-                case 7:
+                case 7: // xxx领取了你的云红包
                     setType7(context, style, bean);
                     break;
-                case 8:
+                case 8: // 你领取的xxx的云红包
                     setType8(context, style, bean);
                     break;
-                case 9:
+                case 9: //消息撤回
                     setType9(context, style, bean);
+                    break;
+                case 17://自己领取了自己的云红包
+
                     break;
             }
 

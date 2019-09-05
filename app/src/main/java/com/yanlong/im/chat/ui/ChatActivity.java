@@ -94,7 +94,6 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.AnimationPic;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -114,7 +113,6 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
-import net.cb.cb.library.view.MlistAdapter;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
 
@@ -182,6 +180,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //当前页
     //private int indexPage = 0;
     private List<MsgAllBean> msgListData = new ArrayList<>();
+    private List<MsgAllBean> downloadList = new ArrayList<>();
 
     //红包和转账
     public static final int REQ_RP = 9653;
@@ -262,7 +261,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     //从数据库读取消息
                     if (needRefresh) {
-                        LogUtil.getLog().i(TAG, "需要刷新");
+//                        LogUtil.getLog().i(TAG, "需要刷新");
                         taskRefreshMessage();
                     }
                 }
@@ -1575,6 +1574,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         break;
                     case ChatEnum.EMessageType.VOICE:
                         holder.viewChatItem.updateVoice(msgbean);
+//                        LogUtil.getLog().i(TAG, "刷新语音updateVoice" + "--position=" + position);
                         break;
                     default:
                         onBindViewHolder(holder, position);
@@ -1979,6 +1979,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void playVoice(final MsgAllBean bean, final boolean canAutoPlay, final int position) {
+//        LogUtil.getLog().i(TAG, "playVoice--" + position);
         VoiceMessage vm = bean.getVoiceMessage();
         if (vm == null || TextUtils.isEmpty(vm.getUrl())) {
             return;
@@ -1996,12 +1997,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             AudioPlayManager.getInstance().stopPlay();
         } else {
             if (!bean.isRead() && !bean.isMe()) {
+                int len = downloadList.size();
+                if (len > 0) {//有下载
+                    MsgAllBean msg = downloadList.get(len - 1);
+                    updatePlayStatus(msg, 0, ChatEnum.EPlayStatus.NO_PLAY);
+                }
+                downloadList.add(bean);
+
                 updatePlayStatus(bean, position, ChatEnum.EPlayStatus.DOWNLOADING);
-                AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.OnDownloadListener() {
+                AudioPlayManager.getInstance().downloadAudio(context, bean, new DownloadUtil.IDownloadVoiceListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
                         updatePlayStatus(bean, position, ChatEnum.EPlayStatus.NO_PLAY);
                         startPlayVoice(bean, canAutoPlay, position);
+
                     }
 
                     @Override
@@ -2015,16 +2024,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 });
             } else {
+                int len = downloadList.size();
+                if (len > 0) {//有下载
+                    MsgAllBean msg = downloadList.get(len - 1);
+                    updatePlayStatus(msg, 0, ChatEnum.EPlayStatus.NO_PLAY);
+                }
                 startPlayVoice(bean, canAutoPlay, position);
             }
         }
     }
 
     private void updatePlayStatus(MsgAllBean bean, int position, @ChatEnum.EPlayStatus int status) {
-        LogUtil.getLog().i(TAG, "updatePlayStatus--" + status);
+//        LogUtil.getLog().i(TAG, "updatePlayStatus--" + status + "--position=" + position);
         bean = amendMsgALlBean(position, bean);
         VoiceMessage voiceMessage = bean.getVoiceMessage();
-        if (status == ChatEnum.EPlayStatus.PLAYING) {
+        if (status == ChatEnum.EPlayStatus.NO_PLAY || status == ChatEnum.EPlayStatus.PLAYING) {//已点击下载，或者正在播
             if (bean.isRead() == false) {
                 msgAction.msgRead(bean.getMsg_id(), true);
                 bean.setRead(true);
@@ -2043,6 +2057,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void startPlayVoice(MsgAllBean bean, boolean canAutoPlay, final int position) {
+//        LogUtil.getLog().i(TAG, "startPlayVoice--" + "downSize =" + downloadList.size());
+
+        if (downloadList.size() > 1) {
+            int size = downloadList.size();
+            int p = downloadList.indexOf(bean);
+            if (p != size - 1) {
+//                LogUtil.getLog().i(TAG, "startPlayVoice--终止下载位置=" + p);
+                downloadList.remove(bean);
+                return;
+            }
+        }
+        downloadList.remove(bean);
+
         AudioPlayManager.getInstance().startPlay(context, bean, position, canAutoPlay, new IVoicePlayListener() {
             @Override
             public void onStart(MsgAllBean bean) {
@@ -2185,7 +2212,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType()));
+                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(),true));
             }
 
 
@@ -2203,7 +2230,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType()));
+                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(),true));
             }
             actionbar.setTitle(title);
         }

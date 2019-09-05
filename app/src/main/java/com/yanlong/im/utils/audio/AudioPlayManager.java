@@ -29,7 +29,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import static android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 
@@ -50,6 +49,7 @@ public class AudioPlayManager implements SensorEventListener {
     private MsgAllBean currentPlayingMsg;
     private boolean isCanAutoPlay = false;
     private int currentPosition;
+    private MsgAllBean currentDownBean;
 
     public AudioPlayManager() {
     }
@@ -201,7 +201,7 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     public void startPlay(Context context, final MsgAllBean bean, int position, boolean canAutoPlay, IVoicePlayListener playListener) {
-//        LogUtil.getLog().i(TAG, "startPlay--" + bean.getVoiceMessage().getUrl());
+        LogUtil.getLog().i(TAG, "startPlay--" + bean.getVoiceMessage().getUrl());
         if (context != null && bean != null) {
             this.context = context;
             if (bean.getVoiceMessage() == null) {
@@ -359,7 +359,7 @@ public class AudioPlayManager implements SensorEventListener {
         }).start();
     }
 
-    public void downloadAudio(final Context context, final MsgAllBean bean, final DownloadUtil.OnDownloadListener listener) {
+    public void downloadAudio(final Context context, final MsgAllBean bean, final DownloadUtil.IDownloadVoiceListener listener) {
 //        LogUtil.getLog().i(TAG, "downloadAudio");
         new Thread(new Runnable() {
             @Override
@@ -370,6 +370,7 @@ public class AudioPlayManager implements SensorEventListener {
                     @Override
                     public void onDownloadSuccess(File file) {
                         listener.onDownloadSuccess(file);
+                        currentDownBean = null;
                         LogUtil.getLog().i(TAG, "语音下载成功");
                     }
 
@@ -381,6 +382,7 @@ public class AudioPlayManager implements SensorEventListener {
                     @Override
                     public void onDownloadFailed(Exception e) {
                         listener.onDownloadFailed(e);
+                        currentDownBean = null;
                     }
                 });
             }

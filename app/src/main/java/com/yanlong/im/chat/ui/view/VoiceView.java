@@ -73,6 +73,7 @@ public class VoiceView extends LinearLayout {
             viewMeVoice.setVisibility(GONE);
             viewOtVoice.setVisibility(VISIBLE);
             imgOtUnRead.setVisibility(isRead ? GONE : VISIBLE);
+            imgOtUnRead.setImageResource(R.mipmap.bg_red_num_small);
         }
         txtOtVoice.setText(second + "''");
         txtMeVoice.setText(second + "''");
@@ -128,6 +129,10 @@ public class VoiceView extends LinearLayout {
                     imgOtUnRead.startAnimation(rotateAnimation);
                     imgOtUnRead.setVisibility(VISIBLE);
                 }
+                break;
+            case ChatEnum.EPlayStatus.NO_PLAY:
+                imgOtUnRead.clearAnimation();
+                imgOtUnRead.setVisibility(GONE);
                 break;
         }
     }
