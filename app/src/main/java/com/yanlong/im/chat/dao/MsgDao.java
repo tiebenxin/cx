@@ -1781,16 +1781,31 @@ public class MsgDao {
      * 群成员保护的开关
      * @param intimately
      */
-    public void groupContactIntimatelyUpdate(String gid,boolean intimately){
+    public void groupContactIntimatelyUpdate(String gid, boolean intimately) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
-        Group group=realm.where(Group.class).equalTo("gid", gid).findFirst();
-        group.setContactIntimately(intimately?1:0);
+        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        group.setContactIntimately(intimately ? 1 : 0);
         realm.insertOrUpdate(group);
 
         realm.commitTransaction();
         realm.close();
+    }
+
+
+    public MsgAllBean getMsgById(String msgId) {
+        MsgAllBean ret = null;
+        MsgAllBean bean = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        ret = realm.where(MsgAllBean.class).equalTo("msg_id", msgId).findFirst();
+        if (ret != null) {
+            bean = realm.copyFromRealm(ret);
+        }
+        realm.commitTransaction();
+        realm.close();
+        return bean;
     }
 
 }

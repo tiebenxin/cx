@@ -10,6 +10,7 @@ import com.yanlong.im.utils.DaoUtil;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -39,14 +40,20 @@ public class SocketUtil {
 
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
-
-
                 SocketData.msgSave4Me(bean);
 
             } else {
                 LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :" + bean.getRejectType());
 
                 SocketData.msgSave4MeFail(bean);
+
+//                if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {//
+//                    MsgAllBean msg = SocketData.createMsgBean(bean);
+//                    //收到直接存表
+//                    if (msg != null) {
+//                        DaoUtil.update(msg);
+//                    }
+//                }
             }
 
 
@@ -153,10 +160,11 @@ public class SocketUtil {
         }
 
     }
-    public void addEvent(SocketEvent event,int index) {
+
+    public void addEvent(SocketEvent event, int index) {
         if (!eventLists.contains(event)) {
             LogUtil.getLog().i(TAG, ">>>>>>添加消息监听");
-            eventLists.add(index,event);
+            eventLists.add(index, event);
         }
 
     }
@@ -421,7 +429,7 @@ public class SocketUtil {
                     writeBuf.flip();
                     LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
                     LogUtil.getLog().i(TAG, ">>>发送:" + SocketData.bytesToHex(data));
-                   int state= socketChannel.write(writeBuf);
+                    int state = socketChannel.write(writeBuf);
                     writeBuf.clear();
                     LogUtil.getLog().i(TAG, ">>>发送状态:" + state);
                 } catch (Exception e) {
@@ -543,7 +551,7 @@ public class SocketUtil {
                             readBuf.get(data, 0, data_size);
 
                             LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketData.bytesToHex(data));
-                            LogUtil.getLog().d(TAG, "<<<<<接收数据总大小: "+ data.length);
+                            LogUtil.getLog().d(TAG, "<<<<<接收数据总大小: " + data.length);
 
                             if (SocketData.isHead(data)) {//收到包头
                                 LogUtil.getLog().d(TAG, ">>>接收数据: 是包头");
@@ -555,21 +563,21 @@ public class SocketUtil {
                                     }
 
                                     temp.add(ex);
-                                    LogUtil.getLog().d(TAG, ">>>[包头]剩余数据长度"+ex.length);
+                                    LogUtil.getLog().d(TAG, ">>>[包头]剩余数据长度" + ex.length);
                                 }
 
                             } else {//收到包体
                                 LogUtil.getLog().d(TAG, ">>>接收数据: 是包体");
                                 if (temp.size() > 0) {
                                     byte[] oldpk = SocketData.listToBytes(temp);
-                                    LogUtil.getLog().d(TAG, ">>>上一个包大小"+oldpk.length);
+                                    LogUtil.getLog().d(TAG, ">>>上一个包大小" + oldpk.length);
                                     temp.clear();
                                     byte[] epk = SocketData.byteMergerAll(oldpk, data);//合成的新包
-                                    LogUtil.getLog().d(TAG, ">>>合成包大小"+epk.length);
+                                    LogUtil.getLog().d(TAG, ">>>合成包大小" + epk.length);
                                     byte[] ex = doPackage(epk);
                                     if (ex != null) {
                                         temp.add(ex);
-                                        LogUtil.getLog().d(TAG, ">>>[包体]剩余数据长度"+ex.length);
+                                        LogUtil.getLog().d(TAG, ">>>[包体]剩余数据长度" + ex.length);
                                     }
                                 } else {//如果没有包头缓存,同样抛掉包体
                                     LogUtil.getLog().d(TAG, ">>>抛掉包体错误数据" + SocketData.bytesToHex(data));
@@ -581,8 +589,8 @@ public class SocketUtil {
                             LogUtil.getLog().d(TAG, ">>>当前缓冲区数: " + temp.size());
 
                             readBuf.clear();
-                        }else{
-                           // LogUtil.getLog().d(TAG, "<<<<<接收缓存: "+ data_size);
+                        } else {
+                            // LogUtil.getLog().d(TAG, "<<<<<接收缓存: "+ data_size);
                         }
                         Thread.sleep(50);
                     }
@@ -693,6 +701,10 @@ public class SocketUtil {
 
 
         return ex;
+    }
+
+    private void notifyChatRefresh() {
+        EventBus.getDefault().post(new EventRefreshChat());
     }
 
 

@@ -235,4 +235,27 @@ public class ChatEnum {
         int PLAYED = 5;//已播放
     }
 
+
+    /*
+     * 通知类型
+     *
+     * */
+    @IntDef({ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
+            ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.RED_ENVELOPE_RECEIVED_SELF})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ENoticeType {
+        int ENTER_BY_QRCODE = 1; //扫二维码进群
+        int INVITED = 2; //被邀请进群
+        int KICK = 3; //被移出群聊
+        int FORTH = 4; //
+        int TRANSFER_GROUP_OWNER = 5; //群主转让
+        int LEAVE = 6;//离开群聊
+        int RED_ENVELOPE_RECEIVED = 7;//xx领取你的红包
+        int RECEIVE_RED_ENVELOPE = 8;//你领取了xx的红包
+        int CANCEL = 9;//撤回
+        int BLACK_ERROR = 10;//拉黑，消息被拒错误
+        int NO_FRI_ERROR = 11;//被删好友，消息发送错误
+        int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的红包
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.yanlong.im.utils.socket;
 
-import android.speech.tts.Voice;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -19,20 +18,15 @@ import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.ToastUtil;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class SocketData {
     private static final String TAG = "SocketData";
@@ -1193,6 +1187,49 @@ public class SocketData {
         //立即发送
         SocketUtil.getSocketUtil().sendData4Msg(msg);
 
+    }
+
+
+    //消息被拒
+    public static MsgAllBean createMsgBean(MsgBean.AckMessage ack) {
+        MsgAllBean bean = msgDao.getMsgById(ack.getRequestId());
+        MsgAllBean msg = null;
+        if (bean != null) {
+            msg = new MsgAllBean();
+            String msgId = SocketData.getUUID();
+            msg.setMsg_id(msgId);
+            msg.setFrom_uid(bean.getFrom_uid());
+            msg.setTimestamp(ack.getTimestamp() + 1);
+            msg.setTo_uid(bean.getTo_uid());
+            msg.setGid(bean.getGid());
+            msg.setMsgNotice(createMsgNotice(msgId, ChatEnum.ENoticeType.BLACK_ERROR, getNoticeString(bean, ChatEnum.ENoticeType.BLACK_ERROR)));
+        }
+
+        return msg;
+    }
+
+    public static MsgNotice createMsgNotice(String msgId, @ChatEnum.ENoticeType int type, String content) {
+        MsgNotice note = new MsgNotice();
+        note.setMsgid(msgId);
+        note.setMsgType(type);
+        note.setNote(content);
+        return note;
+    }
+
+    public static String getNoticeString(MsgAllBean bean, @ChatEnum.ENoticeType int type) {
+        String note = "";
+        if (bean != null) {
+            switch (type) {
+                case ChatEnum.ENoticeType.BLACK_ERROR:
+                    note = "消息已发送，但对方拒收";
+                    break;
+                case ChatEnum.ENoticeType.NO_FRI_ERROR:
+                    note = "\"<font color='#276baa' id='" + bean.getFrom_uid() + "'>" + bean.getFrom_nickname() + "</font>" + "开启了好友验证, 请先" + "\"添加对方为好友 <div id='" + bean.getFrom_uid() + "'></div>";
+
+                    break;
+            }
+        }
+        return note;
     }
 
 
