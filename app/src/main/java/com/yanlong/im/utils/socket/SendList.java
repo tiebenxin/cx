@@ -1,5 +1,7 @@
 package com.yanlong.im.utils.socket;
 
+import android.util.Log;
+
 import net.cb.cb.library.utils.LogUtil;
 
 import java.util.Iterator;
@@ -31,6 +33,9 @@ public class SendList {
      * @param msg
      */
     public static void addSendList(String keyId, MsgBean.UniversalMessage.Builder msg) {
+
+        LogUtil.getLog().d(TAG,"添加发送队列rid:"+keyId);
+
         if (SEND_LIST.containsKey(keyId)) {//已经在发送队列中了
             SendListBean sl = SEND_LIST.get(keyId);
             sl.setReSendNum(sl.getReSendNum() + 1);
@@ -57,6 +62,7 @@ public class SendList {
      * @param keyId
      */
     public static void removeSendList(String keyId) {
+        LogUtil.getLog().d(TAG,"移除发送队列rid:"+keyId);
         if (!SEND_LIST.containsKey(keyId))
             return;
         LogUtil.getLog().e(TAG,"SocketUtil$移除队列[返回失败]"+keyId);

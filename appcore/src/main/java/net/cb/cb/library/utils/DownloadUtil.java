@@ -35,8 +35,8 @@ public class DownloadUtil {
      * @param destFileName 下载文件名称
      * @param listener     下载监听
      */
-    public void download(final String url, final String destFileDir, final String destFileName, final OnDownloadListener listener) {
-
+    public Call download(final String url, final String destFileDir, final String destFileName, final OnDownloadListener listener) {
+        Call call;
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -48,9 +48,10 @@ public class DownloadUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         //异步请求
-        okHttpClient.newCall(request).enqueue(new Callback() {
+        call = okHttpClient.newCall(request);
+
+        call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 // 下载失败监听回调
@@ -106,6 +107,7 @@ public class DownloadUtil {
                 }
             }
         });
+        return call;
     }
 
 
