@@ -142,6 +142,8 @@ import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 
 public class ChatActivity extends AppActivity implements ICellEventListener {
     private static String TAG = "ChatActivity";
+    public final static int MIN_TEXT = 1000;//
+
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
     private net.cb.cb.library.view.HeadView headView;
@@ -194,6 +196,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private boolean isSoftShow;
     private Map<Integer, View> viewMap = new HashMap<>();
     private boolean needRefresh;
+    private List<String> sendTexts;//文本分段发送
+    private boolean isSendingHypertext = false;
+    private int textPosition;
 
 
     private boolean isGroup() {
@@ -226,6 +231,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
                             taskRefreshMessage();
 //                            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskRefreshMessage");
+                        }
+                    }
+                    if (isSendingHypertext) {
+                        if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
+                            sendHypertext(sendTexts, textPosition + 1);
                         }
                     }
                 }
@@ -449,9 +459,37 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 } else {
                     //发送普通消息
-                    MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, edtChat.getText().toString());
-                    showSendObj(msgAllbean);
-                    edtChat.getText().clear();
+                    String text = edtChat.getText().toString();
+                    if (!TextUtils.isEmpty(text)) {
+                        int totalSize = text.length();
+                        int per = totalSize / MIN_TEXT;
+                        if (per > 10) {
+                            ToastUtil.show(ChatActivity.this, "文本长度不能超过" + 10 * MIN_TEXT);
+                            edtChat.getText().clear();
+                            return;
+                        }
+                        if (totalSize <= MIN_TEXT) {//非长文本
+                            isSendingHypertext = false;
+                            MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
+                            showSendObj(msgAllbean);
+                            edtChat.getText().clear();
+                        } else {
+                            isSendingHypertext = true;//正在分段发送长文本
+                            if (totalSize > per * MIN_TEXT) {
+                                per = per + 1;
+                            }
+                            sendTexts = new ArrayList<>();
+                            for (int i = 0; i < per; i++) {
+                                if (i < per - 1) {
+                                    sendTexts.add(text.substring(i * MIN_TEXT, (i + 1) * MIN_TEXT));
+                                } else {
+                                    sendTexts.add(text.substring(i * MIN_TEXT, totalSize));
+                                }
+                            }
+                            sendHypertext(sendTexts, 0);
+                            edtChat.getText().clear();
+                        }
+                    }
                 }
             }
         });
@@ -2789,6 +2827,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             return viewMap.get(position);
         }
         return null;
+    }
+
+    private void sendHypertext(List<String> list, int position) {
+        if (position == list.size() - 1) {
+            isSendingHypertext = false;
+        }
+        textPosition = position;
+        MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
+        showSendObj(msgAllbean);
     }
 
 

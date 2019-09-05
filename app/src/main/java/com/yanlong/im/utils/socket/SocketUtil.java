@@ -1,18 +1,14 @@
 package com.yanlong.im.utils.socket;
 
 import android.accounts.NetworkErrorException;
-import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
-import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -48,7 +44,7 @@ public class SocketUtil {
                 SocketData.msgSave4MeFail(bean);
 
                 if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {//
-                    MsgAllBean msg = SocketData.createMsgBean(bean);
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);

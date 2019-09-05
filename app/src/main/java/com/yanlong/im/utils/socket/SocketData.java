@@ -1191,7 +1191,7 @@ public class SocketData {
 
 
     //消息被拒
-    public static MsgAllBean createMsgBean(MsgBean.AckMessage ack) {
+    public static MsgAllBean createMsgBeanOfNotice(MsgBean.AckMessage ack) {
         MsgAllBean bean = msgDao.getMsgById(ack.getMsgId(0));
         MsgAllBean msg = null;
         if (bean != null) {
@@ -1201,10 +1201,10 @@ public class SocketData {
             msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
             msg.setFrom_uid(bean.getFrom_uid());
             long time = System.currentTimeMillis();
-            if (ack.getTimestamp() >= bean.getTimestamp() && bean.getTimestamp() >= time) {
+            if (ack.getTimestamp() >= time) {
                 msg.setTimestamp(bean.getTimestamp() + 1);
             } else {
-                msg.setTimestamp(System.currentTimeMillis());
+                msg.setTimestamp(time);
             }
             msg.setTo_uid(bean.getTo_uid());
             msg.setGid(bean.getGid());
