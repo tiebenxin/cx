@@ -41,6 +41,9 @@ public class SocketData {
     //类型2位
     private static byte[] P_TYPE = new byte[2];
 
+    private static long preServerAckTime;//前一个服务器回执时间
+    private static long preSendLocalTime;//前一个本地消息发送的时间
+
 
     //数据类型枚举
     public enum DataType {
@@ -1237,5 +1240,31 @@ public class SocketData {
         return note;
     }
 
+    public static long getPreServerAckTime() {
+        return preServerAckTime;
+    }
 
+    public static void setPreServerAckTime(long preServerAckTime) {
+        SocketData.preServerAckTime = preServerAckTime;
+    }
+
+    public static long getPreSendLocalTime() {
+        return preSendLocalTime;
+    }
+
+    public static void setPreSendLocalTime(long preSendLocalTime) {
+        SocketData.preSendLocalTime = preSendLocalTime;
+    }
+
+    //获取修正时间
+    public static long getFixTime() {
+        long currentTime = System.currentTimeMillis();
+        if (preServerAckTime > preSendLocalTime && preServerAckTime > currentTime) {//服务器回执时间最新
+            return preServerAckTime = preServerAckTime + 1;
+        } else if (preSendLocalTime > preServerAckTime && preSendLocalTime > currentTime) {//本地发送时间最新
+            return preSendLocalTime = preSendLocalTime + 1;
+        } else {//本地系统时间最新
+            return currentTime;
+        }
+    }
 }

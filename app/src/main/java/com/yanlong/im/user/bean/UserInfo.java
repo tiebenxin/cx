@@ -5,6 +5,8 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
+import net.cb.cb.library.utils.GsonUtils;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
@@ -317,6 +319,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
      */
     public void toTag() {
         String name = StringUtil.isNotNull(this.mkName) ? this.mkName : this.name;
+        if (TextUtils.isEmpty(name)) {
+            return;
+        }
         String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
         if (n == null) {
             setTag("" + (name.toUpperCase()).charAt(0));
