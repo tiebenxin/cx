@@ -41,6 +41,9 @@ public class SocketData {
     //类型2位
     private static byte[] P_TYPE = new byte[2];
 
+    private static long preServerAckTime;//前一个服务器回执时间
+    private static long preSendLocalTime;//前一个本地消息发送的时间
+
 
     //数据类型枚举
     public enum DataType {
@@ -161,7 +164,7 @@ public class SocketData {
     public static MsgBean.UniversalMessage.Builder getMsgBuild() {
         MsgBean.UniversalMessage.Builder msg = MsgBean.UniversalMessage.newBuilder();
         MsgBean.UniversalMessage.WrapMessage.Builder wp = MsgBean.UniversalMessage.WrapMessage.newBuilder();
-        msg.setRequestId("" + System.currentTimeMillis());
+        msg.setRequestId("" + getSysTime());
         msg.addWrapMsg(0, wp.build());
 
         return msg;
@@ -458,7 +461,7 @@ public class SocketData {
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
                     //时间要和ack一起返回
-                    .setTimestamp(System.currentTimeMillis())
+                    .setTimestamp(getSysTime())
                     .build();
             //  Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
 
@@ -536,7 +539,7 @@ public class SocketData {
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
                     //时间要和ack一起返回
-                    .setTimestamp(System.currentTimeMillis())
+                    .setTimestamp(getSysTime())
                     .build();
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
@@ -659,7 +662,7 @@ public class SocketData {
         wmsg.setMsgId(msgid == null ? getUUID() : msgid);
 
 
-        wmsg.setTimestamp(System.currentTimeMillis());
+        wmsg.setTimestamp(getSysTime());
 
         if (toGid != null && toGid.length() > 0) {//给群发
             wmsg.setGid(toGid);
@@ -902,75 +905,6 @@ public class SocketData {
         return send4Image(getUUID(), toId, toGid, url, false, imgsize);
     }
 
-//    public static MsgAllBean sendFileUploadMessagePre(String msgId, Long toId, String toGid, String url, boolean isOriginal) {
-//        //
-//        //前保存
-//        MsgAllBean msgAllBean = new MsgAllBean();
-//        msgAllBean.setMsg_id(msgId);
-//        UserInfo myinfo = UserAction.getMyInfo();
-//        msgAllBean.setFrom_uid(myinfo.getUid());
-//        msgAllBean.setFrom_avatar(myinfo.getHead());
-//        msgAllBean.setFrom_nickname(myinfo.getName());
-//        msgAllBean.setRequest_id(System.currentTimeMillis() + "");
-//        msgAllBean.setTimestamp(System.currentTimeMillis());
-//        msgAllBean.setMsg_type(ChatEnum.EMessageType.IMAGE);
-//        msgAllBean.setTo_uid(toId);
-//        msgAllBean.setGid(toGid == null ? "" : toGid);
-//        msgAllBean.setSend_state(ChatEnum.ESendStatus.PRE_SEND);
-//        ImageMessage image = new ImageMessage();
-//        image.setLocalimg(url);
-//        image.setPreview(url);
-//        image.setThumbnail(url);
-//        image.setMsgid(msgId);
-//        ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
-//        image.setWidth(img.getWidth());
-//        image.setHeight(img.getHeight());
-//        if (isOriginal) {
-//            image.setOrigin(url);
-//        }
-//        msgAllBean.setImage(image);
-//        Log.d(TAG, "sendFileUploadMessagePre: msgId" + msgId);
-//
-//        DaoUtil.update(msgAllBean);
-//
-//        return msgAllBean;
-//    }
-
-
-//    public static MsgAllBean sendFileUploadMessagePre(String msgId, Long toId, String toGid, String url, boolean isOriginal, @ChatEnum.EMessageType int type) {
-//        //
-//        //前保存
-//        MsgAllBean msgAllBean = new MsgAllBean();
-//        msgAllBean.setMsg_id(SocketData.getUUID());
-//        UserInfo myinfo = UserAction.getMyInfo();
-//        msgAllBean.setFrom_uid(myinfo.getUid());
-//        msgAllBean.setFrom_avatar(myinfo.getHead());
-//        msgAllBean.setFrom_nickname(myinfo.getName());
-//        msgAllBean.setRequest_id(System.currentTimeMillis() + "");
-//        msgAllBean.setTimestamp(System.currentTimeMillis());
-//        msgAllBean.setMsg_type(type);
-//
-//        switch (type) {
-//            case ChatEnum.EMessageType.IMAGE:
-//                ImageMessage image = createImageMessage(msgId, url, isOriginal);
-//                msgAllBean.setImage(image);
-//                break;
-//            case ChatEnum.EMessageType.VOICE:
-//                MsgBean.VoiceMessage voice = createVoiceMessage(msgId, url);
-//
-//                break;
-//        }
-//
-//        msgAllBean.setTo_uid(toId);
-//        msgAllBean.setGid(toGid == null ? "" : toGid);
-//        msgAllBean.setSend_state(ChatEnum.ESendStatus.PRE_SEND);
-//
-//        Log.d(TAG, "sendFileUploadMessagePre: msgId" + msgId);
-//
-//        DaoUtil.update(msgAllBean);
-//
-//        return msgAllBean;
-//    }
 
     //预发送需文件（图片，语音）上传消息,保存消息及更新session
     public static <T> MsgAllBean sendFileUploadMessagePre(String msgId, Long toId, String toGid, T t, @ChatEnum.EMessageType int type) {
@@ -981,8 +915,8 @@ public class SocketData {
         msgAllBean.setFrom_uid(myinfo.getUid());
         msgAllBean.setFrom_avatar(myinfo.getHead());
         msgAllBean.setFrom_nickname(myinfo.getName());
-        msgAllBean.setRequest_id(System.currentTimeMillis() + "");
-        msgAllBean.setTimestamp(System.currentTimeMillis());
+        msgAllBean.setRequest_id(getSysTime()+ "");
+        msgAllBean.setTimestamp(getSysTime());
         msgAllBean.setMsg_type(type);
         switch (type) {
             case ChatEnum.EMessageType.IMAGE:
@@ -1200,7 +1134,7 @@ public class SocketData {
             msg.setMsg_id(msgId);
             msg.setMsg_type(ChatEnum.EMessageType.NOTICE);
             msg.setFrom_uid(bean.getFrom_uid());
-            long time = System.currentTimeMillis();
+            long time = getSysTime();
             if (ack.getTimestamp() >= time) {
                 msg.setTimestamp(bean.getTimestamp() + 1);
             } else {
@@ -1237,5 +1171,36 @@ public class SocketData {
         return note;
     }
 
+    public static long getPreServerAckTime() {
+        return preServerAckTime;
+    }
 
+    public static void setPreServerAckTime(long preServerAckTime) {
+        SocketData.preServerAckTime = preServerAckTime;
+    }
+
+    public static long getPreSendLocalTime() {
+        return preSendLocalTime;
+    }
+
+    public static void setPreSendLocalTime(long preSendLocalTime) {
+        SocketData.preSendLocalTime = preSendLocalTime;
+    }
+
+    //获取修正时间
+    public static long getFixTime() {
+        long currentTime = System.currentTimeMillis();
+        if (preServerAckTime > preSendLocalTime && preServerAckTime > currentTime) {//服务器回执时间最新
+            return preServerAckTime = preServerAckTime + 1;
+        } else if (preSendLocalTime > preServerAckTime && preSendLocalTime > currentTime) {//本地发送时间最新
+            return preSendLocalTime = preSendLocalTime + 1;
+        } else {//本地系统时间最新
+            preSendLocalTime = currentTime;
+            return currentTime;
+        }
+    }
+
+    public static long getSysTime() {
+        return System.currentTimeMillis();
+    }
 }

@@ -468,6 +468,7 @@
         </activity>
         <activity android:name=".chat.ui.forward.GroupSelectActivity" />
         <activity android:name=".chat.ui.ChatActivity2" />
+        <activity android:name=".chat.ui.GroupNoteDetailActivity" />
 
     </application>
 

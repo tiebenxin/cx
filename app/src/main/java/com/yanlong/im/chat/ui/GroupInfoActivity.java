@@ -74,7 +74,7 @@ public class GroupInfoActivity extends AppActivity {
     private TextView txtGroupNick;
     private LinearLayout viewGroupQr;
     private LinearLayout viewGroupNote;
-    private TextView txtGroupNote;
+    private TextView txtGroupNote, txtNote;
     private LinearLayout viewLog;
     private LinearLayout viewTop;
     private CheckBox ckTop;
@@ -104,6 +104,7 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupQr = findViewById(R.id.view_group_qr);
         viewGroupNote = findViewById(R.id.view_group_note);
         txtGroupNote = findViewById(R.id.txt_group_note);
+        txtNote = findViewById(R.id.txt_note);
         viewLog = findViewById(R.id.view_log);
         viewTop = findViewById(R.id.view_top);
         ckTop = findViewById(R.id.ck_top);
@@ -196,18 +197,29 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isAdmin()) {
-                    ToastUtil.show(getContext(), "非群主无法修改");
-                    return;
+//                if (!isAdmin()) {
+//                    ToastUtil.show(getContext(), "非群主无法修改");
+//                    return;
+//                }
+//                Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
+//                intent.putExtra(CommonSetingActivity.TITLE, "修改群公告");
+//                intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
+//                intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
+//                intent.putExtra(CommonSetingActivity.TYPE_LINE, 1);
+//                intent.putExtra(CommonSetingActivity.SIZE, 500);
+//                intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
+//                startActivityForResult(intent, GROUP_NOTE);
+                if (isAdmin()) {
+                    Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
+                    intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
+                    intent.putExtra(GroupNoteDetailActivity.IS_OWNER, true);
+                    startActivityForResult(intent, GROUP_NOTE);
+                } else {
+                    Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
+                    intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
+                    intent.putExtra(GroupNoteDetailActivity.IS_OWNER, false);
+                    startActivity(intent);
                 }
-                Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
-                intent.putExtra(CommonSetingActivity.TITLE, "修改群公告");
-                intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
-                intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
-                intent.putExtra(CommonSetingActivity.TYPE_LINE, 1);
-                intent.putExtra(CommonSetingActivity.SIZE, 500);
-                intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
-                startActivityForResult(intent, GROUP_NOTE);
             }
         });
         viewLog.setOnClickListener(new View.OnClickListener() {
@@ -452,7 +464,8 @@ public class GroupInfoActivity extends AppActivity {
                     taskChangeMemberName(gid, content);
                     break;
                 case GROUP_NOTE:
-                    changeGroupAnnouncement(gid, content);
+                    String note = data.getStringExtra(GroupNoteDetailActivity.CONTENT);
+                    changeGroupAnnouncement(gid, note);
                     break;
             }
         }
@@ -526,7 +539,7 @@ public class GroupInfoActivity extends AppActivity {
                         }
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
-                    txtGroupNote.setText(ginfo.getAnnouncement());
+                    setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
                     if (isAdmin()) {
                         if (ginfo.getUsers().size() > 18) {
@@ -566,6 +579,18 @@ public class GroupInfoActivity extends AppActivity {
         msgAction.groupInfo(gid, callBack);
     }
 
+    //设置群公告
+    private void setGroupNote(String note) {
+        if (!TextUtils.isEmpty(note)) {
+            txtGroupNote.setVisibility(View.VISIBLE);
+            txtGroupNote.setText(note);
+            txtNote.setVisibility(View.GONE);
+        } else {
+            txtGroupNote.setVisibility(View.GONE);
+            txtNote.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void taskGetInfoNetwork() {
         CallBack callBack = new CallBack<ReturnBean<Group>>() {
             @Override
@@ -579,7 +604,7 @@ public class GroupInfoActivity extends AppActivity {
                         }
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
-                    txtGroupNote.setText(ginfo.getAnnouncement());
+                    setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
                     if (isAdmin()) {
                         if (ginfo.getUsers().size() > 18) {
@@ -764,7 +789,7 @@ public class GroupInfoActivity extends AppActivity {
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    txtGroupNote.setText(announcement);
+                    setGroupNote(announcement);
                 }
             }
         });

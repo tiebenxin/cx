@@ -448,12 +448,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 //  }
 
                 if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
+                    String text = edtChat.getText().toString();
+                    if (!TextUtils.isEmpty(text)) {
+                        int totalSize = text.length();
+                        if (totalSize > MIN_TEXT) {
+                            ToastUtil.show(ChatActivity.this, "@消息长度不能超过" + MIN_TEXT);
+                            edtChat.getText().clear();
+                            return;
+                        }
+                    }
                     if (edtChat.isAtAll()) {
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, edtChat.getText().toString(), 1, edtChat.getUserIdList());
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList());
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
                     } else {
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, edtChat.getText().toString(), 0, edtChat.getUserIdList());
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, edtChat.getUserIdList());
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
                     }

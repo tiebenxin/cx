@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <net.cb.cb.library.view.HeadView
+        android:id="@+id/headView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:headview_title="群公告">
+
+        <TextView
+            android:id="@+id/tv_content"
+            style="@style/app_txt_content_3"
+            android:layout_marginLeft="@dimen/app_margin_main"
+            android:layout_marginRight="@dimen/app_margin_main"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp" />
+
+        <EditText
+            android:id="@+id/et_txt"
+            style="@style/app_edt2"
+            android:layout_height="wrap_content"
+            android:paddingLeft="13dp"
+            android:paddingTop="13dp"
+            android:paddingRight="13dp"
+            android:paddingBottom="13dp" />
+    </net.cb.cb.library.view.HeadView>
+</layout>

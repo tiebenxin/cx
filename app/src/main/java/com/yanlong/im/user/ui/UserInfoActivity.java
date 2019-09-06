@@ -18,6 +18,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -98,7 +99,6 @@ public class UserInfoActivity extends AppActivity {
     private TextView tvJoinGroupName;
     private String mucNick;
     private UserInfo userInfoLocal;
-
 
 
     @Override
@@ -284,7 +284,7 @@ public class UserInfoActivity extends AppActivity {
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    taskFriendAgree(id,null);
+                    taskFriendAgree(id, null);
                 }
             });
         }
@@ -359,7 +359,11 @@ public class UserInfoActivity extends AppActivity {
             tv_introduce.setText(info.getDescribe());
             txtMkname.setText(info.getName());
         } else {
-            userInfoLocal = userAction.getUserInfoInLocal(id);
+            UserInfo userInfoLocal = userAction.getUserInfoInLocal(id);
+            if (userInfoLocal != null) {
+                setData(userInfoLocal);
+            }
+
             userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
@@ -367,33 +371,63 @@ public class UserInfoActivity extends AppActivity {
                         return;
                     }
                     final UserInfo info = response.body().getData();
-                    imgHead.setImageURI(Uri.parse("" + info.getHead()));
-                    doGetAndSetName(info);
-                    mkName = info.getMkName();
-                    txtPrNo.setText("常聊号: " + info.getImid());
-                    txtNkname.setText("昵称: " + info.getName());
-                    name = info.getName();
+                    setData(info);
 
-                    if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
-                        type = 2;
-                    }
-                    setItemShow(type);
-                    imgHead.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            List<LocalMedia> selectList = new ArrayList<>();
-                            LocalMedia lc = new LocalMedia();
-                            lc.setPath(info.getHead());
-                            selectList.add(lc);
-                            PictureSelector.create(UserInfoActivity.this)
-                                    .themeStyle(R.style.picture_default_style)
-                                    .isGif(false)
-                                    .openExternalPreviewImage(0, selectList);
-                        }
-                    });
+//                    imgHead.setImageURI(Uri.parse("" + info.getHead()));
+//                    doGetAndSetName(info);
+//                    mkName = info.getMkName();
+//                    txtPrNo.setText("常聊号: " + info.getImid());
+//                    txtNkname.setText("昵称: " + info.getName());
+//                    name = info.getName();
+//
+//                    if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
+//                        type = 2;
+//                    }
+//                    setItemShow(type);
+//                    imgHead.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            List<LocalMedia> selectList = new ArrayList<>();
+//                            LocalMedia lc = new LocalMedia();
+//                            lc.setPath(info.getHead());
+//                            selectList.add(lc);
+//                            PictureSelector.create(UserInfoActivity.this)
+//                                    .themeStyle(R.style.picture_default_style)
+//                                    .isGif(false)
+//                                    .openExternalPreviewImage(0, selectList);
+//                        }
+//                    });
                 }
             });
         }
+    }
+
+
+    private void setData(final UserInfo info) {
+        imgHead.setImageURI(Uri.parse("" + info.getHead()));
+        doGetAndSetName(info);
+        mkName = info.getMkName();
+        txtPrNo.setText("常聊号: " + info.getImid());
+        txtNkname.setText("昵称: " + info.getName());
+        name = info.getName();
+
+        if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
+            type = 2;
+        }
+        setItemShow(type);
+        imgHead.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<LocalMedia> selectList = new ArrayList<>();
+                LocalMedia lc = new LocalMedia();
+                lc.setPath(info.getHead());
+                selectList.add(lc);
+                PictureSelector.create(UserInfoActivity.this)
+                        .themeStyle(R.style.picture_default_style)
+                        .isGif(false)
+                        .openExternalPreviewImage(0, selectList);
+            }
+        });
     }
 
 
@@ -407,44 +441,7 @@ public class UserInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     Group group = response.body().getData();
-                    //9.2 开启保护就隐藏加好友
-                    if (group.getContactIntimately() != null) {
-                        if (group.getContactIntimately() == 1) {
-                            mBtnAdd.setVisibility(View.GONE);
-                        }
-                    }
-                    for (UserInfo bean : group.getUsers()) {
-                        if (bean.getUid().equals(id)) {
-                            viewJoinGroupType.setVisibility(View.VISIBLE);
-                            inviterName = bean.getInviterName();
-                            joinType = bean.getJoinType();
-                            if (!TextUtils.isEmpty(bean.getInviter())) {
-                                inviter = Long.valueOf(bean.getInviter());
-                            }
-
-                            if (joinType == 0) {
-                                tvJoinGroupName.setText(inviterName);
-                                tvJoinGroupType.setText("分享二维码邀请进群");
-                            } else {
-                                tvJoinGroupName.setText(inviterName);
-                                tvJoinGroupType.setText("邀请进群");
-                            }
-
-
-                            tvJoinGroupName.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    if (inviter.equals(UserAction.getMyId())) {
-                                        Intent intent = new Intent(UserInfoActivity.this, MyselfInfoActivity.class);
-                                        startActivity(intent);
-                                    } else {
-                                        startActivity(new Intent(UserInfoActivity.this, UserInfoActivity.class)
-                                                .putExtra(UserInfoActivity.ID, inviter));
-                                    }
-                                }
-                            });
-                        }
-                    }
+                    setGoupData(group);
                 }
             }
 
@@ -452,8 +449,50 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
+    private void setGoupData(Group group) {
+        //9.2 开启保护就隐藏加好友
+        if (group.getContactIntimately() != null) {
+            if (group.getContactIntimately() == 1) {
+                mBtnAdd.setVisibility(View.GONE);
+            }
+        }
+        for (UserInfo bean : group.getUsers()) {
+            if (bean.getUid().equals(id)) {
+                viewJoinGroupType.setVisibility(View.VISIBLE);
+                inviterName = bean.getInviterName();
+                joinType = bean.getJoinType();
+                if (!TextUtils.isEmpty(bean.getInviter())) {
+                    inviter = Long.valueOf(bean.getInviter());
+                }
+
+                if (joinType == 0) {
+                    tvJoinGroupName.setText(inviterName);
+                    tvJoinGroupType.setText("分享二维码邀请进群");
+                } else {
+                    tvJoinGroupName.setText(inviterName);
+                    tvJoinGroupType.setText("邀请进群");
+                }
+
+
+                tvJoinGroupName.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (inviter.equals(UserAction.getMyId())) {
+                            Intent intent = new Intent(UserInfoActivity.this, MyselfInfoActivity.class);
+                            startActivity(intent);
+                        } else {
+                            startActivity(new Intent(UserInfoActivity.this, UserInfoActivity.class)
+                                    .putExtra(UserInfoActivity.ID, inviter));
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+
     private void taskAddFriend(Long id, String sayHi) {
-        userAction.friendApply(id, sayHi,null, new CallBack<ReturnBean>() {
+        userAction.friendApply(id, sayHi, null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 EventBus.getDefault().post(new EventRefreshFriend());
@@ -464,8 +503,8 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 if (response.body().isOk()) {
                     finish();
+                    EventBus.getDefault().post(new EventRefreshFriend());
                 }
-
             }
         });
     }
@@ -545,13 +584,13 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-    private void taskFriendAgree(Long uid,String contactName) {
-        userAction.friendAgree(uid,contactName, new CallBack<ReturnBean>() {
+    private void taskFriendAgree(Long uid, String contactName) {
+        userAction.friendAgree(uid, contactName, new CallBack<ReturnBean>() {
             @Override
-                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                    if (response.body() == null) {
-                        return;
-                    }
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     EventBus.getDefault().post(new EventRefreshFriend());

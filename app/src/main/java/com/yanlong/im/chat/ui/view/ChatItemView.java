@@ -11,6 +11,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -351,7 +352,7 @@ public class ChatItemView extends LinearLayout {
             txtMeName.setVisibility(GONE);
         }
 
-        if (time == null) {
+        if (TextUtils.isEmpty(time)) {
             txtTime.setVisibility(GONE);
         } else {
             txtTime.setText(time);
