@@ -241,7 +241,7 @@ public class ChatServer extends Service {
                 case OUT_GROUP://退出群
 
                     return;
-                case CONFLICT:
+                case FORCE_OFFLINE:
                     // ToastUtil.show(getApplicationContext(), "账号已经被登录");
                     EventBus.getDefault().post(new EventLoginOut4Conflict());
                     return;
