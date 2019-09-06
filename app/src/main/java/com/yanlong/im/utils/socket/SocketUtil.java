@@ -43,7 +43,7 @@ public class SocketUtil {
 
                 SocketData.msgSave4MeFail(bean);
 
-                if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {//
+                if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST ) {//
                     MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean);
                     //收到直接存表
                     if (msg != null) {
