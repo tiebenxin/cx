@@ -91,6 +91,16 @@ public class PhotoViewAttacher implements View.OnTouchListener,
     private boolean mZoomEnabled = true;
     private ScaleType mScaleType = ScaleType.FIT_CENTER;
 
+    private int index_x,index_y;
+
+    public int getIndex_x() {
+        return index_x;
+    }
+
+    public int getIndex_y() {
+        return index_y;
+    }
+
     private OnGestureListener onGestureListener = new OnGestureListener() {
         @Override
         public void onDrag(float dx, float dy) {
@@ -235,6 +245,7 @@ public class PhotoViewAttacher implements View.OnTouchListener,
                     float scale = getScale();
                     float x = ev.getX();
                     float y = ev.getY();
+
 
                     if (scale < getMediumScale()) {
                         setScale(getMediumScale(), x, y, true);
@@ -854,6 +865,9 @@ public class PhotoViewAttacher implements View.OnTouchListener,
 
                 mCurrentX = newX;
                 mCurrentY = newY;
+
+                index_x=mCurrentX;
+                index_y=mCurrentY;
 
                 // Post On animation
                 Compat.postOnAnimation(mImageView, this);
