@@ -196,6 +196,12 @@ public class PhotoView extends ImageView {
         return attacher.getScale();
     }
 
+    public int getIndex_x() {
+        return attacher.getIndex_x();
+    }
+    public int getIndex_y() {
+        return attacher.getIndex_y();
+    }
     public void setAllowParentInterceptOnEdge(boolean allow) {
         attacher.setAllowParentInterceptOnEdge(allow);
     }
