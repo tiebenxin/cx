@@ -215,10 +215,13 @@ public class GroupInfoActivity extends AppActivity {
                     intent.putExtra(GroupNoteDetailActivity.IS_OWNER, true);
                     startActivityForResult(intent, GROUP_NOTE);
                 } else {
-                    Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
-                    intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
-                    intent.putExtra(GroupNoteDetailActivity.IS_OWNER, false);
-                    startActivity(intent);
+                    String note = ginfo.getAnnouncement();
+                    if (!TextUtils.isEmpty(note)) {
+                        Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
+                        intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
+                        intent.putExtra(GroupNoteDetailActivity.IS_OWNER, false);
+                        startActivity(intent);
+                    }
                 }
             }
         });
