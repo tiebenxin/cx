@@ -88,6 +88,7 @@ import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import okhttp3.Call;
 
 /**
  * author：luck
@@ -165,8 +166,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     String indexPath;
 
     public void showBigImage(final TextView txtBig, final LargeImageView imgLarge, final String path) {
-
-
+        txtBig.setEnabled(false);
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
@@ -195,14 +195,15 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             }*/
 
             if (fileSave.exists()) {
-                long fsize=(long)txtBig.getTag();
-                long fsize2=fileSave.length();
-                boolean broken = fsize2<fsize;
+                long fsize = (long) txtBig.getTag();
+                long fsize2 = fileSave.length();
+                boolean broken = fsize2 < fsize;
 
                 if (broken) {//缓存清理
                     fileSave.delete();
                     new File(fileSave.getAbsolutePath() + FileBitmapDecoderFactory.cache_name).delete();
                 }
+
             }
 
             if (!fileSave.exists()) {//文件是否被缓存
@@ -210,12 +211,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 if (!fPath.exists()) {
                     fPath.mkdir();
                 }
+
+                //TODO 下载要做取消 9.5
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
 
-
-                        DownloadUtil.get().download(path, filePath, fileName, new DownloadUtil.OnDownloadListener() {
+                        final Call  download = DownloadUtil.get().download(path, filePath, fileName, new DownloadUtil.OnDownloadListener() {
 
                             @Override
                             public void onDownloadSuccess(final File file) {
@@ -249,12 +251,23 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                             @Override
                             public void onDownloadFailed(Exception e) {
                                 new File(filePath + "/" + fileName).delete();
+                                new File(filePath + "/" + fileName + FileBitmapDecoderFactory.cache_name).delete();
                                 e.printStackTrace();
                             }
                         });
+                        imgLarge.setOnDetached(new LargeImageView.Event() {
+                            @Override
+                            public void onDetach() {
+                                download.cancel();
+                            }
+                        });
+
+
+
 
                     }
                 }).start();
+
 
 
             } else {

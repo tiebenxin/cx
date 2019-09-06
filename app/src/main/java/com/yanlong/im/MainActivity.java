@@ -247,8 +247,7 @@ public class MainActivity extends AppActivity {
         );
 
         AlertYesNo alertYesNo = new AlertYesNo();
-        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
-        alertYesNo.init(this, "提示", "您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码", "确定", null, new AlertYesNo.Event() {
+        alertYesNo.init(this, "提示", event.getMsg(), "确定", null, new AlertYesNo.Event() {
             @Override
             public void onON() {
                 startActivity(new Intent(getContext(), LoginActivity.class));

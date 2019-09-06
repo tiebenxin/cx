@@ -1,18 +1,15 @@
 package com.yanlong.im.utils.socket;
 
 import android.accounts.NetworkErrorException;
-import android.util.Log;
 
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
-import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -37,25 +34,26 @@ public class SocketUtil {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
-
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
                 SocketData.msgSave4Me(bean);
-
             } else {
                 LogUtil.getLog().d(TAG, ">>>>>ack被拒绝 :" + bean.getRejectType());
-
                 SocketData.msgSave4MeFail(bean);
-
-                if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {//
-                    MsgAllBean msg = SocketData.createMsgBean(bean);
+                if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.NO_FRI_ERROR);
+                    //收到直接存表
+                    if (msg != null) {
+                        DaoUtil.update(msg);
+                    }
+                } else if (bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
+                    MsgAllBean msg = SocketData.createMsgBeanOfNotice(bean, ChatEnum.ENoticeType.BLACK_ERROR);
                     //收到直接存表
                     if (msg != null) {
                         DaoUtil.update(msg);
                     }
                 }
             }
-
 
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {

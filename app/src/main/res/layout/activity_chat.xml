@@ -64,13 +64,12 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/bg_edt_chat"
                             android:fontFamily="@font/emoji_font"
-                            android:maxLength="200"
                             android:maxLines="3"
                             android:minHeight="38dp"
                             android:singleLine="false"
                             android:textSize="15sp" />
 
-                        <!--android:textSize="18sp"-->
+                        <!--android:maxLength="200""-->
 
                         <Button
                             android:id="@+id/txt_voice"
