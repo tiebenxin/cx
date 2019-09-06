@@ -322,6 +322,10 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
         if (TextUtils.isEmpty(name)) {
             return;
         }
+        if(!(""+name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")){
+            setTag("#");
+            return;
+        }
         String[] n = PinyinHelper.toHanyuPinyinStringArray(name.charAt(0));
         if (n == null) {
             setTag("" + (name.toUpperCase()).charAt(0));
