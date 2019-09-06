@@ -29,6 +29,7 @@ import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
@@ -243,7 +244,14 @@ public class ChatServer extends Service {
                     return;
                 case FORCE_OFFLINE:
                     // ToastUtil.show(getApplicationContext(), "账号已经被登录");
-                    EventBus.getDefault().post(new EventLoginOut4Conflict());
+                    EventLoginOut4Conflict eventLoginOut4Conflict=  new EventLoginOut4Conflict();
+                    if(msg.getForceOffline().getForceOfflineReason()== MsgBean.ForceOfflineReason.CONFLICT){// 登录冲突
+                        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
+                        eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
+                    }else if(msg.getForceOffline().getForceOfflineReason()==MsgBean.ForceOfflineReason.LOCKED ){//被冻结
+                        eventLoginOut4Conflict.setMsg("你已被限制登录");
+                    }
+                    EventBus.getDefault().post(eventLoginOut4Conflict);
                     return;
                 case AT:
                     if (updateAtMessage(msg)) {
