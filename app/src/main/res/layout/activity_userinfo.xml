@@ -217,6 +217,7 @@
                 android:layout_marginLeft="@dimen/app_margin_main"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="@dimen/app_margin_main"
+                android:visibility="gone"
                 android:text="发送消息" />
 
 

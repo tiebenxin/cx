@@ -60,6 +60,7 @@ public class UserInfoActivity extends AppActivity {
     public static final String IS_APPLY = "isApply";
     public static final String GID = "gid";
     public static final String JION_TYPE_SHOW = "joinTypeShow";
+    public static final String IS_BUSINESS_CARD = "isBusinessCard"; //是否是群名片路径
     public static final String MUC_NICK = "mucNick";//群昵称
 
     private HeadView headView;
@@ -98,6 +99,7 @@ public class UserInfoActivity extends AppActivity {
     private TextView tv_introduce;
     private TextView tvJoinGroupName;
     private String mucNick;
+    private int contactIntimately;
     private UserInfo userInfoLocal;
 
 
@@ -106,8 +108,8 @@ public class UserInfoActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userinfo);
         initView();
-        initEvent();
         initData();
+        initEvent();
     }
 
 
@@ -131,17 +133,11 @@ public class UserInfoActivity extends AppActivity {
         mTvRemark = findViewById(R.id.tv_remark);
         mViewSettingName = findViewById(R.id.view_setting_name);
         tvBlack = findViewById(R.id.tv_black);
-        id = getIntent().getLongExtra(ID, 0);
-        sayHi = getIntent().getStringExtra(SAY_HI);
-        isApply = getIntent().getIntExtra(IS_APPLY, 0);
-        joinTypeShow = getIntent().getIntExtra(JION_TYPE_SHOW, 0);
-        gid = getIntent().getStringExtra(GID);
         mucNick = getIntent().getStringExtra(MUC_NICK);
         viewIntroduce = findViewById(R.id.view_introduce);
         tv_introduce = findViewById(R.id.tv_introduce);
         tvJoinGroupName = findViewById(R.id.tv_join_group_name);
-        resetLayout();
-        taskFindExist();
+
     }
 
     private void resetLayout() {
@@ -242,6 +238,7 @@ public class UserInfoActivity extends AppActivity {
             }
         });
 
+
         viewMkname.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -295,8 +292,17 @@ public class UserInfoActivity extends AppActivity {
 
     private void initData() {
         userAction = new UserAction();
-        id = getIntent().getLongExtra(ID, 0);
+        Intent intent = getIntent();
+        id = intent.getLongExtra(ID, 0);
+        sayHi = intent.getStringExtra(SAY_HI);
+        isApply = intent.getIntExtra(IS_APPLY, 0);
+        joinTypeShow = intent.getIntExtra(JION_TYPE_SHOW, 0);
+        contactIntimately = intent.getIntExtra(IS_BUSINESS_CARD, 0);
+        gid = intent.getStringExtra(GID);
+        resetLayout();
+        taskFindExist();
         taskUserInfo(id);
+
     }
 
     @Override
@@ -349,7 +355,12 @@ public class UserInfoActivity extends AppActivity {
             taskGroupInfo(gid);
         }
 
+        if (contactIntimately == 1) {
+            mBtnAdd.setVisibility(View.GONE);
+        }
+
     }
+
 
     private void taskUserInfo(Long id) {
         if (id == 1L) {
@@ -359,7 +370,7 @@ public class UserInfoActivity extends AppActivity {
             tv_introduce.setText(info.getDescribe());
             txtMkname.setText(info.getName());
         } else {
-            UserInfo userInfoLocal = userAction.getUserInfoInLocal(id);
+            userInfoLocal = userAction.getUserInfoInLocal(id);
             if (userInfoLocal != null) {
                 setData(userInfoLocal);
             }
@@ -428,7 +439,7 @@ public class UserInfoActivity extends AppActivity {
     private void setGoupData(Group group) {
         //9.2 开启保护就隐藏加好友
         if (group.getContactIntimately() != null) {
-            if (group.getContactIntimately() == 1) {
+            if (group.getContactIntimately() == 1 ) {
                 mBtnAdd.setVisibility(View.GONE);
             }
         }

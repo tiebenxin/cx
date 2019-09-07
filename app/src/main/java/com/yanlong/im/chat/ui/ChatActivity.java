@@ -199,6 +199,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private List<String> sendTexts;//文本分段发送
     private boolean isSendingHypertext = false;
     private int textPosition;
+    private int contactIntimately;
 
 
     private boolean isGroup() {
@@ -1812,9 +1813,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
-                                    if (msgbean.getBusiness_card().getUid().longValue() != UserAction.getMyId().longValue())
+                                    if (isGroup()) {
+                                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                                .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid())
+                                                .putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
+
+                                    } else {
+                                        if (msgbean.getBusiness_card().getUid().longValue() != UserAction.getMyId().longValue()) {
+                                        }
                                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                                 .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
+                                    }
                                 }
                             });
                     break;
@@ -2728,6 +2737,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
 
                 groupInfo = response.body().getData();
+                contactIntimately = groupInfo.getContactIntimately();
+
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();
                     groupInfo.setMaster("");
