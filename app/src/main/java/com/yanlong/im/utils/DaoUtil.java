@@ -19,12 +19,12 @@ public class DaoUtil {
 
     //放在初始化中
     public void initConfig(String dbName) {
-       // if(AppConfig.DEBUG){
-            config = new RealmConfiguration.Builder()
-                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
-                    .schemaVersion(0)
-                    .deleteRealmIfMigrationNeeded()//声明版本冲突时自动删除原数据库，开发时候打开
-                    .build();
+        // if(AppConfig.DEBUG){
+        config = new RealmConfiguration.Builder()
+                .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
+                .schemaVersion(0)
+                .deleteRealmIfMigrationNeeded()//声明版本冲突时自动删除原数据库，开发时候打开
+                .build();
       /*  }else{
             config = new RealmConfiguration.Builder()
                     .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
@@ -54,14 +54,14 @@ public class DaoUtil {
      */
     public static Realm open() {
         //  return Realm.getDefaultInstance();
-        LogUtil.getLog().i(TAG,"---->数据库:"+config.getRealmFileName());
+        LogUtil.getLog().i(TAG, "---->数据库:" + config.getRealmFileName());
         return Realm.getInstance(config);
     }
 
 
     //保存对象到表中
     public static void save(RealmModel obj) {
-        if(obj==null)
+        if (obj == null)
             return;
         try {
             Realm realm = open();
@@ -76,20 +76,22 @@ public class DaoUtil {
     }
 
     public static void update(RealmModel obj) {
-        if(obj==null)
+        if (obj == null)
             return;
+        Realm realm = open();
         try {
-            Realm realm = open();
             realm.beginTransaction();
             realm.insertOrUpdate(obj);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
+//            realm.close();
         }
     }
 
     //查找所有数据
+
     /***
      * 简单查询某一条
      * @param clss
@@ -126,11 +128,11 @@ public class DaoUtil {
     }
 
     public static <T extends RealmModel> List findAll(Class<T> clss) {
-        List beans=new ArrayList();
+        List beans = new ArrayList();
         Realm realm = open();
 
         RealmResults list = realm.where(clss).findAll();
-        if(list!=null){
+        if (list != null) {
             beans = realm.copyFromRealm(list);
         }
 
@@ -160,7 +162,7 @@ public class DaoUtil {
         }
 
 
-        if (res != null){
+        if (res != null) {
             res.deleteAllFromRealm();
         }
 
@@ -169,17 +171,18 @@ public class DaoUtil {
         realm.close();
     }
 
-    public static  List page(int page, RealmResults list, Realm realm ){
-       return page(10, page,  list,  realm );
+    public static List page(int page, RealmResults list, Realm realm) {
+        return page(10, page, list, realm);
     }
+
     /***
      * 分页处理
      */
-    public static  List page(int pSize,int page, RealmResults list, Realm realm ){
+    public static List page(int pSize, int page, RealmResults list, Realm realm) {
         int from = pSize * page;
         int to = from + pSize;
         to = to < list.size() ? to : list.size();
-        from=from>to?to:from;
+        from = from > to ? to : from;
 
 
         return realm.copyFromRealm(list.subList(from, to));
@@ -189,7 +192,7 @@ public class DaoUtil {
      * 自动开启事务
      * @param event
      */
-    public static void start(EventTransaction event){
+    public static void start(EventTransaction event) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         event.run(realm);
@@ -198,8 +201,8 @@ public class DaoUtil {
         realm.close();
     }
 
-    public interface EventTransaction{
-        void run( Realm realm);
+    public interface EventTransaction {
+        void run(Realm realm);
     }
 
 }

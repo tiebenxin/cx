@@ -225,6 +225,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getDisturb() {
+        if (disturb == null) {
+            disturb = 0;
+        }
         return disturb;
     }
 
@@ -233,6 +236,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getIstop() {
+        if (istop == null) {
+            istop = 0;
+        }
         return istop;
     }
 
@@ -322,7 +328,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
         if (TextUtils.isEmpty(name)) {
             return;
         }
-        if(!(""+name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")){
+        if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
             setTag("#");
             return;
         }

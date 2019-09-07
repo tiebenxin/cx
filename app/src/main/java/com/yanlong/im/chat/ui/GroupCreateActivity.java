@@ -337,20 +337,24 @@ public class GroupCreateActivity extends AppActivity {
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             UserInfo userInfo = templist.get(j);
-            name += userInfo.getName() + "、";
+            if (j == i - 1) {
+                name += userInfo.getName();
+            } else {
+                name += userInfo.getName() + "、";
+            }
             url[j] = userInfo.getHead();
         }
         File file = GroupHeadImageUtil.synthesis(url);
 
 
-        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
-        name = name.length() > 14 ? name.substring(0, 14) : name;
+//        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
+        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
         name += "的群";
         final String fname = name;
 
         //  icon="file://"+file.getAbsolutePath();
 
-        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP,getContext(), new UpFileUtil.OssUpCallback() {
+        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP, getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
                 msgACtion.groupCreate(UserAction.getMyInfo().getName(), fname, icon, templist, new CallBack<ReturnBean<Group>>() {

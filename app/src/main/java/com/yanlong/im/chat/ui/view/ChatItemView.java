@@ -528,7 +528,7 @@ public class ChatItemView extends LinearLayout {
 
         while (matcher.find()) {
             int groupCount = matcher.groupCount();
-            if (groupCount > 0) {
+            if (groupCount >= 0) {
                 int start = matcher.start();
                 int end = matcher.end();
                 if (i == 0) {

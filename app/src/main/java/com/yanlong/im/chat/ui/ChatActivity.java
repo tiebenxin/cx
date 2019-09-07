@@ -490,9 +490,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             sendTexts = new ArrayList<>();
                             for (int i = 0; i < per; i++) {
                                 if (i < per - 1) {
-                                    sendTexts.add(text.substring(i * MIN_TEXT, (i + 1) * MIN_TEXT));
+                                    sendTexts.add(StringUtil.splitEmojiString(text, i * MIN_TEXT, (i + 1) * MIN_TEXT));
                                 } else {
-                                    sendTexts.add(text.substring(i * MIN_TEXT, totalSize));
+                                    sendTexts.add(StringUtil.splitEmojiString(text, i * MIN_TEXT, totalSize));
                                 }
                             }
                             sendHypertext(sendTexts, 0);
