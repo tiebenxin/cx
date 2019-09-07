@@ -383,6 +383,7 @@ public class HtmlTransitonUtils {
     private void setType11(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
         List<HtmlBeanList> list = htmlBean.getList();
         int index = 0;
+        builder.append("你已不是");
         for (final HtmlBeanList bean : list) {
             String content;
             if (index == 0) {
@@ -413,13 +414,15 @@ public class HtmlTransitonUtils {
 
             };
             builder.setSpan(clickProtocol, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            if (index == 0) {
-                builder.append("开启了好友验证, 请先");
-            }
+//            if (index == 0) {
+//                builder.append("开启了好友验证, 请先");
+//            }
             ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
             builder.setSpan(protocolColorSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             index++;
         }
+        builder.append("的好友，请先添加对方为好友");
+
     }
 
 

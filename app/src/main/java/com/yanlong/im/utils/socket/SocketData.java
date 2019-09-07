@@ -1164,7 +1164,7 @@ public class SocketData {
                     note = "消息发送成功，但对方已拒收";
                     break;
                 case ChatEnum.ENoticeType.NO_FRI_ERROR:
-                    note = "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + bean.getTo_user().getName4Show() + "</font>\"" + "开启了好友验证, 请先" + "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>";
+                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + bean.getTo_user().getName4Show() + "</font>\"" + "的好友, 请先添加对方为好友" /*+ "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>"*/;
                     break;
             }
         }

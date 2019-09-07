@@ -5,12 +5,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,7 +16,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
@@ -29,7 +25,6 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.user.ui.CommonSetingActivity;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
@@ -43,7 +38,6 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -799,7 +793,7 @@ public class GroupInfoActivity extends AppActivity {
     }
 
 
-    private void changeGroupAnnouncement(String gid, final String announcement) {
+    private void changeGroupAnnouncement(final String gid, final String announcement) {
         msgAction.changeGroupAnnouncement(gid, announcement, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -810,9 +804,18 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     setGroupNote(announcement);
                     ginfo.setAnnouncement(announcement);
+                    updateAndGetGroup();
                 }
             }
         });
+    }
+
+    private void updateAndGetGroup() {
+        if (ginfo != null && !TextUtils.isEmpty(gid)) {
+            MsgDao dao = new MsgDao();
+            dao.groupNumberSave(ginfo);
+            ginfo = dao.groupNumberGet(gid);
+        }
     }
 
 
