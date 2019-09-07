@@ -18,6 +18,7 @@ import com.umeng.message.IUmengCallback;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
+import com.yanlong.im.utils.LogcatHelper;
 
 import org.android.agoo.huawei.HuaWeiRegister;
 import org.android.agoo.xiaomi.MiPushRegistar;
@@ -41,7 +42,7 @@ public class MyAppLication extends MainApplication {
                 //  AppConfig.SOCKET_IP="192.168.10.112";
                 //  AppConfig.SOCKET_PORT=18181;
                 AppConfig.UP_PATH = "test-environment";
-//                break;
+               // break;
             case "pre": //美国 usa-test.1616d.top    香港 hk-test.1616d.top
 
                 AppConfig.DEBUG = false;
@@ -62,7 +63,10 @@ public class MyAppLication extends MainApplication {
         initWeixinConfig();
         initRunstate();
         initRedPacket();
+        LogcatHelper.getInstance(this).start();
     }
+
+
 
     /***
      * 初始化红包
@@ -77,9 +81,9 @@ public class MyAppLication extends MainApplication {
 
 
     private void initUPush() {
-        UMConfigure.init(this, "5d284fab3fc19520bf000ec9",
+        UMConfigure.init(this, "5d53659c570df3d281000225",
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
-                "dfaeeefa090961c33bb804bdd5436797");
+                "f045bf243689c2363d5714b781ce556e");
         UMConfigure.setLogEnabled(AppConfig.DEBUG);
 
 
@@ -95,7 +99,7 @@ public class MyAppLication extends MainApplication {
             @Override
             public void onSuccess(String deviceToken) {
                 //注册成功会返回deviceToken deviceToken是推送消息的唯一标志
-                Log.i("youmeng", "注册成功：deviceToken：-------->  " + deviceToken);
+                LogUtil.getLog().i("youmeng", "注册成功：deviceToken：-------->  " + deviceToken);
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(deviceToken);
 
                 //每次启动,一定要开启这个
@@ -107,7 +111,7 @@ public class MyAppLication extends MainApplication {
 
                     @Override
                     public void onFailure(String s, String s1) {
-                        Log.e(TAG, "PushAgent推送开启失败:" + s + s1);
+                        LogUtil.getLog().e(TAG, "PushAgent推送开启失败:" + s + s1);
                     }
                 });
 
@@ -115,7 +119,7 @@ public class MyAppLication extends MainApplication {
 
             @Override
             public void onFailure(String s, String s1) {
-                Log.e("youmeng", "注册失败：-------->  " + "s:" + s + ",s1:" + s1);
+                LogUtil.getLog().e("youmeng", "注册失败：-------->  " + "s:" + s + ",s1:" + s1);
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).clear();
             }
         });
