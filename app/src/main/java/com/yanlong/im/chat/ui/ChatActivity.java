@@ -740,31 +740,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
-//            @Override
-//            public void getUrl(final String url, final int duration) {
-//                if (!TextUtils.isEmpty(url)) {
-//                    //处理ui放在线程
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            // alert.dismiss();
-//                            //发送语音消息
-//                            MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
-//                            showSendObj(msgAllbean);
-//                        }
-//                    });
-//                }
-//            }
-
-
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
                 MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgid(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
-//                replaceListDataAndNotify(msg);
                 msgListData.add(msg);
-                notifyData2Bottom(true);
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyData2Bottom(true);
+                    }
+                });
                 uploadVoice(file, msg);
             }
         }));
