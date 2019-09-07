@@ -74,6 +74,9 @@ public class Group extends RealmObject {
     }
 
     public Integer getContactIntimately() {
+        if (contactIntimately == null){
+            contactIntimately = 0;
+        }
         return contactIntimately;
     }
 
@@ -136,6 +139,9 @@ public class Group extends RealmObject {
     }
 
     public Integer getCeiling() {
+        if (ceiling == null){
+            ceiling = 0;
+        }
         return ceiling;
     }
 
