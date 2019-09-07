@@ -20,7 +20,7 @@ import retrofit2.Response;
  */
 public class UpFileAction {
     public static enum PATH {
-        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE
+        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE,HEAD_GROUP_CHANGE
     }
 
     private UpFileServer server;
@@ -73,6 +73,9 @@ public class UpFileAction {
                 break;
             case VOICE:
                 pt = AppConfig.UP_PATH + "/android-voice/" + simpleDateFormat.format(data) + "/";
+                break;
+            case HEAD_GROUP_CHANGE:
+                pt = AppConfig.UP_PATH + "/group-change-avatar/" + simpleDateFormat.format(data) + "/";
                 break;
             default:
                 data.setTime(System.currentTimeMillis());

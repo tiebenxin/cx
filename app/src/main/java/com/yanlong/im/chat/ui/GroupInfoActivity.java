@@ -32,6 +32,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.user.ui.CommonSetingActivity;
 import com.yanlong.im.user.ui.ComplaintActivity;
+import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
@@ -61,13 +62,13 @@ public class GroupInfoActivity extends AppActivity {
     public static final int GROUP_NOTE = 3000;
     public static final String AGM_GID = "gid";
     private String gid;
-
+    private static final int IMAGE_HEAD = 4000;
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private android.support.v7.widget.RecyclerView topListView;
     //  private ImageView btnAdd;
     //  private ImageView btnRm;
-    private LinearLayout viewGroupName;
+    private LinearLayout viewGroupName,viewGroupImg;
     private LinearLayout viewGroupMore;
     private TextView txtGroupName;
     private LinearLayout viewGroupNick;
@@ -112,6 +113,7 @@ public class GroupInfoActivity extends AppActivity {
         ckDisturb = findViewById(R.id.ck_disturb);
         viewGroupSave = findViewById(R.id.view_group_save);
         viewGroupManage = findViewById(R.id.view_group_manage);
+        viewGroupImg = findViewById(R.id.view_group_img);
 
         ckGroupVerif = findViewById(R.id.ck_group_verif);
         viewGroupVerif = findViewById(R.id.view_group_verif);
@@ -247,6 +249,20 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid));
+            }
+        });
+
+        viewGroupImg.setVisibility(View.VISIBLE);
+        viewGroupImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent headIntent = new Intent(GroupInfoActivity.this, ImageHeadActivity.class);
+                //todo 头像修改
+                headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD,ginfo.getAvatar() );
+                headIntent.putExtra("admin",isAdmin());
+                headIntent.putExtra("groupSigle",true);
+                headIntent.putExtra("gid",gid);
+                startActivityForResult(headIntent, IMAGE_HEAD);
             }
         });
 

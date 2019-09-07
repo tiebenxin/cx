@@ -18,6 +18,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
@@ -180,7 +181,7 @@ public class ComplaintUploadActivity extends AppActivity {
                     case 1:
                         PictureSelector.create(ComplaintUploadActivity.this)
                                 .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
-                                .selectionMode(PictureConfig.SINGLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                                .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                                 .previewImage(false)// 是否可预览图片 true or false
                                 .isCamera(false)// 是否显示拍照按钮 ture or false
                                 .compress(true)// 是否压缩 true or false
@@ -202,37 +203,49 @@ public class ComplaintUploadActivity extends AppActivity {
             switch (requestCode) {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
-                    final String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
-                    final Uri uri = Uri.fromFile(new File(file));
-                    alert.show();
-                    new UpFileAction().upFile(UpFileAction.PATH.FEEDBACK, getContext(), new UpFileUtil.OssUpCallback() {
-                        @Override
-                        public void success(final String url) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    alert.dismiss();
-                                    ImageBean imageBean = new ImageBean();
-                                    imageBean.setType(1);
-                                    imageBean.setUrl(url);
-                                    imageBean.setPath(uri);
-                                    adatper.addImage(imageBean);
+                    if (null!=data){
+                        List<LocalMedia> list= PictureSelector.obtainMultipleResult(data);
+                        if (null!=list&&list.size()>0){
+                            for (int i=0;i<list.size();i++){
+                                final String file = PictureSelector.obtainMultipleResult(data).get(i).getCompressPath();
+                                final Uri uri = Uri.fromFile(new File(file));
+                                if (!alert.isShown()){
+                                    alert.show();
                                 }
-                            });
+                                new UpFileAction().upFile(UpFileAction.PATH.FEEDBACK, getContext(), new UpFileUtil.OssUpCallback() {
+                                    @Override
+                                    public void success(final String url) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                alert.dismiss();
+                                                ImageBean imageBean = new ImageBean();
+                                                imageBean.setType(1);
+                                                imageBean.setUrl(url);
+                                                imageBean.setPath(uri);
+                                                adatper.addImage(imageBean);
+                                            }
+                                        });
 
+                                    }
+
+                                    @Override
+                                    public void fail() {
+                                        alert.dismiss();
+                                        ToastUtil.show(getContext(), "上传失败!");
+                                    }
+
+                                    @Override
+                                    public void inProgress(long progress, long zong) {
+
+                                    }
+                                }, file);
+                            }
                         }
 
-                        @Override
-                        public void fail() {
-                            alert.dismiss();
-                            ToastUtil.show(getContext(), "上传失败!");
-                        }
 
-                        @Override
-                        public void inProgress(long progress, long zong) {
+                    }
 
-                        }
-                    }, file);
                     break;
                 case SHOW_IMAGE:
                     int postion = data.getIntExtra(FeedbackShowImageActivity.POSTION, 0);
