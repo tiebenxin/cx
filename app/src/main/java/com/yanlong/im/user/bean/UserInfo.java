@@ -5,8 +5,6 @@ import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
 
-import net.cb.cb.library.utils.GsonUtils;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
@@ -121,6 +119,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Long getLastonline() {
+        if (lastonline == null) {
+            lastonline = 0L;
+        }
         return lastonline;
     }
 
@@ -137,6 +138,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getAuthStat() {
+        if (authStat == null) {
+            authStat = 0;
+        }
         return authStat;
     }
 
@@ -153,6 +157,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getMessagenotice() {
+        if (messagenotice == null) {
+            messagenotice = 0;
+        }
         return messagenotice;
     }
 
@@ -161,6 +168,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getDisplaydetail() {
+        if (displaydetail == null) {
+            displaydetail = 0;
+        }
         return displaydetail;
     }
 
@@ -169,6 +179,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getStat() {
+        if (stat == null) {
+            stat = 0;
+        }
         return stat;
     }
 
@@ -193,6 +206,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getPhonefind() {
+        if (phonefind == null) {
+            phonefind = 0;
+        }
         return phonefind;
     }
 
@@ -201,6 +217,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getImidfind() {
+        if (imidfind == null) {
+            imidfind = 0;
+        }
         return imidfind;
     }
 
@@ -209,6 +228,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getFriendvalid() {
+        if (friendvalid == null) {
+            friendvalid = 0;
+        }
         return friendvalid;
     }
 
@@ -217,6 +239,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getGroupvalid() {
+        if (groupvalid == null) {
+            groupvalid = 0;
+        }
         return groupvalid;
     }
 
@@ -225,6 +250,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getDisturb() {
+        if (disturb == null) {
+            disturb = 0;
+        }
         return disturb;
     }
 
@@ -233,6 +261,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getIstop() {
+        if (istop == null) {
+            istop = 0;
+        }
         return istop;
     }
 
@@ -259,6 +290,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     //用户类型 0:陌生人或者群友,1:自己,2:通讯录,3黑名单(不区分和陌生人)
     public Integer getuType() {
+        if (uType == null) {
+            uType = 0;
+        }
         return uType;
     }
 
@@ -322,7 +356,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
         if (TextUtils.isEmpty(name)) {
             return;
         }
-        if(!(""+name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")){
+        if (!("" + name.charAt(0)).matches("^[0-9a-zA-Z\\u4e00-\\u9fa5]+$")) {
             setTag("#");
             return;
         }

@@ -491,9 +491,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             sendTexts = new ArrayList<>();
                             for (int i = 0; i < per; i++) {
                                 if (i < per - 1) {
-                                    sendTexts.add(text.substring(i * MIN_TEXT, (i + 1) * MIN_TEXT));
+                                    sendTexts.add(StringUtil.splitEmojiString(text, i * MIN_TEXT, (i + 1) * MIN_TEXT));
                                 } else {
-                                    sendTexts.add(text.substring(i * MIN_TEXT, totalSize));
+                                    sendTexts.add(StringUtil.splitEmojiString(text, i * MIN_TEXT, totalSize));
                                 }
                             }
                             sendHypertext(sendTexts, 0);
@@ -1614,10 +1614,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pg);
 
-                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-                            menus.add(new OptionMenu("转发"));
-                            menus.add(new OptionMenu("删除"));
-                        }
+//                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                        menus.add(new OptionMenu("转发"));
+                        menus.add(new OptionMenu("删除"));
+//                        }
 
                         break;
                     case ChatEnum.EMessageType.VOICE:
@@ -1923,23 +1923,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 if (!isExist) {
                                     menus.add(new OptionMenu("撤回"));
                                 }
-
                             }
                         }
-
-                        showPop(v, menus, msgbean, new IMenuSelectListener() {
-                            @Override
-                            public void onSelected() {
-                                holder.viewChatItem.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        holder.viewChatItem.selectTextBubble(false);
-                                    }
-                                }, 100);
-                            }
-                        });
                     }
-
+                    showPop(v, menus, msgbean, new IMenuSelectListener() {
+                        @Override
+                        public void onSelected() {
+                            holder.viewChatItem.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    holder.viewChatItem.selectTextBubble(false);
+                                }
+                            }, 100);
+                        }
+                    });
                     return true;
                 }
             });
@@ -1966,6 +1963,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 viewChatItem = (com.yanlong.im.chat.ui.view.ChatItemView) convertView.findViewById(R.id.view_chat_item);
             }
         }
+
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {
