@@ -19,6 +19,7 @@ import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
 import com.yanlong.im.utils.LogcatHelper;
+import com.yanlong.im.utils.MyException;
 
 import org.android.agoo.huawei.HuaWeiRegister;
 import org.android.agoo.xiaomi.MiPushRegistar;
@@ -64,10 +65,15 @@ public class MyAppLication extends MainApplication {
         initRunstate();
         initRedPacket();
         LogcatHelper.getInstance(this).start();
+        initException();
     }
-
-
-
+    /*
+     异常捕获
+      */
+    private void initException() {
+        MyException myException=MyException.getInstance();
+        myException.init(getApplicationContext());
+    }
     /***
      * 初始化红包
      */

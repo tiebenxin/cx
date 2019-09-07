@@ -99,6 +99,30 @@
                 android:src="@mipmap/ic_btn_goto" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/view_group_add"
+            style="@style/app_layout_list2_item"
+            android:layout_marginTop="@dimen/app_margin_item_top">
+
+            <TextView
+                style="@style/app_txt_title_red"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:text="增加群人数上限至1000人" />
+
+            <TextView
+                android:layout_weight="1"
+                android:gravity="right"
+                android:id="@+id/txt_group_add"
+                style="@style/app_txt_title_4"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:text="" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_btn_goto" />
+        </LinearLayout>
+
 
     </LinearLayout>
 

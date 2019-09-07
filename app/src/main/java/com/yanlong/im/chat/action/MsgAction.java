@@ -390,6 +390,12 @@ public class MsgAction {
     }
 
     /**
+     * 修改群头像
+     */
+    public void changeGroupHead(String gid, String avatar, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupHeadSet(gid, avatar), callback);
+    }
+    /**
      * 修改群成员昵称
      */
     public void changeMemberName(String gid, String name, Callback<ReturnBean> callback) {

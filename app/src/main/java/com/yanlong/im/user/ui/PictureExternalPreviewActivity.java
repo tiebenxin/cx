@@ -232,10 +232,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                                         btnDown.setEnabled(true);
                                         Log.d("showBigImage", "showBigImage: " + path);
                                         imgLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
-                                      float scale=  imageView.getScale();
-                                      int x= imageView.getIndex_x();
-                                        int y=imageView.getIndex_y();
-                                        imgLarge.smoothScale(scale,x,y);
+                                        //暂时先不处理放大后的位置
+                                    //  float scale=  imageView.getScale();
+                                    //  int x= imageView.getIndex_x();
+                                    //    int y=imageView.getIndex_y();
+                                    //    imgLarge.smoothScale(scale,x,y);
 
                                         //这边要改成已读
                                         msgDao.ImgReadStatSet(path, true);

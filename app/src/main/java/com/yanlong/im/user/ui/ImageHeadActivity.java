@@ -14,6 +14,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
@@ -59,15 +60,28 @@ public class ImageHeadActivity extends AppActivity {
         initView();
         initEvent();
     }
-
+        private boolean isAdmin=false;
+        private boolean isGroup=false;
     private void initView() {
         imageHead = getIntent().getStringExtra(IMAGE_HEAD);
+        isAdmin = getIntent().getBooleanExtra("admin",false);
+        isGroup = getIntent().getBooleanExtra("groupSigle",false);
         mHeadView = findViewById(R.id.headView);
+        if (isGroup){
+            mHeadView.setTitle("群头像");
+        }
         mSdImageHead = findViewById(R.id.sd_image_head);
         mSdImageHead.setImageURI(imageHead + "");
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         mBtnImageHead = findViewById(R.id.btn_image_head);
+        if (isGroup){
+            mBtnImageHead.setText("修改群头像");
+        }
+        if (!isAdmin&&isGroup){
+            mBtnImageHead.setVisibility(View.GONE);
+            mHeadView.getActionbar().getBtnRight().setVisibility(View.GONE);
+        }
     }
 
 
@@ -189,27 +203,72 @@ public class ImageHeadActivity extends AppActivity {
 
                     alert.show();
                     mSdImageHead.setImageURI(uri);
-                    upFileAction.upFile(UpFileAction.PATH.HEAD,getContext(), new UpFileUtil.OssUpCallback() {
-                        @Override
-                        public void success(String url) {
-                            alert.dismiss();
-                            taskUserInfoSet(null, url, null, null);
-                        }
+                    if (isGroup){
+                        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP_CHANGE,getContext(), new UpFileUtil.OssUpCallback() {
+                            @Override
+                            public void success(String url) {
+                                alert.dismiss();
+                                String gid= getIntent().getExtras().getString("gid");
+                                taskGroupInfoSet(gid, url, null, null);
+                            }
 
-                        @Override
-                        public void fail() {
-                            alert.dismiss();
-                            ToastUtil.show(getContext(), "上传失败!");
-                        }
+                            @Override
+                            public void fail() {
+                                alert.dismiss();
+                                ToastUtil.show(getContext(), "上传失败!");
+                            }
 
-                        @Override
-                        public void inProgress(long progress, long zong) {
+                            @Override
+                            public void inProgress(long progress, long zong) {
 
-                        }
-                    }, file);
+                            }
+                        }, file);
+                    }else{
+                        upFileAction.upFile(UpFileAction.PATH.HEAD,getContext(), new UpFileUtil.OssUpCallback() {
+                            @Override
+                            public void success(String url) {
+                                alert.dismiss();
+                                taskUserInfoSet(null, url, null, null);
+                            }
+
+                            @Override
+                            public void fail() {
+                                alert.dismiss();
+                                ToastUtil.show(getContext(), "上传失败!");
+                            }
+
+                            @Override
+                            public void inProgress(long progress, long zong) {
+
+                            }
+                        }, file);
+                    }
                     break;
             }
         }
+    }
+
+    private void taskGroupInfoSet(String gid,final String url, Object o1, Object o2) {
+        new MsgAction().changeGroupHead(gid, url, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                imageHead = url;
+//                if (avatar != null) {
+//                    UserInfo userInfo = new UserInfo();
+//                    userInfo.setHead(avatar);
+//                    EventBus.getDefault().post(new EventMyUserInfo(userInfo, EventMyUserInfo.ALTER_HEAD));
+//                }
+                ToastUtil.show(ImageHeadActivity.this, response.body().getMsg());
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+//                super.onFailure(call, t);
+            }
+        });
     }
 
 

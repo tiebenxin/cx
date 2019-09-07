@@ -1,6 +1,7 @@
 package com.yanlong.im.utils.socket;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -915,7 +916,7 @@ public class SocketData {
         msgAllBean.setFrom_uid(myinfo.getUid());
         msgAllBean.setFrom_avatar(myinfo.getHead());
         msgAllBean.setFrom_nickname(myinfo.getName());
-        msgAllBean.setRequest_id(getSysTime()+ "");
+        msgAllBean.setRequest_id(getSysTime() + "");
         msgAllBean.setTimestamp(getSysTime());
         msgAllBean.setMsg_type(type);
         switch (type) {
@@ -1128,7 +1129,7 @@ public class SocketData {
     public static MsgAllBean createMsgBeanOfNotice(MsgBean.AckMessage ack, @ChatEnum.ENoticeType int type) {
         MsgAllBean bean = msgDao.getMsgById(ack.getMsgId(0));
         MsgAllBean msg = null;
-        if (bean != null) {
+        if (bean != null && TextUtils.isEmpty(bean.getGid())) {
             msg = new MsgAllBean();
             String msgId = SocketData.getUUID();
             msg.setMsg_id(msgId);
@@ -1164,7 +1165,11 @@ public class SocketData {
                     note = "消息发送成功，但对方已拒收";
                     break;
                 case ChatEnum.ENoticeType.NO_FRI_ERROR:
-                    note = "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + bean.getTo_user().getName4Show() + "</font>\"" + "开启了好友验证, 请先" + "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>";
+                    String name = "";
+                    if (bean.getTo_user() != null) {
+                        name = bean.getTo_user().getName4Show();
+                    }
+                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + name + "</font>\"" + "的好友, 请先添加对方为好友" /*+ "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>"*/;
                     break;
             }
         }

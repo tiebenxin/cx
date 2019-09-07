@@ -74,6 +74,12 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="app_txt_title_red" parent="app_txt_base">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/red_600</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
     <style name="app_txt_title_3" parent="app_txt_base">
         <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/black</item>

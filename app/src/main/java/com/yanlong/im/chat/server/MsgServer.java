@@ -77,6 +77,10 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> changeMemberName(@Field("gid") String gid, @Field("name") String name);
 
+    @POST("/group/change-group-avatar")
+    @FormUrlEncoded
+    Call<ReturnBean> groupHeadSet(@Field("gid") String gid, @Field("avatar") String avatar);
+
     @POST("/group/accept-request")
     @FormUrlEncoded
     Call<ReturnBean> groupRequest(@Field("gid") String gid, @Field("newMember") String newMember,

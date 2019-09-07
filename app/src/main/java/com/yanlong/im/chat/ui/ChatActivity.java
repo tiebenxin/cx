@@ -741,31 +741,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
-//            @Override
-//            public void getUrl(final String url, final int duration) {
-//                if (!TextUtils.isEmpty(url)) {
-//                    //处理ui放在线程
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            // alert.dismiss();
-//                            //发送语音消息
-//                            MsgAllBean msgAllbean = SocketData.send4Voice(toUId, toGid, url, duration);
-//                            showSendObj(msgAllbean);
-//                        }
-//                    });
-//                }
-//            }
-
-
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
                 MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgid(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
-//                replaceListDataAndNotify(msg);
                 msgListData.add(msg);
-                notifyData2Bottom(true);
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyData2Bottom(true);
+                    }
+                });
                 uploadVoice(file, msg);
             }
         }));
@@ -1537,7 +1523,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (reMsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
                 String file = reMsg.getImage().getLocalimg();
                 if (!TextUtils.isEmpty(file)) {
-                    boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? false : true;
+                    boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? true : false;
                     ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), file, isArtworkMaster);
                     MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
                     replaceListDataAndNotify(imgMsgBean);

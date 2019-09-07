@@ -162,8 +162,28 @@ public class UserAction {
     /**
      * 获取用户信息
      */
-    public void getUserInfo4Id(Long usrid, CallBack<ReturnBean<UserInfo>> callBack) {
-        NetUtil.getNet().exec(server.getUserInfo(usrid), callBack);
+    public void getUserInfo4Id(Long usrid, final CallBack<ReturnBean<UserInfo>> callBack) {
+        NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                super.onResponse(call, response);
+                //写入用户信息到数据库
+               if(response.body()!=null) {
+                   UserInfo userInfo= response.body().getData();
+                   if(userInfo!=null)
+                   dao.userHeadNameUpdate(userInfo.getUid(),userInfo.getHead(),userInfo.getName());
+               }
+
+                callBack.onResponse(call,response);
+
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
+                super.onFailure(call, t);
+                callBack.onFailure(call,t);
+            }
+        });
     }
 
     /***

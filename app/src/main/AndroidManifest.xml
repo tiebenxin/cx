@@ -444,6 +444,9 @@
         <activity
             android:name=".user.ui.FeedbackShowImageActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".user.ui.GroupAddActivity"
+            android:screenOrientation="portrait"
+            ></activity>
 
 
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">

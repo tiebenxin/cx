@@ -13,6 +13,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.ui.CommonSetingActivity;
+import com.yanlong.im.user.ui.GroupAddActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -30,7 +31,7 @@ public class GroupManageActivity extends AppActivity {
 
     public static final String AGM_GID = "AGM_GID";
     private HeadView mHeadView;
-    private LinearLayout mViewGroupTransfer;
+    private LinearLayout mViewGroupTransfer,view_group_add;
     private LinearLayout viewGroupRobot;
     private TextView txtGroupRobot;
     private CheckBox mCkGroupVerif;
@@ -49,10 +50,12 @@ public class GroupManageActivity extends AppActivity {
     }
 
     private void initView() {
+
         msgAction = new MsgAction();
         gid = getIntent().getStringExtra(AGM_GID);
         mHeadView = findViewById(R.id.headView);
         mViewGroupTransfer = findViewById(R.id.view_group_transfer);
+        view_group_add = findViewById(R.id.view_group_add);
         mCkGroupVerif = findViewById(R.id.ck_group_verif);
         mCkGroupIntimately = findViewById(R.id.ck_group_intimately);
         viewGroupRobot = findViewById(R.id.view_group_robot);
@@ -94,6 +97,14 @@ public class GroupManageActivity extends AppActivity {
                 startActivityForResult(intent,GroupSelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
+        view_group_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupManageActivity.this, GroupAddActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
     }
 
