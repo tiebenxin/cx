@@ -197,7 +197,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void run() {
                         Log.d("tyad", "run: state" + state);
-                        actionBar.getLoadBar().setVisibility(state ?View.GONE:View.VISIBLE);
+                        actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                         actionBar.setTitle(state ? "消息" : "消息(连接中...)");
                         if (state) {
                             viewNetwork.setVisibility(View.GONE);
@@ -277,7 +277,9 @@ public class MsgMainFragment extends Fragment {
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+                    taskSearch();
+                } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
                     taskSearch();
                 }
                 return false;

@@ -83,7 +83,9 @@ public class SearchFriendGroupActivity extends Activity {
         edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+                    taskSearch();
+                } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
                     taskSearch();
                 }
                 return false;
@@ -401,6 +403,7 @@ public class SearchFriendGroupActivity extends Activity {
             });
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.M)
         public void setKey(String key) {
             String content = "网络查找常聊号:" + key;
             tv_content.setText(getSpan(content, key, 8));

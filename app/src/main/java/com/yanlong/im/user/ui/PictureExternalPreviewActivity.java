@@ -165,8 +165,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     String indexPath;
 
-    public void showBigImage(final TextView txtBig, final LargeImageView imgLarge, final String path) {
+    public void showBigImage(final PhotoView imageView ,final TextView txtBig, final View btnDown, final LargeImageView imgLarge, final String path) {
         txtBig.setEnabled(false);
+        btnDown.setEnabled(false);
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
@@ -228,8 +229,14 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                                         imgLarge.setAlpha(0);
                                         imgLarge.setVisibility(View.VISIBLE);
                                         setTxtBig(txtBig, 100);
+                                        btnDown.setEnabled(true);
                                         Log.d("showBigImage", "showBigImage: " + path);
                                         imgLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
+                                      float scale=  imageView.getScale();
+                                      int x= imageView.getIndex_x();
+                                        int y=imageView.getIndex_y();
+                                        imgLarge.smoothScale(scale,x,y);
+
                                         //这边要改成已读
                                         msgDao.ImgReadStatSet(path, true);
                                     }
@@ -275,6 +282,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 imgLarge.setVisibility(View.VISIBLE);
                 //从缓存中加载
                 setTxtBig(txtBig, 100);
+                btnDown.setEnabled(true);
                 imgLarge.setImage(new FileBitmapDecoderFactory(filePath + "/" + fileName));
                 //这边要改成已读
                 msgDao.ImgReadStatSet(path, true);
@@ -286,6 +294,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 imgLarge.setAlpha(0);
                 imgLarge.setVisibility(View.VISIBLE);
                 setTxtBig(txtBig, 100);
+                btnDown.setEnabled(true);
                 Log.d("showBigImage", "showBigImage: " + path);
                 imgLarge.setImage(new FileBitmapDecoderFactory(path));
                 //这边要改成已读
@@ -469,7 +478,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 //3.是否已读原图
                 boolean readStat = msgDao.ImgReadStatGet(imgpath);
 
-                imgLargeEvent(txtBig, imgLarge, imgpath);
+                imgLargeEvent(imageView,txtBig,ivDownload, imgLarge, imgpath);
 
 
                 if (readStat) {//原图已读,就显示
@@ -494,6 +503,14 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
             (container).addView(contentView, 0);
+
+            //9.6 预览图加载不出来,不能退出
+            contentView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
             return contentView;
         }
 
@@ -501,6 +518,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             ivDownload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //这里保存处理
                     saveImage(imgPath);
                     if (txtBig != null)
                         txtBig.callOnClick();
@@ -531,13 +549,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
         //大图事件
-        private void imgLargeEvent(final TextView txtBig, final LargeImageView imgLarge, final String imgpath) {
+        private void imgLargeEvent(final PhotoView imageView ,final TextView txtBig,final View btnDown ,final LargeImageView imgLarge, final String imgpath) {
             txtBig.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // txtBig.setVisibility(View.GONE);
                     setTxtBig(txtBig, 0);
-                    showBigImage(txtBig, imgLarge, imgpath);
+                    showBigImage(imageView,txtBig,btnDown, imgLarge, imgpath);
 
                 }
             });
