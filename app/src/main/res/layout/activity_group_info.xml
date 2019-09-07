@@ -51,6 +51,31 @@
                         android:src="@mipmap/ic_btn_goto" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/view_group_img"
+                    style="@style/app_layout_list2_item">
+
+                    <TextView
+                        style="@style/app_txt_title_2"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:text="群头像" />
+
+                    <TextView
+                        android:id="@+id/txt_group_img"
+                        style="@style/app_txt_title_2"
+                        android:layout_width="0dp"
+                        android:layout_marginRight="@dimen/app_margin_item"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textColor="@color/gray_300" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/ic_btn_goto" />
+                </LinearLayout>
+
+
                 <!--     <ImageView
                          android:id="@+id/btn_add"
                          android:layout_width="wrap_content"

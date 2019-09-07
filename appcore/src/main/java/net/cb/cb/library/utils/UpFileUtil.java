@@ -11,31 +11,15 @@ import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
-import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
-import net.cb.cb.library.AppConfig;
-
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /***
  * 文件上传备用
@@ -125,7 +109,7 @@ public class UpFileUtil {
      * @param imgPath       图片的本地路径
      */
 
-    public void upFile(String path,final Context context, String keyid, String secret, String token, String endpoint, final String btName, final UpFileUtil.OssUpCallback ossUpCallback, String imgPath, byte[] imgbyte) {
+    public void upFile(String path, final Context context, String keyid, String secret, String token, String endpoint, final String btName, final UpFileUtil.OssUpCallback ossUpCallback, String imgPath, byte[] imgbyte) {
 
         getOSs(context, keyid, secret, token, endpoint);
 
