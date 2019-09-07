@@ -797,7 +797,7 @@ public class GroupInfoActivity extends AppActivity {
     private void updateAndGetGroup() {
         if (ginfo != null && !TextUtils.isEmpty(gid)) {
             MsgDao dao = new MsgDao();
-            dao.groupSave(ginfo);
+            dao.groupNumberSave(ginfo);
             ginfo = dao.groupNumberGet(gid);
         }
     }
