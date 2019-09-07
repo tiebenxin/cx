@@ -200,6 +200,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private boolean isSendingHypertext = false;
     private int textPosition;
     private int contactIntimately;
+    private String master;
 
 
     private boolean isGroup() {
@@ -1799,7 +1800,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
-                                    if (isGroup()) {
+                                    if (isGroup() && !master.equals(msgbean.getBusiness_card().getUid().toString())) {
                                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                                 .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid())
                                                 .putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
@@ -2724,6 +2725,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 groupInfo = response.body().getData();
                 contactIntimately = groupInfo.getContactIntimately();
+                master = groupInfo.getMaster();
 
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();
