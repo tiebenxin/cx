@@ -373,30 +373,6 @@ public class UserInfoActivity extends AppActivity {
                     final UserInfo info = response.body().getData();
                     setData(info);
 
-//                    imgHead.setImageURI(Uri.parse("" + info.getHead()));
-//                    doGetAndSetName(info);
-//                    mkName = info.getMkName();
-//                    txtPrNo.setText("常聊号: " + info.getImid());
-//                    txtNkname.setText("昵称: " + info.getName());
-//                    name = info.getName();
-//
-//                    if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
-//                        type = 2;
-//                    }
-//                    setItemShow(type);
-//                    imgHead.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            List<LocalMedia> selectList = new ArrayList<>();
-//                            LocalMedia lc = new LocalMedia();
-//                            lc.setPath(info.getHead());
-//                            selectList.add(lc);
-//                            PictureSelector.create(UserInfoActivity.this)
-//                                    .themeStyle(R.style.picture_default_style)
-//                                    .isGif(false)
-//                                    .openExternalPreviewImage(0, selectList);
-//                        }
-//                    });
                 }
             });
         }

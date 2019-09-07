@@ -22,6 +22,7 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -191,10 +192,11 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
     }
 
     private void taskRegister(final String phone, String captcha) {
-        Log.v("youmeng","RegisterActivity------->getDevId");
+        LogUtil.getLog().i("youmeng","RegisterActivity------->getDevId");
         userAction.register(phone, captcha, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                LogUtil.getLog().i("youmeng","RegisterActivity------->taskRegister----->onResponse");
                 if (response.body() == null) {
                     return;
                 }
@@ -208,6 +210,12 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
                     startActivity(intent);
                     finish();
                 }
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                LogUtil.getLog().i("youmeng","RegisterActivity------->taskRegister----->onFailure");
             }
         });
     }

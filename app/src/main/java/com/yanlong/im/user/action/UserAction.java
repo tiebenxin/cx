@@ -106,7 +106,7 @@ public class UserAction {
             return uid;
         }
 
-        Log.v("youmeng","上传deviceToken------------>"+uid);
+        LogUtil.getLog().i("youmeng","上传deviceToken------------>"+uid);
         return uid;
     }
 

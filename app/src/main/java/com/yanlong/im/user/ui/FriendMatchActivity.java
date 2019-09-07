@@ -22,6 +22,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.utils.PhoneListUtil;
 
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -32,6 +33,8 @@ import net.cb.cb.library.view.ClearEditText;
 import net.cb.cb.library.view.HeadView;
 import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PySortView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -319,6 +322,7 @@ public class FriendMatchActivity extends AppActivity {
                 if (response.body().isOk()) {
                     listData.remove(position);
                     mtListView.notifyDataSetChange();
+                    EventBus.getDefault().post(new EventRefreshFriend());
                 }
                 ToastUtil.show(FriendMatchActivity.this, response.body().getMsg());
             }
