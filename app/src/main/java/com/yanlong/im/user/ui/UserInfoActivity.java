@@ -439,7 +439,9 @@ public class UserInfoActivity extends AppActivity {
     private void setGoupData(Group group) {
         //9.2 开启保护就隐藏加好友
         if (group.getContactIntimately() != null) {
-            if (group.getContactIntimately() == 1 ) {
+
+
+            if (group.getContactIntimately() == 1 && !group.getMaster().equals(id.toString())) {
                 mBtnAdd.setVisibility(View.GONE);
             }
         }
