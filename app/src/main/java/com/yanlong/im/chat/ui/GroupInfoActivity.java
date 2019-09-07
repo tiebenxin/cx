@@ -793,6 +793,7 @@ public class GroupInfoActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     setGroupNote(announcement);
+                    ginfo.setAnnouncement(announcement);
                 }
             }
         });
