@@ -21,6 +21,7 @@ import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -144,11 +145,12 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(this, "手机号不合法");
             return;
         }
-        Log.v("youmeng","IdentifyingCodeActivity------->getDevId");
+        LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->getDevId");
         userAction.login4Captch(phone, code, UserAction.getDevId(this), new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
 
             @Override
             public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->login----->onResp");
                 if (response.body() == null) {
                     return;
                 }
@@ -159,6 +161,12 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }
+            }
+
+            @Override
+            public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFail(call, t);
+                LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->login----->onFail");
             }
         });
     }

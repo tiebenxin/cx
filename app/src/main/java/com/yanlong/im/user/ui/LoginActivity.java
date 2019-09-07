@@ -20,6 +20,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -162,10 +163,11 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             ToastUtil.show(this, "请输入密码");
             return;
         }
-        Log.v("youmeng","LoginActivity------->getDevId");
+        LogUtil.getLog().i("youmeng","LoginActivity------->getDevId");
         new UserAction().login(phone, password, UserAction.getDevId(this), new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
             @Override
             public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                LogUtil.getLog().i("youmeng","LoginActivity------->login-------->onResp");
                 if (response.body() == null) {
                     ToastUtil.show(context, "登录异常");
                     return;
@@ -184,6 +186,12 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 }else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }
+            }
+
+            @Override
+            public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFail(call, t);
+                LogUtil.getLog().i("youmeng","LoginActivity------->login-------->onFail");
             }
         });
     }
