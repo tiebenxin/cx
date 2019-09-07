@@ -45,12 +45,12 @@ public class GroupNoteDetailActivity extends AppActivity {
                 ui.etTxt.setHint("修改群公告");
             }
             ui.headView.getActionbar().setTxtRight("完成");
-            initEvent();
         } else {
             ui.etTxt.setVisibility(View.GONE);
             ui.tvContent.setVisibility(View.VISIBLE);
             ui.tvContent.setText(note);
         }
+        initEvent();
     }
 
     private void initEvent() {
