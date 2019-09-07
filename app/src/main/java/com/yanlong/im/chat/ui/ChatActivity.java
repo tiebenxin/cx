@@ -1523,7 +1523,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (reMsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
                 String file = reMsg.getImage().getLocalimg();
                 if (!TextUtils.isEmpty(file)) {
-                    boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? false : true;
+                    boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? true : false;
                     ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), file, isArtworkMaster);
                     MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
                     replaceListDataAndNotify(imgMsgBean);

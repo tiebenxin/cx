@@ -21,6 +21,7 @@ import android.graphics.Matrix.ScaleToFit;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,6 +40,7 @@ import android.widget.OverScroller;
  */
 public class PhotoViewAttacher implements View.OnTouchListener,
         View.OnLayoutChangeListener {
+    private static String TAG="PhotoViewAttacher-----------";
 
     private static float DEFAULT_MAX_SCALE = 3.0f;
     private static float DEFAULT_MID_SCALE = 1.75f;
@@ -94,16 +96,20 @@ public class PhotoViewAttacher implements View.OnTouchListener,
     private int index_x,index_y;
 
     public int getIndex_x() {
+
+        Log.d(TAG, "getIndex_x: "+index_x);
         return index_x;
     }
 
     public int getIndex_y() {
+        Log.d(TAG, "getIndex_y: "+index_y);
         return index_y;
     }
 
     private OnGestureListener onGestureListener = new OnGestureListener() {
         @Override
         public void onDrag(float dx, float dy) {
+            Log.d(TAG, "onDrag: "+dx+"|"+dy);
             if (mScaleDragDetector.isScaling()) {
                 return; // Do not drag if we are already scaling
             }
@@ -141,6 +147,7 @@ public class PhotoViewAttacher implements View.OnTouchListener,
 
         @Override
         public void onFling(float startX, float startY, float velocityX, float velocityY) {
+            Log.d(TAG, "onFling: "+velocityX+"|"+velocityY);
             mCurrentFlingRunnable = new FlingRunnable(mImageView.getContext());
             mCurrentFlingRunnable.fling(getImageViewWidth(mImageView),
                     getImageViewHeight(mImageView), (int) velocityX, (int) velocityY);
@@ -149,6 +156,7 @@ public class PhotoViewAttacher implements View.OnTouchListener,
 
         @Override
         public void onScale(float scaleFactor, float focusX, float focusY) {
+            Log.d(TAG, "onScale: "+focusX+"|"+focusY);
             if ((getScale() < mMaxScale || scaleFactor < 1f) && (getScale() > mMinScale || scaleFactor > 1f)) {
                 if (mScaleChangeListener != null) {
                     mScaleChangeListener.onScaleChange(scaleFactor, focusX, focusY);
@@ -482,6 +490,8 @@ public class PhotoViewAttacher implements View.OnTouchListener,
 
     public void setScale(float scale, float focalX, float focalY,
                          boolean animate) {
+        Log.d(TAG, "setScale: "+focalX+"|"+focalY);
+
         // Check to see if the scale is within bounds
         if (scale < mMinScale || scale > mMaxScale) {
             throw new IllegalArgumentException("Scale must be within the range of minScale and maxScale");
@@ -616,6 +626,9 @@ public class PhotoViewAttacher implements View.OnTouchListener,
             mDisplayRect.set(0, 0, d.getIntrinsicWidth(),
                     d.getIntrinsicHeight());
             matrix.mapRect(mDisplayRect);
+            index_x=-new Float( mDisplayRect.left/2).intValue();
+            index_y=-new Float( mDisplayRect.top/2).intValue();
+            Log.d(TAG, "getDisplayRect: "+index_x);
             return mDisplayRect;
         }
         return null;
@@ -776,6 +789,8 @@ public class PhotoViewAttacher implements View.OnTouchListener,
             mStartTime = System.currentTimeMillis();
             mZoomStart = currentZoom;
             mZoomEnd = targetZoom;
+            Log.d(TAG, "AnimatedZoomRunnable: "+mFocalX);
+
         }
 
         @Override
@@ -866,8 +881,7 @@ public class PhotoViewAttacher implements View.OnTouchListener,
                 mCurrentX = newX;
                 mCurrentY = newY;
 
-                index_x=mCurrentX;
-                index_y=mCurrentY;
+
 
                 // Post On animation
                 Compat.postOnAnimation(mImageView, this);
