@@ -149,6 +149,14 @@
 
     </style>
 
+    <!--编辑框-->
+    <style name="app_edt_friend" parent="app_txt_title_2">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:lines">2</item>
+
+    </style>
+
     <!--多行编辑框-->
     <style name="app_edt2" parent="app_txt_title_2">
         <item name="android:layout_height">34dp</item>
