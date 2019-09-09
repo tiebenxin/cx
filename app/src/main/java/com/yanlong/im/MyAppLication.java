@@ -1,6 +1,9 @@
 package com.yanlong.im;
 
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import net.cb.cb.library.AppConfig;
@@ -60,12 +63,44 @@ public class MyAppLication extends MainApplication {
         }
         //初始化数据库
         Realm.init(getApplicationContext());
-        initUPush();
+       ///推送处理
+       if(getApplicationContext().getPackageName().equals(getCurrentProcessName())){
+            LogUtil.getLog().d(TAG,"推送延迟:true");
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    initUPush();
+                }
+            }, 0);
+        } else {
+            LogUtil.getLog().d(TAG,"推送延迟:false");
+            initUPush();
+        }
+       // initUPush();
+
+        //--------------------------
         initWeixinConfig();
         initRunstate();
         initRedPacket();
         LogcatHelper.getInstance(this).start();
         initException();
+    }
+
+    /**
+     * 获取当前进程名
+     */
+    private String getCurrentProcessName(){
+        int pid = android.os.Process.myPid();
+        String processName = "";
+        ActivityManager manager = (ActivityManager) getApplicationContext().getSystemService
+                (Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo process : manager.getRunningAppProcesses()) {
+            if (process.pid == pid) {
+                processName = process.processName;
+            }
+        }
+        return processName;
     }
     /*
      异常捕获
@@ -108,10 +143,18 @@ public class MyAppLication extends MainApplication {
                 LogUtil.getLog().i("youmeng", "注册成功：deviceToken：-------->  " + deviceToken);
                 new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(deviceToken);
 
+
+                //注册小米推送
+                MiPushRegistar.register(getApplicationContext(), "2882303761518011485", "5411801194485");
+                //注册华为推送
+                HuaWeiRegister.register(MyAppLication.this);
+
                 //每次启动,一定要开启这个
                 mPushAgent.enable(new IUmengCallback() {
                     @Override
                     public void onSuccess() {
+
+
                         Log.e(TAG, "PushAgent推送开启成功");
                     }
 
@@ -131,10 +174,6 @@ public class MyAppLication extends MainApplication {
         });
 
 
-        //注册小米推送
-        MiPushRegistar.register(getApplicationContext(), "2882303761518011485", "5411801194485");
-        //注册华为推送
-        HuaWeiRegister.register(this);
     }
 
 

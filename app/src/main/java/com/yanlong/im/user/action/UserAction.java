@@ -11,6 +11,7 @@ import com.jrmf360.tools.http.OkHttpModelCallBack;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
+
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -99,16 +100,56 @@ public class UserAction {
      * @return
      */
     public static String getDevId(Context context) {
-        String uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
+        int reTime = 0;
+        String uid = null;
+        try {
+            while (reTime < 5*10) {
+                uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
+                if (uid != null) {
+                    break;
+                } else {
+                    LogUtil.getLog().i("youmeng", "等待DevId"+reTime);
+                    Thread.sleep(200);
+                }
+                reTime++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if (TextUtils.isEmpty(uid)) {
+
+            LogUtil.getLog().i("youmeng", "等待DevId失败,自动生成" );
             uid = Installation.id(context);
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
             return uid;
         }
 
-        LogUtil.getLog().i("youmeng","上传deviceToken------------>"+uid);
+        LogUtil.getLog().i("youmeng", "上传deviceToken------------>" + uid);
         return uid;
     }
+
+  /*  public void getDevId(EventDevID event){
+
+        int reTime = 0;
+        String uid = null;
+        try {
+            while (reTime < 5*10) {
+                uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
+                if (uid != null) {
+                    event.onDevId(uid);
+                    break;
+                } else {
+                    LogUtil.getLog().i("youmeng", "等待DevId"+reTime);
+                    Thread.sleep(200);
+                }
+                reTime++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }*/
 
 
     public void updateUserinfo2DB(UserInfo userInfo) {
@@ -168,20 +209,20 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 super.onResponse(call, response);
                 //写入用户信息到数据库
-               if(response.body()!=null) {
-                   UserInfo userInfo= response.body().getData();
-                   if(userInfo!=null)
-                   dao.userHeadNameUpdate(userInfo.getUid(),userInfo.getHead(),userInfo.getName());
-               }
+                if (response.body() != null) {
+                    UserInfo userInfo = response.body().getData();
+                    if (userInfo != null)
+                        dao.userHeadNameUpdate(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
+                }
 
-                callBack.onResponse(call,response);
+                callBack.onResponse(call, response);
 
             }
 
             @Override
             public void onFailure(Call<ReturnBean<UserInfo>> call, Throwable t) {
                 super.onFailure(call, t);
-                callBack.onFailure(call,t);
+                callBack.onFailure(call, t);
             }
         });
     }
@@ -298,14 +339,14 @@ public class UserAction {
     /***
      * 好友添加
      */
-    public void friendApply(Long uid, String sayHi,String contactName, CallBack<ReturnBean> callback) {
+    public void friendApply(Long uid, String sayHi, String contactName, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.requestFriend(uid, sayHi, contactName), callback);
     }
 
     /***
      * 好友同意
      */
-    public void friendAgree(Long uid,String contactName, CallBack<ReturnBean> callback) {
+    public void friendAgree(Long uid, String contactName, CallBack<ReturnBean> callback) {
         NetUtil.getNet().exec(server.acceptFriend(uid, contactName), callback);
     }
 
@@ -392,11 +433,10 @@ public class UserAction {
 
     /**
      * 获取所有好友列表请求
-     * */
-    public void friendGet4All(CallBack<ReturnBean<List<UserInfo>>> callback){
+     */
+    public void friendGet4All(CallBack<ReturnBean<List<UserInfo>>> callback) {
         NetUtil.getNet().exec(server.getAllFriendsGet(), callback);
     }
-
 
 
     private PayAction payAction = new PayAction();
