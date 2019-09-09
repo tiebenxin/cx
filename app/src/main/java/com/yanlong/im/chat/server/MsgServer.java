@@ -81,6 +81,10 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> groupHeadSet(@Field("gid") String gid, @Field("avatar") String avatar);
 
+    @POST("/group-ceiling/add")
+    @FormUrlEncoded
+    Call<ReturnBean> groupHeadLimit(@Field("gid") String gid, @Field("description") String description, @Field("masterPhone") String masterPhone);
+
     @POST("/group/accept-request")
     @FormUrlEncoded
     Call<ReturnBean> groupRequest(@Field("gid") String gid, @Field("newMember") String newMember,

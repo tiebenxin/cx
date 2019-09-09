@@ -395,6 +395,13 @@ public class MsgAction {
     public void changeGroupHead(String gid, String avatar, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.groupHeadSet(gid, avatar), callback);
     }
+
+    /**
+     * 修改群人数上限
+     */
+    public void changeGroupLimit(String gid, String description,String masterPhone, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupHeadLimit(gid, description,masterPhone), callback);
+    }
     /**
      * 修改群成员昵称
      */
