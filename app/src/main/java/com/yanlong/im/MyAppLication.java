@@ -67,13 +67,15 @@ public class MyAppLication extends MainApplication {
         LogcatHelper.getInstance(this).start();
         initException();
     }
+
     /*
      异常捕获
       */
     private void initException() {
-        MyException myException=MyException.getInstance();
+        MyException myException = MyException.getInstance();
         myException.init(getApplicationContext());
     }
+
     /***
      * 初始化红包
      */

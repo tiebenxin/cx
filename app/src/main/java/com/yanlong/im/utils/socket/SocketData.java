@@ -531,6 +531,7 @@ public class SocketData {
     /***
      * 发送失败
      * @param bean
+     * 发送失败的消息不更新时间
      */
     public static void msgSave4MeFail(MsgBean.AckMessage bean) {
         //普通消息
@@ -540,13 +541,14 @@ public class SocketData {
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
                     //时间要和ack一起返回
-                    .setTimestamp(getSysTime())
+//                    .setTimestamp(getSysTime())
                     .build();
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
-            msgAllBean.setTimestamp(bean.getTimestamp());
+//            msgAllBean.setTimestamp(bean.getTimestamp());
+            msgAllBean.setTimestamp(msg.getWrapMsg(0).getTimestamp());
             msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
             msgAllBean.setSend_data(msg.build().toByteArray());
 
@@ -1169,7 +1171,7 @@ public class SocketData {
                     if (bean.getTo_user() != null) {
                         name = bean.getTo_user().getName4Show();
                     }
-                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + name + "</font>\"" + "的好友, 请先添加对方为好友" /*+ "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>"*/;
+                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + name + "</font>\"" + "的好友, 请先" + "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>";
                     break;
             }
         }

@@ -62,7 +62,7 @@ public class GroupInfoActivity extends AppActivity {
     private android.support.v7.widget.RecyclerView topListView;
     //  private ImageView btnAdd;
     //  private ImageView btnRm;
-    private LinearLayout viewGroupName,viewGroupImg;
+    private LinearLayout viewGroupName, viewGroupImg;
     private LinearLayout viewGroupMore;
     private TextView txtGroupName;
     private LinearLayout viewGroupNick;
@@ -207,6 +207,7 @@ public class GroupInfoActivity extends AppActivity {
 //                startActivityForResult(intent, GROUP_NOTE);
                 if (isAdmin()) {
                     Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
+                    intent.putExtra(GroupNoteDetailActivity.GID, gid);
                     intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
                     intent.putExtra(GroupNoteDetailActivity.IS_OWNER, true);
                     startActivityForResult(intent, GROUP_NOTE);
@@ -252,10 +253,10 @@ public class GroupInfoActivity extends AppActivity {
             public void onClick(View v) {
                 Intent headIntent = new Intent(GroupInfoActivity.this, ImageHeadActivity.class);
                 //todo 头像修改
-                headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD,ginfo.getAvatar() );
-                headIntent.putExtra("admin",isAdmin());
-                headIntent.putExtra("groupSigle",true);
-                headIntent.putExtra("gid",gid);
+                headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD, ginfo.getAvatar());
+                headIntent.putExtra("admin", isAdmin());
+                headIntent.putExtra("groupSigle", true);
+                headIntent.putExtra("gid", gid);
                 startActivityForResult(headIntent, IMAGE_HEAD);
             }
         });
@@ -477,8 +478,10 @@ public class GroupInfoActivity extends AppActivity {
                     taskChangeMemberName(gid, content);
                     break;
                 case GROUP_NOTE:
-                    String note = data.getStringExtra(GroupNoteDetailActivity.CONTENT);
-                    changeGroupAnnouncement(gid, note);
+//                    String note = data.getStringExtra(GroupNoteDetailActivity.CONTENT);
+//                    changeGroupAnnouncement(gid, note);
+                    updateAndGetGroup();
+                    setGroupNote(ginfo.getAnnouncement());
                     break;
             }
         }
