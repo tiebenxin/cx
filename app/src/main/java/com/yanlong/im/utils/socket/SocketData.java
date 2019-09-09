@@ -1238,6 +1238,7 @@ public class SocketData {
         if (uid == null && !TextUtils.isEmpty(gid)) {
             isGroup = true;
         }
+
         MsgAllBean msg = new MsgAllBean();
         msg.setMsg_id(obj.getMsgId());
         msg.setMsg_type(msgType);
@@ -1248,6 +1249,16 @@ public class SocketData {
         msg.setFrom_uid(UserAction.getMyId());
         msg.setFrom_avatar(UserAction.getMyInfo().getHead());
         msg.setFrom_nickname(UserAction.getMyInfo().getName());
+
+        if (isGroup) {
+            Group group = msgDao.getGroup4Id(gid);
+            if (group != null) {
+                String name = group.getMygroupName();
+                if (StringUtil.isNotNull(name)) {
+                    msg.setFrom_group_nickname(name);
+                }
+            }
+        }
         switch (msgType) {
             case ChatEnum.EMessageType.NOTICE:
                 if (obj instanceof MsgNotice) {

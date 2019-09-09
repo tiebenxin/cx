@@ -489,8 +489,8 @@ public class GroupInfoActivity extends AppActivity {
                     taskChangeMemberName(gid, content);
                     break;
                 case GROUP_NOTE:
-//                    String note = data.getStringExtra(GroupNoteDetailActivity.CONTENT);
-//                    changeGroupAnnouncement(gid, note);
+                    String note = data.getStringExtra(GroupNoteDetailActivity.CONTENT);
+                    ginfo.setAnnouncement(note);
                     updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
