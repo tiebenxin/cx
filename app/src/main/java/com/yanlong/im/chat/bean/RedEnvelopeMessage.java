@@ -4,7 +4,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
-public class RedEnvelopeMessage extends RealmObject {
+public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
 
@@ -58,7 +58,8 @@ public class RedEnvelopeMessage extends RealmObject {
         this.comment = comment;
     }
 
-    public String getMsgid() {
+    @Override
+    public String getMsgId() {
         return msgid;
     }
 

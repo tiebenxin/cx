@@ -5,7 +5,7 @@ import net.cb.cb.library.utils.StringUtil;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class ImageMessage extends RealmObject {
+public class ImageMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
     private String origin; //原图
@@ -14,11 +14,11 @@ public class ImageMessage extends RealmObject {
 
     private String localimg;//本地图
 
-    private boolean isReadOrigin=false;//是否已经阅读原图
+    private boolean isReadOrigin = false;//是否已经阅读原图
 
-    private long  width = 0; //图宽
+    private long width = 0; //图宽
     private long height = 0; //图高
-    private long size=0;//文件大小
+    private long size = 0;//文件大小
 
     public long getWidth() {
         return width;
@@ -63,13 +63,14 @@ public class ImageMessage extends RealmObject {
     public String getOrigin() {
         return origin;
     }
+
     public String getOriginShow() {
-        String img=origin;
-        if(StringUtil.isNotNull(origin)&&StringUtil.isNotNull(localimg)){
-            img=localimg;
+        String img = origin;
+        if (StringUtil.isNotNull(origin) && StringUtil.isNotNull(localimg)) {
+            img = localimg;
         }
 
-        return  img;
+        return img;
     }
 
     public void setOrigin(String origin) {
@@ -79,13 +80,14 @@ public class ImageMessage extends RealmObject {
     public String getPreview() {
         return preview;
     }
+
     public String getPreviewShow() {
-        String img=preview;
-        if(StringUtil.isNotNull(preview)&&StringUtil.isNotNull(localimg)){
-            img=localimg;
+        String img = preview;
+        if (StringUtil.isNotNull(preview) && StringUtil.isNotNull(localimg)) {
+            img = localimg;
         }
 
-        return  img;
+        return img;
 
     }
 
@@ -98,19 +100,20 @@ public class ImageMessage extends RealmObject {
     }
 
     public String getThumbnailShow() {
-        String img=thumbnail;
-        if(StringUtil.isNotNull(thumbnail)&&StringUtil.isNotNull(localimg)){
-            img=localimg;
+        String img = thumbnail;
+        if (StringUtil.isNotNull(thumbnail) && StringUtil.isNotNull(localimg)) {
+            img = localimg;
         }
 
-        return  img;
+        return img;
     }
 
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
 
-    public String getMsgid() {
+    @Override
+    public String getMsgId() {
         return msgid;
     }
 

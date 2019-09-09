@@ -3,7 +3,7 @@ package com.yanlong.im.chat.bean;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class VoiceMessage extends RealmObject {
+public class VoiceMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
     private String url;//上传成功后网络路径
@@ -27,7 +27,7 @@ public class VoiceMessage extends RealmObject {
         this.url = url;
     }
 
-    public String getMsgid() {
+    public String getMsgId() {
         return msgid;
     }
 

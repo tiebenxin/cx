@@ -4,12 +4,12 @@ package com.yanlong.im.chat.bean;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class BusinessCardMessage extends RealmObject {
+public class BusinessCardMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
-   private String avatar; // 头像地址
+    private String avatar; // 头像地址
     private String nickname; // 昵称
-    private  String comment; // 备注
+    private String comment; // 备注
     private Long uid;
 
     public Long getUid() {
@@ -44,7 +44,8 @@ public class BusinessCardMessage extends RealmObject {
         this.comment = comment;
     }
 
-    public String getMsgid() {
+    @Override
+    public String getMsgId() {
         return msgid;
     }
 
