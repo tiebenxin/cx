@@ -6,11 +6,20 @@ import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.AssistantMessage;
+import com.yanlong.im.chat.bean.AtMessage;
+import com.yanlong.im.chat.bean.BusinessCardMessage;
+import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.StampMessage;
+import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
@@ -28,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import io.realm.RealmList;
 
 public class SocketData {
     private static final String TAG = "SocketData";
@@ -1209,5 +1220,152 @@ public class SocketData {
 
     public static long getSysTime() {
         return System.currentTimeMillis();
+    }
+
+    /*
+     * 创建自己发送的消息bean
+     * @param uid Long 用户Id,私聊即to_uid,群聊为null
+     * @gid 群id，私聊为空，群聊不能为空
+     * @msgType int 消息类型
+     * @sendStatus int 发送状态
+     * @obj IMsgContent MsgAllBean二级关联表bean
+     * */
+    public static MsgAllBean createMessageBean(Long uid, String gid, @ChatEnum.EMessageType int msgType, @ChatEnum.ESendStatus int sendStatus, IMsgContent obj) {
+        if (UserAction.getMyInfo() == null) {
+            return null;
+        }
+        boolean isGroup = false;
+        if (uid == null && !TextUtils.isEmpty(gid)) {
+            isGroup = true;
+        }
+        MsgAllBean msg = new MsgAllBean();
+        msg.setMsg_id(obj.getMsgId());
+        msg.setMsg_type(msgType);
+        msg.setTimestamp(getFixTime());
+        msg.setTo_uid(uid);
+        msg.setGid(gid);
+        msg.setSend_state(sendStatus);
+        msg.setFrom_uid(UserAction.getMyId());
+        msg.setFrom_avatar(UserAction.getMyInfo().getHead());
+        msg.setFrom_nickname(UserAction.getMyInfo().getName());
+        switch (msgType) {
+            case ChatEnum.EMessageType.NOTICE:
+                if (obj instanceof MsgNotice) {
+                    msg.setMsgNotice((MsgNotice) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TEXT:
+                if (obj instanceof ChatMessage) {
+                    msg.setChat((ChatMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.STAMP:
+                if (obj instanceof StampMessage) {
+                    msg.setStamp((StampMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.RED_ENVELOPE:
+                if (obj instanceof RedEnvelopeMessage) {
+                    msg.setRed_envelope((RedEnvelopeMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.IMAGE:
+                if (obj instanceof ImageMessage) {
+                    msg.setImage((ImageMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                if (obj instanceof BusinessCardMessage) {
+                    msg.setBusiness_card((BusinessCardMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TRANSFER:
+                if (obj instanceof TransferMessage) {
+                    msg.setTransfer((TransferMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.VOICE:
+                if (obj instanceof VoiceMessage) {
+                    msg.setVoiceMessage((VoiceMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.AT:
+                if (obj instanceof AtMessage) {
+                    msg.setAtMessage((AtMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.ASSISTANT:
+                if (obj instanceof AssistantMessage) {
+                    msg.setAssistantMessage((AssistantMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.MSG_CENCAL:
+                if (obj instanceof MsgCancel) {
+                    msg.setMsgCancel((MsgCancel) obj);
+                } else {
+                    return null;
+                }
+                break;
+
+        }
+
+        return msg;
+    }
+
+    public static MsgAllBean createMessageBean(String gid, String content, Group group) {
+        if (group == null || TextUtils.isEmpty(gid)) {
+            return null;
+        }
+        MsgAllBean msg = new MsgAllBean();
+        String msgId = SocketData.getUUID();
+        msg.setMsg_id(msgId);
+        msg.setMsg_type(ChatEnum.EMessageType.AT);
+        msg.setFrom_uid(UserAction.getMyId());
+        msg.setTimestamp(getFixTime());
+//            msg.setTo_uid(bean.getTo_uid());
+        msg.setGid(gid);
+        msg.setFrom_avatar(UserAction.getMyInfo().getHead());
+        msg.setFrom_nickname(UserAction.getMyInfo().getName());
+        msg.setSend_state(ChatEnum.ESendStatus.NORMAL);
+        msg.setFrom_group_nickname(group.getMygroupName());
+        msg.setAtMessage(createAtMessage(msgId, content, ChatEnum.EAtType.ALL));
+        return msg;
+    }
+
+    public static AtMessage createAtMessage(String msgId, String content, @ChatEnum.EAtType int atType) {
+        AtMessage message = new AtMessage();
+        message.setMsgId(msgId);
+        message.setAt_type(atType);
+        message.setMsg(content);
+        return message;
+
+    }
+
+    public static void saveMessage(MsgAllBean bean) {
+        DaoUtil.update(bean);
+        if (msgDao == null) {
+            msgDao = new MsgDao();
+        }
+        msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
     }
 }

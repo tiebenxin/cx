@@ -31,6 +31,9 @@ public class MsgConversionBean {
 
 
     public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean, MsgBean.UniversalMessage.Builder msg) {
+        if (bean.getMsgType() == MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+            return null;
+        }
         MsgDao msgDao = new MsgDao();
         //手动处理转换
         MsgAllBean msgAllBean = new MsgAllBean();
@@ -304,6 +307,7 @@ public class MsgConversionBean {
                 realmList.addAll(bean.getAt().getUidList());
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.AT);
                 AtMessage atMessage = new AtMessage();
+                atMessage.setMsgId(bean.getMsgId());
                 atMessage.setMsg(bean.getAt().getMsg());
                 atMessage.setAt_type(bean.getAt().getAtType().getNumber());
                 atMessage.setUid(realmList);
@@ -312,6 +316,7 @@ public class MsgConversionBean {
             case ASSISTANT:
                 AssistantMessage assistant = new AssistantMessage();
                 assistant.setMsg(bean.getAssistant().getMsg());
+                assistant.setMsgId(bean.getMsgId());
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.ASSISTANT);
                 msgAllBean.setAssistantMessage(assistant);
                 break;

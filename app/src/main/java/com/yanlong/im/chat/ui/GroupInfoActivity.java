@@ -19,8 +19,11 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -30,6 +33,7 @@ import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -240,15 +244,15 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
-        final RealmList<UserInfo> list= ginfo.getUsers();
-        if (list.size()<400){
-            isPercentage=false;
+        final RealmList<UserInfo> list = ginfo.getUsers();
+        if (list.size() < 400) {
+            isPercentage = false;
         }
 
         viewGroupManage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE,isPercentage));
+                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE, isPercentage));
             }
         });
 
@@ -298,6 +302,7 @@ public class GroupInfoActivity extends AppActivity {
         });
 
     }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -317,7 +322,9 @@ public class GroupInfoActivity extends AppActivity {
         super.onResume();
         initEvent();
     }
-    public   boolean isPercentage=true;
+
+    public boolean isPercentage = true;
+
     private void initData() {
         //顶部处理
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
@@ -486,6 +493,7 @@ public class GroupInfoActivity extends AppActivity {
 //                    changeGroupAnnouncement(gid, note);
                     updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
+                    createAndSaveMsg();
                     break;
             }
         }
@@ -822,6 +830,18 @@ public class GroupInfoActivity extends AppActivity {
             MsgDao dao = new MsgDao();
             dao.groupNumberSave(ginfo);
             ginfo = dao.groupNumberGet(gid);
+        }
+    }
+
+    private void createAndSaveMsg() {
+        if (ginfo == null || TextUtils.isEmpty(gid)) {
+            return;
+        }
+//        MsgAllBean bean = SocketData.createMessageBean(gid, "@所有人 \r\n" + ginfo.getAnnouncement(), ginfo);
+        AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + ginfo.getAnnouncement(), ChatEnum.EAtType.ALL);
+        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, atMessage);
+        if (bean != null) {
+            SocketData.saveMessage(bean);
         }
     }
 

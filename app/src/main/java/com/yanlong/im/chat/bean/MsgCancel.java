@@ -3,7 +3,7 @@ package com.yanlong.im.chat.bean;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class MsgCancel extends RealmObject {
+public class MsgCancel extends RealmObject implements IMsgContent {
     public static final int MSG_TYPE_DEFAULT = 7897;
     @PrimaryKey
     private String msgid;
@@ -44,7 +44,8 @@ public class MsgCancel extends RealmObject {
         this.note = note;
     }
 
-    public String getMsgid() {
+    @Override
+    public String getMsgId() {
         return msgid;
     }
 

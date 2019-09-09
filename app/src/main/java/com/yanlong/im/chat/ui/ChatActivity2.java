@@ -746,7 +746,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
-                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgid(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
 //                replaceListDataAndNotify(msg);
                 msgListData.add(msg);
                 notifyData2Bottom(true);
@@ -1353,7 +1353,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
 //        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
         if (event.getState() == 0) {
-            // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
+            // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgId());
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
             //处理失败的情况
@@ -1363,13 +1363,13 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
 
         } else if (event.getState() == 1) {
-            //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgid());
+            //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
 
 
         } else {
-            //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgid());
+            //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgId());
         }
     }
 
