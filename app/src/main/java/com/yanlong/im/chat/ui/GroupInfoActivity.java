@@ -47,6 +47,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -238,11 +239,15 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
+        final RealmList<UserInfo> list= ginfo.getUsers();
+        if (list.size()<400){
+            isPercentage=false;
+        }
 
         viewGroupManage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid));
+                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE,isPercentage));
             }
         });
 
@@ -292,7 +297,6 @@ public class GroupInfoActivity extends AppActivity {
         });
 
     }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -312,7 +316,7 @@ public class GroupInfoActivity extends AppActivity {
         super.onResume();
         initEvent();
     }
-
+    public   boolean isPercentage=true;
     private void initData() {
         //顶部处理
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
