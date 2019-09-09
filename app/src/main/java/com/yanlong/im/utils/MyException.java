@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import net.cb.cb.library.utils.ToastUtil;
+
 public class MyException implements Thread.UncaughtExceptionHandler {
     private static MyException mInstance;
     private Context mContext;
@@ -16,18 +18,20 @@ public class MyException implements Thread.UncaughtExceptionHandler {
     }
     public static MyException getInstance(){
         if (mInstance==null){
-            mInstance=new MyException();
+            synchronized (MyException.class){
+                mInstance=new MyException();
+            }
         }
         return mInstance;
     }
     @Override
     public void uncaughtException(Thread t, Throwable ex) {
         Log.e("TAG","捕获到异常"+ex.getMessage());
-        Toast.makeText(mContext, "程序出错:3秒后退出. 错误原因" + ex.getMessage().toString(), Toast.LENGTH_LONG).show();
+        ToastUtil.show(mContext,"程序异常!即将退出");
 //        try{
 //            Thread.sleep(3000);
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(10);
+//            android.os.Process.killProcess(android.os.Process.myPid());
+//            System.exit(0);
 //        }catch (InterruptedException exce){
 //        }
     }

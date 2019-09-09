@@ -21,6 +21,7 @@ import com.yanlong.im.user.bean.TokenBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
+import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.view.AppActivity;
 
@@ -137,36 +138,49 @@ public class StartPageActivity extends AppActivity {
 
     private void updateToken(final boolean isFlast) {
         LogUtil.getLog().i("youmeng","StartPageActivity------->getDevId");
-        userAction.login4token(UserAction.getDevId(getContext()), new Callback<ReturnBean<TokenBean>>() {
+        new RunUtils(new RunUtils.Enent() {
+            String devId;
             @Override
-            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                LogUtil.getLog().i("youmeng","StartPageActivity---->updateToken---->onResponse");
-                if (isFlast) {
-                    startActivity(new Intent(StartPageActivity.this, SelectLoginActivity.class));
-                    finish();
-                } else {
-                    startActivity(new Intent(StartPageActivity.this, MainActivity.class));
-                    finish();
-                }
+            public void onRun() {
+                devId= UserAction.getDevId(getContext());
             }
 
             @Override
-            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
-                LogUtil.getLog().i("youmeng","StartPageActivity---->updateToken---->onFailure");
-                if (isFlast) {
-                    startActivity(new Intent(StartPageActivity.this, SelectLoginActivity.class));
-                    finish();
-                } else {
-                    if (TextUtils.isEmpty(phone)) {
-                        startActivity(new Intent(StartPageActivity.this, PasswordLoginActivity.class));
-                        finish();
-                    } else {
-                        go(LoginActivity.class);
-                        finish();
+            public void onMain() {
+                userAction.login4token(devId, new Callback<ReturnBean<TokenBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                        LogUtil.getLog().i("youmeng","StartPageActivity---->updateToken---->onResponse");
+                        if (isFlast) {
+                            startActivity(new Intent(StartPageActivity.this, SelectLoginActivity.class));
+                            finish();
+                        } else {
+                            startActivity(new Intent(StartPageActivity.this, MainActivity.class));
+                            finish();
+                        }
                     }
-                }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                        LogUtil.getLog().i("youmeng","StartPageActivity---->updateToken---->onFailure");
+                        if (isFlast) {
+                            startActivity(new Intent(StartPageActivity.this, SelectLoginActivity.class));
+                            finish();
+                        } else {
+                            if (TextUtils.isEmpty(phone)) {
+                                startActivity(new Intent(StartPageActivity.this, PasswordLoginActivity.class));
+                                finish();
+                            } else {
+                                go(LoginActivity.class);
+                                finish();
+                            }
+                        }
+                    }
+                });
+
             }
-        });
+        }).run();
+
     }
 
 

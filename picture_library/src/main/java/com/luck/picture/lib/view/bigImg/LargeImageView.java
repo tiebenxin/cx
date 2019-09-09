@@ -886,6 +886,18 @@ public class LargeImageView extends View implements BlockImageLoader.OnImageLoad
         overScrollByCompat(dx, dy, sX, sY, getScrollRangeX(), getScrollRangeY(), 0, 0, false);
         notifyInvalidate();
     }
+    public void setScaleMe(float scale, int centerX, int centerY) {
+        if (!hasLoad()) {
+            return;
+        }
+        float preScale = mScale;
+        mScale = scale;
+        int sX = getScrollX();
+        int sY = getScrollY();
+
+        overScrollByCompat(centerX, centerY, sX, sY, getScrollRangeX(), getScrollRangeY(), 0, 0, false);
+        notifyInvalidate();
+    }
 
     public OnDoubleClickListener getOnDoubleClickListener() {
         return onDoubleClickListener;

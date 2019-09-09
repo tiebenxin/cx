@@ -22,6 +22,7 @@ import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -131,8 +132,8 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
 
 
     private void login() {
-        String phone = mEtPhoneContent.getText().toString();
-        String code = mEtIdentifyingCodeContent.getText().toString();
+        final String phone = mEtPhoneContent.getText().toString();
+        final String code = mEtIdentifyingCodeContent.getText().toString();
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(this, "请输入账号");
             return;
@@ -146,29 +147,42 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             return;
         }
         LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->getDevId");
-        userAction.login4Captch(phone, code, UserAction.getDevId(this), new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
+       new RunUtils(new RunUtils.Enent() {
+           String devId;
+           @Override
+           public void onRun() {
+               devId= UserAction.getDevId(getContext());
+           }
 
-            @Override
-            public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->login----->onResp");
-                if (response.body() == null) {
-                    return;
-                }
-                if (response.body().isOk()) {
-                    Intent intent = new Intent(getContext(),MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                } else {
-                    ToastUtil.show(getContext(), response.body().getMsg());
-                }
-            }
+           @Override
+           public void onMain() {
+               userAction.login4Captch(phone, code,devId , new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
 
-            @Override
-            public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
-                super.onFail(call, t);
-                LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->login----->onFail");
-            }
-        });
+                   @Override
+                   public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                       LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->login----->onResp");
+                       if (response.body() == null) {
+                           return;
+                       }
+                       if (response.body().isOk()) {
+                           Intent intent = new Intent(getContext(),MainActivity.class);
+                           intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                           startActivity(intent);
+                       } else {
+                           ToastUtil.show(getContext(), response.body().getMsg());
+                       }
+                   }
+
+                   @Override
+                   public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                       super.onFail(call, t);
+                       LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->login----->onFail");
+                   }
+               });
+
+           }
+       }).run();
+
     }
 
 

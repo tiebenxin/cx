@@ -626,8 +626,8 @@ public class PhotoViewAttacher implements View.OnTouchListener,
             mDisplayRect.set(0, 0, d.getIntrinsicWidth(),
                     d.getIntrinsicHeight());
             matrix.mapRect(mDisplayRect);
-            index_x=-new Float( mDisplayRect.left/2).intValue();
-            index_y=-new Float( mDisplayRect.top/2).intValue();
+            index_x=-new Float( mDisplayRect.left).intValue();
+            index_y=-new Float( mDisplayRect.top).intValue();
             Log.d(TAG, "getDisplayRect: "+index_x);
             return mDisplayRect;
         }
