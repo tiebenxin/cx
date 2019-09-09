@@ -25,6 +25,8 @@ import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyException;
 
 import org.android.agoo.huawei.HuaWeiRegister;
+import org.android.agoo.oppo.OppoRegister;
+import org.android.agoo.vivo.VivoRegister;
 import org.android.agoo.xiaomi.MiPushRegistar;
 import org.greenrobot.eventbus.EventBus;
 
@@ -150,6 +152,11 @@ public class MyAppLication extends MainApplication {
                 MiPushRegistar.register(getApplicationContext(), "2882303761518011485", "5411801194485");
                 //注册华为推送
                 HuaWeiRegister.register(MyAppLication.this);
+                //oppo
+                OppoRegister.register(getApplicationContext(), "xxxxxx", "xxxxxx");
+                //vivo
+                VivoRegister.register(getApplicationContext());
+
 
                 //每次启动,一定要开启这个
                 mPushAgent.enable(new IUmengCallback() {
@@ -157,12 +164,12 @@ public class MyAppLication extends MainApplication {
                     public void onSuccess() {
 
 
-                        Log.e(TAG, "PushAgent推送开启成功");
+                       // Log.e(TAG, "PushAgent推送开启成功");
                     }
 
                     @Override
                     public void onFailure(String s, String s1) {
-                        LogUtil.getLog().e(TAG, "PushAgent推送开启失败:" + s + s1);
+                       // LogUtil.getLog().e(TAG, "PushAgent推送开启失败:" + s + s1);
                     }
                 });
 
