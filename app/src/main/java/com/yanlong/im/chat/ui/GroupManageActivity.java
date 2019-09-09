@@ -30,6 +30,7 @@ import retrofit2.Response;
 public class GroupManageActivity extends AppActivity {
 
     public static final String AGM_GID = "AGM_GID";
+    public static final String PERCENTAGE = "percentage";
     private HeadView mHeadView;
     private LinearLayout mViewGroupTransfer,view_group_add;
     private LinearLayout viewGroupRobot;
@@ -48,7 +49,7 @@ public class GroupManageActivity extends AppActivity {
         initView();
         initData();
     }
-
+    private boolean isPercentage;
     private void initView() {
 
         msgAction = new MsgAction();
@@ -60,6 +61,10 @@ public class GroupManageActivity extends AppActivity {
         mCkGroupIntimately = findViewById(R.id.ck_group_intimately);
         viewGroupRobot = findViewById(R.id.view_group_robot);
         txtGroupRobot = findViewById(R.id.txt_group_robot);
+        isPercentage=getIntent().getBooleanExtra(PERCENTAGE,false);
+        if (!isPercentage){
+            view_group_add.setVisibility(View.GONE);
+        }
     }
 
     private void initEvent(){
@@ -100,7 +105,7 @@ public class GroupManageActivity extends AppActivity {
         view_group_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(GroupManageActivity.this, GroupAddActivity.class);
+                Intent intent = new Intent(GroupManageActivity.this, GroupAddActivity.class).putExtra("gid",gid);
                 startActivity(intent);
             }
         });

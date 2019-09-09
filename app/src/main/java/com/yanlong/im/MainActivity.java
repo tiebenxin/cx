@@ -340,16 +340,16 @@ public class MainActivity extends AppActivity {
                     if (response.body().getData().getForceUpdate() != 0) {
                         //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                    }else{
+                    } else {
 
-                        if(updateManage.isToDayFirst(bean)){
+                        if (updateManage.isToDayFirst(bean)) {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         }
 
-                        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
-                            if(new UpdateManage(context, MainActivity.this).check(bean.getVersion())){
+                        if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+                            if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
                                 sbme.setNum(1);
-                            }else{
+                            } else {
                                 sbme.setNum(0);
                             }
                         }
@@ -405,7 +405,7 @@ public class MainActivity extends AppActivity {
         SharedPreferencesUtil sp = new SharedPreferencesUtil(NOTIFICATION);
         if (sp != null) {
             NotificationConfig config = sp.get4Json(NotificationConfig.class, "notify_config");
-            if (config != null) {
+            if (config != null && userAction.getMyId() != null) {
 //                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "oldUid=" + config.getUid() + "--newUid=" + userAction.getMyId());
                 if (config.getUid() == userAction.getMyId() && (!isNewVersion(config.getVersion()) || config.isHasNotify())) {
                     return false;
