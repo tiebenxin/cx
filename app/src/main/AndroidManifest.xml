@@ -23,6 +23,14 @@
         <meta-data
             android:name="com.huawei.hms.client.appid"
             android:value="appid=100836087" />
+        <!-- vivo start-->
+        <meta-data
+            android:name="com.vivo.push.api_key"
+            android:value="xxxxxx" />
+        <meta-data
+            android:name="com.vivo.push.app_id"
+            android:value="xxxxxx" />
+        <!-- VIVO end-->
 
         <meta-data
             android:name="JRMF_PARTNER_ID"

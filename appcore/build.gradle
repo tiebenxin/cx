@@ -127,6 +127,12 @@ dependencies {
     api 'com.umeng.umsdk:huawei-pushtb:+'
     api 'com.umeng.umsdk:huawei-umengaccs:+'
     api 'androidx.annotation:annotation:1.0.2'
+    //vivo
+    api 'com.umeng.umsdk:vivo-push:+'
+    api 'com.umeng.umsdk:vivo-umengaccs:+'
+    //oppo
+    api 'com.umeng.umsdk:oppo-push:+'
+    api 'com.umeng.umsdk:oppo-umengaccs:+'
 
     api 'org.jsoup:jsoup:1.12.1'
 }
