@@ -198,7 +198,8 @@ public class MsgMainFragment extends Fragment {
                     public void run() {
                         Log.d("tyad", "run: state" + state);
                         actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
-                        actionBar.setTitle(state ? "消息" : "消息(连接中...)");
+                       // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
+                        actionBar.setTitle(state ? "消息" : "消息");
                         if (state) {
                             viewNetwork.setVisibility(View.GONE);
                         } else {
