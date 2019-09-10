@@ -210,6 +210,7 @@ public class GroupInfoActivity extends AppActivity {
 //                intent.putExtra(CommonSetingActivity.SIZE, 500);
 //                intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
 //                startActivityForResult(intent, GROUP_NOTE);
+                ginfo.getMaster();
                 if (isAdmin()) {
                     Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
                     intent.putExtra(GroupNoteDetailActivity.GID, gid);

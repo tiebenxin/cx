@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
 
     <net.cb.cb.library.view.HeadView
         android:id="@+id/headView"
@@ -21,9 +23,22 @@
             android:id="@+id/et_txt"
             style="@style/app_edt2"
             android:layout_height="wrap_content"
-            android:paddingLeft="13dp"
-            android:paddingTop="13dp"
-            android:paddingRight="13dp"
+            android:paddingLeft="21dp"
+            android:paddingTop="14dp"
+            android:paddingRight="21dp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:textSize="14sp"
             android:paddingBottom="13dp" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.yanlong.im.pay.ui.view.TextLineView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="85dp"
+                android:layout_alignParentBottom="true"
+                />
+        </RelativeLayout>
     </net.cb.cb.library.view.HeadView>
 </layout>
