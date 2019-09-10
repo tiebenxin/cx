@@ -9,6 +9,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -39,6 +40,7 @@ public class MsgConversionBean {
         MsgAllBean msgAllBean = new MsgAllBean();
 
         msgAllBean.setTimestamp(bean.getTimestamp());
+        SocketData.setPreServerAckTime(bean.getTimestamp());
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setFrom_avatar(bean.getAvatar());
         msgAllBean.setFrom_nickname(bean.getNickname());
