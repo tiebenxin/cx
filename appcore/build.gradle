@@ -133,6 +133,9 @@ dependencies {
     //oppo
     api 'com.umeng.umsdk:oppo-push:+'
     api 'com.umeng.umsdk:oppo-umengaccs:+'
+    //魅族
+    api 'com.umeng.umsdk:meizu-push:+'
+    api 'com.umeng.umsdk:meizu-umengaccs:+'
 
     api 'org.jsoup:jsoup:1.12.1'
 }
