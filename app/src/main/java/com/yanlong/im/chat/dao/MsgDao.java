@@ -1816,8 +1816,8 @@ public class MsgDao {
         if (group == null) {
             return "";
         }
-//        String result = group.getName();
-        String result = "";
+        String result = group.getName();
+//        String result = "";
         if (TextUtils.isEmpty(result)) {
             List<UserInfo> users = group.getUsers();
             if (users != null && users.size() > 0) {
