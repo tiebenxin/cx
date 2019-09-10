@@ -1196,6 +1196,7 @@ public class SocketData {
     }
 
     public static void setPreServerAckTime(long preServerAckTime) {
+//        LogUtil.getLog().i(TAG, "时间戳--preServerAckTime=" + preServerAckTime);
         SocketData.preServerAckTime = preServerAckTime;
     }
 
@@ -1210,14 +1211,18 @@ public class SocketData {
     //获取修正时间
     public static long getFixTime() {
         long currentTime = System.currentTimeMillis();
+//        LogUtil.getLog().i(TAG, "时间戳--currentTime=" + currentTime + "--preServerAckTime=" + preServerAckTime + "--preSendLocalTime=" + preSendLocalTime);
         if (preServerAckTime > preSendLocalTime && preServerAckTime > currentTime) {//服务器回执时间最新
-            return preServerAckTime = preServerAckTime + 1;
+            currentTime = preServerAckTime + 1;
+            preServerAckTime = currentTime;
         } else if (preSendLocalTime > preServerAckTime && preSendLocalTime > currentTime) {//本地发送时间最新
-            return preSendLocalTime = preSendLocalTime + 1;
+            currentTime = preSendLocalTime + 1;
+            preSendLocalTime = currentTime;
         } else {//本地系统时间最新
             preSendLocalTime = currentTime;
-            return currentTime;
         }
+//        LogUtil.getLog().i(TAG, "时间戳--currentTime=" + currentTime);
+        return currentTime;
     }
 
     public static long getSysTime() {

@@ -34,6 +34,7 @@ public class SocketUtil {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
+            SocketData.setPreServerAckTime(bean.getTimestamp());
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
                 SocketData.msgSave4Me(bean);
@@ -59,11 +60,7 @@ public class SocketUtil {
                 if (ev != null) {
                     ev.onACK(bean);
                 }
-                //这里可以做为空,自动移除
-
             }
-
-
         }
 
 
@@ -72,17 +69,11 @@ public class SocketUtil {
             //保存消息和处理回执
             LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
             SocketData.magSaveAndACK(bean);
-
-
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onMsg(bean);
                 }
-                //这里可以做为空,自动移除
-
             }
-
-
         }
 
         @Override
@@ -93,7 +84,6 @@ public class SocketUtil {
                     ev.onSendMsgFailure(bean);
                 }
                 //这里可以做为空,自动移除
-
             }
         }
 

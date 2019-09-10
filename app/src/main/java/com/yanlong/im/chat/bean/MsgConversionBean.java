@@ -38,9 +38,7 @@ public class MsgConversionBean {
         MsgDao msgDao = new MsgDao();
         //手动处理转换
         MsgAllBean msgAllBean = new MsgAllBean();
-
         msgAllBean.setTimestamp(bean.getTimestamp());
-        SocketData.setPreServerAckTime(bean.getTimestamp());
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setFrom_avatar(bean.getAvatar());
         msgAllBean.setFrom_nickname(bean.getNickname());
