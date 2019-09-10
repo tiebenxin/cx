@@ -491,7 +491,7 @@ public class GroupInfoActivity extends AppActivity {
                 case GROUP_NOTE:
                     String note = data.getStringExtra(GroupNoteDetailActivity.CONTENT);
                     ginfo.setAnnouncement(note);
-                    updateAndGetGroup();
+//                    updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
                     break;

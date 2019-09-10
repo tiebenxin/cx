@@ -182,7 +182,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //当前页
     //private int indexPage = 0;
     private List<MsgAllBean> msgListData = new ArrayList<>();
-    private List<MsgAllBean> downloadList = new ArrayList<>();
+    private List<MsgAllBean> downloadList = new ArrayList<>();//下载列表
+    private Map<String, MsgAllBean> uploadMap = new HashMap<>();//上传列表
+    private List<MsgAllBean> uploadList = new ArrayList<>();//上传列表
 
     //红包和转账
     public static final int REQ_RP = 9653;
@@ -219,6 +221,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    fixSendTime(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
                         taskRefreshMessage();
 //                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
@@ -904,6 +907,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
+        uploadMap.put(bean.getMsg_id(), bean);
+        uploadList.add(bean);
         updateSendStatus(ChatEnum.ESendStatus.SENDING, bean);
         new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
             @Override
@@ -2844,5 +2849,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         showSendObj(msgAllbean);
     }
 
-
+    private void fixSendTime(String msgId) {
+        MsgAllBean bean = uploadMap.get(msgId);
+        boolean needRefresh = false;
+        if (bean != null) {
+            if (uploadList.indexOf(bean) == 0) {
+                needRefresh = true;
+            }
+            uploadMap.remove(msgId);
+        }
+        if (needRefresh && uploadMap.size() > 0) {
+            for (Map.Entry<String, MsgAllBean> entry : uploadMap.entrySet()) {
+                MsgAllBean msg = entry.getValue();
+                msg.setTimestamp(SocketData.getFixTime());
+                DaoUtil.update(msg);
+            }
+        }
+    }
 }

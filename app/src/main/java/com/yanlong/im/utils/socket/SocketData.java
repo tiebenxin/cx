@@ -676,7 +676,8 @@ public class SocketData {
         wmsg.setMsgId(msgid == null ? getUUID() : msgid);
 
 
-        wmsg.setTimestamp(getSysTime());
+//        wmsg.setTimestamp(getSysTime());
+        wmsg.setTimestamp(getFixTime());
 
         if (toGid != null && toGid.length() > 0) {//给群发
             wmsg.setGid(toGid);
