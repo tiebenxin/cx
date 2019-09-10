@@ -337,7 +337,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case ACCEPT_BE_GROUP://邀请进群刷新
                 taskGroupConf();
                 break;
-            case CHANGE_GROUP_NAME:
+            case CHANGE_GROUP_META:
                 taskSessionInfo();
                 break;
         }
@@ -2251,8 +2251,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskSessionInfo() {
         String title = "";
         if (isGroup()) {
-            Group ginfo = msgDao.getGroup4Id(toGid);
-            title = ginfo.getName();
+//            Group ginfo = msgDao.getGroup4Id(toGid);
+//            title = ginfo.getName();
+            title = msgDao.getGroupName(toGid);
             //6.15 设置右上角点击
             taskGroupConf();
 
@@ -2427,8 +2428,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             userInfo.setName(gname);
                         }
                     }
-
-
                 }
                 mks.put(k, userInfo);
             }

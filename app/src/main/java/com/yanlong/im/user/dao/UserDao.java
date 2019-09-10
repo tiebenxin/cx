@@ -318,4 +318,16 @@ public class UserDao {
             e.printStackTrace();
         }
     }
+
+    /***
+     * 删除指定好友
+     */
+    public void deleteUser(long uid) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+        userInfo.deleteFromRealm();
+        realm.commitTransaction();
+        realm.close();
+    }
 }

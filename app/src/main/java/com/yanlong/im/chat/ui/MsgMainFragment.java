@@ -456,7 +456,8 @@ public class MsgMainFragment extends Fragment {
                     icon = ginfo.getAvatar();
                     //获取最后一条群消息
                     msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                    title = ginfo.getName();
+//                    title = ginfo.getName();
+                    title = msgDao.getGroupName(bean.getGid());
                     if (msginfo != null) {
                         if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
                             info = msginfo.getMsg_typeStr();
@@ -695,7 +696,7 @@ public class MsgMainFragment extends Fragment {
 
                 //获取最后一条群消息
                 msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                title = ginfo.getName();
+                title = /*ginfo.getName()*/msgDao.getGroupName(bean.getGid());
                 if (msginfo != null) {
                     info = msginfo.getMsg_typeStr();
                 }

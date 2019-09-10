@@ -176,7 +176,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.REMMARK, "群聊名称");
                 intent.putExtra(CommonSetingActivity.HINT, "群聊名称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
-                intent.putExtra(CommonSetingActivity.SETING, ginfo.getName());
+                intent.putExtra(CommonSetingActivity.SETING, /*ginfo.getName()*/msgDao.getGroupName(gid));
                 startActivityForResult(intent, GROUP_NAME);
             }
         });
@@ -210,6 +210,7 @@ public class GroupInfoActivity extends AppActivity {
 //                intent.putExtra(CommonSetingActivity.SIZE, 500);
 //                intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
 //                startActivityForResult(intent, GROUP_NOTE);
+                ginfo.getMaster();
                 if (isAdmin()) {
                     Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
                     intent.putExtra(GroupNoteDetailActivity.GID, gid);
@@ -336,7 +337,7 @@ public class GroupInfoActivity extends AppActivity {
         topListView.setLayoutManager(gridLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
         viewGroupVerif.setVisibility(View.GONE);
-        txtGroupName.setText(ginfo.getName());
+        txtGroupName.setText(TextUtils.isEmpty(ginfo.getName()) ? "未设置" : ginfo.getName());
         txtGroupNick.setText(ginfo.getMygroupName());
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
@@ -373,7 +374,7 @@ public class GroupInfoActivity extends AppActivity {
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), MyselfQRCodeActivity.class)
                         .putExtra(MyselfQRCodeActivity.TYPE, 1)
-                        .putExtra(MyselfQRCodeActivity.GROUP_NAME, ginfo.getName())
+                        .putExtra(MyselfQRCodeActivity.GROUP_NAME, /*ginfo.getName()*/msgDao.getGroupName(gid))
                         .putExtra(MyselfQRCodeActivity.GROUP_HEAD, ginfo.getAvatar())
                         .putExtra(MyselfQRCodeActivity.GROUP_ID, ginfo.getGid())
                 );
@@ -501,6 +502,7 @@ public class GroupInfoActivity extends AppActivity {
 
     private UserDao userDao = new UserDao();
     private MsgAction msgAction = new MsgAction();
+    private MsgDao msgDao = new MsgDao();
 
     /***
      * 获取群成员

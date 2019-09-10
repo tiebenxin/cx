@@ -65,9 +65,9 @@ public class MyAppLication extends MainApplication {
         }
         //初始化数据库
         Realm.init(getApplicationContext());
-       ///推送处理
-       if(getApplicationContext().getPackageName().equals(getCurrentProcessName())){
-            LogUtil.getLog().d(TAG,"推送延迟:true");
+        ///推送处理
+        if (getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
+            LogUtil.getLog().d(TAG, "推送延迟:true");
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -76,10 +76,10 @@ public class MyAppLication extends MainApplication {
                 }
             }, 0);
         } else {
-            LogUtil.getLog().d(TAG,"推送延迟:false");
+            LogUtil.getLog().d(TAG, "推送延迟:false");
             initUPush();
         }
-       // initUPush();
+        // initUPush();
 
         //--------------------------
         initWeixinConfig();
@@ -93,7 +93,7 @@ public class MyAppLication extends MainApplication {
     /**
      * 获取当前进程名
      */
-    private String getCurrentProcessName(){
+    private String getCurrentProcessName() {
         int pid = android.os.Process.myPid();
         String processName = "";
         ActivityManager manager = (ActivityManager) getApplicationContext().getSystemService
@@ -167,12 +167,12 @@ public class MyAppLication extends MainApplication {
                     public void onSuccess() {
 
 
-                       // Log.e(TAG, "PushAgent推送开启成功");
+                        // Log.e(TAG, "PushAgent推送开启成功");
                     }
 
                     @Override
                     public void onFailure(String s, String s1) {
-                       // LogUtil.getLog().e(TAG, "PushAgent推送开启失败:" + s + s1);
+                        // LogUtil.getLog().e(TAG, "PushAgent推送开启失败:" + s + s1);
                     }
                 });
 

@@ -209,14 +209,14 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         public void onBindViewHolder(RCViewHolder holder, int position) {
             final Group groupInfoBean = groupInfoBeans.get(position);
             holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
-            holder.txtName.setText(groupInfoBean.getName());
+            holder.txtName.setText(/*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 //                    Intent intent = new Intent();
 //                    intent.putExtra(GROUP_JSON, GsonUtils.optObject(groupInfoBean));
 //                    setResult(RESULT_OK, intent);
-                    onForward(-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), groupInfoBean.getName());
+                    onForward(-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), /*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
                 }
             });
 

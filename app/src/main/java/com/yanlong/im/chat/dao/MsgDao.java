@@ -1095,7 +1095,10 @@ public class MsgDao {
     public MsgAllBean msgGetLast4FUid(Long uid) {
         MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
-        MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+        MsgAllBean bean = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").and().isNotNull("gid").endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                 .sort("timestamp", Sort.DESCENDING).findFirst();
         if (bean != null) {
             ret = realm.copyFromRealm(bean);
@@ -1113,7 +1116,10 @@ public class MsgDao {
     public MsgAllBean msgGetLastGroup4Uid(String gid, Long uid) {
         MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
-        MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", gid).and().equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+        MsgAllBean bean = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", gid).endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                 .sort("timestamp", Sort.DESCENDING).findFirst();
         if (bean != null) {
             ret = realm.copyFromRealm(bean);
@@ -1786,8 +1792,10 @@ public class MsgDao {
         realm.beginTransaction();
 
         Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-        group.setContactIntimately(intimately ? 1 : 0);
-        realm.insertOrUpdate(group);
+        if (group != null) {
+            group.setContactIntimately(intimately ? 1 : 0);
+            realm.insertOrUpdate(group);
+        }
 
         realm.commitTransaction();
         realm.close();
@@ -1806,6 +1814,70 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
         return bean;
+    }
+
+    /*
+     * 动态获取群名
+     * */
+    public String getGroupName(String gid) {
+        Group group = getGroup4Id(gid);
+        if (group == null) {
+            return "";
+        }
+        String result = group.getName();
+//        String result = "";
+        if (TextUtils.isEmpty(result)) {
+            List<UserInfo> users = group.getUsers();
+            if (users != null && users.size() > 0) {
+                int len = users.size();
+                for (int i = 0; i < len; i++) {
+                    UserInfo info = users.get(i);
+                    GropLinkInfo linkInfo = getGropLinkInfo(gid, info.getUid());
+                    String memberName = "";
+                    if (linkInfo != null) {
+                        memberName = linkInfo.getMembername();
+                    }
+                    if (i == len - 1) {
+                        result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid());
+                    } else {
+                        result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid()) + "、";
+                    }
+                }
+                result = result.length() > 14 ? StringUtil.splitEmojiString(result, 0, 14) : result;
+                result += "的群";
+            }
+        }
+        return result;
+    }
+
+    /*
+     * 动态获取群名
+     * */
+    public String getGroupName(Group group) {
+        if (group == null) {
+            return "";
+        }
+        String result = group.getName();
+//        String result = "";
+        if (TextUtils.isEmpty(result)) {
+            List<UserInfo> users = group.getUsers();
+            if (users != null && users.size() > 0) {
+                int len = users.size();
+                for (int i = 0; i < len; i++) {
+                    UserInfo info = users.get(i);
+                    GropLinkInfo linkInfo = getGropLinkInfo(group.getGid(), info.getUid());
+                    String memberName = linkInfo.getMembername();
+                    if (i == len - 1) {
+                        result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid());
+                    } else {
+                        result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid()) + "、";
+                    }
+                }
+                result = result.length() > 14 ? StringUtil.splitEmojiString(result, 0, 14) : result;
+                result += "的群";
+            }
+        }
+        return result;
     }
 
 }
