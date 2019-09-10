@@ -38,6 +38,7 @@ public class AddGroupActivity extends AppActivity {
     private String gid;
     private String inviter;
     private String inviterName;
+    private final MsgDao msgDao = new MsgDao();
 
     @Override
 
@@ -96,7 +97,7 @@ public class AddGroupActivity extends AppActivity {
                 if (response.body().isOk()) {
                     Group bean = response.body().getData();
                     mSdGroupHead.setImageURI(bean.getAvatar());
-                    mTvGroupName.setText(bean.getName());
+                    mTvGroupName.setText(/*bean.getName()*/msgDao.getGroupName(bean));
                     mTvGroupNum.setText(bean.getUsers().size() + "人");
                 } else {
                     ToastUtil.show(AddGroupActivity.this, response.body().getMsg());
@@ -124,7 +125,7 @@ public class AddGroupActivity extends AppActivity {
                         Intent intent = new Intent(AddGroupActivity.this, ChatActivity.class);
                         intent.putExtra(ChatActivity.AGM_TOGID, gid);
                         startActivity(intent);
-                        new MsgDao().sessionCreate(gid,null);
+                        new MsgDao().sessionCreate(gid, null);
 
                     } else {
                         ToastUtil.show(AddGroupActivity.this, "加群成功,等待群主验证");
