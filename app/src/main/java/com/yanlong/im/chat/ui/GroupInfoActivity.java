@@ -176,7 +176,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.REMMARK, "群聊名称");
                 intent.putExtra(CommonSetingActivity.HINT, "群聊名称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
-                intent.putExtra(CommonSetingActivity.SETING, /*ginfo.getName()*/msgDao.getGroupName(gid));
+                intent.putExtra(CommonSetingActivity.SETING, ginfo.getName());
                 startActivityForResult(intent, GROUP_NAME);
             }
         });
