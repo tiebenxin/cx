@@ -2251,8 +2251,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskSessionInfo() {
         String title = "";
         if (isGroup()) {
-            Group ginfo = msgDao.getGroup4Id(toGid);
-            title = ginfo.getName();
+//            Group ginfo = msgDao.getGroup4Id(toGid);
+//            title = ginfo.getName();
+            title = msgDao.getGroupName(toGid);
             //6.15 设置右上角点击
             taskGroupConf();
 

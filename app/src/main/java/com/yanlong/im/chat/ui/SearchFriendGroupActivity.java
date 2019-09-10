@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -323,7 +324,9 @@ public class SearchFriendGroupActivity extends Activity {
                 if (group == null) {
                     return;
                 }
-                String groupName = group.getName();//群名
+//                String groupName = group.getName();//群名
+                MsgDao dao = new MsgDao();
+                String groupName = dao.getGroupName(group.getGid());//群名
                 UserInfo userInfo = group.getKeyUser();
                 String userMucName = "";//用户群昵称
                 String userNickName = "";//用户昵称

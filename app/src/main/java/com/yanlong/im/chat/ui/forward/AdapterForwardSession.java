@@ -82,7 +82,8 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
                 if (ginfo != null) {
                     icon = ginfo.getAvatar();
                     //获取最后一条群消息
-                    title = ginfo.getName();
+//                    title = ginfo.getName();
+                    title = msgDao.getGroupName(ginfo.getGid());
                 } else {
 
                 }

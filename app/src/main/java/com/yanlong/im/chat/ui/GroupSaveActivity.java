@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.dao.MsgDao;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -30,6 +31,7 @@ public class GroupSaveActivity extends AppActivity {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
     private List<Group> groupInfoBeans;
+    MsgDao msgDao = new MsgDao();
 
 
     @Override
@@ -101,7 +103,7 @@ public class GroupSaveActivity extends AppActivity {
         public void onBindViewHolder(RCViewHolder holder, int position) {
             final Group groupInfoBean = groupInfoBeans.get(position);
             holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
-            holder.txtName.setText(groupInfoBean.getName());
+            holder.txtName.setText(/*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

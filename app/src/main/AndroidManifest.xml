@@ -26,10 +26,10 @@
         <!-- vivo start-->
         <meta-data
             android:name="com.vivo.push.api_key"
-            android:value="xxxxxx" />
+            android:value="f1940b91-4b0d-4c5c-914e-657045438bc4" />
         <meta-data
             android:name="com.vivo.push.app_id"
-            android:value="xxxxxx" />
+            android:value="15217" />
         <!-- VIVO end-->
 
         <meta-data
