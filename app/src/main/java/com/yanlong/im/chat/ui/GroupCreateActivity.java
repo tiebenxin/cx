@@ -89,15 +89,22 @@ public class GroupCreateActivity extends AppActivity {
             }
         });
         actionbar.setTxtRight("确定");
-
-
-        ClickFilter.onClick(actionbar.getViewRight(), new View.OnClickListener() {
+        actionbar.getViewRight().setClickable(true);
+        actionbar.getViewRight().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 actionbar.getViewRight().setEnabled(false);
                 taskCreate();
             }
         });
+
+//        ClickFilter.onClick(actionbar.getViewRight(), new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                actionbar.getViewRight().setEnabled(false);
+//                taskCreate();
+//            }
+//        });
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
