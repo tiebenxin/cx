@@ -1095,7 +1095,10 @@ public class MsgDao {
     public MsgAllBean msgGetLast4FUid(Long uid) {
         MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
-        MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", "").and().equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+        MsgAllBean bean = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").and().isNotNull("gid").endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                 .sort("timestamp", Sort.DESCENDING).findFirst();
         if (bean != null) {
             ret = realm.copyFromRealm(bean);
@@ -1113,7 +1116,10 @@ public class MsgDao {
     public MsgAllBean msgGetLastGroup4Uid(String gid, Long uid) {
         MsgAllBean ret = null;
         Realm realm = DaoUtil.open();
-        MsgAllBean bean = realm.where(MsgAllBean.class).equalTo("gid", gid).and().equalTo("from_uid", uid).or().equalTo("to_uid", uid)
+        MsgAllBean bean = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", gid).endGroup()
+                .and()
+                .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                 .sort("timestamp", Sort.DESCENDING).findFirst();
         if (bean != null) {
             ret = realm.copyFromRealm(bean);

@@ -2428,8 +2428,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             userInfo.setName(gname);
                         }
                     }
-
-
                 }
                 mks.put(k, userInfo);
             }

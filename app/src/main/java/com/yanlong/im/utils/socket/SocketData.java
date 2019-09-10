@@ -1157,7 +1157,8 @@ public class SocketData {
             }
             msg.setTo_uid(bean.getTo_uid());
             msg.setGid(bean.getGid());
-            msg.setFrom_group_nickname(bean.getFrom_nickname());
+            msg.setFrom_nickname(bean.getFrom_nickname());
+            msg.setFrom_group_nickname(bean.getFrom_group_nickname());
             msg.setMsgNotice(createMsgNotice(msgId, type, getNoticeString(bean, type)));
         }
         return msg;
