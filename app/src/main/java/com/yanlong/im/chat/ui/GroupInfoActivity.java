@@ -337,7 +337,7 @@ public class GroupInfoActivity extends AppActivity {
         topListView.setLayoutManager(gridLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
         viewGroupVerif.setVisibility(View.GONE);
-        txtGroupName.setText(TextUtils.isEmpty(ginfo.getName()) ? "未命名" : ginfo.getName());
+        txtGroupName.setText(TextUtils.isEmpty(ginfo.getName()) ? "未设置" : ginfo.getName());
         txtGroupNick.setText(ginfo.getMygroupName());
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);

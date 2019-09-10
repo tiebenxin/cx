@@ -9,7 +9,9 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
@@ -53,7 +55,7 @@ public class ChatServer extends Service {
     private MsgDao msgDao = new MsgDao();
 
     //撤回消息
-    private static Map<String ,MsgAllBean> cancelList=new ConcurrentHashMap<>();
+    private static Map<String, MsgAllBean> cancelList = new ConcurrentHashMap<>();
 
     public static Map<String, MsgAllBean> getCancelList() {
         return cancelList;
@@ -64,8 +66,8 @@ public class ChatServer extends Service {
      * @param msg_id 返回的消息id
      * @param msgBean 要撤回的消息
      */
-    public static void addCanceLsit(String msg_id, MsgAllBean msgBean){
-        cancelList.put(msg_id,msgBean);
+    public static void addCanceLsit(String msg_id, MsgAllBean msgBean) {
+        cancelList.put(msg_id, msgBean);
     }
 
     /***
@@ -131,12 +133,11 @@ public class ChatServer extends Service {
         public void onACK(MsgBean.AckMessage bean) {
 
 
-
-            for (String msgid:bean.getMsgIdList()){
+            for (String msgid : bean.getMsgIdList()) {
                 //处理撤回消息
-                if(cancelList.containsKey(msgid)){
-                   MsgAllBean msgAllBean= cancelList.get(msgid);
-                    msgDao.msgDel4Cancel(msgid,msgAllBean.getMsgCancel().getMsgidCancel());
+                if (cancelList.containsKey(msgid)) {
+                    MsgAllBean msgAllBean = cancelList.get(msgid);
+                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel());
 
                     Log.i(TAG, "onACK: 收到取消回执,手动刷新列表");
                     EventBus.getDefault().post(new EventRefreshChat());
@@ -144,8 +145,6 @@ public class ChatServer extends Service {
                 }
 
             }
-
-
 
 
         }
@@ -180,8 +179,8 @@ public class ChatServer extends Service {
 
                     //    ToastUtil.show(getApplicationContext(), "请求加好友消息");
 
-                    if(!TextUtils.isEmpty(msg.getRequestFriend().getContactName())){
-                        msgDao.userAcceptAdd(msg.getFromUid(),msg.getRequestFriend().getContactName());
+                    if (!TextUtils.isEmpty(msg.getRequestFriend().getContactName())) {
+                        msgDao.userAcceptAdd(msg.getFromUid(), msg.getRequestFriend().getContactName());
                     }
 
                     msgDao.remidCount("friend_apply");
@@ -218,14 +217,24 @@ public class ChatServer extends Service {
                 case CHANGE_GROUP_MASTER:
                     // ToastUtil.show(getApplicationContext(), "转让群");
                     return;
-                case CHANGE_GROUP_NAME:
+                case CHANGE_GROUP_META:
                     //  ToastUtil.show(getApplicationContext(), "修改群名");
-                    msgDao.groupNameUpadte(msg.getGid(), msg.getChangeGroupName().getName());
+                    MsgBean.ChangeGroupMetaMessage.RealMsgCase realMsgCase = msg.getChangeGroupMeta().getRealMsgCase();
+                    switch (realMsgCase) {
+                        case NAME://群名
+                            msgDao.groupNameUpadte(msg.getGid(), msg.getChangeGroupMeta().getName());
+                            break;
+                        case PROTECT_MEMBER://群成员保护
+                            msgDao.groupContactIntimatelyUpdate(msg.getGid(), msg.getChangeGroupMeta().getProtectMember());
+                            break;
+                        case AVATAR://群头像
+                            break;
+                    }
 
                     return;
-                case CHANGE_GROUP_ANNOUNCEMENT:
-                    //  ToastUtil.show(getApplicationContext(), "修改群公告");
-                    return;
+//                case CHANGE_GROUP_ANNOUNCEMENT:
+                //  ToastUtil.show(getApplicationContext(), "修改群公告");
+//                    return;
                 case DESTROY_GROUP:
                     // ToastUtil.show(getApplicationContext(), "销毁群");
                     String gname = msg.getDestroyGroup().getName();
@@ -244,11 +253,11 @@ public class ChatServer extends Service {
                     return;
                 case FORCE_OFFLINE:
                     // ToastUtil.show(getApplicationContext(), "账号已经被登录");
-                    EventLoginOut4Conflict eventLoginOut4Conflict=  new EventLoginOut4Conflict();
-                    if(msg.getForceOffline().getForceOfflineReason()== MsgBean.ForceOfflineReason.CONFLICT){// 登录冲突
+                    EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
+                    if (msg.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.CONFLICT) {// 登录冲突
                         String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
                         eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
-                    }else if(msg.getForceOffline().getForceOfflineReason()==MsgBean.ForceOfflineReason.LOCKED ){//被冻结
+                    } else if (msg.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.LOCKED) {//被冻结
                         eventLoginOut4Conflict.setMsg("你已被限制登录");
                     }
                     EventBus.getDefault().post(eventLoginOut4Conflict);
@@ -277,14 +286,11 @@ public class ChatServer extends Service {
                     }
                     long fuid = msg.getFromUid();
                     msgDao.sessionReadUpdate(gid, fuid, true);
-                    msgDao.msgDel4Cancel(msg.getMsgId(),msg.getCancel().getMsgId());
+                    msgDao.msgDel4Cancel(msg.getMsgId(), msg.getCancel().getMsgId());
                     EventBus.getDefault().post(new EventRefreshChat());
 
                     return;
-                case GROUP_MEMBER_PROTECTION:
-                    msgDao.groupContactIntimatelyUpdate(msg.getGid(),msg.getGroupMemberProtection().getOn());
 
-                    return;
             }
 
             //↑↑↑9.4 不需要播放收到通知的响声,请return,否则使用break
@@ -442,7 +448,7 @@ public class ChatServer extends Service {
     public void onCreate() {
         super.onCreate();
         LogUtil.getLog().d(TAG, ">>>>>网路状态监听");
-        SocketUtil.getSocketUtil().addEvent(msgEvent,0);
+        SocketUtil.getSocketUtil().addEvent(msgEvent, 0);
         //注册广播用于监听网络状态改变
         mNetworkChangeReceiver = new BroadcastReceiver() {
             @Override

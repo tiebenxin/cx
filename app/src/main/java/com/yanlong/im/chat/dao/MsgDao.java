@@ -1792,8 +1792,10 @@ public class MsgDao {
         realm.beginTransaction();
 
         Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-        group.setContactIntimately(intimately ? 1 : 0);
-        realm.insertOrUpdate(group);
+        if (group != null) {
+            group.setContactIntimately(intimately ? 1 : 0);
+            realm.insertOrUpdate(group);
+        }
 
         realm.commitTransaction();
         realm.close();
@@ -1831,7 +1833,10 @@ public class MsgDao {
                 for (int i = 0; i < len; i++) {
                     UserInfo info = users.get(i);
                     GropLinkInfo linkInfo = getGropLinkInfo(gid, info.getUid());
-                    String memberName = linkInfo.getMembername();
+                    String memberName = "";
+                    if (linkInfo != null) {
+                        memberName = linkInfo.getMembername();
+                    }
                     if (i == len - 1) {
                         result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid());
                     } else {

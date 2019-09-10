@@ -360,7 +360,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             case ACCEPT_BE_GROUP://邀请进群刷新
                 taskGroupConf();
                 break;
-            case CHANGE_GROUP_NAME:
+            case CHANGE_GROUP_META:
                 taskSessionInfo();
                 break;
 
