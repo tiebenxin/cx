@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.text.TextUtils;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.disklrucache.DiskLruCache;
@@ -13,6 +14,7 @@ import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.engine.cache.SafeKeyGenerator;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.signature.EmptySignature;
+import com.yanlong.im.R;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
@@ -43,35 +45,43 @@ public class GroupHeadImageUtil {
 //            FileBinaryResource resource = (FileBinaryResource) Fresco.getImagePipelineFactory()
 //                    .getMainFileCache().getResource(new SimpleCacheKey(url[i]));
             //               File file = resource.getFile();
-            File file = getCacheFile2(context,url[i]);
-            FileInputStream inputStream = null;
-            try {
-                inputStream = new FileInputStream(file);
-                if (file.exists()) {
+            if(TextUtils.isEmpty(url[i])){
+                Bitmap bt = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_info_head);
+                if (bt != null) {
+                    bitmaps.add(bt);
+                }
+            }else{
+                File file = getCacheFile2(context,url[i]);
+                FileInputStream inputStream = null;
+                if(file != null){
+                    try {
+                        inputStream = new FileInputStream(file);
+                        if (file.exists()) {
 //                    BitmapFactory.Options opt = new BitmapFactory.Options();
 //                     //这个isjustdecodebounds很重要
 //                    opt.inJustDecodeBounds = true;
 //                     opt.inSampleSize=300;
-                    Bitmap bt = BitmapFactory.decodeStream(inputStream);
-                    if (bt != null) {
-                        bitmaps.add(bt);
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                            Bitmap bt = BitmapFactory.decodeStream(inputStream);
+                            if (bt != null) {
+                                bitmaps.add(bt);
+                            }
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
 
-            } finally {
-                try {
-                    if(inputStream != null){
-                        inputStream.close();
-                    }
+                    } finally {
+                        try {
+                            if(inputStream != null){
+                                inputStream.close();
+                            }
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }
-
         return save2File(addBitmap(10, bitmaps.toArray(new Bitmap[]{})));
     }
 
