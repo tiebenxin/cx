@@ -24,6 +24,7 @@ import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -43,6 +44,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_GROUP;
 
 /***
  * 聊天服务
@@ -178,37 +185,33 @@ public class ChatServer extends Service {
                 case REQUEST_FRIEND:
 
                     //    ToastUtil.show(getApplicationContext(), "请求加好友消息");
-
                     if (!TextUtils.isEmpty(msg.getRequestFriend().getContactName())) {
                         msgDao.userAcceptAdd(msg.getFromUid(), msg.getRequestFriend().getContactName());
                     }
 
                     msgDao.remidCount("friend_apply");
                     EventBus.getDefault().post(new EventRefreshMainMsg());
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    notifyRefreshFriend(true, msg.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
                     return;
                 case ACCEPT_BE_FRIENDS:
                     // ToastUtil.show(AppConfig.APP_CONTEXT, "接收好友请求");
 
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    notifyRefreshFriend(false, msg.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
                     return;
 
                 case REMOVE_FRIEND:
                     //  ToastUtil.show(getApplicationContext(), "删除好友消息");
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    notifyRefreshFriend(false, msg.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
                     return;
                 case REQUEST_GROUP://群主会收到成员进群的请求的通知
                     msgDao.remidCount("friend_apply");
                     //  ToastUtil.show(getApplicationContext(), "请求入群");
-
                     for (MsgBean.GroupNoticeMessage ntm : msg.getRequestGroup().getNoticeMessageList()) {
 
                         msgDao.groupAcceptAdd(msg.getRequestGroup().getJoinType().getNumber(), msg.getRequestGroup().getInviter(), msg.getRequestGroup().getInviterName(), msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
                     }
-
-
                     EventBus.getDefault().post(new EventRefreshMainMsg());
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);
                     return;
                 case ACCEPT_BE_GROUP://群主会收到成员已经进群的消息
                     //  ToastUtil.show(getApplicationContext(), "接受入群请求");
@@ -270,9 +273,7 @@ public class ChatServer extends Service {
                     }
                 case ACTIVE_STAT_CHANGE:
                     updateUserOnlineStatus(msg);
-                    EventRefreshFriend event = new EventRefreshFriend();
-                    event.setLocal(true);
-                    EventBus.getDefault().post(event);
+                    notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.DEFAULT);
                     EventBus.getDefault().post(new EventUserOnlineChange());
                     return;
                 case ASSISTANT:
@@ -334,6 +335,17 @@ public class ChatServer extends Service {
 
         }
     };
+
+    private void notifyRefreshFriend(boolean isLocal, long uid, @CoreEnum.ERosterAction int action) {
+        EventRefreshFriend event = new EventRefreshFriend();
+        event.setLocal(isLocal);
+        if (action != CoreEnum.ERosterAction.DEFAULT) {
+            event.setUid(uid);
+            event.setRosterAction(action);
+        }
+        EventBus.getDefault().post(event);
+    }
+
     private UserDao userDao = new UserDao();
 
     /***
@@ -345,12 +357,14 @@ public class ChatServer extends Service {
             return;
         }
 
-        // msg.getMembername();
         userDao.userHeadNameUpdate(msg.getFromUid(), msg.getAvatar(), msg.getNickname());
-        //需要更新通讯录的展示吗?
-        EventRefreshFriend event = new EventRefreshFriend();
-        event.setLocal(true);
-        EventBus.getDefault().post(event);
+        //避免重复刷新通讯录
+        if (msg.getMsgType() == REQUEST_FRIEND || msg.getMsgType() == ACCEPT_BE_FRIENDS
+                || msg.getMsgType() == REMOVE_FRIEND || msg.getMsgType() == REQUEST_GROUP
+                || msg.getMsgType() == ACTIVE_STAT_CHANGE) {
+            return;
+        }
+        notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.DEFAULT);
 
     }
 

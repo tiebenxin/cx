@@ -185,6 +185,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                         if (response.body().isOk()) {
                             Intent intent = new Intent(getContext(), MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.putExtra(MainActivity.IS_LOGIN,true);
                             startActivity(intent);
                         } if(response.body().getCode().longValue() == 10002){
                             if(count == 0){
