@@ -1913,6 +1913,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
 
                                 if (!isExist) {
+
                                     menus.add(new OptionMenu("撤回"));
                                 }
                             }

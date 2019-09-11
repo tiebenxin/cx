@@ -25,6 +25,7 @@ import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyException;
 
 import org.android.agoo.huawei.HuaWeiRegister;
+import org.android.agoo.mezu.MeizuRegister;
 import org.android.agoo.oppo.OppoRegister;
 import org.android.agoo.vivo.VivoRegister;
 import org.android.agoo.xiaomi.MiPushRegistar;
@@ -156,6 +157,8 @@ public class MyAppLication extends MainApplication {
                 OppoRegister.register(getApplicationContext(), "xxxxxx", "xxxxxx");
                 //vivo
                 VivoRegister.register(getApplicationContext());
+                //meizu
+                MeizuRegister.register(getApplicationContext(), "xx", "xx");
 
 
                 //每次启动,一定要开启这个
