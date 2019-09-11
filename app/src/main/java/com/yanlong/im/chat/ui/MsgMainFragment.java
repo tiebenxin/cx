@@ -490,13 +490,13 @@ public class MsgMainFragment extends Fragment {
                             if (msginfo.getMsg_type() == 8) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[有人@你]" + bean.getAtMessage());
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             } else {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[有人@你]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             }
@@ -507,13 +507,13 @@ public class MsgMainFragment extends Fragment {
                             if (msginfo.getMsg_type() == 8) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[@所有人]" + bean.getAtMessage());
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             } else {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[@所有人]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             }
@@ -557,7 +557,8 @@ public class MsgMainFragment extends Fragment {
                     taskDelSissen(bean.getFrom_uid(), bean.getGid());
                 }
             });
-            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
+//            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
+            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
 
         }
 
