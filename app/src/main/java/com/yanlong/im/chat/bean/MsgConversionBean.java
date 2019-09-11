@@ -303,6 +303,7 @@ public class MsgConversionBean {
                         return null;
 //                        break;
                     case AVATAR://群头像
+                        //todo 刷新群成员头像
                         return null;
 //                    break;
                 }
