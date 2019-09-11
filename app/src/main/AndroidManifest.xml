@@ -420,8 +420,8 @@
         <activity
             android:name=".wxapi.WXEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <!-- android:screenOrientation="portrait"-->
 
         <activity
             android:name=".notify.PushToActivity"
