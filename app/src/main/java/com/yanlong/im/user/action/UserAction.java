@@ -103,12 +103,12 @@ public class UserAction {
         int reTime = 0;
         String uid = null;
         try {
-            while (reTime < 5*10) {
+            while (reTime < 5 * 10) {
                 uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
                 if (uid != null) {
                     break;
                 } else {
-                    LogUtil.getLog().i("youmeng", "等待DevId"+reTime);
+                    LogUtil.getLog().i("youmeng", "等待DevId" + reTime);
                     Thread.sleep(200);
                 }
                 reTime++;
@@ -119,7 +119,7 @@ public class UserAction {
 
         if (TextUtils.isEmpty(uid)) {
 
-            LogUtil.getLog().i("youmeng", "等待DevId失败,自动生成" );
+            LogUtil.getLog().i("youmeng", "等待DevId失败,自动生成");
             uid = Installation.id(context);
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
             return uid;
@@ -228,18 +228,17 @@ public class UserAction {
     }
 
     /***
-     * 获取[普通]用户信息并且缓存到数据库
+     * 获取单个用户信息并且缓存到数据库
      * @param usrid
      */
-    public void getUserInfoAndSave(Long usrid, final CallBack<ReturnBean<UserInfo>> cb) {
+    public void getUserInfoAndSave(Long usrid, @ChatEnum.EUserType final int type, final CallBack<ReturnBean<UserInfo>> cb) {
         NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-
                 if (response.body() != null && response.body().isOk()) {
                     UserInfo userInfo = response.body().getData();
                     userInfo.toTag();
-                    userInfo.setuType(0);
+                    userInfo.setuType(type);
                     dao.updateUserinfo(userInfo);
                     cb.onResponse(call, response);
                 }

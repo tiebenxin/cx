@@ -1,10 +1,17 @@
 package net.cb.cb.library.bean;
 
+import net.cb.cb.library.CoreEnum;
+
 /***
  * 刷新好友
  */
 public class EventRefreshFriend {
-    private boolean isLocal=false;//冲本地刷新好友列表
+    private boolean isLocal = false;//冲本地刷新好友列表
+
+    @CoreEnum.ERosterAction
+    private int rosterAction = CoreEnum.ERosterAction.DEFAULT;//roster操作指令
+
+    private long uid;
 
     public boolean isLocal() {
         return isLocal;
@@ -12,5 +19,21 @@ public class EventRefreshFriend {
 
     public void setLocal(boolean local) {
         isLocal = local;
+    }
+
+    public int getRosterAction() {
+        return rosterAction;
+    }
+
+    public void setRosterAction(int rosterAction) {
+        this.rosterAction = rosterAction;
+    }
+
+    public long getUid() {
+        return uid;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
     }
 }

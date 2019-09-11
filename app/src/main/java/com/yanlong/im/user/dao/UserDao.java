@@ -108,9 +108,7 @@ public class UserDao {
         RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup().sort("tag", Sort.ASCENDING).findAll();
         res = realm.copyFromRealm(ls);
         realm.close();
-
         return res;
-
     }
 
     /***
@@ -329,5 +327,21 @@ public class UserDao {
         userInfo.deleteFromRealm();
         realm.commitTransaction();
         realm.close();
+    }
+
+
+    /***
+     * 检测通讯录是否已经初始化，所有通讯录好友，系统用户
+     * @return
+     */
+    public boolean isRosterInit() {
+        boolean isInit = false;
+        Realm realm = DaoUtil.open();
+        UserInfo ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup().findFirst();
+        if (ls != null) {
+            isInit = true;
+        }
+        realm.close();
+        return isInit;
     }
 }

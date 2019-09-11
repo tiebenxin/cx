@@ -198,7 +198,7 @@ public class MsgMainFragment extends Fragment {
                     public void run() {
                         Log.d("tyad", "run: state" + state);
                         actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
-                       // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
+                        // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
                         actionBar.setTitle(state ? "消息" : "消息");
                         if (state) {
                             viewNetwork.setVisibility(View.GONE);
@@ -639,7 +639,7 @@ public class MsgMainFragment extends Fragment {
                     dids.add(fuid.toString());
 
 
-                    userAction.getUserInfoAndSave(fuid, new CallBack<ReturnBean<UserInfo>>() {
+                    userAction.getUserInfoAndSave(fuid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
                         @Override
                         public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                             didIndex++;
