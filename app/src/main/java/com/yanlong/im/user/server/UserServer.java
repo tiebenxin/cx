@@ -33,7 +33,9 @@ public interface UserServer {
 
     @POST("/pub/login-by-phone-password")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> login(@Field("password") String password, @Field("phone") String phone, @Field("devid") String devid, @Field("platform") String platform);
+    Call<ReturnBean<TokenBean>> login(@Field("password") String password, @Field("phone") String phone,
+                                      @Field("devid") String devid, @Field("platform") String platform,
+                                      @Field("phoneModel") String phoneModel);
 
     @POST("/user/refresh-access-token")
     @FormUrlEncoded
@@ -108,11 +110,15 @@ public interface UserServer {
 
     @POST("pub/register")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> register(@Field("phone") String phone, @Field("captcha") String captcha, @Field("platform") String platform, @Field("devid") String devid);
+    Call<ReturnBean<TokenBean>> register(@Field("phone") String phone, @Field("captcha") String captcha,
+                                         @Field("platform") String platform, @Field("devid") String devid,
+                                         @Field("phoneModel") String phoneModel);
 
     @POST("pub/login-by-phone-captcha")
     @FormUrlEncoded
-    Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") String phone, @Field("captcha") String captcha, @Field("platform") String platform, @Field("devid") String devid);
+    Call<ReturnBean<TokenBean>> login4Captch(@Field("phone") String phone, @Field("captcha") String captcha,
+                                             @Field("platform") String platform, @Field("devid") String devid,
+                                             @Field("phoneModel") String phoneModel);
 
     @POST("user/get-user-info-by-imid")
     @FormUrlEncoded
