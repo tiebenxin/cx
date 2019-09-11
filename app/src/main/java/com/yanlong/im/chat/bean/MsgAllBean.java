@@ -376,7 +376,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
      * @return
      */
     public boolean isMe() {
-
+        if (from_uid == null) {
+            return false;
+        }
         return from_uid == UserAction.getMyInfo().getUid().longValue();
     }
 
@@ -453,7 +455,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             case ChatEnum.EMessageType.ASSISTANT://小助手
                 layout = ChatEnum.EChatCellLayout.ASSISTANT;
                 break;
-            case ChatEnum.EMessageType.LOCK://小助手
+            case ChatEnum.EMessageType.LOCK://端对端加密消息
                 layout = ChatEnum.EChatCellLayout.LOCK;
                 break;
             case ChatEnum.EMessageType.UNRECOGNIZED://未识别

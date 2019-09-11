@@ -617,8 +617,12 @@ public class MsgDao {
         list = realm.where(MsgAllBean.class).equalTo("msg_id", msgCancelId).findAll();
         MsgAllBean cancel = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
         if (cancel == null && list != null && list.size() > 0) {
-            cancel = new MsgAllBean();
             MsgAllBean bean = list.get(0);
+            if (TextUtils.isEmpty(bean.getMsg_id())) {
+                return;
+            }
+
+            cancel = new MsgAllBean();
             cancel.setMsg_id(msgid);
             cancel.setRequest_id("" + System.currentTimeMillis());
             cancel.setFrom_uid(bean.getTo_uid());
