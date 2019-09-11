@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.umeng.message.UmengNotifyClickActivity;
-import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.ui.StartPageActivity;
 
@@ -21,6 +20,7 @@ public class PushToActivity extends UmengNotifyClickActivity {
         setContentView(R.layout.activity_push_to);
 
     }
+
 
 
     @Override

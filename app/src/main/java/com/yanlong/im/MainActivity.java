@@ -40,6 +40,7 @@ import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
@@ -311,7 +312,9 @@ public class MainActivity extends AppActivity {
         if (sbmsg == null)
             return;
 
-        sbmsg.setNum(msgDao.sessionReadGetAll());
+        int num=msgDao.sessionReadGetAll();
+        sbmsg.setNum(num);
+        BadgeUtil.setBadgeCount(getApplicationContext(),num);
     }
 
     /***
