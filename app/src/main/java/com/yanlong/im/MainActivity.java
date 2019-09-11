@@ -205,34 +205,28 @@ public class MainActivity extends AppActivity {
         Intent intent = getIntent();
         boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
         if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
-            userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
-                @Override
-                public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                    EventBus.getDefault().post(new EventRefreshFriend());
-                }
-
-                @Override
-                public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
-                    super.onFailure(call, t);
-                }
-            });
+            taskLoadFriends();
         } else {
             UserDao userDao = new UserDao();
             boolean hasInit = userDao.isRosterInit();
             if (!hasInit) {//未初始化，初始化本地通讯录
-                userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
-                    @Override
-                    public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                        EventBus.getDefault().post(new EventRefreshFriend());
-                    }
-
-                    @Override
-                    public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
-                        super.onFailure(call, t);
-                    }
-                });
+                taskLoadFriends();
             }
         }
+    }
+
+    private void taskLoadFriends() {
+        userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                EventBus.getDefault().post(new EventRefreshFriend());
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
     }
 
     @Override
