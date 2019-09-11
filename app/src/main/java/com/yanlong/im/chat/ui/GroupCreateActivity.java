@@ -93,6 +93,7 @@ public class GroupCreateActivity extends AppActivity {
         actionbar.getViewRight().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                alert.show();
                 actionbar.getViewRight().setEnabled(false);
                 taskCreate();
             }
@@ -330,6 +331,7 @@ public class GroupCreateActivity extends AppActivity {
         if (listDataTop.size() < 2) {
             ToastUtil.show(getContext(), "人数必须大于3人");
             actionbar.getViewRight().setEnabled(true);
+            alert.dismiss();
             return;
         }
         final ArrayList<UserInfo> templist = new ArrayList<>();
@@ -368,6 +370,7 @@ public class GroupCreateActivity extends AppActivity {
                     @Override
                     public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                         actionbar.getViewRight().setEnabled(true);
+                        alert.dismiss();
                         if (response.body() == null)
                             return;
                         if (response.body().isOk()) {
@@ -385,6 +388,7 @@ public class GroupCreateActivity extends AppActivity {
                     @Override
                     public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
                         actionbar.getViewRight().setEnabled(true);
+                        alert.dismiss();
                         super.onFailure(call, t);
                     }
                 });
