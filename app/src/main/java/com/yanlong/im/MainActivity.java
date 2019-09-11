@@ -30,6 +30,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
@@ -207,6 +208,7 @@ public class MainActivity extends AppActivity {
             userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                    EventBus.getDefault().post(new EventRefreshFriend());
                 }
 
                 @Override
@@ -221,6 +223,7 @@ public class MainActivity extends AppActivity {
                 userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                        EventBus.getDefault().post(new EventRefreshFriend());
                     }
 
                     @Override
@@ -339,9 +342,9 @@ public class MainActivity extends AppActivity {
         if (sbmsg == null)
             return;
 
-        int num=msgDao.sessionReadGetAll();
+        int num = msgDao.sessionReadGetAll();
         sbmsg.setNum(num);
-        BadgeUtil.setBadgeCount(getApplicationContext(),num);
+        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
     /***

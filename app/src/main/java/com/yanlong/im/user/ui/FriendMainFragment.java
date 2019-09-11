@@ -96,9 +96,9 @@ public class FriendMainFragment extends Fragment {
 
     private void initData() {
         taskListData();
-        if (listData == null || listData.size() <= 0) {
-            taskRefreshListData();
-        }
+//        if (listData == null || listData.size() <= 0) {
+//            taskRefreshListData();
+//        }
     }
 
     public FriendMainFragment() {
