@@ -20,11 +20,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
@@ -32,10 +34,12 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AppActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +50,7 @@ import retrofit2.Response;
 /***
  * 搜索群和好友
  */
-public class SearchFriendGroupActivity extends Activity {
+public class SearchFriendGroupActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.ClearEditText edtSearch;
@@ -58,10 +62,10 @@ public class SearchFriendGroupActivity extends Activity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView =  findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        edtSearch = (net.cb.cb.library.view.ClearEditText) findViewById(R.id.edt_search);
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        edtSearch =  findViewById(R.id.edt_search);
+        mtListView =  findViewById(R.id.mtListView);
     }
 
 
@@ -201,7 +205,11 @@ public class SearchFriendGroupActivity extends Activity {
                         });
                         holder.setGroupName(group, key);
                     }
-                    holder.imgHead.setImageURI(Uri.parse("" + url));
+                   // holder.imgHead.setImageURI(Uri.parse("" + url));
+
+                    Glide.with(context).load(url)
+                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
                 } else {
                     String url = "";
                     holder.viewTagGroup.setVisibility(View.GONE);
@@ -239,7 +247,10 @@ public class SearchFriendGroupActivity extends Activity {
                         });
                         holder.setGroupName(group, key);
                     }
-                    holder.imgHead.setImageURI(Uri.parse("" + url));
+                    //holder.imgHead.setImageURI(Uri.parse("" + url));
+                    Glide.with(context).load(url)
+                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
                 }
             }
 
@@ -272,19 +283,19 @@ public class SearchFriendGroupActivity extends Activity {
             private LinearLayout viewTagFried;
             private LinearLayout viewTagGroup;
             private LinearLayout viewIt;
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private TextView txtContent;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewTagFried = (LinearLayout) convertView.findViewById(R.id.view_tag_fried);
-                viewTagGroup = (LinearLayout) convertView.findViewById(R.id.view_tag_group);
-                viewIt = (LinearLayout) convertView.findViewById(R.id.view_it);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                txtContent = (TextView) convertView.findViewById(R.id.txt_content);
+                viewTagFried =  convertView.findViewById(R.id.view_tag_fried);
+                viewTagGroup =  convertView.findViewById(R.id.view_tag_group);
+                viewIt =  convertView.findViewById(R.id.view_it);
+                imgHead =  convertView.findViewById(R.id.img_head);
+                txtName =  convertView.findViewById(R.id.txt_name);
+                txtContent =  convertView.findViewById(R.id.txt_content);
             }
 
             @RequiresApi(api = Build.VERSION_CODES.M)

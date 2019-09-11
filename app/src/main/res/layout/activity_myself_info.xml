@@ -30,7 +30,7 @@
                 android:text="头像" />
 
 
-            <com.facebook.drawee.view.SimpleDraweeView
+            <ImageView
                 android:id="@+id/img_head"
                 style="@style/app_img_head"
                 android:layout_width="63dp"

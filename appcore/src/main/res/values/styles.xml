@@ -344,9 +344,9 @@
     <!--普通图片-->
     <style name="app_img">
 
-        <item name="placeholderImage">@mipmap/ic_img_def</item>
-        <item name="placeholderImageScaleType">centerCrop</item>
-        <item name="roundedCornerRadius">2dp</item>
+        <item name="android:src">@mipmap/ic_img_def</item>
+        <item name="android:scaleType">centerCrop</item>
+<!--        <item name="roundedCornerRadius">2dp</item>-->
 
     </style>
 
@@ -355,10 +355,10 @@
     <style name="app_img_head">
         <item name="android:layout_width">47dp</item>
         <item name="android:layout_height">47dp</item>
-        <item name="placeholderImage">@mipmap/ic_info_head</item>
-        <item name="placeholderImageScaleType">centerCrop</item>
-        <!-- <item name="roundAsCircle">true</item>-->
-        <item name="roundedCornerRadius">3dp</item>
+        <item name="android:src">@mipmap/ic_info_head</item>
+        <item name="android:scaleType">centerCrop</item>
+       <!--  <item name="roundAsCircle">true</item>-->
+        <!--<item name="roundedCornerRadius">3dp</item>-->
     </style>
 
 

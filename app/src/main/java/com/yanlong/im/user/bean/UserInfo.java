@@ -43,7 +43,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer displaydetail;//显示详情(0:关闭|1:打开)
     private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单|9:系统用户，如小助手)
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
-    private boolean emptyPassword;// 是否未设置密码
+    private boolean emptyPassword = false;// 是否未设置密码
     @Ignore
     private String membername;//群的昵称
     private String sayHi;//待同意好友招呼语

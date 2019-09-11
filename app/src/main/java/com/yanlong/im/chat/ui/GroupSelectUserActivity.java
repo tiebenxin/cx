@@ -1,11 +1,9 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +11,17 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -152,9 +152,9 @@ public class GroupSelectUserActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    if(type == 0){
+                    if (type == 0) {
                         listData = delectMaster(response.body().getData());
-                    }else{
+                    } else {
                         listData = delectMyslfe(response.body().getData());
                     }
                     showAtAll(response.body().getData());
@@ -184,7 +184,7 @@ public class GroupSelectUserActivity extends AppActivity {
         return null;
     }
 
-    private List<UserInfo> delectMyslfe(Group group){
+    private List<UserInfo> delectMyslfe(Group group) {
         Long uid = UserAction.getMyId();
         List<UserInfo> list = group.getUsers();
         if (list != null && list.size() > 0) {
@@ -199,11 +199,10 @@ public class GroupSelectUserActivity extends AppActivity {
     }
 
 
-
     private void showAtAll(Group group) {
         long uid = UserAction.getMyId();
         String master = group.getMaster();
-        if (master.equals(uid+"") && type != 0) {
+        if (master.equals(uid + "") && type != 0) {
             llAtAll.setVisibility(View.VISIBLE);
         }
 
@@ -232,7 +231,10 @@ public class GroupSelectUserActivity extends AppActivity {
 
             final UserInfo bean = mFilterList.get(position);
             hd.txtType.setText(bean.getTag());
-            hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+            // hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+            Glide.with(context).load(bean.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
+
             hd.txtName.setText(bean.getName4Show());
             hd.viewType.setVisibility(View.VISIBLE);
             if (position > 0) {
@@ -331,7 +333,7 @@ public class GroupSelectUserActivity extends AppActivity {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewType;
             private TextView txtType;
-            private SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private CheckBox ckSelect;
 

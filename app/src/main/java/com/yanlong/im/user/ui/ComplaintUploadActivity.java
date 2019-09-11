@@ -12,8 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -23,6 +24,7 @@ import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.ImageBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -304,7 +306,8 @@ public class ComplaintUploadActivity extends AppActivity {
 
             ImageBean imageBean = list.get(i);
             if (imageBean.getType() == 0) {
-                viewHolder.imageView.setImageURI("android.resource://" + getPackageName() + "/" + R.mipmap.icon_image_add);
+                viewHolder.imageView.setImageResource(R.mipmap.icon_image_add);
+               // viewHolder.imageView.setImageURI("android.resource://" + getPackageName() + "/" + R.mipmap.icon_image_add);
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -312,7 +315,9 @@ public class ComplaintUploadActivity extends AppActivity {
                     }
                 });
             } else {
-                viewHolder.imageView.setImageURI(imageBean.getPath());
+                Glide.with(context).load(imageBean.getPath())
+                        .apply(GlideOptionsUtil.defImageOptions()).into(viewHolder.imageView);
+
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -323,8 +328,6 @@ public class ComplaintUploadActivity extends AppActivity {
                         startActivityForResult(intent, SHOW_IMAGE);
                     }
                 });
-
-
             }
 
         }
@@ -339,7 +342,7 @@ public class ComplaintUploadActivity extends AppActivity {
 
 
         class ComplaintUploadViewHolder extends RecyclerView.ViewHolder {
-            private SimpleDraweeView imageView;
+            private ImageView imageView;
 
             public ComplaintUploadViewHolder(@android.support.annotation.NonNull View itemView) {
                 super(itemView);

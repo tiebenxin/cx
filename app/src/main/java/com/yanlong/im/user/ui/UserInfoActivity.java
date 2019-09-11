@@ -1,29 +1,26 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -66,7 +63,7 @@ public class UserInfoActivity extends AppActivity {
     private HeadView headView;
     private ActionbarView actionbar;
     private LinearLayout viewHead;
-    private SimpleDraweeView imgHead;
+    private ImageView imgHead;
     private TextView txtMkname;
     private TextView txtNkname;
     private TextView txtPrNo;
@@ -391,7 +388,9 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void setData(final UserInfo info) {
-        imgHead.setImageURI(Uri.parse("" + info.getHead()));
+        Glide.with(this).load(info.getHead())
+                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
         doGetAndSetName(info);
         mkName = info.getMkName();
         txtPrNo.setText("常聊号: " + info.getImid());

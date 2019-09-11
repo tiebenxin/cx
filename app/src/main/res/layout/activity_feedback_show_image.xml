@@ -9,17 +9,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:background="@color/white"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <com.facebook.drawee.view.SimpleDraweeView
+        <ImageView
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitCenter"
-            app:actualImageScaleType="fitCenter"
-            app:placeholderImage="@mipmap/ic_img_def" />
+            android:src="@mipmap/ic_img_def"
+            android:scaleType="fitCenter" />
 
     </LinearLayout>
 </net.cb.cb.library.view.HeadView>

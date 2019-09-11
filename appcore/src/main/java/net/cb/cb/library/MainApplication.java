@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.multidex.MultiDexApplication;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +20,6 @@ public class MainApplication extends MultiDexApplication {
         super.onCreate();
         context = getApplicationContext();
         AppConfig.APP_CONTEXT = context;
-        Fresco.initialize(this);
         initOther();
        // initFont();
 

@@ -1,18 +1,20 @@
 package com.yanlong.im.chat.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
@@ -23,7 +25,7 @@ import net.cb.cb.library.view.AppActivity;
  */
 public class ChatActionActivity extends AppActivity {
     public static final String AGM_DATA = "data";
-    private com.facebook.drawee.view.SimpleDraweeView imgHead;
+    private ImageView imgHead;
     private TextView txtName;
     private TextView txtMsg;
     private LinearLayout viewNo;
@@ -33,11 +35,11 @@ public class ChatActionActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        imgHead = (com.facebook.drawee.view.SimpleDraweeView) findViewById(R.id.img_head);
-        txtName = (TextView) findViewById(R.id.txt_name);
-        txtMsg = (TextView) findViewById(R.id.txt_msg);
-        viewNo = (LinearLayout) findViewById(R.id.view_no);
-        viewYes = (LinearLayout) findViewById(R.id.view_yes);
+        imgHead = findViewById(R.id.img_head);
+        txtName = findViewById(R.id.txt_name);
+        txtMsg = findViewById(R.id.txt_msg);
+        viewNo = findViewById(R.id.view_no);
+        viewYes = findViewById(R.id.view_yes);
     }
 
 
@@ -52,7 +54,10 @@ public class ChatActionActivity extends AppActivity {
             e.printStackTrace();
         }
 
-        imgHead.setImageURI(Uri.parse("" + msgAllbean.getFrom_user().getHead()));
+        //imgHead.setImageURI(Uri.parse("" + msgAllbean.getFrom_user().getHead()));
+        Glide.with(this).load(msgAllbean.getFrom_user().getHead())
+                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
         txtName.setText(msgAllbean.getFrom_user().getName());
         txtMsg.setText(msgAllbean.getStamp().getComment());
         viewNo.setOnClickListener(new View.OnClickListener() {

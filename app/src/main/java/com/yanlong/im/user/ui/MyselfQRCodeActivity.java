@@ -17,7 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.zxing.WriterException;
 import com.umeng.socialize.ShareAction;
@@ -29,6 +29,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -58,7 +59,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     public static final String GROUP_NAME = "groupName";
 
     private HeadView mHeadView;
-    private SimpleDraweeView mImgHead;
+    private ImageView mImgHead;
     private ConstraintLayout mViewMyQrcode;
     private TextView mTvUserName;
     private ImageView mCrCode;
@@ -71,7 +72,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     private String groupName;
     private String imageUrl;
     private ImgSizeUtil.ImageSize imgsize;//获取图片大小
-    private SimpleDraweeView imageCodeHead;
+    private ImageView imageCodeHead;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +117,10 @@ public class MyselfQRCodeActivity extends AppActivity {
         UserInfo userInfo = UserAction.getMyInfo();
         if (type == 0) {
             String uid = userInfo.getUid() + "";
-            mImgHead.setImageURI(userInfo.getHead() + "");
+           // mImgHead.setImageURI(userInfo.getHead() + "");
+            Glide.with(this).load(userInfo.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
+
             mTvUserName.setText(userInfo.getName() + "");
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_FRIEND_FUNCHTION);
@@ -129,7 +133,9 @@ public class MyselfQRCodeActivity extends AppActivity {
             groupId = intent.getStringExtra(GROUP_ID);
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
-            mImgHead.setImageURI(groupHead + "");
+           // mImgHead.setImageURI(groupHead + "");
+            Glide.with(this).load(groupHead)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
             mTvUserName.setText(groupName + "");
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
@@ -141,7 +147,10 @@ public class MyselfQRCodeActivity extends AppActivity {
         }
         try {
             if (type == 0) {
-                imageCodeHead.setImageURI(userInfo.getHead() + "");
+               // imageCodeHead.setImageURI(userInfo.getHead() + "");
+                Glide.with(this).load(userInfo.getHead())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(imageCodeHead);
+
                 Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.blank_code);
                 Bitmap bitmapCode = EncodingHandler.createQRCode(QRCode, DensityUtil.dip2px(MyselfQRCodeActivity.this, 350),
                         DensityUtil.dip2px(MyselfQRCodeActivity.this, 350), bitmap);

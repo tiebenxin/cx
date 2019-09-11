@@ -3,18 +3,19 @@ package com.yanlong.im.user.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -35,7 +36,7 @@ import static com.yanlong.im.user.ui.IdentifyingCodeActivity.PHONE;
 
 public class LoginActivity extends AppActivity implements View.OnClickListener {
 
-    private SimpleDraweeView mImgHead;
+    private ImageView mImgHead;
     private TextView mTvPhoneNumber;
     private EditText mEtPasswordContent;
     private TextView mTvIdentifyingCode;
@@ -93,7 +94,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         String imageHead = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).get4Json(String.class);
         mTvPhoneNumber.setText(phone);
-        mImgHead.setImageURI(imageHead + "");
+        Glide.with(this).load(imageHead).apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
     }
 
 

@@ -9,15 +9,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -85,6 +88,7 @@ public class SelectUserActivity extends AppActivity {
         initEvent();
         initData();
     }
+
     private void initData() {
         taskListData();
 
@@ -96,7 +100,7 @@ public class SelectUserActivity extends AppActivity {
 
         @Override
         public int getItemCount() {
-            return listData == null ? 0 :listData.size();
+            return listData == null ? 0 : listData.size();
         }
 
         //自动生成控件事件
@@ -106,26 +110,27 @@ public class SelectUserActivity extends AppActivity {
             final UserInfo bean = listData.get(position);
 
 
-
             hd.txtType.setText(bean.getTag());
-            hd.imgHead.setImageURI(Uri.parse(""+bean.getHead()));
+            //hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+            Glide.with(context).load(bean.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into( hd.imgHead);
+
             hd.txtName.setText(bean.getName4Show());
 
             hd.viewType.setVisibility(View.VISIBLE);
-            if(position>0){
-                UserInfo lastbean = listData.get(position-1 );
+            if (position > 0) {
+                UserInfo lastbean = listData.get(position - 1);
                 if (lastbean.getTag().equals(bean.getTag())) {
                     hd.viewType.setVisibility(View.GONE);
                 }
             }
-            
-            
-            
+
+
             hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        String json=    new Gson().toJson(bean);
-                    setResult(RET_CODE_SELECTUSR,new Intent().putExtra(RET_JSON,json));
+                    String json = new Gson().toJson(bean);
+                    setResult(RET_CODE_SELECTUSR, new Intent().putExtra(RET_JSON, json));
                     finish();
 
                 }
@@ -145,18 +150,18 @@ public class SelectUserActivity extends AppActivity {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewType;
             private TextView txtType;
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private CheckBox ckSelect;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewType = (LinearLayout) convertView.findViewById(R.id.view_type);
-                txtType = (TextView) convertView.findViewById(R.id.txt_type);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                ckSelect = (CheckBox) convertView.findViewById(R.id.ck_select);
+                viewType = convertView.findViewById(R.id.view_type);
+                txtType = convertView.findViewById(R.id.txt_type);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                ckSelect = convertView.findViewById(R.id.ck_select);
             }
 
         }
@@ -175,8 +180,9 @@ public class SelectUserActivity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
-
-            holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
+           // holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
+            Glide.with(context).load(listDataTop.get(position).getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
         }
 
 
@@ -190,12 +196,12 @@ public class SelectUserActivity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
 
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
+                imgHead = convertView.findViewById(R.id.img_head);
             }
 
         }
@@ -203,28 +209,26 @@ public class SelectUserActivity extends AppActivity {
 
 
     private MsgAction msgACtion = new MsgAction();
-    private UserDao userDao=new UserDao();
+    private UserDao userDao = new UserDao();
 
 
-    private List<UserInfo> listData=new ArrayList<>();
-    private void taskListData(){
+    private List<UserInfo> listData = new ArrayList<>();
+
+    private void taskListData() {
 
 
-
-        listData=  userDao.friendGetAll();
+        listData = userDao.friendGetAll();
         Collections.sort(listData);
 
-        for (int i=0;i<listData.size();i++){
+        for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:
-            viewType.putTag(listData.get(i).getTag(),i);
+            viewType.putTag(listData.get(i).getTag(), i);
         }
 
         mtListView.notifyDataSetChange();
 
 
     }
-
-
 
 
 }

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tool="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
@@ -16,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
-        android:text="shijian" />
+        tool:text="shijian" />
 
 
     //通知消息
@@ -88,7 +89,7 @@
         android:orientation="horizontal"
         android:paddingRight="57dp">
 
-        <com.facebook.drawee.view.SimpleDraweeView
+        <ImageView
             android:id="@+id/img_ot_head"
             style="@style/app_img_head"
             android:layout_width="35dp"
@@ -108,7 +109,7 @@
                 android:gravity="left"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:text="name" />
+                tool:text="name" />
 
             <LinearLayout
                 android:id="@+id/view_ot_touch"
@@ -284,12 +285,11 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp">
 
-                        <com.facebook.drawee.view.SimpleDraweeView
+                        <ImageView
                             android:id="@+id/img_ot_5"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
-                            app:placeholderImageScaleType="centerCrop"
-                            app:roundedCornerRadius="3dp" />
+                            style="@style/app_img_head"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -300,13 +300,13 @@
                             <TextView
                                 android:id="@+id/txt_ot_5_title"
                                 style="@style/app_txt_title_2"
-                                android:text="标题" />
+                                tool:text="标题" />
 
                             <TextView
                                 android:id="@+id/txt_ot_5_info"
                                 style="@style/app_txt_content_1"
                                 android:layout_marginTop="5dp"
-                                android:text="标题" />
+                                tool:text="标题" />
                         </LinearLayout>
 
                     </LinearLayout>
@@ -459,7 +459,7 @@
                 android:gravity="right"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:text="name" />
+                tool:text="name" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -681,12 +681,11 @@
                             android:paddingLeft="10dp"
                             android:paddingRight="10dp">
 
-                            <com.facebook.drawee.view.SimpleDraweeView
+                            <ImageView
                                 android:id="@+id/img_me_5"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
-                                app:placeholderImageScaleType="centerCrop"
-                                app:roundedCornerRadius="3dp" />
+                                style="@style/app_img_head"/>
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -697,13 +696,13 @@
                                 <TextView
                                     android:id="@+id/txt_me_5_title"
                                     style="@style/app_txt_title_2"
-                                    android:text="标题" />
+                                    tool:text="标题" />
 
                                 <TextView
                                     android:id="@+id/txt_me_5_info"
                                     style="@style/app_txt_content_1"
                                     android:layout_marginTop="5dp"
-                                    android:text="标题" />
+                                    tool:text="标题" />
                             </LinearLayout>
 
                         </LinearLayout>
@@ -721,7 +720,7 @@
                                 style="@style/app_txt_content_1"
                                 android:layout_width="wrap_content"
                                 android:layout_weight="1"
-                                android:text="个人名片" />
+                                tool:text="个人名片" />
 
                         </LinearLayout>
 
@@ -829,7 +828,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.facebook.drawee.view.SimpleDraweeView
+        <ImageView
             android:id="@+id/img_me_head"
             style="@style/app_img_head"
             android:layout_width="35dp"

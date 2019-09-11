@@ -9,12 +9,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
-import com.jrmf360.rplib.JrmfRpClient;
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -37,7 +37,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
     private static final int IMAGE_HEAD = 4000;
     private static final int IDENTITY = 5000;
 
-    private SimpleDraweeView mImgHead;
+    private ImageView mImgHead;
     private LinearLayout mViewBlacklist;
     private TextView mTvPhone;
     private LinearLayout mViewNickname;
@@ -130,7 +130,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         nickName = userInfo.getName();
         sex = userInfo.getSex();
         authStat = userInfo.getAuthStat();
-        mImgHead.setImageURI(imageHead + "");
+        Glide.with(this).load(imageHead)
+                .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
         mTvNickname.setText(nickName);
         if (!oldImid.equals(imid)) {
             mTvProductNumber.setText(imid);
@@ -291,7 +292,8 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
         if (event.type == 1) {
             UserInfo userInfo = event.getUserInfo();
             imageHead = userInfo.getHead();
-            mImgHead.setImageURI(userInfo.getHead());
+            Glide.with(this).load(userInfo.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
         }
     }
 

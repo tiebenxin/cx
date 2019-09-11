@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.ui;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,15 +9,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.RobotInfoBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -35,20 +36,20 @@ public class GroupRobotSelecActivity extends AppActivity {
     private net.cb.cb.library.view.MultiListView mtListView;
 
     private List<RobotInfoBean> listData = new ArrayList<>();
-private String gid;
+    private String gid;
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        edtSearch = (net.cb.cb.library.view.ClearEditText) findViewById(R.id.edt_search);
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        edtSearch = findViewById(R.id.edt_search);
+        mtListView = findViewById(R.id.mtListView);
     }
 
 
     //自动生成的控件事件
     private void initEvent() {
-         gid = getIntent().getStringExtra(GroupRobotActivity.AGM_GID);
+        gid = getIntent().getStringExtra(GroupRobotActivity.AGM_GID);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -98,14 +99,17 @@ private String gid;
         public void onBindViewHolder(RCViewHolder holder, int position) {
             final RobotInfoBean infobean = listData.get(position);
             holder.txtInfoTitle.setText(infobean.getRname());
-            holder.imgInfoIcon.setImageURI(Uri.parse(infobean.getAvatar()));
+         //   holder.imgInfoIcon.setImageURI(Uri.parse(infobean.getAvatar()));
+
+            Glide.with(context).load(infobean.getAvatar())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgInfoIcon);
             holder.txtInfoMore.setText(infobean.getRobotDescription());
 
             holder.btnInfoAdd.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    setResult(GroupRobotActivity.RET_SELECT,new Intent()
-                            .putExtra(GroupRobotActivity.AGM_GID,gid)
-                            .putExtra(GroupRobotActivity.AGM_RID,infobean.getRid()));
+                    setResult(GroupRobotActivity.RET_SELECT, new Intent()
+                            .putExtra(GroupRobotActivity.AGM_GID, gid)
+                            .putExtra(GroupRobotActivity.AGM_RID, infobean.getRid()));
                     finish();
 
                 }
@@ -135,7 +139,7 @@ private String gid;
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgInfoIcon;
+            private ImageView imgInfoIcon;
             private TextView txtInfoTitle;
             private TextView txtInfoMore;
             private Button btnInfoAdd;
@@ -143,10 +147,10 @@ private String gid;
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                imgInfoIcon = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_info_icon);
-                txtInfoTitle = (TextView) convertView.findViewById(R.id.txt_info_title);
-                txtInfoMore = (TextView) convertView.findViewById(R.id.txt_info_more);
-                btnInfoAdd = (Button) convertView.findViewById(R.id.btn_info_add);
+                imgInfoIcon = convertView.findViewById(R.id.img_info_icon);
+                txtInfoTitle = convertView.findViewById(R.id.txt_info_title);
+                txtInfoMore = convertView.findViewById(R.id.txt_info_more);
+                btnInfoAdd = convertView.findViewById(R.id.btn_info_add);
             }
 
         }
@@ -155,7 +159,8 @@ private String gid;
 
     private String key = "";
 
-    private MsgAction msgAction=new MsgAction();
+    private MsgAction msgAction = new MsgAction();
+
     private void taskSearch() {
         key = edtSearch.getText().toString();
         if (key.length() <= 0) {
@@ -164,14 +169,13 @@ private String gid;
         msgAction.robotSearch(key, new CallBack<ReturnBean<List<RobotInfoBean>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<RobotInfoBean>>> call, Response<ReturnBean<List<RobotInfoBean>>> response) {
-                if (response.body()==null)
+                if (response.body() == null)
                     return;
 
-                listData=response.body().getData();
+                listData = response.body().getData();
                 mtListView.notifyDataSetChange();
             }
         });
-
 
 
     }

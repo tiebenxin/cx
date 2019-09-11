@@ -13,10 +13,11 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
 import com.yanlong.im.pay.action.PayAction;
@@ -24,8 +25,8 @@ import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
-import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
@@ -45,7 +46,7 @@ import static android.app.Activity.RESULT_OK;
 public class MyFragment extends Fragment {
     private View rootView;
     private LinearLayout viewHead;
-    private SimpleDraweeView imgHead;
+    private ImageView imgHead;
     private TextView txtName;
     private LinearLayout viewQr;
     private LinearLayout viewMoney;
@@ -152,7 +153,8 @@ public class MyFragment extends Fragment {
     private void initData() {
         UserInfo userInfo = UserAction.getMyInfo();
         if (userInfo != null) {
-            imgHead.setImageURI(userInfo.getHead() + "");
+            Glide.with(this).load(userInfo.getHead() + "")
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
             txtName.setText(userInfo.getName());
             mTvInfo.setText("常聊号: " + userInfo.getImid() + "");

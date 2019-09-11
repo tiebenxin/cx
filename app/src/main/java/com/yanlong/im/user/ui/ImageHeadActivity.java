@@ -7,8 +7,9 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -18,6 +19,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -44,14 +46,17 @@ import retrofit2.Response;
 public class ImageHeadActivity extends AppActivity {
     public final static String IMAGE_HEAD = "imageHead";
     private HeadView mHeadView;
-    private SimpleDraweeView mSdImageHead;
+    private ImageView mSdImageHead;
     private PopupSelectView popupSelectView;
     private PopupSelectView saveImagePopup;
     private String[] strings = {"拍照", "相册", "取消"};
-    private String[] saveImages = {"保存头像","取消"};
+    private String[] saveImages = {"保存头像", "取消"};
     private String imageHead;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private Button mBtnImageHead;
+
+    private boolean isAdmin = false;
+    private boolean isGroup = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,25 +65,28 @@ public class ImageHeadActivity extends AppActivity {
         initView();
         initEvent();
     }
-        private boolean isAdmin=false;
-        private boolean isGroup=false;
+
+
+
     private void initView() {
         imageHead = getIntent().getStringExtra(IMAGE_HEAD);
-        isAdmin = getIntent().getBooleanExtra("admin",false);
-        isGroup = getIntent().getBooleanExtra("groupSigle",false);
+        isAdmin = getIntent().getBooleanExtra("admin", false);
+        isGroup = getIntent().getBooleanExtra("groupSigle", false);
         mHeadView = findViewById(R.id.headView);
-        if (isGroup){
+        if (isGroup) {
             mHeadView.setTitle("群头像");
         }
         mSdImageHead = findViewById(R.id.sd_image_head);
-        mSdImageHead.setImageURI(imageHead + "");
+
+        Glide.with(this).load(imageHead)
+                .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         mBtnImageHead = findViewById(R.id.btn_image_head);
-        if (isGroup){
+        if (isGroup) {
             mBtnImageHead.setText("修改群头像");
         }
-        if (!isAdmin&&isGroup){
+        if (!isAdmin && isGroup) {
             mBtnImageHead.setVisibility(View.GONE);
             mHeadView.getActionbar().getBtnRight().setVisibility(View.GONE);
         }
@@ -108,7 +116,7 @@ public class ImageHeadActivity extends AppActivity {
             @Override
             public boolean onLongClick(View v) {
 
-              //  initSaveImage();
+                //  initSaveImage();
 
                 List<LocalMedia> selectList = new ArrayList<>();
                 LocalMedia lc = new LocalMedia();
@@ -122,13 +130,13 @@ public class ImageHeadActivity extends AppActivity {
 
     }
 
-    private void initSaveImage(){
-        saveImagePopup = new PopupSelectView(this,saveImages);
+    private void initSaveImage() {
+        saveImagePopup = new PopupSelectView(this, saveImages);
         saveImagePopup.showAtLocation(mSdImageHead, Gravity.BOTTOM, 0, 0);
         saveImagePopup.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
-                switch (postsion){
+                switch (postsion) {
                     case 0:
 
                         break;
@@ -202,13 +210,16 @@ public class ImageHeadActivity extends AppActivity {
                     Uri uri = Uri.fromFile(new File(file));
 
                     alert.show();
-                    mSdImageHead.setImageURI(uri);
-                    if (isGroup){
-                        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP_CHANGE,getContext(), new UpFileUtil.OssUpCallback() {
+                    //mSdImageHead.setImageURI(uri);
+                    Glide.with(this).load(uri)
+                            .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+
+                    if (isGroup) {
+                        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP_CHANGE, getContext(), new UpFileUtil.OssUpCallback() {
                             @Override
                             public void success(String url) {
                                 alert.dismiss();
-                                String gid= getIntent().getExtras().getString("gid");
+                                String gid = getIntent().getExtras().getString("gid");
                                 taskGroupInfoSet(gid, url, null, null);
                             }
 
@@ -223,8 +234,8 @@ public class ImageHeadActivity extends AppActivity {
 
                             }
                         }, file);
-                    }else{
-                        upFileAction.upFile(UpFileAction.PATH.HEAD,getContext(), new UpFileUtil.OssUpCallback() {
+                    } else {
+                        upFileAction.upFile(UpFileAction.PATH.HEAD, getContext(), new UpFileUtil.OssUpCallback() {
                             @Override
                             public void success(String url) {
                                 alert.dismiss();
@@ -248,7 +259,7 @@ public class ImageHeadActivity extends AppActivity {
         }
     }
 
-    private void taskGroupInfoSet(String gid,final String url, Object o1, Object o2) {
+    private void taskGroupInfoSet(String gid, final String url, Object o1, Object o2) {
         new MsgAction().changeGroupHead(gid, url, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {

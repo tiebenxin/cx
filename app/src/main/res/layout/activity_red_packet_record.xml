@@ -24,16 +24,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.facebook.drawee.view.SimpleDraweeView
+            <ImageView
                 android:id="@+id/sd_image_head"
                 android:layout_width="67dp"
                 android:layout_height="67dp"
                 android:layout_marginTop="15dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:placeholderImage="@mipmap/ic_info_head"
-                app:roundAsCircle="true" />
+                app:layout_constraintTop_toTopOf="parent" />
 
 
             <TextView

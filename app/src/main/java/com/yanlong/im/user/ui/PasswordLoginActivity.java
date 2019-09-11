@@ -103,7 +103,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
 
     }
 
-    private void initDialog(){
+    private void initDialog() {
         AlertYesNo alertYesNo = new AlertYesNo();
         alertYesNo.init(this, "找回密码", "密码错误,找回或重置密码?", "找回密码", "取消", new AlertYesNo.Event() {
             @Override

@@ -8,20 +8,15 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
 
 import net.cb.cb.library.R;
 
-import java.io.File;
 import java.util.List;
 
 /***
@@ -130,8 +125,8 @@ public class AlertSelectView {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                txtAlertSelect = (TextView) convertView.findViewById(R.id.txt_alert_select);
-                imgAlertSelect = (ImageView) convertView.findViewById(R.id.img_alert_select);
+                txtAlertSelect =  convertView.findViewById(R.id.txt_alert_select);
+                imgAlertSelect =  convertView.findViewById(R.id.img_alert_select);
             }
 
         }

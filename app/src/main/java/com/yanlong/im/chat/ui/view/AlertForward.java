@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -30,7 +31,7 @@ public class AlertForward {
     private AlertDialog alertDialog;
     private Event event;
     private Context context;
-    private com.facebook.drawee.view.SimpleDraweeView imgHead;
+    private ImageView imgHead;
     private TextView txtName;
     private ImageView ivImage;
     private TextView txtMsg;
@@ -43,14 +44,14 @@ public class AlertForward {
 
     //自动寻找控件
     private void findViews(View rootView){
-        imgHead = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_head);
-        txtName = (TextView) rootView.findViewById(R.id.txt_name);
-        ivImage = (ImageView) rootView.findViewById(R.id.iv_image);
-        txtMsg = (TextView) rootView.findViewById(R.id.txt_msg);
-        edContent = (EditText) rootView.findViewById(R.id.ed_content);
-        viewNo = (LinearLayout) rootView.findViewById(R.id.view_no);
-        btnCl = (Button) rootView.findViewById(R.id.btn_cl);
-        btnOk = (Button) rootView.findViewById(R.id.btn_ok);
+        imgHead =  rootView.findViewById(R.id.img_head);
+        txtName =  rootView.findViewById(R.id.txt_name);
+        ivImage =  rootView.findViewById(R.id.iv_image);
+        txtMsg =  rootView.findViewById(R.id.txt_msg);
+        edContent =  rootView.findViewById(R.id.ed_content);
+        viewNo =  rootView.findViewById(R.id.view_no);
+        btnCl =  rootView.findViewById(R.id.btn_cl);
+        btnOk =  rootView.findViewById(R.id.btn_ok);
     }
 
 
@@ -74,7 +75,10 @@ public class AlertForward {
     //自动生成的控件事件
     private void initEvent(String head,String name,String txt,String imgurl, String y) {
 
-        imgHead.setImageURI(Uri.parse(head));
+        //imgHead.setImageURI(Uri.parse(head));
+        Glide.with(context).load(head)
+                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
         txtName.setText(name);
 
         if(StringUtil.isNotNull(txt)){

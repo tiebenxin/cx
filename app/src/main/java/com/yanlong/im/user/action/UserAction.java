@@ -169,6 +169,9 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
+
+
+
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
                 }
@@ -193,6 +196,8 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 if (response.body() != null && response.body().isOk()) {
                     UserInfo userInfo = response.body().getData();
+                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
+                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
                     userInfo.toTag();
                     updateUserinfo2DB(userInfo);
                 }
