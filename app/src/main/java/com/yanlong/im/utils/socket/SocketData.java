@@ -6,11 +6,20 @@ import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.AssistantMessage;
+import com.yanlong.im.chat.bean.AtMessage;
+import com.yanlong.im.chat.bean.BusinessCardMessage;
+import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
+import com.yanlong.im.chat.bean.RedEnvelopeMessage;
+import com.yanlong.im.chat.bean.StampMessage;
+import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
@@ -29,133 +38,18 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import io.realm.RealmList;
+
 public class SocketData {
     private static final String TAG = "SocketData";
-    //包头2位
-    private static final byte[] P_HEAD = {0x20, 0x19};
-    //长度2位
-    //   private byte[] p_length = new byte[2];
-    //校验位4位(未使用)
-    private static byte[] P_CHECK = new byte[4];
-    //版本2位,第一字节为大版本,第二位小版本
-    private static byte[] P_VERSION = {0x01, 0x00};
-    //类型2位
-    private static byte[] P_TYPE = new byte[2];
 
     private static long preServerAckTime;//前一个服务器回执时间
     private static long preSendLocalTime;//前一个本地消息发送的时间
 
 
-    //数据类型枚举
-    public enum DataType {
-        PROTOBUF_MSG, PROTOBUF_HEARTBEAT, AUTH, ACK, OTHER;
-    }
-
     private static MsgDao msgDao = new MsgDao();
 
-    public static byte[] getPakage(DataType type, byte[] context) {
 
-        //内容长度
-        int contextSize = context == null ? 0 : context.length;
-
-        //长度后面的包长
-        byte[] d_length = intTobyte2(P_CHECK.length + P_VERSION.length + P_TYPE.length + contextSize);
-
-        //类型
-        byte[] d_type = new byte[2];
-
-        switch (type) {
-            case PROTOBUF_MSG://普通消息
-                d_type = new byte[]{0x00, tobyte(1, 0)};
-                break;
-            case PROTOBUF_HEARTBEAT://心跳
-                d_type = new byte[]{0x00, tobyte(1, 1)};
-                break;
-            case AUTH://鉴权
-                d_type = new byte[]{0x00, tobyte(1, 2)};
-                break;
-            case ACK://回馈
-                d_type = new byte[]{0x00, tobyte(1, 3)};
-                break;
-
-        }
-
-        //包大小
-        int d_size = P_HEAD.length + d_length.length + P_CHECK.length + P_VERSION.length + d_type.length + contextSize;
-
-        byte[] rtData = new byte[d_size];
-        System.arraycopy(P_HEAD, 0, rtData, 0, 2);
-        System.arraycopy(d_length, 0, rtData, 2, 2);
-        System.arraycopy(P_CHECK, 0, rtData, 4, 4);
-        System.arraycopy(P_VERSION, 0, rtData, 8, 2);
-        System.arraycopy(d_type, 0, rtData, 10, 2);
-        if (context != null) {
-            System.arraycopy(context, 0, rtData, 12, contextSize);
-        }
-
-
-        return rtData;
-    }
-
-    /***
-     * 时候是包头
-     * @param data
-     * @return
-     */
-    public static boolean isHead(byte[] data) {
-        if (data == null || data.length < 2)
-            return false;
-
-/*        byte[] d = new byte[2];
-        d[0] = data[0];
-        d[1] = data[1];*/
-
-        return P_HEAD[0] == data[0] && P_HEAD[1] == data[1];
-    }
-
-
-    /***
-     * 获取长度
-     * @return
-     */
-    public static int getLength(byte[] data) {
-        byte[] d = new byte[2];
-        d[0] = data[2];
-        d[1] = data[3];
-
-        return byte2Toint(d);
-    }
-
-    /***
-     * 获取消息类型
-     * @return
-     */
-    public static DataType getType(byte[] data) {
-        if (data.length >= 12) {
-            byte[] d = new byte[2];
-            d[0] = data[10];//暂时不用
-            d[1] = data[11];
-
-            int h = byteH4(d[1]);
-            int l = byteL4(d[1]);
-
-            if (h == 1 && l == 0) {
-                return DataType.PROTOBUF_MSG;
-            } else if (h == 1 && l == 1) {
-
-                return DataType.PROTOBUF_HEARTBEAT;
-            } else if (h == 1 && l == 3) {
-                return DataType.ACK;
-            } else if (h == 1 && l == 2) {
-                return DataType.AUTH;
-            }
-        }
-
-
-        return DataType.OTHER;
-
-
-    }
 
 
     /***
@@ -190,7 +84,7 @@ public class SocketData {
         MsgBean.AuthRequestMessage auth = MsgBean.AuthRequestMessage.newBuilder()
                 .setAccessToken(tokenBean.getAccessToken()).build();
 
-        return SocketData.getPakage(DataType.AUTH, auth.toByteArray());
+        return SocketPact.getPakage(SocketPact.DataType.AUTH, auth.toByteArray());
 
     }
 
@@ -210,7 +104,7 @@ public class SocketData {
 
         ack = amsg.build();
 
-        return SocketData.getPakage(DataType.ACK, ack.toByteArray());
+        return SocketPact.getPakage(SocketPact.DataType.ACK, ack.toByteArray());
 
     }
 //------------------------收-----------------------------
@@ -223,7 +117,7 @@ public class SocketData {
     public static MsgBean.UniversalMessage msgConversion(byte[] data) {
         try {
 
-            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(bytesToLists(data, 12).get(1));
+            MsgBean.UniversalMessage msg = MsgBean.UniversalMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
             return msg;
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
@@ -239,7 +133,7 @@ public class SocketData {
     public static MsgBean.AckMessage ackConversion(byte[] data) {
         try {
 
-            MsgBean.AckMessage msg = MsgBean.AckMessage.parseFrom(bytesToLists(data, 12).get(1));
+            MsgBean.AckMessage msg = MsgBean.AckMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
             return msg;
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
@@ -254,7 +148,7 @@ public class SocketData {
      */
     public static MsgBean.AuthResponseMessage authConversion(byte[] data) {
         try {
-            MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketData.bytesToLists(data, 12).get(1));
+            MsgBean.AuthResponseMessage ruthmsg = MsgBean.AuthResponseMessage.parseFrom(SocketPact.bytesToLists(data, 12).get(1));
 
 
             return ruthmsg;
@@ -315,136 +209,6 @@ public class SocketData {
     }
 //---------------------------------
 
-    //------------------------转换工具-------------------
-
-    /***
-     * 合并数组
-     * @param values
-     * @return
-     */
-    public static byte[] listToBytes(List<byte[]> values) {
-        int length_byte = 0;
-        for (int i = 0; i < values.size(); i++) {
-            length_byte += values.get(i).length;
-        }
-        byte[] all_byte = new byte[length_byte];
-        int countLength = 0;
-        for (int i = 0; i < values.size(); i++) {
-            byte[] b = values.get(i);
-            System.arraycopy(b, 0, all_byte, countLength, b.length);
-            countLength += b.length;
-        }
-        return all_byte;
-    }
-
-    /***
-     * 拆分数组
-     * @return
-     */
-    public static List<byte[]> bytesToLists(byte[] data, int... sp_length) {
-        List<byte[]> list = new ArrayList<>();
-        int i = 0;
-        for (int l : sp_length) {
-            byte[] t = new byte[l];
-            System.arraycopy(data, i, t, 0, t.length);
-            list.add(t);
-            i = l;
-        }
-
-        int exl = data.length - i;
-        byte[] ex = new byte[exl];
-        System.arraycopy(data, i, ex, 0, exl);
-        if (ex.length > 0) {
-            list.add(ex);
-        }
-
-        return list;
-    }
-
-    /***
-     * 合并数组
-     * @param values
-     * @return
-     */
-    public static byte[] byteMergerAll(byte[]... values) {
-        int length_byte = 0;
-        for (int i = 0; i < values.length; i++) {
-            length_byte += values[i].length;
-        }
-        byte[] all_byte = new byte[length_byte];
-        int countLength = 0;
-        for (int i = 0; i < values.length; i++) {
-            byte[] b = values[i];
-            System.arraycopy(b, 0, all_byte, countLength, b.length);
-            countLength += b.length;
-        }
-        return all_byte;
-    }
-
-
-    /***
-     * int转为2byte
-     * @param val
-     * @return
-     */
-    private static byte[] intTobyte2(int val) {
-        byte[] data = new byte[2];
-        data[0] = (byte) ((val >> 8) & 0xff);
-        data[1] = (byte) (val & 0xff);
-        return data;
-    }
-
-    /***
-     * 2byt转为int,读取长度
-     * @param data
-     * @return
-     */
-    public static int byte2Toint(byte[] data) {
-        int i = ((data[0] << 8) & 0x0000ff00) | (data[1] & 0x000000ff);
-        return i;
-
-    }
-
-
-    /***
-     * 合并字节
-     * @param h
-     * @param l
-     * @return
-     */
-    private static byte tobyte(int h, int l) {
-        return (byte) ((h << 4) & 0xf0 | (l & 0x0f));
-    }
-
-    //高4位
-    public static int byteH4(byte bt) {
-        int val = (bt & 0xf0) >> 4;
-        return val;
-    }
-
-    //低4位
-    public static int byteL4(byte bt) {
-        int val = bt & 0x0f;
-        return val;
-    }
-
-    /**
-     * 字节数组转16进制
-     *
-     * @param bytes 需要转换的byte数组
-     * @return 转换后的Hex字符串
-     */
-    public static String bytesToHex(byte[] bytes) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < bytes.length; i++) {
-            String hex = Integer.toHexString(bytes[i] & 0xFF);
-            if (hex.length() < 2) {
-                sb.append(0);
-            }
-            sb.append("" + hex + " ");
-        }
-        return sb.toString();
-    }
 
     //------------消息内容发送处理----------------
 
@@ -531,6 +295,7 @@ public class SocketData {
     /***
      * 发送失败
      * @param bean
+     * 发送失败的消息不更新时间
      */
     public static void msgSave4MeFail(MsgBean.AckMessage bean) {
         //普通消息
@@ -540,13 +305,14 @@ public class SocketData {
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
                     //时间要和ack一起返回
-                    .setTimestamp(getSysTime())
+//                    .setTimestamp(getSysTime())
                     .build();
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
-            msgAllBean.setTimestamp(bean.getTimestamp());
+//            msgAllBean.setTimestamp(bean.getTimestamp());
+            msgAllBean.setTimestamp(msg.getWrapMsg(0).getTimestamp());
             msgAllBean.setSend_state(ChatEnum.ESendStatus.ERROR);
             msgAllBean.setSend_data(msg.build().toByteArray());
 
@@ -663,7 +429,8 @@ public class SocketData {
         wmsg.setMsgId(msgid == null ? getUUID() : msgid);
 
 
-        wmsg.setTimestamp(getSysTime());
+//        wmsg.setTimestamp(getSysTime());
+        wmsg.setTimestamp(getFixTime());
 
         if (toGid != null && toGid.length() > 0) {//给群发
             wmsg.setGid(toGid);
@@ -1143,7 +910,8 @@ public class SocketData {
             }
             msg.setTo_uid(bean.getTo_uid());
             msg.setGid(bean.getGid());
-            msg.setFrom_group_nickname(bean.getFrom_nickname());
+            msg.setFrom_nickname(bean.getFrom_nickname());
+            msg.setFrom_group_nickname(bean.getFrom_group_nickname());
             msg.setMsgNotice(createMsgNotice(msgId, type, getNoticeString(bean, type)));
         }
         return msg;
@@ -1169,7 +937,7 @@ public class SocketData {
                     if (bean.getTo_user() != null) {
                         name = bean.getTo_user().getName4Show();
                     }
-                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + name + "</font>\"" + "的好友, 请先添加对方为好友" /*+ "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>"*/;
+                    note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + name + "</font>\"" + "的好友, 请先" + "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>";
                     break;
             }
         }
@@ -1181,6 +949,7 @@ public class SocketData {
     }
 
     public static void setPreServerAckTime(long preServerAckTime) {
+//        LogUtil.getLog().i(TAG, "时间戳--preServerAckTime=" + preServerAckTime);
         SocketData.preServerAckTime = preServerAckTime;
     }
 
@@ -1195,17 +964,179 @@ public class SocketData {
     //获取修正时间
     public static long getFixTime() {
         long currentTime = System.currentTimeMillis();
+//        LogUtil.getLog().i(TAG, "时间戳--currentTime=" + currentTime + "--preServerAckTime=" + preServerAckTime + "--preSendLocalTime=" + preSendLocalTime);
         if (preServerAckTime > preSendLocalTime && preServerAckTime > currentTime) {//服务器回执时间最新
-            return preServerAckTime = preServerAckTime + 1;
+            currentTime = preServerAckTime + 1;
+            preServerAckTime = currentTime;
         } else if (preSendLocalTime > preServerAckTime && preSendLocalTime > currentTime) {//本地发送时间最新
-            return preSendLocalTime = preSendLocalTime + 1;
+            currentTime = preSendLocalTime + 1;
+            preSendLocalTime = currentTime;
         } else {//本地系统时间最新
             preSendLocalTime = currentTime;
-            return currentTime;
         }
+//        LogUtil.getLog().i(TAG, "时间戳--currentTime=" + currentTime);
+        return currentTime;
     }
 
     public static long getSysTime() {
         return System.currentTimeMillis();
+    }
+
+    /*
+     * 创建自己发送的消息bean
+     * @param uid Long 用户Id,私聊即to_uid,群聊为null
+     * @gid 群id，私聊为空，群聊不能为空
+     * @msgType int 消息类型
+     * @sendStatus int 发送状态
+     * @obj IMsgContent MsgAllBean二级关联表bean
+     * */
+    public static MsgAllBean createMessageBean(Long uid, String gid, @ChatEnum.EMessageType int msgType, @ChatEnum.ESendStatus int sendStatus, IMsgContent obj) {
+        if (UserAction.getMyInfo() == null) {
+            return null;
+        }
+        boolean isGroup = false;
+        if (uid == null && !TextUtils.isEmpty(gid)) {
+            isGroup = true;
+        }
+
+        MsgAllBean msg = new MsgAllBean();
+        msg.setMsg_id(obj.getMsgId());
+        msg.setMsg_type(msgType);
+        msg.setTimestamp(getFixTime());
+        msg.setTo_uid(uid);
+        msg.setGid(gid);
+        msg.setSend_state(sendStatus);
+        msg.setFrom_uid(UserAction.getMyId());
+        msg.setFrom_avatar(UserAction.getMyInfo().getHead());
+        msg.setFrom_nickname(UserAction.getMyInfo().getName());
+
+        if (isGroup) {
+            Group group = msgDao.getGroup4Id(gid);
+            if (group != null) {
+                String name = group.getMygroupName();
+                if (StringUtil.isNotNull(name)) {
+                    msg.setFrom_group_nickname(name);
+                }
+            }
+        }
+        switch (msgType) {
+            case ChatEnum.EMessageType.NOTICE:
+                if (obj instanceof MsgNotice) {
+                    msg.setMsgNotice((MsgNotice) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TEXT:
+                if (obj instanceof ChatMessage) {
+                    msg.setChat((ChatMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.STAMP:
+                if (obj instanceof StampMessage) {
+                    msg.setStamp((StampMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.RED_ENVELOPE:
+                if (obj instanceof RedEnvelopeMessage) {
+                    msg.setRed_envelope((RedEnvelopeMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.IMAGE:
+                if (obj instanceof ImageMessage) {
+                    msg.setImage((ImageMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                if (obj instanceof BusinessCardMessage) {
+                    msg.setBusiness_card((BusinessCardMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TRANSFER:
+                if (obj instanceof TransferMessage) {
+                    msg.setTransfer((TransferMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.VOICE:
+                if (obj instanceof VoiceMessage) {
+                    msg.setVoiceMessage((VoiceMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.AT:
+                if (obj instanceof AtMessage) {
+                    msg.setAtMessage((AtMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.ASSISTANT:
+                if (obj instanceof AssistantMessage) {
+                    msg.setAssistantMessage((AssistantMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.MSG_CENCAL:
+                if (obj instanceof MsgCancel) {
+                    msg.setMsgCancel((MsgCancel) obj);
+                } else {
+                    return null;
+                }
+                break;
+
+        }
+
+        return msg;
+    }
+
+    public static MsgAllBean createMessageBean(String gid, String content, Group group) {
+        if (group == null || TextUtils.isEmpty(gid)) {
+            return null;
+        }
+        MsgAllBean msg = new MsgAllBean();
+        String msgId = SocketData.getUUID();
+        msg.setMsg_id(msgId);
+        msg.setMsg_type(ChatEnum.EMessageType.AT);
+        msg.setFrom_uid(UserAction.getMyId());
+        msg.setTimestamp(getFixTime());
+//            msg.setTo_uid(bean.getTo_uid());
+        msg.setGid(gid);
+        msg.setFrom_avatar(UserAction.getMyInfo().getHead());
+        msg.setFrom_nickname(UserAction.getMyInfo().getName());
+        msg.setSend_state(ChatEnum.ESendStatus.NORMAL);
+        msg.setFrom_group_nickname(group.getMygroupName());
+        msg.setAtMessage(createAtMessage(msgId, content, ChatEnum.EAtType.ALL));
+        return msg;
+    }
+
+    public static AtMessage createAtMessage(String msgId, String content, @ChatEnum.EAtType int atType) {
+        AtMessage message = new AtMessage();
+        message.setMsgId(msgId);
+        message.setAt_type(atType);
+        message.setMsg(content);
+        return message;
+
+    }
+
+    public static void saveMessage(MsgAllBean bean) {
+        DaoUtil.update(bean);
+        if (msgDao == null) {
+            msgDao = new MsgDao();
+        }
+        msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
     }
 }

@@ -34,6 +34,7 @@ public class SocketUtil {
 
         @Override
         public void onACK(MsgBean.AckMessage bean) {
+            SocketData.setPreServerAckTime(bean.getTimestamp());
             if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
                 SocketData.msgSave4Me(bean);
@@ -59,11 +60,7 @@ public class SocketUtil {
                 if (ev != null) {
                     ev.onACK(bean);
                 }
-                //这里可以做为空,自动移除
-
             }
-
-
         }
 
 
@@ -72,17 +69,11 @@ public class SocketUtil {
             //保存消息和处理回执
             LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
             SocketData.magSaveAndACK(bean);
-
-
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onMsg(bean);
                 }
-                //这里可以做为空,自动移除
-
             }
-
-
         }
 
         @Override
@@ -93,7 +84,6 @@ public class SocketUtil {
                     ev.onSendMsgFailure(bean);
                 }
                 //这里可以做为空,自动移除
-
             }
         }
 
@@ -285,7 +275,7 @@ public class SocketUtil {
                             stop();
 
                         } else {
-                            sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_HEARTBEAT, null), null);
+                            sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_HEARTBEAT, null), null);
 
                         }
 
@@ -426,13 +416,13 @@ public class SocketUtil {
                     writeBuf.put(data);
                     writeBuf.flip();
                     LogUtil.getLog().i(TAG, ">>>发送长度:" + data.length);
-                    LogUtil.getLog().i(TAG, ">>>发送:" + SocketData.bytesToHex(data));
+                    LogUtil.getLog().i(TAG, ">>>发送:" + SocketPact.bytesToHex(data));
                     int state = socketChannel.write(writeBuf);
                     writeBuf.clear();
                     LogUtil.getLog().i(TAG, ">>>发送状态:" + state);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    LogUtil.getLog().e(TAG, ">>>发送失败" + SocketData.bytesToHex(data));
+                    LogUtil.getLog().e(TAG, ">>>发送失败" + SocketPact.bytesToHex(data));
                     LogUtil.getLog().e(TAG, ">>>发送列队异常" + e.toString());
                     //取消发送队列,返回失败
                     if (msgTag != null) {
@@ -455,7 +445,7 @@ public class SocketUtil {
     public void sendData4Msg(MsgBean.UniversalMessage.Builder msg) {
         //添加到消息队中监听
         SendList.addSendList(msg.getRequestId(), msg);
-        sendData(SocketData.getPakage(SocketData.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg);
+        sendData(SocketPact.getPakage(SocketPact.DataType.PROTOBUF_MSG, msg.build().toByteArray()), msg);
     }
 
 
@@ -548,16 +538,16 @@ public class SocketUtil {
                             byte[] data = new byte[data_size];
                             readBuf.get(data, 0, data_size);
 
-                            LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketData.bytesToHex(data));
+                            LogUtil.getLog().d(TAG, "<<<<<接收数据: " + SocketPact.bytesToHex(data));
                             LogUtil.getLog().d(TAG, "<<<<<接收数据总大小: " + data.length);
 
-                            if (SocketData.isHead(data)) {//收到包头
+                            if (SocketPact.isHead(data)) {//收到包头
                                 LogUtil.getLog().d(TAG, ">>>接收数据: 是包头");
                                 temp.clear();//每次收到包头把之前的缓存清理
                                 byte[] ex = doPackage(data);//没处理完的断包
                                 if (ex != null) {
-                                    if (!SocketData.isHead(ex)) {//下个断包是否是包头不是就抛掉
-                                        LogUtil.getLog().d(TAG, ">>抛掉错误数据" + SocketData.bytesToHex(ex));
+                                    if (!SocketPact.isHead(ex)) {//下个断包是否是包头不是就抛掉
+                                        LogUtil.getLog().d(TAG, ">>抛掉错误数据" + SocketPact.bytesToHex(ex));
                                     }
 
                                     temp.add(ex);
@@ -567,10 +557,10 @@ public class SocketUtil {
                             } else {//收到包体
                                 LogUtil.getLog().d(TAG, ">>>接收数据: 是包体");
                                 if (temp.size() > 0) {
-                                    byte[] oldpk = SocketData.listToBytes(temp);
+                                    byte[] oldpk = SocketPact.listToBytes(temp);
                                     LogUtil.getLog().d(TAG, ">>>上一个包大小" + oldpk.length);
                                     temp.clear();
-                                    byte[] epk = SocketData.byteMergerAll(oldpk, data);//合成的新包
+                                    byte[] epk = SocketPact.byteMergerAll(oldpk, data);//合成的新包
                                     LogUtil.getLog().d(TAG, ">>>合成包大小" + epk.length);
                                     byte[] ex = doPackage(epk);
                                     if (ex != null) {
@@ -578,7 +568,7 @@ public class SocketUtil {
                                         LogUtil.getLog().d(TAG, ">>>[包体]剩余数据长度" + ex.length);
                                     }
                                 } else {//如果没有包头缓存,同样抛掉包体
-                                    LogUtil.getLog().d(TAG, ">>>抛掉包体错误数据" + SocketData.bytesToHex(data));
+                                    LogUtil.getLog().d(TAG, ">>>抛掉包体错误数据" + SocketPact.bytesToHex(data));
                                 }
 
 
@@ -623,15 +613,15 @@ public class SocketUtil {
         }
 
 
-        int len = 4 + SocketData.getLength(data);//包长
+        int len = 4 + SocketPact.getLength(data);//包长
         if (data.length < len) {//不能解析完整包
             ex = data;
         } else {//有一个以上完整的包
-            List<byte[]> ls = SocketData.bytesToLists(data, len);
+            List<byte[]> ls = SocketPact.bytesToLists(data, len);
 
             byte[] indexData = ls.get(0);
 
-            SocketData.DataType type = SocketData.getType(indexData);//类型
+            SocketPact.DataType type = SocketPact.getType(indexData);//类型
             //数据处理
             switch (type) {
                 case PROTOBUF_MSG:
@@ -639,12 +629,14 @@ public class SocketUtil {
                     LogUtil.getLog().i(TAG, ">>>-----<处理消息 长度:" + indexData.length + " rid:" + pmsg.getRequestId());
                     heartbeatTime = System.currentTimeMillis();
                     //调试时不用吧onMsg放在线程里,这里为了优化分发的效率才如此处理
-                    new Thread(new Runnable() {
+                    /*new Thread(new Runnable() {
                         @Override
                         public void run() {
                             event.onMsg(pmsg);
                         }
-                    }).start();
+                    }).start();*/
+
+                    event.onMsg(pmsg);
 
                     break;
                 case PROTOBUF_HEARTBEAT:

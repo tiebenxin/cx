@@ -1,20 +1,14 @@
 package com.yanlong.im;
 
-import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,8 +21,7 @@ import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.bean.VersionBean;
-import com.yanlong.im.user.ui.CommonActivity;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
@@ -37,9 +30,11 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
@@ -55,8 +50,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -64,6 +58,7 @@ import retrofit2.Response;
 import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 public class MainActivity extends AppActivity {
+    public final static String IS_LOGIN = "is_from_login";
     private ViewPagerSlide viewPage;
     private android.support.design.widget.TabLayout bottomTab;
 
@@ -202,6 +197,42 @@ public class MainActivity extends AppActivity {
         findViews();
         initEvent();
         uploadApp();
+        checkRosters();
+    }
+
+    //检测通讯录问题
+    private void checkRosters() {
+        Intent intent = getIntent();
+        boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
+        if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
+            userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                    EventBus.getDefault().post(new EventRefreshFriend());
+                }
+
+                @Override
+                public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                    super.onFailure(call, t);
+                }
+            });
+        } else {
+            UserDao userDao = new UserDao();
+            boolean hasInit = userDao.isRosterInit();
+            if (!hasInit) {//未初始化，初始化本地通讯录
+                userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                        EventBus.getDefault().post(new EventRefreshFriend());
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                        super.onFailure(call, t);
+                    }
+                });
+            }
+        }
     }
 
     @Override
@@ -311,7 +342,9 @@ public class MainActivity extends AppActivity {
         if (sbmsg == null)
             return;
 
-        sbmsg.setNum(msgDao.sessionReadGetAll());
+        int num = msgDao.sessionReadGetAll();
+        sbmsg.setNum(num);
+        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
     /***
@@ -340,16 +373,16 @@ public class MainActivity extends AppActivity {
                     if (response.body().getData().getForceUpdate() != 0) {
                         //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
-                    }else{
+                    } else {
 
-                        if(updateManage.isToDayFirst(bean)){
+                        if (updateManage.isToDayFirst(bean)) {
                             updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         }
 
-                        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
-                            if(new UpdateManage(context, MainActivity.this).check(bean.getVersion())){
+                        if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+                            if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
                                 sbme.setNum(1);
-                            }else{
+                            } else {
                                 sbme.setNum(0);
                             }
                         }
@@ -405,7 +438,7 @@ public class MainActivity extends AppActivity {
         SharedPreferencesUtil sp = new SharedPreferencesUtil(NOTIFICATION);
         if (sp != null) {
             NotificationConfig config = sp.get4Json(NotificationConfig.class, "notify_config");
-            if (config != null) {
+            if (config != null && userAction.getMyId() != null) {
 //                LogUtil.getLog().i(MainActivity.class.getSimpleName(), "oldUid=" + config.getUid() + "--newUid=" + userAction.getMyId());
                 if (config.getUid() == userAction.getMyId() && (!isNewVersion(config.getVersion()) || config.isHasNotify())) {
                     return false;

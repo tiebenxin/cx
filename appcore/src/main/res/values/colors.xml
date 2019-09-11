@@ -51,4 +51,6 @@
     <!--红包按钮-->
     <color name="red_100">#fccac9</color>
     <color name="red_200">#c85749</color>
+
+    <color name="red_all_notify">#a7051a</color>
 </resources>

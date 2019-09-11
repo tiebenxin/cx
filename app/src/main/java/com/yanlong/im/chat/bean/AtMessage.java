@@ -4,12 +4,15 @@ import java.util.List;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * @创建人 shenxin
  * @创建时间 2019/7/25 0025 10:45
  */
-public class AtMessage extends RealmObject {
+public class AtMessage extends RealmObject implements IMsgContent {
+    @PrimaryKey
+    private String msgId;
 
     private int at_type;
 
@@ -39,5 +42,13 @@ public class AtMessage extends RealmObject {
 
     public void setUid(RealmList<Long> uid) {
         this.uid = uid;
+    }
+
+    public String getMsgId() {
+        return msgId;
+    }
+
+    public void setMsgId(String msgId) {
+        this.msgId = msgId;
     }
 }

@@ -9,6 +9,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -31,10 +32,12 @@ public class MsgConversionBean {
 
 
     public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean, MsgBean.UniversalMessage.Builder msg) {
+        if (bean.getMsgType() == MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+            return null;
+        }
         MsgDao msgDao = new MsgDao();
         //手动处理转换
         MsgAllBean msgAllBean = new MsgAllBean();
-
         msgAllBean.setTimestamp(bean.getTimestamp());
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setFrom_avatar(bean.getAvatar());
@@ -285,25 +288,40 @@ public class MsgConversionBean {
                 goutNotice.setNote("\"<font color='#276baa' id='" + bean.getChangeGroupMaster().getUid() + "'>" + bean.getNickname() + "</font>\"" + "离开群聊" + "<div id='" + bean.getGid() + "'></div>");
                 msgAllBean.setMsgNotice(goutNotice);
                 break;
-            case CHANGE_GROUP_NAME:
-                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
-                MsgNotice info = new MsgNotice();
-                info.setMsgid(msgAllBean.getMsg_id());
-                info.setNote("新群名称:" + bean.getChangeGroupName().getName());
-                msgAllBean.setMsgNotice(info);
+            case CHANGE_GROUP_META://修改群信息
+                MsgBean.ChangeGroupMetaMessage.RealMsgCase realMsgCase = bean.getChangeGroupMeta().getRealMsgCase();
+                switch (realMsgCase) {
+                    case NAME://群名
+                        msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+                        MsgNotice info = new MsgNotice();
+                        info.setMsgid(msgAllBean.getMsg_id());
+                        bean.getChangeGroupMeta().getName();
+                        info.setNote("新群名称:" + bean.getChangeGroupMeta().getName());
+                        msgAllBean.setMsgNotice(info);
+                        break;
+                    case PROTECT_MEMBER://群成员保护
+                        return null;
+//                        break;
+                    case AVATAR://群头像
+                        //todo 刷新群成员头像
+                        return null;
+//                    break;
+                }
+
                 break;
-            case CHANGE_GROUP_ANNOUNCEMENT:
-                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
-                MsgNotice ani = new MsgNotice();
-                ani.setMsgid(msgAllBean.getMsg_id());
-                ani.setNote("群公告:" + bean.getChangeGroupAnnouncement().getAnnouncement());
-                msgAllBean.setMsgNotice(ani);
-                break;
+//            case CHANGE_GROUP_ANNOUNCEMENT:
+//                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
+//                MsgNotice ani = new MsgNotice();
+//                ani.setMsgid(msgAllBean.getMsg_id());
+//                ani.setNote("群公告:" + bean.getChangeGroupAnnouncement().getAnnouncement());
+//                msgAllBean.setMsgNotice(ani);
+//                break;
             case AT:
                 RealmList<Long> realmList = new RealmList<>();
                 realmList.addAll(bean.getAt().getUidList());
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.AT);
                 AtMessage atMessage = new AtMessage();
+                atMessage.setMsgId(bean.getMsgId());
                 atMessage.setMsg(bean.getAt().getMsg());
                 atMessage.setAt_type(bean.getAt().getAtType().getNumber());
                 atMessage.setUid(realmList);
@@ -312,6 +330,7 @@ public class MsgConversionBean {
             case ASSISTANT:
                 AssistantMessage assistant = new AssistantMessage();
                 assistant.setMsg(bean.getAssistant().getMsg());
+                assistant.setMsgId(bean.getMsgId());
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.ASSISTANT);
                 msgAllBean.setAssistantMessage(assistant);
                 break;
@@ -332,7 +351,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsgCancel(msgCel);
 
                 break;
-            default:
+            default://普通通知，不产生本地显示的消息，直接return null
                 return null;
         }
 

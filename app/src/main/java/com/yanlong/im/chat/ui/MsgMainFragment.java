@@ -198,7 +198,8 @@ public class MsgMainFragment extends Fragment {
                     public void run() {
                         Log.d("tyad", "run: state" + state);
                         actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
-                        actionBar.setTitle(state ? "消息" : "消息(连接中...)");
+                        // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
+                        actionBar.setTitle(state ? "消息" : "消息");
                         if (state) {
                             viewNetwork.setVisibility(View.GONE);
                         } else {
@@ -455,7 +456,8 @@ public class MsgMainFragment extends Fragment {
                     icon = ginfo.getAvatar();
                     //获取最后一条群消息
                     msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                    title = ginfo.getName();
+//                    title = ginfo.getName();
+                    title = msgDao.getGroupName(bean.getGid());
                     if (msginfo != null) {
                         if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
                             info = msginfo.getMsg_typeStr();
@@ -488,13 +490,13 @@ public class MsgMainFragment extends Fragment {
                             if (msginfo.getMsg_type() == 8) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[有人@你]" + bean.getAtMessage());
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             } else {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[有人@你]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             }
@@ -505,13 +507,13 @@ public class MsgMainFragment extends Fragment {
                             if (msginfo.getMsg_type() == 8) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[@所有人]" + bean.getAtMessage());
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             } else {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[@所有人]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_600));
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
                             }
@@ -555,7 +557,8 @@ public class MsgMainFragment extends Fragment {
                     taskDelSissen(bean.getFrom_uid(), bean.getGid());
                 }
             });
-            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
+//            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
+            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
 
         }
 
@@ -637,7 +640,7 @@ public class MsgMainFragment extends Fragment {
                     dids.add(fuid.toString());
 
 
-                    userAction.getUserInfoAndSave(fuid, new CallBack<ReturnBean<UserInfo>>() {
+                    userAction.getUserInfoAndSave(fuid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
                         @Override
                         public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                             didIndex++;
@@ -694,7 +697,7 @@ public class MsgMainFragment extends Fragment {
 
                 //获取最后一条群消息
                 msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                title = ginfo.getName();
+                title = /*ginfo.getName()*/msgDao.getGroupName(bean.getGid());
                 if (msginfo != null) {
                     info = msginfo.getMsg_typeStr();
                 }

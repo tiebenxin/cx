@@ -258,4 +258,16 @@ public class ChatEnum {
         int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的红包
     }
 
+
+    /*
+     * AT 类型
+     *
+     * */
+    @IntDef({EAtType.MULTIPLE, EAtType.ALL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EAtType {
+        int MULTIPLE = 0; // 多个
+        int ALL = 1; // 所有人
+    }
+
 }

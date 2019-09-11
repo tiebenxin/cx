@@ -21,17 +21,19 @@
         android:layout_marginBottom="15dp"
         android:gravity="center"
         android:singleLine="false"
+        android:textStyle="bold"
         android:text="标题" />
 
 
     <EditText
         android:id="@+id/ed_content"
-        style="@style/app_edt1"
+        style="@style/app_edt_friend"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
+        android:singleLine="false"
         android:background="@drawable/bg_touch_edit"/>
 
 

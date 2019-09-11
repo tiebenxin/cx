@@ -1,14 +1,28 @@
 package com.yanlong.im.user.ui;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.user.action.UserAction;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
+import retrofit2.Call;
+import retrofit2.Response;
+
 public class GroupAddActivity extends AppActivity {
+    private Button btn_commit_groupadd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,8 +31,11 @@ public class GroupAddActivity extends AppActivity {
         initEvent();
     }
     private HeadView headView_groupadd;
+    private EditText ed_content_groupadd;
     private void initView() {
         headView_groupadd=findViewById(R.id.headView_groupadd);
+        btn_commit_groupadd=findViewById(R.id.btn_commit_groupadd);
+        ed_content_groupadd=findViewById(R.id.ed_content_groupadd);
     }
 
 
@@ -34,5 +51,37 @@ public class GroupAddActivity extends AppActivity {
 
             }
         });
+        btn_commit_groupadd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String textContetn =ed_content_groupadd.getText().toString();
+                if (TextUtils.isEmpty(textContetn)){
+                    ToastUtil.show(getApplicationContext(),"请输入申请描述");
+                    return;
+                }
+                alert.show();
+                Log.e("TAG",getIntent().getStringExtra("gid")+"---------------"+UserAction.getMyInfo().getPhone());
+                new MsgAction().changeGroupLimit(getIntent().getStringExtra("gid"), textContetn, UserAction.getMyInfo().getPhone(), new CallBack<ReturnBean>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                        alert.dismiss();
+                        Log.e("TAG",response.body().getMsg().toString());
+                        if (response.body() == null) {
+                            return;
+                        }
+                        ToastUtil.show(getApplicationContext(),"申请成功!请等待审核");
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean> call, Throwable t) {
+                        alert.dismiss();
+                        Log.e("TAG",t.getMessage());
+//                super.onFailure(call, t);
+                    }
+                });
+            }
+        });
+
     }
 }

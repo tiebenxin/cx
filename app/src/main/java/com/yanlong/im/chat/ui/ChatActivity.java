@@ -182,7 +182,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //当前页
     //private int indexPage = 0;
     private List<MsgAllBean> msgListData = new ArrayList<>();
-    private List<MsgAllBean> downloadList = new ArrayList<>();
+    private List<MsgAllBean> downloadList = new ArrayList<>();//下载列表
+    private Map<String, MsgAllBean> uploadMap = new HashMap<>();//上传列表
+    private List<MsgAllBean> uploadList = new ArrayList<>();//上传列表
 
     //红包和转账
     public static final int REQ_RP = 9653;
@@ -219,6 +221,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    fixSendTime(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
                         taskRefreshMessage();
 //                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
@@ -334,7 +337,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             case ACCEPT_BE_GROUP://邀请进群刷新
                 taskGroupConf();
                 break;
-            case CHANGE_GROUP_NAME:
+            case CHANGE_GROUP_META:
                 taskSessionInfo();
                 break;
         }
@@ -744,7 +747,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
-                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgid(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
                 msgListData.add(msg);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -904,6 +907,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
+        uploadMap.put(bean.getMsg_id(), bean);
+        uploadList.add(bean);
         updateSendStatus(ChatEnum.ESendStatus.SENDING, bean);
         new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
             @Override
@@ -1310,23 +1315,23 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
 //        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
         if (event.getState() == 0) {
-            // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgid());
+            // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgId());
             taskRefreshImage(event.getMsgid());
         } else if (event.getState() == -1) {
             //处理失败的情况
-//            Log.d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgid());
+//            Log.d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
 
 
         } else if (event.getState() == 1) {
-            //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgid());
+            //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
 
 
         } else {
-            //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgid());
+            //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgId());
         }
     }
 
@@ -1908,6 +1913,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
 
                                 if (!isExist) {
+
                                     menus.add(new OptionMenu("撤回"));
                                 }
                             }
@@ -2087,7 +2093,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 bean.setRead(true);
             }
         }
-        msgDao.updatePlayStatus(voiceMessage.getMsgid(), status);
+        msgDao.updatePlayStatus(voiceMessage.getMsgId(), status);
         voiceMessage.setPlayStatus(status);
         final MsgAllBean finalBean = bean;
         runOnUiThread(new Runnable() {
@@ -2246,8 +2252,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskSessionInfo() {
         String title = "";
         if (isGroup()) {
-            Group ginfo = msgDao.getGroup4Id(toGid);
-            title = ginfo.getName();
+//            Group ginfo = msgDao.getGroup4Id(toGid);
+//            title = ginfo.getName();
+            title = msgDao.getGroupName(toGid);
             //6.15 设置右上角点击
             taskGroupConf();
 
@@ -2422,8 +2429,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             userInfo.setName(gname);
                         }
                     }
-
-
                 }
                 mks.put(k, userInfo);
             }
@@ -2844,5 +2849,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         showSendObj(msgAllbean);
     }
 
-
+    private void fixSendTime(String msgId) {
+        MsgAllBean bean = uploadMap.get(msgId);
+        boolean needRefresh = false;
+        if (bean != null) {
+            if (uploadList.indexOf(bean) == 0) {
+                needRefresh = true;
+            }
+            uploadMap.remove(msgId);
+        }
+        if (needRefresh && uploadMap.size() > 0) {
+            for (Map.Entry<String, MsgAllBean> entry : uploadMap.entrySet()) {
+                MsgAllBean msg = entry.getValue();
+                msg.setTimestamp(SocketData.getFixTime());
+                DaoUtil.update(msg);
+            }
+        }
+    }
 }

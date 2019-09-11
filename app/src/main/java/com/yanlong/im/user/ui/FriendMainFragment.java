@@ -23,6 +23,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
@@ -30,6 +31,7 @@ import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PySortView;
 import net.cb.cb.library.view.StrikeButton;
@@ -93,9 +95,10 @@ public class FriendMainFragment extends Fragment {
     private List<UserInfo> listData = new ArrayList<>();
 
     private void initData() {
-        taskRefreshListData();
-
-
+        taskListData();
+//        if (listData == null || listData.size() <= 0) {
+//            taskRefreshListData();
+//        }
     }
 
     public FriendMainFragment() {
@@ -218,7 +221,7 @@ public class FriendMainFragment extends Fragment {
                 hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
                 hd.txtName.setText(bean.getName4Show());
                 if (bean.getLastonline() > 0) {
-                    hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(),false));
+                    hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
                     hd.txtTime.setVisibility(View.VISIBLE);
                 } else {
                     hd.txtTime.setVisibility(View.GONE);
@@ -343,10 +346,31 @@ public class FriendMainFragment extends Fragment {
         if (event.isLocal()) {
             taskListData();
         } else {
-            taskRefreshListData();
+            long uid = event.getUid();
+            if (uid > 0) {
+                @CoreEnum.ERosterAction int action = event.getRosterAction();
+                switch (action) {
+//                    case CoreEnum.ERosterAction.REQUEST_FRIEND:
+                    case CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS:
+                        taskRefreshUser(uid);
+                        break;
+                    case CoreEnum.ERosterAction.REMOVE_FRIEND:
+                        taskRemoveUser(uid);
+                        break;
+                    default:
+                        taskListData();
+                        break;
+                }
+            } else {
+                taskListData();
+
+            }
         }
+    }
 
-
+    private void taskRemoveUser(long uid) {
+        userDao.updeteUserUtype(uid, 0);
+        taskListData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -366,6 +390,15 @@ public class FriendMainFragment extends Fragment {
             @Override
             public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
                 super.onFailure(call, t);
+                taskListData();
+            }
+        });
+    }
+
+    public void taskRefreshUser(long uid) {
+        userAction.getUserInfoAndSave(uid, ChatEnum.EUserType.FRIEND, new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 taskListData();
             }
         });

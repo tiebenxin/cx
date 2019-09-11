@@ -23,6 +23,14 @@
         <meta-data
             android:name="com.huawei.hms.client.appid"
             android:value="appid=100836087" />
+        <!-- vivo start-->
+        <meta-data
+            android:name="com.vivo.push.api_key"
+            android:value="f1940b91-4b0d-4c5c-914e-657045438bc4" />
+        <meta-data
+            android:name="com.vivo.push.app_id"
+            android:value="15217" />
+        <!-- VIVO end-->
 
         <meta-data
             android:name="JRMF_PARTNER_ID"
@@ -412,8 +420,8 @@
         <activity
             android:name=".wxapi.WXEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <!-- android:screenOrientation="portrait"-->
 
         <activity
             android:name=".notify.PushToActivity"

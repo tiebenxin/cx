@@ -89,15 +89,23 @@ public class GroupCreateActivity extends AppActivity {
             }
         });
         actionbar.setTxtRight("确定");
-
-
-        ClickFilter.onClick(actionbar.getViewRight(), new View.OnClickListener() {
+        actionbar.getViewRight().setClickable(true);
+        actionbar.getViewRight().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                alert.show();
                 actionbar.getViewRight().setEnabled(false);
                 taskCreate();
             }
         });
+
+//        ClickFilter.onClick(actionbar.getViewRight(), new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                actionbar.getViewRight().setEnabled(false);
+//                taskCreate();
+//            }
+//        });
 
         mtListView.init(new RecyclerViewAdapter());
         mtListView.getLoadView().setStateNormal();
@@ -323,6 +331,7 @@ public class GroupCreateActivity extends AppActivity {
         if (listDataTop.size() < 2) {
             ToastUtil.show(getContext(), "人数必须大于3人");
             actionbar.getViewRight().setEnabled(true);
+            alert.dismiss();
             return;
         }
         final ArrayList<UserInfo> templist = new ArrayList<>();
@@ -337,30 +346,31 @@ public class GroupCreateActivity extends AppActivity {
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             UserInfo userInfo = templist.get(j);
-            if (j == i - 1) {
-                name += userInfo.getName();
-            } else {
-                name += userInfo.getName() + "、";
-            }
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
             url[j] = userInfo.getHead();
         }
         File file = GroupHeadImageUtil.synthesis(url);
 
 
 //        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
-        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
-        name += "的群";
-        final String fname = name;
+//        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
+//        name += "的群";
+//        final String fname = name;
 
         //  icon="file://"+file.getAbsolutePath();
 
         upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP, getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
-                msgACtion.groupCreate(UserAction.getMyInfo().getName(), fname, icon, templist, new CallBack<ReturnBean<Group>>() {
+                msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", icon, templist, new CallBack<ReturnBean<Group>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                         actionbar.getViewRight().setEnabled(true);
+                        alert.dismiss();
                         if (response.body() == null)
                             return;
                         if (response.body().isOk()) {
@@ -378,6 +388,7 @@ public class GroupCreateActivity extends AppActivity {
                     @Override
                     public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
                         actionbar.getViewRight().setEnabled(true);
+                        alert.dismiss();
                         super.onFailure(call, t);
                     }
                 });

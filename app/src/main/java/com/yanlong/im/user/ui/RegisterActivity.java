@@ -23,6 +23,7 @@ import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.CountDownUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -191,33 +192,46 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         });
     }
 
-    private void taskRegister(final String phone, String captcha) {
+    private void taskRegister(final String phone, final String captcha) {
         LogUtil.getLog().i("youmeng","RegisterActivity------->getDevId");
-        userAction.register(phone, captcha, UserAction.getDevId(this), new CallBack<ReturnBean<TokenBean>>() {
+        new RunUtils(new RunUtils.Enent() {
+            String devId;
             @Override
-            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                LogUtil.getLog().i("youmeng","RegisterActivity------->taskRegister----->onResponse");
-                if (response.body() == null) {
-                    return;
-                }
-                ToastUtil.show(RegisterActivity.this, response.body().getMsg());
-                if (response.body().isOk()) {
-                    SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
-                    preferencesUtil.save2Json(true);
-
-                    Intent intent = new Intent(getContext(), RegisterUserNameActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                }
+            public void onRun() {
+                devId= UserAction.getDevId(getContext());
             }
 
             @Override
-            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
-                super.onFailure(call, t);
-                LogUtil.getLog().i("youmeng","RegisterActivity------->taskRegister----->onFailure");
+            public void onMain() {
+                userAction.register(phone, captcha, devId, new CallBack<ReturnBean<TokenBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                        LogUtil.getLog().i("youmeng","RegisterActivity------->taskRegister----->onResponse");
+                        if (response.body() == null) {
+                            return;
+                        }
+                        ToastUtil.show(RegisterActivity.this, response.body().getMsg());
+                        if (response.body().isOk()) {
+                            SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FIRST_TIME);
+                            preferencesUtil.save2Json(true);
+
+                            Intent intent = new Intent(getContext(), RegisterUserNameActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        LogUtil.getLog().i("youmeng","RegisterActivity------->taskRegister----->onFailure");
+                    }
+                });
+
             }
-        });
+        }).run();
+
     }
 
 

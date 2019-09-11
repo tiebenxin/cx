@@ -19,8 +19,11 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -30,6 +33,7 @@ import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -47,6 +51,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -62,7 +67,7 @@ public class GroupInfoActivity extends AppActivity {
     private android.support.v7.widget.RecyclerView topListView;
     //  private ImageView btnAdd;
     //  private ImageView btnRm;
-    private LinearLayout viewGroupName,viewGroupImg;
+    private LinearLayout viewGroupName, viewGroupImg;
     private LinearLayout viewGroupMore;
     private TextView txtGroupName;
     private LinearLayout viewGroupNick;
@@ -205,8 +210,10 @@ public class GroupInfoActivity extends AppActivity {
 //                intent.putExtra(CommonSetingActivity.SIZE, 500);
 //                intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
 //                startActivityForResult(intent, GROUP_NOTE);
+                ginfo.getMaster();
                 if (isAdmin()) {
                     Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
+                    intent.putExtra(GroupNoteDetailActivity.GID, gid);
                     intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
                     intent.putExtra(GroupNoteDetailActivity.IS_OWNER, true);
                     startActivityForResult(intent, GROUP_NOTE);
@@ -238,11 +245,15 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
+        final RealmList<UserInfo> list = ginfo.getUsers();
+        if (list.size() < 400) {
+            isPercentage = false;
+        }
 
         viewGroupManage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid));
+                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE, isPercentage));
             }
         });
 
@@ -252,10 +263,10 @@ public class GroupInfoActivity extends AppActivity {
             public void onClick(View v) {
                 Intent headIntent = new Intent(GroupInfoActivity.this, ImageHeadActivity.class);
                 //todo 头像修改
-                headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD,ginfo.getAvatar() );
-                headIntent.putExtra("admin",isAdmin());
-                headIntent.putExtra("groupSigle",true);
-                headIntent.putExtra("gid",gid);
+                headIntent.putExtra(ImageHeadActivity.IMAGE_HEAD, ginfo.getAvatar());
+                headIntent.putExtra("admin", isAdmin());
+                headIntent.putExtra("groupSigle", true);
+                headIntent.putExtra("gid", gid);
                 startActivityForResult(headIntent, IMAGE_HEAD);
             }
         });
@@ -313,6 +324,8 @@ public class GroupInfoActivity extends AppActivity {
         initEvent();
     }
 
+    public boolean isPercentage = true;
+
     private void initData() {
         //顶部处理
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
@@ -324,7 +337,7 @@ public class GroupInfoActivity extends AppActivity {
         topListView.setLayoutManager(gridLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
         viewGroupVerif.setVisibility(View.GONE);
-        txtGroupName.setText(ginfo.getName());
+        txtGroupName.setText(TextUtils.isEmpty(ginfo.getName()) ? "未设置" : ginfo.getName());
         txtGroupNick.setText(ginfo.getMygroupName());
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
@@ -361,7 +374,7 @@ public class GroupInfoActivity extends AppActivity {
             public void onClick(View v) {
                 startActivity(new Intent(getContext(), MyselfQRCodeActivity.class)
                         .putExtra(MyselfQRCodeActivity.TYPE, 1)
-                        .putExtra(MyselfQRCodeActivity.GROUP_NAME, ginfo.getName())
+                        .putExtra(MyselfQRCodeActivity.GROUP_NAME, /*ginfo.getName()*/msgDao.getGroupName(gid))
                         .putExtra(MyselfQRCodeActivity.GROUP_HEAD, ginfo.getAvatar())
                         .putExtra(MyselfQRCodeActivity.GROUP_ID, ginfo.getGid())
                 );
@@ -478,7 +491,10 @@ public class GroupInfoActivity extends AppActivity {
                     break;
                 case GROUP_NOTE:
                     String note = data.getStringExtra(GroupNoteDetailActivity.CONTENT);
-                    changeGroupAnnouncement(gid, note);
+                    ginfo.setAnnouncement(note);
+//                    updateAndGetGroup();
+                    setGroupNote(ginfo.getAnnouncement());
+                    createAndSaveMsg();
                     break;
             }
         }
@@ -486,6 +502,7 @@ public class GroupInfoActivity extends AppActivity {
 
     private UserDao userDao = new UserDao();
     private MsgAction msgAction = new MsgAction();
+    private MsgDao msgDao = new MsgDao();
 
     /***
      * 获取群成员
@@ -815,6 +832,18 @@ public class GroupInfoActivity extends AppActivity {
             MsgDao dao = new MsgDao();
             dao.groupNumberSave(ginfo);
             ginfo = dao.groupNumberGet(gid);
+        }
+    }
+
+    private void createAndSaveMsg() {
+        if (ginfo == null || TextUtils.isEmpty(gid)) {
+            return;
+        }
+//        MsgAllBean bean = SocketData.createMessageBean(gid, "@所有人 \r\n" + ginfo.getAnnouncement(), ginfo);
+        AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + ginfo.getAnnouncement(), ChatEnum.EAtType.ALL);
+        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, atMessage);
+        if (bean != null) {
+            SocketData.saveMessage(bean);
         }
     }
 

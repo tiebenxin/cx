@@ -4,7 +4,7 @@ package com.yanlong.im.chat.bean;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class ChatMessage extends RealmObject {
+public class ChatMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
 
@@ -14,8 +14,8 @@ public class ChatMessage extends RealmObject {
 
     }
 
-
-    public String getMsgid() {
+    @Override
+    public String getMsgId() {
         return msgid;
     }
 
@@ -30,8 +30,5 @@ public class ChatMessage extends RealmObject {
     public void setMsg(String msg) {
         this.msg = msg;
     }
-
-
-
 
 }
