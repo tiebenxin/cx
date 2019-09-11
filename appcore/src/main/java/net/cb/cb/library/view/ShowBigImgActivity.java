@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 
 import net.cb.cb.library.R;
 
@@ -15,7 +18,7 @@ import net.cb.cb.library.R;
  * @date 2017/6/9
  */
 public class ShowBigImgActivity extends AppActivity {
-    private com.facebook.drawee.view.SimpleDraweeView imgBig;
+    private ImageView imgBig;
     private Button btnCommit;
     public final static String AGM_URI = "uri_pic";
     public final static String POSTION = "postion";
@@ -39,7 +42,11 @@ public class ShowBigImgActivity extends AppActivity {
         String uri = getIntent().getStringExtra(AGM_URI);
         postion = getIntent().getIntExtra(POSTION, 0);
         uri = uri == null ? "" : uri;
-        imgBig.setImageURI(Uri.parse(uri));
+      //  imgBig.setImageURI(Uri.parse(uri));
+
+        Glide.with(this).load(uri)
+                .into(imgBig);
+
         btnCommit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

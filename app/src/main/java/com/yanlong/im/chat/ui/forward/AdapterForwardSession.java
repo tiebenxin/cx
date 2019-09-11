@@ -5,14 +5,17 @@ import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 
@@ -26,9 +29,11 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
     private UserDao userDao;
     private MsgDao msgDao;
     private IForwardListener listener;
+    private Context context;
 
     public AdapterForwardSession(Context ctx) {
         super(ctx);
+        context = ctx;
     }
 
     public void initDao(UserDao user, MsgDao msg) {
@@ -52,7 +57,7 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
     //自动生成ViewHold
     class RCViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout viewIt;
-        private com.facebook.drawee.view.SimpleDraweeView imgHead;
+        private ImageView imgHead;
         private TextView txtName;
 
         //自动寻找ViewHold
@@ -88,7 +93,10 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
 
                 }
             }
-            imgHead.setImageURI(Uri.parse(icon));
+            //imgHead.setImageURI(Uri.parse(icon));
+            Glide.with(context).load(icon)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
             txtName.setText(title);
 
             final String finalTitle = title;

@@ -85,8 +85,8 @@ dependencies {
     api 'org.greenrobot:eventbus:3.0.0'
 
     //图片
-    api 'com.facebook.fresco:fresco:1.8.0'
-    api 'com.facebook.fresco:animated-gif:1.8.0'
+//    api 'com.facebook.fresco:fresco:1.8.0'
+//    api 'com.facebook.fresco:animated-gif:1.8.0'
 //    api 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.3'
     api project(':picture_library')
 

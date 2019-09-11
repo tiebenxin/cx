@@ -9,14 +9,17 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.utils.StringUtil;
@@ -122,7 +125,7 @@ public class SearchMsgActivity extends AppActivity {
                 name = u.getName4Show();
             }
             msg = msgbean.getChat().getMsg();
-            int index = msg.indexOf(key)-1;
+            int index = msg.indexOf(key) - 1;
 
             if (index >= 0) {
                 msg = msg.substring(index);
@@ -137,14 +140,17 @@ public class SearchMsgActivity extends AppActivity {
 
             holder.txtContext.setText(Html.fromHtml(msg));
 
-            holder.imgHead.setImageURI(Uri.parse("" + url));
+           //p holder.imgHead.setImageURI(Uri.parse("" + url));
+            Glide.with(context).load(url)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     EventFindHistory eventFindHistory = new EventFindHistory();
                     eventFindHistory.setStime(msgbean.getTimestamp());
                     EventBus.getDefault().post(eventFindHistory);
-                   startActivity(new Intent(getContext(), ChatActivity.class)
+                    startActivity(new Intent(getContext(), ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOGID, gid)
                             .putExtra(ChatActivity.AGM_TOUID, fuid)
                             .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -165,7 +171,7 @@ public class SearchMsgActivity extends AppActivity {
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewIt;
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private TextView txtTimer;
             private TextView txtContext;
@@ -173,11 +179,11 @@ public class SearchMsgActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewIt = (LinearLayout) convertView.findViewById(R.id.view_it);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                txtTimer = (TextView) convertView.findViewById(R.id.txt_timer);
-                txtContext = (TextView) convertView.findViewById(R.id.txt_context);
+                viewIt = convertView.findViewById(R.id.view_it);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                txtTimer = convertView.findViewById(R.id.txt_timer);
+                txtContext = convertView.findViewById(R.id.txt_context);
             }
 
         }

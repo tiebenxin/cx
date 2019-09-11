@@ -17,7 +17,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginRight="6dp">
 
-                    <com.facebook.drawee.view.SimpleDraweeView
+                    <ImageView
                         android:id="@+id/img_head"
                         style="@style/app_img_head"
                         android:layout_gravity="center|left" />

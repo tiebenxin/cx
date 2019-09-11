@@ -6,13 +6,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
-import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
@@ -126,7 +127,10 @@ public class BlacklistActivity extends AppActivity {
         @Override
         public void onBindViewHolder(BlackViewHodler viewHolder, final int i) {
             final UserInfo userInfo = blacklist.get(i);
-            viewHolder.mImgHead.setImageURI(userInfo.getHead() + "");
+            //viewHolder.mImgHead.setImageURI(userInfo.getHead() + "");
+            Glide.with(context).load(userInfo.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(viewHolder.mImgHead);
+
             viewHolder.mTxtTime.setText(userInfo.getName());
             viewHolder.mBtnDel.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -146,7 +150,7 @@ public class BlacklistActivity extends AppActivity {
 
 
         class BlackViewHodler extends RecyclerView.ViewHolder {
-            private SimpleDraweeView mImgHead;
+            private ImageView mImgHead;
             private TextView mTxtTime;
             private Button mBtnDel;
 

@@ -16,12 +16,14 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 public class RedPacketDialog extends DialogFragment {
 
     private ImageView imgCls;
-    private com.facebook.drawee.view.SimpleDraweeView imgUhead;
+    private ImageView imgUhead;
     private TextView txtUname;
     private TextView txtRbInfo;
     private ImageView imgOpen;
@@ -34,12 +36,12 @@ public class RedPacketDialog extends DialogFragment {
     private View.OnClickListener onk;
     //自动寻找控件
     private void findViews(View rootView) {
-        imgCls = (ImageView) rootView.findViewById(R.id.img_cls);
-        imgUhead = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_uhead);
-        txtUname = (TextView) rootView.findViewById(R.id.txt_uname);
-        txtRbInfo = (TextView) rootView.findViewById(R.id.txt_rb_info);
-        imgOpen = (ImageView) rootView.findViewById(R.id.img_open);
-        txtMore = (TextView) rootView.findViewById(R.id.txt_more);
+        imgCls =  rootView.findViewById(R.id.img_cls);
+        imgUhead =  rootView.findViewById(R.id.img_uhead);
+        txtUname =  rootView.findViewById(R.id.txt_uname);
+        txtRbInfo =  rootView.findViewById(R.id.txt_rb_info);
+        imgOpen =  rootView.findViewById(R.id.img_open);
+        txtMore =  rootView.findViewById(R.id.txt_more);
     }
 
 
@@ -51,8 +53,9 @@ public class RedPacketDialog extends DialogFragment {
                 dismiss();
             }
         });
-
-        imgUhead.setImageURI(Uri.parse(headUrl));
+      //  imgUhead.setImageURI(Uri.parse(headUrl));
+        Glide.with(this).load(headUrl)
+                .apply(GlideOptionsUtil.headImageCircleCropOptions()).into(imgUhead);
         txtUname.setText(uname);
 
         if(type==0){

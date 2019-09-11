@@ -11,13 +11,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IdCardBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -41,8 +42,8 @@ public class UploadIdentityActivity extends AppActivity implements View.OnClickL
     private static final int CONTRARY = 2000;
 
     private HeadView mHeadView;
-    private SimpleDraweeView mIvFront;
-    private SimpleDraweeView mIvContrary;
+    private ImageView mIvFront;
+    private ImageView mIvContrary;
     private Button mBtnCommit;
     private String[] strings = {"拍照", "相册", "取消"};
     private PopupSelectView popupSelectView;
@@ -117,7 +118,11 @@ public class UploadIdentityActivity extends AppActivity implements View.OnClickL
                     String file = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
                     Uri uri = Uri.fromFile(new File(file));
                     alert.show();
-                    mIvFront.setImageURI(uri);
+                 //   mIvFront.setImageURI(uri);
+                    Glide.with(this).load(uri)
+                            .apply(GlideOptionsUtil.notDefImageOptions()).into(mIvFront);
+
+
                     new UpFileAction().upFile(UpFileAction.PATH.IMG,getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(String url) {
@@ -143,7 +148,12 @@ public class UploadIdentityActivity extends AppActivity implements View.OnClickL
                     String file1 = PictureSelector.obtainMultipleResult(data).get(0).getCompressPath();
                     Uri uri1 = Uri.fromFile(new File(file1));
                     alert.show();
-                    mIvContrary.setImageURI(uri1);
+                   // mIvContrary.setImageURI(uri1);
+
+                    Glide.with(this).load(uri1)
+                            .apply(GlideOptionsUtil.notDefImageOptions()).into(mIvContrary);
+
+
                     new UpFileAction().upFile(UpFileAction.PATH.IMG,getContext(), new UpFileUtil.OssUpCallback() {
                         @Override
                         public void success(String url) {

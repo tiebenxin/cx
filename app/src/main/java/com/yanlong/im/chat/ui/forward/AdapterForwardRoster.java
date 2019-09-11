@@ -7,9 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -17,6 +19,7 @@ import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.TimeToString;
@@ -29,10 +32,12 @@ import net.cb.cb.library.utils.TimeToString;
 public class AdapterForwardRoster extends AbstractRecyclerAdapter {
     private UserDao userDao;
     private MsgDao msgDao;
+    private Context context;
     private IForwardRosterListener listener;
 
     public AdapterForwardRoster(Context ctx) {
         super(ctx);
+        context = ctx;
     }
 
     public void initDao(UserDao user, MsgDao msg) {
@@ -85,7 +90,7 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
     //自动生成ViewHold
     public class RCViewHolder extends RecyclerView.ViewHolder {
         private TextView txtType;
-        private com.facebook.drawee.view.SimpleDraweeView imgHead;
+        private ImageView imgHead;
         private TextView txtName;
         private TextView txtTime;
         private View viewType;
@@ -103,7 +108,11 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
 
         public void bindData(final UserInfo bean, final int position) {
             txtType.setText(bean.getTag());
-            imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+            //imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+
+            Glide.with(context).load(bean.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
             txtName.setText(bean.getName4Show());
             if (bean.getLastonline() > 0) {
                 txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(),false));

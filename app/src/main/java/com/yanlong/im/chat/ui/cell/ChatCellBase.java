@@ -10,14 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.utils.TimeToString;
 
@@ -34,7 +33,7 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
     private final View viewRoot;
     public final MessageAdapter mAdapter;
     private TextView tv_time, tv_name;
-    private SimpleDraweeView iv_avatar;
+    private ImageView iv_avatar;
     public final Context mContext;
     public boolean isGroup;
     public MsgAllBean model;
@@ -280,13 +279,16 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         if (mContext == null || iv_avatar == null) {
             return;
         }
-        RequestOptions options = new RequestOptions();
-        options.centerCrop();
-        options.error(R.drawable.ic_info_head);
-        Glide.with(mContext)
-                .load(model.getFrom_avatar())
-                .apply(options)
-                .into(iv_avatar);
+//        RequestOptions options = new RequestOptions();
+//        options.centerCrop();
+//        options.error(R.drawable.ic_info_head);
+//        Glide.with(mContext)
+//                .load(model.getFrom_avatar())
+//                .apply(options)
+//                .into(iv_avatar);
+
+        Glide.with(mContext).load(model.getFrom_avatar())
+                .apply(GlideOptionsUtil.headImageOptions()).into(iv_avatar);
 
     }
 

@@ -4,9 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -14,6 +15,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -30,7 +32,7 @@ public class AddGroupActivity extends AppActivity {
     public static final String INVITER = "inviter";
     public static final String INVITER_NAME = "inviterName";
     private HeadView mHeadView;
-    private SimpleDraweeView mSdGroupHead;
+    private ImageView mSdGroupHead;
     private TextView mTvGroupName;
     private TextView mTvGroupNum;
     private Button mBtnAddGroup;
@@ -96,7 +98,8 @@ public class AddGroupActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     Group bean = response.body().getData();
-                    mSdGroupHead.setImageURI(bean.getAvatar());
+                    Glide.with(context).load(bean.getAvatar())
+                            .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
                     mTvGroupName.setText(/*bean.getName()*/msgDao.getGroupName(bean));
                     mTvGroupNum.setText(bean.getUsers().size() + "人");
                 } else {
@@ -125,7 +128,7 @@ public class AddGroupActivity extends AppActivity {
                         Intent intent = new Intent(AddGroupActivity.this, ChatActivity.class);
                         intent.putExtra(ChatActivity.AGM_TOGID, gid);
                         startActivity(intent);
-                        new MsgDao().sessionCreate(gid, null);
+                        new MsgDao().sessionCreate(gid,null);
 
                     } else {
                         ToastUtil.show(AddGroupActivity.this, "加群成功,等待群主验证");

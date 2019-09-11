@@ -1,18 +1,20 @@
 package com.yanlong.im.chat.ui;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.RobotInfoBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -39,7 +41,7 @@ public class GroupRobotActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private LinearLayout viewInfo;
-    private com.facebook.drawee.view.SimpleDraweeView imgInfoIcon;
+    private ImageView imgInfoIcon;
     private TextView txtInfoTitle;
     private Button btnInfoAdd;
     private Button btnInfoDel;
@@ -54,19 +56,19 @@ public class GroupRobotActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewInfo = (LinearLayout) findViewById(R.id.view_info);
-        imgInfoIcon = (com.facebook.drawee.view.SimpleDraweeView) findViewById(R.id.img_info_icon);
-        txtInfoTitle = (TextView) findViewById(R.id.txt_info_title);
-        btnInfoAdd = (Button) findViewById(R.id.btn_info_add);
-        btnInfoDel = (Button) findViewById(R.id.btn_info_del);
-        btnInfoChange = (Button) findViewById(R.id.btn_info_change);
-        txtInfoMore = (TextView) findViewById(R.id.txt_info_more);
-        txtInfoNote = (TextView) findViewById(R.id.txt_info_note);
-        btnConfig = (Button) findViewById(R.id.btn_config);
-        viewAdd = (LinearLayout) findViewById(R.id.view_add);
-        btnAdd = (Button) findViewById(R.id.btn_add);
+        viewInfo = findViewById(R.id.view_info);
+        imgInfoIcon = findViewById(R.id.img_info_icon);
+        txtInfoTitle = findViewById(R.id.txt_info_title);
+        btnInfoAdd = findViewById(R.id.btn_info_add);
+        btnInfoDel = findViewById(R.id.btn_info_del);
+        btnInfoChange = findViewById(R.id.btn_info_change);
+        txtInfoMore = findViewById(R.id.txt_info_more);
+        txtInfoNote = findViewById(R.id.txt_info_note);
+        btnConfig = findViewById(R.id.btn_config);
+        viewAdd = findViewById(R.id.view_add);
+        btnAdd = findViewById(R.id.btn_add);
     }
 
 
@@ -179,7 +181,11 @@ public class GroupRobotActivity extends AppActivity {
             btnConfig.setVisibility(View.VISIBLE);
         }
 
-        imgInfoIcon.setImageURI(Uri.parse(infoBean.getAvatar()));
+       // imgInfoIcon.setImageURI(Uri.parse(infoBean.getAvatar()));
+
+        Glide.with(this).load(infoBean.getAvatar())
+                .apply(GlideOptionsUtil.defImageOptions()).into(imgInfoIcon);
+
         txtInfoTitle.setText(infoBean.getRname());
         txtInfoMore.setText(infoBean.getRobotDescription());
         String note = "更新时间:" + TimeToString.YYYY_MM_DD_HH_MM(infoBean.getUpdateTime()) + "\n" +
@@ -196,7 +202,7 @@ public class GroupRobotActivity extends AppActivity {
     private void taskInfo() {
 
 
-        msgAction.robotInfo(rid,gid, new CallBack<ReturnBean<RobotInfoBean>>() {
+        msgAction.robotInfo(rid, gid, new CallBack<ReturnBean<RobotInfoBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<RobotInfoBean>> call, Response<ReturnBean<RobotInfoBean>> response) {
                 if (response.body() == null) {

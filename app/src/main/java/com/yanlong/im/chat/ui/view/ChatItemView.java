@@ -46,10 +46,10 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
@@ -64,7 +64,7 @@ public class ChatItemView extends LinearLayout {
     private View viewBroadcast;
 
     private LinearLayout viewOt;
-    private com.facebook.drawee.view.SimpleDraweeView imgOtHead;
+    private ImageView imgOtHead;
     private LinearLayout viewOt1;
     private android.support.v7.widget.AppCompatTextView txtOt1;
     private LinearLayout viewOt2;
@@ -87,7 +87,7 @@ public class ChatItemView extends LinearLayout {
     private TextView txtMeRpBt;
     private ImageView imgMeRbIcon;
     private ImageView imgMeErr;
-    private com.facebook.drawee.view.SimpleDraweeView imgMeHead;
+    private ImageView imgMeHead;
 
     private LinearLayout viewMe4;
     private ProgressBar imgMeUp;
@@ -101,13 +101,13 @@ public class ChatItemView extends LinearLayout {
 
 
     private LinearLayout viewOt5;
-    private com.facebook.drawee.view.SimpleDraweeView imgOt5;
+    private ImageView imgOt5;
     private TextView txtOt5Title;
     private TextView txtOt5Info;
     private TextView txtOt5Bt;
 
     private LinearLayout viewMe5;
-    private com.facebook.drawee.view.SimpleDraweeView imgMe5;
+    private ImageView imgMe5;
     private TextView txtMe5Title;
     private TextView txtMe5Info;
     private TextView txtMe5Bt;
@@ -140,76 +140,76 @@ public class ChatItemView extends LinearLayout {
     //自动寻找控件
     private void findViews(View rootView) {
 
-        txtMeName = (TextView) rootView.findViewById(R.id.txt_me_name);
-        txtOtName = (TextView) rootView.findViewById(R.id.txt_ot_name);
-        txtTime = (TextView) rootView.findViewById(R.id.txt_time);
-        txtBroadcast = (TextView) rootView.findViewById(R.id.txt_broadcast);
-        imgBroadcast = (ImageView) rootView.findViewById(R.id.img_broadcast);
+        txtMeName = rootView.findViewById(R.id.txt_me_name);
+        txtOtName = rootView.findViewById(R.id.txt_ot_name);
+        txtTime = rootView.findViewById(R.id.txt_time);
+        txtBroadcast = rootView.findViewById(R.id.txt_broadcast);
+        imgBroadcast = rootView.findViewById(R.id.img_broadcast);
         viewBroadcast = rootView.findViewById(R.id.view_broadcast);
 
-        viewOt = (LinearLayout) rootView.findViewById(R.id.view_ot);
-        imgOtHead = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_head);
-        viewOt1 = (LinearLayout) rootView.findViewById(R.id.view_ot_1);
-        txtOt1 = (android.support.v7.widget.AppCompatTextView) rootView.findViewById(R.id.txt_ot_1);
-        viewOt2 = (LinearLayout) rootView.findViewById(R.id.view_ot_2);
-        txtOt2 = (android.support.v7.widget.AppCompatTextView) rootView.findViewById(R.id.txt_ot_2);
-        viewOt3 = (LinearLayout) rootView.findViewById(R.id.view_ot_3);
-        imgOtRbState = (ImageView) rootView.findViewById(R.id.img_ot_rb_state);
-        txtOtRbTitle = (TextView) rootView.findViewById(R.id.txt_ot_rb_title);
-        txtOtRbInfo = (TextView) rootView.findViewById(R.id.txt_ot_rb_info);
-        txtOtRpBt = (TextView) rootView.findViewById(R.id.txt_ot_rp_bt);
-        imgOtRbIcon = (ImageView) rootView.findViewById(R.id.img_ot_rb_icon);
-        viewMe = (LinearLayout) rootView.findViewById(R.id.view_me);
-        viewMe1 = (LinearLayout) rootView.findViewById(R.id.view_me_1);
-        txtMe1 = (android.support.v7.widget.AppCompatTextView) rootView.findViewById(R.id.txt_me_1);
-        viewMe2 = (LinearLayout) rootView.findViewById(R.id.view_me_2);
-        txtMe2 = (android.support.v7.widget.AppCompatTextView) rootView.findViewById(R.id.txt_me_2);
-        viewMe3 = (LinearLayout) rootView.findViewById(R.id.view_me_3);
-        imgMeRbState = (ImageView) rootView.findViewById(R.id.img_me_rb_state);
-        txtMeRbTitle = (TextView) rootView.findViewById(R.id.txt_me_rb_title);
-        txtMeRbInfo = (TextView) rootView.findViewById(R.id.txt_me_rb_info);
-        txtMeRpBt = (TextView) rootView.findViewById(R.id.txt_me_rp_bt);
-        imgMeRbIcon = (ImageView) rootView.findViewById(R.id.img_me_rb_icon);
-        imgMeHead = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_me_head);
-        imgMeErr = (ImageView) rootView.findViewById(R.id.img_me_err);
+        viewOt = rootView.findViewById(R.id.view_ot);
+        imgOtHead = rootView.findViewById(R.id.img_ot_head);
+        viewOt1 = rootView.findViewById(R.id.view_ot_1);
+        txtOt1 = rootView.findViewById(R.id.txt_ot_1);
+        viewOt2 = rootView.findViewById(R.id.view_ot_2);
+        txtOt2 = rootView.findViewById(R.id.txt_ot_2);
+        viewOt3 = rootView.findViewById(R.id.view_ot_3);
+        imgOtRbState = rootView.findViewById(R.id.img_ot_rb_state);
+        txtOtRbTitle = rootView.findViewById(R.id.txt_ot_rb_title);
+        txtOtRbInfo = rootView.findViewById(R.id.txt_ot_rb_info);
+        txtOtRpBt = rootView.findViewById(R.id.txt_ot_rp_bt);
+        imgOtRbIcon = rootView.findViewById(R.id.img_ot_rb_icon);
+        viewMe = rootView.findViewById(R.id.view_me);
+        viewMe1 = rootView.findViewById(R.id.view_me_1);
+        txtMe1 = rootView.findViewById(R.id.txt_me_1);
+        viewMe2 = rootView.findViewById(R.id.view_me_2);
+        txtMe2 = rootView.findViewById(R.id.txt_me_2);
+        viewMe3 = rootView.findViewById(R.id.view_me_3);
+        imgMeRbState = rootView.findViewById(R.id.img_me_rb_state);
+        txtMeRbTitle = rootView.findViewById(R.id.txt_me_rb_title);
+        txtMeRbInfo = rootView.findViewById(R.id.txt_me_rb_info);
+        txtMeRpBt = rootView.findViewById(R.id.txt_me_rp_bt);
+        imgMeRbIcon = rootView.findViewById(R.id.img_me_rb_icon);
+        imgMeHead = rootView.findViewById(R.id.img_me_head);
+        imgMeErr = rootView.findViewById(R.id.img_me_err);
 
-        viewOt4 = (LinearLayout) rootView.findViewById(R.id.view_ot_4);
+        viewOt4 = rootView.findViewById(R.id.view_ot_4);
         imgOt4 = rootView.findViewById(R.id.img_ot_4);
-        viewMe4 = (LinearLayout) rootView.findViewById(R.id.view_me_4);
-        imgMeUp = (ProgressBar) rootView.findViewById(R.id.img_me_up);
+        viewMe4 = rootView.findViewById(R.id.view_me_4);
+        imgMeUp = rootView.findViewById(R.id.img_me_up);
         viewMeUp = rootView.findViewById(R.id.view_me_up);
-        txtMeUp = (TextView) rootView.findViewById(R.id.txt_me_up);
+        txtMeUp = rootView.findViewById(R.id.txt_me_up);
         imgMe4 = rootView.findViewById(R.id.img_me_4);
 
-        viewOt5 = (LinearLayout) rootView.findViewById(R.id.view_ot_5);
-        imgOt5 = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_ot_5);
-        txtOt5Title = (TextView) rootView.findViewById(R.id.txt_ot_5_title);
-        txtOt5Info = (TextView) rootView.findViewById(R.id.txt_ot_5_info);
-        txtOt5Bt = (TextView) rootView.findViewById(R.id.txt_ot_5_bt);
+        viewOt5 = rootView.findViewById(R.id.view_ot_5);
+        imgOt5 = rootView.findViewById(R.id.img_ot_5);
+        txtOt5Title = rootView.findViewById(R.id.txt_ot_5_title);
+        txtOt5Info = rootView.findViewById(R.id.txt_ot_5_info);
+        txtOt5Bt = rootView.findViewById(R.id.txt_ot_5_bt);
 
-        viewMe5 = (LinearLayout) rootView.findViewById(R.id.view_me_5);
-        imgMe5 = (com.facebook.drawee.view.SimpleDraweeView) rootView.findViewById(R.id.img_me_5);
-        txtMe5Title = (TextView) rootView.findViewById(R.id.txt_me_5_title);
-        txtMe5Info = (TextView) rootView.findViewById(R.id.txt_me_5_info);
-        txtMe5Bt = (TextView) rootView.findViewById(R.id.txt_me_5_bt);
+        viewMe5 = rootView.findViewById(R.id.view_me_5);
+        imgMe5 = rootView.findViewById(R.id.img_me_5);
+        txtMe5Title = rootView.findViewById(R.id.txt_me_5_title);
+        txtMe5Info = rootView.findViewById(R.id.txt_me_5_info);
+        txtMe5Bt = rootView.findViewById(R.id.txt_me_5_bt);
 
 
-        viewMe6 = (LinearLayout) rootView.findViewById(R.id.view_me_6);
-        imgMeTsState = (ImageView) rootView.findViewById(R.id.img_me_ts_state);
-        txtMeTsTitle = (TextView) rootView.findViewById(R.id.txt_me_ts_title);
-        txtMeTsInfo = (TextView) rootView.findViewById(R.id.txt_me_ts_info);
-        txtMeTsBt = (TextView) rootView.findViewById(R.id.txt_me_ts_bt);
-        imgMeTsIcon = (ImageView) rootView.findViewById(R.id.img_me_ts_icon);
+        viewMe6 = rootView.findViewById(R.id.view_me_6);
+        imgMeTsState = rootView.findViewById(R.id.img_me_ts_state);
+        txtMeTsTitle = rootView.findViewById(R.id.txt_me_ts_title);
+        txtMeTsInfo = rootView.findViewById(R.id.txt_me_ts_info);
+        txtMeTsBt = rootView.findViewById(R.id.txt_me_ts_bt);
+        imgMeTsIcon = rootView.findViewById(R.id.img_me_ts_icon);
 
-        viewOt6 = (LinearLayout) rootView.findViewById(R.id.view_ot_6);
-        imgOtTsState = (ImageView) rootView.findViewById(R.id.img_ot_ts_state);
-        txtOtTsTitle = (TextView) rootView.findViewById(R.id.txt_ot_ts_title);
-        txtOtTsInfo = (TextView) rootView.findViewById(R.id.txt_ot_ts_info);
-        txtOtTsBt = (TextView) rootView.findViewById(R.id.txt_ot_ts_bt);
-        imgOtTsIcon = (ImageView) rootView.findViewById(R.id.img_ot_ts_icon);
+        viewOt6 = rootView.findViewById(R.id.view_ot_6);
+        imgOtTsState = rootView.findViewById(R.id.img_ot_ts_state);
+        txtOtTsTitle = rootView.findViewById(R.id.txt_ot_ts_title);
+        txtOtTsInfo = rootView.findViewById(R.id.txt_ot_ts_info);
+        txtOtTsBt = rootView.findViewById(R.id.txt_ot_ts_bt);
+        imgOtTsIcon = rootView.findViewById(R.id.img_ot_ts_icon);
 
-        viewOt7 = (VoiceView) rootView.findViewById(R.id.view_ot_7);
-        viewMe7 = (VoiceView) rootView.findViewById(R.id.view_me_7);
+        viewOt7 = rootView.findViewById(R.id.view_ot_7);
+        viewMe7 = rootView.findViewById(R.id.view_me_7);
         viewOtTouch = rootView.findViewById(R.id.view_me_touch);
         viewMeTouch = rootView.findViewById(R.id.view_ot_touch);
 
@@ -338,8 +338,10 @@ public class ChatItemView extends LinearLayout {
         }
 
         if (headUrl != null) {
-            imgMeHead.setImageURI(Uri.parse(headUrl));
-            imgOtHead.setImageURI(Uri.parse(headUrl));
+            Glide.with(this).load(headUrl)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgMeHead);
+            Glide.with(this).load(headUrl)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgOtHead);
         }
         if (nikeName != null) {
             txtMeName.setText(nikeName);
@@ -749,11 +751,17 @@ public class ChatItemView extends LinearLayout {
         txtMe5Title.setText(name);
         txtMe5Info.setText(info);
 
-        imgMe5.setImageURI(Uri.parse(headUrl));
+        //   imgMe5.setImageURI(Uri.parse(headUrl));
+        Glide.with(this).load(headUrl)
+                .apply(GlideOptionsUtil.headImageOptions()).into(imgMe5);
+
         txtOt5Title.setText(name);
         txtOt5Info.setText(info);
 
-        imgOt5.setImageURI(Uri.parse(headUrl));
+        //       imgOt5.setImageURI(Uri.parse(headUrl));
+        Glide.with(this).load(headUrl)
+                .apply(GlideOptionsUtil.headImageOptions()).into(imgOt5);
+
 
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);

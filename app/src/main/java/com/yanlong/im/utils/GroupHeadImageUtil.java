@@ -1,25 +1,28 @@
 package com.yanlong.im.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.os.Environment;
 
-import com.facebook.binaryresource.FileBinaryResource;
-import com.facebook.cache.common.SimpleCacheKey;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.yanlong.im.R;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.disklrucache.DiskLruCache;
+import com.bumptech.glide.load.engine.cache.DiskCache;
+import com.bumptech.glide.load.engine.cache.SafeKeyGenerator;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.signature.EmptySignature;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,29 +37,60 @@ public class GroupHeadImageUtil {
      * @param url
      * @return
      */
-    public static File synthesis(String... url) {
+    public static File synthesis(Context context, String... url)  {
         List<Bitmap> bitmaps = new ArrayList<>();
         for (int i = 0; i < url.length; i++) {
-            FileBinaryResource resource = (FileBinaryResource) Fresco.getImagePipelineFactory()
-                    .getMainFileCache().getResource(new SimpleCacheKey(url[i]));
-            if (resource != null) {
-                File file = resource.getFile();
+//            FileBinaryResource resource = (FileBinaryResource) Fresco.getImagePipelineFactory()
+//                    .getMainFileCache().getResource(new SimpleCacheKey(url[i]));
+            //               File file = resource.getFile();
+            File file = getCacheFile2(context,url[i]);
+            FileInputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(file);
                 if (file.exists()) {
-                    //BitmapFactory.Options opt = new BitmapFactory.Options();
-                    // 这个isjustdecodebounds很重要
-                    //opt.inJustDecodeBounds = true;
-                   // opt.inSampleSize=300;
-                    Bitmap bt = BitmapFactory.decodeFile(file.getAbsolutePath());
+//                    BitmapFactory.Options opt = new BitmapFactory.Options();
+//                     //这个isjustdecodebounds很重要
+//                    opt.inJustDecodeBounds = true;
+//                     opt.inSampleSize=300;
+                    Bitmap bt = BitmapFactory.decodeStream(inputStream);
                     if (bt != null) {
                         bitmaps.add(bt);
                     }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
 
+            } finally {
+                try {
+                    if(inputStream != null){
+                        inputStream.close();
+                    }
 
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
 
         return save2File(addBitmap(10, bitmaps.toArray(new Bitmap[]{})));
+    }
+
+
+    public static File getCacheFile2(Context context, String url) {
+        DataCacheKey dataCacheKey = new DataCacheKey(new GlideUrl(url), EmptySignature.obtain());
+        SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
+        String safeKey = safeKeyGenerator.getSafeKey(dataCacheKey);
+        try {
+            int cacheSize = 100 * 1000 * 1000;
+            DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+            DiskLruCache.Value value = diskLruCache.get(safeKey);
+            if (value != null) {
+                return value.getFile(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static File save2File(Bitmap bt) {
@@ -97,7 +131,7 @@ public class GroupHeadImageUtil {
         int th = 600;//总宽,高
         int tw = 600;
 
-        int size=0;//单图片大小
+        int size = 0;//单图片大小
         int sh = 0;//总高度
         int sw = 0;//总宽度
         // int row = 1;//行
@@ -110,7 +144,7 @@ public class GroupHeadImageUtil {
         Bitmap result = Bitmap.createBitmap(th, tw, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
         canvas.drawColor(Color.parseColor("#f6f8fa"));
-        Paint paint=new Paint();
+        Paint paint = new Paint();
 
         switch (bitmaps.length) {
             case 1:
@@ -119,7 +153,7 @@ public class GroupHeadImageUtil {
                 sh = th;
                 sw = tw;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
                 row0Pic.add(bitmaps[0]);
                 break;
             case 2:
@@ -128,7 +162,7 @@ public class GroupHeadImageUtil {
                 sh = size;
                 sw = size * 2 + margin;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
                 row0Pic.add(bitmaps[0]);
                 row0Pic.add(bitmaps[1]);
                 break;
@@ -139,7 +173,7 @@ public class GroupHeadImageUtil {
                 sh = size * 2 + margin;
                 sw = size * 2 + margin;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
 
                 row0Pic.add(bitmaps[0]);
                 row1Pic.add(bitmaps[1]);
@@ -152,7 +186,7 @@ public class GroupHeadImageUtil {
                 sh = size * 2 + margin;
                 sw = size * 2 + margin;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
 
                 row0Pic.add(bitmaps[0]);
                 row0Pic.add(bitmaps[1]);
@@ -167,7 +201,7 @@ public class GroupHeadImageUtil {
                 sh = size * 2 + margin;
                 sw = size * 3 + margin * 2;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
 
                 row0Pic.add(bitmaps[0]);
                 row0Pic.add(bitmaps[1]);
@@ -182,7 +216,7 @@ public class GroupHeadImageUtil {
                 sh = size * 2 + margin;
                 sw = size * 3 + margin * 2;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
 
                 row0Pic.add(bitmaps[0]);
                 row0Pic.add(bitmaps[1]);
@@ -199,7 +233,7 @@ public class GroupHeadImageUtil {
                 sh = size * 3 + margin * 2;
                 sw = size * 3 + margin * 2;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
 
                 row0Pic.add(bitmaps[0]);
                 row1Pic.add(bitmaps[1]);
@@ -216,7 +250,7 @@ public class GroupHeadImageUtil {
                 sh = size * 3 + margin * 2;
                 sw = size * 3 + margin * 2;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
 
                 row0Pic.add(bitmaps[0]);
                 row0Pic.add(bitmaps[1]);
@@ -234,7 +268,7 @@ public class GroupHeadImageUtil {
                 sh = size * 3 + margin * 2;
                 sw = size * 3 + margin * 2;
 
-                bitmaps=  zoom(bitmaps,size,size);
+                bitmaps = zoom(bitmaps, size, size);
 
 
                 row0Pic.add(bitmaps[0]);
@@ -250,39 +284,37 @@ public class GroupHeadImageUtil {
         }
 
 
+        int startx = (tw - (row0Pic.size() - 1) * margin - size * row0Pic.size()) / 2;//第一行起始位置
+        int starty = (th - sh) / 2;
 
-        int startx=(tw- (row0Pic.size()-1)*margin-size*row0Pic.size())/2;//第一行起始位置
-        int starty=(th-sh)/2;
 
-
-       for (int i = 0; i < row0Pic.size(); i++) {
-            canvas.drawBitmap(row0Pic.get(i),startx,starty,paint);
-           startx+=margin+size;
+        for (int i = 0; i < row0Pic.size(); i++) {
+            canvas.drawBitmap(row0Pic.get(i), startx, starty, paint);
+            startx += margin + size;
         }
-        startx=0;
-        starty+=margin+size;
+        startx = 0;
+        starty += margin + size;
         for (int i = 0; i < row1Pic.size(); i++) {
 
-            canvas.drawBitmap(row1Pic.get(i),startx,starty,paint);
-            startx+=margin+size;
+            canvas.drawBitmap(row1Pic.get(i), startx, starty, paint);
+            startx += margin + size;
         }
-        startx=0;
-        starty+=margin+size;
+        startx = 0;
+        starty += margin + size;
         for (int i = 0; i < row2Pic.size(); i++) {
-            canvas.drawBitmap(row2Pic.get(i),startx,starty,paint);
-            startx+=margin+size;
+            canvas.drawBitmap(row2Pic.get(i), startx, starty, paint);
+            startx += margin + size;
         }
-
 
 
         return result;
     }
 
     private static Bitmap[] zoom(Bitmap[] imgs, int vWidth, int vHeight) {
-        Bitmap[] ret=new Bitmap[imgs.length];
+        Bitmap[] ret = new Bitmap[imgs.length];
 
-        for (int i=0;i<imgs.length;i++ ) {
-            ret[i]=Bitmap.createScaledBitmap(imgs[i], vWidth, vHeight, true);
+        for (int i = 0; i < imgs.length; i++) {
+            ret[i] = Bitmap.createScaledBitmap(imgs[i], vWidth, vHeight, true);
         }
 
         return ret;

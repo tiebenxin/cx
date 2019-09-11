@@ -15,6 +15,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
@@ -24,6 +25,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -57,10 +59,10 @@ public class GroupInfoMumberActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView =  findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        edtSearch = (net.cb.cb.library.view.ClearEditText) findViewById(R.id.edt_search);
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        edtSearch =  findViewById(R.id.edt_search);
+        mtListView =  findViewById(R.id.mtListView);
     }
 
 
@@ -159,7 +161,9 @@ public class GroupInfoMumberActivity extends AppActivity {
             final UserInfo number = ginfo.getUsers().get(position);
             if (number != null) {
 
-                holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
+                Glide.with(context).load(number.getHead())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
                 holder.txtName.setText("" + number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -183,7 +187,8 @@ public class GroupInfoMumberActivity extends AppActivity {
                 }
             } else {
                 if (isAdmin() && position == ginfo.getUsers().size() - 1) {
-                    holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
+                  //  holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
+                    holder.imgHead.setImageResource(R.mipmap.ic_group_c);
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -193,7 +198,8 @@ public class GroupInfoMumberActivity extends AppActivity {
                     });
 
                 } else {
-                    holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
+                   // holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
+                    holder.imgHead.setImageResource(R.mipmap.ic_group_a);
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -219,7 +225,7 @@ public class GroupInfoMumberActivity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private ImageView imgGroup;
 
