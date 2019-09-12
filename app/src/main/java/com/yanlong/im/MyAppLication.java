@@ -196,7 +196,7 @@ public class MyAppLication extends MainApplication {
 
 
     private void initWeixinConfig() {
-        PlatformConfig.setWeixin("wx84ecce93acb0e78f", "63293f55248912676fccdfe59515ed42");
+        PlatformConfig.setWeixin("wxf84321334bcb8c56", "cd084970cc54cbae19782c761bc2885f");
     }
 
     //初始化运行状态

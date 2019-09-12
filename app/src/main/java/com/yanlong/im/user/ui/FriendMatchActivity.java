@@ -23,6 +23,7 @@ import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -43,6 +44,8 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
+
+import static net.cb.cb.library.CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS;
 
 public class FriendMatchActivity extends AppActivity {
     private HeadView headView;
@@ -315,7 +318,7 @@ public class FriendMatchActivity extends AppActivity {
         });
     }
 
-    private void taskFriendApply(Long uid,String sayHi, String contactName, final int position) {
+    private void taskFriendApply(final Long uid, String sayHi, String contactName, final int position) {
         userAction.friendApply(uid, sayHi, contactName, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -325,7 +328,11 @@ public class FriendMatchActivity extends AppActivity {
                 if (response.body().isOk()) {
                     listData.remove(position);
                     mtListView.notifyDataSetChange();
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
+                    eventRefreshFriend.setUid(uid);
+                    eventRefreshFriend.setLocal(false);
+                    eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
+                    EventBus.getDefault().post(eventRefreshFriend);
                 }
                 ToastUtil.show(FriendMatchActivity.this, response.body().getMsg());
             }

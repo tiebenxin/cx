@@ -219,7 +219,7 @@ public class MainActivity extends AppActivity {
         userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                EventBus.getDefault().post(new EventRefreshFriend());
+                EventBus.getDefault().post(new  EventRefreshFriend());
             }
 
             @Override

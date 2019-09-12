@@ -108,7 +108,8 @@ public class UserDao {
     public List<UserInfo> getAllUserInBook() {
         List<UserInfo> res;
         Realm realm = DaoUtil.open();
-        RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup().sort("tag", Sort.ASCENDING).findAll();
+        RealmResults<UserInfo> ls = realm.where(UserInfo.class)
+                .beginGroup().equalTo("uType", 2).or().equalTo("uType", 4).endGroup().sort("tag", Sort.ASCENDING).findAll();
         res = realm.copyFromRealm(ls);
         realm.close();
         return res;
