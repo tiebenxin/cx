@@ -390,6 +390,14 @@ public class GroupCreateActivity extends AppActivity {
 
             @Override
             public void fail() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        actionbar.getViewRight().setEnabled(true);
+                        alert.dismiss();
+                        ToastUtil.show(getContext(),"上传失败(oss)");
+                    }
+                });
 
             }
 
