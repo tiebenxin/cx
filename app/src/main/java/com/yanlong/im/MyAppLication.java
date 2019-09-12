@@ -50,7 +50,7 @@ public class MyAppLication extends MainApplication {
                 //  AppConfig.SOCKET_IP="192.168.10.112";
                 //  AppConfig.SOCKET_PORT=18181;
                 AppConfig.UP_PATH = "test-environment";
-//                break;
+                break;
             case "pre": //美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;
                 AppConfig.SOCKET_IP = "hk-test.1616d.top";
