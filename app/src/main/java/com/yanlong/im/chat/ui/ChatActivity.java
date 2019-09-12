@@ -140,6 +140,8 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 public class ChatActivity extends AppActivity implements ICellEventListener {
     private static String TAG = "ChatActivity";
@@ -204,6 +206,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private int textPosition;
     private int contactIntimately;
     private String master;
+    private TextView tv_ban;
 
 
     private boolean isGroup() {
@@ -369,6 +372,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
         txtVoice = findViewById(R.id.txt_voice);
+        tv_ban = findViewById(R.id.tv_ban);
         setChatImageBackground();
     }
 
@@ -2514,10 +2518,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         GroupConfig config = dao.groupConfigGet(toGid);
         if (config != null) {
-            actionbar.getBtnRight().setVisibility(config.getIsExit() == 1 ? View.GONE : View.VISIBLE);
-
+            boolean isExited;
+            if (config.getIsExit() == 1) {
+                isExited = true;
+            } else {
+                isExited = false;
+            }
+            setBanView(isExited);
         }
         taskGroupInfo();
+    }
+
+    /*
+    * 是否已经退出
+    * */
+    private void setBanView(boolean isExited) {
+        actionbar.getBtnRight().setVisibility(isExited ? View.GONE : View.VISIBLE);
+        tv_ban.setVisibility(isExited ? VISIBLE : GONE);
+        viewChatBottomc.setVisibility(isExited ? GONE : VISIBLE);
     }
 
     /***
@@ -2764,11 +2782,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
 
                 }
-                if (!isExit) {
-                    actionbar.getBtnRight().setVisibility(View.GONE);
-                } else {
-                    actionbar.getBtnRight().setVisibility(View.VISIBLE);
-                }
+//                if (!isExit) {
+//                    actionbar.getBtnRight().setVisibility(View.GONE);
+//                } else {
+//                    actionbar.getBtnRight().setVisibility(View.VISIBLE);
+//                }
+                setBanView(!isExit);
 
 
             }
