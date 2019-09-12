@@ -1,7 +1,10 @@
 package net.cb.cb.library.utils;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.util.Log;
+
+import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.AliObsConfigBean;
@@ -86,25 +89,35 @@ public class UpFileAction {
         return pt;
     }
 
-
+    private  Long startTime=0L;
     private void upFile(final PATH type, final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte) {
-
+        startTime= SystemClock.currentThreadTimeMillis();
         NetUtil.getNet().exec(
                 server.aliObs()
                 , new CallBack<ReturnBean<AliObsConfigBean>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
                         if (response.body() == null) {
+                            callback.fail();
                             return;
                         }
                         if (response.body().isOk()) {
                             final AliObsConfigBean configBean = response.body().getData();
+                            if(StringUtil.isNotNull( configBean.getSecurityToken())){
+
+                                callback.fail();
+                                return;
+                            }
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    long timeCost=SystemClock.currentThreadTimeMillis()-startTime;
+
                                     UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
                                             configBean.getBucket(), callback, filePath, fileByte);
+//                                    Log.e("YTAG", configBean.getSecurityToken());
+                                    UpLoadUtils.getInstance().upLoadLog(timeCost+"--------"+configBean.toString());
                                 }
                             }).start();
                         } else {
@@ -118,6 +131,8 @@ public class UpFileAction {
                     public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
                         super.onFailure(call, t);
                         callback.fail();
+                        long timeCost=SystemClock.currentThreadTimeMillis()-startTime;
+                        UpLoadUtils.getInstance().upLoadLog(timeCost+"--------失败");
                     }
                 });
 

@@ -12,20 +12,24 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 
 public class BadgeUtil {
-    public static  int num=0;
+    public static int num = 0;
+
     private BadgeUtil() throws InstantiationException {
         throw new InstantiationException("This class is not for instantiation");
     }
 
-    public static void addBadgeCount(Context context){
+    public static void addBadgeCount(Context context) {
         num++;
-        setBadgeCount(context,num);
+        setBadgeCount(context, num);
     }
+
     /**
      * 设置Badge 目前支持Launcher
      */
@@ -35,48 +39,42 @@ public class BadgeUtil {
         } else {
             count = Math.max(0, Math.min(count, 99));
         }
-        num=count;
+        num = count;
+        String rom = Build.MANUFACTURER.toLowerCase();
 
-        if (Build.MANUFACTURER.equalsIgnoreCase("xiaomi")) {
-           // setBadgeOfMIUI(context, count, 0);
-        } else if (Build.MANUFACTURER.equalsIgnoreCase("sony")) {
+        if (rom.contains("xiaomi")) {       //小米
+            //setBadgeOfMIUI(count, notification);
+        } else if (rom.contains("sony")) {  //索尼
             setBadgeOfSony(context, count);
-        } else if (Build.MANUFACTURER.toLowerCase().contains("samsung") ||
-                Build.MANUFACTURER.toLowerCase().contains("lg")) {
+        } else if (rom.contains("samsung") || rom.contains("lg")) {
             setBadgeOfSumsung(context, count);
-        } else if (Build.MANUFACTURER.toLowerCase().contains("htc")) {
+        } else if (rom.contains("htc")) {   //htc
             setBadgeOfHTC(context, count);
-        } else if (Build.MANUFACTURER.toLowerCase().contains("nova")) {
+        } else if (rom.contains("nova")) {  //nova
             setBadgeOfNova(context, count);
-        }else if (Build.MANUFACTURER.toLowerCase().contains("oppo")) {//oppo
+        } else if (rom.contains("oppo")) {   //oppo
             setBadgeOfOPPO(context, count);
-        }else if (Build.MANUFACTURER.toLowerCase().contains("lemobile")) {//乐视
-
-        }
-        else if (Build.MANUFACTURER.toLowerCase().contains("vivo")) {
+        } else if (rom.contains("lemobile")) {//乐视
+            Log.e("BadgeUtil", "setBadgeCount: 乐视 暂不支持");
+        } else if (rom.contains("vivo")) {
             setBadgeOfVIVO(context, count);
-        }else if (Build.MANUFACTURER.toLowerCase().contains("huawei")||Build.BRAND.equals("honor")) {//华为
+        } else if (rom.contains("huawei") || Build.BRAND.equals("Huawei") || Build.BRAND.equals("HONOR") || rom.equalsIgnoreCase("huawei")) {//华为
             setHuaweiBadge(context, count);
-        }else if (Build.MANUFACTURER.toLowerCase().contains("")) {//魅族
-
-        }else if (Build.MANUFACTURER.toLowerCase().contains("")) {//金立
-
-        }else if (Build.MANUFACTURER.toLowerCase().contains("")) {//锤子
-
-        }else {
-            //Toast.makeText(context, "Not Found Support Launcher", Toast.LENGTH_LONG).show();
+        } else if (rom.contains("meizu")) {//魅族
+            Log.e("BadgeUtil", "setBadgeCount: 魅族 暂不支持");
+        } else if (rom.contains("jinli")) {//金立
+            Log.e("BadgeUtil", "setBadgeCount: 金立 暂不支持");
+        } else if (rom.contains("chuizi")) {//锤子
+            Log.e("BadgeUtil", "setBadgeCount: 锤子 暂不支持");
+        } else {
+            Log.e("BadgeUtil", "setBadgeCount: 未匹配机型：" + rom);
         }
     }
 
     /**
      * 设置MIUI的Badge
      */
-    private static void setBadgeOfMIUI(Context context, int count, int iconResId) {
-        NotificationManager mNotificationManager = (NotificationManager) context
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setContentTitle("标题").setContentText("消息正文").setSmallIcon(iconResId);
-        Notification notification = builder.build();
+    private static void setBadgeOfMIUI(int count, Notification notification) {
         try {
             Field field = notification.getClass().getDeclaredField("extraNotification");
             Object extraNotification = field.get(notification);
@@ -85,7 +83,6 @@ public class BadgeUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        mNotificationManager.notify(0, notification);
     }
 
     /**
@@ -156,26 +153,46 @@ public class BadgeUtil {
     /**
      * 设置vivo的Badge :vivoXplay5 vivo x7无效果
      */
-    private static void setBadgeOfVIVO(Context context,int count){
+    private static void setBadgeOfVIVO(Context context, int count) {
         try {
+            //老版可用，新版已封闭，需申请
             Intent intent = new Intent("launcher.action.CHANGE_APPLICATION_NOTIFICATION_NUM");
             intent.putExtra("packageName", context.getPackageName());
             String launchClassName = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName()).getComponent().getClassName();
-            intent.putExtra("className", launchClassName); intent.putExtra("notificationNum", count);
+            intent.putExtra("className", launchClassName);
+            intent.putExtra("notificationNum", count);
             context.sendBroadcast(intent);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
-     *设置oppo的Badge :oppo角标提醒目前只针对内部软件还有微信、QQ开放，其他的暂时无法提供
+     * 设置oppo的Badge :oppo角标提醒目前只针对内部软件还有微信、QQ开放，其他的暂时无法提供
      */
-    private static void setBadgeOfOPPO(Context context,int count){
+    private static void setBadgeOfOPPO(Context context, int count) {
         try {
-            Bundle extras = new Bundle();
-            extras.putInt("app_badge_count", count);
-            context.getContentResolver().call(Uri.parse("content://com.android.badge/badge"), "setAppBadgeCount", String.valueOf(count), extras);
+            if (Build.VERSION.SDK_INT  >= Build.VERSION_CODES.LOLLIPOP) {
+                Bundle extras = new Bundle();
+                extras.putInt("app_badge_count", count);
+                context.getContentResolver().call(Uri.parse("content://com.android.badge/badge"), "setAppBadgeCount", String.valueOf(count), extras);
+            } else {
+                Intent intent = new Intent("com.oppo.unsettledevent");
+                intent.putExtra("packageName", context.getPackageName());
+                intent.putExtra("number", count);
+                intent.putExtra("upgradeNumber", count);
+                PackageManager packageManager = context.getPackageManager();
+                List<ResolveInfo> receivers = packageManager.queryBroadcastReceivers(intent, 0);
+                if (receivers != null && receivers.size() > 0) {
+                    context.sendBroadcast(intent);
+                } else {
+                    Bundle extras = new Bundle();
+                    extras.putInt("app_badge_count", count);
+                    context.getContentResolver().call(Uri.parse("content://com.android.badge/badge"),
+                            "setAppBadgeCount", null, extras);
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -184,13 +201,12 @@ public class BadgeUtil {
     /**
      * 设置华为的Badge :mate8 和华为 p7,honor畅玩系列可以,honor6plus 无效果
      */
-    public static void setHuaweiBadge(Context context, int count)
-    {
+    private static void setHuaweiBadge(Context context, int count) {
+        //权限检查
         try {
             Bundle bundle = new Bundle();
             bundle.putString("package", context.getPackageName());
-            String launchClassName = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName()).getComponent().getClassName();
-            bundle.putString("class", launchClassName);
+            bundle.putString("class", getLauncherClassName(context));
             bundle.putInt("badgenumber", count);
             context.getContentResolver().call(Uri.parse("content://com.huawei.android.launcher.settings/badge/"), "change_badge", null, bundle);
         } catch (Exception e) {
@@ -213,7 +229,7 @@ public class BadgeUtil {
         setBadgeCount(context, 0);
     }
 
-    public static String getLauncherClassName(Context context) {
+    private static String getLauncherClassName(Context context) {
         PackageManager packageManager = context.getPackageManager();
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.setPackage(context.getPackageName());
@@ -224,4 +240,5 @@ public class BadgeUtil {
         }
         return info.activityInfo.name;
     }
+
 }
