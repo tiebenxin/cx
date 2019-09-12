@@ -8,10 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
@@ -19,6 +21,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventUserOnlineChange;
@@ -68,11 +71,11 @@ public class GroupNumbersActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView =  findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewSearch = (LinearLayout) findViewById(R.id.view_search);
-        topListView = (RecyclerView) findViewById(R.id.topListView);
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        viewSearch =  findViewById(R.id.view_search);
+        topListView =  findViewById(R.id.topListView);
+        mtListView =  findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
     }
 
@@ -143,7 +146,10 @@ public class GroupNumbersActivity extends AppActivity {
 
 
             hd.txtType.setText(bean.getTag());
-            hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+           // hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+            Glide.with(context).load( bean.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
+
             hd.txtName.setText(bean.getName4Show());
 
             hd.viewType.setVisibility(View.VISIBLE);
@@ -187,18 +193,18 @@ public class GroupNumbersActivity extends AppActivity {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewType;
             private TextView txtType;
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private CheckBox ckSelect;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewType = (LinearLayout) convertView.findViewById(R.id.view_type);
-                txtType = (TextView) convertView.findViewById(R.id.txt_type);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                ckSelect = (CheckBox) convertView.findViewById(R.id.ck_select);
+                viewType =  convertView.findViewById(R.id.view_type);
+                txtType =  convertView.findViewById(R.id.txt_type);
+                imgHead =  convertView.findViewById(R.id.img_head);
+                txtName =  convertView.findViewById(R.id.txt_name);
+                ckSelect =  convertView.findViewById(R.id.ck_select);
             }
 
         }
@@ -218,7 +224,10 @@ public class GroupNumbersActivity extends AppActivity {
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
 
-            holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
+          //  holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
+
+            Glide.with(context).load( listDataTop.get(position).getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
         }
 
 
@@ -232,12 +241,12 @@ public class GroupNumbersActivity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
 
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
+                imgHead =  convertView.findViewById(R.id.img_head);
             }
 
         }

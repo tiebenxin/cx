@@ -10,9 +10,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -22,6 +24,7 @@ import com.yanlong.im.chat.ui.SearchFriendGroupActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -96,9 +99,9 @@ public class FriendMainFragment extends Fragment {
 
     private void initData() {
         taskListData();
-        if (listData == null || listData.size() <= 0) {
-            taskRefreshListData();
-        }
+//        if (listData == null || listData.size() <= 0) {
+//            taskRefreshListData();
+//        }
     }
 
     public FriendMainFragment() {
@@ -218,7 +221,11 @@ public class FriendMainFragment extends Fragment {
                 final UserInfo bean = listData.get(position);
                 RCViewHolder hd = (RCViewHolder) holder;
                 hd.txtType.setText(bean.getTag());
-                hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+          //      hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+
+                Glide.with(getActivity()).load(bean.getHead())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
+
                 hd.txtName.setText(bean.getName4Show());
                 if (bean.getLastonline() > 0) {
                     hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
@@ -277,7 +284,7 @@ public class FriendMainFragment extends Fragment {
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private TextView txtType;
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private TextView txtTime;
             private View viewType;

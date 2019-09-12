@@ -30,6 +30,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
@@ -204,32 +205,28 @@ public class MainActivity extends AppActivity {
         Intent intent = getIntent();
         boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
         if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
-            userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
-                @Override
-                public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                }
-
-                @Override
-                public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
-                    super.onFailure(call, t);
-                }
-            });
+            taskLoadFriends();
         } else {
             UserDao userDao = new UserDao();
             boolean hasInit = userDao.isRosterInit();
             if (!hasInit) {//未初始化，初始化本地通讯录
-                userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
-                    @Override
-                    public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                    }
-
-                    @Override
-                    public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
-                        super.onFailure(call, t);
-                    }
-                });
+                taskLoadFriends();
             }
         }
+    }
+
+    private void taskLoadFriends() {
+        userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
+                EventBus.getDefault().post(new EventRefreshFriend());
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
     }
 
     @Override
@@ -339,9 +336,9 @@ public class MainActivity extends AppActivity {
         if (sbmsg == null)
             return;
 
-        int num=msgDao.sessionReadGetAll();
+        int num = msgDao.sessionReadGetAll();
         sbmsg.setNum(num);
-        BadgeUtil.setBadgeCount(getApplicationContext(),num);
+        BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
     /***

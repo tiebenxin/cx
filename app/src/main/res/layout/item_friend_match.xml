@@ -30,7 +30,7 @@
 
         <LinearLayout style="@style/app_layout_list1_item">
 
-            <com.facebook.drawee.view.SimpleDraweeView
+            <ImageView
                 android:id="@+id/img_head"
                 style="@style/app_img_head"
                 android:layout_marginRight="@dimen/app_margin_item" />

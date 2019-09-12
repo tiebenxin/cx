@@ -6,15 +6,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -27,7 +26,7 @@ public class RedpacketRecordActivity extends AppActivity {
 
 
     private ActionbarView mActionBar;
-    private SimpleDraweeView mSdImageHead;
+    private ImageView mSdImageHead;
     private TextView mTvSelectDate;
     private TextView mTvUserName;
     private TextView mTvMoney;

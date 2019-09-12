@@ -18,10 +18,6 @@ public class ChatFontActivity extends AppActivity {
     private LinearLayout viewMe;
     private LinearLayout viewMe1;
     private android.support.v7.widget.AppCompatTextView txtMe1;
-    private com.facebook.drawee.view.SimpleDraweeView imgMeHead;
-    private LinearLayout viewOt;
-    private com.facebook.drawee.view.SimpleDraweeView imgOtHead;
-    private LinearLayout viewOt1;
     private android.support.v7.widget.AppCompatTextView txtOt1;
     private FontSizeView seekBar;
 
@@ -33,10 +29,6 @@ public class ChatFontActivity extends AppActivity {
         viewMe = findViewById(R.id.view_me);
         viewMe1 = findViewById(R.id.view_me_1);
         txtMe1 = findViewById(R.id.txt_me_1);
-        imgMeHead = findViewById(R.id.img_me_head);
-        viewOt = findViewById(R.id.view_ot);
-        imgOtHead = findViewById(R.id.img_ot_head);
-        viewOt1 = findViewById(R.id.view_ot_1);
         txtOt1 = findViewById(R.id.txt_ot_1);
         seekBar = findViewById(R.id.seekBar);
     }

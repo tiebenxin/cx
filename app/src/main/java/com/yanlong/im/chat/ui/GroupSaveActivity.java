@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.chat.dao.MsgDao;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -102,8 +105,13 @@ public class GroupSaveActivity extends AppActivity {
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
             final Group groupInfoBean = groupInfoBeans.get(position);
-            holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
+            //holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
             holder.txtName.setText(/*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
+           // holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
+            Glide.with(context).load(groupInfoBean.getAvatar())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
+           // holder.txtName.setText(groupInfoBean.getName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -134,7 +142,7 @@ public class GroupSaveActivity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private TextView txtNum;
 

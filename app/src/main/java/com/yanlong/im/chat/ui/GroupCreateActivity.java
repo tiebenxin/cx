@@ -10,17 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.controller.BaseControllerListener;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.common.ResizeOptions;
-import com.facebook.imagepipeline.image.ImageInfo;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.bumptech.glide.Glide;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
@@ -28,12 +22,12 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ClickFilter;
-import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
@@ -65,11 +59,11 @@ public class GroupCreateActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewSearch = (LinearLayout) findViewById(R.id.view_search);
-        topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        viewSearch = findViewById(R.id.view_search);
+        topListView = findViewById(R.id.topListView);
+        mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
     }
 
@@ -166,7 +160,10 @@ public class GroupCreateActivity extends AppActivity {
 
 
             hd.txtType.setText(bean.getTag());
-            hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+
+            Glide.with(context).load(bean.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
+
             // hd.txtName.setText(bean.getName());
             hd.txtName.setText(bean.getName4Show());
 
@@ -225,18 +222,18 @@ public class GroupCreateActivity extends AppActivity {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewType;
             private TextView txtType;
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private CheckBox ckSelect;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewType = (LinearLayout) convertView.findViewById(R.id.view_type);
-                txtType = (TextView) convertView.findViewById(R.id.txt_type);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
-                txtName = (TextView) convertView.findViewById(R.id.txt_name);
-                ckSelect = (CheckBox) convertView.findViewById(R.id.ck_select);
+                viewType = convertView.findViewById(R.id.view_type);
+                txtType = convertView.findViewById(R.id.txt_type);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                ckSelect = convertView.findViewById(R.id.ck_select);
             }
 
         }
@@ -256,8 +253,8 @@ public class GroupCreateActivity extends AppActivity {
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
 
-
-            holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
+            Glide.with(context).load(listDataTop.get(position).getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
             //  showThumb( holder.imgHead,listDataTop.get(position).getHead(),10,10);
         }
@@ -273,33 +270,33 @@ public class GroupCreateActivity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
 
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
-                imgHead = (com.facebook.drawee.view.SimpleDraweeView) convertView.findViewById(R.id.img_head);
+                imgHead = convertView.findViewById(R.id.img_head);
             }
 
         }
     }
 
     //----------------
-    public static void showThumb(SimpleDraweeView draweeView, String url, int resizeWidthDp, int resizeHeightDp) {
-        if (url == null || "".equals(url))
-            return;
-        if (draweeView == null)
-            return;
-        ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
-                .setResizeOptions(new ResizeOptions(DensityUtil.dip2px(draweeView.getContext(), resizeWidthDp), DensityUtil.dip2px(draweeView.getContext(), resizeHeightDp)))
-                .build();
-        DraweeController controller = Fresco.newDraweeControllerBuilder()
-                .setImageRequest(request)
-                .setOldController(draweeView.getController())
-                .setControllerListener(new BaseControllerListener<ImageInfo>())
-                .build();
-        draweeView.setController(controller);
-    }
+//    public static void showThumb(SimpleDraweeView draweeView, String url, int resizeWidthDp, int resizeHeightDp) {
+//        if (url == null || "".equals(url))
+//            return;
+//        if (draweeView == null)
+//            return;
+//        ImageRequest request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(url))
+//                .setResizeOptions(new ResizeOptions(DensityUtil.dip2px(draweeView.getContext(), resizeWidthDp), DensityUtil.dip2px(draweeView.getContext(), resizeHeightDp)))
+//                .build();
+//        DraweeController controller = Fresco.newDraweeControllerBuilder()
+//                .setImageRequest(request)
+//                .setOldController(draweeView.getController())
+//                .setControllerListener(new BaseControllerListener<ImageInfo>())
+//                .build();
+//        draweeView.setController(controller);
+//    }
     //---------------------
 
 
@@ -346,27 +343,24 @@ public class GroupCreateActivity extends AppActivity {
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             UserInfo userInfo = templist.get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
+            if (j == i - 1) {
+                name += userInfo.getName();
+            } else {
+                name += userInfo.getName() + "、";
+            }
             url[j] = userInfo.getHead();
         }
-        File file = GroupHeadImageUtil.synthesis(url);
+        File file = GroupHeadImageUtil.synthesis(this, url);
 
 
-//        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
-//        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
-//        name += "的群";
-//        final String fname = name;
-
-        //  icon="file://"+file.getAbsolutePath();
-
+        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
+        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
+        name += "的群";
+        final String fname = name;
         upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP, getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
-                msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", icon, templist, new CallBack<ReturnBean<Group>>() {
+                msgACtion.groupCreate(UserAction.getMyInfo().getName(), fname, icon, templist, new CallBack<ReturnBean<Group>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                         actionbar.getViewRight().setEnabled(true);

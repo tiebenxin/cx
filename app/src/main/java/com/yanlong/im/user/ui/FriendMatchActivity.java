@@ -11,15 +11,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -211,7 +212,9 @@ public class FriendMatchActivity extends AppActivity {
         public void onBindViewHolder(RCViewHolder holder, final int position) {
             final FriendInfoBean bean = list.get(position);
             holder.txtType.setText(bean.getTag());
-            holder.imgHead.setImageURI(bean.getAvatar() + "");
+        //    holder.imgHead.setImageURI(bean.getAvatar() + "");
+            Glide.with(context).load(bean.getAvatar())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
             holder.txtName.setText(bean.getNickname());
             holder.txtRemark.setText("通讯录: "+bean.getPhoneremark());
 
@@ -261,7 +264,7 @@ public class FriendMatchActivity extends AppActivity {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private LinearLayout viewType;
             private TextView txtType;
-            private SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private Button btnAdd;
             private TextView txtRemark;

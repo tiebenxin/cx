@@ -1,19 +1,13 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
-import com.facebook.drawee.view.SimpleDraweeView;
-import com.luck.picture.lib.photoview.PhotoView;
-import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -28,7 +22,7 @@ public class FeedbackShowImageActivity extends AppActivity {
     public static final String TYPE = "type";
     public final static String POSTION = "postion";
     private HeadView headView;
-    private SimpleDraweeView imageView;
+    private ImageView imageView;
     private int postion = 100;
 
 
@@ -46,7 +40,11 @@ public class FeedbackShowImageActivity extends AppActivity {
         headView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         headView.getActionbar().getBtnRight().setImageResource(R.mipmap.icon_image_delect);
         postion = getIntent().getIntExtra(POSTION, 0);
-        imageView.setImageURI(getIntent().getStringExtra(URL));
+    //    imageView.setImageURI(getIntent().getStringExtra(URL));
+
+        Glide.with(this).load(getIntent().getStringExtra(URL))
+                .apply(GlideOptionsUtil.imageOptions()).into(imageView);
+
         int type = getIntent().getIntExtra(TYPE, 0);
         if(type == 1){
             headView.getActionbar().setTitle("用户投诉");

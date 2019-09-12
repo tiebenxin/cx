@@ -45,6 +45,7 @@ import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
@@ -1903,7 +1904,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
 
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
+                        if (msgbean.getFrom_uid() != null && msgbean.getFrom_uid().longValue() == UserAction.getMyId().longValue() && msgbean.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(msgbean)) {
                             if (System.currentTimeMillis() - msgbean.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                                 boolean isExist = false;
                                 for (OptionMenu optionMenu : menus) {
@@ -1957,6 +1958,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
 
+    }
+
+    //是否禁止撤销at消息,群主自己发的群公告，不能撤消
+    private boolean isAtBanedCancel(MsgAllBean bean) {
+        if (bean.getMsg_type() == ChatEnum.EMessageType.AT) {
+            AtMessage message = bean.getAtMessage();
+            if (message.getAt_type() == ChatEnum.EAtType.ALL && message.getUid().size() == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {

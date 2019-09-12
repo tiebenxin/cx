@@ -27,9 +27,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
@@ -44,6 +46,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -532,7 +535,9 @@ public class MsgMainFragment extends Fragment {
             }
 
 
-            holder.imgHead.setImageURI(Uri.parse(icon));
+            Glide.with(getActivity()).load(icon)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
             holder.sb.setNum(bean.getUnread_count());
@@ -573,7 +578,7 @@ public class MsgMainFragment extends Fragment {
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private StrikeButton sb;
             private View viewIt;
             private Button btnDel;

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <com.facebook.drawee.view.SimpleDraweeView
+    <ImageView
         android:id="@+id/img_big"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -49,7 +49,7 @@
 
             </LinearLayout>
 
-            <com.facebook.drawee.view.SimpleDraweeView
+            <ImageView
                 android:id="@+id/img_me_head"
                 style="@style/app_img_head"
                 android:layout_width="47dp"
@@ -66,7 +66,7 @@
             android:orientation="horizontal"
             android:paddingRight="57dp">
 
-            <com.facebook.drawee.view.SimpleDraweeView
+            <ImageView
                 android:id="@+id/img_ot_head"
                 style="@style/app_img_head"
                 android:layout_width="47dp"

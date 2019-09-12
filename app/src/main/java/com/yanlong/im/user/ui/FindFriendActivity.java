@@ -9,12 +9,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -125,10 +127,11 @@ public class FindFriendActivity extends AppActivity {
         @Override
         public void onBindViewHolder(FindFriendHolderView viewHolder, int i) {
             final UserInfo userInfo = userInfos.get(i);
-            viewHolder.mImgHead.setImageURI(userInfo.getHead() + "");
+            //viewHolder.mImgHead.setImageURI(userInfo.getHead() + "");
+            Glide.with(context).load(userInfo.getHead())
+                    .apply(GlideOptionsUtil.headImageOptions()).into(viewHolder.mImgHead);
+
             viewHolder.mTxtName.setText(userInfo.getName());
-
-
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -154,7 +157,7 @@ public class FindFriendActivity extends AppActivity {
 
 
         class FindFriendHolderView extends RecyclerView.ViewHolder {
-            private SimpleDraweeView mImgHead;
+            private ImageView mImgHead;
             private TextView mTxtName;
 
             public FindFriendHolderView(@NonNull View itemView) {

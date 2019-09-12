@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -11,12 +11,11 @@
         android:layout_height="60dp"
         android:orientation="horizontal">
 
-        <com.facebook.drawee.view.SimpleDraweeView
+        <ImageView
             android:id="@+id/sd_image_head"
+            style="@style/app_img_head"
             android:layout_width="46dp"
-            android:layout_height="46dp"
-            app:placeholderImage="@mipmap/ic_info_head"
-            app:roundAsCircle="true" />
+            android:layout_height="46dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -28,13 +27,13 @@
             <TextView
                 android:id="@+id/tv_user_name"
                 style="@style/app_txt_title_2"
-                android:text="单号记得哈" />
+                tool:text="单号记得哈" />
 
             <TextView
                 android:id="@+id/tv_dete"
                 style="@style/app_txt_content_1"
                 android:layout_marginTop="8dp"
-                android:text="10:00" />
+                tool:text="10:00" />
 
         </LinearLayout>
 
@@ -43,7 +42,7 @@
             style="@style/app_txt_title_2"
             android:layout_gravity="top"
             android:layout_marginTop="8dp"
-            android:text="88.88元" />
+            tool:text="88.88元" />
     </LinearLayout>
 
     <View style="@style/app_line" />

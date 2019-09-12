@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:gravity="center">
         
-        <com.facebook.drawee.view.SimpleDraweeView
+        <ImageView
             android:id="@+id/sd_image_head"
             style="@style/app_img_head"
             android:layout_width="250dp"

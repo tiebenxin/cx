@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -23,9 +22,9 @@ import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.ImageBean;
+import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -296,7 +295,9 @@ public class FeedbackActivity extends AppActivity {
 
             ImageBean imageBean = list.get(i);
             if (imageBean.getType() == 0) {
-                viewHolder.imageView.setImageURI("android.resource://" + getPackageName() + "/" + R.mipmap.icon_image_add);
+       //         viewHolder.imageView.setImageURI("android.resource://" + getPackageName() + "/" + R.mipmap.icon_image_add);
+                viewHolder.imageView.setImageResource(R.mipmap.icon_image_add);
+
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -304,7 +305,10 @@ public class FeedbackActivity extends AppActivity {
                     }
                 });
             } else {
-                viewHolder.imageView.setImageURI(imageBean.getPath());
+         //       viewHolder.imageView.setImageURI(imageBean.getPath());
+                Glide.with(context).load(imageBean.getPath())
+                        .apply(GlideOptionsUtil.defImageOptions()).into(viewHolder.imageView);
+
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -330,7 +334,7 @@ public class FeedbackActivity extends AppActivity {
 
 
         class FeedbackViewHolder extends RecyclerView.ViewHolder {
-            private SimpleDraweeView imageView;
+            private ImageView imageView;
 
             public FeedbackViewHolder(@android.support.annotation.NonNull View itemView) {
                 super(itemView);

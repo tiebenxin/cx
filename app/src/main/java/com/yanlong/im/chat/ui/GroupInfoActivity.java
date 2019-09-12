@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -33,6 +34,7 @@ import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventExitChat;
@@ -253,7 +255,8 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupManage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), GroupManageActivity.class).putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE, isPercentage));
+                startActivity(new Intent(getContext(), GroupManageActivity.class)
+                        .putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE, isPercentage));
             }
         });
 
@@ -400,7 +403,10 @@ public class GroupInfoActivity extends AppActivity {
             //6.15加标识
             final UserInfo number = listDataTop.get(position);
             if (number != null) {
-                holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
+                //holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
+                Glide.with(context).load(number.getHead())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
                 holder.txtName.setText("" + number.getName4Show());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -424,7 +430,8 @@ public class GroupInfoActivity extends AppActivity {
                 }
             } else {
                 if (isAdmin() && position == listDataTop.size() - 1) {
-                    holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
+                    // holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
+                    holder.imgHead.setImageResource(R.mipmap.ic_group_c);
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -433,7 +440,8 @@ public class GroupInfoActivity extends AppActivity {
                         }
                     });
                 } else {
-                    holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
+                    //holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
+                    holder.imgHead.setImageResource(R.mipmap.ic_group_a);
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -456,7 +464,7 @@ public class GroupInfoActivity extends AppActivity {
 
         //自动生成ViewHold
         public class RCViewTopHolder extends RecyclerView.ViewHolder {
-            private com.facebook.drawee.view.SimpleDraweeView imgHead;
+            private ImageView imgHead;
             private TextView txtName;
             private ImageView imgGroup;
 

@@ -28,7 +28,7 @@
                 android:paddingLeft="@dimen/app_margin_main"
                 android:paddingRight="@dimen/app_margin_main">
 
-                <com.facebook.drawee.view.SimpleDraweeView
+                <ImageView
                     android:id="@+id/img_info_icon"
                     style="@style/app_img"
                     android:layout_width="50dp"

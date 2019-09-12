@@ -6,9 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.view.ActionbarView;
@@ -23,7 +23,7 @@ public class RedPacketDetailsActivity extends AppActivity {
 
 
     private ActionbarView mActionBar;
-    private SimpleDraweeView mSdImageHead;
+    private ImageView mSdImageHead;
     private TextView mTvUserName;
     private TextView mTvContent;
     private TextView mTvMoney;
@@ -124,7 +124,7 @@ public class RedPacketDetailsActivity extends AppActivity {
 
 
         class ViewHodler extends RecyclerView.ViewHolder {
-            private SimpleDraweeView mSdImageHead;
+            private ImageView mSdImageHead;
             private TextView mTvUserName;
             private TextView mTvDete;
             private TextView mTvMoney;

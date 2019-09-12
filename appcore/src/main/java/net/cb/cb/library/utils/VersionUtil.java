@@ -38,4 +38,10 @@ public class VersionUtil {
         }
         return verName;
     }
+
+
+    public static String getPhoneModel(){
+        return android.os.Build.BRAND +" "+ android.os.Build.MODEL;
+    }
+
 }

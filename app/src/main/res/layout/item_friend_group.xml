@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tool="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <LinearLayout
@@ -61,7 +62,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginRight="@dimen/app_margin_item">
 
-                <com.facebook.drawee.view.SimpleDraweeView
+                <ImageView
                     android:id="@+id/img_head"
                     style="@style/app_img_head"
                     android:layout_gravity="center|left" />
@@ -79,12 +80,12 @@
                 <TextView
                     android:id="@+id/txt_name"
                     style="@style/app_txt_title_2"
-                    android:text="xxxx" />
+                    tool:text="xxxx" />
 
                 <TextView
                     android:id="@+id/txt_content"
                     style="@style/app_txt_title_3"
-                    android:text="xxxx"
+                    tool:text="xxxx"
                     android:visibility="visible" />
 
             </LinearLayout>
