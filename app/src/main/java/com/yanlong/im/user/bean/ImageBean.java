@@ -10,7 +10,7 @@ public class ImageBean {
 
     private String url;
 
-    private int type;
+    private int type; // 0.默认图
 
     private Uri path;
 

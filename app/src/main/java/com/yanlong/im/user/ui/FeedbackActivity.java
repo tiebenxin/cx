@@ -172,9 +172,12 @@ public class FeedbackActivity extends AppActivity {
                         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
                         break;
                     case 1:
+
+
                         PictureSelector.create(FeedbackActivity.this)
                                 .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                                 .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                                .maxSelectNum(6 - adatper.getNum())
                                 .previewImage(false)// 是否可预览图片 true or false
                                 .isCamera(false)// 是否显示拍照按钮 ture or false
                                 .compress(true)// 是否压缩 true or false
@@ -196,13 +199,13 @@ public class FeedbackActivity extends AppActivity {
             switch (requestCode) {
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
-                    if (null!=data){
-                        List<LocalMedia> list= PictureSelector.obtainMultipleResult(data);
-                        if (null!=list&&list.size()>0){
-                            for (int i=0;i<list.size();i++){
+                    if (null != data) {
+                        List<LocalMedia> list = PictureSelector.obtainMultipleResult(data);
+                        if (null != list && list.size() > 0) {
+                            for (int i = 0; i < list.size(); i++) {
                                 final String file = PictureSelector.obtainMultipleResult(data).get(i).getCompressPath();
                                 final Uri uri = Uri.fromFile(new File(file));
-                                if (!alert.isShown()){
+                                if (!alert.isShown()) {
                                     alert.show();
                                 }
 
@@ -283,6 +286,20 @@ public class FeedbackActivity extends AppActivity {
         }
 
 
+        public int getNum() {
+            if (list == null && list.size() >= 0) {
+                return 0;
+            } else {
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getType() == 0) {
+                        return list.size() - 1;
+                    }
+                }
+                return list.size();
+            }
+        }
+
+
         @Override
         public FeedbackViewHolder onCreateViewHolder(@android.support.annotation.NonNull ViewGroup viewGroup, int i) {
             View view = inflater.inflate(R.layout.item_feedback, viewGroup, false);
@@ -295,7 +312,7 @@ public class FeedbackActivity extends AppActivity {
 
             ImageBean imageBean = list.get(i);
             if (imageBean.getType() == 0) {
-       //         viewHolder.imageView.setImageURI("android.resource://" + getPackageName() + "/" + R.mipmap.icon_image_add);
+                //         viewHolder.imageView.setImageURI("android.resource://" + getPackageName() + "/" + R.mipmap.icon_image_add);
                 viewHolder.imageView.setImageResource(R.mipmap.icon_image_add);
 
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
@@ -305,9 +322,9 @@ public class FeedbackActivity extends AppActivity {
                     }
                 });
             } else {
-         //       viewHolder.imageView.setImageURI(imageBean.getPath());
+                //       viewHolder.imageView.setImageURI(imageBean.getPath());
                 Glide.with(context).load(imageBean.getPath())
-                        .apply(GlideOptionsUtil.defImageOptions()).into(viewHolder.imageView);
+                        .apply(GlideOptionsUtil.defImageOptions1()).into(viewHolder.imageView);
 
                 viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
