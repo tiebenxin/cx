@@ -219,10 +219,12 @@ public class ChatInfoActivity extends AppActivity {
                     holder.imgHead.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            if(fUserInfo.getuType()==2){//是好友
                             finish();
                             EventBus.getDefault().post(new EventExitChat());
+
                             startActivity(new Intent(getContext(), GroupCreateActivity.class).putExtra(GroupCreateActivity.AGM_SELECT_UID, ""+fUserInfo.getUid()));
-                        }
+                        }}
                     });
                     break;
             }
@@ -261,6 +263,21 @@ public class ChatInfoActivity extends AppActivity {
             session = msgDao.sessionCreate(null, fuid);
         }*/
         fUserInfo = DaoUtil.findOne(UserInfo.class, "uid", fuid);
+        if(fUserInfo.getuType()!=2){//非好友不能设置开关等
+            ckDisturb.setEnabled(false);
+            ckTop.setEnabled(false);
+
+        }else{
+            ckDisturb.setEnabled(true);
+            ckTop.setEnabled(true);
+
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        taskGetInfo();
     }
 
     //更新配置
