@@ -4,7 +4,6 @@ package com.yanlong.im;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
@@ -23,6 +22,7 @@ import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
 import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyException;
+import net.cb.cb.library.utils.UpLoadUtils;
 
 import org.android.agoo.huawei.HuaWeiRegister;
 import org.android.agoo.mezu.MeizuRegister;
@@ -87,6 +87,11 @@ public class MyAppLication extends MainApplication {
         initRedPacket();
         LogcatHelper.getInstance(this).start();
         initException();
+        initUploadUtils();
+    }
+
+    private void initUploadUtils() {
+        UpLoadUtils.getInstance().init(this);
     }
 
 

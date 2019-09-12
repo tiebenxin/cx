@@ -495,6 +495,7 @@ public class SocketUtil {
 
             //3.
             if (socketChannel.tryTLS(1) == 0) {
+                socketChannel.socket().close();
                 socketChannel.close();
                 socketChannel = null;
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:校验证书失败,线程ver" + threadVer);
@@ -629,14 +630,19 @@ public class SocketUtil {
                     LogUtil.getLog().i(TAG, ">>>-----<处理消息 长度:" + indexData.length + " rid:" + pmsg.getRequestId());
                     heartbeatTime = System.currentTimeMillis();
                     //调试时不用吧onMsg放在线程里,这里为了优化分发的效率才如此处理
-                    /*new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            event.onMsg(pmsg);
-                        }
-                    }).start();*/
+                    if(AppConfig.DEBUG){
+                        event.onMsg(pmsg);
+                    }else{
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                event.onMsg(pmsg);
+                            }
+                        }).start();
+                    }
 
-                    event.onMsg(pmsg);
+
+
 
                     break;
                 case PROTOBUF_HEARTBEAT:

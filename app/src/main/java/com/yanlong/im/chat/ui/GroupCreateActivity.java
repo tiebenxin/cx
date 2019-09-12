@@ -59,11 +59,11 @@ public class GroupCreateActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView =  findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewSearch =  findViewById(R.id.view_search);
-        topListView =  findViewById(R.id.topListView);
-        mtListView =  findViewById(R.id.mtListView);
+        viewSearch = findViewById(R.id.view_search);
+        topListView = findViewById(R.id.topListView);
+        mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
     }
 
@@ -229,11 +229,11 @@ public class GroupCreateActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewType =  convertView.findViewById(R.id.view_type);
-                txtType =  convertView.findViewById(R.id.txt_type);
-                imgHead =  convertView.findViewById(R.id.img_head);
-                txtName =  convertView.findViewById(R.id.txt_name);
-                ckSelect =  convertView.findViewById(R.id.ck_select);
+                viewType = convertView.findViewById(R.id.view_type);
+                txtType = convertView.findViewById(R.id.txt_type);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                ckSelect = convertView.findViewById(R.id.ck_select);
             }
 
         }
@@ -275,7 +275,7 @@ public class GroupCreateActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
-                imgHead =  convertView.findViewById(R.id.img_head);
+                imgHead = convertView.findViewById(R.id.img_head);
             }
 
         }
@@ -343,27 +343,24 @@ public class GroupCreateActivity extends AppActivity {
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             UserInfo userInfo = templist.get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
+            if (j == i - 1) {
+                name += userInfo.getName();
+            } else {
+                name += userInfo.getName() + "、";
+            }
             url[j] = userInfo.getHead();
         }
-        File file = GroupHeadImageUtil.synthesis(this,url);
+        File file = GroupHeadImageUtil.synthesis(this, url);
 
 
-//        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
-//        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
-//        name += "的群";
-//        final String fname = name;
-
-        //  icon="file://"+file.getAbsolutePath();
-
+        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
+        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
+        name += "的群";
+        final String fname = name;
         upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP, getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
-                msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", icon, templist, new CallBack<ReturnBean<Group>>() {
+                msgACtion.groupCreate(UserAction.getMyInfo().getName(), fname, icon, templist, new CallBack<ReturnBean<Group>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                         actionbar.getViewRight().setEnabled(true);
@@ -393,6 +390,14 @@ public class GroupCreateActivity extends AppActivity {
 
             @Override
             public void fail() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        actionbar.getViewRight().setEnabled(true);
+                        alert.dismiss();
+                        ToastUtil.show(getContext(),"上传失败(oss)");
+                    }
+                });
 
             }
 
