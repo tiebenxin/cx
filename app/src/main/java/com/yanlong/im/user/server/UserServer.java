@@ -1,6 +1,5 @@
 package com.yanlong.im.user.server;
 
-import android.content.Intent;
 
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;

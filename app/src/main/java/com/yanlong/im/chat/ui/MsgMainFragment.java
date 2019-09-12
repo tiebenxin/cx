@@ -507,7 +507,10 @@ public class MsgMainFragment extends Fragment {
                         break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo.getMsg_type() == 8) {
+                            if (msginfo.getMsg_type() == null) {
+                                return;
+                            }
+                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[@所有人]" + bean.getAtMessage());
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));

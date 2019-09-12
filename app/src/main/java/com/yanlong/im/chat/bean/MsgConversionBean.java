@@ -2,11 +2,13 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -278,14 +280,17 @@ public class MsgConversionBean {
                 msgAllBean.setMsgNotice(gnewAdminNotice);
                 break;
             case OUT_GROUP://退出群
-
                 msgAllBean.setGid(bean.getOutGroup().getGid());
-
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice goutNotice = new MsgNotice();
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
-                goutNotice.setNote("\"<font color='#276baa' id='" + bean.getChangeGroupMaster().getUid() + "'>" + bean.getNickname() + "</font>\"" + "离开群聊" + "<div id='" + bean.getGid() + "'></div>");
+                String name = bean.getNickname();
+                UserInfo user = new UserDao().findUserInfo(bean.getFromUid());
+                if (user != null && !TextUtils.isEmpty(user.getMkName())) {
+                    name = user.getMkName();
+                }
+                goutNotice.setNote("\"<font color='#276baa' id='" + bean.getChangeGroupMaster().getUid() + "'>" + name + "</font>\"" + "离开群聊" + "<div id='" + bean.getGid() + "'></div>");
                 msgAllBean.setMsgNotice(goutNotice);
                 break;
             case CHANGE_GROUP_META://修改群信息
@@ -351,7 +356,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsgCancel(msgCel);
 
                 break;
-            default://普通通知，不产生本地显示的消息，直接return null
+            default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
         }
 

@@ -49,6 +49,16 @@ public class GlideOptionsUtil {
         return mRequestOptions;
     }
 
+    //普通图片 不带圆角有默认图
+    public static RequestOptions defImageOptions1() {
+        RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
+                .error(R.mipmap.ic_img_def)
+                .placeholder(R.mipmap.ic_img_def)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)//不做磁盘缓存
+                .skipMemoryCache(false)
+                .centerCrop();
+        return mRequestOptions;
+    }
 
 
     //普通图片不带圆角默认图
