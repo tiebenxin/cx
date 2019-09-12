@@ -22,6 +22,7 @@ import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
 import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyException;
+
 import net.cb.cb.library.utils.UpLoadUtils;
 
 import org.android.agoo.huawei.HuaWeiRegister;
@@ -59,7 +60,9 @@ public class MyAppLication extends MainApplication {
                 break;
             case "release":
                 AppConfig.DEBUG = false;
-                AppConfig.URL_HOST = "https://baidu.com";
+                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
+                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
+                AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "product-environment";
                 break;
         }
@@ -163,7 +166,7 @@ public class MyAppLication extends MainApplication {
                 //vivo
                 VivoRegister.register(getApplicationContext());
                 //meizu
-                MeizuRegister.register(getApplicationContext(), "xx", "xx");
+                MeizuRegister.register(getApplicationContext(), "124048", "a5ee5372a0e847c8a1fd28830e67aa6d");
 
 
                 //每次启动,一定要开启这个

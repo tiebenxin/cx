@@ -371,8 +371,8 @@ public class UserInfoActivity extends AppActivity {
             userInfoLocal = userAction.getUserInfoInLocal(id);
             if (userInfoLocal != null) {
                 setData(userInfoLocal);
+                userDao.updateUserinfo(userInfoLocal);
             }
-            userDao.updateUserinfo(userInfoLocal);
 
             userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
                 @Override

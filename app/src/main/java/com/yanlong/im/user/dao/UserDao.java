@@ -30,6 +30,9 @@ public class UserDao {
      * @param userInfo
      */
     public void updateUserinfo(UserInfo userInfo) {
+        if (userInfo == null) {
+            return;
+        }
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(userInfo);

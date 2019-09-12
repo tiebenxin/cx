@@ -280,15 +280,20 @@ public class MsgConversionBean {
                 msgAllBean.setMsgNotice(gnewAdminNotice);
                 break;
             case OUT_GROUP://退出群
-                msgAllBean.setGid(bean.getOutGroup().getGid());
+                String gid = bean.getOutGroup().getGid();
+                msgAllBean.setGid(gid);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice goutNotice = new MsgNotice();
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
                 String name = bean.getNickname();
-                UserInfo user = new UserDao().findUserInfo(bean.getFromUid());
+                UserDao userDao = new UserDao();
+                UserInfo user = userDao.findUserInfo(bean.getFromUid());
                 if (user != null && !TextUtils.isEmpty(user.getMkName())) {
                     name = user.getMkName();
+                }
+                if (TextUtils.isEmpty(name)) {
+                    name = new MsgDao().getUsername4Show(gid, bean.getFromUid());
                 }
                 goutNotice.setNote("\"<font color='#276baa' id='" + bean.getChangeGroupMaster().getUid() + "'>" + name + "</font>\"" + "离开群聊" + "<div id='" + bean.getGid() + "'></div>");
                 msgAllBean.setMsgNotice(goutNotice);
