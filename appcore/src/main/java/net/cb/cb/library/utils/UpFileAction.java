@@ -103,7 +103,7 @@ public class UpFileAction {
                         }
                         if (response.body().isOk()) {
                             final AliObsConfigBean configBean = response.body().getData();
-                            if(StringUtil.isNotNull( configBean.getSecurityToken())){
+                            if(!StringUtil.isNotNull( configBean.getSecurityToken())){
 
                                 callback.fail();
                                 return;
