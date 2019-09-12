@@ -25,11 +25,16 @@
 
          />
     <LinearLayout   android:id="@+id/view_search" style="@style/app_layout_list2">
-
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            >
         <LinearLayout
-
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/shape_search_bg"
             style="@style/app_layout_list2_item"
-            android:paddingRight="0dp">
+            >
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -39,13 +44,13 @@
 
             <net.cb.cb.library.view.ClearEditText
                 android:id="@+id/edt_search"
-                style="@style/app_edt1"
-                android:layout_marginRight="@dimen/app_margin_main"
+                style="@style/app_layout_seacher_item"
                 android:hint="搜索"
                 android:imeOptions="actionSearch" />
 
 
         </LinearLayout>
+        </RelativeLayout>
 
         <View
             style="@style/app_line"

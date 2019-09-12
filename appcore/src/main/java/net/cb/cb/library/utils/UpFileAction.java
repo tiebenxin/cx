@@ -103,7 +103,7 @@ public class UpFileAction {
                         }
                         if (response.body().isOk()) {
                             final AliObsConfigBean configBean = response.body().getData();
-                            if(StringUtil.isNotNull( configBean.getSecurityToken())){
+                            if(!StringUtil.isNotNull( configBean.getSecurityToken())){
 
                                 callback.fail();
                                 return;
@@ -113,10 +113,14 @@ public class UpFileAction {
                                 public void run() {
                                     long timeCost=SystemClock.currentThreadTimeMillis()-startTime;
 
+//                                    String textToken="CAISmQJ1q6Ft5B2yfSjIr4nRCOvagOxqwLPZMGfB3TIGb9trm5TGuzz2IHtLfXhvAu8Zs/oyn29Z5/sflqZiQplBQkrLKMp1q4ha6h/51G8UT3bwv9I+k5SANTW5OXyShb3vAYjQSNfaZY3aCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ4PGS/diEURq0VRG1YpdQdKGHaONu0LxfumRCwNkdzvRdmgm4Njsbay8aHuB3Flw+4mK1H5aaJe8j7NZcyZcgvC4rsg7UrL5CsinAAt0J4k45tl7FB9Dv9udWQPkJc+R3uMZCPqYI2fVAiOfdnRfMf86mtyKBiyeXXlpXqzRFWJv1SUCnZS42mzdHNBOSzLNE9eKYM8cVEal1OXRqAAakBtm9ZuHW+cnfVxK4PJgmkPwBpMXLZ99oYyk+5E8jbZ4ArgAtdawN2i/syq8GrlHbVwOkvgeeF+nesQdgbKb86a7ZTHsawGZjzvi+xN6FlQwXMw2EA1tb/Wokcz3+EUxE3RLt6CuQ7PNxk65mvIgWqiyFLUozRV3sAUbElSds+";
+//                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
+//                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
+//                                            configBean.getBucket(), callback, filePath, fileByte);
                                     UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
                                             configBean.getBucket(), callback, filePath, fileByte);
-//                                    Log.e("YTAG", configBean.getSecurityToken());
+
                                     UpLoadUtils.getInstance().upLoadLog(timeCost+"--------"+configBean.toString());
                                 }
                             }).start();
@@ -132,7 +136,7 @@ public class UpFileAction {
                         super.onFailure(call, t);
                         callback.fail();
                         long timeCost=SystemClock.currentThreadTimeMillis()-startTime;
-                        UpLoadUtils.getInstance().upLoadLog(timeCost+"--------失败");
+                        UpLoadUtils.getInstance().upLoadLog(timeCost+"--------失败"+call.request().body().toString());
                     }
                 });
 
