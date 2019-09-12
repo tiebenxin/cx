@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PhoneListUtil {
-    private String[] permission = new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS};
+    private String[] permission = new String[]{Manifest.permission.READ_CONTACTS/*, Manifest.permission.WRITE_CONTACTS*/};
 
     private Activity activity;
     private Event event;

@@ -362,14 +362,16 @@ public class UserInfoActivity extends AppActivity {
     private void taskUserInfo(Long id) {
         if (id == 1L) {
             setItemShow(3);
-            UserDao dao = new UserDao();
-            UserInfo info = dao.findUserInfo(id);
-            tv_introduce.setText(info.getDescribe());
-            txtMkname.setText(info.getName());
+            UserInfo info = userDao.findUserInfo(id);
+            if (info != null) {
+                tv_introduce.setText(info.getDescribe());
+                txtMkname.setText(info.getName());
+            }
         } else {
             userInfoLocal = userAction.getUserInfoInLocal(id);
             if (userInfoLocal != null) {
                 setData(userInfoLocal);
+                userDao.updateUserinfo(userInfoLocal);
             }
 
             userAction.getUserInfo4Id(id, new CallBack<ReturnBean<UserInfo>>() {
@@ -483,7 +485,7 @@ public class UserInfoActivity extends AppActivity {
         userAction.friendApply(id, sayHi, null, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                EventBus.getDefault().post(new EventRefreshFriend());
+//                notifyRefreshRoster(id);
                 if (response.body() == null) {
                     return;
                 }
@@ -491,7 +493,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 if (response.body().isOk()) {
                     finish();
-                    EventBus.getDefault().post(new EventRefreshFriend());
+//                    notifyRefreshRoster();
                 }
             }
         });
@@ -502,7 +504,7 @@ public class UserInfoActivity extends AppActivity {
         userAction.friendBlack(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                EventBus.getDefault().post(new EventRefreshFriend());
+//                notifyRefreshRoster();
                 if (response.body() == null) {
                     return;
                 }
@@ -510,14 +512,14 @@ public class UserInfoActivity extends AppActivity {
                 tvBlack.setText("解除黑名单");
                 userDao.updeteUserUtype(id, 3);
                 ToastUtil.show(context, response.body().getMsg());
-                EventBus.getDefault().post(new EventRefreshFriend());
+                notifyRefreshRoster(id);
 
             }
         });
     }
 
 
-    private void taskFriendBlackRemove(Long uid) {
+    private void taskFriendBlackRemove(final Long uid) {
         userAction.friendBlackRemove(uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -528,9 +530,16 @@ public class UserInfoActivity extends AppActivity {
                 tvBlack.setText("加入黑名单");
                 userDao.updeteUserUtype(id, 2);
                 ToastUtil.show(context, response.body().getMsg());
-                EventBus.getDefault().post(new EventRefreshFriend());
+                notifyRefreshRoster(uid);
             }
         });
+    }
+
+    private void notifyRefreshRoster(long uid) {
+        EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
+        eventRefreshFriend.setLocal(true);
+        eventRefreshFriend.setUid(uid);
+        EventBus.getDefault().post(eventRefreshFriend);
     }
 
 
@@ -545,14 +554,14 @@ public class UserInfoActivity extends AppActivity {
                 //刷新好友和退出
                 if (response.body().isOk()) {
                     userDao.updeteUserUtype(id, 0);
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    notifyRefreshRoster(id);
                     finish();
                 }
             }
         });
     }
 
-    private void taskFriendMark(final Long id, String mark) {
+    private void taskFriendMark(final Long id, final String mark) {
         userAction.friendMark(id, mark, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -561,7 +570,8 @@ public class UserInfoActivity extends AppActivity {
                 }
                 //6.3
                 if (response.body().isOk()) {
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    updateUserInfo(mark);
+                    notifyRefreshRoster(id);
                     EventBus.getDefault().post(new EventRefreshMainMsg());
                 }
                 taskUserInfo(id);
@@ -571,8 +581,15 @@ public class UserInfoActivity extends AppActivity {
 
     }
 
+    private void updateUserInfo(String mark) {
+        if (userInfoLocal != null) {
+            userInfoLocal.setMkName(mark);
+            userDao.updateUserinfo(userInfoLocal);
+        }
+    }
 
-    private void taskFriendAgree(Long uid, String contactName) {
+
+    private void taskFriendAgree(final Long uid, String contactName) {
         userAction.friendAgree(uid, contactName, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -581,7 +598,7 @@ public class UserInfoActivity extends AppActivity {
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    EventBus.getDefault().post(new EventRefreshFriend());
+                    notifyRefreshRoster(uid);
                     finish();
                 }
             }
