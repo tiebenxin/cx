@@ -189,7 +189,7 @@ public class UserInfoActivity extends AppActivity {
                 if (type == 0) {
                     final AlertYesNo alertYesNo = new AlertYesNo();
                     alertYesNo.init(UserInfoActivity.this, "拉入黑名单",
-                            "确定将此-好友拉入黑名单吗?", "确定", "取消", new AlertYesNo.Event() {
+                            "确定将此好友拉入黑名单吗?", "确定", "取消", new AlertYesNo.Event() {
                                 @Override
                                 public void onON() {
 
