@@ -22,6 +22,7 @@ import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
 import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyException;
+
 import net.cb.cb.library.utils.UpLoadUtils;
 
 import org.android.agoo.huawei.HuaWeiRegister;
