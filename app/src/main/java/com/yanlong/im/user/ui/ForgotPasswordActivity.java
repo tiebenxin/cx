@@ -93,8 +93,8 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
             ToastUtil.show(ForgotPasswordActivity.this, "请填写手机号码");
             return;
         }
-        if (!CheckUtil.isMobileNO(phone)) {
-            ToastUtil.show(this, "手机号不合法");
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this, "手机号格式不正确");
             return;
         }
 
@@ -119,8 +119,8 @@ public class ForgotPasswordActivity extends AppActivity implements View.OnClickL
             ToastUtil.show(this, "请输入验证码");
             return;
         }
-        if (!CheckUtil.isMobileNO(phone)) {
-            ToastUtil.show(this, "手机号不合法");
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this, "手机号格式不正确");
             return;
         }
         if (TextUtils.isEmpty(password)) {

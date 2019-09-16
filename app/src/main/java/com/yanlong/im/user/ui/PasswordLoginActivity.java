@@ -17,6 +17,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack4Btn;
+import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -131,7 +132,11 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             ToastUtil.show(this, "请输入密码");
             return;
         }
-        LogUtil.getLog().i("youmeng","PasswordLoginActivity------->getDevId");
+
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this, "手机号格式不正确");
+            return;
+        }
 
         new RunUtils(new RunUtils.Enent() {
             String devId;

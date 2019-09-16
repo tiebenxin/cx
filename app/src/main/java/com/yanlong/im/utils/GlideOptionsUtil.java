@@ -21,6 +21,7 @@ public class GlideOptionsUtil {
                 .placeholder(R.mipmap.ic_info_head)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false);
+
               //  .centerCrop();
         return mRequestOptions;
     }
@@ -32,7 +33,7 @@ public class GlideOptionsUtil {
         RequestOptions mRequestOptions = RequestOptions.bitmapTransform(roundedCorners)
                 .error(R.mipmap.ic_img_def)
                 .placeholder(R.mipmap.ic_img_def)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)//不做磁盘缓存
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
                 .fitCenter();
         return mRequestOptions;
@@ -43,7 +44,7 @@ public class GlideOptionsUtil {
         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                 .error(R.mipmap.ic_img_def)
                 .placeholder(R.mipmap.ic_img_def)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)//不做磁盘缓存
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
                 .fitCenter();
         return mRequestOptions;
@@ -54,7 +55,7 @@ public class GlideOptionsUtil {
         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
                 .error(R.mipmap.ic_img_def)
                 .placeholder(R.mipmap.ic_img_def)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)//不做磁盘缓存
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
                 .centerCrop();
         return mRequestOptions;
@@ -64,7 +65,7 @@ public class GlideOptionsUtil {
     //普通图片不带圆角默认图
     public static RequestOptions notDefImageOptions() {
         RequestOptions mRequestOptions = RequestOptions.centerInsideTransform()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)//不做磁盘缓存
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
                 .fitCenter();
         return mRequestOptions;
@@ -77,7 +78,7 @@ public class GlideOptionsUtil {
         RequestOptions mRequestOptions = RequestOptions.circleCropTransform()
                 .error(R.mipmap.ic_info_head)
                 .placeholder(R.mipmap.ic_info_head)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)//不做磁盘缓存
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false)
                 .centerCrop();
         return mRequestOptions;
