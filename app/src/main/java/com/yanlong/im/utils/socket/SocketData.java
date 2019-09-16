@@ -682,7 +682,7 @@ public class SocketData {
         msgAllBean.setFrom_avatar(myinfo.getHead());
         msgAllBean.setFrom_nickname(myinfo.getName());
         msgAllBean.setRequest_id(getSysTime() + "");
-        msgAllBean.setTimestamp(getSysTime());
+        msgAllBean.setTimestamp(time);
         msgAllBean.setMsg_type(type);
         switch (type) {
             case ChatEnum.EMessageType.IMAGE:

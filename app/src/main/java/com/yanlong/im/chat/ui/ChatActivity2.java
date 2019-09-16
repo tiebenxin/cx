@@ -746,7 +746,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
-                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
 //                replaceListDataAndNotify(msg);
                 msgListData.add(msg);
                 notifyData2Bottom(true);
@@ -1293,7 +1293,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, imageMessage, ChatEnum.EMessageType.IMAGE);
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                         msgListData.add(imgMsgBean);
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
                         startService(new Intent(getContext(), UpLoadService.class));
@@ -1564,7 +1564,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                 String file = remsg.getImage().getLocalimg();
                 boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
                 ImageMessage message = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
-                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, message, ChatEnum.EMessageType.IMAGE);
+                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, remsg.getTimestamp(), message, ChatEnum.EMessageType.IMAGE);
                 replaceListDataAndNotify(imgMsgBean);
                 UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                 startService(new Intent(getContext(), UpLoadService.class));
@@ -1882,7 +1882,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                             if (!TextUtils.isEmpty(file)) {
                                 boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
                                 ImageMessage image = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
-                                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
+                                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, remsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
                                 replaceListDataAndNotify(imgMsgBean);
                                 UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                                 startService(new Intent(getContext(), UpLoadService.class));
