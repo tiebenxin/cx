@@ -352,8 +352,6 @@ public class GroupCreateActivity extends AppActivity {
         }
         File file = GroupHeadImageUtil.synthesis(this, url);
 
-
-        name = name.length() > 0 ? name.substring(0, name.length() - 2) : name;
         name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
         name += "的群";
         final String fname = name;
@@ -395,7 +393,7 @@ public class GroupCreateActivity extends AppActivity {
                     public void run() {
                         actionbar.getViewRight().setEnabled(true);
                         alert.dismiss();
-                        ToastUtil.show(getContext(),"上传失败(oss)");
+                        ToastUtil.show(getContext(), "上传失败(oss)");
                     }
                 });
 
