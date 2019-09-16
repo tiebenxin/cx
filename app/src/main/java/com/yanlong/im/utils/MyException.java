@@ -28,11 +28,11 @@ public class MyException implements Thread.UncaughtExceptionHandler {
     public void uncaughtException(Thread t, Throwable ex) {
         Log.e("TAG","捕获到异常"+ex.getMessage());
         ToastUtil.show(mContext,"程序异常!即将退出");
-//        try{
-//            Thread.sleep(3000);
-//            android.os.Process.killProcess(android.os.Process.myPid());
-//            System.exit(0);
-//        }catch (InterruptedException exce){
-//        }
+       try{
+           // Thread.sleep(3000);
+            android.os.Process.killProcess(android.os.Process.myPid());
+           System.exit(0);
+       }catch (Exception exce){
+        }
     }
 }
