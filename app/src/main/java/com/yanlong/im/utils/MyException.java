@@ -30,7 +30,7 @@ public class MyException implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread t, Throwable ex) {
         Log.e("TAG","捕获到异常"+ex.getMessage());
-        ToastUtil.show(mContext,"程序异常!即将退出");
+       // ToastUtil.show(mContext,"程序异常!即将退出");
        try{
            // Thread.sleep(3000);
            mContext.stopService(new Intent(mContext, ChatServer.class));
