@@ -549,11 +549,13 @@ public class GroupInfoActivity extends AppActivity {
             }
         };
 
-        if (isAdmin()) {//群主解散
-            msgAction.groupDestroy(gid, callBack);
-        } else {//成员退出
-            msgAction.groupQuit(gid, callBack);
-        }
+        msgAction.groupQuit(gid,UserAction.getMyInfo().getName(), callBack);
+
+//        if (isAdmin()) {//群主解散
+//            msgAction.groupDestroy(gid, callBack);
+//        } else {//成员退出
+//
+//        }
 
 
     }
