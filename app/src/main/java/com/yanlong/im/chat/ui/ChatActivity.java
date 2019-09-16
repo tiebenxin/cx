@@ -10,7 +10,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -18,6 +20,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +46,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.adapter.EmojiAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
@@ -73,6 +77,7 @@ import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.user.ui.MyViewPager;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
@@ -171,6 +176,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View imgEmojiDel;
     private Button btnSend;
     private Button txtVoice;
+    private MyViewPager emoji_pager;
 
     private Integer font_size;
 
@@ -207,6 +213,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private int contactIntimately;
     private String master;
     private TextView tv_ban;
+    private ConstraintLayout emoji_pager_con;
 
 
     private boolean isGroup() {
@@ -347,7 +354,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
     }
-
+    private  List<View>  emojiLayout;
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -359,6 +366,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnFunc = findViewById(R.id.btn_func);
         viewFunc = findViewById(R.id.view_func);
         viewEmoji = findViewById(R.id.view_emoji);
+        emoji_pager_con = findViewById(R.id.emoji_pager_con);
+        emoji_pager = findViewById(R.id.emoji_pager);
         viewPic = findViewById(R.id.view_pic);
         viewCamera = findViewById(R.id.view_camera);
         viewRb = findViewById(R.id.view_rb);
@@ -374,6 +383,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         txtVoice = findViewById(R.id.txt_voice);
         tv_ban = findViewById(R.id.tv_ban);
         setChatImageBackground();
+        emojiLayout=new ArrayList<>();
+        View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
+        View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
+        emojiLayout.add(view1);
+        emojiLayout.add(view2);
+        emoji_pager.setAdapter(new EmojiAdapter(emojiLayout,edtChat));
     }
 
     @Override
@@ -561,7 +576,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
 
-                if (viewEmoji.getVisibility() == View.VISIBLE) {
+                if (emoji_pager_con.getVisibility() == View.VISIBLE) {
 
                     hideBt();
                     InputUtil.showKeyboard(edtChat);
@@ -578,31 +593,62 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
-        //emoji表情处理
-        for (int i = 0; i < viewEmoji.getChildCount(); i++) {
-            if (viewEmoji.getChildAt(i) instanceof TextView) {
-                final TextView tv = (TextView) viewEmoji.getChildAt(i);
-                tv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        edtChat.getText().insert(edtChat.getSelectionEnd(), tv.getText());
-                    }
-                });
-            }
 
+                //todo  emoji表情处理
+        for (int j=0;j<emojiLayout.size();j++){
+
+            GridLayout viewEmojiItem=(GridLayout) emojiLayout.get(j).findViewById(R.id.view_emoji);
+            for (int i = 0; i < viewEmojiItem.getChildCount(); i++) {
+                if (viewEmojiItem.getChildAt(i) instanceof TextView) {
+                    final TextView tv = (TextView) viewEmojiItem.getChildAt(i);
+                    tv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            edtChat.getText().insert(edtChat.getSelectionEnd(), tv.getText());
+                        }
+                    });
+                }else{
+                    viewEmojiItem.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int keyCode = KeyEvent.KEYCODE_DEL;
+                            KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
+                            KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
+                            edtChat.onKeyDown(keyCode, keyEventDown);
+                            edtChat.onKeyUp(keyCode, keyEventUp);
+                        }
+                    });
+
+                }
+
+            }
         }
-        imgEmojiDel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                int keyCode = KeyEvent.KEYCODE_DEL;
-                KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
-                KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
-                edtChat.onKeyDown(keyCode, keyEventDown);
-                edtChat.onKeyUp(keyCode, keyEventUp);
-
-            }
-        });
+//        //emoji表情处理
+//        for (int i = 0; i < viewEmoji.getChildCount(); i++) {
+//            if (viewEmoji.getChildAt(i) instanceof TextView) {
+//                final TextView tv = (TextView) viewEmoji.getChildAt(i);
+//                tv.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        edtChat.getText().insert(edtChat.getSelectionEnd(), tv.getText());
+//                    }
+//                });
+//            }
+//
+//        }
+//        imgEmojiDel.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                int keyCode = KeyEvent.KEYCODE_DEL;
+//                KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
+//                KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
+//                edtChat.onKeyDown(keyCode, keyEventDown);
+//                edtChat.onKeyUp(keyCode, keyEventUp);
+//
+//            }
+//        });
 
 
         viewCamera.setOnClickListener(new View.OnClickListener() {
@@ -838,7 +884,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         if (isRun == 1) {
                             isRun = 2;
                             //7.5
-
                             InputUtil.hideKeyboard(edtChat);
                             hideBt();
                             btnEmj.setImageLevel(0);
@@ -1051,7 +1096,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         break;
                     case 1://emoji面板
 
-                        viewEmoji.setVisibility(View.VISIBLE);
+//                        viewEmoji.setVisibility(View.VISIBLE);
+                        emoji_pager_con.setVisibility(View.VISIBLE);
 
                         break;
                     case 2://语音
@@ -1123,7 +1169,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void hideBt() {
         viewFunc.setVisibility(View.GONE);
-        viewEmoji.setVisibility(View.GONE);
+        emoji_pager_con.setVisibility(View.GONE);
 
     }
 
@@ -1133,8 +1179,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.setVisibility(View.GONE);
             return;
         }
-        if (viewEmoji.getVisibility() == View.VISIBLE) {
-            viewEmoji.setVisibility(View.GONE);
+        if (emoji_pager_con.getVisibility() == View.VISIBLE) {
+            emoji_pager_con.setVisibility(View.GONE);
             btnEmj.setImageLevel(0);
             return;
         }
