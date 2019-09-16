@@ -404,6 +404,17 @@
         <item name="android:paddingRight">@dimen/app_margin_main</item>
     </style>
 
+    <!--设置项-->
+    <style name="app_layout_list2_item_search">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingLeft">@dimen/app_margin_main</item>
+        <item name="android:paddingRight">@dimen/app_margin_main</item>
+    </style>
+
     <!--红包设置项-->
     <style name="app_layout_list3_item">
         <item name="android:layout_width">match_parent</item>

@@ -29,18 +29,17 @@
         android:paddingTop="10dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:paddingBottom="10dp">
+        >
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="32dp"
-
+            android:layout_height="42dp"
             android:background="@color/white"
             >
         <LinearLayout
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:background="@drawable/shape_search_bg"
-            style="@style/app_layout_list2_item"
+            style="@style/app_layout_list2_item_search"
             >
 
             <ImageView
@@ -60,9 +59,9 @@
         </LinearLayout>
         </RelativeLayout>
 
-     <!--   <View
+       <View
             style="@style/app_line"
-             />-->
+             />
 
         <LinearLayout
             android:id="@+id/view_network"
