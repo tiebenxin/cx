@@ -121,7 +121,8 @@
 
                     <include layout="@layout/part_chat_func" />
 
-                    <include layout="@layout/part_chat_emoji" />
+                    <include layout="@layout/part_chat_emoji" android:visibility="gone"/>
+                    <include layout="@layout/item_emoji_pager" />
                 </LinearLayout>
 
 
