@@ -118,8 +118,8 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(IdentifyingCodeActivity.this, "请填写手机号码");
             return;
         }
-        if (!CheckUtil.isMobileNO(phone)) {
-            ToastUtil.show(this, "手机号不合法");
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this, "手机号格式不正确");
             return;
         }
         CountDownUtil.getTimer(60, mTvGetVerificationCode, "发送验证码", this, new CountDownUtil.CallTask() {
@@ -142,8 +142,8 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             ToastUtil.show(this, "请输入验证码");
             return;
         }
-        if (!CheckUtil.isMobileNO(phone)) {
-            ToastUtil.show(this, "手机号不合法");
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this, "手机号格式不正确");
             return;
         }
         LogUtil.getLog().i("youmeng","IdentifyingCodeActivity------->getDevId");

@@ -20,6 +20,7 @@ import com.yanlong.im.utils.PasswordTextWather;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack4Btn;
+import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
@@ -157,6 +158,8 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
         // mBtnLogin.setEnabled(false);
         final String password = mEtPasswordContent.getText().toString();
         final String phone = mTvPhoneNumber.getText().toString();
+
+
         if (TextUtils.isEmpty(phone)) {
             ToastUtil.show(this, "请输入账号");
             return;
@@ -165,6 +168,12 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             ToastUtil.show(this, "请输入密码");
             return;
         }
+
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this, "手机号格式不正确");
+            return;
+        }
+
         LogUtil.getLog().i("youmeng","LoginActivity------->getDevId");
         new RunUtils(new RunUtils.Enent() {
             String devId;

@@ -73,8 +73,8 @@ public class MsgAction {
 
     }
 
-    public void groupQuit(final String id, final CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupQuit(id), new CallBack<ReturnBean>() {
+    public void groupQuit(final String id,String nickname, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupQuit(id,nickname), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null)

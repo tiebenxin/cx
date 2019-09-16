@@ -21,7 +21,7 @@ public interface MsgServer {
 
     @POST("/group/quit")
     @FormUrlEncoded
-    Call<ReturnBean> groupQuit(@Field("gid") String gid);
+    Call<ReturnBean> groupQuit(@Field("gid") String gid,@Field("nickname") String nickname);
 
     @POST("/group/remove-members")
     @FormUrlEncoded

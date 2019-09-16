@@ -147,8 +147,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             ToastUtil.show(RegisterActivity.this, "请填写手机号码");
             return;
         }
-        if (!CheckUtil.isMobileNO(phone)) {
-            ToastUtil.show(this, "手机号不合法");
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this, "手机号格式不正确");
             return;
         }
 
@@ -172,8 +172,8 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             ToastUtil.show(this, "请输入验证码");
             return;
         }
-        if (!CheckUtil.isMobileNO(phone)) {
-            ToastUtil.show(this, "手机号不合法");
+        if(!CheckUtil.isMobileNO(phone)){
+            ToastUtil.show(this, "手机号格式不正确");
             return;
         }
         taskRegister(phone, code);
