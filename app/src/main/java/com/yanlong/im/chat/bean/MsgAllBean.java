@@ -1,6 +1,8 @@
 package com.yanlong.im.chat.bean;
 
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.yanlong.im.chat.ChatEnum;
@@ -8,7 +10,9 @@ import com.yanlong.im.chat.ui.cell.IChatModel;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.RealmObject;
@@ -241,6 +245,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     }
 
     public void setTimestamp(Long timestamp) {
+        LogUtil.getLog().i(MsgAllBean.class.getSimpleName(), SocketData.getSysTime() + "\r\n" + Log.getStackTraceString(new Throwable()));
         this.timestamp = timestamp;
     }
 

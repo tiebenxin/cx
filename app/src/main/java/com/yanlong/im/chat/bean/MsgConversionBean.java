@@ -29,18 +29,30 @@ public class MsgConversionBean {
      * @return
      */
     public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean) {
-        return ToBean(bean, null);
+        return ToBean(bean, null, false);
     }
 
 
-    public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean, MsgBean.UniversalMessage.Builder msg) {
+    /*
+     * @param isError是否是发送失败消息
+     * */
+    public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean, MsgBean.UniversalMessage.Builder msg, boolean isError) {
         if (bean.getMsgType() == MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
             return null;
         }
         MsgDao msgDao = new MsgDao();
         //手动处理转换
         MsgAllBean msgAllBean = new MsgAllBean();
-        msgAllBean.setTimestamp(bean.getTimestamp());
+        if (isError) {
+            msgAllBean.setTimestamp(bean.getTimestamp());
+        } else {
+            if (msg != null) {
+                msgAllBean.setTimestamp(msg.getWrapMsg(0).getTimestamp());
+            } else {
+                msgAllBean.setTimestamp(bean.getTimestamp());
+            }
+
+        }
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setFrom_avatar(bean.getAvatar());
         msgAllBean.setFrom_nickname(bean.getNickname());

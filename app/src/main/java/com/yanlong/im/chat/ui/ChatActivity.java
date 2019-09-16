@@ -233,7 +233,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 @Override
                 public void run() {
                     fixSendTime(bean.getMsgId(0));
-                    if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
+                    if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage();
 //                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
@@ -306,7 +306,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         return;
                     }
                     //ToastUtil.show(context, "发送失败" + bean.getRequestId());
-                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
+                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
                     if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CENCAL) {//取消的指令不保存到数据库
                         return;
                     }
@@ -798,7 +798,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
-                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, SocketData.getFixTime(),voice, ChatEnum.EMessageType.VOICE);
                 msgListData.add(msg);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -1305,7 +1305,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, imageMessage, ChatEnum.EMessageType.IMAGE);
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid,SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
 
                         msgListData.add(imgMsgBean);
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
@@ -1576,12 +1576,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgBean.getMsg_id());
 
         try {
+            LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id() + "--" + reMsg.getTimestamp());
             if (reMsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
                 String file = reMsg.getImage().getLocalimg();
                 if (!TextUtils.isEmpty(file)) {
                     boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? true : false;
                     ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), file, isArtworkMaster);
-                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
+                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(),image, ChatEnum.EMessageType.IMAGE);
                     replaceListDataAndNotify(imgMsgBean);
                     UpLoadService.onAdd(reMsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
                     startService(new Intent(getContext(), UpLoadService.class));
@@ -1589,7 +1590,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //点击发送的时候如果要改变成发送中的状态
                     reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                     DaoUtil.update(reMsg);
-                    LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id());
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage();
@@ -1604,23 +1604,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //点击发送的时候如果要改变成发送中的状态
                     reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                     DaoUtil.update(reMsg);
-                    LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id());
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     replaceListDataAndNotify(reMsg);
 //                                taskRefreshMessage();
                 }
-
             } else {
                 //点击发送的时候如果要改变成发送中的状态
                 reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                 DaoUtil.update(reMsg);
-                LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id());
                 MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                 SocketUtil.getSocketUtil().sendData4Msg(bean);
                 taskRefreshMessage();
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2576,8 +2572,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     /*
-    * 是否已经退出
-    * */
+     * 是否已经退出
+     * */
     private void setBanView(boolean isExited) {
         actionbar.getBtnRight().setVisibility(isExited ? View.GONE : View.VISIBLE);
         tv_ban.setVisibility(isExited ? VISIBLE : GONE);

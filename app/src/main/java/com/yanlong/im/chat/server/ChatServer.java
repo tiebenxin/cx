@@ -9,9 +9,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
@@ -23,7 +21,6 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
-import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -35,15 +32,12 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
-import net.cb.cb.library.utils.ToastUtil;
-
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
@@ -190,8 +184,8 @@ public class ChatServer extends Service {
                     }
 
                     msgDao.remidCount("friend_apply");
-                    EventBus.getDefault().post(new EventRefreshMainMsg());
                     notifyRefreshFriend(true, msg.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
+//                    EventBus.getDefault().post(new EventRefreshMainMsg());//onMsg中有刷新
                     return;
                 case ACCEPT_BE_FRIENDS:
                     // ToastUtil.show(AppConfig.APP_CONTEXT, "接收好友请求");
@@ -210,8 +204,8 @@ public class ChatServer extends Service {
 
                         msgDao.groupAcceptAdd(msg.getRequestGroup().getJoinType().getNumber(), msg.getRequestGroup().getInviter(), msg.getRequestGroup().getInviterName(), msg.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
                     }
-                    EventBus.getDefault().post(new EventRefreshMainMsg());
                     notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);
+//                    EventBus.getDefault().post(new EventRefreshMainMsg());//onMsg中有刷新
                     return;
                 case ACCEPT_BE_GROUP://群主会收到成员已经进群的消息
                     //  ToastUtil.show(getApplicationContext(), "接受入群请求");

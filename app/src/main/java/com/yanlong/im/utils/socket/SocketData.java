@@ -50,8 +50,6 @@ public class SocketData {
     private static MsgDao msgDao = new MsgDao();
 
 
-
-
     /***
      * 处理一些统一的数据,用于发送消息时获取
      * @return
@@ -230,7 +228,7 @@ public class SocketData {
                     .build();
             //  Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
 
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
@@ -272,7 +270,7 @@ public class SocketData {
                     // .setTimestamp(System.currentTimeMillis())
                     .build();
             Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
@@ -307,7 +305,7 @@ public class SocketData {
                     //时间要和ack一起返回
 //                    .setTimestamp(getSysTime())
                     .build();
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg);
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, true);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
@@ -378,7 +376,7 @@ public class SocketData {
 
     private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, type, value);
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, getFixTime(), type, value);
 
 
         if (isSave && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
@@ -409,7 +407,7 @@ public class SocketData {
      * @param value
      * @return
      */
-    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, MsgBean.MessageType type, Object value) {
+    private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
         if (toId != null && toId > 0) {//给个人发
             msg.setToUid(toId);
@@ -430,7 +428,7 @@ public class SocketData {
 
 
 //        wmsg.setTimestamp(getSysTime());
-        wmsg.setTimestamp(getFixTime());
+        wmsg.setTimestamp(time);
 
         if (toGid != null && toGid.length() > 0) {//给群发
             wmsg.setGid(toGid);
@@ -675,7 +673,7 @@ public class SocketData {
 
 
     //预发送需文件（图片，语音）上传消息,保存消息及更新session
-    public static <T> MsgAllBean sendFileUploadMessagePre(String msgId, Long toId, String toGid, T t, @ChatEnum.EMessageType int type) {
+    public static <T> MsgAllBean sendFileUploadMessagePre(String msgId, Long toId, String toGid, long time, T t, @ChatEnum.EMessageType int type) {
         //前保存
         MsgAllBean msgAllBean = new MsgAllBean();
         msgAllBean.setMsg_id(msgId);
@@ -684,7 +682,7 @@ public class SocketData {
         msgAllBean.setFrom_avatar(myinfo.getHead());
         msgAllBean.setFrom_nickname(myinfo.getName());
         msgAllBean.setRequest_id(getSysTime() + "");
-        msgAllBean.setTimestamp(getSysTime());
+        msgAllBean.setTimestamp(time);
         msgAllBean.setMsg_type(type);
         switch (type) {
             case ChatEnum.EMessageType.IMAGE:
@@ -814,7 +812,7 @@ public class SocketData {
                 .build();
 
         if (toId.longValue() == UserAction.getMyId().longValue()) {//自己的不发红包通知,只保存
-            MsgBean.UniversalMessage.Builder umsg = toMsgBuilder(null, toId, toGid, MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
+            MsgBean.UniversalMessage.Builder umsg = toMsgBuilder(null, toId, toGid, getFixTime(), MsgBean.MessageType.RECEIVE_RED_ENVELOPER, msg);
             msgSave4Me(umsg, 0);
             return MsgConversionBean.ToBean(umsg.getWrapMsg(0));
         }
@@ -881,11 +879,11 @@ public class SocketData {
                 type = MsgBean.MessageType.VOICE;
                 break;
         }
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), type, value);
-        if (msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
-            msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
-        }
-
+        saveMessage(bean);
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
+//        if (msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
+//            msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
+//        }
         //立即发送
         SocketUtil.getSocketUtil().sendData4Msg(msg);
 
