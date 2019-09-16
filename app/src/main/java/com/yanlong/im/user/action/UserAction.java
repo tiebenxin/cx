@@ -171,7 +171,6 @@ public class UserAction {
                     initDB("" + response.body().getData().getUid());
 
 
-
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
                 }
@@ -244,7 +243,11 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk()) {
                     UserInfo userInfo = response.body().getData();
                     userInfo.toTag();
-                    userInfo.setuType(type);
+                    if (userInfo.getStat() != 0) {//优先设置为好友
+                        userInfo.setuType(type);
+                    } else {
+                        userInfo.setuType(ChatEnum.EUserType.FRIEND);
+                    }
                     dao.updateUserinfo(userInfo);
                     cb.onResponse(call, response);
                 }
@@ -531,7 +534,7 @@ public class UserAction {
      */
     public void register(String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid,VersionUtil.getPhoneModel()), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, VersionUtil.getPhoneModel()), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
@@ -557,7 +560,7 @@ public class UserAction {
      */
     public void login4Captch(final String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid,VersionUtil.getPhoneModel()), new Callback<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, VersionUtil.getPhoneModel()), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token

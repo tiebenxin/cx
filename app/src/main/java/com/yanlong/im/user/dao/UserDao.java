@@ -272,7 +272,8 @@ public class UserDao {
         try {
             Realm realm = DaoUtil.open();
             realm.beginTransaction();
-            UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            UserInfo userInfo = realm.copyFromRealm(user);
             if (userInfo != null) {
                 userInfo.setActiveType(type);
                 if (type == CoreEnum.ESureType.NO) {
@@ -303,7 +304,8 @@ public class UserDao {
                     if (bean == null) {
                         continue;
                     }
-                    UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", bean.getUid()).findFirst();
+                    UserInfo user = realm.where(UserInfo.class).equalTo("uid", bean.getUid()).findFirst();
+                    UserInfo userInfo = realm.copyFromRealm(user);
                     if (userInfo == null) {
                         continue;
                     }
