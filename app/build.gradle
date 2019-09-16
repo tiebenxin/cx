@@ -1,10 +1,13 @@
 import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
+
 def releaseTime() {
     SimpleDateFormat format = new SimpleDateFormat("MMdd_hms")
     return format.format(new Date(java.lang.System.currentTimeMillis()))
 }
+
 android {
     compileSdkVersion 28
 
@@ -25,8 +28,6 @@ android {
             abiFilters "x86", "armeabi", "armeabi-v7a"
         }
     }
-
-
 
 
     signingConfigs {
@@ -73,6 +74,7 @@ android {
             signingConfig = signingConfigs.release
         }
         release {
+            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             manifestPlaceholders = [UMENG_PUSH_KEY      : "581fc0021f2"
@@ -107,7 +109,6 @@ android {
 }
 
 
-
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api fileTree(include: ['*.aar'], dir: 'libs')
@@ -116,8 +117,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':appcore')
-
-
 
 
 }
