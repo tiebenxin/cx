@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -366,6 +367,8 @@ public class UserInfoActivity extends AppActivity {
             if (info != null) {
                 tv_introduce.setText(info.getDescribe());
                 txtMkname.setText(info.getName());
+                Glide.with(this).load(info.getHead())
+                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
             }
         } else {
             userInfoLocal = userAction.getUserInfoInLocal(id);
@@ -390,6 +393,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void setData(final UserInfo info) {
+        Log.e("TAG",info.toString());
         Glide.with(this).load(info.getHead())
                 .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
