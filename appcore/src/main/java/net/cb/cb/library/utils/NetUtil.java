@@ -35,7 +35,7 @@ public class NetUtil {
         net = new NetUtil();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.addInterceptor(new NetIntrtceptor());
-        if (true |AppConfig.DEBUG) {
+        if (AppConfig.DEBUG) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
             builder.addInterceptor(logging);

@@ -76,7 +76,7 @@ public class UpdateManage {
 
     public boolean check(String versions) {
         boolean isUpdate = false;
-        if (!versions.equals(VersionUtil.getVerName(context))) {
+        if (VersionUtil.isNewVersion(context,versions)) {
             clearApk();
             isUpdate = true;
         }
