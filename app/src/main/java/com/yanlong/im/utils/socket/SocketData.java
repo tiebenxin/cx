@@ -345,7 +345,7 @@ public class SocketData {
      * @return
      */
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(true, true, null, toId, toGid, type, value);
+        return send4Base(true, true, null, toId, toGid, -1, type, value);
     }
 
     /***
@@ -357,8 +357,8 @@ public class SocketData {
      * @param value
      * @return
      */
-    private static MsgAllBean send4BaseById(String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(true, true, msgId, toId, toGid, type, value);
+    private static MsgAllBean send4BaseById(String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
+        return send4Base(true, true, msgId, toId, toGid, time, type, value);
     }
 
     /***
@@ -371,26 +371,23 @@ public class SocketData {
      * @return
      */
     private static MsgAllBean send4BaseJustSave(String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
-        return send4Base(true, false, msgId, toId, toGid, type, value);
+        return send4Base(true, false, msgId, toId, toGid, -1L, type, value);
     }
 
-    private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, MsgBean.MessageType type, Object value) {
+    /*
+     * @time time > 0
+     * */
+    private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, getFixTime(), type, value);
-
-
+        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
         if (isSave && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
-
             msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
         }
-
         //立即发送
         if (isSend) {
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
-
         MsgAllBean msgAllbean = MsgConversionBean.ToBean(msg.getWrapMsg(0));
-
         return msgAllbean;
     }
 
@@ -567,7 +564,7 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize) {
+    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize,long time) {
         MsgBean.ImageMessage.Builder msg;
         String extTh = "/below-20k";
         String extPv = "/below-200k";
@@ -598,50 +595,9 @@ public class SocketData {
         }
 
 
-        return send4BaseById(msgId, toId, toGid, MsgBean.MessageType.IMAGE, msgb);
+        return send4BaseById(msgId, toId, toGid, time,MsgBean.MessageType.IMAGE, msgb);
     }
 
-
-    /***
-     * 发送语音消息
-     * @param toId
-     * @param toGid
-     * @param url
-     * @return
-     */
-    public static MsgAllBean sendVoice(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize) {
-        MsgBean.ImageMessage.Builder msg;
-        String extTh = "/below-20k";
-        String extPv = "/below-200k";
-        if (url.toLowerCase().contains(".gif")) {
-            extTh = "";
-            extPv = "";
-        }
-        if (isOriginal) {
-            msg = MsgBean.ImageMessage.newBuilder()
-                    .setOrigin(url)
-                    .setPreview(url + extPv)
-                    .setThumbnail(url + extTh);
-
-        } else {
-            msg = MsgBean.ImageMessage.newBuilder()
-                    .setPreview(url)
-                    .setThumbnail(url + extTh);
-
-        }
-        MsgBean.ImageMessage msgb;
-        if (imageSize != null) {
-            msgb = msg.setWidth(imageSize.getWidth())
-                    .setHeight(imageSize.getHeight())
-                    .setSize(new Long(imageSize.getSize()).intValue())
-                    .build();
-        } else {
-            msgb = msg.build();
-        }
-
-
-        return send4BaseById(msgId, toId, toGid, MsgBean.MessageType.IMAGE, msgb);
-    }
 
     /***
      * 转发处理
@@ -666,9 +622,9 @@ public class SocketData {
         return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
 
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgsize) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize,long time) {
 
-        return send4Image(getUUID(), toId, toGid, url, false, imgsize);
+        return send4Image(getUUID(), toId, toGid, url, false, imgSize,time);
     }
 
 
@@ -858,7 +814,7 @@ public class SocketData {
                 .build();
 
         String id = getUUID();
-        MsgAllBean msgAllBean = send4Base(false, true, id, toId, toGid, MsgBean.MessageType.CANCEL, msg);
+        MsgAllBean msgAllBean = send4Base(false, true, id, toId, toGid, -1, MsgBean.MessageType.CANCEL, msg);
         ChatServer.addCanceLsit(id, msgAllBean);
 
         return msgAllBean;
@@ -870,22 +826,38 @@ public class SocketData {
         MsgBean.MessageType type = null;
         Object value = null;
         switch (msgType) {
+            case ChatEnum.EMessageType.IMAGE:
+                ImageMessage image = bean.getImage();
+                MsgBean.ImageMessage.Builder imgBuilder = MsgBean.ImageMessage.newBuilder();
+                imgBuilder.setOrigin(image.getOrigin())
+                        .setPreview(image.getPreview())
+                        .setThumbnail(image.getThumbnail())
+                        .setHeight((int) image.getHeight())
+                        .setWidth((int) image.getWidth())
+                        .setSize((int) image.getSize());
+                value = imgBuilder.build();
+                type = MsgBean.MessageType.IMAGE;
+                break;
             case ChatEnum.EMessageType.VOICE:
                 VoiceMessage voice = bean.getVoiceMessage();
-                MsgBean.VoiceMessage.Builder builder = MsgBean.VoiceMessage.newBuilder();
-                builder.setDuration(voice.getTime());
-                builder.setUrl(voice.getUrl());
-                value = builder.build();
+                MsgBean.VoiceMessage.Builder voiceBuilder = MsgBean.VoiceMessage.newBuilder();
+                voiceBuilder.setDuration(voice.getTime());
+                voiceBuilder.setUrl(voice.getUrl());
+                value = voiceBuilder.build();
                 type = MsgBean.MessageType.VOICE;
                 break;
         }
+
         saveMessage(bean);
+
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
 //        if (msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
 //            msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
 //        }
         //立即发送
-        SocketUtil.getSocketUtil().sendData4Msg(msg);
+        SocketUtil.getSocketUtil().
+
+                sendData4Msg(msg);
 
     }
 
