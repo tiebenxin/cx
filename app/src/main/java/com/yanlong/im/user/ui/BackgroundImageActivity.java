@@ -58,7 +58,7 @@ public class BackgroundImageActivity extends AppActivity {
         mtListView = findViewById(R.id.mtListView);
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
-        mtListView.getListView().setLayoutManager(new GridLayoutManager(this, 3,GridLayoutManager.VERTICAL,false));
+        mtListView.getListView().setLayoutManager(new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false));
         int screenWidth = ScreenUtils.getScreenWidth(this); //屏幕宽度
         int itemWidth = ScreenUtil.dp2px(this, 115); //每个item的宽度
         mtListView.getListView().addItemDecoration(new SpaceItemDecoration((screenWidth - itemWidth * 3) / 6, this));
@@ -91,10 +91,17 @@ public class BackgroundImageActivity extends AppActivity {
         int back = userSeting.getImageBackground();
         if (back == 0) {
             for (int i = 0; i < images.length; i++) {
-                BackgroundImageBean imageBean = new BackgroundImageBean();
-                imageBean.setImage(images[i]);
-                imageBean.setSelect(false);
-                list.add(imageBean);
+                if (i == 0) {
+                    BackgroundImageBean imageBean = new BackgroundImageBean();
+                    imageBean.setImage(images[i]);
+                    imageBean.setSelect(true);
+                    list.add(imageBean);
+                } else {
+                    BackgroundImageBean imageBean = new BackgroundImageBean();
+                    imageBean.setImage(images[i]);
+                    imageBean.setSelect(false);
+                    list.add(imageBean);
+                }
             }
         } else {
             for (int i = 0; i < images.length; i++) {
@@ -114,8 +121,8 @@ public class BackgroundImageActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK){
-            adapter.setSelect(data.getIntExtra(ShowBigImgActivity.POSTION,0));
+        if (resultCode == RESULT_OK) {
+            adapter.setSelect(data.getIntExtra(ShowBigImgActivity.POSTION, 0));
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).isSelect()) {
                     new MsgDao().userSetingImage(i + 1);
@@ -149,9 +156,10 @@ public class BackgroundImageActivity extends AppActivity {
                 public void onClick(View v) {
                     Intent intent = new Intent(context, ShowBigImgActivity.class);
                     String head = "android.resource://" + getPackageName() + "/";
-                    intent.putExtra(ShowBigImgActivity.POSTION,i);
+                    intent.putExtra(ShowBigImgActivity.POSTION, i);
                     switch (i) {
                         case 0:
+
                             return;
                         case 1:
                             intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image1);
@@ -178,7 +186,7 @@ public class BackgroundImageActivity extends AppActivity {
                             intent.putExtra(ShowBigImgActivity.AGM_URI, head + R.mipmap.bg_image8);
                             break;
                     }
-                    startActivityForResult(intent,IMAGE_POSTION);
+                    startActivityForResult(intent, IMAGE_POSTION);
 
                 }
             });
