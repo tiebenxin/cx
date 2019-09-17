@@ -1,5 +1,6 @@
 package com.yanlong.im.utils.update;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
@@ -38,11 +39,11 @@ public class UpdateManage {
     private static final int EROE = 400;
 
     private Context context;
-    private AppCompatActivity activity;
+    private Activity activity;
     private UpdateAppDialog dialog;
     private InstallAppUtil installAppUtil;
 
-    public UpdateManage(Context context, AppCompatActivity activity) {
+    public UpdateManage(Context context, Activity activity) {
         this.context = context;
         this.activity = activity;
     }

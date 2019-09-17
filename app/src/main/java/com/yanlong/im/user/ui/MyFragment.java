@@ -27,6 +27,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
+import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
@@ -73,24 +74,17 @@ public class MyFragment extends Fragment {
         mViewHelp = rootView.findViewById(R.id.view_help);
         tvNewVersions = rootView.findViewById(R.id.tv_new_versions);
 
-        SharedPreferencesUtil sharedPreferencesUtil = new  SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
-        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
-            if(check(bean.getVersion())){
+        if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+            if (new UpdateManage(getContext(), getActivity()).check(bean.getVersion())) {
                 tvNewVersions.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 tvNewVersions.setVisibility(View.GONE);
             }
         }
     }
 
-    public boolean check(String versions) {
-        boolean isUpdate = false;
-        if (!versions.equals(VersionUtil.getVerName(getContext()))) {
-            isUpdate = true;
-        }
-        return isUpdate;
-    }
 
     //自动生成的控件事件
     private void initEvent() {
