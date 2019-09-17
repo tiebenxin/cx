@@ -851,7 +851,7 @@ public class GroupInfoActivity extends AppActivity {
         }
 //        MsgAllBean bean = SocketData.createMessageBean(gid, "@所有人 \r\n" + ginfo.getAnnouncement(), ginfo);
         AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + ginfo.getAnnouncement(), ChatEnum.EAtType.ALL);
-        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, atMessage);
+        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL,-1L, atMessage);
         if (bean != null) {
             SocketData.saveMessage(bean);
         }

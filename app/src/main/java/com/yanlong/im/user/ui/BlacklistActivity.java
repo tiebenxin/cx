@@ -11,8 +11,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -50,13 +52,13 @@ public class BlacklistActivity extends AppActivity {
     }
 
     private void initView() {
-        mHeadView =  findViewById(R.id.headView);
-        mMtListView =  findViewById(R.id.mtListView);
+        mHeadView = findViewById(R.id.headView);
+        mMtListView = findViewById(R.id.mtListView);
         mMtListView.init(new BlackAdapter());
     }
 
 
-    private void initEvent(){
+    private void initEvent() {
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -98,7 +100,7 @@ public class BlacklistActivity extends AppActivity {
     }
 
 
-    private void taskFriendBlackRemove(Long uid, final int postion) {
+    private void taskFriendBlackRemove(final Long uid, final int postion) {
         userAction.friendBlackRemove(uid, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
@@ -107,11 +109,17 @@ public class BlacklistActivity extends AppActivity {
                 }
                 ToastUtil.show(context, response.body().getMsg());
                 if (response.body().isOk()) {
+                    updateUserStatus(uid);
                     blacklist.remove(postion);
                     mMtListView.notifyDataSetChange();
                 }
             }
         });
+    }
+
+    private void updateUserStatus(long uid) {
+        UserDao dao = new UserDao();
+        dao.updeteUserUtype(uid, ChatEnum.EUserType.FRIEND);
     }
 
 
