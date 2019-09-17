@@ -41,6 +41,9 @@ public class MyAppLication extends MainApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (!getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
+            return;
+        }
         switch (BuildConfig.BUILD_TYPE) {
             case "debug":
                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
