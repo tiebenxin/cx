@@ -66,6 +66,8 @@ public class MyAppLication extends MainApplication {
                 AppConfig.UP_PATH = "product-environment";
                 break;
         }
+        //初始化日志
+        LogUtil.getLog().init(AppConfig.DEBUG);
         //初始化数据库
         Realm.init(getApplicationContext());
         ///推送处理
@@ -118,8 +120,8 @@ public class MyAppLication extends MainApplication {
      异常捕获
       */
     private void initException() {
-        MyException myException = MyException.getInstance();
-        myException.init(getApplicationContext());
+//        MyException myException = MyException.getInstance();
+//        myException.init(getApplicationContext());
     }
 
     /***

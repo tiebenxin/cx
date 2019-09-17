@@ -66,7 +66,7 @@ public class UpLoadService extends Service {
                 while (queue.size() > 0) {
                     UpProgress upProgress = queue.poll();
                     Log.d("上传", "上传: " + upProgress.getId());
-                    upFileAction.upFileSyn(UpFileAction.PATH.IMG,getApplicationContext(), upProgress.getCallback(), upProgress.getFile());
+                    upFileAction.upFileSyn(UpFileAction.PATH.IMG, getApplicationContext(), upProgress.getCallback(), upProgress.getFile());
                 }
                 stopSelf();
                 Log.d("上传", "上传结束");
@@ -77,40 +77,41 @@ public class UpLoadService extends Service {
 
     private static long oldUptime = 0;
 
-    private static MsgDao msgDao=new MsgDao();
-    public static void onAdd(final String id, String file,final Boolean isOriginal,final Long toUId,final String toGid) {
+    private static MsgDao msgDao = new MsgDao();
+
+    public static void onAdd(final String id, String file, final Boolean isOriginal, final Long toUId, final String toGid, final long time) {
         final UpProgress upProgress = new UpProgress();
         upProgress.setId(id);
         //  upProgress.setProgress(0);
         upProgress.setFile(file);
         updataProgress(id, 0);
         final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(file);
-       // Log.d("TAG", "----------onAdd: "+img.getSizeStr());
+        // Log.d("TAG", "----------onAdd: "+img.getSizeStr());
         //Log.d("TAG", "----------: "+img.getWidth());
         upProgress.setCallback(new UpFileUtil.OssUpCallback() {
 
             @Override
             public void success(final String url) {
-                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
+                EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
                 // upProgress.setProgress(100);
                 updataProgress(id, 100);
                 eventUpImgLoadEvent.setMsgid(id);
                 eventUpImgLoadEvent.setState(1);
                 eventUpImgLoadEvent.setUrl(url);
                 eventUpImgLoadEvent.setOriginal(isOriginal);
-                Object msgbean=SocketData.send4Image(id, toUId, toGid, url, isOriginal,img);
+                Object msgbean = SocketData.send4Image(id, toUId, toGid, url, isOriginal, img, time);
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
-               // Log.d("tag", "success : ===============>"+id);
-              //  myback.success(url);
+                // Log.d("tag", "success : ===============>"+id);
+                //  myback.success(url);
 
             }
 
             @Override
             public void fail() {
-                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
-              //  Log.d("tag", "fail : ===============>"+id);
+                EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                //  Log.d("tag", "fail : ===============>"+id);
                 //alert.dismiss();
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
@@ -122,12 +123,11 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setState(-1);
                 eventUpImgLoadEvent.setUrl("");
                 eventUpImgLoadEvent.setOriginal(isOriginal);
-                eventUpImgLoadEvent.setMsgAllBean( msgDao.fixStataMsg(id,1));//写库
+                eventUpImgLoadEvent.setMsgAllBean(msgDao.fixStataMsg(id, 1));//写库
                 EventBus.getDefault().post(eventUpImgLoadEvent);
 
 
-
-               // myback.fail();
+                // myback.fail();
             }
 
             @Override
@@ -135,8 +135,8 @@ public class UpLoadService extends Service {
                 if (System.currentTimeMillis() - oldUptime < 100) {
                     return;
                 }
-                EventUpImgLoadEvent eventUpImgLoadEvent=new EventUpImgLoadEvent();
-               // Log.d("tag", "inProgress : ===============>"+id);
+                EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                // Log.d("tag", "inProgress : ===============>"+id);
                 oldUptime = System.currentTimeMillis();
 
                 int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
@@ -149,7 +149,7 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setOriginal(isOriginal);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
 
-              //  myback.inProgress(upProgress.getProgress(), 0);
+                //  myback.inProgress(upProgress.getProgress(), 0);
             }
         });
 

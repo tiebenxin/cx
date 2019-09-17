@@ -216,7 +216,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER) {
+                    if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
 
 
                         taskRefreshMessage();
@@ -314,7 +314,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
 
                     //ToastUtil.show(context, "发送失败" + bean.getRequestId());
-                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean);
+                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
                     if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CENCAL) {//取消的指令不保存到数据库
                         return;
                     }
@@ -746,7 +746,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
-                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, voice, ChatEnum.EMessageType.VOICE);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
 //                replaceListDataAndNotify(msg);
                 msgListData.add(msg);
                 notifyData2Bottom(true);
@@ -1293,9 +1293,9 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, imageMessage, ChatEnum.EMessageType.IMAGE);
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
+                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                         startService(new Intent(getContext(), UpLoadService.class));
                     }
                     notifyData2Bottom(true);
@@ -1564,9 +1564,9 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                 String file = remsg.getImage().getLocalimg();
                 boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
                 ImageMessage message = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
-                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, message, ChatEnum.EMessageType.IMAGE);
+                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, remsg.getTimestamp(), message, ChatEnum.EMessageType.IMAGE);
                 replaceListDataAndNotify(imgMsgBean);
-                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
+                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid, remsg.getTimestamp());
                 startService(new Intent(getContext(), UpLoadService.class));
 
             } else {
@@ -1876,15 +1876,13 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
                     try {
                         if (remsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
-
-
                             String file = remsg.getImage().getLocalimg();
                             if (!TextUtils.isEmpty(file)) {
                                 boolean isArtworkMaster = StringUtil.isNotNull(remsg.getImage().getOrigin()) ? false : true;
                                 ImageMessage image = SocketData.createImageMessage(remsg.getMsg_id(), file, isArtworkMaster);
-                                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, image, ChatEnum.EMessageType.IMAGE);
+                                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(remsg.getMsg_id(), toUId, toGid, remsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
                                 replaceListDataAndNotify(imgMsgBean);
-                                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
+                                UpLoadService.onAdd(remsg.getMsg_id(), file, isArtworkMaster, toUId, toGid, remsg.getTimestamp());
                                 startService(new Intent(getContext(), UpLoadService.class));
                             } else {
                                 //点击发送的时候如果要改变成发送中的状态
