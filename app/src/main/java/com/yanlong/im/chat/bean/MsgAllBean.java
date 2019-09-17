@@ -245,7 +245,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     }
 
     public void setTimestamp(Long timestamp) {
-        LogUtil.getLog().i(MsgAllBean.class.getSimpleName(), SocketData.getSysTime() + "\r\n" + Log.getStackTraceString(new Throwable()));
+       // LogUtil.getLog().i(MsgAllBean.class.getSimpleName(), timestamp + "\r\n" + Log.getStackTraceString(new Throwable()));
         this.timestamp = timestamp;
     }
 

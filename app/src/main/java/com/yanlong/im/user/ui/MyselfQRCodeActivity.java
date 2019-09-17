@@ -87,7 +87,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         mHeadView = findViewById(R.id.headView);
         mImgHead = findViewById(R.id.img_head);
         mTvUserName = findViewById(R.id.tv_user_name);
-        imageCodeHead =  findViewById(R.id.image_code_head);
+        imageCodeHead = findViewById(R.id.image_code_head);
         mCrCode = findViewById(R.id.cr_code);
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
@@ -117,7 +117,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         UserInfo userInfo = UserAction.getMyInfo();
         if (type == 0) {
             String uid = userInfo.getUid() + "";
-           // mImgHead.setImageURI(userInfo.getHead() + "");
+            // mImgHead.setImageURI(userInfo.getHead() + "");
             Glide.with(this).load(userInfo.getHead())
                     .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
 
@@ -133,7 +133,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             groupId = intent.getStringExtra(GROUP_ID);
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
-           // mImgHead.setImageURI(groupHead + "");
+            // mImgHead.setImageURI(groupHead + "");
             Glide.with(this).load(groupHead)
                     .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
             mTvUserName.setText(groupName + "");
@@ -147,7 +147,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         }
         try {
             if (type == 0) {
-               // imageCodeHead.setImageURI(userInfo.getHead() + "");
+                // imageCodeHead.setImageURI(userInfo.getHead() + "");
                 Glide.with(this).load(userInfo.getHead())
                         .apply(GlideOptionsUtil.headImageOptions()).into(imageCodeHead);
 
@@ -246,7 +246,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         imgsize.setWidth(bm.getWidth());
         imgsize.setHeight(bm.getHeight());
 
-        new UpFileAction().upFile(UpFileAction.PATH.IMG,this, new UpFileUtil.OssUpCallback() {
+        new UpFileAction().upFile(UpFileAction.PATH.IMG, this, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
                 //2.发送图片
@@ -330,7 +330,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             intent.putExtra(ChatActivity.AGM_TOUID, userInfo.getUid());
             startActivity(intent);
             //向服务器发送图片
-            SocketData.send4Image(userInfo.getUid(), null, imageUrl, imgsize);
+            SocketData.send4Image(userInfo.getUid(), null, imageUrl, imgsize, -1);
         }
     }
 

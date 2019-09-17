@@ -15,7 +15,7 @@ public class DaoMigration implements RealmMigration {
            /* schema.create("Person")
                     .addField("name", String.class)
                     .addField("age", int.class);*/
-            schema.create("MsgCancel")
+          /*  schema.create("MsgCancel")
                     .addField("msgid", String.class,FieldAttribute.PRIMARY_KEY)
                     .addField("uid", Long.class)
                     .addField("note", String.class)
@@ -24,7 +24,7 @@ public class DaoMigration implements RealmMigration {
 
             schema.get("MsgAllBean")
                     .addRealmObjectField("msgCancel", schema.get("MsgCancel"))
-                    ;
+                    ;*/
 
             oldVersion++;
         }
@@ -35,11 +35,12 @@ public class DaoMigration implements RealmMigration {
                     .addRealmObjectField("favoriteDog", schema.get("Dog"))
                     .addRealmListField("dogs", schema.get("Dog"));*/
 
-            schema.get("MsgNotice")
+           /* schema.get("MsgNotice")
                     .addField("msgType",Integer.class)
-            ;
+            ;*/
             oldVersion++;
         }
+
 
     }
 }

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -148,6 +147,7 @@ public class UserInfoActivity extends AppActivity {
             btnMsg.setVisibility(View.GONE);
             viewIntroduce.setVisibility(View.VISIBLE);
             mBtnAdd.setVisibility(View.GONE);
+            viewComplaint.setVisibility(View.GONE);
         } else {
             txtMkname.setVisibility(View.VISIBLE);
             txtNkname.setVisibility(View.VISIBLE);
@@ -156,6 +156,7 @@ public class UserInfoActivity extends AppActivity {
             mLayoutMsg.setVisibility(View.VISIBLE);
             btnMsg.setVisibility(View.VISIBLE);
             viewIntroduce.setVisibility(View.GONE);
+            viewComplaint.setVisibility(View.VISIBLE);
             // mBtnAdd.setVisibility(View.VISIBLE);
         }
     }
@@ -362,13 +363,9 @@ public class UserInfoActivity extends AppActivity {
 
     private void taskUserInfo(Long id) {
         if (id == 1L) {
-            setItemShow(3);
             UserInfo info = userDao.findUserInfo(id);
             if (info != null) {
-                tv_introduce.setText(info.getDescribe());
-                txtMkname.setText(info.getName());
-                Glide.with(this).load(info.getHead())
-                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+                setData(info);
             }
         } else {
             userInfoLocal = userAction.getUserInfoInLocal(id);
@@ -393,7 +390,6 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void setData(final UserInfo info) {
-        Log.e("TAG",info.toString());
         Glide.with(this).load(info.getHead())
                 .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
@@ -406,7 +402,9 @@ public class UserInfoActivity extends AppActivity {
         if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
             type = 2;
         }
-        setItemShow(type);
+        if (info.getStat() != 9) {//不是常聊聊小助手
+            setItemShow(type);
+        }
         imgHead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -420,6 +418,10 @@ public class UserInfoActivity extends AppActivity {
                         .openExternalPreviewImage(0, selectList);
             }
         });
+
+        if (!TextUtils.isEmpty(info.getDescribe())) {
+            tv_introduce.setText(info.getDescribe());
+        }
     }
 
 
