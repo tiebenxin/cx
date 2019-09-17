@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.yanlong.im.user.ui.MyGridLayout android:id="@+id/view_emoji"
+<GridLayout android:id="@+id/view_emoji"
     android:layout_width="match_parent"
     android:layout_height="240dp"
     android:columnCount="7"
@@ -38,4 +38,4 @@
 
 
 
-</com.yanlong.im.user.ui.MyGridLayout>
+</GridLayout>
