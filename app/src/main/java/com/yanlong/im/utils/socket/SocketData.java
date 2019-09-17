@@ -564,7 +564,7 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize,long time) {
+    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize, long time) {
         MsgBean.ImageMessage.Builder msg;
         String extTh = "/below-20k";
         String extPv = "/below-200k";
@@ -595,7 +595,7 @@ public class SocketData {
         }
 
 
-        return send4BaseById(msgId, toId, toGid, time,MsgBean.MessageType.IMAGE, msgb);
+        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, msgb);
     }
 
 
@@ -622,9 +622,9 @@ public class SocketData {
         return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
 
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize,long time) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time) {
 
-        return send4Image(getUUID(), toId, toGid, url, false, imgSize,time);
+        return send4Image(getUUID(), toId, toGid, url, false, imgSize, time);
     }
 
 
@@ -681,6 +681,21 @@ public class SocketData {
         ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
         image.setWidth(img.getWidth());
         image.setHeight(img.getHeight());
+        if (isOriginal) {
+            image.setOrigin(url);
+        }
+        return image;
+    }
+
+    @NonNull
+    public static ImageMessage createImageMessage(String msgId, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize) {
+        ImageMessage image = new ImageMessage();
+        image.setLocalimg(url);
+        image.setPreview(url);
+        image.setThumbnail(url);
+        image.setMsgid(msgId);
+        image.setWidth(imageSize.getWidth());
+        image.setHeight(imageSize.getHeight());
         if (isOriginal) {
             image.setOrigin(url);
         }
@@ -851,13 +866,8 @@ public class SocketData {
         saveMessage(bean);
 
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
-//        if (msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
-//            msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
-//        }
         //立即发送
-        SocketUtil.getSocketUtil().
-
-                sendData4Msg(msg);
+        SocketUtil.getSocketUtil().sendData4Msg(msg);
 
     }
 
@@ -960,7 +970,7 @@ public class SocketData {
      * @sendStatus int 发送状态
      * @obj IMsgContent MsgAllBean二级关联表bean
      * */
-    public static MsgAllBean createMessageBean(Long uid, String gid, @ChatEnum.EMessageType int msgType, @ChatEnum.ESendStatus int sendStatus, IMsgContent obj) {
+    public static MsgAllBean createMessageBean(Long uid, String gid, @ChatEnum.EMessageType int msgType, @ChatEnum.ESendStatus int sendStatus, long time, IMsgContent obj) {
         if (UserAction.getMyInfo() == null) {
             return null;
         }
@@ -972,7 +982,7 @@ public class SocketData {
         MsgAllBean msg = new MsgAllBean();
         msg.setMsg_id(obj.getMsgId());
         msg.setMsg_type(msgType);
-        msg.setTimestamp(getFixTime());
+        msg.setTimestamp(time > 0 ? time : getFixTime());
         msg.setTo_uid(uid);
         msg.setGid(gid);
         msg.setSend_state(sendStatus);
@@ -1073,25 +1083,6 @@ public class SocketData {
         return msg;
     }
 
-    public static MsgAllBean createMessageBean(String gid, String content, Group group) {
-        if (group == null || TextUtils.isEmpty(gid)) {
-            return null;
-        }
-        MsgAllBean msg = new MsgAllBean();
-        String msgId = SocketData.getUUID();
-        msg.setMsg_id(msgId);
-        msg.setMsg_type(ChatEnum.EMessageType.AT);
-        msg.setFrom_uid(UserAction.getMyId());
-        msg.setTimestamp(getFixTime());
-//            msg.setTo_uid(bean.getTo_uid());
-        msg.setGid(gid);
-        msg.setFrom_avatar(UserAction.getMyInfo().getHead());
-        msg.setFrom_nickname(UserAction.getMyInfo().getName());
-        msg.setSend_state(ChatEnum.ESendStatus.NORMAL);
-        msg.setFrom_group_nickname(group.getMygroupName());
-        msg.setAtMessage(createAtMessage(msgId, content, ChatEnum.EAtType.ALL));
-        return msg;
-    }
 
     public static AtMessage createAtMessage(String msgId, String content, @ChatEnum.EAtType int atType) {
         AtMessage message = new AtMessage();

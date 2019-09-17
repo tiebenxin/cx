@@ -245,7 +245,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     }
 
     public void setTimestamp(Long timestamp) {
-        LogUtil.getLog().i(MsgAllBean.class.getSimpleName(), timestamp + "\r\n" + Log.getStackTraceString(new Throwable()));
+//        LogUtil.getLog().i(MsgAllBean.class.getSimpleName(), timestamp + "\r\n" + Log.getStackTraceString(new Throwable()));
         this.timestamp = timestamp;
     }
 
@@ -364,12 +364,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
      * @param send_state
      */
     public void setSend_state(@ChatEnum.ESendStatus int send_state) {
+//        LogUtil.getLog().i(MsgAllBean.class.getSimpleName(), send_state + "\r\n" + Log.getStackTraceString(new Throwable()));
         this.send_state = send_state;
     }
 
     public byte[] getSend_data() {
         return send_data;
     }
+
 
     public void setSend_data(byte[] send_data) {
         this.send_data = send_data;
