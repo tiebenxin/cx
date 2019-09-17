@@ -1,5 +1,6 @@
 package net.cb.cb.library.utils;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -13,7 +14,7 @@ import android.util.Log;
 import java.io.File;
 
 public class InstallAppUtil {
-    private AppCompatActivity activity;
+    private Activity activity;
     private String apkPath;
     private final int INSTALL_APK_REQUESTCODE = 5631;
     public static final int GET_UNKNOWN_APP_SOURCES = 5632;
@@ -43,7 +44,7 @@ public class InstallAppUtil {
         return apkPath;
     }
 
-    public void install(AppCompatActivity act, String apkPath) {
+    public void install(Activity act, String apkPath) {
         activity = act;
         this.apkPath = apkPath;
         if (Build.VERSION.SDK_INT >= 26) {

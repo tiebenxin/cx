@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketData;
@@ -100,6 +102,11 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setUrl(url);
                 eventUpImgLoadEvent.setOriginal(isOriginal);
                 Object msgbean = SocketData.send4Image(id, toUId, toGid, url, isOriginal, img, time);
+
+//                ImageMessage image = SocketData.createImageMessage(id, url, isOriginal, img);
+//                MsgAllBean msgBean = SocketData.createMessageBean(toUId, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.SENDING, time, image);
+//                SocketData.sendMessage(msgBean);
+//                SocketData.saveMessage(msgBean);
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
