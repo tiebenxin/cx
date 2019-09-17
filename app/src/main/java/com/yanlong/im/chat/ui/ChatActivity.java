@@ -354,7 +354,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
     }
-    private  List<View>  emojiLayout;
+
+    private List<View> emojiLayout;
+
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -383,12 +385,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         txtVoice = findViewById(R.id.txt_voice);
         tv_ban = findViewById(R.id.tv_ban);
         setChatImageBackground();
-        emojiLayout=new ArrayList<>();
+        emojiLayout = new ArrayList<>();
         View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
         View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
         emojiLayout.add(view1);
         emojiLayout.add(view2);
-        emoji_pager.setAdapter(new EmojiAdapter(emojiLayout,edtChat));
+        emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
     }
 
     @Override
@@ -594,10 +596,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-                //todo  emoji表情处理
-        for (int j=0;j<emojiLayout.size();j++){
+        //todo  emoji表情处理
+        for (int j = 0; j < emojiLayout.size(); j++) {
 
-            GridLayout viewEmojiItem=(GridLayout) emojiLayout.get(j).findViewById(R.id.view_emoji);
+            GridLayout viewEmojiItem = (GridLayout) emojiLayout.get(j).findViewById(R.id.view_emoji);
             for (int i = 0; i < viewEmojiItem.getChildCount(); i++) {
                 if (viewEmojiItem.getChildAt(i) instanceof TextView) {
                     final TextView tv = (TextView) viewEmojiItem.getChildAt(i);
@@ -607,7 +609,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             edtChat.getText().insert(edtChat.getSelectionEnd(), tv.getText());
                         }
                     });
-                }else{
+                } else {
                     viewEmojiItem.getChildAt(i).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -798,7 +800,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
-                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, SocketData.getFixTime(),voice, ChatEnum.EMessageType.VOICE);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
                 msgListData.add(msg);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -1309,10 +1311,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid,SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
 
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid);
+                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                         startService(new Intent(getContext(), UpLoadService.class));
                     }
                     notifyData2Bottom(true);
@@ -1586,9 +1588,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (!TextUtils.isEmpty(file)) {
                     boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? true : false;
                     ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), file, isArtworkMaster);
-                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(),image, ChatEnum.EMessageType.IMAGE);
+                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
                     replaceListDataAndNotify(imgMsgBean);
-                    UpLoadService.onAdd(reMsg.getMsg_id(), file, isArtworkMaster, toUId, toGid);
+                    UpLoadService.onAdd(reMsg.getMsg_id(), file, isArtworkMaster, toUId, toGid, reMsg.getTimestamp());
                     startService(new Intent(getContext(), UpLoadService.class));
                 } else {
                     //点击发送的时候如果要改变成发送中的状态
