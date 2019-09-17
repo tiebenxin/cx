@@ -956,6 +956,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         });
 
 
+        //9.17 进去后就清理会话的阅读数量
+        taskCleanRead();
+        EventBus.getDefault().post(new EventRefreshMainMsg());
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
@@ -1221,6 +1224,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Override
     protected void onDestroy() {
         taskDarftSet();
+        EventBus.getDefault().post(new EventRefreshMainMsg());
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -2549,7 +2553,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskDarftSet() {
         String df = edtChat.getText().toString();
         dao.sessionDraft(toGid, toUId, df);
-        EventBus.getDefault().post(new EventRefreshMainMsg());
+
 
     }
 
