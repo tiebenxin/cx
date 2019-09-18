@@ -39,12 +39,13 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
 
+    private  static boolean isrun_first=true;
     @Override
     public void onCreate() {
         super.onCreate();
         ///推送处理
-        if (getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
-            LogUtil.getLog().d(TAG, "推送延迟:true");
+        if(isrun_first){
+            isrun_first=false;
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -52,9 +53,10 @@ public class MyAppLication extends MainApplication {
                     initUPush();
                 }
             }, 0);
-        } else {//非当前线程就不再初始化其他
-            LogUtil.getLog().d(TAG, "推送延迟:false");
-            initUPush();
+        }
+
+        if (!getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
+
             return;
         }
         switch (BuildConfig.BUILD_TYPE) {
