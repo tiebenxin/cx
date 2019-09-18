@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.luck.picture.lib.tools.Constant;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -66,7 +67,7 @@ public class UpdateManage {
             if (TextUtils.isEmpty(bean.getTime()) || TextUtils.isEmpty(bean.getVersion())) {
                 return true;
             } else {
-                if(!newData.equals(bean.getTime()) && !VersionUtil.getVerName(context).equals(newVersionBean.getVersion())){
+                if (!newData.equals(bean.getTime()) && !VersionUtil.getVerName(context).equals(newVersionBean.getVersion())) {
                     return true;
                 }
             }
@@ -77,7 +78,7 @@ public class UpdateManage {
 
     public boolean check(String versions) {
         boolean isUpdate = false;
-        if (VersionUtil.isNewVersion(context,versions)) {
+        if (VersionUtil.isNewVersion(context, versions)) {
             clearApk();
             isUpdate = true;
         }
@@ -92,6 +93,9 @@ public class UpdateManage {
             dialog.init(activity, "更新", content, new UpdateAppDialog.Event() {
                 @Override
                 public void onON() {
+                    if (call != null) {
+                        call.cancel();
+                    }
 
                 }
 
@@ -106,7 +110,7 @@ public class UpdateManage {
 
                         @Override
                         public void onResponse(Call call, Response response) {
-                            if(response.code() == 404){
+                            if (response.code() == 404) {
                                 downloadListener.fail("下载失败");
                                 return;
                             }
@@ -143,7 +147,7 @@ public class UpdateManage {
                                 downloadListener.loadfail(e.getMessage());
                             } finally {
                                 try {
-                                    if (is != null) {
+                                     if (is != null) {
                                         is.close();
                                     }
                                     if (bis != null) {
@@ -194,6 +198,7 @@ public class UpdateManage {
         return file;
     }
 
+    Call call;
 
     public Call download(String url, final DownloadListener downloadListener, final long startsPoint, Callback callback) {
         Request request = new Request.Builder()
@@ -216,8 +221,9 @@ public class UpdateManage {
                 .addNetworkInterceptor(interceptor);
 
         // 发起请求
-        Call call = dlOkhttp.build().newCall(request);
+        call = dlOkhttp.build().newCall(request);
         call.enqueue(callback);
+
         return call;
     }
 
@@ -252,7 +258,7 @@ public class UpdateManage {
 
         @Override
         public void loadfail(String message) {
-            handler.sendEmptyMessage(EROE);
+//            handler.sendEmptyMessage(EROE);
         }
     };
 

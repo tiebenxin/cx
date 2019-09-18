@@ -64,7 +64,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@color/transparent"
-                android:text="取消"
+                android:text="下次升级"
                 android:textColor="@color/gray_400" />
 
             <View

@@ -169,8 +169,6 @@ public class UserAction {
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
-
-
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
                 }
