@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout android:id="@+id/view_emoji"
     android:layout_width="match_parent"
-    android:layout_height="240dp"
+    android:layout_height="230dp"
     android:columnCount="7"
-    android:paddingTop="20dp"
+    android:layout_marginTop="10dp"
     android:paddingBottom="20dp"
     android:descendantFocusability="blocksDescendants"
     xmlns:android="http://schemas.android.com/apk/res/android">
