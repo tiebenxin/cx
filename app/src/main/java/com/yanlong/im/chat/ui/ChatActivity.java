@@ -396,7 +396,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         emojiLayout.add(view1);
         emojiLayout.add(view2);
         emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
-        emoji_pager.addOnPageChangeListener(new PageIndicator(this,(LinearLayout) findViewById(R.id.dot_hor),2));
+        emoji_pager.addOnPageChangeListener(new PageIndicator(this, (LinearLayout) findViewById(R.id.dot_hor), 2));
     }
 
     @Override
@@ -1376,7 +1376,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
-//        Log.d("tag", "taskUpImgEvevt 0: ===============>" + event.getState());
+//        Log.d("tag", "taskUpImgEvevt state: ===============>" + event.getState() + "--msgId==" + event.getMsgid() );
         if (event.getState() == 0) {
             // Log.d("tag", "taskUpImgEvevt 0: ===============>"+event.getMsgId());
             taskRefreshImage(event.getMsgid());
@@ -1661,6 +1661,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     case ChatEnum.EMessageType.IMAGE:
                         Integer pg = null;
                         pg = UpLoadService.getProgress(msgbean.getMsg_id());
+                        LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pg);
 
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pg);
@@ -1761,7 +1762,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();
             switch (msgbean.getMsg_type()) {
-                case 0:
+                case ChatEnum.EMessageType.NOTICE:
                     if (msgbean.getMsgNotice() != null) {
 //                        holder.viewChatItem.setData0(msgbean.getMsgNotice().getNote());
                         if (msgbean.getMsgNotice().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT
@@ -1789,20 +1790,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     }
                     break;
-                case 1:
-
+                case ChatEnum.EMessageType.TEXT:
                     menus.add(new OptionMenu("复制"));
                     menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData1(msgbean.getChat().getMsg());
                     break;
-                case 2:
+                case ChatEnum.EMessageType.STAMP:
 
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData2(msgbean.getStamp().getComment());
                     break;
 
-                case 3:
+                case ChatEnum.EMessageType.RED_ENVELOPE:
                     menus.add(new OptionMenu("删除"));
                     RedEnvelopeMessage rb = msgbean.getRed_envelope();
                     Boolean isInvalid = rb.getIsInvalid() == 0 ? false : true;
@@ -1838,7 +1838,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     });
                     break;
 
-                case 4:
+                case ChatEnum.EMessageType.IMAGE:
 
                     menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
@@ -1855,7 +1855,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }, pg);
                     // holder.viewChatItem.setImgageProg(pg);
                     break;
-                case 5:
+                case ChatEnum.EMessageType.BUSINESS_CARD:
 
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
@@ -1878,7 +1878,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
                             });
                     break;
-                case 6:
+                case ChatEnum.EMessageType.TRANSFER:
                     menus.add(new OptionMenu("删除"));
                     TransferMessage ts = msgbean.getTransfer();
 
@@ -1899,7 +1899,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                     break;
-                case 7://语音消息
+                case ChatEnum.EMessageType.VOICE://语音消息
 
                     menus.add(new OptionMenu("删除"));
                     final VoiceMessage vm = msgbean.getVoiceMessage();

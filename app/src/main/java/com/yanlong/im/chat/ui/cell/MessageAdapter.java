@@ -53,7 +53,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 //            mList = list;
 //        }
         mList = list;
-        notifyDataSetChanged();
+        this.notifyDataSetChanged();
     }
 
     public boolean isGroup() {
@@ -66,7 +66,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         ChatEnum.EChatCellLayout layout = ChatEnum.EChatCellLayout.fromOrdinal(viewType);
         View view = LayoutInflater.from(context).inflate(layout.LayoutId, viewGroup, false);
-//        ChatCellBase cell = factoryChatCell.createCell(layout, viewGroup);
         ChatCellBase cell = factoryChatCell.createCell(layout, view);
         return cell;
     }

@@ -688,23 +688,18 @@ public class ChatItemView extends LinearLayout {
                 rOptions.override(width, height)
                         .priority(Priority.HIGH).diskCacheStrategy(DiskCacheStrategy.ALL);
             }
-
-
             rb.apply(rOptions).listener(requestListener).load(uri);
-
-
             rb.into(imgMe4);
             rb.into(imgOt4);
-
-
-            //
-            if (netState == -1) {
-                setImgageProg(0);
+            if (pg != null) {
+                setImgageProg(pg);
             } else {
-                setImgageProg(null);
+                if (netState == -1) {
+                    setImgageProg(0);
+                } else {
+                    setImgageProg(null);
+                }
             }
-
-
         }
         if (eventPic != null) {
 
