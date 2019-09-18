@@ -69,7 +69,7 @@
                                 android:background="@drawable/bg_edt_chat"
                                 android:fontFamily="@font/emoji_font"
                                 android:maxLines="3"
-                                android:minHeight="38dp"
+                                android:minHeight="34dp"
                                 android:singleLine="false"
                                 android:textSize="15sp" />
 
