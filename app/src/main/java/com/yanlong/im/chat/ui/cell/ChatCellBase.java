@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -60,22 +61,10 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
         mCellListener = listener;
         this.viewRoot = view;
         mAdapter = adapter;
-//        viewRoot.setTag(this);
         isGroup = mAdapter.isGroup();
         initView();
-//        initListener();
     }
 
-//    protected ChatCellBase(Context context, ChatEnum.EChatCellLayout cellLayout, ICellEventListener listener, MessageAdapter adapter, ViewGroup viewGroup) {
-//        mContext = context;
-//        mCellListener = listener;
-//        viewRoot = LayoutInflater.from(context).inflate(cellLayout.LayoutId, viewGroup, false);
-//        mAdapter = adapter;
-//        viewRoot.setTag(this);
-//        isGroup = mAdapter.isGroup();
-//        initView();
-//        initListener();
-//    }
 
     protected void initListener() {
         if (bubbleLayout != null) {
@@ -200,13 +189,24 @@ public abstract class ChatCellBase extends RecyclerView.ViewHolder implements Vi
 
         }
         //云红包不能撤回
-        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE) {
+        if (isMe && model.getSend_state() == ChatEnum.ESendStatus.NORMAL && model.getMsg_type() != ChatEnum.EMessageType.RED_ENVELOPE && !isAtBanedCancel(model)) {
             if (model.getFrom_uid() != null && model.getFrom_uid().longValue() == UserAction.getMyId().longValue()) {
                 if (System.currentTimeMillis() - model.getTimestamp() < 2 * 60 * 1000) {//两分钟内可以删除
                     menus.add(new OptionMenu("撤回"));
                 }
             }
         }
+    }
+
+    //是否禁止撤销at消息,群主自己发的群公告，不能撤消
+    private boolean isAtBanedCancel(MsgAllBean bean) {
+        if (bean.getMsg_type() == ChatEnum.EMessageType.AT) {
+            AtMessage message = bean.getAtMessage();
+            if (message.getAt_type() == ChatEnum.EAtType.ALL && message.getUid().size() == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /*

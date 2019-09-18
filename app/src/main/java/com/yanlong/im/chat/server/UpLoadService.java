@@ -3,19 +3,14 @@ package com.yanlong.im.chat.server;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.ImageMessage;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.utils.ImgSizeUtil;
-import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
 
@@ -39,39 +34,40 @@ public class UpLoadService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
-
-
     }
 
     public static Integer getProgress(String msgId) {
-
         if (pgms.containsKey(msgId)) {
             int pg = pgms.get(msgId);
-            Log.d("getProgress", "getProgress: " + msgId + "  val:" + pg);
+//            Log.d("getProgress", "getProgress: " + msgId + "  val:" + pg);
             return pg;
         }
 
         return null;
     }
 
-    private static void updataProgress(String msgId, Integer pg) {
-        pgms.put(msgId, pg);
+    private static void updateProgress(String msgId, Integer pg) {
+        Integer progress = pgms.get(msgId);
+//        LogUtil.getLog().i("ChatActivity", "upload进度--msgId=" + msgId + "--progress=" + progress + "--pg=" + pg);
+        if (progress == null || pg > progress) {
+            pgms.put(msgId, pg);
+        }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+//        LogUtil.getLog().i("ChatActivity", "UploadService--onCreate");
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (queue.size() > 0) {
                     UpProgress upProgress = queue.poll();
-                    Log.d("上传", "上传: " + upProgress.getId());
+                    Log.d("ChatActivity--上传", "上传: " + upProgress.getId());
                     upFileAction.upFileSyn(UpFileAction.PATH.IMG, getApplicationContext(), upProgress.getCallback(), upProgress.getFile());
                 }
                 stopSelf();
-                Log.d("上传", "上传结束");
+                Log.d("ChatActivity-上传", "上传结束");
             }
         }).start();
 
@@ -86,7 +82,7 @@ public class UpLoadService extends Service {
         upProgress.setId(id);
         //  upProgress.setProgress(0);
         upProgress.setFile(file);
-        updataProgress(id, 0);
+        updateProgress(id, 0);
         final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(file);
         // Log.d("TAG", "----------onAdd: "+img.getSizeStr());
         //Log.d("TAG", "----------: "+img.getWidth());
@@ -96,7 +92,7 @@ public class UpLoadService extends Service {
             public void success(final String url) {
                 EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
                 // upProgress.setProgress(100);
-                updataProgress(id, 100);
+                updateProgress(id, 100);
                 eventUpImgLoadEvent.setMsgid(id);
                 eventUpImgLoadEvent.setState(1);
                 eventUpImgLoadEvent.setUrl(url);
@@ -123,7 +119,7 @@ public class UpLoadService extends Service {
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
                 //  upProgress.setProgress(100);
-                updataProgress(id, 100);
+                updateProgress(id, 100);
 
 
                 eventUpImgLoadEvent.setMsgid(id);
@@ -149,7 +145,7 @@ public class UpLoadService extends Service {
                 int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
 
                 // upProgress.setProgress(new Double(pg);
-                updataProgress(id, pg);
+                updateProgress(id, pg);
                 eventUpImgLoadEvent.setMsgid(id);
                 eventUpImgLoadEvent.setState(0);
                 eventUpImgLoadEvent.setUrl("");
