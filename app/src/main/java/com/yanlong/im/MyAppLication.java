@@ -39,13 +39,11 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
 
-    private  static boolean isrun_first=true;
     @Override
     public void onCreate() {
         super.onCreate();
         ///推送处理
-        if(isrun_first){
-            isrun_first=false;
+        initUPushPre();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -53,7 +51,7 @@ public class MyAppLication extends MainApplication {
                     initUPush();
                 }
             }, 0);
-        }
+
 
         if (!getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
 
@@ -141,7 +139,9 @@ public class MyAppLication extends MainApplication {
     }
 
 
-    private void initUPush() {
+    private PushAgent mPushAgent;
+
+    private void initUPushPre(){
         UMConfigure.init(this, "5d53659c570df3d281000225",
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
                 "f045bf243689c2363d5714b781ce556e");
@@ -149,7 +149,11 @@ public class MyAppLication extends MainApplication {
 
 
         //获取消息推送代理示例
-        final PushAgent mPushAgent = PushAgent.getInstance(this);
+        mPushAgent = PushAgent.getInstance(this);
+    }
+
+    private void initUPush() {
+
         //设置通知栏显示数量
        // mPushAgent.setDisplayNotificationNumber(1);
         //   mPushAgent.setNotificationClickHandler(notificationClickHandler);
