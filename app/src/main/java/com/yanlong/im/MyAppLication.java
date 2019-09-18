@@ -4,6 +4,7 @@ package com.yanlong.im;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
@@ -41,7 +42,19 @@ public class MyAppLication extends MainApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (!getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
+        ///推送处理
+        if (getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
+            LogUtil.getLog().d(TAG, "推送延迟:true");
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    initUPush();
+                }
+            }, 0);
+        } else {//非当前线程就不再初始化线程
+            LogUtil.getLog().d(TAG, "推送延迟:false");
+            initUPush();
             return;
         }
         switch (BuildConfig.BUILD_TYPE) {
@@ -73,20 +86,7 @@ public class MyAppLication extends MainApplication {
         LogUtil.getLog().init(AppConfig.DEBUG);
         //初始化数据库
         Realm.init(getApplicationContext());
-        ///推送处理
-        if (getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
-            LogUtil.getLog().d(TAG, "推送延迟:true");
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
 
-                    initUPush();
-                }
-            }, 0);
-        } else {
-            LogUtil.getLog().d(TAG, "推送延迟:false");
-            initUPush();
-        }
         // initUPush();
 
         //--------------------------
