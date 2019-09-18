@@ -109,6 +109,7 @@ public class UpdateAppDialog {
 
     public void downloadComplete(){
         txtAlertTitle.setText("下载完成");
+        btnCl.setText("取消");
         txtAlertMsg.setText("是否安装");
         txtAlertMsg.setVisibility(View.VISIBLE);
         mProgressNum.setVisibility(View.GONE);

@@ -1,6 +1,7 @@
 package net.cb.cb.library.view;
 
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -42,6 +43,7 @@ public class AppActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         MobclickAgent.onResume(this);
+        taskClearNotification();
        // Log.v("ssss",this.getClass().toString());
     }
 
@@ -84,6 +86,15 @@ public class AppActivity extends AppCompatActivity {
 
       //  sharedPreferencesUtil.save2Json(fontSize);
     }
+
+    /***
+     * 清理通知栏
+     */
+    private void taskClearNotification() {
+        NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancelAll();
+    }
+
 
   public Context getContext() {
         return context;

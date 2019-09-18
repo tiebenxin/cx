@@ -52,7 +52,7 @@ public class MyAppLication extends MainApplication {
                     initUPush();
                 }
             }, 0);
-        } else {//非当前线程就不再初始化线程
+        } else {//非当前线程就不再初始化其他
             LogUtil.getLog().d(TAG, "推送延迟:false");
             initUPush();
             return;

@@ -137,7 +137,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     }
 
 
-    private void initDialog(){
+    private void initDialog() {
         AlertYesNo alertYesNo = new AlertYesNo();
         alertYesNo.init(this, "找回密码", "密码错误,找回或重置密码?", "找回密码", "取消", new AlertYesNo.Event() {
             @Override
@@ -169,17 +169,18 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             return;
         }
 
-        if(!CheckUtil.isMobileNO(phone)){
+        if (!CheckUtil.isMobileNO(phone)) {
             ToastUtil.show(this, "手机号格式不正确");
             return;
         }
 
-        LogUtil.getLog().i("youmeng","LoginActivity------->getDevId");
+        LogUtil.getLog().i("youmeng", "LoginActivity------->getDevId");
         new RunUtils(new RunUtils.Enent() {
             String devId;
+
             @Override
             public void onRun() {
-                devId= UserAction.getDevId(getContext());
+                devId = UserAction.getDevId(getContext());
             }
 
             @Override
@@ -187,7 +188,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                 new UserAction().login(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
                     @Override
                     public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                        LogUtil.getLog().i("youmeng","LoginActivity------->login-------->onResp");
+                        LogUtil.getLog().i("youmeng", "LoginActivity------->login-------->onResp");
                         if (response.body() == null) {
                             ToastUtil.show(context, "登录异常");
                             return;
@@ -195,16 +196,17 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                         if (response.body().isOk()) {
                             Intent intent = new Intent(getContext(), MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            intent.putExtra(MainActivity.IS_LOGIN,true);
+                            intent.putExtra(MainActivity.IS_LOGIN, true);
                             startActivity(intent);
-                        } if(response.body().getCode().longValue() == 10002){
-                            if(count == 0){
-                                ToastUtil.show(context,"密码错误");
-                            }else{
+                        }
+                        if (response.body().getCode().longValue() == 10002) {
+                            if (count == 0) {
+                                ToastUtil.show(context, "密码错误");
+                            } else {
                                 initDialog();
                             }
                             count += 1;
-                        }else {
+                        } else {
                             ToastUtil.show(getContext(), response.body().getMsg());
                         }
                     }
@@ -212,13 +214,11 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                     @Override
                     public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
                         super.onFail(call, t);
-                        LogUtil.getLog().i("youmeng","LoginActivity------->login-------->onFail");
+                        LogUtil.getLog().i("youmeng", "LoginActivity------->login-------->onFail");
                     }
                 });
-
-
             }
         }).run();
-         }
+    }
 }
 

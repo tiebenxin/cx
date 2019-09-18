@@ -246,7 +246,7 @@ public class MainActivity extends AppActivity {
     protected void onResume() {
         super.onResume();
         taskGetMsgNum();
-        taskClearNotification();
+        //taskClearNotification();
         checkNotificationOK();
     }
 
@@ -387,13 +387,7 @@ public class MainActivity extends AppActivity {
     }
 
 
-    /***
-     * 清理通知栏
-     */
-    private void taskClearNotification() {
-        NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancelAll();
-    }
+
 
     /*
      * 检测通知栏是否开启
