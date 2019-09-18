@@ -78,6 +78,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.MyViewPager;
+import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
@@ -385,12 +386,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         txtVoice = findViewById(R.id.txt_voice);
         tv_ban = findViewById(R.id.tv_ban);
         setChatImageBackground();
+        addViewPagerEvent();
+    }
+
+    private void addViewPagerEvent() {
         emojiLayout = new ArrayList<>();
         View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
         View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
         emojiLayout.add(view1);
         emojiLayout.add(view2);
         emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
+        emoji_pager.addOnPageChangeListener(new PageIndicator(this,(LinearLayout) findViewById(R.id.dot_hor),2));
     }
 
     @Override

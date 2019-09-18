@@ -43,7 +43,7 @@
         <!-- <activity-alias
               android:name="test"
               android:label="测试页面"
-              android:targetActivity=".test.TestActicity">
+              android:targetActivity=".test.TestActivity">
               <intent-filter>
                   <action android:name="android.intent.action.MAIN" />
 
@@ -76,7 +76,7 @@
              </intent-filter>-->
         </activity>
         <activity
-            android:name=".test.TestActicity"
+            android:name=".test.TestActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
 
@@ -440,6 +440,7 @@
                 <!-- 兼容低版本Flyme3推送服务配置 -->
                 <action android:name="com.meizu.c2dm.intent.REGISTRATION" />
                 <action android:name="com.meizu.c2dm.intent.RECEIVE" />
+
                 <category android:name="${applicationId}"></category>
             </intent-filter>
         </receiver>
@@ -468,9 +469,9 @@
         <activity
             android:name=".user.ui.FeedbackShowImageActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".user.ui.GroupAddActivity"
-            android:screenOrientation="portrait"
-            ></activity>
+        <activity
+            android:name=".user.ui.GroupAddActivity"
+            android:screenOrientation="portrait"></activity>
 
 
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">
@@ -479,7 +480,10 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".user.ui.PictureExternalPreviewActivity" android:screenOrientation="portrait" android:launchMode="singleTask">
+        <activity
+            android:name=".user.ui.PictureExternalPreviewActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <!--协议部分，-->
                 <data
@@ -495,6 +499,17 @@
         <activity android:name=".chat.ui.forward.GroupSelectActivity" />
         <activity android:name=".chat.ui.ChatActivity2" />
         <activity android:name=".chat.ui.GroupNoteDetailActivity" />
+        <activity android:name=".test.TestRecyclerActivity">
+            <intent-filter android:priority="1">
+                <data
+                    android:host="test"
+                    android:path="/test"
+                    android:scheme="scheme" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
 
     </application>
 

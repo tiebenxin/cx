@@ -144,7 +144,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
 //    private net.cb.cb.library.view.HeadView headView;
-    private ActionbarView actionbar;
+//    private ActionbarView actionbar;
     //    private MultiListView mtListView;
     private ImageView btnVoice;
     private MsgEditText edtChat;
@@ -373,7 +373,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     private void findViews() {
 //        headView = findViewById(R.id.headView);
 //        actionbar = headView.getActionbar();
-        actionbar = findViewById(R.id.headView);
+//        actionbar = findViewById(R.id.headView);
 //        mtListView = findViewById(R.id.mtListView);
         recyclerView = findViewById(R.id.recycler_view);
         refreshLayout = findViewById(R.id.view_refresh);
@@ -425,47 +425,47 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
-        actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
-        if (isGroup()) {
-            actionbar.getBtnRight().setVisibility(View.GONE);
-            viewChatBottom.setVisibility(View.VISIBLE);
-        } else {
-            actionbar.getBtnRight().setVisibility(View.VISIBLE);
-            if (toUId == 1L) {
-                viewChatBottom.setVisibility(View.GONE);
-            } else {
-                viewChatBottom.setVisibility(View.VISIBLE);
+//        actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
+//        if (isGroup()) {
+//            actionbar.getBtnRight().setVisibility(View.GONE);
+//            viewChatBottom.setVisibility(View.VISIBLE);
+//        } else {
+//            actionbar.getBtnRight().setVisibility(View.VISIBLE);
+//            if (toUId == 1L) {
+//                viewChatBottom.setVisibility(View.GONE);
+//            } else {
+//                viewChatBottom.setVisibility(View.VISIBLE);
+//
+//            }
+//        }
 
-            }
-        }
-
-        actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
-            @Override
-            public void onBack() {
-                onBackPressed();
-            }
-
-            @Override
-            public void onRight() {
-                if (isGroup()) {//群聊,单聊
-                    startActivity(new Intent(getContext(), GroupInfoActivity.class)
-                            .putExtra(GroupInfoActivity.AGM_GID, toGid)
-                    );
-                } else {
-                    if (toUId == 1L) {
-                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                .putExtra(UserInfoActivity.ID, toUId)
-                                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
-                    } else {
-                        startActivity(new Intent(getContext(), ChatInfoActivity.class)
-                                .putExtra(ChatInfoActivity.AGM_FUID, toUId)
-                        );
-                    }
-
-                }
-
-            }
-        });
+//        actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
+//            @Override
+//            public void onBack() {
+//                onBackPressed();
+//            }
+//
+//            @Override
+//            public void onRight() {
+//                if (isGroup()) {//群聊,单聊
+//                    startActivity(new Intent(getContext(), GroupInfoActivity.class)
+//                            .putExtra(GroupInfoActivity.AGM_GID, toGid)
+//                    );
+//                } else {
+//                    if (toUId == 1L) {
+//                        startActivity(new Intent(getContext(), UserInfoActivity.class)
+//                                .putExtra(UserInfoActivity.ID, toUId)
+//                                .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1));
+//                    } else {
+//                        startActivity(new Intent(getContext(), ChatInfoActivity.class)
+//                                .putExtra(ChatInfoActivity.AGM_FUID, toUId)
+//                        );
+//                    }
+//
+//                }
+//
+//            }
+//        });
 
         //设置字体大小
         font_size = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
@@ -742,7 +742,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         }));
 
 
-        AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, /*headView*/actionbar, new IAudioRecord.UrlCallback() {
+        AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, /*headView*/recyclerView, new IAudioRecord.UrlCallback() {
             @Override
             public void completeRecord(String file, int duration) {
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
@@ -919,13 +919,12 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
 
         //6.15 先加载完成界面,后刷数据
-        actionbar.post(new Runnable() {
-            @Override
-            public void run() {
-//                taskRefreshMessage();
-                taskDraftGet();
-            }
-        });
+//        actionbar.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                taskDraftGet();
+//            }
+//        });
 
 
     }
@@ -1107,7 +1106,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
      * @param isMustBottom 是否必须滑动到底部
      * */
     private void scrollListView(boolean isMustBottom) {
-//        LogUtil.getLog().i(TAG, "scrollListView");
+        LogUtil.getLog().i(TAG, "scrollListView");
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
 //            recyclerView.requestDisallowInterceptTouchEvent(true);
@@ -2284,10 +2283,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
 
     private void notifyData() {
         messageAdapter.bindData(msgListData);
-//        }
-//        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "msgListData的size=" + msgListData.size());
-//        messageAdapter.notifyDataSetChanged();
-//        adapter.notifyDataSetChange();
+        LogUtil.getLog().i(TAG, "msgListData的size=" + msgListData.size());
     }
 
     private MsgAction msgAction = new MsgAction();
@@ -2310,10 +2306,10 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
+//                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
             }
         }
-        actionbar.setTitle(title);
+//        actionbar.setTitle(title);
 
     }
 
@@ -2326,9 +2322,9 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
+//                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
             }
-            actionbar.setTitle(title);
+//            actionbar.setTitle(title);
         }
 
     }
@@ -2619,7 +2615,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         }
         GroupConfig config = dao.groupConfigGet(toGid);
         if (config != null) {
-            actionbar.getBtnRight().setVisibility(config.getIsExit() == 1 ? View.GONE : View.VISIBLE);
+//            actionbar.getBtnRight().setVisibility(config.getIsExit() == 1 ? View.GONE : View.VISIBLE);
 
         }
         taskGroupInfo();
@@ -2866,11 +2862,11 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                     }
 
                 }
-                if (!isExit) {
-                    actionbar.getBtnRight().setVisibility(View.GONE);
-                } else {
-                    actionbar.getBtnRight().setVisibility(View.VISIBLE);
-                }
+//                if (!isExit) {
+//                    actionbar.getBtnRight().setVisibility(View.GONE);
+//                } else {
+//                    actionbar.getBtnRight().setVisibility(View.VISIBLE);
+//                }
 
 
             }
