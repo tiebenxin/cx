@@ -343,22 +343,22 @@ public class GroupCreateActivity extends AppActivity {
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             UserInfo userInfo = templist.get(j);
-            if (j == i - 1) {
-                name += userInfo.getName();
-            } else {
-                name += userInfo.getName() + "、";
-            }
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
             url[j] = userInfo.getHead();
         }
         File file = GroupHeadImageUtil.synthesis(this, url);
 
-        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
-        name += "的群";
-        final String fname = name;
+//        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
+//        name += "的群";
+//        final String fname = name;
         upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP, getContext(), new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String icon) {
-                msgACtion.groupCreate(UserAction.getMyInfo().getName(), fname, icon, templist, new CallBack<ReturnBean<Group>>() {
+                msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", icon, templist, new CallBack<ReturnBean<Group>>() {
                     @Override
                     public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                         actionbar.getViewRight().setEnabled(true);
