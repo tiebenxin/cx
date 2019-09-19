@@ -44,38 +44,38 @@ public class MyAppLication extends MainApplication {
         super.onCreate();
         ///推送处理
         initUPushPre();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-
-                    initUPush();
-                }
-            }, 0);
-
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                initUPush();
+            }
+        }, 0);
 
         if (!getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
-
             return;
         }
+
+        //如果需要调试切换版本,请直接修改debug中的ip等信息
         switch (BuildConfig.BUILD_TYPE) {
-            case "debug":
+            case "debug"://测试服
+                AppConfig.DEBUG = true;
+                //---------------------------
                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-                AppConfig.DEBUG = true;
                 AppConfig.SOCKET_PORT = 19991;
-                //  AppConfig.SOCKET_IP="192.168.10.112";
-                //  AppConfig.SOCKET_PORT=18181;
                 AppConfig.UP_PATH = "test-environment";
                 break;
-            case "pre": //美国 usa-test.1616d.top    香港 hk-test.1616d.top
+            case "pre": //预发布服  美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;
+                //---------------------------
                 AppConfig.SOCKET_IP = "hk-test.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "development";
                 break;
-            case "release":
-                AppConfig.DEBUG = true;
+            case "release"://正式服
+                AppConfig.DEBUG = false;
+                //---------------------------
                 AppConfig.SOCKET_IP = "im-app.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
