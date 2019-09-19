@@ -43,39 +43,39 @@ public class MyAppLication extends MainApplication {
     public void onCreate() {
         super.onCreate();
         ///推送处理
-        if (getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
-            LogUtil.getLog().d(TAG, "推送延迟:true");
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
+        initUPushPre();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                initUPush();
+            }
+        }, 0);
 
-                    initUPush();
-                }
-            }, 0);
-        } else {//非当前线程就不再初始化其他
-            LogUtil.getLog().d(TAG, "推送延迟:false");
-            initUPush();
+        if (!getApplicationContext().getPackageName().equals(getCurrentProcessName())) {
             return;
         }
+
+        //如果需要调试切换版本,请直接修改debug中的ip等信息
         switch (BuildConfig.BUILD_TYPE) {
-            case "debug":
+            case "debug"://测试服
+                AppConfig.DEBUG = true;
+                //---------------------------
                 AppConfig.SOCKET_IP = "yanlong.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-                AppConfig.DEBUG = true;
                 AppConfig.SOCKET_PORT = 19991;
-                //  AppConfig.SOCKET_IP="192.168.10.112";
-                //  AppConfig.SOCKET_PORT=18181;
                 AppConfig.UP_PATH = "test-environment";
                 break;
-            case "pre": //美国 usa-test.1616d.top    香港 hk-test.1616d.top
+            case "pre": //预发布服  美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;
+                //---------------------------
                 AppConfig.SOCKET_IP = "hk-test.1616d.top";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "development";
                 break;
-            case "release":
-                AppConfig.DEBUG = true;
+            case "release"://正式服
+                AppConfig.DEBUG = false;
+                //---------------------------
                 AppConfig.SOCKET_IP = "im-app.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
@@ -139,7 +139,9 @@ public class MyAppLication extends MainApplication {
     }
 
 
-    private void initUPush() {
+    private PushAgent mPushAgent;
+
+    private void initUPushPre(){
         UMConfigure.init(this, "5d53659c570df3d281000225",
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
                 "f045bf243689c2363d5714b781ce556e");
@@ -147,7 +149,11 @@ public class MyAppLication extends MainApplication {
 
 
         //获取消息推送代理示例
-        final PushAgent mPushAgent = PushAgent.getInstance(this);
+        mPushAgent = PushAgent.getInstance(this);
+    }
+
+    private void initUPush() {
+
         //设置通知栏显示数量
        // mPushAgent.setDisplayNotificationNumber(1);
         //   mPushAgent.setNotificationClickHandler(notificationClickHandler);

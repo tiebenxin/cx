@@ -1,8 +1,6 @@
 package com.yanlong.im.chat.ui.forward;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -13,12 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
@@ -30,8 +23,6 @@ import net.cb.cb.library.utils.TimeToString;
  * Description
  */
 public class AdapterForwardRoster extends AbstractRecyclerAdapter {
-    private UserDao userDao;
-    private MsgDao msgDao;
     private Context context;
     private IForwardRosterListener listener;
 
@@ -40,10 +31,10 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
         context = ctx;
     }
 
-    public void initDao(UserDao user, MsgDao msg) {
-        userDao = user;
-        msgDao = msg;
-    }
+//    public void initDao(UserDao user, MsgDao msg) {
+//        userDao = user;
+//        msgDao = msg;
+//    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

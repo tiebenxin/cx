@@ -1095,11 +1095,12 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
             if (isMustBottom) {
-                recyclerView.scrollToPosition(length);
+                layoutManager.scrollToPosition(length);
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
-                        recyclerView.scrollToPosition(length);
+//                        recyclerView.scrollToPosition(length);
+                        layoutManager.scrollToPosition(length);
                     }
                 } else {
                     SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -1119,12 +1120,12 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                     }
                     if (lastPosition >= 0 && lastPosition < length) {
                         if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
-                            recyclerView.scrollToPosition(length);
+                            layoutManager.scrollToPosition(length);
                         } else {
                             layoutManager.scrollToPositionWithOffset(lastPosition, lastOffset);
                         }
                     } else {
-                        recyclerView.scrollToPosition(length);
+                        layoutManager.scrollToPosition(length);
                     }
                 }
             }
