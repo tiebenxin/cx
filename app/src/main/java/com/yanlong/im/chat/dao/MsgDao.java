@@ -203,32 +203,6 @@ public class MsgDao {
     }
 
 
-    /***
-     * 获取群消息
-     * @param gid
-     * @param page
-     * @return
-     */
-    public List<MsgAllBean> getMsg4Group(String gid, int page) {
-        List<MsgAllBean> beans = new ArrayList<>();
-        Realm realm = DaoUtil.open();
-
-        RealmResults list = realm.where(MsgAllBean.class)
-                .equalTo("gid", gid).and()
-                //  .notEqualTo("msg_type", 0)
-                .sort("timestamp", Sort.DESCENDING)
-                .findAll();
-
-        beans = DaoUtil.page(page, list, realm);
-
-
-        //翻转列表
-        Collections.reverse(beans);
-        realm.close();
-        return beans;
-    }
-
-
 //    public List<MsgAllBean> getMsg4Group(String gid, Long time) {
 //        if (time == null) {
 //            time = 99999999999999l;
@@ -1883,5 +1857,65 @@ public class MsgDao {
         }
         return result;
     }
+
+
+    /*
+     * isRead 无用
+     * */
+//    public long getUnreadCount(String gid, Long uid) {
+//        Realm realm = DaoUtil.open();
+//        long result;
+//        if (!TextUtils.isEmpty(gid)) {
+//            result = realm.where(MsgAllBean.class)
+//                    .beginGroup().notEqualTo("gid", gid).endGroup()
+//                    .and()
+//                    .beginGroup().equalTo("isRead", false).endGroup()
+//                    .count();
+//        } else {
+//            result = realm.where(MsgAllBean.class)
+//                    .beginGroup().equalTo("gid", "").endGroup()
+//                    .and()
+//                    .beginGroup().notEqualTo("from_uid", uid).and().notEqualTo("to_uid", uid).endGroup()
+//                    .and()
+//                    .beginGroup().equalTo("isRead", false).endGroup()
+//                    .count();
+//        }
+//        realm.close();
+//        return result;
+//    }
+
+
+    /***
+     * 获取除当前会话的未读消息数量
+     * @param gid
+     * @param uid
+     */
+    public int getUnreadCount(String gid, Long uid) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        List<Session> list;
+        if (!TextUtils.isEmpty(gid)) {
+            list = realm.where(Session.class)
+                    .notEqualTo("gid", gid)
+                    .findAll();
+        } else {
+            list = realm.where(Session.class)
+                    .notEqualTo("from_uid", uid)
+                    .findAll();
+
+        }
+        List<Session> sessions = realm.copyFromRealm(list);
+        int sum = 0;
+        int len = sessions.size();
+        for (int i = 0; i < len; i++) {
+            sum += sessions.get(i).getUnread_count();
+        }
+        realm.commitTransaction();
+        realm.close();
+        return sum;
+
+
+    }
+
 
 }

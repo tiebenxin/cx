@@ -3,6 +3,9 @@ package com.yanlong.im;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
@@ -34,6 +37,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
@@ -70,6 +74,7 @@ public class MainActivity extends AppActivity {
     private StrikeButton sbfriend;
     private StrikeButton sbme;
     private NotifySettingDialog notifyDialog;
+    private NetworkReceiver mNetworkReceiver;
 
     //自动寻找控件
     private void findViews() {
@@ -198,6 +203,19 @@ public class MainActivity extends AppActivity {
         initEvent();
         uploadApp();
         checkRosters();
+        doRegisterNetReceiver();
+
+    }
+
+    private void doRegisterNetReceiver() {
+        if (mNetworkReceiver == null) {
+            mNetworkReceiver = new NetworkReceiver();
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+            filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+            filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            registerReceiver(mNetworkReceiver, filter);
+        }
     }
 
     //检测通讯录问题
@@ -219,7 +237,7 @@ public class MainActivity extends AppActivity {
         userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                EventBus.getDefault().post(new  EventRefreshFriend());
+                EventBus.getDefault().post(new EventRefreshFriend());
             }
 
             @Override
@@ -237,7 +255,9 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onDestroy() {
         stopService(new Intent(getContext(), ChatServer.class));
-
+        if (mNetworkReceiver != null) {
+            unregisterReceiver(mNetworkReceiver);
+        }
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
@@ -385,8 +405,6 @@ public class MainActivity extends AppActivity {
             }
         });
     }
-
-
 
 
     /*

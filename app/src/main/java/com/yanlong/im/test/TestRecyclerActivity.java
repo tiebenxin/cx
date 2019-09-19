@@ -1,10 +1,15 @@
 package com.yanlong.im.test;
 
+import android.annotation.SuppressLint;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.ui.cell.FactoryChatCell;
+import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.databinding.ActivityTestRecyclerBinding;
 
 import net.cb.cb.library.view.AppActivity;
@@ -12,9 +17,18 @@ import net.cb.cb.library.view.AppActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+
 public class TestRecyclerActivity extends AppActivity {
     private ActivityTestRecyclerBinding ui;
     private LinearLayoutManager layoutManager;
+    private List<MsgAllBean> msgListData;
+    private MsgAction msgAction = new MsgAction();
+    private MessageAdapter adapter;
 
 
     @Override
@@ -25,11 +39,59 @@ public class TestRecyclerActivity extends AppActivity {
         layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         ui.recyclerView.setLayoutManager(layoutManager);
-        AdapterRefreshTest adapterRefreshTest = new AdapterRefreshTest(this);
-        adapterRefreshTest.bindData(getStringList());
-        ui.recyclerView.setAdapter(adapterRefreshTest);
-//        ui.recyclerView.scrollToPosition(adapterRefreshTest.getItemCount() - 1);
-        layoutManager.scrollToPosition(adapterRefreshTest.getItemCount() - 1);
+//        AdapterRefreshTest adapterRefreshTest = new AdapterRefreshTest(this);
+//        adapterRefreshTest.bindData(getStringList());
+//        ui.recyclerView.setAdapter(adapterRefreshTest);
+
+        adapter = new MessageAdapter(this, null, false);
+        ui.recyclerView.setAdapter(adapter);
+        FactoryChatCell factoryChatCell = new FactoryChatCell(this, adapter, null);
+        adapter.setCellFactory(factoryChatCell);
+        taskRefreshMessage();
+    }
+
+    /***
+     * 获取最新的
+     */
+    @SuppressLint("CheckResult")
+    private void taskRefreshMessage() {
+        long time = -1L;
+        int length = 0;
+        if (msgListData != null && msgListData.size() > 0) {
+            length = msgListData.size();
+            MsgAllBean bean = msgListData.get(length - 1);
+            if (bean != null && bean.getTimestamp() != null) {
+                time = bean.getTimestamp();
+            }
+        }
+        final long finalTime = time;
+        if (length < 20) {
+            length += 20;
+        }
+        final int finalLength = length;
+        Observable.just(0)
+                .map(new Function<Integer, List<MsgAllBean>>() {
+                    @Override
+                    public List<MsgAllBean> apply(Integer integer) throws Exception {
+                        List<MsgAllBean> list = null;
+                        if (finalTime > 0) {
+                            list = msgAction.getMsg4User("", 100105L, null, finalLength);
+                        } else {
+                            list = msgAction.getMsg4User("", 100105L, null, 20);
+                        }
+                        return list;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<MsgAllBean>>empty())
+                .subscribe(new Consumer<List<MsgAllBean>>() {
+                    @Override
+                    public void accept(List<MsgAllBean> list) throws Exception {
+                        msgListData = list;
+                        adapter.bindData(msgListData);
+                        layoutManager.scrollToPosition(adapter.getItemCount() - 1);
+                    }
+                });
 
     }
 

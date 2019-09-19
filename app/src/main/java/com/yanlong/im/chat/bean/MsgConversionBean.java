@@ -292,7 +292,8 @@ public class MsgConversionBean {
                 msgAllBean.setMsgNotice(gnewAdminNotice);
                 break;
             case OUT_GROUP://退出群
-                String gid = bean.getOutGroup().getGid();
+//                String gid = bean.getOutGroup().getGid();
+                String gid = bean.getGid();
                 msgAllBean.setGid(gid);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
                 MsgNotice goutNotice = new MsgNotice();

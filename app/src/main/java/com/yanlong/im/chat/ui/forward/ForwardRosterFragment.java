@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.ui.forward;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -55,7 +54,7 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
         adapter = new AdapterForwardRoster(getActivity());
         ui.listView.init(adapter);
         ui.listView.getLoadView().setStateNormal();
-        adapter.initDao(userDao, msgDao);
+//        adapter.initDao(userDao, msgDao);
         adapter.setForwardListener(listener);
     }
 

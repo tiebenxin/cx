@@ -41,6 +41,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.test.TestRecyclerActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -52,12 +53,16 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
@@ -203,19 +208,7 @@ public class MsgMainFragment extends Fragment {
                         actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                         // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
                         actionBar.setTitle(state ? "消息" : "消息");
-                        if (state) {
-                            viewNetwork.setVisibility(View.GONE);
-                        } else {
-                            viewNetwork.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
-
-
-                                }
-                            }, 10 * 1000);
-                        }
+                        resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
 
 
                     }
@@ -311,6 +304,50 @@ public class MsgMainFragment extends Fragment {
 
     }
 
+    private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
+//        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+        switch (status) {
+            case CoreEnum.ENetStatus.ERROR_ON_NET:
+                viewNetwork.setVisibility(View.VISIBLE);
+                break;
+            case CoreEnum.ENetStatus.SUCCESS_ON_NET:
+                if (NetUtil.isNetworkConnected()) {//无网络链接，无效指令
+                    viewNetwork.setVisibility(View.GONE);
+                }
+                break;
+            case CoreEnum.ENetStatus.ERROR_ON_SERVER:
+                if (viewNetwork.getVisibility() == View.GONE) {
+                    viewNetwork.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
+                        }
+                    }, 10 * 1000);
+                }
+                break;
+            case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
+                viewNetwork.setVisibility(View.GONE);
+                break;
+            default:
+                viewNetwork.setVisibility(View.GONE);
+                break;
+
+        }
+//        if (isGone) {
+//            viewNetwork.setVisibility(View.GONE);
+//        } else {
+//            viewNetwork.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//
+//                    viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
+//
+//
+//                }
+//            }, 10 * 1000);
+//        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -395,6 +432,11 @@ public class MsgMainFragment extends Fragment {
     public void onResume() {
         super.onResume();
         taskListData();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventNetStatus(EventNetStatus event) {
+        resetNetWorkView(event.getStatus());
     }
 
     private MainActivity mainActivity;
