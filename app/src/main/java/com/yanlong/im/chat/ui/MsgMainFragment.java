@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -41,6 +42,8 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.ui.chat.ChatActivity3;
+import com.yanlong.im.test.TestRecyclerActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -52,12 +55,16 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
@@ -203,19 +210,7 @@ public class MsgMainFragment extends Fragment {
                         actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                         // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
                         actionBar.setTitle(state ? "消息" : "消息");
-                        if (state) {
-                            viewNetwork.setVisibility(View.GONE);
-                        } else {
-                            viewNetwork.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
-
-
-                                }
-                            }, 10 * 1000);
-                        }
+                        resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
 
 
                     }
@@ -311,6 +306,50 @@ public class MsgMainFragment extends Fragment {
 
     }
 
+    private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
+//        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+        switch (status) {
+            case CoreEnum.ENetStatus.ERROR_ON_NET:
+                viewNetwork.setVisibility(View.VISIBLE);
+                break;
+            case CoreEnum.ENetStatus.SUCCESS_ON_NET:
+                if (NetUtil.isNetworkConnected()) {//无网络链接，无效指令
+                    viewNetwork.setVisibility(View.GONE);
+                }
+                break;
+            case CoreEnum.ENetStatus.ERROR_ON_SERVER:
+                if (viewNetwork.getVisibility() == View.GONE) {
+                    viewNetwork.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
+                        }
+                    }, 10 * 1000);
+                }
+                break;
+            case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
+                viewNetwork.setVisibility(View.GONE);
+                break;
+            default:
+                viewNetwork.setVisibility(View.GONE);
+                break;
+
+        }
+//        if (isGone) {
+//            viewNetwork.setVisibility(View.GONE);
+//        } else {
+//            viewNetwork.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//
+//                    viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
+//
+//
+//                }
+//            }, 10 * 1000);
+//        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -395,6 +434,11 @@ public class MsgMainFragment extends Fragment {
     public void onResume() {
         super.onResume();
         taskListData();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventNetStatus(EventNetStatus event) {
+        resetNetWorkView(event.getStatus());
     }
 
     private MainActivity mainActivity;
@@ -490,7 +534,7 @@ public class MsgMainFragment extends Fragment {
                 switch (type) {
                     case 0:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo.getMsg_type() == 8) {
+                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[有人@你]" + bean.getAtMessage());
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
@@ -567,6 +611,7 @@ public class MsgMainFragment extends Fragment {
             });
 //            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
             holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
+            holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
 
         }
 
@@ -589,6 +634,7 @@ public class MsgMainFragment extends Fragment {
             private TextView txtName;
             private TextView txtInfo;
             private TextView txtTime;
+            private final ImageView iv_disturb;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -601,6 +647,7 @@ public class MsgMainFragment extends Fragment {
                 txtName = convertView.findViewById(R.id.txt_name);
                 txtInfo = convertView.findViewById(R.id.txt_info);
                 txtTime = convertView.findViewById(R.id.txt_time);
+                iv_disturb = convertView.findViewById(R.id.iv_disturb);
             }
 
         }

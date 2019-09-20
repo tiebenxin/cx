@@ -73,8 +73,8 @@ public class MsgAction {
 
     }
 
-    public void groupQuit(final String id,String nickname, final CallBack<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupQuit(id,nickname), new CallBack<ReturnBean>() {
+    public void groupQuit(final String id, String nickname, final CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupQuit(id, nickname), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null)
@@ -322,7 +322,8 @@ public class MsgAction {
 
 
     }
-    public void groupSwitchIntimately(final String gid,int intimately,Callback<ReturnBean> callback){
+
+    public void groupSwitchIntimately(final String gid, int intimately, Callback<ReturnBean> callback) {
 
         NetUtil.getNet().exec(server.groupSwitchIntimately(gid, intimately), callback);
     }
@@ -399,9 +400,10 @@ public class MsgAction {
     /**
      * 修改群人数上限
      */
-    public void changeGroupLimit(String gid, String description,String masterPhone, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.groupHeadLimit(gid, description,masterPhone), callback);
+    public void changeGroupLimit(String gid, String description, String masterPhone, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.groupHeadLimit(gid, description, masterPhone), callback);
     }
+
     /**
      * 修改群成员昵称
      */

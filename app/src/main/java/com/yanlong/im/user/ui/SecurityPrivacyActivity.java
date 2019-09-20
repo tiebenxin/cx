@@ -108,11 +108,12 @@ public class SecurityPrivacyActivity extends AppActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.view_setting_password:
-
                 if(!UserAction.getMyInfo().isEmptyPassword()){
                     go(ChangePasswordActivity.class);
                 }else{
-                    go(SetingPasswordActitity.class);
+                    Intent intent = new Intent(this,SetingPasswordActitity.class);
+                    intent.putExtra(SetingPasswordActitity.TYPE,1);
+                    startActivity(intent);
                 }
                 break;
             case R.id.view_blacklist:

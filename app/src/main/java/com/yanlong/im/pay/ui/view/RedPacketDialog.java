@@ -132,7 +132,7 @@ public class RedPacketDialog extends DialogFragment {
             }
         });
 
-      //  amina.start();
+      //  amina.onCreate();
     }
 
 

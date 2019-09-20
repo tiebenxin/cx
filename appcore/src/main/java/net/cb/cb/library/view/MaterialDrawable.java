@@ -243,9 +243,9 @@ class MaterialDrawable extends RefreshDrawable implements Animatable {
     }
 
     /**
-     * Set the start and end trim for the progress spinner arc.
+     * Set the onCreate and end trim for the progress spinner arc.
      *
-     * @param startAngle start angle
+     * @param startAngle onCreate angle
      * @param endAngle   end angle
      */
     public void setStartEndTrim(float startAngle, float endAngle) {
@@ -790,7 +790,7 @@ class MaterialDrawable extends RefreshDrawable implements Animatable {
         }
 
         /**
-         * If the start / end trim are offset to begin with, store them so that
+         * If the onCreate / end trim are offset to begin with, store them so that
          * animation starts from that offset.
          */
         public void storeOriginals() {
@@ -800,7 +800,7 @@ class MaterialDrawable extends RefreshDrawable implements Animatable {
         }
 
         /**
-         * Reset the progress spinner to default rotation, start and end angles.
+         * Reset the progress spinner to default rotation, onCreate and end angles.
          */
         public void resetOriginals() {
             mStartingStartTrim = 0;

@@ -173,7 +173,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         if (isHttp) {
             //   showPleaseDialog();
             //loadDataThread = new LoadDataThread(path, 2, imgLarge);
-            //loadDataThread.start();
+            //loadDataThread.onCreate();
             //TODO 文件下载重新构建
 
 

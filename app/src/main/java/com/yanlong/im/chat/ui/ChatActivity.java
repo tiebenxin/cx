@@ -288,9 +288,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     //从数据库读取消息
                     if (needRefresh) {
-//                        LogUtil.getLog().i(TAG, "需要刷新");
                         taskRefreshMessage();
                     }
+                    initUnreadCount();
                 }
             });
         }
@@ -631,32 +631,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         }
-
-//        //emoji表情处理
-//        for (int i = 0; i < viewEmoji.getChildCount(); i++) {
-//            if (viewEmoji.getChildAt(i) instanceof TextView) {
-//                final TextView tv = (TextView) viewEmoji.getChildAt(i);
-//                tv.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        edtChat.getText().insert(edtChat.getSelectionEnd(), tv.getText());
-//                    }
-//                });
-//            }
-//
-//        }
-//        imgEmojiDel.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                int keyCode = KeyEvent.KEYCODE_DEL;
-//                KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
-//                KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
-//                edtChat.onKeyDown(keyCode, keyEventDown);
-//                edtChat.onKeyUp(keyCode, keyEventUp);
-//
-//            }
-//        });
 
 
         viewCamera.setOnClickListener(new View.OnClickListener() {
@@ -1261,6 +1235,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void initData() {
         taskRefreshMessage();
+        initUnreadCount();
+    }
+
+    private void initUnreadCount() {
+        long count = msgDao.getUnreadCount(toGid, toUId);
+        String s = "";
+        if (count > 0 && count <= 99) {
+            s = count + "";
+        } else if (count > 99) {
+            s = 99 + "+";
+        }
+        actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
     }
 
 
@@ -2053,7 +2039,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
-//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--start=" + start);
+//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--onCreate=" + onCreate);
         int length = msgListData.size();
         int index = msgListData.indexOf(b);
         if (index < 0) {
@@ -2886,7 +2872,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = msgListData.size();
-//            int start = size - 1;
+//            int onCreate = size - 1;
             int height = 0;
             for (int i = lastPosition; i < size - 1; i++) {
 //                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item

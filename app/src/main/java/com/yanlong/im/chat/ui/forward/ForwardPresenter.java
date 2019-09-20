@@ -47,4 +47,9 @@ public class ForwardPresenter extends BasePresenter<ForwardModel, ForwardView> {
     protected void onViewDestroy() {
 
     }
+
+    @Override
+    protected void onViewStart() {
+
+    }
 }
