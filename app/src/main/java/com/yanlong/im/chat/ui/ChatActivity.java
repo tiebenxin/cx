@@ -1246,7 +1246,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else if (count > 99) {
             s = 99 + "+";
         }
-        actionbar.setTxtLeft(s);
+        actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
     }
 
 

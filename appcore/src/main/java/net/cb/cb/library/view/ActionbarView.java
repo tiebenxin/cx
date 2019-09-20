@@ -3,6 +3,7 @@ package net.cb.cb.library.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -14,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.ClickFilter;
@@ -85,7 +88,24 @@ public class ActionbarView extends LinearLayout {
      *
      * @param txt
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void setTxtLeft(String txt) {
+        txtLeft.setBackgroundColor(getContext().getColor(R.color.transparent));
+        if (!TextUtils.isEmpty(txt)) {
+            txtLeft.setText(txt);
+            txtLeft.setVisibility(View.VISIBLE);
+        } else {
+            txtLeft.setVisibility(View.GONE);
+        }
+    }
+
+    /***
+     * 设置左边文字
+     *
+     * @param txt
+     */
+    public void setTxtLeft(String txt, int drawableId) {
+        txtLeft.setBackgroundResource(drawableId);
         if (!TextUtils.isEmpty(txt)) {
             txtLeft.setText(txt);
             txtLeft.setVisibility(View.VISIBLE);
