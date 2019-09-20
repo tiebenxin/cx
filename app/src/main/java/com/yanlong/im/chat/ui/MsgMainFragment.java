@@ -590,7 +590,7 @@ public class MsgMainFragment extends Fragment {
                 Glide.with(getActivity()).load(icon)
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
             }else{
-                String imgUrl = null;
+                String imgUrl = "";
                 try{
                     imgUrl= ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class,"gid",bean.getGid())).getImgHeadUrl();
                 }catch (Exception e){
