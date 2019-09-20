@@ -129,13 +129,18 @@
                             </FrameLayout>
                         </LinearLayout>
 
-                        <include layout="@layout/part_chat_func" />
+                        <include
+                            android:id="@+id/view_func_root"
+                            layout="@layout/part_chat_func" />
+
+                        <!--<include-->
+                        <!--android:id="@+id/view_emoji"-->
+                        <!--layout="@layout/part_chat_emoji"-->
+                        <!--android:visibility="gone" />-->
 
                         <include
-                            layout="@layout/part_chat_emoji"
-                            android:visibility="gone" />
-
-                        <include layout="@layout/item_emoji_pager" />
+                            android:id="@+id/view_emoji_pager"
+                            layout="@layout/item_emoji_pager" />
                     </LinearLayout>
 
                     <TextView

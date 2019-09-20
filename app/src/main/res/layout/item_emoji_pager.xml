@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/emoji_pager_con"
-    android:layout_width="match_parent"
-    android:layout_height="230dp"
-    android:columnCount="7"
-    android:layout_marginTop="10dp"
-    android:paddingBottom="20dp"
-    android:visibility="gone"
-    >
-    <RelativeLayout
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/emoji_pager_con"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <com.yanlong.im.user.ui.MyViewPager
-        android:id="@+id/emoji_pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:focusable="true"
-        />
-    <LinearLayout
-        android:id="@+id/dot_hor"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        android:gravity="center"
-        ></LinearLayout>
-    </RelativeLayout>
-</android.support.constraint.ConstraintLayout>
+        android:layout_height="230dp"
+        android:layout_marginTop="10dp"
+        android:columnCount="7"
+        android:paddingBottom="20dp"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.yanlong.im.user.ui.MyViewPager
+                android:id="@+id/emoji_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="true" />
+
+            <LinearLayout
+                android:id="@+id/dot_hor"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:orientation="horizontal"></LinearLayout>
+        </RelativeLayout>
+    </android.support.constraint.ConstraintLayout>
+</layout>

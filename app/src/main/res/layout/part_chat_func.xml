@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-    <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <GridLayout
         android:id="@+id/view_func"
         android:layout_width="match_parent"
         android:layout_height="240dp"
@@ -180,29 +183,30 @@
                 android:text="群助手" />
         </LinearLayout>
 
-    <!--test加工能前记得删掉-->
+        <!--test加工能前记得删掉-->
 
-    <LinearLayout
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_rowWeight="1"
-        android:layout_columnWeight="1"
-        android:gravity="center"
-        android:visibility="invisible"
-        android:orientation="vertical">
-
-        <ImageView
+        <LinearLayout
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_chat_robot" />
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="invisible">
 
-        <TextView
-            style="@style/app_txt_content_1"
-            android:layout_marginTop="2dp"
-            android:text="群助手" />
-    </LinearLayout>
+            <ImageView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_chat_robot" />
+
+            <TextView
+                style="@style/app_txt_content_1"
+                android:layout_marginTop="2dp"
+                android:text="群助手" />
+        </LinearLayout>
 
 
     </GridLayout>
+</layout>

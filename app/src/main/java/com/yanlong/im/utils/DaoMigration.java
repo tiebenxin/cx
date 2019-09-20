@@ -10,37 +10,33 @@ public class DaoMigration implements RealmMigration {
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
         // DynamicRealm exposes an editable schema
         RealmSchema schema = realm.getSchema();
-
-        if (oldVersion == 0) {
-           /* schema.create("Person")
-                    .addField("name", String.class)
-                    .addField("age", int.class);*/
-          /*  schema.create("MsgCancel")
-                    .addField("msgid", String.class,FieldAttribute.PRIMARY_KEY)
-                    .addField("uid", Long.class)
-                    .addField("note", String.class)
-                    .addField("msgidCancel", String.class)
-            ;
-
-            schema.get("MsgAllBean")
-                    .addRealmObjectField("msgCancel", schema.get("MsgCancel"))
-                    ;*/
-
-            oldVersion++;
+        if (newVersion > oldVersion) {
+            if (oldVersion == 0) {
+                updateV1(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion) {
+                updateV2(schema);
+                oldVersion++;
+            }
         }
+    }
 
-        if (oldVersion == 1) {
-           /* schema.get("Person")
-                    .addField("id", long.class, FieldAttribute.PRIMARY_KEY)
-                    .addRealmObjectField("favoriteDog", schema.get("Dog"))
-                    .addRealmListField("dogs", schema.get("Dog"));*/
+    /*
+     * 新增群头像表
+     * */
+    private void updateV1(RealmSchema schema) {
+        schema.create("GroupImageHead")
+                .addField("gid", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("imgHeadUrl", String.class);
+    }
 
-           /* schema.get("MsgNotice")
-                    .addField("msgType",Integer.class)
-            ;*/
-            oldVersion++;
-        }
-
-
+    /*
+     * 新增群头像表
+     * */
+    private void updateV2(RealmSchema schema) {
+//        schema.create("GroupImageHead")
+//                .addField("gid", String.class, FieldAttribute.PRIMARY_KEY)
+//                .addField("imgHeadUrl", String.class);
     }
 }

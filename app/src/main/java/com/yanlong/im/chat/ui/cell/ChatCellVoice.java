@@ -22,7 +22,6 @@ public class ChatCellVoice extends ChatCellBase {
     private VoiceView v_voice;
     private VoiceMessage voiceMessage;
     private Uri uri;
-//    private Handler handler = new Handler(Looper.getMainLooper());
 
     protected ChatCellVoice(Context context, View view, ICellEventListener listener, MessageAdapter adapter) {
         super(context, view, listener, adapter);
@@ -48,7 +47,7 @@ public class ChatCellVoice extends ChatCellBase {
     public void onBubbleClick() {
         super.onBubbleClick();
         if (mCellListener != null) {
-            mCellListener.onEvent(ChatEnum.ECellEventType.VOICE_CLICK, model, voiceMessage,currentPosition);
+            mCellListener.onEvent(ChatEnum.ECellEventType.VOICE_CLICK, model, voiceMessage, currentPosition);
         }
 
     }
@@ -59,6 +58,14 @@ public class ChatCellVoice extends ChatCellBase {
             MsgAction action = new MsgAction();
             action.msgRead(model.getMsg_id(), true);
             model.setRead(true);
+            v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
+        }
+    }
+
+    void updateVoice() {
+        voiceMessage = model.getVoiceMessage();
+        if (voiceMessage != null) {
+            uri = Uri.parse(voiceMessage.getUrl());
             v_voice.init(model.isMe(), voiceMessage.getTime(), model.isRead(), AudioPlayManager.getInstance().isPlay(uri), voiceMessage.getPlayStatus());
         }
     }
