@@ -1,7 +1,5 @@
 package net.cb.cb.library.base;
 
-import android.util.Log;
-
 import java.lang.ref.WeakReference;
 
 /**
@@ -9,7 +7,7 @@ import java.lang.ref.WeakReference;
  * @data 2019/8/10
  * Description
  */
-public abstract class BasePresenter<M extends IModel, V extends IView> implements IPresenter<M,V> {
+public abstract class BasePresenter<M extends IModel, V extends IView> implements IPresenter<M, V> {
     /**
      * 使用弱引用来防止内存泄漏
      */
@@ -36,7 +34,7 @@ public abstract class BasePresenter<M extends IModel, V extends IView> implement
      * 在Activity或Fragment卸载时调用View结束的方法
      */
     @Override
-    public void destroy() {
+    public void onDestroy() {
         if (wrf != null) {
             wrf.clear();
             wrf = null;
@@ -44,5 +42,12 @@ public abstract class BasePresenter<M extends IModel, V extends IView> implement
         onViewDestroy();
     }
 
+    @Override
+    public void onCreate() {
+        onViewStart();
+    }
+
     protected abstract void onViewDestroy();
+
+    protected abstract void onViewStart();
 }

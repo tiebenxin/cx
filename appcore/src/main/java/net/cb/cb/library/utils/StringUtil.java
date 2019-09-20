@@ -85,7 +85,7 @@ public class StringUtil {
      * 截取之前，检测是否包含emoji
      * */
     public static String splitEmojiString(String content, int start, int end) {
-//        LogUtil.getLog().i("检测Emoji", content + "--start=" + start + "--end=" + end);
+//        LogUtil.getLog().i("检测Emoji", content + "--onCreate=" + onCreate + "--end=" + end);
         Matcher matcher = EMOJI.matcher(content);
         while (matcher.find()) {
             int first = matcher.start();
@@ -96,7 +96,7 @@ public class StringUtil {
                 end = first;//只能少，不能多，左闭右开
             }
         }
-//        LogUtil.getLog().i("检测Emoji", content.substring(start, end) + "--start=" + start + "--end=" + end);
+//        LogUtil.getLog().i("检测Emoji", content.substring(onCreate, end) + "--onCreate=" + onCreate + "--end=" + end);
         return content.substring(start, end);
     }
 }

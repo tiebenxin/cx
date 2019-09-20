@@ -1095,11 +1095,12 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
             if (isMustBottom) {
-                recyclerView.scrollToPosition(length);
+                layoutManager.scrollToPosition(length);
             } else {
                 if (lastPosition >= 0 && lastPosition < length) {
                     if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部，canScrollVertically是否能向上 false表示到了底部
-                        recyclerView.scrollToPosition(length);
+//                        recyclerView.scrollToPosition(length);
+                        layoutManager.scrollToPosition(length);
                     }
                 } else {
                     SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
@@ -1119,12 +1120,12 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
                     }
                     if (lastPosition >= 0 && lastPosition < length) {
                         if (isSoftShow || lastPosition == length - 1 || isCanScrollBottom()) {//允许滑动到底部，或者当前处于底部
-                            recyclerView.scrollToPosition(length);
+                            layoutManager.scrollToPosition(length);
                         } else {
                             layoutManager.scrollToPositionWithOffset(lastPosition, lastOffset);
                         }
                     } else {
-                        recyclerView.scrollToPosition(length);
+                        layoutManager.scrollToPosition(length);
                     }
                 }
             }
@@ -1584,7 +1585,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
-//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--start=" + start);
+//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--onCreate=" + onCreate);
         int length = msgListData.size();
         int index = msgListData.indexOf(b);
         if (index < 0) {
@@ -2352,7 +2353,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = msgListData.size();
-//            int start = size - 1;
+//            int onCreate = size - 1;
             int height = 0;
             for (int i = lastPosition; i < size - 1; i++) {
 //                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item
