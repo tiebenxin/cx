@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -533,7 +534,7 @@ public class MsgMainFragment extends Fragment {
                 switch (type) {
                     case 0:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo.getMsg_type() == 8) {
+                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[有人@你]" + bean.getAtMessage());
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
@@ -610,6 +611,7 @@ public class MsgMainFragment extends Fragment {
             });
 //            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
             holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
+            holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
 
         }
 
@@ -632,6 +634,7 @@ public class MsgMainFragment extends Fragment {
             private TextView txtName;
             private TextView txtInfo;
             private TextView txtTime;
+            private final ImageView iv_disturb;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -644,6 +647,7 @@ public class MsgMainFragment extends Fragment {
                 txtName = convertView.findViewById(R.id.txt_name);
                 txtInfo = convertView.findViewById(R.id.txt_info);
                 txtTime = convertView.findViewById(R.id.txt_time);
+                iv_disturb = convertView.findViewById(R.id.iv_disturb);
             }
 
         }
