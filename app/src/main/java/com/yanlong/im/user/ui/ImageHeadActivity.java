@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +17,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
@@ -24,6 +26,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -70,6 +73,7 @@ public class ImageHeadActivity extends AppActivity {
 
     private void initView() {
         imageHead = getIntent().getStringExtra(IMAGE_HEAD);
+        String gid = getIntent().getStringExtra("gid");
         isAdmin = getIntent().getBooleanExtra("admin", false);
         isGroup = getIntent().getBooleanExtra("groupSigle", false);
         mHeadView = findViewById(R.id.headView);
@@ -78,8 +82,16 @@ public class ImageHeadActivity extends AppActivity {
         }
         mSdImageHead = findViewById(R.id.sd_image_head);
 
-        Glide.with(this).load(imageHead)
-                .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+        if (imageHead!=null&&!imageHead.isEmpty()&& StringUtil.isNotNull(imageHead)){
+            Glide.with(this).load(imageHead)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+        }else{
+            MsgDao msgDao=new MsgDao();
+            String url= msgDao.groupHeadImgGet(gid);
+            Glide.with(this).load(url)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+        }
+
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         mBtnImageHead = findViewById(R.id.btn_image_head);

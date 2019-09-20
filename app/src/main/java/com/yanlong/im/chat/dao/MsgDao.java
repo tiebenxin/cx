@@ -12,6 +12,7 @@ import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
+import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
@@ -75,6 +76,35 @@ public class MsgDao {
         realm.close();
         //return DaoUtil.findOne(Group.class, "gid", gid);
     }
+
+
+
+    /***
+     * 保存群
+     * @param gid 群id
+     * @param imgHead 群头像
+     */
+    public boolean groupSaveJustImgHead(String gid,String imgHead) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (g != null) {//已经存在
+            g.setAvatar(imgHead);
+            realm.insertOrUpdate(g);
+
+        } else {//不存在
+//            realm.insertOrUpdate(g);
+            return false;
+            // sessionCreate(group.getGid(),null);
+        }
+        realm.commitTransaction();
+        realm.close();
+        return true;
+        //return DaoUtil.findOne(Group.class, "gid", gid);
+    }
+
+
 
     /***
      * 单用户消息列表
@@ -724,6 +754,29 @@ public class MsgDao {
         group.setUsers(users);
         DaoUtil.update(group);
     }
+
+    /***
+     * 创建群头像
+     * @param gid
+     * @param avatar
+     */
+    public void groupHeadImgCreate(String gid, String avatar) {
+        GroupImageHead imageHead=new GroupImageHead();
+        imageHead.setGid(gid);
+        imageHead.setImgHeadUrl(avatar);
+        DaoUtil.save(imageHead);
+    }
+
+
+    /***
+     * 获取本地群头像
+     * @param gid
+     *
+     */
+    public String groupHeadImgGet(String gid) {
+       return  ((GroupImageHead)DaoUtil.findOne(GroupImageHead.class,"gid",gid)).getImgHeadUrl();
+    }
+
 
     /***
      * 根据key查询群

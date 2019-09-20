@@ -38,6 +38,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -46,7 +47,9 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
+import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -69,6 +72,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -537,9 +541,29 @@ public class MsgMainFragment extends Fragment {
                 }
             }
 
+            Log.e("TAG",icon.toString());
+            if (StringUtil.isNotNull(icon)){
+                Glide.with(getActivity()).load(icon)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+            }else{
+                String imgUrl = null;
+                try{
+                    imgUrl= ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class,"gid",bean.getGid())).getImgHeadUrl();
+                }catch (Exception e){
+                    creatAndSaveImg(bean,holder.imgHead);
+                }
 
-            Glide.with(getActivity()).load(icon)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                Log.e("TAG","----------"+imgUrl.toString());
+                if (StringUtil.isNotNull(imgUrl)){
+                    Glide.with(getActivity()).load(imgUrl)
+                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                }else{
+
+                    creatAndSaveImg(bean,holder.imgHead);
+
+                }
+
+            }
 
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
@@ -568,6 +592,29 @@ public class MsgMainFragment extends Fragment {
 //            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
             holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
 
+        }
+
+        private void creatAndSaveImg(Session bean,ImageView imgHead) {
+            Group gginfo = msgDao.getGroup4Id(bean.getGid());
+            int i = gginfo.getUsers().size();
+            i = i > 9 ? 9 : i;
+            //头像地址
+            String url[] = new String[i];
+            for (int j = 0; j < i; j++) {
+                UserInfo userInfo = gginfo.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+                url[j] = userInfo.getHead();
+            }
+            File file = GroupHeadImageUtil.synthesis(getContext(), url);
+            Glide.with(getActivity()).load(file)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
+            MsgDao msgDao=new MsgDao();
+            msgDao.groupHeadImgCreate(gginfo.getGid(),file.getAbsolutePath());
         }
 
 

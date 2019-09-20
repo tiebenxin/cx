@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -350,60 +351,101 @@ public class GroupCreateActivity extends AppActivity {
 //            }
             url[j] = userInfo.getHead();
         }
-        File file = GroupHeadImageUtil.synthesis(this, url);
+        final File file = GroupHeadImageUtil.synthesis(this, url);
+
 
 //        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
 //        name += "的群";
 //        final String fname = name;
-        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP, getContext(), new UpFileUtil.OssUpCallback() {
+
+
+
+
+
+        msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", "", templist, new CallBack<ReturnBean<Group>>() {
             @Override
-            public void success(String icon) {
-                msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", icon, templist, new CallBack<ReturnBean<Group>>() {
-                    @Override
-                    public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                        actionbar.getViewRight().setEnabled(true);
-                        alert.dismiss();
-                        if (response.body() == null)
-                            return;
-                        if (response.body().isOk()) {
-                            finish();
-                            startActivity(new Intent(getContext(), ChatActivity.class)
-                                    .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
-                            );
-                        } else {
-                            ToastUtil.show(getContext(), response.body().getMsg());
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                actionbar.getViewRight().setEnabled(true);
+                alert.dismiss();
+                if (response.body() == null)
+                    return;
+                if (response.body().isOk()) {
 
-                        }
+                    MsgDao msgDao=new MsgDao();
+//                    Group group= msgDao.getGroup4Id(response.body().getData().getGid());
+//                    group.setAvatar(file.getAbsolutePath());
+//                    msgDao.groupSave(group);
+//                    msgDao.groupSaveJustImgHead(response.body().getData().getGid(),file.getAbsolutePath());
+                    msgDao.groupHeadImgCreate(response.body().getData().getGid(),file.getAbsolutePath());
 
-                    }
+                    startActivity(new Intent(getContext(), ChatActivity.class)
+                            .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
+                    );
+                    finish();
+                } else {
+                    ToastUtil.show(getContext(), response.body().getMsg());
 
-                    @Override
-                    public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
-                        actionbar.getViewRight().setEnabled(true);
-                        alert.dismiss();
-                        super.onFailure(call, t);
-                    }
-                });
-            }
-
-            @Override
-            public void fail() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        actionbar.getViewRight().setEnabled(true);
-                        alert.dismiss();
-                        ToastUtil.show(getContext(), "上传失败(oss)");
-                    }
-                });
+                }
 
             }
 
             @Override
-            public void inProgress(long progress, long zong) {
-
+            public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                actionbar.getViewRight().setEnabled(true);
+                alert.dismiss();
+                super.onFailure(call, t);
             }
-        }, file.getAbsolutePath());
+        });
+
+//        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP, getContext(), new UpFileUtil.OssUpCallback() {
+//            @Override
+//            public void success(String icon) {
+//                msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", icon, templist, new CallBack<ReturnBean<Group>>() {
+//                    @Override
+//                    public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+//                        actionbar.getViewRight().setEnabled(true);
+//                        alert.dismiss();
+//                        if (response.body() == null)
+//                            return;
+//                        if (response.body().isOk()) {
+//                            finish();
+//                            startActivity(new Intent(getContext(), ChatActivity.class)
+//                                    .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
+//                            );
+//                        } else {
+//                            ToastUtil.show(getContext(), response.body().getMsg());
+//
+//                        }
+//
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+//                        actionbar.getViewRight().setEnabled(true);
+//                        alert.dismiss();
+//                        super.onFailure(call, t);
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void fail() {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        actionbar.getViewRight().setEnabled(true);
+//                        alert.dismiss();
+//                        ToastUtil.show(getContext(), "上传失败(oss)");
+//                    }
+//                });
+//
+//            }
+//
+//            @Override
+//            public void inProgress(long progress, long zong) {
+//
+//            }
+//        }, file.getAbsolutePath());
 
 
     }
