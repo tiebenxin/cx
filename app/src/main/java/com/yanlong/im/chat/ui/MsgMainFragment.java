@@ -590,23 +590,27 @@ public class MsgMainFragment extends Fragment {
                 Glide.with(getActivity()).load(icon)
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
             }else{
-                String imgUrl = "";
-                try{
-                    imgUrl= ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class,"gid",bean.getGid())).getImgHeadUrl();
-                }catch (Exception e){
-                    creatAndSaveImg(bean,holder.imgHead);
-                }
+                if (bean.getType() == 1) {
+                    String imgUrl = "";
+                    try {
+                        imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
+                    } catch (Exception e) {
+                        creatAndSaveImg(bean, holder.imgHead);
+                    }
 
-                Log.e("TAG","----------"+imgUrl.toString());
-                if (StringUtil.isNotNull(imgUrl)){
-                    Glide.with(getActivity()).load(imgUrl)
+                    Log.e("TAG", "----------" + imgUrl.toString());
+                    if (StringUtil.isNotNull(imgUrl)) {
+                        Glide.with(getActivity()).load(imgUrl)
+                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                    } else {
+
+                        creatAndSaveImg(bean, holder.imgHead);
+
+                    }
+                }else {
+                    Glide.with(getActivity()).load(icon)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                }else{
-
-                    creatAndSaveImg(bean,holder.imgHead);
-
                 }
-
             }
 
             holder.txtName.setText(title);

@@ -22,7 +22,7 @@ public class GlideOptionsUtil {
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false);
 
-              //  .centerCrop();
+        //  .centerCrop();
         return mRequestOptions;
     }
 

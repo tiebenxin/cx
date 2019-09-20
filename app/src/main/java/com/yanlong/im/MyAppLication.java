@@ -39,6 +39,8 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
 
+    private final String U_APP_KEY= "5d53659c570df3d281000225";
+
     @Override
     public void onCreate() {
         super.onCreate();
