@@ -350,12 +350,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 taskGroupConf();
                 break;
             case ACCEPT_BE_GROUP://邀请进群刷新
-                if (StringUtil.isNotNull(groupInfo.getAvatar())){
+                if (StringUtil.isNotNull(groupInfo.getAvatar())) {
                     taskGroupConf();
-                }else{
-                    if (groupInfo.getUsers().size()>=9){
+                } else {
+                    if (groupInfo.getUsers().size() >= 9) {
                         taskGroupConf();
-                    }else{
+                    } else {
                         taskGroupConf();
                         creatAndSaveImg(groupInfo.getGid());
                     }
@@ -390,8 +390,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //        Glide.with(this).load(file)
 //                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
-        MsgDao msgDao=new MsgDao();
-        msgDao.groupHeadImgCreate(gginfo.getGid(),file.getAbsolutePath());
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
     }
 
 
@@ -1278,14 +1278,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void initUnreadCount() {
-        long count = msgDao.getUnreadCount(toGid, toUId);
-        String s = "";
-        if (count > 0 && count <= 99) {
-            s = count + "";
-        } else if (count > 99) {
-            s = 99 + "+";
-        }
-        actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
+        new RunUtils(new RunUtils.Enent() {
+            String s = "";
+
+            @Override
+            public void onRun() {
+                long count = msgDao.getUnreadCount(toGid, toUId);
+                if (count > 0 && count <= 99) {
+                    s = count + "";
+                } else if (count > 99) {
+                    s = 99 + "+";
+                }
+            }
+
+            @Override
+            public void onMain() {
+                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
+
+            }
+        }).run();
+
     }
 
 
