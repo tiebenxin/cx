@@ -1585,7 +1585,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
-//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--start=" + start);
+//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--onCreate=" + onCreate);
         int length = msgListData.size();
         int index = msgListData.indexOf(b);
         if (index < 0) {
@@ -2353,7 +2353,7 @@ public class ChatActivity2 extends AppActivity implements ICellEventListener {
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = msgListData.size();
-//            int start = size - 1;
+//            int onCreate = size - 1;
             int height = 0;
             for (int i = lastPosition; i < size - 1; i++) {
 //                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item

@@ -47,7 +47,7 @@ public class LogcatHelper {
     }
 
     public void start() {
-        Log.d(TAG, "start");
+        Log.d(TAG, "onCreate");
         if (mLogDumper == null) {
             mLogDumper = new LogDumper(String.valueOf(mPId), PATH_LOGCAT);
         }

@@ -17,13 +17,13 @@
             <com.baoyz.widget.PullRefreshLayout
                 android:id="@+id/view_refresh"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1">
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recycler_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:fitsSystemWindows="true" />
 
             </com.baoyz.widget.PullRefreshLayout>
@@ -106,7 +106,6 @@
                             <FrameLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-
                                 android:layout_marginBottom="0dp">
 
                                 <ImageView

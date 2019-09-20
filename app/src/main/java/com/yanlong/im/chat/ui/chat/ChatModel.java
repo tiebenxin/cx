@@ -25,8 +25,8 @@ import io.reactivex.ObservableOnSubscribe;
  * Description
  */
 public class ChatModel implements IModel {
-    private MsgDao msgDao;
-    private UserDao userDao;
+    private MsgDao msgDao = new MsgDao();
+    private UserDao userDao = new UserDao();
     private MsgAction msgAction = new MsgAction();
     private List<MsgAllBean> listData = new ArrayList<>();
     private String gid;
@@ -116,6 +116,12 @@ public class ChatModel implements IModel {
             head = userInfo.getHead();
             msg.setFrom_nickname(nkname);
             msg.setFrom_avatar(head);
+        }
+    }
+
+    public void checkLockMessage() {
+        if (!msgDao.isMsgLockExist(gid, uid)) {
+            msgDao.insertOrUpdateMessage(msgAction.createMessageLock(gid, uid));
         }
     }
 

@@ -57,7 +57,7 @@ public class AnimationPic {
     public void start(String tag,ImageView mview){
         this.view = mview;
         this.tag=tag;
-        Log.d("xxx", "start: "+tag+"   "+mview);
+        Log.d("xxx", "onCreate: "+tag+"   "+mview);
         play();
         animator.start();
     }

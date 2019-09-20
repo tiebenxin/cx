@@ -41,6 +41,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.ui.chat.ChatActivity3;
 import com.yanlong.im.test.TestRecyclerActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;

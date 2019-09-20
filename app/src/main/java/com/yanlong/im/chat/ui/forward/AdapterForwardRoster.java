@@ -31,11 +31,6 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
         context = ctx;
     }
 
-//    public void initDao(UserDao user, MsgDao msg) {
-//        userDao = user;
-//        msgDao = msg;
-//    }
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == 0) {

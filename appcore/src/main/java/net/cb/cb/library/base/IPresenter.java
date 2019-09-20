@@ -31,6 +31,11 @@ public interface IPresenter<M extends IModel, V extends IView> {
     /**
      * 销毁动作（如Activity、Fragment的卸载）
      */
-    void destroy();
+    void onDestroy();
+
+    /**
+     * create动作（如Activity、Fragment的卸载）
+     */
+    void onCreate();
 
 }

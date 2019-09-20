@@ -1,9 +1,7 @@
 package net.cb.cb.library.base;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 
 /**
  * @anthor Liszt
@@ -28,7 +26,7 @@ public abstract class BaseMvpFragment<M extends IModel, V extends IView, P exten
     public void onDetach() {
         super.onDetach();
         if (presenter != null) {
-            presenter.destroy();
+            presenter.onDestroy();
         }
     }
 
