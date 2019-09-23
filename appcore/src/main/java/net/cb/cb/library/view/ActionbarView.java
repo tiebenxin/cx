@@ -109,8 +109,12 @@ public class ActionbarView extends LinearLayout {
         txtLeft.setBackgroundResource(drawableId);
         if (size > 0) {
             txtLeft.setTextSize(size);
-        }else {
-            txtLeft.setTextSize(DensityUtil.sp2px(getContext(),9));
+            LinearLayout.LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            params.width = DensityUtil.dip2px(getContext(), 22);
+            params.height = DensityUtil.dip2px(getContext(), 22);
+            txtLeft.setLayoutParams(params);
+        } else {
+            txtLeft.setTextSize(DensityUtil.sp2px(getContext(), 9));
 
         }
         if (!TextUtils.isEmpty(txt)) {

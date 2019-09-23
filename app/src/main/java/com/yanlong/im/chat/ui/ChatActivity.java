@@ -1299,7 +1299,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onMain() {
-                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 6));
+                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
 
             }
         }).run();
