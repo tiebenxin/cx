@@ -4,7 +4,6 @@ package com.yanlong.im;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
@@ -21,8 +20,6 @@ import com.umeng.message.IUmengCallback;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
-import com.yanlong.im.utils.LogcatHelper;
-import com.yanlong.im.utils.MyException;
 
 import net.cb.cb.library.utils.UpLoadUtils;
 
@@ -64,6 +61,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "test-environment";
+
                 break;
             case "pre": //预发布服  美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;

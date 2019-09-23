@@ -30,9 +30,9 @@ public class AppActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //initFont();
-        context=getApplicationContext();
-        inflater=getLayoutInflater();
-        alert=new AlertWait(this);
+        context = getApplicationContext();
+        inflater = getLayoutInflater();
+        alert = new AlertWait(this);
         super.onCreate(savedInstanceState);
         //友盟Push后台进行日活统计及多维度推送的必调用方法
         PushAgent.getInstance(context).onAppStart();
@@ -44,7 +44,7 @@ public class AppActivity extends AppCompatActivity {
         super.onResume();
         MobclickAgent.onResume(this);
         taskClearNotification();
-       // Log.v("ssss",this.getClass().toString());
+        // Log.v("ssss",this.getClass().toString());
     }
 
     @Override
@@ -60,10 +60,10 @@ public class AppActivity extends AppCompatActivity {
     }
 
     //字体缩放倍数
-    private static float fontScan =1.0f;
+    private static float fontScan = 1.0f;
 
-    public void initFont(){
-        if(fontScan==AppConfig.FONT)
+    public void initFont() {
+        if (fontScan == AppConfig.FONT)
             return;
 
         setFontScan(AppConfig.FONT);
@@ -80,11 +80,11 @@ public class AppActivity extends AppCompatActivity {
 
         resources.getConfiguration().fontScale = fontSize;
         resources.updateConfiguration(resources.getConfiguration(), resources.getDisplayMetrics());
-       // this.recreate();
+        // this.recreate();
 
-      //  SharedPreferencesUtil sharedPreferencesUtil=new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_SCAN);
+        //  SharedPreferencesUtil sharedPreferencesUtil=new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_SCAN);
 
-      //  sharedPreferencesUtil.save2Json(fontSize);
+        //  sharedPreferencesUtil.save2Json(fontSize);
     }
 
     /***
@@ -96,7 +96,7 @@ public class AppActivity extends AppCompatActivity {
     }
 
 
-  public Context getContext() {
+    public Context getContext() {
         return context;
     }
 
@@ -104,15 +104,15 @@ public class AppActivity extends AppCompatActivity {
      * 直接跳转
      * @param c
      */
-    public void go(Class c){
+    public void go(Class c) {
         startActivity(new Intent(context, c));
     }
 
 
-    public void hideKeyboard(){
+    public void hideKeyboard() {
         InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if(im != null){
-            im.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(),0);
+        if (im != null) {
+            im.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
         }
     }
 

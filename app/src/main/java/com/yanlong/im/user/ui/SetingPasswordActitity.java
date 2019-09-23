@@ -29,7 +29,7 @@ import retrofit2.Response;
  * @创建时间 2019/8/6 0006 15:25
  */
 public class SetingPasswordActitity extends AppActivity {
-    public static final String TYPE = "type";
+    public static final String TYPE = "type"; // 1.弹出提示框退出 0.正常退出
     private HeadView headView;
     private ClearEditText edPassword;
     private ClearEditText edVerifyPassword;

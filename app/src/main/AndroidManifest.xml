@@ -20,6 +20,11 @@
                     <meta-data
                         android:name="JRMF_PARTNER_NAME"
                         android:value="红包"/> -->
+
+        <meta-data
+            android:name="com.yanlong.im.utils.CustomGlideModule"
+            android:value="AppGlideModule" />
+
         <meta-data
             android:name="com.huawei.hms.client.appid"
             android:value="appid=100836087" />
