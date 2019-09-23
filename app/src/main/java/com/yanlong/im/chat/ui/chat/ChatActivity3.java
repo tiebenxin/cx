@@ -1,10 +1,14 @@
 package com.yanlong.im.chat.ui.chat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -15,35 +19,40 @@ import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.jrmf360.rplib.JrmfRpClient;
+import com.baoyz.widget.PullRefreshLayout;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.EmojiAdapter;
-import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ScrollConfig;
+import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
+import com.yanlong.im.chat.ui.GroupRobotActivity;
 import com.yanlong.im.chat.ui.GroupSelectUserActivity;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
 import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.databinding.ActivityChat2Binding;
-import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.PageIndicator;
+import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.audio.AudioRecordManager;
+import com.yanlong.im.utils.audio.IAdioTouch;
+import com.yanlong.im.utils.audio.IAudioRecord;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.base.BaseMvpActivity;
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.utils.CheckPermission2Util;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -56,8 +65,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Response;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 
 /**
  * @anthor Liszt
@@ -74,7 +82,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     private ActivityChat2Binding ui;
     private ActionbarView actionbar;
     private String gid;
-    private long uid;
+    private long uid = -1;
     private Integer font_size;
     private int lastPosition;
     private int lastOffset;
@@ -174,6 +182,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         ui.recyclerView.setAdapter(adapter);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void initUIAndListener() {
         actionbar = ui.headView.getActionbar();
@@ -377,6 +386,204 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             }
         });
 
+        //戳一下
+        ui.viewFuncRoot.viewAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.doStamp();
+
+            }
+        });
+        //名片
+        ui.viewFuncRoot.viewCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // go(SelectUserActivity.class);
+                startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
+            }
+        });
+
+        //语音
+        ui.btnVoice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //申请权限 7.2
+                permission2Util.requestPermissions(ChatActivity3.this, new CheckPermission2Util.Event() {
+                    @Override
+                    public void onSuccess() {
+                        startVoice(null);
+                    }
+
+                    @Override
+                    public void onFail() {
+
+                    }
+                }, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+
+            }
+        });
+
+        ui.txtVoice.setOnTouchListener(new IAdioTouch(this, new IAdioTouch.MTouchListener() {
+            @Override
+            public void onDown() {
+                ui.txtVoice.setText("松开 结束");
+                ui.txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
+                ui.btnVoice.setEnabled(false);
+                ui.btnEmj.setEnabled(false);
+                ui.btnFunc.setEnabled(false);
+
+            }
+
+            @Override
+            public void onMove() {
+                //   txtVoice.setText("滑动 取消");
+                //  txtVoice.setBackgroundResource(R.drawable.bg_edt_chat2);
+            }
+
+            @Override
+            public void onUp() {
+                ui.txtVoice.setText("按住 说话");
+                ui.txtVoice.setBackgroundResource(R.drawable.bg_edt_chat);
+                ui.btnVoice.setEnabled(true);
+                ui.btnEmj.setEnabled(true);
+                ui.btnFunc.setEnabled(true);
+            }
+        }));
+
+        AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, ui.headView, new IAudioRecord.UrlCallback() {
+            @Override
+            public void completeRecord(String file, int duration) {
+                VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
+                MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), uid, gid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
+                mChatModel.getListData().add(msg);
+                ((Activity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyAndScrollBottom();
+                    }
+                });
+                presenter.uploadVoice(file, msg);
+            }
+        }));
+
+        //群助手
+        ui.viewFuncRoot.viewChatRobot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //  ToastUtil.show(getContext(),"群助手");
+                if (mChatModel.getGroup() == null)
+                    return;
+
+                startActivity(new Intent(getContext(), GroupRobotActivity.class)
+                        .putExtra(GroupRobotActivity.AGM_GID, gid)
+                        .putExtra(GroupRobotActivity.AGM_RID, mChatModel.getGroup().getRobotid())
+                );
+            }
+        });
+
+        if (isGroup) {//去除群的控件
+            ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewAction);
+            //viewFunc.removeView(viewTransfer);
+            ui.viewFuncRoot.viewChatRobot.setVisibility(View.INVISIBLE);
+        } else {
+            ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewChatRobot);
+        }
+        ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewRb);
+        //test 6.26
+        ui.viewFuncRoot.viewFunc.removeView(ui.viewFuncRoot.viewTransfer);
+
+        ui.viewRefresh.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                presenter.loadAndSetMoreData();
+                ui.viewRefresh.setRefreshing(false);
+            }
+        });
+
+        ui.recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == SCROLL_STATE_IDLE) {
+
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    if (layoutManager != null) {
+                        //获取可视的第一个view
+                        lastPosition = layoutManager.findLastVisibleItemPosition();
+                        View topView = layoutManager.getChildAt(lastPosition);
+                        if (topView != null) {
+                            //获取与该view的底部的偏移量
+                            lastOffset = topView.getBottom();
+                        }
+
+                        saveScrollPosition();
+                    }
+                }
+            }
+        });
+
+        //6.15 先加载完成界面,后刷数据
+        actionbar.post(new Runnable() {
+            @Override
+            public void run() {
+                presenter.setAndClearDraft();
+            }
+        });
+
+
+        //9.17 进去后就清理会话的阅读数量
+        mChatModel.clearUnreadCount();
+        EventBus.getDefault().post(new EventRefreshMainMsg());
+
+    }
+
+    @Override
+    public void setDraft(String draft) {
+        ui.edtChat.setText(draft);
+    }
+
+    private void saveScrollPosition() {
+        if (lastPosition > 0) {
+            SharedPreferencesUtil sp = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.SCROLL);
+            ScrollConfig config = new ScrollConfig();
+            config.setUserId(UserAction.getMyId());
+            if (uid <= 0) {
+                config.setChatId(gid);
+            } else {
+                config.setUid(uid);
+            }
+            config.setLastPosition(lastPosition);
+            config.setLastOffset(lastOffset);
+            if (mChatModel.getTotalSize() > 0) {
+                config.setTotalSize(mChatModel.getTotalSize());
+            }
+            sp.save2Json(config, "scroll_config");
+        }
+    }
+
+    /*
+     * notifyAndScrollBottom
+     * */
+    public void notifyAndScrollBottom() {
+        if (adapter != null) {
+            adapter.bindData(mChatModel.getListData());
+        }
+        scrollListView(true);
+    }
+
+    /***
+     * 开始语音
+     */
+    private void startVoice(Boolean open) {
+        if (open == null) {
+            open = ui.txtVoice.getVisibility() == View.GONE ? true : false;
+        }
+        if (open) {
+            showBtType(2);
+        } else {
+            showVoice(false);
+            hideBt();
+        }
     }
 
     /***
@@ -439,7 +646,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
     @Override
     public void initUnreadCount(String s) {
-        actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
+        actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity3.this, 5));
     }
 
     @Override
@@ -529,6 +736,18 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     public void notifyDataAndScrollBottom(boolean isScrollBottom) {
         adapter.notifyDataSetChanged();
         scrollListView(isScrollBottom);
+    }
+
+    @Override
+    public void bindData(List<MsgAllBean> l) {
+        if (adapter != null) {
+            adapter.bindData(l);
+        }
+    }
+
+    @Override
+    public void scrollToPositionWithOff(int position, int offset) {
+        layoutManager.scrollToPositionWithOffset(position, offset);
     }
 
     /*
