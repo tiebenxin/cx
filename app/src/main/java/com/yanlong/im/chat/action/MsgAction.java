@@ -81,6 +81,7 @@ public class MsgAction {
                     return;
                 if (response.body().isOk()) {
                     dao.sessionDel(null, id);
+                    dao.msgDel(null, id);
                 }
                 callback.onResponse(call, response);
             }

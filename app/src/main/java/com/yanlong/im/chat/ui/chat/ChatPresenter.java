@@ -8,10 +8,12 @@ import android.util.Log;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
+import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.pay.action.PayAction;
@@ -29,12 +31,14 @@ import net.cb.cb.library.base.DBOptionObserver;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
+import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.MsgEditText;
 
 import org.greenrobot.eventbus.EventBus;
@@ -75,6 +79,9 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         context = con;
     }
 
+    /*
+     * showSendObj
+     * */
     public void loadAndSetData() {
         Observable<List<MsgAllBean>> observable = model.loadMessages();
         observable.subscribe(new DBOptionObserver<List<MsgAllBean>>() {
@@ -192,7 +199,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
 
     }
 
-    private void uploadVoice(String file, final MsgAllBean bean) {
+    void uploadVoice(String file, final MsgAllBean bean) {
         uploadMap.put(bean.getMsg_id(), bean);
         uploadList.add(bean);
         updateSendStatus(ChatEnum.ESendStatus.SENDING, bean);
@@ -388,5 +395,54 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         });
     }
 
+    //戳一下
+    public void doStamp() {
+        AlertTouch alertTouch = new AlertTouch();
+        alertTouch.init((Activity) context, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
+            @Override
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes(String content) {
+                if (!TextUtils.isEmpty(content)) {
+                    //发送普通消息
+                    MsgAllBean msgAllbean = SocketData.send4action(model.getUid(), model.getGid(), content);
+//                    showSendObj(msgAllbean);
+                    loadAndSetData();
+                } else {
+                    ToastUtil.show(context, "留言不能为空");
+                }
+            }
+        });
+        alertTouch.show();
+        alertTouch.setEdHintOrSize(null, 15);
+    }
+
+
+    public void loadAndSetMoreData() {
+        final int position = model.getTotalSize();
+        Observable<List<MsgAllBean>> observable = model.loadMoreMessages();
+        observable.subscribe(new DBOptionObserver<List<MsgAllBean>>() {
+            @Override
+            public void onOptionSuccess(List<MsgAllBean> list) {
+                getView().bindData(list);
+                getView().scrollToPositionWithOff(list.size() - position, DensityUtil.dip2px(context, 20f));
+            }
+        });
+    }
+
+    public void setAndClearDraft() {
+        Session session = model.getSession();
+        if (session == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(session.getDraft())) {
+            getView().setDraft(session.getDraft());
+            model.updateDraft("");
+        }
+
+    }
 
 }

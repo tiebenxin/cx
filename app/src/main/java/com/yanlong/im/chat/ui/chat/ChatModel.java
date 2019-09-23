@@ -7,6 +7,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -38,6 +39,7 @@ public class ChatModel implements IModel {
     private Map<String, UserInfo> mks = new HashMap<>();
     private Group group;
     private UserInfo userInfo;
+    private Session session;
 
 
     public void init(String gid, long uid) {
@@ -179,5 +181,68 @@ public class ChatModel implements IModel {
         }
         return userInfo;
     }
+
+
+    public Observable<List<MsgAllBean>> loadMoreMessages() {
+        long time = -1L;
+        int length = 0;
+        if (listData != null && listData.size() > 0) {
+            length = listData.size();
+            if (length >= 20) {
+                MsgAllBean bean = listData.get(length - 1);
+                if (bean != null && bean.getTimestamp() != null) {
+                    time = bean.getTimestamp();
+                }
+            }
+        }
+        final long finalTime = time;
+        if (length < 20) {
+            length += 20;
+        }
+        final int finalLength = length;
+        return Observable.create(new ObservableOnSubscribe<List<MsgAllBean>>() {
+            @Override
+            public void subscribe(ObservableEmitter<List<MsgAllBean>> e) throws Exception {
+                if (msgDao == null) {
+                    msgDao = new MsgDao();
+                }
+                if (finalLength >= 20) {
+                    listData.addAll(0, msgAction.getMsg4User(gid, uid, finalTime, false));
+                } else {
+                    listData = msgAction.getMsg4User(gid, uid, null, false);
+                }
+                taskMkName(listData);
+                e.onNext(listData);
+            }
+        });
+    }
+
+    public int getTotalSize() {
+        return listData != null ? listData.size() : 0;
+    }
+
+    public Session getSession() {
+        if (session == null) {
+            msgDao.sessionGet(gid, uid);
+        }
+        return session;
+    }
+
+    public void updateDraft(String draft) {
+        msgDao.sessionDraft(gid, uid, draft);
+    }
+
+    /***
+     * 清理未读
+     */
+    public void clearUnreadCount() {
+        if (isGroup()) {
+            msgDao.sessionReadClean(gid, null);
+        } else {
+            msgDao.sessionReadClean(null, uid);
+        }
+
+    }
+
 
 }

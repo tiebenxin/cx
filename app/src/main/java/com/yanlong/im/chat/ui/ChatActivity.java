@@ -1051,7 +1051,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 config.setUid(toUId);
             }
             config.setLastPosition(lastPosition);
-            config.setLastOffset(lastPosition);
+            config.setLastOffset(lastOffset);
             if (msgListData != null) {
                 config.setTotalSize(msgListData.size());
             }
@@ -1293,7 +1293,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onMain() {
-                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
+                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 6));
 
             }
         }).run();
