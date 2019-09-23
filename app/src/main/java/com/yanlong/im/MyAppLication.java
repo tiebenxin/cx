@@ -93,7 +93,7 @@ public class MyAppLication extends MainApplication {
         initWeixinConfig();
         initRunstate();
         initRedPacket();
-        //LogcatHelper.getInstance(this).start();
+        //LogcatHelper.getInstance(this).onCreate();
         initException();
         initUploadUtils();
     }
@@ -141,7 +141,7 @@ public class MyAppLication extends MainApplication {
 
     private PushAgent mPushAgent;
 
-    private void initUPushPre(){
+    private void initUPushPre() {
         UMConfigure.init(this, "5d53659c570df3d281000225",
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
                 "f045bf243689c2363d5714b781ce556e");
@@ -155,7 +155,7 @@ public class MyAppLication extends MainApplication {
     private void initUPush() {
 
         //设置通知栏显示数量
-       // mPushAgent.setDisplayNotificationNumber(1);
+        // mPushAgent.setDisplayNotificationNumber(1);
         //   mPushAgent.setNotificationClickHandler(notificationClickHandler);
 
         //注册推送服务，每次调用register方法都会回调该接口

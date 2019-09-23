@@ -82,6 +82,10 @@ public class SetingPasswordActitity extends AppActivity {
             ToastUtil.show(context,"请填写密码");
             return;
         }
+        if(password.length() < 6){
+            ToastUtil.show(context,"密码不能少于六位");
+            return;
+        }
         if(TextUtils.isEmpty(nextPassword)){
             ToastUtil.show(context,"请填写验证密码");
             return;
