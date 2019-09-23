@@ -4,6 +4,7 @@ package com.yanlong.im;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
@@ -36,6 +37,8 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
 
+    private final String U_APP_KEY= "5d53659c570df3d281000225";
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -61,7 +64,6 @@ public class MyAppLication extends MainApplication {
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "test-environment";
-
                 break;
             case "pre": //预发布服  美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;

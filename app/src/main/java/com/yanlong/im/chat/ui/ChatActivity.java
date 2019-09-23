@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -82,6 +83,8 @@ import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.AudioRecordManager;
@@ -347,7 +350,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 taskGroupConf();
                 break;
             case ACCEPT_BE_GROUP://邀请进群刷新
-                taskGroupConf();
+                if (StringUtil.isNotNull(groupInfo.getAvatar())) {
+                    taskGroupConf();
+                } else {
+                    if (groupInfo.getUsers().size() >= 9) {
+                        taskGroupConf();
+                    } else {
+                        taskGroupConf();
+                        creatAndSaveImg(groupInfo.getGid());
+                    }
+                }
+                break;
+            case OTHER_REMOVE_GROUP:
+                creatAndSaveImg(groupInfo.getGid());
                 break;
             case CHANGE_GROUP_META:
                 taskSessionInfo();
@@ -355,6 +370,30 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
     }
+
+    private void creatAndSaveImg(String gid) {
+        Group gginfo = msgDao.getGroup4Id(gid);
+        int i = gginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            UserInfo userInfo = gginfo.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+//        Glide.with(this).load(file)
+//                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+    }
+
 
     private List<View> emojiLayout;
 
@@ -1239,14 +1278,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void initUnreadCount() {
-        long count = msgDao.getUnreadCount(toGid, toUId);
-        String s = "";
-        if (count > 0 && count <= 99) {
-            s = count + "";
-        } else if (count > 99) {
-            s = 99 + "+";
-        }
-        actionbar.setTxtLeft(s);
+        new RunUtils(new RunUtils.Enent() {
+            String s = "";
+
+            @Override
+            public void onRun() {
+                long count = msgDao.getUnreadCount(toGid, toUId);
+                if (count > 0 && count <= 99) {
+                    s = count + "";
+                } else if (count > 99) {
+                    s = 99 + "+";
+                }
+            }
+
+            @Override
+            public void onMain() {
+                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
+
+            }
+        }).run();
+
     }
 
 
@@ -2039,7 +2090,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void checkMoreVoice(int start, MsgAllBean b) {
-//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--start=" + start);
+//        LogUtil.getLog().i("AudioPlayManager", "checkMoreVoice--onCreate=" + onCreate);
         int length = msgListData.size();
         int index = msgListData.indexOf(b);
         if (index < 0) {
@@ -2872,7 +2923,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (lastPosition >= 0) {
             int targetHeight = ScreenUtils.getScreenHeight(this) / 2;//屏幕一般高度
             int size = msgListData.size();
-//            int start = size - 1;
+//            int onCreate = size - 1;
             int height = 0;
             for (int i = lastPosition; i < size - 1; i++) {
 //                View view = mtListView.getLayoutManager().findViewByPosition(i);//获取不到不可见item

@@ -24,12 +24,17 @@ public class DaoUtil {
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer=0;
+        long dbVer = 1;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
+//            config = new RealmConfiguration.Builder()
+//                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
+//                    .schemaVersion(dbVer)
+//                    .deleteRealmIfMigrationNeeded()//声明版本冲突时自动删除原数据库，开发时候打开
+//                    .build();
             config = new RealmConfiguration.Builder()
                     .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
                     .schemaVersion(dbVer)
-                    .deleteRealmIfMigrationNeeded()//声明版本冲突时自动删除原数据库，开发时候打开
+                    .migration(new DaoMigration())//数据库版本升级处理
                     .build();
         } else {//正式版本就进行数据库升级
             config = new RealmConfiguration.Builder()

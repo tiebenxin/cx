@@ -1,7 +1,11 @@
 package com.yanlong.im.chat.ui.chat;
 
+import android.util.Log;
+
+import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
@@ -25,13 +29,15 @@ import io.reactivex.ObservableOnSubscribe;
  * Description
  */
 public class ChatModel implements IModel {
-    private MsgDao msgDao;
-    private UserDao userDao;
+    private MsgDao msgDao = new MsgDao();
+    private UserDao userDao = new UserDao();
     private MsgAction msgAction = new MsgAction();
     private List<MsgAllBean> listData = new ArrayList<>();
     private String gid;
     private long uid;
     private Map<String, UserInfo> mks = new HashMap<>();
+    private Group group;
+    private UserInfo userInfo;
 
 
     public void init(String gid, long uid) {
@@ -119,7 +125,59 @@ public class ChatModel implements IModel {
         }
     }
 
-    private boolean isGroup() {
+    public void checkLockMessage() {
+        if (!msgDao.isMsgLockExist(gid, uid)) {
+            msgDao.insertOrUpdateMessage(msgAction.createMessageLock(gid, uid));
+        }
+    }
+
+    public boolean isGroup() {
         return StringUtil.isNotNull(gid);
     }
+
+    public String getUnreadCount() {
+        long count = msgDao.getUnreadCount(gid, uid);
+        String s = "";
+        if (count > 0 && count <= 99) {
+            s = count + "";
+        } else if (count > 99) {
+            s = 99 + "+";
+        }
+        return s;
+    }
+
+    public String getGid() {
+        return gid;
+    }
+
+    public long getUid() {
+        return uid;
+    }
+
+    public List<MsgAllBean> getListData() {
+        return listData;
+    }
+
+    public void updateSendStatus(String msgId, int status) {
+        msgDao.fixStataMsg(msgId, status);
+    }
+
+    public boolean isHaveDraft() {
+        return msgDao.isSaveDraft(gid);
+    }
+
+    public Group getGroup() {
+        if (group == null) {
+            group = msgDao.getGroup4Id(gid);
+        }
+        return group;
+    }
+
+    public UserInfo getUserInfo() {
+        if (userInfo == null) {
+            userInfo = userDao.findUserInfo(uid);
+        }
+        return userInfo;
+    }
+
 }

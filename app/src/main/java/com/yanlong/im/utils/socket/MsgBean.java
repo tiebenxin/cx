@@ -191,6 +191,17 @@ public final class MsgBean {
      * <code>CHANGE_GROUP_META = 112;</code>
      */
     CHANGE_GROUP_META(112),
+
+
+      /**
+       * <pre>
+       * 其他群成员退出群
+       * </pre>
+       *
+       * <code>REMOVE_GROUP_MEMBER = 113;</code>
+       */
+      OTHER_REMOVE_GROUP(113),
+
     /**
      * <pre>
      * 强制下线

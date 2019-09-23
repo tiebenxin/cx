@@ -28,7 +28,7 @@
         <meta-data
             android:name="com.huawei.hms.client.appid"
             android:value="appid=100836087" />
-        <!-- vivo start-->
+        <!-- vivo onCreate-->
         <meta-data
             android:name="com.vivo.push.api_key"
             android:value="f1940b91-4b0d-4c5c-914e-657045438bc4" />
@@ -152,22 +152,22 @@
         <activity
             android:name=".chat.ui.forward.MsgForwardActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <!--群信息-->
         <activity
             android:name=".chat.ui.GroupInfoActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <!--会话信息-->
         <activity
             android:name=".chat.ui.ChatInfoActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <!--聊天界面-->
         <activity
             android:name=".chat.ui.ChatActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".chat.ui.ChatActivity2"
@@ -176,11 +176,17 @@
 
         </activity>
 
+        <activity
+            android:name=".chat.ui.chat.ChatActivity3"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+
         <!--好友,群搜索-->
         <activity
             android:name=".chat.ui.SearchFriendGroupActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
 
         <!--搜索消息-->
         <activity

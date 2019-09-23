@@ -88,6 +88,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 imageCell.updateMessage(msg);
                 int progress = UpLoadService.getProgress(msg.getMsg_id());
                 imageCell.updateProgress(msg.getSend_state(), progress);
+            } else if (msg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                ChatCellVoice voiceCell = (ChatCellVoice) viewHolder;
+                voiceCell.updateVoice();
+            } else {
+                onBindViewHolder(viewHolder, position);
             }
         }
     }
