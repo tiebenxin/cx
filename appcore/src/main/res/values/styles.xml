@@ -107,6 +107,7 @@
         <item name="android:clickable">true</item>
         <item name="android:fontFamily">@font/emoji_font</item>
     </style>
+
     <!--    <style name="app_txt_content_2" parent="app_txt_base">
             <item name="android:textSize">12sp</item>
             <item name="android:textColor">@color/gray_400</item>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout android:id="@+id/view_emoji"
+    android:layout_width="match_parent"
+    android:layout_height="230dp"
+    android:columnCount="7"
+    android:layout_marginTop="10dp"
+    android:paddingBottom="20dp"
+    android:descendantFocusability="blocksDescendants"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<!--    -->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="😖" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↙" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="❌" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⬜" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="☝" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⬅" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⬛" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✖" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✳" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✨" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↩" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↪" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⚫" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="〽" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="㊗" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="〰" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛳" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✴" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⤵" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="▶" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♉" />-->
+<!--    <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="❄" />-->
+<!--   <ImageView android:id="@+id/img_emoji_del" android:layout_columnWeight="1" android:layout_rowWeight="1" android:src="@mipmap/ic_emoj_del"  android:scaleType="center"/>-->
+
+
+
+<!--
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="☀" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="☁" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✂" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✅" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⬆" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✈" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✉" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✊" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✋" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✌" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="☎" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✏" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="☑" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✒" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⚓" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✔" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↖" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↗" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↘" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↙" />
+ -->
+
+
+<!--  <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="❌" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⬜" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="☝" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⬅" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⬛" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✖" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✳" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✨" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↩" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="↪" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⚫" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="〽" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="㊗" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="〰" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛳" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="✴" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⤵" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="▶" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♉" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="❄" />-->
+
+
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="ℹ" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⚽" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⚾" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="◀" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛄" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛅" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="❇" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♈" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⁉" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♊" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♋" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♌" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♍" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♎" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♏" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♐" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♑" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♒" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♓" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛔" />-->
+
+
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛎" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⭕" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛪" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⭐" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♻" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="❎" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⤴" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♨" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⏩" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⏪" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="❓" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛽" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⏰" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛲" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⏳" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛵" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="❔" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="⛺" />-->
+<!-- <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="◻" />-->
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="◼" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="◽" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="◾" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="♿" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+ <TextView android:layout_columnWeight="1" android:layout_rowWeight="1" android:gravity="center" style="@style/app_txt_content_emoji" android:text="" android:clickable="false" />
+    <ImageView android:id="@+id/img_emoji_del" android:layout_columnWeight="1" android:layout_rowWeight="1" android:src="@mipmap/ic_emoj_del"  android:scaleType="center"/>
+
+
+
+
+
+</GridLayout>

@@ -640,10 +640,6 @@ public class SocketUtil {
                             }
                         }).start();
                     }
-
-
-
-
                     break;
                 case PROTOBUF_HEARTBEAT:
                     LogUtil.getLog().i(TAG, ">>>-----<收到心跳" + testindex);

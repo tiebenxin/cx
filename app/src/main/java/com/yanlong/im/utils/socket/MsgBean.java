@@ -167,7 +167,18 @@ public final class MsgBean {
      * <code>CHANGE_GROUP_MASTER = 106;</code>
      */
     CHANGE_GROUP_MASTER(106),
-    /**
+
+
+      /**
+       * <pre>
+       * 其他群成员退出群
+       * </pre>
+       *
+       * <code>REMOVE_GROUP_MEMBER = 113;</code>
+       */
+      OTHER_REMOVE_GROUP(107),
+
+      /**
      * <pre>
      * 销毁群
      * </pre>
@@ -193,14 +204,6 @@ public final class MsgBean {
     CHANGE_GROUP_META(112),
 
 
-      /**
-       * <pre>
-       * 其他群成员退出群
-       * </pre>
-       *
-       * <code>REMOVE_GROUP_MEMBER = 113;</code>
-       */
-      OTHER_REMOVE_GROUP(113),
 
     /**
      * <pre>
@@ -365,6 +368,16 @@ public final class MsgBean {
      * <code>CHANGE_GROUP_MASTER = 106;</code>
      */
     public static final int CHANGE_GROUP_MASTER_VALUE = 106;
+
+      /**
+       * <pre>
+       * 提出群
+       * </pre>
+       *
+       * <code>OTHER_REMOVE_GROUP = 107;</code>
+       */
+      public static final int OTHER_REMOVE_GROUP_VALUE = 107;
+
     /**
      * <pre>
      * 销毁群
@@ -443,6 +456,7 @@ public final class MsgBean {
         case 104: return ACCEPT_BE_GROUP;
         case 105: return REMOVE_GROUP_MEMBER;
         case 106: return CHANGE_GROUP_MASTER;
+        case 107: return  OTHER_REMOVE_GROUP;
         case 109: return DESTROY_GROUP;
         case 110: return OUT_GROUP;
         case 112: return CHANGE_GROUP_META;
@@ -14110,7 +14124,7 @@ public final class MsgBean {
         }
       }
 
-      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.AcceptBeGroupMessage other) {
+      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean. AcceptBeGroupMessage other) {
         if (other == com.yanlong.im.utils.socket.MsgBean.AcceptBeGroupMessage.getDefaultInstance()) return this;
         if (noticeMessageBuilder_ == null) {
           if (!other.noticeMessage_.isEmpty()) {
@@ -22941,6 +22955,7 @@ public final class MsgBean {
         ACCEPT_BE_GROUP(10201),
         REMOVE_GROUP_MEMBER(10202),
         CHANGE_GROUP_MASTER(10203),
+          OTHER_REMOVE_GROUP(10207),
         DESTROY_GROUP(10206),
         OUT_GROUP(10210),
         CHANGE_GROUP_META(10212),
@@ -22979,6 +22994,7 @@ public final class MsgBean {
             case 10201: return ACCEPT_BE_GROUP;
             case 10202: return REMOVE_GROUP_MEMBER;
             case 10203: return CHANGE_GROUP_MASTER;
+            case 10207: return OTHER_REMOVE_GROUP;
             case 10206: return DESTROY_GROUP;
             case 10210: return OUT_GROUP;
             case 10212: return CHANGE_GROUP_META;
@@ -24818,6 +24834,9 @@ public final class MsgBean {
               mergeChangeGroupMaster(other.getChangeGroupMaster());
               break;
             }
+              case OTHER_REMOVE_GROUP:{
+                  break;
+              }
             case DESTROY_GROUP: {
               mergeDestroyGroup(other.getDestroyGroup());
               break;
