@@ -501,6 +501,9 @@ public class MsgMainFragment extends Fragment {
                 }
                 holder.txtInfo.setText(info);
 
+                Glide.with(getActivity()).load(icon)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+
             } else if (bean.getType() == 1) {//群
                 Group ginfo = msgDao.getGroup4Id(bean.getGid());
                 if (ginfo != null) {
@@ -583,35 +586,40 @@ public class MsgMainFragment extends Fragment {
                         holder.txtInfo.setText(info);
                         break;
                 }
-            }
 
-            Log.e("TAG",icon.toString());
-            if (StringUtil.isNotNull(icon)){
-                Glide.with(getActivity()).load(icon)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-            }else{
-                if (bean.getType() == 1) {
-                    String imgUrl = "";
-                    try {
-                        imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
-                    } catch (Exception e) {
-                        creatAndSaveImg(bean, holder.imgHead);
-                    }
-
-                    Log.e("TAG", "----------" + imgUrl.toString());
-                    if (StringUtil.isNotNull(imgUrl)) {
-                        Glide.with(getActivity()).load(imgUrl)
-                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                    } else {
-
-                        creatAndSaveImg(bean, holder.imgHead);
-
-                    }
-                }else {
+                Log.e("TAG",icon.toString());
+                if (StringUtil.isNotNull(icon)){
                     Glide.with(getActivity()).load(icon)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                }else{
+                    if (bean.getType() == 1) {
+                        String imgUrl = "";
+                        try {
+                            imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
+                        } catch (Exception e) {
+                            creatAndSaveImg(bean, holder.imgHead);
+                        }
+
+                        Log.e("TAG", "----------" + imgUrl.toString());
+                        if (StringUtil.isNotNull(imgUrl)) {
+                            Glide.with(getActivity()).load(imgUrl)
+                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                        } else {
+
+                            creatAndSaveImg(bean, holder.imgHead);
+
+                        }
+                    }else {
+                        Glide.with(getActivity()).load(icon)
+                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                    }
                 }
+
+
+
+
             }
+
 
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
