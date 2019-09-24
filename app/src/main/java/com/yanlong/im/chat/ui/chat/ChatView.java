@@ -1,7 +1,5 @@
 package com.yanlong.im.chat.ui.chat;
 
-import android.support.annotation.NonNull;
-
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.base.IView;
@@ -34,5 +32,13 @@ public interface ChatView extends IView {
     void scrollToPositionWithOff(int position, int offset);
 
     void setDraft(String draft);
+
+    void setBanView(boolean isExited);
+
+    void setRobotView(boolean isMaster);
+
+    void initTitle();
+
+    void updateOnlineStatus();
 
 }
