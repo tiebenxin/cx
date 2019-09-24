@@ -31,8 +31,10 @@ import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
@@ -41,6 +43,7 @@ import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -255,6 +258,14 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        updateNetStatus();
+    }
+
+    private void updateNetStatus() {
+        if (NetUtil.isNetworkConnected()) {
+            EventNetStatus netStatusEvent = new EventNetStatus(CoreEnum.ENetStatus.SUCCESS_ON_NET);
+            EventBus.getDefault().post(netStatusEvent);
+        }
     }
 
     @Override

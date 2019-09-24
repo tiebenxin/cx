@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 
@@ -104,8 +105,18 @@ public class ActionbarView extends LinearLayout {
      *
      * @param txt
      */
-    public void setTxtLeft(String txt, int drawableId) {
+    public void setTxtLeft(String txt, int drawableId, int size) {
         txtLeft.setBackgroundResource(drawableId);
+        if (size > 0) {
+            txtLeft.setTextSize(size);
+            LinearLayout.LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            params.width = DensityUtil.dip2px(getContext(), 22);
+            params.height = DensityUtil.dip2px(getContext(), 22);
+            txtLeft.setLayoutParams(params);
+        } else {
+            txtLeft.setTextSize(DensityUtil.sp2px(getContext(), 9));
+
+        }
         if (!TextUtils.isEmpty(txt)) {
             txtLeft.setText(txt);
             txtLeft.setVisibility(View.VISIBLE);

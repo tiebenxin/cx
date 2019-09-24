@@ -361,9 +361,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }
                 break;
-            case OTHER_REMOVE_GROUP:
-                creatAndSaveImg(groupInfo.getGid());
-                break;
+//            case OTHER_REMOVE_GROUP:
+//                creatAndSaveImg(groupInfo.getGid());
+//                break;
             case CHANGE_GROUP_META:
                 taskSessionInfo();
                 break;
@@ -1057,7 +1057,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 config.setUid(toUId);
             }
             config.setLastPosition(lastPosition);
-            config.setLastOffset(lastPosition);
+            config.setLastOffset(lastOffset);
             if (msgListData != null) {
                 config.setTotalSize(msgListData.size());
             }
@@ -1299,7 +1299,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onMain() {
-                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
+                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
 
             }
         }).run();
