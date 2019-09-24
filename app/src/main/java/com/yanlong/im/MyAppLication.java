@@ -179,7 +179,7 @@ public class MyAppLication extends MainApplication {
                 //注册华为推送
                 HuaWeiRegister.register(MyAppLication.this);
                 //oppo
-                OppoRegister.register(getApplicationContext(), "xxxxxx", "xxxxxx");
+                OppoRegister.register(getApplicationContext(), "5ea85e3c99144bb4a42334cac5d08855", "4222a724a70949a1b6db4cdda5c06571");
                 //vivo
                 VivoRegister.register(getApplicationContext());
                 //meizu
