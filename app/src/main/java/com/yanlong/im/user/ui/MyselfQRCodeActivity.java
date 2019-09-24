@@ -75,6 +75,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     private String imageUrl;
     private ImgSizeUtil.ImageSize imgsize;//获取图片大小
     private ImageView imageCodeHead;
+    private View viewQrCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +95,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         mViewMyQrcode = findViewById(R.id.view_my_qrcode);
+        viewQrCode = findViewById(R.id.view_qr_code);
         type = getIntent().getIntExtra(TYPE, 0);
         UMShareAPI.get(this);
     }
@@ -109,6 +111,14 @@ public class MyselfQRCodeActivity extends AppActivity {
             @Override
             public void onRight() {
                 initPopup();
+            }
+        });
+
+        viewQrCode.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                initPopup();
+                return false;
             }
         });
     }
