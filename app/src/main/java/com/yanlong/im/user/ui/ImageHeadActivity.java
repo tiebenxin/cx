@@ -86,10 +86,12 @@ public class ImageHeadActivity extends AppActivity {
             Glide.with(this).load(imageHead)
                     .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
         }else{
-            MsgDao msgDao=new MsgDao();
-            String url= msgDao.groupHeadImgGet(gid);
-            Glide.with(this).load(url)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+            if (isGroup){
+                MsgDao msgDao=new MsgDao();
+                String url= msgDao.groupHeadImgGet(gid);
+                Glide.with(this).load(url)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+            }
         }
 
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
@@ -128,14 +130,14 @@ public class ImageHeadActivity extends AppActivity {
             @Override
             public boolean onLongClick(View v) {
 
-                //  initSaveImage();
+                  initSaveImage();
 
-                List<LocalMedia> selectList = new ArrayList<>();
-                LocalMedia lc = new LocalMedia();
-                lc.setPath(imageHead);
-                selectList.add(lc);
-                PictureSelector.create(ImageHeadActivity.this).themeStyle(R.style.picture_default_style)
-                        .isGif(true).openExternalPreview(0, selectList);
+//                List<LocalMedia> selectList = new ArrayList<>();
+//                LocalMedia lc = new LocalMedia();
+//                lc.setPath(imageHead);
+//                selectList.add(lc);
+//                PictureSelector.create(ImageHeadActivity.this).themeStyle(R.style.picture_default_style)
+//                        .isGif(true).openExternalPreview(0, selectList);
                 return false;
             }
         });

@@ -78,13 +78,12 @@ public class MsgDao {
     }
 
 
-
     /***
      * 保存群
      * @param gid 群id
      * @param imgHead 群头像
      */
-    public boolean groupSaveJustImgHead(String gid,String imgHead) {
+    public boolean groupSaveJustImgHead(String gid, String imgHead) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
@@ -103,7 +102,6 @@ public class MsgDao {
         return true;
         //return DaoUtil.findOne(Group.class, "gid", gid);
     }
-
 
 
     /***
@@ -735,12 +733,23 @@ public class MsgDao {
      * @param avatar
      */
     public void groupHeadImgCreate(String gid, String avatar) {
-        GroupImageHead imageHead=new GroupImageHead();
+        GroupImageHead imageHead = new GroupImageHead();
         imageHead.setGid(gid);
         imageHead.setImgHeadUrl(avatar);
         DaoUtil.save(imageHead);
     }
 
+    /***
+     * 修改群头像
+     * @param gid
+     * @param avatar
+     */
+    public void groupHeadImgUpdata(String gid, String avatar) {
+        GroupImageHead imageHead = new GroupImageHead();
+        imageHead.setGid(gid);
+        imageHead.setImgHeadUrl(avatar);
+        DaoUtil.update(imageHead);
+    }
 
     /***
      * 获取本地群头像
@@ -748,7 +757,13 @@ public class MsgDao {
      *
      */
     public String groupHeadImgGet(String gid) {
-       return  ((GroupImageHead)DaoUtil.findOne(GroupImageHead.class,"gid",gid)).getImgHeadUrl();
+        if (StringUtil.isNotNull(gid)) {
+            GroupImageHead head = DaoUtil.findOne(GroupImageHead.class, "gid", gid);
+            if (head != null) {
+                return head.getImgHeadUrl();
+            }
+        }
+        return "";
     }
 
 
