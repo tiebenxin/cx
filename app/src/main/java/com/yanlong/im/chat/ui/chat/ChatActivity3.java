@@ -41,6 +41,7 @@ import com.yanlong.im.chat.ui.cell.ICellEventListener;
 import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.databinding.ActivityChat2Binding;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -58,6 +59,7 @@ import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -66,6 +68,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 /**
  * @anthor Liszt
@@ -824,4 +828,54 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
     }
 
+    /*
+     * 是否已经退出
+     * */
+    @Override
+    public void setBanView(boolean isExited) {
+        actionbar.getBtnRight().setVisibility(isExited ? View.GONE : View.VISIBLE);
+        ui.tvBan.setVisibility(isExited ? VISIBLE : GONE);
+        ui.viewChatBottomC.setVisibility(isExited ? GONE : VISIBLE);
+    }
+
+    @Override
+    public void setRobotView(boolean isMaster) {
+        if (isMaster) {
+            ui.viewFuncRoot.viewChatRobot.setVisibility(View.VISIBLE);
+        } else {
+            ui.viewFuncRoot.viewChatRobot.removeView(ui.viewFuncRoot.viewRb);
+        }
+    }
+
+    /*
+     * taskSessionInfo
+     * */
+    @Override
+    public void initTitle() {
+        String title = "";
+        if (mChatModel.isGroup()) {
+            title = mChatModel.getGroupName();
+            presenter.taskGroupConf();
+        } else {
+            UserInfo info = mChatModel.getUserInfo();
+            title = info.getName4Show();
+            if (info.getLastonline() > 0) {
+                actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+            }
+        }
+        actionbar.setTitle(title);
+    }
+
+    @Override
+    public void updateOnlineStatus() {
+        String title = "";
+        if (!isGroup) {
+            UserInfo info = mChatModel.getUserInfo();
+            title = info.getName4Show();
+            if (info.getLastonline() > 0) {
+                actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+            }
+            actionbar.setTitle(title);
+        }
+    }
 }
