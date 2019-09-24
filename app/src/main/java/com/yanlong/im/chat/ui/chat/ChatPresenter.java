@@ -596,9 +596,9 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                     }
                 }
                 break;
-            case OTHER_REMOVE_GROUP:
-                createAndSaveImg(model.getGid());
-                break;
+//            case OTHER_REMOVE_GROUP:
+//                createAndSaveImg(model.getGid());
+//                break;
             case CHANGE_GROUP_META:
                 getView().initTitle();
                 break;
