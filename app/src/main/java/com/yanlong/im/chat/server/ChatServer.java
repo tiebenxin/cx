@@ -214,6 +214,9 @@ public class ChatServer extends Service {
                 case CHANGE_GROUP_MASTER:
                     // ToastUtil.show(getApplicationContext(), "转让群");
                     return;
+                case REMOVE_GROUP_MEMBER2:
+                    Log.e("TAG","remove");
+                    return;
                 case CHANGE_GROUP_META:
                     //  ToastUtil.show(getApplicationContext(), "修改群名");
                     MsgBean.ChangeGroupMetaMessage.RealMsgCase realMsgCase = msg.getChangeGroupMeta().getRealMsgCase();

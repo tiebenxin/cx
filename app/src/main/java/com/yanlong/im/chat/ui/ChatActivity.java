@@ -361,9 +361,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }
                 break;
-            case OTHER_REMOVE_GROUP:
-                creatAndSaveImg(groupInfo.getGid());
-                break;
+//            case OTHER_REMOVE_GROUP:
+//                creatAndSaveImg(groupInfo.getGid());
+//                break;
             case CHANGE_GROUP_META:
                 taskSessionInfo();
                 break;

@@ -26,6 +26,7 @@ import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -36,6 +37,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -127,15 +129,22 @@ public class MyselfQRCodeActivity extends AppActivity {
             qrCodeBean.setParameterValue(QRCodeManage.ID, uid);
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
 
-
         } else {
             Intent intent = getIntent();
             groupId = intent.getStringExtra(GROUP_ID);
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
             // mImgHead.setImageURI(groupHead + "");
-            Glide.with(this).load(groupHead)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
+            if (StringUtil.isNotNull(groupHead)){
+                Glide.with(this).load(groupHead)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
+            }else{
+                MsgDao msgDao=new MsgDao();
+                String url= msgDao.groupHeadImgGet(groupId);
+                Glide.with(this).load(url)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
+            }
+
             mTvUserName.setText(groupName + "");
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
