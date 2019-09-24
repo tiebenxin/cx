@@ -9,13 +9,16 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
@@ -35,10 +38,14 @@ import net.cb.cb.library.utils.TimeToString;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.realm.RealmList;
+
+import static com.umeng.socialize.utils.ContextUtil.getContext;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
@@ -209,13 +216,62 @@ public class ChatServer extends Service {
                     return;
                 case ACCEPT_BE_GROUP://群主会收到成员已经进群的消息
                     //  ToastUtil.show(getApplicationContext(), "接受入群请求");
+
+//                    String ggidAcc=msg.getGid();
+//                    Group gginfoAcc = msgDao.getGroup4Id(ggidAcc);
+//                    List<UserInfo> listAcc=gginfoAcc.getUsers();
+//                    if (listAcc.size()>=9){}else {
+//                        gginfoAcc.setUsers((RealmList<UserInfo>) listAcc);
+//                        int i = gginfoAcc.getUsers().size();
+//                        i = i > 9 ? 9 : i;
+//                        //头像地址
+//                        String url[] = new String[i];
+//                        for (int j = 0; j < i; j++) {
+//                            UserInfo userInfo = gginfoAcc.getUsers().get(j);
+//                            url[j] = userInfo.getHead();
+//                        }
+//                        Log.e("TAG","remove"+"---------"+ url.length);
+//                        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+//                        MsgDao msgDao = new MsgDao();
+//                        msgDao.groupHeadImgUpdata(ggidAcc , file.getAbsolutePath());
+//                        msgDao.groupSave(gginfoAcc);
+//                    }
+
                     return;
 
                 case CHANGE_GROUP_MASTER:
                     // ToastUtil.show(getApplicationContext(), "转让群");
                     return;
                 case REMOVE_GROUP_MEMBER2:
-                    Log.e("TAG","remove");
+//                    Log.e("TAG","remove"+"---------"+ msg.getGid()+"----------"+    msg.getRemoveGroupMember2().getUid(0));
+//                    String ggid=msg.getGid();
+//                    Group gginfo = msgDao.getGroup4Id(ggid);
+//                    List<UserInfo> list=gginfo.getUsers();
+//                    int a=0;
+//                    int result=0;
+//                    for(;a<list.size();a=a+1){
+//                        if (list.get(a).getUid()== msg.getRemoveGroupMember2().getUid(0)){
+//                            result=a;
+//                            list.remove(a);
+//                            gginfo.setUsers((RealmList<UserInfo>) list);
+//                            break;
+//                        }
+//                    }
+//                    if (result<9){
+//                        int i = gginfo.getUsers().size();
+//                        i = i > 9 ? 9 : i;
+//                        //头像地址
+//                        String url[] = new String[i];
+//                        for (int j = 0; j < i; j++) {
+//                            UserInfo userInfo = gginfo.getUsers().get(j);
+//                            url[j] = userInfo.getHead();
+//                        }
+//                        Log.e("TAG","remove"+"---------"+ url.length);
+//                        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+//                        MsgDao msgDao = new MsgDao();
+//                        msgDao.groupHeadImgUpdata(ggid , file.getAbsolutePath());
+//                        msgDao.groupSave(gginfo);
+//                    }
                     return;
                 case CHANGE_GROUP_META:
                     //  ToastUtil.show(getApplicationContext(), "修改群名");
