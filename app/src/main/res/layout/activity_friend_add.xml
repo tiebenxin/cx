@@ -54,7 +54,7 @@
                 <net.cb.cb.library.view.ClearEditText
                     android:id="@+id/edt_search"
                     style="@style/app_edt1"
-                    android:hint="搜索"
+                    android:hint="输入产品号/手机号搜索联系人"
                     android:background="@color/transparent"
                     android:imeOptions="actionSearch" />
 

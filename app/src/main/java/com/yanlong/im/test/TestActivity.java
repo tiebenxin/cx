@@ -45,8 +45,8 @@ public class TestActivity extends AppActivity {
 
             }
         });
-        fragments = new Fragment[]{OtherFragment.newInstance(),FontFragment.newInstance(), BtnFragment.newInstance(), ItemFragment.newInstance()};
-        tabs = new String[]{"其他","字体", "按钮", "列表"};
+        fragments = new Fragment[]{OtherFragment.newInstance(), FontFragment.newInstance(), BtnFragment.newInstance(), ItemFragment.newInstance()};
+        tabs = new String[]{"其他", "字体", "按钮", "列表"};
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -97,7 +97,7 @@ public class TestActivity extends AppActivity {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
             TextView txt = (TextView) rootView.findViewById(R.id.txt);
             StrikeButton sb = (net.cb.cb.library.view.StrikeButton) rootView.findViewById(R.id.sb);
-            sb.setNum(i-1);
+            sb.setNum(i - 1, false);
 
             txt.setText(tabs[i]);
             bottomTab.getTabAt(i).setCustomView(rootView);
