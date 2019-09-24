@@ -758,7 +758,11 @@ public class MsgDao {
      *
      */
     public String groupHeadImgGet(String gid) {
-       return  ((GroupImageHead)DaoUtil.findOne(GroupImageHead.class,"gid",gid)).getImgHeadUrl();
+        if (StringUtil.isNotNull(gid)){
+            return  ((GroupImageHead)DaoUtil.findOne(GroupImageHead.class,"gid",gid)).getImgHeadUrl();
+        }else{
+            return "";
+        }
     }
 
 

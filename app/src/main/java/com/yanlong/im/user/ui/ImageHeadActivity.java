@@ -86,10 +86,12 @@ public class ImageHeadActivity extends AppActivity {
             Glide.with(this).load(imageHead)
                     .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
         }else{
-            MsgDao msgDao=new MsgDao();
-            String url= msgDao.groupHeadImgGet(gid);
-            Glide.with(this).load(url)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+            if (isGroup){
+                MsgDao msgDao=new MsgDao();
+                String url= msgDao.groupHeadImgGet(gid);
+                Glide.with(this).load(url)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+            }
         }
 
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
