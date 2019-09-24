@@ -151,12 +151,12 @@ public class MainActivity extends AppActivity {
             if (i == 2) {
                 sb.setSktype(1);
                 //设置值
-                sb.setNum(0);
+                sb.setNum(0,true);
                 sbme = sb;
             }
             if (i == 1) {
                 sb.setSktype(1);
-                sb.setNum(0);
+                sb.setNum(0,true);
                 sbfriend = sb;
             }
 
@@ -373,7 +373,7 @@ public class MainActivity extends AppActivity {
             return;
 
         int num = msgDao.sessionReadGetAll();
-        sbmsg.setNum(num);
+        sbmsg.setNum(num,true);
         BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
@@ -386,7 +386,7 @@ public class MainActivity extends AppActivity {
         sum += msgDao.remidGet("friend_apply");
         // sum+=msgDao.remidGet("friend_apply");
         //  sum+=msgDao.remidGet("friend_apply");
-        sbfriend.setNum(sum);
+        sbfriend.setNum(sum,true);
 
     }
 
@@ -411,9 +411,9 @@ public class MainActivity extends AppActivity {
 
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                sbme.setNum(1);
+                                sbme.setNum(1,true);
                             } else {
-                                sbme.setNum(0);
+                                sbme.setNum(0,true);
                             }
                         }
                     }

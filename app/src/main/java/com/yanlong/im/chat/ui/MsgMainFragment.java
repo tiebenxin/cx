@@ -642,7 +642,7 @@ public class MsgMainFragment extends Fragment {
 
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
-            holder.sb.setNum(bean.getUnread_count());
+            holder.sb.setNum(bean.getUnread_count(),false);
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
 

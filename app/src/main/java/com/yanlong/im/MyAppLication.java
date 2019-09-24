@@ -99,7 +99,7 @@ public class MyAppLication extends MainApplication {
         initWeixinConfig();
         initRunstate();
         initRedPacket();
-        //LogcatHelper.getInstance(this).onCreate();
+        LogcatHelper.getInstance(this).start();
         initException();
         initUploadUtils();
     }

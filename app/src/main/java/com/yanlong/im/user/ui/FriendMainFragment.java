@@ -192,7 +192,7 @@ public class FriendMainFragment extends Fragment {
                     public void onClick(View v) {
                         // ToastUtil.show(getContext(), "添加朋友");
                         taskApplyNumClean();
-                        hd.sbApply.setNum(0);
+                        hd.sbApply.setNum(0,false);
                         startActivity(new Intent(getContext(), FriendApplyAcitvity.class));
                     }
                 });
@@ -216,7 +216,7 @@ public class FriendMainFragment extends Fragment {
                         startActivity(new Intent(getContext(), FriendMatchActivity.class));
                     }
                 });
-                hd.sbApply.setNum(taskGetApplyNum());
+                hd.sbApply.setNum(taskGetApplyNum(),false);
             } else if (holder instanceof RCViewHolder) {
 
                 final UserInfo bean = listData.get(position);
