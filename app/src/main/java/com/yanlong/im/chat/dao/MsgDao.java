@@ -740,7 +740,17 @@ public class MsgDao {
         imageHead.setImgHeadUrl(avatar);
         DaoUtil.save(imageHead);
     }
-
+    /***
+     * 修改群头像
+     * @param gid
+     * @param avatar
+     */
+    public void groupHeadImgUpdata(String gid, String avatar) {
+        GroupImageHead imageHead=new GroupImageHead();
+        imageHead.setGid(gid);
+        imageHead.setImgHeadUrl(avatar);
+        DaoUtil.update(imageHead);
+    }
 
     /***
      * 获取本地群头像
@@ -748,7 +758,11 @@ public class MsgDao {
      *
      */
     public String groupHeadImgGet(String gid) {
-       return  ((GroupImageHead)DaoUtil.findOne(GroupImageHead.class,"gid",gid)).getImgHeadUrl();
+        if (StringUtil.isNotNull(gid)){
+            return  ((GroupImageHead)DaoUtil.findOne(GroupImageHead.class,"gid",gid)).getImgHeadUrl();
+        }else{
+            return "";
+        }
     }
 
 
