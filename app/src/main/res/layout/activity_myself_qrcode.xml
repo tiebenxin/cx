@@ -43,6 +43,7 @@
                 android:textSize="17sp"/>
 
             <FrameLayout
+                android:id="@+id/view_qr_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/img_head"
@@ -61,7 +62,8 @@
                     android:id="@+id/image_code_head"
                     android:layout_gravity="center"
                     android:layout_width="54dp"
-                    android:layout_height="54dp"/>
+                    android:layout_height="54dp"
+                    android:background="@color/white"/>
             </FrameLayout>
 
         </android.support.constraint.ConstraintLayout>

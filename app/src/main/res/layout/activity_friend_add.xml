@@ -27,7 +27,7 @@
                 style="@style/app_edt1"
                 android:gravity="center_vertical"
                 android:layout_marginRight="@dimen/app_margin_main"
-                android:hint="搜索" />
+                android:hint="输入产品号/手机号搜索联系人" />
 
         </LinearLayout>
 
