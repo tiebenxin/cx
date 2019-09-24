@@ -51,12 +51,15 @@
                     android:layout_marginRight="6dp"
                     android:src="@mipmap/ic_msg_search" />
 
-                <net.cb.cb.library.view.ClearEditText
+
+                <TextView
+                    android:gravity="center_vertical"
                     android:id="@+id/edt_search"
                     style="@style/app_edt1"
-                    android:hint="输入产品号/手机号搜索联系人"
-                    android:background="@color/transparent"
-                    android:imeOptions="actionSearch" />
+                    android:enabled="false"
+                    android:visibility="visible"
+                    android:layout_marginRight="@dimen/app_margin_main"
+                    android:hint="输入产品号/手机号搜索联系人" />
 
 
             </LinearLayout>
