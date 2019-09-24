@@ -128,14 +128,14 @@ public class ImageHeadActivity extends AppActivity {
             @Override
             public boolean onLongClick(View v) {
 
-                //  initSaveImage();
+                  initSaveImage();
 
-                List<LocalMedia> selectList = new ArrayList<>();
-                LocalMedia lc = new LocalMedia();
-                lc.setPath(imageHead);
-                selectList.add(lc);
-                PictureSelector.create(ImageHeadActivity.this).themeStyle(R.style.picture_default_style)
-                        .isGif(true).openExternalPreview(0, selectList);
+//                List<LocalMedia> selectList = new ArrayList<>();
+//                LocalMedia lc = new LocalMedia();
+//                lc.setPath(imageHead);
+//                selectList.add(lc);
+//                PictureSelector.create(ImageHeadActivity.this).themeStyle(R.style.picture_default_style)
+//                        .isGif(true).openExternalPreview(0, selectList);
                 return false;
             }
         });

@@ -217,26 +217,6 @@ public class ChatServer extends Service {
                 case ACCEPT_BE_GROUP://群主会收到成员已经进群的消息
                     //  ToastUtil.show(getApplicationContext(), "接受入群请求");
 
-//                    String ggidAcc=msg.getGid();
-//                    Group gginfoAcc = msgDao.getGroup4Id(ggidAcc);
-//                    List<UserInfo> listAcc=gginfoAcc.getUsers();
-//                    if (listAcc.size()>=9){}else {
-//                        gginfoAcc.setUsers((RealmList<UserInfo>) listAcc);
-//                        int i = gginfoAcc.getUsers().size();
-//                        i = i > 9 ? 9 : i;
-//                        //头像地址
-//                        String url[] = new String[i];
-//                        for (int j = 0; j < i; j++) {
-//                            UserInfo userInfo = gginfoAcc.getUsers().get(j);
-//                            url[j] = userInfo.getHead();
-//                        }
-//                        Log.e("TAG","remove"+"---------"+ url.length);
-//                        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-//                        MsgDao msgDao = new MsgDao();
-//                        msgDao.groupHeadImgUpdata(ggidAcc , file.getAbsolutePath());
-//                        msgDao.groupSave(gginfoAcc);
-//                    }
-
                     return;
 
                 case CHANGE_GROUP_MASTER:
