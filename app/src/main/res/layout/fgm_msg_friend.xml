@@ -60,12 +60,19 @@
                     android:layout_marginRight="6dp"
                     android:src="@mipmap/ic_msg_search" />
 
-                <net.cb.cb.library.view.ClearEditText
-                    android:id="@+id/edt_search"
-                    style="@style/app_edt1"
-                    android:hint="搜索"
-                    android:background="@color/transparent"
-                    android:imeOptions="actionSearch" />
+<!--                <net.cb.cb.library.view.ClearEditText-->
+<!--                    android:id="@+id/edt_search"-->
+<!--                    style="@style/app_edt1"-->
+<!--                    android:hint="搜索"-->
+<!--                    android:background="@color/transparent"-->
+<!--                    android:imeOptions="actionSearch" />-->
+                                <TextView--
+                                android:gravity="center_vertical"
+                                android:id="@+id/edt_search"
+                                style="@style/app_edt1"
+                                android:enabled="false"
+                                android:layout_marginRight="@dimen/app_margin_main"
+                                android:hint="搜索" />
 
 
             </LinearLayout>
