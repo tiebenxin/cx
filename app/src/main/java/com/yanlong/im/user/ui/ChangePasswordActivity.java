@@ -82,6 +82,10 @@ public class ChangePasswordActivity extends AppActivity {
             ToastUtil.show(this,"请填写新密码");
             return;
         }
+        if(newPassword.length() < 6){
+            ToastUtil.show(context,"密码不能少于六位");
+            return;
+        }
         if(TextUtils.isEmpty(nextPassword)){
             ToastUtil.show(this,"请再次填写新密码");
             return;
