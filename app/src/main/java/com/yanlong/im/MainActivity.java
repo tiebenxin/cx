@@ -112,9 +112,9 @@ public class MainActivity extends AppActivity {
                 viewPage.setCurrentItem(tab.getPosition());
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {
                     View rootView = bottomTab.getTabAt(i).getCustomView();
-                    LinearLayout viewItem = (LinearLayout) rootView.findViewById(R.id.view_item);
-                    StrikeButton sb = (net.cb.cb.library.view.StrikeButton) rootView.findViewById(R.id.sb);
-                    TextView txt = (TextView) rootView.findViewById(R.id.txt);
+                    LinearLayout viewItem =  rootView.findViewById(R.id.view_item);
+                    StrikeButton sb =  rootView.findViewById(R.id.sb);
+                    TextView txt =  rootView.findViewById(R.id.txt);
                     if (i == tab.getPosition()) { // 选中状态
                         sb.setButtonBackground(iconHRes[i]);
                         txt.setTextColor(getResources().getColor(R.color.green_500));
@@ -123,6 +123,11 @@ public class MainActivity extends AppActivity {
                         txt.setTextColor(getResources().getColor(R.color.gray_400));
                     }
                 }
+
+                if(tab.getPosition() == 1 || tab.getPosition() == 2){
+                    MsgMainFragment.newInstance().hidePopView();
+                }
+
             }
 
             @Override
@@ -138,8 +143,8 @@ public class MainActivity extends AppActivity {
         // 提供自定义的布局添加Tab
         for (int i = 0; i < fragments.length; i++) {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
-            TextView txt = (TextView) rootView.findViewById(R.id.txt);
-            StrikeButton sb = (net.cb.cb.library.view.StrikeButton) rootView.findViewById(R.id.sb);
+            TextView txt =  rootView.findViewById(R.id.txt);
+            StrikeButton sb =  rootView.findViewById(R.id.sb);
             if (i == 2) {
                 sb.setSktype(1);
                 //设置值

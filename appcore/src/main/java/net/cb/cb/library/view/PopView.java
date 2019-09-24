@@ -56,6 +56,8 @@ public class PopView {
     }
 
     public void dismiss() {
-        popupWindow.dismiss();
+        if(popupWindow != null){
+            popupWindow.dismiss();
+        }
     }
 }
