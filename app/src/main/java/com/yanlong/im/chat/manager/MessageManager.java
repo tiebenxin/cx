@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.manager;
 
+import com.yanlong.im.utils.socket.MsgBean;
+
 /**
  * @anthor Liszt
  * @data 2019/9/24
@@ -16,7 +18,7 @@ public class MessageManager {
     }
 
 
-    public void onReceive(){
+    public void onReceive(MsgBean.UniversalMessage msg){
 
     }
 
