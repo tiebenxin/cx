@@ -318,6 +318,15 @@ public class MsgMainFragment extends Fragment {
 
     }
 
+
+    public void hidePopView(){
+        if(popView != null){
+            popView.dismiss();
+        }
+    }
+
+
+
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
         LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
         switch (status) {

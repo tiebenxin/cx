@@ -21,8 +21,6 @@ public class GlideOptionsUtil {
                 .placeholder(R.mipmap.ic_info_head)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .skipMemoryCache(false);
-
-              //  .centerCrop();
         return mRequestOptions;
     }
 
