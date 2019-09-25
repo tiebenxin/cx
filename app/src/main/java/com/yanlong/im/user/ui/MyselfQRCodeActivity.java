@@ -134,6 +134,9 @@ public class MyselfQRCodeActivity extends AppActivity {
                     .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
 
             mTvUserName.setText(userInfo.getName() + "");
+            mHeadView.getActionbar().setTitle("我的二维码");
+
+            imageCodeHead.setVisibility(View.VISIBLE);
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_FRIEND_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, uid);
@@ -156,6 +159,8 @@ public class MyselfQRCodeActivity extends AppActivity {
             }
 
             mTvUserName.setText(groupName + "");
+            mHeadView.getActionbar().setTitle("群二维码");
+            imageCodeHead.setVisibility(View.GONE);
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, groupId);
@@ -229,6 +234,7 @@ public class MyselfQRCodeActivity extends AppActivity {
 
     private void shareWX(Bitmap bitmap) {
         UMImage thumb = new UMImage(this, bitmap);
+        thumb.setThumb(thumb);
         new ShareAction(MyselfQRCodeActivity.this)
                 .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
                 .withMedia(thumb)//分享内容
@@ -338,8 +344,8 @@ public class MyselfQRCodeActivity extends AppActivity {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeBean bean = QRCodeManage.getQRCodeBean(this, scanResult);
-            QRCodeManage.goToActivity(this, bean);
+            QRCodeManage.goToPage(this,scanResult);
+
         } else if (requestCode == SelectUserActivity.RET_CODE_SELECTUSR && resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {
             Bundle bundle = data.getExtras();
             String jsonBean = bundle.getString(SelectUserActivity.RET_JSON);

@@ -63,6 +63,7 @@
                     android:layout_gravity="center"
                     android:layout_width="54dp"
                     android:layout_height="54dp"
+                    android:visibility="gone"
                     android:background="@color/white"/>
             </FrameLayout>
 
