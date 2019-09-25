@@ -34,6 +34,7 @@
             android:layout_marginBottom="160dp"
             android:text="我的二维码"
             android:textColor="@color/green_200"
+            android:visibility="gone"
             android:textSize="15sp" />
 
 

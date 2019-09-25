@@ -39,4 +39,12 @@ public class DaoMigration implements RealmMigration {
 //                .addField("gid", String.class, FieldAttribute.PRIMARY_KEY)
 //                .addField("imgHeadUrl", String.class);
     }
+
+
+    private void updeteV3(RealmSchema schema){
+        schema.create("UserInfo")
+                .addField("destroy", Integer.class)
+                .addField("imgHeadUrl", String.class);
+    }
+
 }

@@ -107,6 +107,7 @@
         <item name="android:clickable">true</item>
         <item name="android:fontFamily">@font/emoji_font</item>
     </style>
+
     <!--    <style name="app_txt_content_2" parent="app_txt_base">
             <item name="android:textSize">12sp</item>
             <item name="android:textColor">@color/gray_400</item>
@@ -391,6 +392,15 @@
 
         <item name="android:orientation">vertical</item>
         <item name="android:divider">@drawable/bg_list1_divider</item>
+        <item name="android:showDividers">middle</item>
+
+    </style>
+
+    <style name="app_layout_list3">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">#ffffff</item>
+        <item name="android:orientation">vertical</item>
         <item name="android:showDividers">middle</item>
 
     </style>

@@ -31,8 +31,10 @@ import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
@@ -41,6 +43,7 @@ import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -148,12 +151,12 @@ public class MainActivity extends AppActivity {
             if (i == 2) {
                 sb.setSktype(1);
                 //设置值
-                sb.setNum(0);
+                sb.setNum(0,true);
                 sbme = sb;
             }
             if (i == 1) {
                 sb.setSktype(1);
-                sb.setNum(0);
+                sb.setNum(0,true);
                 sbfriend = sb;
             }
 
@@ -255,6 +258,14 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        updateNetStatus();
+    }
+
+    private void updateNetStatus() {
+        if (NetUtil.isNetworkConnected()) {
+            EventNetStatus netStatusEvent = new EventNetStatus(CoreEnum.ENetStatus.SUCCESS_ON_NET);
+            EventBus.getDefault().post(netStatusEvent);
+        }
     }
 
     @Override
@@ -362,7 +373,7 @@ public class MainActivity extends AppActivity {
             return;
 
         int num = msgDao.sessionReadGetAll();
-        sbmsg.setNum(num);
+        sbmsg.setNum(num,true);
         BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
@@ -375,7 +386,7 @@ public class MainActivity extends AppActivity {
         sum += msgDao.remidGet("friend_apply");
         // sum+=msgDao.remidGet("friend_apply");
         //  sum+=msgDao.remidGet("friend_apply");
-        sbfriend.setNum(sum);
+        sbfriend.setNum(sum,true);
 
     }
 
@@ -400,9 +411,9 @@ public class MainActivity extends AppActivity {
 
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                sbme.setNum(1);
+                                sbme.setNum(1,true);
                             } else {
-                                sbme.setNum(0);
+                                sbme.setNum(0,true);
                             }
                         }
                     }

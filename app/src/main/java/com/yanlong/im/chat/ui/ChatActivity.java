@@ -361,9 +361,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }
                 break;
-            case OTHER_REMOVE_GROUP:
-                creatAndSaveImg(groupInfo.getGid());
-                break;
+//            case OTHER_REMOVE_GROUP:
+//                creatAndSaveImg(groupInfo.getGid());
+//                break;
             case CHANGE_GROUP_META:
                 taskSessionInfo();
                 break;
@@ -432,10 +432,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         emojiLayout = new ArrayList<>();
         View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
         View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
+        View view3 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji3, null);
+        View view4 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji4, null);
+        View view5 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji5, null);
         emojiLayout.add(view1);
         emojiLayout.add(view2);
+        emojiLayout.add(view3);
+        emojiLayout.add(view4);
+        emojiLayout.add(view5);
         emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
-        emoji_pager.addOnPageChangeListener(new PageIndicator(this, (LinearLayout) findViewById(R.id.dot_hor), 2));
+        emoji_pager.addOnPageChangeListener(new PageIndicator(this, (LinearLayout) findViewById(R.id.dot_hor), 5));
     }
 
     @Override
@@ -1051,7 +1057,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 config.setUid(toUId);
             }
             config.setLastPosition(lastPosition);
-            config.setLastOffset(lastPosition);
+            config.setLastOffset(lastOffset);
             if (msgListData != null) {
                 config.setTotalSize(msgListData.size());
             }
@@ -1293,7 +1299,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onMain() {
-                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg);
+                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
 
             }
         }).run();
