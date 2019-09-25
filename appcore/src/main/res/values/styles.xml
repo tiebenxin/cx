@@ -100,7 +100,6 @@
     </style>
 
 
-
     <!--emoji样式-->
     <style name="app_txt_content_emoji" parent="app_txt_title_2">
         <item name="android:textSize">24dp</item>
@@ -348,7 +347,7 @@
 
         <item name="android:src">@mipmap/ic_img_def</item>
         <item name="android:scaleType">centerCrop</item>
-<!--        <item name="roundedCornerRadius">2dp</item>-->
+        <!--        <item name="roundedCornerRadius">2dp</item>-->
 
     </style>
 
@@ -357,9 +356,9 @@
     <style name="app_img_head">
         <item name="android:layout_width">47dp</item>
         <item name="android:layout_height">47dp</item>
-        <item name="android:src">@mipmap/ic_info_head</item>
         <item name="android:scaleType">centerCrop</item>
-       <!--  <item name="roundAsCircle">true</item>-->
+        <item name="android:src">@mipmap/ic_info_head</item>
+        <!--  <item name="roundAsCircle">true</item>-->
         <!--<item name="roundedCornerRadius">3dp</item>-->
     </style>
 
@@ -431,13 +430,13 @@
     </style>
 
     <style name="app_layout_seacher_item">
-    <item name="android:layout_width">match_parent</item>
-    <item name="android:layout_height">48dp</item>
-    <item name="android:background">#ececec</item>
-    <item name="android:background">@color/white</item>
-    <item name="android:gravity">center_vertical</item>
-    <item name="android:orientation">horizontal</item>
-    <item name="android:paddingLeft">@dimen/app_margin_main</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">#ececec</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingLeft">@dimen/app_margin_main</item>
     </style>
 
 
