@@ -319,12 +319,11 @@ public class MsgMainFragment extends Fragment {
     }
 
 
-    public void hidePopView(){
-        if(popView != null){
+    public void hidePopView() {
+        if (popView != null) {
             popView.dismiss();
         }
     }
-
 
 
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
@@ -644,7 +643,7 @@ public class MsgMainFragment extends Fragment {
 
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
-            holder.sb.setNum(bean.getUnread_count(),false);
+            holder.sb.setNum(bean.getUnread_count(), false);
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
 
@@ -752,6 +751,9 @@ public class MsgMainFragment extends Fragment {
         //缓存所有未缓存的群信息
         dids = new ArrayList<>();
         didIndex = 0;
+        if (listData == null) {
+            return;
+        }
         for (Session s : listData) {
             String gid = s.getGid();
             if (StringUtil.isNotNull(gid)) {//缓存群的信息

@@ -1,7 +1,6 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -33,9 +32,7 @@ import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.TimeToString;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PySortView;
 import net.cb.cb.library.view.StrikeButton;
@@ -377,7 +374,7 @@ public class FriendMainFragment extends Fragment {
     }
 
     private void taskRemoveUser(long uid) {
-        userDao.updeteUserUtype(uid, 0);
+        userDao.updateUserUtype(uid, 0);
         taskListData();
     }
 

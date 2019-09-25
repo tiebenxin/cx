@@ -516,7 +516,7 @@ public class UserInfoActivity extends AppActivity {
                 }
                 type = 2;
                 tvBlack.setText("解除黑名单");
-                userDao.updeteUserUtype(id, 3);
+                userDao.updateUserUtype(id, 3);
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(id);
 
@@ -534,7 +534,7 @@ public class UserInfoActivity extends AppActivity {
                 }
                 type = 0;
                 tvBlack.setText("加入黑名单");
-                userDao.updeteUserUtype(id, 2);
+                userDao.updateUserUtype(id, 2);
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(uid);
             }
@@ -559,7 +559,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 //刷新好友和退出
                 if (response.body().isOk()) {
-                    userDao.updeteUserUtype(id, 0);
+                    userDao.updateUserUtype(id, 0);
                     notifyRefreshRoster(id);
                     finish();
                 }

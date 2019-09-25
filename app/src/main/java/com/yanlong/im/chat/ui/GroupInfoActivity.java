@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
@@ -882,7 +881,7 @@ public class GroupInfoActivity extends AppActivity {
                         }
                         File file = GroupHeadImageUtil.synthesis(getContext(), url);
                         MsgDao msgDao = new MsgDao();
-                        msgDao.groupHeadImgUpdata(gid , file.getAbsolutePath());
+                        msgDao.groupHeadImgUpdate(gid , file.getAbsolutePath());
 //                        msgDao.groupSave(ginfo);
     }
 
