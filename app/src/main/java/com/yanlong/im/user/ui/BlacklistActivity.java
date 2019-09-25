@@ -119,7 +119,7 @@ public class BlacklistActivity extends AppActivity {
 
     private void updateUserStatus(long uid) {
         UserDao dao = new UserDao();
-        dao.updeteUserUtype(uid, ChatEnum.EUserType.FRIEND);
+        dao.updateUserUtype(uid, ChatEnum.EUserType.FRIEND);
     }
 
 

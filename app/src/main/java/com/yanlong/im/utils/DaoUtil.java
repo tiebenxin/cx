@@ -74,8 +74,8 @@ public class DaoUtil {
     public static void save(RealmModel obj) {
         if (obj == null)
             return;
+        Realm realm = open();
         try {
-            Realm realm = open();
             realm.beginTransaction();
             realm.insert(obj);
             //realm.copyToRealm(obj);
@@ -83,6 +83,7 @@ public class DaoUtil {
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
+            close(realm);
         }
     }
 
@@ -97,7 +98,7 @@ public class DaoUtil {
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
-//            realm.close();
+            close(realm);
         }
     }
 
@@ -115,71 +116,78 @@ public class DaoUtil {
         RealmModel beans = null;
         Realm realm = open();
         RealmModel res = null;
-        if (value instanceof Integer) {
-            res = realm.where(clss).equalTo(fieldName, (Integer) value).findFirst();
-        } else if (value instanceof String) {
-            res = realm.where(clss).equalTo(fieldName, (String) value).findFirst();
-        } else if (value instanceof Float) {
-            res = realm.where(clss).equalTo(fieldName, (Float) value).findFirst();
-        } else if (value instanceof Double) {
-            res = realm.where(clss).equalTo(fieldName, (Double) value).findFirst();
-        } else if (value instanceof Long) {
-            res = realm.where(clss).equalTo(fieldName, (Long) value).findFirst();
-        } else if (value instanceof Boolean) {
-            res = realm.where(clss).equalTo(fieldName, (Boolean) value).findFirst();
-        } else if (value instanceof Byte) {
-            res = realm.where(clss).equalTo(fieldName, (Byte) value).findFirst();
+        try {
+            if (value instanceof Integer) {
+                res = realm.where(clss).equalTo(fieldName, (Integer) value).findFirst();
+            } else if (value instanceof String) {
+                res = realm.where(clss).equalTo(fieldName, (String) value).findFirst();
+            } else if (value instanceof Float) {
+                res = realm.where(clss).equalTo(fieldName, (Float) value).findFirst();
+            } else if (value instanceof Double) {
+                res = realm.where(clss).equalTo(fieldName, (Double) value).findFirst();
+            } else if (value instanceof Long) {
+                res = realm.where(clss).equalTo(fieldName, (Long) value).findFirst();
+            } else if (value instanceof Boolean) {
+                res = realm.where(clss).equalTo(fieldName, (Boolean) value).findFirst();
+            } else if (value instanceof Byte) {
+                res = realm.where(clss).equalTo(fieldName, (Byte) value).findFirst();
+            }
+            if (res != null)
+                beans = realm.copyFromRealm(res);
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            close(realm);
         }
-
-
-        if (res != null)
-            beans = realm.copyFromRealm(res);
-        realm.close();
         return (T) beans;
     }
 
     public static <T extends RealmModel> List findAll(Class<T> clss) {
         List beans = new ArrayList();
         Realm realm = open();
-
-        RealmResults list = realm.where(clss).findAll();
-        if (list != null) {
-            beans = realm.copyFromRealm(list);
+        try {
+            RealmResults list = realm.where(clss).findAll();
+            if (list != null) {
+                beans = realm.copyFromRealm(list);
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            close(realm);
         }
-
-        realm.close();
         return beans;
     }
 
     public static <T extends RealmModel> void deleteOne(Class<T> clss, String fieldName, Object value) {
         RealmModel beans = null;
         Realm realm = open();
-        realm.beginTransaction();
-        RealmResults<T> res = null;
-        if (value instanceof Integer) {
-            res = realm.where(clss).equalTo(fieldName, (Integer) value).findAll();
-        } else if (value instanceof String) {
-            res = realm.where(clss).equalTo(fieldName, (String) value).findAll();
-        } else if (value instanceof Float) {
-            res = realm.where(clss).equalTo(fieldName, (Float) value).findAll();
-        } else if (value instanceof Double) {
-            res = realm.where(clss).equalTo(fieldName, (Double) value).findAll();
-        } else if (value instanceof Long) {
-            res = realm.where(clss).equalTo(fieldName, (Long) value).findAll();
-        } else if (value instanceof Boolean) {
-            res = realm.where(clss).equalTo(fieldName, (Boolean) value).findAll();
-        } else if (value instanceof Byte) {
-            res = realm.where(clss).equalTo(fieldName, (Byte) value).findAll();
+        try {
+            realm.beginTransaction();
+            RealmResults<T> res = null;
+            if (value instanceof Integer) {
+                res = realm.where(clss).equalTo(fieldName, (Integer) value).findAll();
+            } else if (value instanceof String) {
+                res = realm.where(clss).equalTo(fieldName, (String) value).findAll();
+            } else if (value instanceof Float) {
+                res = realm.where(clss).equalTo(fieldName, (Float) value).findAll();
+            } else if (value instanceof Double) {
+                res = realm.where(clss).equalTo(fieldName, (Double) value).findAll();
+            } else if (value instanceof Long) {
+                res = realm.where(clss).equalTo(fieldName, (Long) value).findAll();
+            } else if (value instanceof Boolean) {
+                res = realm.where(clss).equalTo(fieldName, (Boolean) value).findAll();
+            } else if (value instanceof Byte) {
+                res = realm.where(clss).equalTo(fieldName, (Byte) value).findAll();
+            }
+            if (res != null) {
+                res.deleteAllFromRealm();
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            close(realm);
         }
-
-
-        if (res != null) {
-            res.deleteAllFromRealm();
-        }
-
-        realm.commitTransaction();
-
-        realm.close();
     }
 
     public static List page(int page, RealmResults list, Realm realm) {
@@ -194,8 +202,6 @@ public class DaoUtil {
         int to = from + pSize;
         to = to < list.size() ? to : list.size();
         from = from > to ? to : from;
-
-
         return realm.copyFromRealm(list.subList(from, to));
     }
 
@@ -207,7 +213,6 @@ public class DaoUtil {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         event.run(realm);
-
         realm.commitTransaction();
         realm.close();
     }
@@ -216,4 +221,12 @@ public class DaoUtil {
         void run(Realm realm);
     }
 
+    public static void close(Realm realm) {
+        if (realm != null) {
+            if (realm.isInTransaction()) {
+                realm.commitTransaction();
+            }
+            realm.close();
+        }
+    }
 }

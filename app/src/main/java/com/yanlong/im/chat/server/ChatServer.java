@@ -249,7 +249,7 @@ public class ChatServer extends Service {
 //                        Log.e("TAG","remove"+"---------"+ url.length);
 //                        File file = GroupHeadImageUtil.synthesis(getContext(), url);
 //                        MsgDao msgDao = new MsgDao();
-//                        msgDao.groupHeadImgUpdata(ggid , file.getAbsolutePath());
+//                        msgDao.groupHeadImgUpdate(ggid , file.getAbsolutePath());
 //                        msgDao.groupSave(gginfo);
 //                    }
                     return;
