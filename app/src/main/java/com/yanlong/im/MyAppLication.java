@@ -21,7 +21,7 @@ import com.umeng.message.IUmengCallback;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
-import com.yanlong.im.utils.LogcatHelper;
+import com.yanlong.im.utils.MyException;
 
 import net.cb.cb.library.utils.UpLoadUtils;
 
@@ -99,7 +99,7 @@ public class MyAppLication extends MainApplication {
         initWeixinConfig();
         initRunstate();
         initRedPacket();
-        LogcatHelper.getInstance(this).start();
+        //LogcatHelper.getInstance(this).onCreate();
         initException();
         initUploadUtils();
     }
@@ -129,8 +129,8 @@ public class MyAppLication extends MainApplication {
      异常捕获
       */
     private void initException() {
-//        MyException myException = MyException.getInstance();
-//        myException.init(getApplicationContext());
+        MyException myException = MyException.getInstance();
+        myException.init(getApplicationContext());
     }
 
     /***
