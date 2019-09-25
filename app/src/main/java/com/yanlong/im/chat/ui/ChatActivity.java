@@ -430,10 +430,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void addViewPagerEvent() {
         emojiLayout = new ArrayList<>();
-        String emojiStr="\n" +
+        String emojiStr = "\n" +
                 "\n" +
                 "\uD83D\uDE42\uD83D\uDE04\uD83D\uDE0A☺️\uD83D\uDE0D\uD83D\uDE02\uD83D\uDE05\uD83D\uDE0C\uD83D\uDE09\uD83D\uDE17\uD83D\uDE0B\uD83D\uDE1D\uD83E\uDD2A\uD83E\uDD28\uD83E\uDDD0\uD83E\uDD13\uD83D\uDE0E\uD83E\uDD29\uD83E\uDD73\uD83D\uDE0F\uD83D\uDE14\uD83D\uDE1F\uD83D\uDE41\uD83D\uDE23\uD83D\uDE16\uD83D\uDE2B\uD83D\uDE29\uD83E\uDD7A\uD83D\uDE22\uD83D\uDE2D\uD83D\uDE24\uD83D\uDE20\uD83D\uDE21\uD83E\uDD14\uD83E\uDD2D\uD83E\uDD2B\uD83E\uDD25\uD83D\uDE36\uD83D\uDE10\uD83E\uDD10\uD83D\uDE44\uD83D\uDE32\uD83D\uDE34\uD83E\uDD24\uD83D\uDE2A\uD83D\uDE35\uD83E\uDD10\uD83E\uDD74\uD83E\uDD12\uD83E\uDD15\uD83D\uDE37\uD83E\uDD11\uD83D\uDE31\uD83D\uDE28\uD83E\uDD76\uD83E\uDD22\uD83E\uDD27\uD83E\uDD20\uD83D\uDE08\uD83E\uDD21\uD83D\uDCA9\uD83D\uDC7B\uD83D\uDC7D\uD83D\uDC50\uD83D\uDC4F\uD83E\uDD1D\uD83D\uDC4D\uD83D\uDC4A\uD83E\uDD1B\uD83E\uDD1C\uD83E\uDD1E✌️\uD83E\uDD1F\uD83D\uDC4C\uD83D\uDD90\uD83D\uDC4B\uD83E\uDD19\uD83D\uDCAA\uD83E\uDDB6\uD83D\uDE4F\uD83D\uDC8B\uD83D\uDC84\uD83D\uDC40\uD83D\uDC76\uD83D\uDC67\uD83E\uDDF6\uD83D\uDC60\uD83D\uDC58\uD83E\uDDE3\uD83D\uDC8D\uD83D\uDC51\uD83D\uDC52\uD83D\uDC36\uD83D\uDC37\uD83D\uDE48\uD83D\uDC1C\uD83D\uDC1B\uD83D\uDC09\uD83C\uDF44\uD83C\uDF39⚡️\uD83C\uDF27\uD83C\uDF24☔️\uD83C\uDF6D\uD83C\uDF67\uD83C\uDF6C\uD83C\uDF61\uD83C\uDF4E\uD83C\uDF4A\uD83C\uDF50\uD83E\uDD51\uD83C\uDF4C\uD83E\uDD6F\uD83E\uDD5A\uD83C\uDF54\uD83C\uDF5A\uD83D\uDCA3\uD83C\uDF82\uD83D\uDEC1\uD83D\uDD11\uD83E\uDD42\uD83C\uDF89\uD83C\uDF80\uD83C\uDF81\uD83D\uDECD\uD83D\uDC98\uD83D\uDC94\uD83D\uDC9E\uD83D\uDD14\uD83D\uDCE2";
-        Log.e("TAG",emojiStr.length()+"");
+        Log.e("TAG", emojiStr.length() + "");
         View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
         View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
         View view3 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji3, null);
@@ -444,7 +444,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         View view8 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji8, null);
         View view9 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji9, null);
         View view10 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji10, null);
-        View view11= LayoutInflater.from(this).inflate(R.layout.part_chat_emoji11, null);
+        View view11 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji11, null);
 //        emojiLayout.add(view1);
 //        emojiLayout.add(view2);
 //        emojiLayout.add(view3);
@@ -532,25 +532,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //test 8.21测试发送
-                // if(AppConfig.DEBUG){
-                String txt = edtChat.getText().toString();
-                if (txt.startsWith("@000")) {
-                    int count = Integer.parseInt(txt.split("_")[1]);
+                //test 8.
+                String text = edtChat.getText().toString().trim();
+                if (TextUtils.isEmpty(text)) {
+                    ToastUtil.show(ChatActivity.this, "不能发送空白消息");
+                    edtChat.getText().clear();
+                    return;
+                }
+                if (text.startsWith("@000")) {
+                    int count = Integer.parseInt(text.split("_")[1]);
                     taskTestSend(count);
                     return;
                 }
-                //  }
 
+                int totalSize = text.length();
                 if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
-                    String text = edtChat.getText().toString();
-                    if (!TextUtils.isEmpty(text)) {
-                        int totalSize = text.length();
-                        if (totalSize > MIN_TEXT) {
-                            ToastUtil.show(ChatActivity.this, "@消息长度不能超过" + MIN_TEXT);
-                            edtChat.getText().clear();
-                            return;
-                        }
+                    if (totalSize > MIN_TEXT) {
+                        ToastUtil.show(ChatActivity.this, "@消息长度不能超过" + MIN_TEXT);
+                        edtChat.getText().clear();
+                        return;
                     }
                     if (edtChat.isAtAll()) {
                         MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList());
@@ -563,9 +563,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 } else {
                     //发送普通消息
-                    String text = edtChat.getText().toString();
                     if (!TextUtils.isEmpty(text)) {
-                        int totalSize = text.length();
                         int per = totalSize / MIN_TEXT;
                         if (per > 10) {
                             ToastUtil.show(ChatActivity.this, "文本长度不能超过" + 10 * MIN_TEXT);

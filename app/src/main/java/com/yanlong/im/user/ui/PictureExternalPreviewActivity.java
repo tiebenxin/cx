@@ -1019,6 +1019,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     }
 
 
+    @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
