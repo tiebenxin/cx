@@ -68,7 +68,7 @@
                                 style="@style/app_edt1"
                                 android:enabled="false"
                                 android:layout_marginRight="@dimen/app_margin_main"
-                                android:hint="搜索" />
+                                android:hint="当前通讯录搜索" />
 
 
             </LinearLayout>

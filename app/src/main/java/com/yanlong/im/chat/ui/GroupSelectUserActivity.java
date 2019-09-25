@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -61,6 +63,7 @@ public class GroupSelectUserActivity extends AppActivity {
     private ClearEditText edtSearch;
     private RecyclerViewAdapter adapter;
     private LinearLayout llAtAll;
+    private AlertYesNo alertYesNo;
 
     //自动寻找控件
     private void findViews() {
@@ -139,9 +142,17 @@ public class GroupSelectUserActivity extends AppActivity {
         initData();
     }
 
+    @Override
+    protected void onDestroy() {
+        if (alertYesNo != null) {
+            alertYesNo.dismiss();
+            alertYesNo = null;
+        }
+        super.onDestroy();
+    }
+
     private void initData() {
         taskGetInfo();
-
     }
 
     private void taskGetInfo() {
@@ -168,6 +179,29 @@ public class GroupSelectUserActivity extends AppActivity {
                 }
             }
         });
+//        new MsgAction().groupInfo4Db(gid, new CallBack<ReturnBean<Group>>() {
+//            @Override
+//            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+//                if (response == null) {
+//                    return;
+//                }
+//                if (response.body().isOk()) {
+//                    if (type == 0) {
+//                        listData = delectMaster(response.body().getData());
+//                    } else {
+//                        listData = delectMyslfe(response.body().getData());
+//                    }
+//                    showAtAll(response.body().getData());
+//                    Collections.sort(listData);
+//                    adapter.setList(listData);
+//                    mtListView.notifyDataSetChange();
+//                    for (int i = 0; i < listData.size(); i++) {
+//                        //UserInfo infoBean:
+//                        viewType.putTag(listData.get(i).getTag(), i);
+//                    }
+//                }
+//            }
+//        });
     }
 
 
@@ -234,7 +268,6 @@ public class GroupSelectUserActivity extends AppActivity {
             // hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
             Glide.with(context).load(bean.getHead())
                     .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
-
             hd.txtName.setText(bean.getName4Show());
             hd.viewType.setVisibility(View.VISIBLE);
             if (position > 0) {
@@ -251,7 +284,7 @@ public class GroupSelectUserActivity extends AppActivity {
 
 
                     if (type == 0) {
-                        AlertYesNo alertYesNo = new AlertYesNo();
+                        alertYesNo = new AlertYesNo();
                         alertYesNo.init(GroupSelectUserActivity.this, "转让群", "确认转让群主吗?", "确定", "取消", new AlertYesNo.Event() {
                             @Override
                             public void onON() {
@@ -276,7 +309,7 @@ public class GroupSelectUserActivity extends AppActivity {
                     } else {
                         Intent intent = new Intent();
                         intent.putExtra(UID, bean.getUid() + "");
-                        intent.putExtra(MEMBERNAME, bean.getName());
+                        intent.putExtra(MEMBERNAME, !TextUtils.isEmpty(bean.getMembername()) ? bean.getMembername() : bean.getName());
                         setResult(RESULT_OK, intent);
                         finish();
                     }

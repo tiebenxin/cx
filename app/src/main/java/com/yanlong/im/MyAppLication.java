@@ -66,10 +66,10 @@ public class MyAppLication extends MainApplication {
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "test-environment";
 
-//                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
-//                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
-//                AppConfig.SOCKET_PORT = 19991;
-//                AppConfig.UP_PATH = "product-environment";
+                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
+                AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
+                AppConfig.SOCKET_PORT = 19991;
+                AppConfig.UP_PATH = "product-environment";
                 break;
             case "pre": //预发布服  美国 usa-test.1616d.top    香港 hk-test.1616d.top
                 AppConfig.DEBUG = false;
@@ -179,7 +179,7 @@ public class MyAppLication extends MainApplication {
                 //注册华为推送
                 HuaWeiRegister.register(MyAppLication.this);
                 //oppo
-                OppoRegister.register(getApplicationContext(), "xxxxxx", "xxxxxx");
+                OppoRegister.register(getApplicationContext(), "5ea85e3c99144bb4a42334cac5d08855", "4222a724a70949a1b6db4cdda5c06571");
                 //vivo
                 VivoRegister.register(getApplicationContext());
                 //meizu
