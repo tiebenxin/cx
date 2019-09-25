@@ -50,6 +50,7 @@ public class QRCodeManage {
     public static final String ADD_FRIEND_FUNCHTION = "ADDFRIEND"; //添加好友
     public static final String ADD_GROUP_FUNCHTION = "ADDGROUP"; //添加群
 
+    public static final String DOWNLOAD_APP_URL = "https://www.zln365.com"; //下载地址
 
     /**
      * 扫描二维码转换bean
@@ -129,9 +130,9 @@ public class QRCodeManage {
                 }
             } else if (bean.getFunction().equals(ADD_GROUP_FUNCHTION)) {
                 Log.v(TAG, "time------->" + DateUtils.timeStamp2Date(Long.valueOf(bean.getParameterValue(TIME)), null));
-                if(DateUtils.isPastDue(Long.valueOf(bean.getParameterValue(TIME)))){
-                    ToastUtil.show(activity,"二维码已过期");
-                }else{
+                if (DateUtils.isPastDue(Long.valueOf(bean.getParameterValue(TIME)))) {
+                    ToastUtil.show(activity, "二维码已过期");
+                } else {
                     if (!TextUtils.isEmpty(bean.getParameterValue(ID)) && !TextUtils.isEmpty(bean.getParameterValue(UID))) {
                         taskGroupInfo(bean.getParameterValue(ID), bean.getParameterValue(UID), bean.getParameterValue(NICK_NAME), activity);
                     }
@@ -193,6 +194,8 @@ public class QRCodeManage {
             String text = result.getText();
             if (text.contains("qr.alipay.com")) {
                 openAliPay2Pay(mContext, text);
+            } else if (text.contains(DOWNLOAD_APP_URL)) {
+                openUri(mContext,text);
             } else {
                 QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext, text);
                 QRCodeManage.goToActivity((Activity) mContext, bean);
@@ -201,6 +204,24 @@ public class QRCodeManage {
         }
     }
 
+
+    public static void goToPage(Context mContext, String result) {
+        if (result == null) {
+            ToastUtil.show(mContext, "识别二维码失败");
+        } else {
+            if (result.contains("qr.alipay.com")) {
+                openAliPay2Pay(mContext, result);
+            } else if (result.contains(DOWNLOAD_APP_URL)) {
+                openUri(mContext,result);
+            } else {
+                QRCodeBean bean = QRCodeManage.getQRCodeBean(mContext, result);
+                QRCodeManage.goToActivity((Activity) mContext, bean);
+            }
+        }
+    }
+
+
+    //判断是否安装支付宝
     private static void openAliPay2Pay(Context mContext, String qrCode) {
         if (openAlipayPayPage(mContext, qrCode)) {
 
@@ -209,6 +230,7 @@ public class QRCodeManage {
         }
     }
 
+    //打开支付宝
     public static boolean openAlipayPayPage(Context context, String qrcode) {
         try {
             qrcode = URLEncoder.encode(qrcode, "utf-8");
@@ -224,6 +246,7 @@ public class QRCodeManage {
         return false;
     }
 
+
     private static void openUri(Context context, String s) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(s));
         context.startActivity(intent);
@@ -235,7 +258,7 @@ public class QRCodeManage {
         Date date = new Date(System.currentTimeMillis());
         String changeTime = DateUtils.getOldDateByDay(date, distanceDay, "yyyy-MM-dd HH:mm:ss");
         time = DateUtils.date2TimeStamp(changeTime, "yyyy-MM-dd HH:mm:ss");
-        Log.v(TAG,"生成时间戳------>"+time);
+        Log.v(TAG, "生成时间戳------>" + time);
         return time;
     }
 

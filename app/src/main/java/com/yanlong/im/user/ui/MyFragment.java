@@ -212,8 +212,10 @@ public class MyFragment extends Fragment {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivity(), scanResult);
-            QRCodeManage.goToActivity(getActivity(), bean);
+            QRCodeManage.goToPage(getContext(),scanResult);
+
+//            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivity(), scanResult);
+//            QRCodeManage.goToActivity(getActivity(), bean);
             //将扫描出的信息显示出来
         }
     }

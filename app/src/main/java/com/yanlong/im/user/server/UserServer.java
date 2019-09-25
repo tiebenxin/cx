@@ -36,6 +36,12 @@ public interface UserServer {
                                       @Field("devid") String devid, @Field("platform") String platform,
                                       @Field("phoneModel") String phoneModel);
 
+    @POST("pub/login-by-imid-password")
+    @FormUrlEncoded
+    Call<ReturnBean<TokenBean>> login4Imid(@Field("password") String password, @Field("imid") String imid,
+                                      @Field("devid") String devid, @Field("platform") String platform,
+                                      @Field("phoneModel") String phoneModel);
+
     @POST("/user/refresh-access-token")
     @FormUrlEncoded
     Call<ReturnBean<TokenBean>> login4token(@Field("devid") String devid, @Field("platform") String platform);
