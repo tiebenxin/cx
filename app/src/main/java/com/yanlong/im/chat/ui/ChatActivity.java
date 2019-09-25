@@ -420,6 +420,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatBottom = findViewById(R.id.view_chat_bottom);
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         viewChatRobot = findViewById(R.id.view_chat_robot);
+//        findViewById(R.id.ll_video_recoder).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                CommFunKt.rxRequestPermissions(ChatActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO}, "相机、存储、录音", new Function0<Unit>() {
+//                    @Override
+//                    public Unit invoke() {
+//                        Intent intent=new Intent(ChatActivity.this, VideoRecordActivity.class);
+//                        startActivityForResult(intent,101);
+//                        return null;
+//                    }
+//                });
+//
+//
+//            }
+//        });
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
         txtVoice = findViewById(R.id.txt_voice);
