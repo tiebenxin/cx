@@ -1111,9 +1111,15 @@ public class MsgDao {
             for (Session l : list) {
                 int top = 0;
                 if (l.getType() == 1) {
-                    top = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst().getIsTop();
+                    Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
+                    if (group != null) {
+                        top = group.getIsTop();
+                    }
                 } else {
-                    top = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst().getIstop();
+                    UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
+                    if (info != null) {
+                        top = info.getIstop();
+                    }
                 }
                 l.setIsTop(top);
             }

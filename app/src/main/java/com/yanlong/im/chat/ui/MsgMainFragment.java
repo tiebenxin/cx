@@ -104,6 +104,14 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopHelp;
     private View viewNetwork;
 
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
+
+        }
+    };
+
     //自动寻找控件
     private void findViewsPop(View rootView) {
         viewPopGroup = (LinearLayout) rootView.findViewById(R.id.view_pop_group);
@@ -311,16 +319,15 @@ public class MsgMainFragment extends Fragment {
     }
 
 
-    public void hidePopView(){
-        if(popView != null){
+    public void hidePopView() {
+        if (popView != null) {
             popView.dismiss();
         }
     }
 
 
-
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
-//        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
         switch (status) {
             case CoreEnum.ENetStatus.ERROR_ON_NET:
                 viewNetwork.setVisibility(View.VISIBLE);
@@ -329,22 +336,20 @@ public class MsgMainFragment extends Fragment {
                 if (NetUtil.isNetworkConnected()) {//无网络链接，无效指令
                     viewNetwork.setVisibility(View.GONE);
                 }
+                removeHandler();
                 break;
             case CoreEnum.ENetStatus.ERROR_ON_SERVER:
                 if (viewNetwork.getVisibility() == View.GONE) {
-                    viewNetwork.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
-                        }
-                    }, 10 * 1000);
+                    viewNetwork.postDelayed(runnable, 10 * 1000);
                 }
                 break;
             case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
                 viewNetwork.setVisibility(View.GONE);
+                removeHandler();
                 break;
             default:
                 viewNetwork.setVisibility(View.GONE);
+                removeHandler();
                 break;
 
         }
@@ -361,6 +366,12 @@ public class MsgMainFragment extends Fragment {
 //                }
 //            }, 10 * 1000);
 //        }
+    }
+
+    private void removeHandler() {
+        if (viewNetwork != null && runnable != null) {
+            viewNetwork.removeCallbacks(runnable);
+        }
     }
 
     @Override
@@ -596,11 +607,11 @@ public class MsgMainFragment extends Fragment {
                         break;
                 }
 
-                Log.e("TAG",icon.toString());
-                if (StringUtil.isNotNull(icon)){
+                Log.e("TAG", icon.toString());
+                if (StringUtil.isNotNull(icon)) {
                     Glide.with(getActivity()).load(icon)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                }else{
+                } else {
                     if (bean.getType() == 1) {
                         String imgUrl = "";
                         try {
@@ -618,13 +629,11 @@ public class MsgMainFragment extends Fragment {
                             creatAndSaveImg(bean, holder.imgHead);
 
                         }
-                    }else {
+                    } else {
                         Glide.with(getActivity()).load(icon)
                                 .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
                     }
                 }
-
-
 
 
             }
@@ -632,7 +641,7 @@ public class MsgMainFragment extends Fragment {
 
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
-            holder.sb.setNum(bean.getUnread_count());
+            holder.sb.setNum(bean.getUnread_count(), false);
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
 
@@ -660,7 +669,7 @@ public class MsgMainFragment extends Fragment {
 
         }
 
-        private void creatAndSaveImg(Session bean,ImageView imgHead) {
+        private void creatAndSaveImg(Session bean, ImageView imgHead) {
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
             int i = gginfo.getUsers().size();
             i = i > 9 ? 9 : i;
@@ -679,8 +688,8 @@ public class MsgMainFragment extends Fragment {
             Glide.with(getActivity()).load(file)
                     .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
-            MsgDao msgDao=new MsgDao();
-            msgDao.groupHeadImgCreate(gginfo.getGid(),file.getAbsolutePath());
+            MsgDao msgDao = new MsgDao();
+            msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
         }
 
 
@@ -740,6 +749,9 @@ public class MsgMainFragment extends Fragment {
         //缓存所有未缓存的群信息
         dids = new ArrayList<>();
         didIndex = 0;
+        if (listData == null) {
+            return;
+        }
         for (Session s : listData) {
             String gid = s.getGid();
             if (StringUtil.isNotNull(gid)) {//缓存群的信息
