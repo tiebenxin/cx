@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
@@ -35,6 +34,7 @@ import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventExitChat;
@@ -50,6 +50,7 @@ import net.cb.cb.library.view.AppActivity;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -572,6 +573,11 @@ public class GroupInfoActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
+
+                    Group goldinfo = msgDao.getGroup4Id(gid);
+                    if (!isChange(goldinfo,ginfo)){
+                        doImgHeadChange(gid,ginfo);
+                    }
                     //8.8 如果是有群昵称显示自己群昵称
                     for (UserInfo number : ginfo.getUsers()) {
                         if (StringUtil.isNotNull(number.getMembername())) {
@@ -843,6 +849,40 @@ public class GroupInfoActivity extends AppActivity {
             dao.groupNumberSave(ginfo);
             ginfo = dao.groupNumberGet(gid);
         }
+    }
+
+    private boolean isChange(Group goldinfo, Group ginfo) {
+        int a=ginfo.getUsers().size();
+        int b=ginfo.getUsers().size();
+        if (a!=b){
+            return true;
+        }
+        int c=a>9?9:a;
+        for (int i=0;i<a;i++){
+            if (StringUtil.isNotNull(goldinfo.getUsers().get(i).getHead())&&StringUtil.isNotNull(ginfo.getUsers().get(i).getHead())){
+                if (!goldinfo.getUsers().get(i).getHead().equals(ginfo.getUsers().get(i).getHead())){
+                    return true;
+                }
+            }
+
+        }
+        return false;
+    }
+
+    private void doImgHeadChange(String gid,Group ginfo) {
+
+                        int i = ginfo.getUsers().size();
+                        i = i > 9 ? 9 : i;
+                        //头像地址
+                        String url[] = new String[i];
+                        for (int j = 0; j < i; j++) {
+                            UserInfo userInfo = ginfo.getUsers().get(j);
+                            url[j] = userInfo.getHead();
+                        }
+                        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+                        MsgDao msgDao = new MsgDao();
+                        msgDao.groupHeadImgUpdate(gid , file.getAbsolutePath());
+//                        msgDao.groupSave(ginfo);
     }
 
     private void createAndSaveMsg() {
