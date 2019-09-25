@@ -44,6 +44,11 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单|9:系统用户，如小助手)
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
     private boolean emptyPassword = false;// 是否未设置密码
+
+    //阅后即焚
+    private Integer destroy = 1;
+    private Long destroyTime = 30L;
+
     @Ignore
     private String membername;//群的昵称
     private String sayHi;//待同意好友招呼语
@@ -61,6 +66,22 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String inviterName;
     @Ignore
     private boolean isChecked = false;
+
+    public Integer getDestroy() {
+        return destroy;
+    }
+
+    public void setDestroy(Integer destroy) {
+        this.destroy = destroy;
+    }
+
+    public Long getDestroyTime() {
+        return destroyTime;
+    }
+
+    public void setDestroyTime(Long destroyTime) {
+        this.destroyTime = destroyTime;
+    }
 
     public boolean isChecked() {
         return isChecked;
