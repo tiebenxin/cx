@@ -229,9 +229,11 @@ public class MyselfQRCodeActivity extends AppActivity {
 
     private void shareWX(Bitmap bitmap) {
         UMImage thumb = new UMImage(this, bitmap);
+        thumb.setThumb(thumb);
         new ShareAction(MyselfQRCodeActivity.this)
                 .setPlatform(SHARE_MEDIA.WEIXIN)//传入平台
                 .withMedia(thumb)//分享内容
+                .withExtra(thumb)
                 .setCallback(new UMShareListener() {
                     @Override
                     public void onStart(SHARE_MEDIA share_media) {
