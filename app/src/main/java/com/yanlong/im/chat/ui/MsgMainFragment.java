@@ -387,8 +387,10 @@ public class MsgMainFragment extends Fragment {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivityMe(), scanResult);
-            QRCodeManage.goToActivity(getActivityMe(), bean);
+            QRCodeManage.goToPage(getContext(),scanResult);
+
+//            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivityMe(), scanResult);
+//            QRCodeManage.goToActivity(getActivityMe(), bean);
             //将扫描出的信息显示出来
         }
     }

@@ -21,6 +21,7 @@ import com.umeng.message.IUmengCallback;
 import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.socialize.PlatformConfig;
+import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyException;
 
 import net.cb.cb.library.utils.UpLoadUtils;
@@ -99,7 +100,7 @@ public class MyAppLication extends MainApplication {
         initWeixinConfig();
         initRunstate();
         initRedPacket();
-        //LogcatHelper.getInstance(this).onCreate();
+        LogcatHelper.getInstance(this).start();
         initException();
         initUploadUtils();
     }
@@ -161,7 +162,7 @@ public class MyAppLication extends MainApplication {
     private void initUPush() {
 
         //设置通知栏显示数量
-        // mPushAgent.setDisplayNotificationNumber(1);
+       // mPushAgent.setDisplayNotificationNumber(1);
         //   mPushAgent.setNotificationClickHandler(notificationClickHandler);
 
         //注册推送服务，每次调用register方法都会回调该接口

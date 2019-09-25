@@ -184,6 +184,35 @@ public class UserAction {
         });
     }
 
+
+    /**
+     *常聊号密码登录
+     * */
+    public void login4Imid(final String imid, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+
+        cleanInfo();
+        NetUtil.getNet().exec(server.login4Imid(MD5.md5(pwd), imid, devid, "android", VersionUtil.getPhoneModel()), new CallBack<ReturnBean<TokenBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    initDB("" + response.body().getData().getUid());
+                    setToken(response.body().getData());
+                    getMyInfo4Web(response.body().getData().getUid());
+                }
+
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onFailure(call, t);
+            }
+        });
+    }
+
+
+
     /***
      * 拉取服务器的自己的信息到数据库
      */

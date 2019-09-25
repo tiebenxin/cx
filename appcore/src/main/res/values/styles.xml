@@ -394,6 +394,15 @@
         <item name="android:showDividers">middle</item>
 
     </style>
+
+    <style name="app_layout_list3">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">#ffffff</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:showDividers">middle</item>
+
+    </style>
     <!--设置项-->
     <style name="app_layout_list2_item">
         <item name="android:layout_width">match_parent</item>
