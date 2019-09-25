@@ -5,6 +5,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -99,7 +100,7 @@ public class MultiListView extends LinearLayout {
         swipeLayout.setEnabled(false);
         layoutManager = new YLLinearLayoutManager(context);
         listView.setLayoutManager(layoutManager);
-
+        ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
         // ------------------------------------------
         // 下拉刷新
         swipeLayout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {

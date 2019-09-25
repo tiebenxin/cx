@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,15 +30,18 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
+import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.signature.EmptySignature;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
@@ -51,6 +55,8 @@ import com.luck.picture.lib.compress.Luban;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.glide.OriginalKey;
+import com.luck.picture.lib.glide.SafeKeyGenerator;
 import com.luck.picture.lib.permissions.RxPermissions;
 import com.luck.picture.lib.photoview.OnViewTapListener;
 import com.luck.picture.lib.photoview.PhotoView;
@@ -66,6 +72,7 @@ import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.luck.picture.lib.view.bigImg.LargeImageView;
 import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.QRCodeManage;
 
@@ -85,9 +92,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 
 /**
@@ -165,7 +178,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     String indexPath;
 
-    public void showBigImage(final PhotoView imageView ,final TextView txtBig, final View btnDown, final LargeImageView imgLarge, final String path) {
+    public void showBigImage(final PhotoView imageView, final TextView txtBig, final View btnDown, final LargeImageView imgLarge, final String path) {
         txtBig.setEnabled(false);
         btnDown.setEnabled(false);
 
@@ -218,7 +231,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     @Override
                     public void run() {
 
-                        final Call  download = DownloadUtil.get().download(path, filePath, fileName, new DownloadUtil.OnDownloadListener() {
+                        final Call download = DownloadUtil.get().download(path, filePath, fileName, new DownloadUtil.OnDownloadListener() {
 
                             @Override
                             public void onDownloadSuccess(final File file) {
@@ -271,11 +284,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         });
 
 
-
-
                     }
                 }).start();
-
 
 
             } else {
@@ -479,7 +489,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 //3.是否已读原图
                 boolean readStat = msgDao.ImgReadStatGet(imgpath);
 
-                imgLargeEvent(imageView,txtBig,ivDownload, imgLarge, imgpath);
+                imgLargeEvent(imageView, txtBig, ivDownload, imgLarge, imgpath);
 
 
                 if (readStat) {//原图已读,就显示
@@ -550,13 +560,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
         //大图事件
-        private void imgLargeEvent(final PhotoView imageView ,final TextView txtBig,final View btnDown ,final LargeImageView imgLarge, final String imgpath) {
+        private void imgLargeEvent(final PhotoView imageView, final TextView txtBig, final View btnDown, final LargeImageView imgLarge, final String imgpath) {
             txtBig.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // txtBig.setVisibility(View.GONE);
                     setTxtBig(txtBig, 0);
-                    showBigImage(imageView,txtBig,btnDown, imgLarge, imgpath);
+                    showBigImage(imageView, txtBig, btnDown, imgLarge, imgpath);
 
                 }
             });
@@ -863,6 +873,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
+//            getFileCache(path);
             showPleaseDialog();
             loadDataThread = new LoadDataThread(path, 0, null);
             loadDataThread.start();
@@ -1064,4 +1075,41 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         super.onDestroy();
 
     }
+
+    @SuppressLint("CheckResult")
+    private void getFileCache(final String url) {
+        Observable.just(0)
+                .map(new Function<Integer, File>() {
+                    @Override
+                    public File apply(Integer integer) throws Exception {
+                        try {
+                            return Glide.with(PictureExternalPreviewActivity.this).asFile()
+                                    .apply(RequestOptions.priorityOf(Priority.HIGH).onlyRetrieveFromCache(true))
+                                    .load(url)
+                                    .submit().get();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<File>empty())
+                .subscribe(new Consumer<File>() {
+                    @Override
+                    public void accept(File file) throws Exception {
+                        if (file != null) {
+
+                        } else {
+                            showPleaseDialog();
+                            loadDataThread = new LoadDataThread(url, 0, null);
+                            loadDataThread.start();
+                        }
+                    }
+                });
+
+    }
+
 }

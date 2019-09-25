@@ -101,7 +101,7 @@ public class Session extends RealmObject {
     }
 
     public Long getFrom_uid() {
-        return from_uid;
+        return from_uid == null ? -1 : from_uid;
     }
 
     public void setFrom_uid(Long from_uid) {
