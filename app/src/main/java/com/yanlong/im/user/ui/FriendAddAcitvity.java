@@ -112,6 +112,7 @@ public class FriendAddAcitvity extends AppActivity {
         }
 
         UMImage thumb =  new UMImage(this, R.mipmap.icon_share_logo);
+        thumb.setThumb(thumb);
         UMWeb web = new UMWeb("https://changliaoliao.zhixun5588.com/fx/");
         web.setTitle("我们一起用“常聊聊”来聊天吧");//标题
         web.setThumb(thumb);  //缩略图
