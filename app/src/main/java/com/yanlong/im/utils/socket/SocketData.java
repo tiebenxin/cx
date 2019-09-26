@@ -169,7 +169,7 @@ public class SocketData {
     private static CopyOnWriteArrayList<String> oldMsgId = new CopyOnWriteArrayList<>();
 
     /***
-     * 保存消息和发送消息回执
+     * 保存接收到的消息及发送消息回执
      */
     public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
@@ -182,6 +182,7 @@ public class SocketData {
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
             //5.28 如果为空就不保存这类消息
             if (msgAllBean != null) {
+                msgAllBean.setRead(false);//设置未读
                 msgAllBean.setTo_uid(bean.getToUid());
                 LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
                 //收到直接存表
