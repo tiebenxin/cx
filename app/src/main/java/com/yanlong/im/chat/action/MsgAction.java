@@ -368,6 +368,7 @@ public class MsgAction {
                     group.setGid(ginfo.getGid());
                     group.setAvatar(ginfo.getAvatar());
                     group.setName(ginfo.getName());
+                    group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
                     dao.groupSave(group);
                 }
 
