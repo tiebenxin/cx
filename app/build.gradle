@@ -30,7 +30,7 @@ android {
         //---------------------------------------
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        flavorDimensions "default_android"
+//        flavorDimensions "default_android"
         ndk {
             abiFilters "x86", "armeabi", "armeabi-v7a"
         }
@@ -102,8 +102,8 @@ android {
             } else if (variant.buildType.name.equals('pre')) {
                 outputFileName = "IM_V${defaultConfig.versionName}_${releaseTime()}_pre.apk"
             } else if (variant.buildType.name.equals('release')) {
-//                outputFileName = "IM_V${defaultConfig.versionName}_${releaseTime()}_release.apk"
-                outputFileName = "IM_V${defaultConfig.versionName}_${variant.productFlavors[0].name}_release.apk"
+                outputFileName = "IM_V${defaultConfig.versionName}_${releaseTime()}_release.apk"
+//                outputFileName = "IM_V${defaultConfig.versionName}_${variant.productFlavors[0].name}_release.apk"
             }
 
         }
@@ -117,46 +117,46 @@ android {
     *
     * 打包渠道
     * */
-    productFlavors {
-
-        defaultAndroid {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "default_android"]
-        }
-
-        xiaomi {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
-        }
-        qh360 {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "qh360"]
-        }
-
-        huawei {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
-        }
-
-        vivo {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "vivo"]
-        }
-        oppo {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "oppo"]
-        }
-        baidu {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
-        }
-
-        yingyongbao {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "yingyongbao"]
-        }
-
-        meizu {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "meizu"]
-        }
-
-        samsung {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "samsung"]
-        }
-
-    }
+//    productFlavors {
+//
+//        defaultAndroid {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "default_android"]
+//        }
+//
+//        xiaomi {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
+//        }
+//        qh360 {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "qh360"]
+//        }
+//
+//        huawei {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
+//        }
+//
+//        vivo {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "vivo"]
+//        }
+//        oppo {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "oppo"]
+//        }
+//        baidu {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
+//        }
+//
+//        yingyongbao {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "yingyongbao"]
+//        }
+//
+//        meizu {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "meizu"]
+//        }
+//
+//        samsung {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "samsung"]
+//        }
+//
+//    }
 }
 
 
