@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -83,6 +84,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -387,7 +393,7 @@ public class MsgMainFragment extends Fragment {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeManage.goToPage(getContext(),scanResult);
+            QRCodeManage.goToPage(getContext(), scanResult);
 
 //            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivityMe(), scanResult);
 //            QRCodeManage.goToActivity(getActivityMe(), bean);
@@ -742,60 +748,76 @@ public class MsgMainFragment extends Fragment {
     private int didIndex = 0;//当前缓存的顺序
     private List<String> dids = new ArrayList<>();//缓存所有未缓存的信息
 
+    @SuppressLint("CheckResult")
     private void taskListData() {
         if (isSearchMode) {
             return;
         }
-        listData = msgDao.sessionGetAll(true);
+        Observable.just(0)
+                .map(new Function<Integer, List<Session>>() {
+                    @Override
+                    public List<Session> apply(Integer integer) throws Exception {
+                        listData = msgDao.sessionGetAll(true);
+                        return listData;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<Session>>empty())
+                .subscribe(new Consumer<List<Session>>() {
+                    @Override
+                    public void accept(List<Session> list) throws Exception {
+                        mtListView.notifyDataSetChange();
 
-        //缓存所有未缓存的群信息
-        dids = new ArrayList<>();
-        didIndex = 0;
-        if (listData == null) {
-            return;
-        }
-        for (Session s : listData) {
-            String gid = s.getGid();
-            if (StringUtil.isNotNull(gid)) {//缓存群的信息
-                Group group = msgDao.getGroup4Id(gid);
-                if (group == null) {
-                    dids.add(gid);
-                    msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
-                        @Override
-                        public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                            didIndex++;
-                            if (didIndex == dids.size()) {
-                                mtListView.notifyDataSetChange();
-                            }
-                        }
-                    });
-                }
-            } else {//缓存个人的信息
-                Long fuid = s.getFrom_uid();
-                UserInfo uinfo = userDao.findUserInfo(fuid);
-                if (uinfo == null) {
-                    dids.add(fuid.toString());
+                    }
+                });
 
+//        listData = msgDao.sessionGetAll(true);
+//        //缓存所有未缓存的群信息
+//        dids = new ArrayList<>();
+//        didIndex = 0;
+//        if (listData == null) {
+//            mtListView.notifyDataSetChange();
+//            return;
+//        }
+//        mtListView.notifyDataSetChange();
 
-                    userAction.getUserInfoAndSave(fuid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
-                        @Override
-                        public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                            didIndex++;
-                            if (didIndex == dids.size()) {
-                                mtListView.notifyDataSetChange();
-                            }
-                        }
-                    });
-                }
-
-            }
-
-
-        }
-
-        if (didIndex == dids.size()) {
-            mtListView.notifyDataSetChange();
-        }
+//        for (Session s : listData) {
+//            String gid = s.getGid();
+//            if (StringUtil.isNotNull(gid)) {//缓存群的信息
+//                Group group = msgDao.getGroup4Id(gid);
+//                if (group == null) {
+//                    dids.add(gid);
+//                    msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+//                        @Override
+//                        public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+//                            didIndex++;
+//                            if (didIndex == dids.size()) {
+//                                mtListView.notifyDataSetChange();
+//                            }
+//                        }
+//                    });
+//                }
+//            } else {//缓存个人的信息
+//                Long fuid = s.getFrom_uid();
+//                UserInfo uinfo = userDao.findUserInfo(fuid);
+//                if (uinfo == null) {
+//                    dids.add(fuid.toString());
+//                    userAction.getUserInfoAndSave(fuid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
+//                        @Override
+//                        public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+//                            didIndex++;
+//                            if (didIndex == dids.size()) {
+//                                mtListView.notifyDataSetChange();
+//                            }
+//                        }
+//                    });
+//                }
+//            }
+//        }
+//
+//        if (didIndex == dids.size()) {
+//            mtListView.notifyDataSetChange();
+//        }
 
 
     }

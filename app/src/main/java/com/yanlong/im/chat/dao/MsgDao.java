@@ -1975,7 +1975,7 @@ public class MsgDao {
     public int getUnreadCount(String gid, Long uid) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        List<Session> list;
+        RealmResults<Session> list;
         if (!TextUtils.isEmpty(gid)) {
             list = realm.where(Session.class)
                     .notEqualTo("gid", gid)
@@ -1995,7 +1995,26 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
         return sum;
+    }
 
+    public boolean isGroupExist(String groupId) {
+        boolean exist = false;
+        if (!TextUtils.isEmpty(groupId)) {
+            Realm realm = DaoUtil.open();
+            try {
+                realm.beginTransaction();
+                Group g = realm.where(Group.class).equalTo("gid", groupId).findFirst();
+                if (g != null) {
+                    exist = true;
+                }
+                realm.commitTransaction();
+                realm.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                DaoUtil.close(realm);
+            }
+        }
+        return exist;
 
     }
 
