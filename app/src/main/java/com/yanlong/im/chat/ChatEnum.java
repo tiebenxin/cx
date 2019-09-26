@@ -241,7 +241,7 @@ public class ChatEnum {
      *
      * */
     @IntDef({ENoticeType.ENTER_BY_QRCODE, ENoticeType.INVITED, ENoticeType.KICK, ENoticeType.FORTH, ENoticeType.TRANSFER_GROUP_OWNER, ENoticeType.LEAVE, ENoticeType.RED_ENVELOPE_RECEIVED,
-            ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.RED_ENVELOPE_RECEIVED_SELF})
+            ENoticeType.RECEIVE_RED_ENVELOPE, ENoticeType.CANCEL, ENoticeType.BLACK_ERROR, ENoticeType.NO_FRI_ERROR, ENoticeType.LOCK, ENoticeType.RED_ENVELOPE_RECEIVED_SELF})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ENoticeType {
         int ENTER_BY_QRCODE = 1; //扫二维码进群
@@ -255,19 +255,31 @@ public class ChatEnum {
         int CANCEL = 9;//撤回
         int BLACK_ERROR = 10;//拉黑，消息被拒错误
         int NO_FRI_ERROR = 11;//被删好友，消息发送错误
+        int LOCK = 12;//端对端加密
+
         int RED_ENVELOPE_RECEIVED_SELF = 17;//自己领取自己的红包
     }
 
 
     /*
      * AT 类型
-     *
      * */
     @IntDef({EAtType.MULTIPLE, EAtType.ALL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EAtType {
         int MULTIPLE = 0; // 多个
         int ALL = 1; // 所有人
+    }
+
+
+    /*
+     *标签类型
+     * */
+    @IntDef({ETagType.USER, ETagType.LOCK})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ETagType {
+        int USER = 0; // 用户
+        int LOCK = 1; // 端到端
     }
 
 }

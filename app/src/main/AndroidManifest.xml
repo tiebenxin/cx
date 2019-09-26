@@ -174,13 +174,6 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".chat.ui.ChatActivity2"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait">
-
-        </activity>
-
-        <activity
             android:name=".chat.ui.chat.ChatActivity3"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
