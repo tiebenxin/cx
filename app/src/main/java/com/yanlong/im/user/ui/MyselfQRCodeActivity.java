@@ -31,6 +31,7 @@ import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.ImageUtils;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -148,15 +149,7 @@ public class MyselfQRCodeActivity extends AppActivity {
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
             // mImgHead.setImageURI(groupHead + "");
-            if (StringUtil.isNotNull(groupHead)){
-                Glide.with(this).load(groupHead)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
-            }else{
-                MsgDao msgDao=new MsgDao();
-                String url= msgDao.groupHeadImgGet(groupId);
-                Glide.with(this).load(url)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
-            }
+            ImageUtils.showImg(this,groupHead,mImgHead,groupId);
 
             mTvUserName.setText(groupName + "");
             mHeadView.getActionbar().setTitle("群二维码");
