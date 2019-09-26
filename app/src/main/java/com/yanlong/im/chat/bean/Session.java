@@ -22,7 +22,7 @@ public class Session extends RealmObject {
     private String draft;
     //是否置顶
     private int isTop = 0;
-    //时候静音
+    //是否静音，是，免打扰
     private int isMute = 0;
     //  0.单个人 1.所有人 2.草稿
     private int messageType = 1000;

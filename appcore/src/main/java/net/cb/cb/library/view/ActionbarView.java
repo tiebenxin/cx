@@ -46,6 +46,7 @@ public class ActionbarView extends LinearLayout {
 
     private Context context;
     private ListenEvent listenEvent;
+    private ImageView iv_disturb;
 
     public void setOnListenEvent(ListenEvent listenEvent) {
         this.listenEvent = listenEvent;
@@ -220,6 +221,7 @@ public class ActionbarView extends LinearLayout {
         ViewLeft = rootView.findViewById(R.id.action_left);
         ViewRight = rootView.findViewById(R.id.action_right);
         loadBar = (ProgressBar) rootView.findViewById(R.id.load_bar);
+        iv_disturb = rootView.findViewById(R.id.iv_disturb);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ActionbarView);
         // 左图标
@@ -362,6 +364,13 @@ public class ActionbarView extends LinearLayout {
         //白色主题 1.16
         rootView.findViewById(R.id.ll_main).setBackgroundColor(Color.parseColor("#ffffff"));
         txtTitle.setTextColor(Color.parseColor("#000000"));
+    }
+
+    public void showDisturb(boolean isShow) {
+        if (iv_disturb == null) {
+            return;
+        }
+        iv_disturb.setVisibility(isShow ? VISIBLE : GONE);
     }
 
 }
