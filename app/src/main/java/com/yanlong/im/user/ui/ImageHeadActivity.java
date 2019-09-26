@@ -2,13 +2,18 @@ package com.yanlong.im.user.ui;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
@@ -38,6 +43,9 @@ import net.cb.cb.library.view.PopupSelectView;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +78,7 @@ public class ImageHeadActivity extends AppActivity {
     }
 
 
-
+    private String urlImg=null;
     private void initView() {
         imageHead = getIntent().getStringExtra(IMAGE_HEAD);
         String gid = getIntent().getStringExtra("gid");
@@ -83,12 +91,14 @@ public class ImageHeadActivity extends AppActivity {
         mSdImageHead = findViewById(R.id.sd_image_head);
 
         if (imageHead!=null&&!imageHead.isEmpty()&& StringUtil.isNotNull(imageHead)){
+            urlImg=imageHead;
             Glide.with(this).load(imageHead)
                     .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
         }else{
             if (isGroup){
                 MsgDao msgDao=new MsgDao();
                 String url= msgDao.groupHeadImgGet(gid);
+                urlImg=url;
                 Glide.with(this).load(url)
                         .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
             }
@@ -152,13 +162,48 @@ public class ImageHeadActivity extends AppActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-
+                        saveImageToGallery(((BitmapDrawable)mSdImageHead.getDrawable()).getBitmap(), urlImg);
                         break;
                 }
                 saveImagePopup.dismiss();
             }
         });
     }
+
+    /**
+     * 保存图片到图库
+     * @param bmp
+     */
+    public  void saveImageToGallery(Bitmap bmp, String bitName ) {
+        // 首先保存图片
+        if (!StringUtil.isNotNull(bitName)){
+            bitName=SystemClock.currentThreadTimeMillis()+"";
+        }else{
+            bitName=bitName.substring(bitName.lastIndexOf("/")+1,bitName.lastIndexOf("."));
+        }
+        File appDir = new File(Environment.getExternalStorageDirectory(),
+                "yanlong");
+        if (!appDir.exists()) {
+            appDir.mkdir();
+        }
+
+        String fileName = bitName + ".jpg";
+        File file = new File(appDir, fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+            ToastUtil.show(this,"保存成功至"+file.getAbsolutePath());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        setPhotoFile(file);
+    }
+
+
 
 
     private void initPopup() {
