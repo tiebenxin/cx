@@ -101,7 +101,7 @@ public class MyAppLication extends MainApplication {
         initRunstate();
         initRedPacket();
         LogcatHelper.getInstance(this).start();
-        initException();
+//        initException();
         initUploadUtils();
     }
 
