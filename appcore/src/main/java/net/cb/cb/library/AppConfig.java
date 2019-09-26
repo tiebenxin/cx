@@ -1,6 +1,8 @@
 package net.cb.cb.library;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.LocaleList;
 
@@ -13,13 +15,13 @@ import java.util.Locale;
  * 公共配置
  */
 public class AppConfig {
-    public static String URL_HOST="http://127.0.0.1";
-    public static String SOCKET_IP="127.0.0.1";
-    public static int SOCKET_PORT=8090;
+    public static String URL_HOST = "http://127.0.0.1";
+    public static String SOCKET_IP = "127.0.0.1";
+    public static int SOCKET_PORT = 8090;
     public static Context APP_CONTEXT;
-    public static boolean DEBUG=false;
-    public static float FONT =1.0f;
-    public static String UP_PATH ="";
+    public static boolean DEBUG = false;
+    public static float FONT = 1.0f;
+    public static String UP_PATH = "";
 
     //设置全局字体
     public static void setFont(float font) {
@@ -48,7 +50,7 @@ public class AppConfig {
      * 获取系统语言zh0
      * @return
      */
-    public static String getLanguage(){
+    public static String getLanguage() {
         //系统语言
         Locale locale;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -64,7 +66,7 @@ public class AppConfig {
      * 获取系统国家cn
      * @return
      */
-    public static String getCountry(){
+    public static String getCountry() {
         //系统语言
         Locale locale;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -76,8 +78,35 @@ public class AppConfig {
         return ct;
     }
 
-    public static boolean isChina(){
+    public static boolean isChina() {
         return AppConfig.getCountry().equals("CN");
     }
 
+    /**
+     * 获取渠道名
+     *
+     * @return 如果没有获取成功，那么返回值为空
+     */
+    public static String getChannelName() {
+        if (APP_CONTEXT == null) {
+            return null;
+        }
+        String channelName = null;
+        try {
+            PackageManager packageManager = APP_CONTEXT.getPackageManager();
+            if (packageManager != null) {
+                //注意此处为ApplicationInfo 而不是 ActivityInfo,因为友盟设置的meta-data是在application标签中，而不是某activity标签中，所以用ApplicationInfo
+                ApplicationInfo applicationInfo = packageManager.
+                        getApplicationInfo(APP_CONTEXT.getPackageName(), PackageManager.GET_META_DATA);
+                if (applicationInfo != null) {
+                    if (applicationInfo.metaData != null) {
+                        channelName = String.valueOf(applicationInfo.metaData.get("UMENG_CHANNEL"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return channelName;
+    }
 }

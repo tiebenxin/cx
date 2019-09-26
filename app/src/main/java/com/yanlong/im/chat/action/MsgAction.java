@@ -220,15 +220,9 @@ public class MsgAction {
                             if (link != null) {
                                 userInfo.setMembername(link.getMembername());
                             }
-
-
                         }
-
-
                     }
                     callback.onResponse(call, response);
-
-
                 }
             });
         } else {//从缓存中读

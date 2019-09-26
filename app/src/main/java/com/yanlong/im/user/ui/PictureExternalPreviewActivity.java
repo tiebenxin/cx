@@ -873,7 +873,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
-//            getFileCache(path);
+            getFileCache(path);
             showPleaseDialog();
             loadDataThread = new LoadDataThread(path, 0, null);
             loadDataThread.start();

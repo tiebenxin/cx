@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -28,6 +29,9 @@ import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -39,6 +43,8 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.realm.RealmList;
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class SocketData {
     private static final String TAG = "SocketData";
@@ -48,6 +54,9 @@ public class SocketData {
 
 
     private static MsgDao msgDao = new MsgDao();
+
+    private static List<String> loadGids = new ArrayList<>();
+    private static List<Long> loadUids = new ArrayList<>();
 
 
     /***
@@ -183,7 +192,16 @@ public class SocketData {
                     if (oldMsgId.size() >= 500)
                         oldMsgId.remove(0);
                     oldMsgId.add(wmsg.getMsgId());
-                    msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                    if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid()) && !loadGids.contains(msgAllBean.getGid())) {
+                        loadGids.add(msgAllBean.getGid());
+                        loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                    } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
+                        loadUids.add(msgAllBean.getFrom_uid());
+                        loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                    } else {
+                        msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+
+                    }
                     LogUtil.getLog().e(TAG, ">>>>>累计 ");
                 } else {
                     LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
@@ -205,10 +223,27 @@ public class SocketData {
 
 
     }
-//---------------------------------
 
+    private synchronized static void loadUserInfo(final String gid, final Long uid) {
+//        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
+        new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                msgDao.sessionReadUpdate(gid, uid);
+            }
+        });
+    }
 
-    //------------消息内容发送处理----------------
+    private synchronized static void loadGroupInfo(final String gid, final long uid) {
+//        System.out.println("加载数据--loadGroupInfo" + "--gid =" + gid + "--uid =" + uid);
+        new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                super.onResponse(call, response);
+                msgDao.sessionReadUpdate(gid, uid);
+            }
+        });
+    }
 
     /***
      * 在服务器接收到自己发送的消息后,本地保存
