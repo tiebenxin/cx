@@ -14,6 +14,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.utils.ImageUtils;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -110,14 +111,8 @@ public class GroupSaveActivity extends AppActivity {
             holder.txtName.setText(/*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
            // holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
             String imageHead= groupInfoBean.getAvatar();
-            if (imageHead!=null&&!imageHead.isEmpty()&& StringUtil.isNotNull(imageHead)){
-                Glide.with(context).load(imageHead)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-            }else{
-                    String url= msgDao.groupHeadImgGet(groupInfoBean.getGid());
-                    Glide.with(context).load(url)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-            }
+            ImageUtils.showImg(context,imageHead,holder.imgHead,groupInfoBean.getGid());
+
            // holder.txtName.setText(groupInfoBean.getName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
