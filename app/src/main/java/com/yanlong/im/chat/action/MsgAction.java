@@ -18,6 +18,7 @@ import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.ObjectToUtils;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -28,10 +29,12 @@ import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -363,7 +366,9 @@ public class MsgAction {
                     group.setGid(ginfo.getGid());
                     group.setAvatar(ginfo.getAvatar());
                     group.setName(ginfo.getName());
-                    group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
+                    if (null!=dao.getGroup4Id(ginfo.getGid()).getUsers()&&dao.getGroup4Id(ginfo.getGid()).getUsers().size()>0){
+                        group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
+                    }
                     dao.groupSave(group);
                 }
 

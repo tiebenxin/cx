@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -176,11 +177,11 @@ public class ImageHeadActivity extends AppActivity {
      */
     public  void saveImageToGallery(Bitmap bmp, String bitName ) {
         // 首先保存图片
-        if (!StringUtil.isNotNull(bitName)){
+//        if (!StringUtil.isNotNull(bitName)){
             bitName=SystemClock.currentThreadTimeMillis()+"";
-        }else{
-            bitName=bitName.substring(bitName.lastIndexOf("/")+1,bitName.lastIndexOf("."));
-        }
+//        }else{
+//            bitName=bitName.substring(bitName.lastIndexOf("\\/")+1,bitName.lastIndexOf("\\."));
+//        }
         File appDir = new File(Environment.getExternalStorageDirectory(),
                 "yanlong");
         if (!appDir.exists()) {
@@ -194,6 +195,8 @@ public class ImageHeadActivity extends AppActivity {
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
             fos.close();
+            Log.e("TAG",file.getAbsolutePath());
+            MediaStore.Images.Media.insertImage(this.getContentResolver(), file.getAbsolutePath(), bitName, null);
             ToastUtil.show(this,"保存成功至"+file.getAbsolutePath());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
