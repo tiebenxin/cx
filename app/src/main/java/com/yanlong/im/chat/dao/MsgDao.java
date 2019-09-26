@@ -1681,9 +1681,10 @@ public class MsgDao {
         realm.close();
     }
 
-    //是否存在该消息
+    //是否存在该消息,getChat=null 需要删除旧消息
     public boolean isMsgLockExist(String gid, Long uid) {
         MsgAllBean ret = null;
+        MsgAllBean bean = null;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         if (!TextUtils.isEmpty(gid)) {
@@ -1701,11 +1702,16 @@ public class MsgDao {
                     .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                     .findFirst();
         }
-
+        if (ret != null) {
+            bean = realm.copyFromRealm(ret);
+        }
         realm.commitTransaction();
         realm.close();
-        if (ret != null) {
+        if (bean != null && bean.getChat() != null) {
             return true;
+        }
+        if (bean != null) {
+            DaoUtil.deleteOne(MsgAllBean.class, "msg_id", bean.getMsg_id());
         }
         return false;
     }

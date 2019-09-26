@@ -1287,7 +1287,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void onStart() {
         super.onStart();
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
-            msgDao.insertOrUpdateMessage(msgAction.createMessageLock(toGid, toUId));
+            msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
         initData();
 
@@ -1971,7 +1971,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                     break;
-                case 8:
+                case ChatEnum.EMessageType.AT:
                     menus.add(new OptionMenu("复制"));
                     menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
@@ -1979,6 +1979,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 case ChatEnum.EMessageType.ASSISTANT:
                     holder.viewChatItem.setDataAssistant(msgbean.getAssistantMessage().getMsg());
+                    break;
+                case ChatEnum.EMessageType.LOCK:
+//                    holder.viewChatItem.setLock(msgbean.getChat().getMsg());
+                    holder.viewChatItem.setLock(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, msgbean.getChat().getMsg(), ChatEnum.ENoticeType.LOCK));
                     break;
 
 

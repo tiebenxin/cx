@@ -954,6 +954,9 @@ public class SocketData {
                     }
                     note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + name + "</font>\"" + "的好友, 请先" + "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>";
                     break;
+                case ChatEnum.ENoticeType.LOCK:
+                    note = "聊天中所有信息已进行" + "<font color='#1f5305' tag=" + ChatEnum.ETagType.LOCK + ">" + "端到端加密" + "</font>" + "保护";
+                    break;
             }
         }
         return note;
@@ -1125,7 +1128,13 @@ public class SocketData {
         message.setAt_type(atType);
         message.setMsg(content);
         return message;
+    }
 
+    public static ChatMessage createChatMessage(String msgId, String content) {
+        ChatMessage message = new ChatMessage();
+        message.setMsgid(msgId);
+        message.setMsg(content);
+        return message;
     }
 
     public static void saveMessage(MsgAllBean bean) {
@@ -1135,4 +1144,23 @@ public class SocketData {
         }
         msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
     }
+
+    public static MsgAllBean createMessageLock(String gid, Long uid) {
+        MsgAllBean bean = new MsgAllBean();
+        if (!TextUtils.isEmpty(gid)) {
+            bean.setGid(gid);
+            bean.setFrom_uid(UserAction.getMyInfo().getUid());
+        } else if (uid != null) {
+            bean.setFrom_uid(uid);
+        } else {
+            return null;
+        }
+        bean.setMsg_type(ChatEnum.EMessageType.LOCK);
+        bean.setMsg_id(SocketData.getUUID());
+        bean.setTimestamp(0L);
+        ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
+        bean.setChat(message);
+        return bean;
+    }
+
 }

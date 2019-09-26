@@ -12,6 +12,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.base.IModel;
 import net.cb.cb.library.bean.ReturnBean;
@@ -136,7 +137,7 @@ public class ChatModel implements IModel {
 
     public final void checkLockMessage() {
         if (!msgDao.isMsgLockExist(gid, uid)) {
-            msgDao.insertOrUpdateMessage(msgAction.createMessageLock(gid, uid));
+            msgDao.insertOrUpdateMessage(SocketData.createMessageLock(gid, uid));
         }
     }
 
