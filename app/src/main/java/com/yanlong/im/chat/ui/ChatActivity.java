@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -33,7 +32,6 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -83,7 +81,6 @@ import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.audio.AudioPlayManager;
@@ -2384,9 +2381,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskSessionInfo() {
         String title = "";
         if (isGroup()) {
-//            Group ginfo = msgDao.getGroup4Id(toGid);
-//            title = ginfo.getName();
-            title = msgDao.getGroupName(toGid);
+            Group ginfo = msgDao.getGroup4Id(toGid);
+            if (ginfo != null) {
+                if (!TextUtils.isEmpty(ginfo.getName())) {
+                    title = ginfo.getName();
+                } else {
+                    title = "群聊";
+                }
+                int memberCount = 0;
+                if (ginfo.getUsers() != null) {
+                    memberCount = ginfo.getUsers().size();
+                }
+                if (memberCount > 0) {
+                    title = title + "(" + memberCount + ")";
+                }
+            }
+//            title = msgDao.getGroupName(toGid);
             //6.15 设置右上角点击
             taskGroupConf();
 
@@ -2396,10 +2406,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (finfo.getLastonline() > 0) {
                 actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
             }
-
-
         }
         actionbar.setTitle(title);
+        setDisturb();
+    }
+
+    private void setDisturb() {
+        Session session = dao.sessionGet(toGid, toUId);
+        if (session == null) {
+            return;
+        }
+        actionbar.showDisturb(session.getIsMute() == 1);
 
     }
 
