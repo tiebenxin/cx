@@ -2040,7 +2040,7 @@ public class MsgDao {
      * 排除语音，等消息
      *
      * */
-    public void updateMsgReaded(long uid, String gid, boolean isRead) {
+    public void updateMsgReaded(Long uid, String gid, boolean isRead) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
