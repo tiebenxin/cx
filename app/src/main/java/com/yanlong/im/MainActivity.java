@@ -1,14 +1,17 @@
 package com.yanlong.im;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
@@ -62,6 +65,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static com.yanlong.im.user.ui.FriendAddAcitvity.PERMISSIONS;
 import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 public class MainActivity extends AppActivity {
@@ -92,6 +96,10 @@ public class MainActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
+        if(Build.VERSION.SDK_INT>=23){
+            String[] mPermissionList = new String[]{Manifest.permission.READ_LOGS};
+            ActivityCompat.requestPermissions(this,mPermissionList,PERMISSIONS);
+        }
         fragments = new Fragment[]{MsgMainFragment.newInstance(), FriendMainFragment.newInstance(), MyFragment.newInstance()};
         tabs = new String[]{"消息", "通讯录", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_me};
