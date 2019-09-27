@@ -2708,6 +2708,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 发红包
      */
     private void taskPayRb() {
+        UserInfo info = UserAction.getMyInfo();
+        if (info != null && info.getLockCloudRedEnvelope()== 1){//红包功能被锁定
+            ToastUtil.show(this,"您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
+            return;
+        }
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {

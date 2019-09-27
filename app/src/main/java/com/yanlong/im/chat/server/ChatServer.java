@@ -21,6 +21,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
@@ -322,7 +323,9 @@ public class ChatServer extends Service {
                     msgDao.sessionReadUpdate(gid, fuid, true);
                     msgDao.msgDel4Cancel(msg.getMsgId(), msg.getCancel().getMsgId());
                     EventBus.getDefault().post(new EventRefreshChat());
-
+                    return;
+                case RESOURCE_LOCK://资源锁定
+                    updateUserLockCloudRedEnvelope(msg);
                     return;
 
             }
@@ -524,12 +527,33 @@ public class ChatServer extends Service {
         fetchTimeDiff(message.getTimestamp());
         UserDao userDao = new UserDao();
         userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
-
     }
 
     private void fetchTimeDiff(long timestamp) {
         long current = System.currentTimeMillis();//本地系统当前时间
         TimeToString.DIFF_TIME = timestamp - current;
 //        LogUtil.getLog().i("服务器时间与本地时间差值=", TimeToString.DIFF_TIME + "");
+    }
+
+    /*
+     * 更新云红包锁定状态
+     * */
+    private void updateUserLockCloudRedEnvelope(MsgBean.UniversalMessage.WrapMessage msg) {
+        MsgBean.ResourceLockMessage lock = msg.getResourceLock();
+        if (lock != null) {
+            MsgBean.ResourceLockMessage.ResourceLockType type = lock.getResourceLockType();
+            switch (type) {
+                case CLOUDREDENVELOPE:
+                    UserDao userDao = new UserDao();
+                    userDao.updateUserLockRedEnvelope(UserAction.getMyId(), lock.getLock());
+                    UserInfo info = UserAction.getMyInfo();
+                    if (info != null) {
+                        info.setLockCloudRedEnvelope(lock.getLock());
+                    }
+                    break;
+            }
+        }
+
+
     }
 }
