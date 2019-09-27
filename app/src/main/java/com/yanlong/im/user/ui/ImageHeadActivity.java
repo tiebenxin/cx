@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.luck.picture.lib.PicSaveUtils;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -112,7 +113,8 @@ public class ImageHeadActivity extends AppActivity {
             mBtnImageHead.setText("修改群头像");
         }
         if (!isAdmin && isGroup) {
-            mBtnImageHead.setVisibility(View.GONE);
+            mBtnImageHead.setVisibility(View.INVISIBLE);
+            mBtnImageHead.setClickable(false);
             mHeadView.getActionbar().getBtnRight().setVisibility(View.GONE);
         }
     }
@@ -177,33 +179,8 @@ public class ImageHeadActivity extends AppActivity {
      */
     public  void saveImageToGallery(Bitmap bmp, String bitName ) {
         // 首先保存图片
-//        if (!StringUtil.isNotNull(bitName)){
             bitName=SystemClock.currentThreadTimeMillis()+"";
-//        }else{
-//            bitName=bitName.substring(bitName.lastIndexOf("\\/")+1,bitName.lastIndexOf("\\."));
-//        }
-        File appDir = new File(Environment.getExternalStorageDirectory(),
-                "yanlong");
-        if (!appDir.exists()) {
-            appDir.mkdir();
-        }
-
-        String fileName = bitName + ".jpg";
-        File file = new File(appDir, fileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.flush();
-            fos.close();
-            Log.e("TAG",file.getAbsolutePath());
-            MediaStore.Images.Media.insertImage(this.getContentResolver(), file.getAbsolutePath(), bitName, null);
-            ToastUtil.show(this,"保存成功至"+file.getAbsolutePath());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-//        setPhotoFile(file);
+        PicSaveUtils.saveImgLoc(this,bmp,bitName);
     }
 
 

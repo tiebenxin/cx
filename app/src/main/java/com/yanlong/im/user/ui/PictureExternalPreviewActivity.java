@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
+import com.luck.picture.lib.PicSaveUtils;
 import com.luck.picture.lib.PictureBaseActivity;
 import com.luck.picture.lib.compress.Luban;
 import com.luck.picture.lib.config.PictureConfig;
@@ -495,9 +497,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 if (readStat) {//原图已读,就显示
                     txtBig.setVisibility(View.GONE);
                     txtBig.callOnClick();
-                    imgDownloadEvent(ivDownload, null, imgpath);
+                    imgDownloadEvent(ivDownload, null, imgpath,imageView);
                 } else {
-                    imgDownloadEvent(ivDownload, txtBig, imgpath);
+                    imgDownloadEvent(ivDownload, txtBig, imgpath,imageView);
                     txtBig.setVisibility(View.VISIBLE);
                     txtBig.setText("查看原图(" + ImgSizeUtil.formatFileSize(images.get(position).getSize()) + ")");
 
@@ -508,7 +510,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             } else {
                 txtBig.setVisibility(View.GONE);
                 ivDownload.setVisibility(View.VISIBLE);
-                imgDownloadEvent(ivDownload, null, path);
+                imgDownloadEvent(ivDownload, null, path,imageView);
 
             }
 
@@ -525,14 +527,18 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             return contentView;
         }
 
-        private void imgDownloadEvent(ImageView ivDownload, final View txtBig, final String imgPath) {
+        private void imgDownloadEvent(ImageView ivDownload, final View txtBig, final String imgPath,final ImageView imageView) {
             ivDownload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //这里保存处理
-                    saveImage(imgPath);
-                    if (txtBig != null)
+                    if (txtBig != null){
+                        saveImage(imgPath);
                         txtBig.callOnClick();
+                    }else{
+                        saveImageImg(imgPath,imageView);
+                    }
+
                 }
             });
 
@@ -903,6 +909,47 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         }
         dismissDialog();
     }
+
+    private void saveImageImg(String path,ImageView imageView) {
+        Log.d("TAG", "------------showLoadingImage$:saveImage " + path);
+        Bitmap bitmap= ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+        if (null!=bitmap){
+            PicSaveUtils.saveImgLoc(this,bitmap,path);
+        }
+//
+//        boolean isHttp = PictureMimeType.isHttp(path);
+//        if (isHttp) {
+//            getFileCache(path);
+//            showPleaseDialog();
+//            loadDataThread = new LoadDataThread(path, 0, null);
+//            loadDataThread.start();
+//        } else {
+//            if (path.toLowerCase().startsWith("file://")) {
+//                path = path.replace("file://", "");
+//            }
+//            // 有可能本地图片
+//            try {
+//                String fileName = getFileExt(path);
+//                String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
+//                        fileName, directory_path);
+//                PictureFileUtils.copyFile(path, dirPath);
+//                //刷新相册的广播
+//                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//                Uri uri = Uri.fromFile(new File(dirPath));
+//                intent.setData(uri);
+//                getApplicationContext().sendBroadcast(intent);
+//
+//                ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + dirPath);
+//                dismissDialog();
+//            } catch (IOException e) {
+//                ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_error) + "\n" + e.getMessage());
+//                dismissDialog();
+//                e.printStackTrace();
+//            }
+//        }
+//        dismissDialog();
+    }
+
 
 
     // 进度条线程

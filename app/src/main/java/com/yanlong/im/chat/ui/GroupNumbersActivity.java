@@ -140,7 +140,7 @@ public class GroupNumbersActivity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder hd, int position) {
+        public void onBindViewHolder(RCViewHolder hd,final int position) {
 
             final UserInfo bean = listData.get(position);
 
@@ -171,6 +171,7 @@ public class GroupNumbersActivity extends AppActivity {
                     } else {
                         listDataTop.remove(bean);
                     }
+                    listData.get(position).setChecked(isChecked);
                     topListView.getAdapter().notifyDataSetChanged();
                 }
             });
