@@ -2,6 +2,7 @@ package com.yanlong.im.chat.action;
 
 import android.text.TextUtils;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ChatMessage;
@@ -15,9 +16,11 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RobotInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.MsgServer;
+import com.yanlong.im.chat.ui.AddGroupActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ObjectToUtils;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -26,6 +29,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -357,21 +361,34 @@ public class MsgAction {
             public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
                 if (response.body() == null)
                     return;
-                callback.onResponse(call, response);
-
-
+//                callback.onResponse(call, response);
+                List<Group> groupList=new ArrayList<>();
                 for (Group ginfo : response.body().getData()) {
                     //保存群信息到本地
-                    Group group = new Group();
+                    final Group group= new Group();
                     group.setGid(ginfo.getGid());
                     group.setAvatar(ginfo.getAvatar());
                     group.setName(ginfo.getName());
-                    if (null!=dao.getGroup4Id(ginfo.getGid()).getUsers()&&dao.getGroup4Id(ginfo.getGid()).getUsers().size()>0){
-                        group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
+                    if (null!=dao.getGroup4Id(ginfo.getGid())){
+                        if (null!=dao.getGroup4Id(ginfo.getGid()).getUsers()&&dao.getGroup4Id(ginfo.getGid()).getUsers().size()>0){
+                            group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
+                        }
+                    }else{
+                        groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                                if (response.body().isOk()) {
+                                    Group bean = response.body().getData();
+                                    group.setUsers(bean.getUsers());
+                                }
+                            }
+                        });
                     }
                     dao.groupSave(group);
+                    groupList.add(group);
                 }
-
+                response.body().setData(groupList);
+                callback.onResponse(call, response);
             }
         });
     }
