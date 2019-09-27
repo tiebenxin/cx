@@ -44,7 +44,7 @@ public class AppActivity extends AppCompatActivity {
         super.onResume();
         MobclickAgent.onResume(this);
         taskClearNotification();
-        // Log.v("ssss",this.getClass().toString());
+         Log.v("ssss","清理消息");
     }
 
     @Override

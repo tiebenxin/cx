@@ -164,7 +164,7 @@ public class UserAction {
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         cleanInfo();
-        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", VersionUtil.getPhoneModel()), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", VersionUtil.getPhoneModel(),"渠道"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -191,7 +191,7 @@ public class UserAction {
     public void login4Imid(final String imid, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         cleanInfo();
-        NetUtil.getNet().exec(server.login4Imid(MD5.md5(pwd), imid, devid, "android", VersionUtil.getPhoneModel()), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4Imid(MD5.md5(pwd), imid, devid, "android", VersionUtil.getPhoneModel(),"渠道"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -561,7 +561,7 @@ public class UserAction {
      */
     public void register(String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, VersionUtil.getPhoneModel()), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, VersionUtil.getPhoneModel(),"渠道"), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
@@ -587,7 +587,7 @@ public class UserAction {
      */
     public void login4Captch(final String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, VersionUtil.getPhoneModel()), new Callback<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, VersionUtil.getPhoneModel(),"渠道"), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token

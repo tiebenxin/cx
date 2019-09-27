@@ -21,7 +21,6 @@ public class CustomGlideModule extends AppGlideModule {
         int memoryCacheSizeBytes = 1024 * 1024 * 100;
         //设置内存缓存大小
         builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
-
     }
 
     @Override
