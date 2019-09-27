@@ -36,6 +36,32 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="right" />
+
+                    <ImageView
+                        android:id="@+id/iv_disturb_unread"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|top"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginRight="8dp"
+                        android:background="@drawable/shape_disturb_unread_bg" />
+
+                    <!--<TextView-->
+                    <!--android:id="@+id/tv_num"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:maxWidth="18dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="right|top"-->
+                    <!--android:background="@drawable/shape_unread_bg2"-->
+                    <!--android:gravity="center"-->
+                    <!--android:paddingLeft="2dp"-->
+                    <!--android:paddingTop="0dp"-->
+                    <!--android:paddingRight="2dp"-->
+                    <!--android:paddingBottom="0dp"-->
+                    <!--android:text=""-->
+                    <!--android:visibility="visible"-->
+                    <!--android:textColor="#ffffff"-->
+                    <!--android:textSize="12sp" />-->
                 </FrameLayout>
 
                 <LinearLayout

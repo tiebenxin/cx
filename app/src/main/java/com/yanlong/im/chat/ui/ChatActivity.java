@@ -2615,7 +2615,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             dao.sessionReadClean(null, toUId);
         }
-
+        dao.updateMsgReaded(toUId,toGid,true);
     }
 
     /***

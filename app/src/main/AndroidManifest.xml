@@ -23,7 +23,7 @@
         <!--打包渠道-->
         <!--<meta-data-->
             <!--android:name="UMENG_CHANNEL"-->
-            <!--android:value="${UMENG_CHANNEL_VALUE}"/>-->
+            <!--android:value="${UMENG_CHANNEL_VALUE}" />-->
 
         <meta-data
             android:name="com.yanlong.im.utils.CustomGlideModule"

@@ -650,6 +650,24 @@ public class MsgMainFragment extends Fragment {
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
             holder.sb.setNum(bean.getUnread_count(), false);
+            if (bean.getIsMute() == 1) {
+                if (!msginfo.isRead()) {
+                    holder.iv_disturb_unread.setVisibility(View.VISIBLE);
+                    holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
+                } else {
+                    holder.iv_disturb_unread.setVisibility(View.GONE);
+                }
+            } else {
+                holder.iv_disturb_unread.setVisibility(View.GONE);
+
+//                if (bean.getUnread_count() > 0) {
+//                    holder.tv_num.setVisibility(View.VISIBLE);
+//                    holder.tv_num.setBackgroundResource(R.drawable.shape_unread_bg2);
+//                    holder.tv_num.setText(bean.getUnread_count());
+//                } else {
+//                    holder.tv_num.setVisibility(View.GONE);
+//                }
+            }
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
 
@@ -713,13 +731,15 @@ public class MsgMainFragment extends Fragment {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private ImageView imgHead;
             private StrikeButton sb;
+
             private View viewIt;
             private Button btnDel;
             private SwipeMenuLayout swipeLayout;
             private TextView txtName;
             private TextView txtInfo;
             private TextView txtTime;
-            private final ImageView iv_disturb;
+            private final ImageView iv_disturb, iv_disturb_unread;
+//            private final TextView tv_num;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -733,6 +753,8 @@ public class MsgMainFragment extends Fragment {
                 txtInfo = convertView.findViewById(R.id.txt_info);
                 txtTime = convertView.findViewById(R.id.txt_time);
                 iv_disturb = convertView.findViewById(R.id.iv_disturb);
+//                tv_num = convertView.findViewById(R.id.tv_num);
+                iv_disturb_unread = convertView.findViewById(R.id.iv_disturb_unread);
             }
 
         }
