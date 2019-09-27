@@ -113,7 +113,8 @@ public class ImageHeadActivity extends AppActivity {
             mBtnImageHead.setText("修改群头像");
         }
         if (!isAdmin && isGroup) {
-            mBtnImageHead.setVisibility(View.GONE);
+            mBtnImageHead.setVisibility(View.INVISIBLE);
+            mBtnImageHead.setClickable(false);
             mHeadView.getActionbar().getBtnRight().setVisibility(View.GONE);
         }
     }
