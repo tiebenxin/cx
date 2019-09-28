@@ -289,7 +289,7 @@ public class ChatServer extends Service {
 
                     return;
                 case FORCE_OFFLINE:
-                    // ToastUtil.show(getApplicationContext(), "账号已经被登录");
+                    // ToastUtil.show(getApplicationContext(), "账号已经被登录");+
                     EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
                     if (msg.getForceOffline().getForceOfflineReason() == MsgBean.ForceOfflineReason.CONFLICT) {// 登录冲突
                         String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);

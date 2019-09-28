@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import androidx.annotation.Nullable;
+
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.dao.UserDao;
 
@@ -130,5 +132,32 @@ public class Session extends RealmObject {
 
     public void setUnread_count(int unread_count) {
         this.unread_count = unread_count;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof Session) {
+            if (((Session) obj).getType() == 1) {
+                if (((Session) obj).getGid().equals(this.gid)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                if (((Session) obj).getFrom_uid() != null && from_uid != null) {
+                    if (((Session) obj).getFrom_uid() == this.from_uid) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 }

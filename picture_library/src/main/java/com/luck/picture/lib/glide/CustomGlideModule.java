@@ -21,6 +21,7 @@ import java.io.File;
 /**
  * @创建人 shenxin
  * @创建时间 2019/9/20 0020 11:19
+ * 备注：需要依赖 annotationProcessor 'com.github.bumptech.glide:compiler:4.5.0'， 且在同一个模块，否则不生效
  */
 @GlideModule
 public class CustomGlideModule extends AppGlideModule {
@@ -29,9 +30,9 @@ public class CustomGlideModule extends AppGlideModule {
         int memoryCacheSizeBytes = 1024 * 1024 * 100;
         //有外部内存写入权限，将缓存设置在外部存储卡中，否则是应用内缓存
         if (hasPermission(context)) {
-//            System.out.println("Glide缓存位置：/cll/cache/image");
+//            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
             File storageDirectory = Environment.getExternalStorageDirectory();
-            String cachePath = storageDirectory + "/com.yanlong.cll/cache/image";
+            String cachePath = storageDirectory + "/changliaoliao/cache/image";
             builder.setDiskCache(new DiskLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
         } else {
             //设置内存缓存大小,默认缓存位置

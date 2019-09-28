@@ -3,6 +3,8 @@ package com.yanlong.im.user.bean;
 
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import net.cb.cb.library.utils.StringUtil;
@@ -434,5 +436,18 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public void setLockCloudRedEnvelope(int lockCloudRedEnvelope) {
         this.lockCloudRedEnvelope = lockCloudRedEnvelope;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof UserInfo) {
+            if (((UserInfo) obj).uid == (this.uid)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
