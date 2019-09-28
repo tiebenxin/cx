@@ -465,7 +465,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        taskListData();
+        taskListData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -536,7 +536,7 @@ public class MsgMainFragment extends Fragment {
 
             } else if (bean.getType() == 1) {//群
 //                Group ginfo = msgDao.getGroup4Id(bean.getGid());
-                Group ginfo =  (Group) groups.get(position);
+                Group ginfo = (Group) groups.get(position);
                 if (ginfo != null) {
                     icon = ginfo.getAvatar();
                     //获取最后一条群消息
@@ -716,7 +716,6 @@ public class MsgMainFragment extends Fragment {
         }
 
 
-
         //自动寻找ViewHold
         @Override
         public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
@@ -778,13 +777,14 @@ public class MsgMainFragment extends Fragment {
         msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
         return file.getAbsolutePath();
     }
+
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
     private UserAction userAction = new UserAction();
     private MsgAction msgAction = new MsgAction();
     private List<Session> listData = new ArrayList<>();
-    private List<Object> groups=new ArrayList<>();
-    private List<MsgAllBean> msgAllBeansList=new ArrayList<>();
+    private List<Object> groups = new ArrayList<>();
+    private List<MsgAllBean> msgAllBeansList = new ArrayList<>();
 
     private int didIndex = 0;//当前缓存的顺序
     private List<String> dids = new ArrayList<>();//缓存所有未缓存的信息
@@ -864,19 +864,20 @@ public class MsgMainFragment extends Fragment {
     }
 
     private void doListDataSort() {
-
-        groups=new ArrayList<>();
-        msgAllBeansList=new ArrayList<>();
-        if (null!=listData&&listData.size()>0){
-            for (int i=0;i<listData.size();i++){
-                Session bean= listData.get(i);
-                if (bean.getType()==1){
+        groups = new ArrayList<>();
+        msgAllBeansList = new ArrayList<>();
+        if (null != listData && listData.size() > 0) {
+            for (int i = 0; i < listData.size(); i++) {
+                Session bean = listData.get(i);
+                if (bean.getType() == 1) {
                     Group ginfo = msgDao.getGroup4Id(bean.getGid());
-                    if (null!=ginfo){
+                    if (null != ginfo) {
+                        bean.setIsMute(ginfo.getNotNotify());
+                        bean.setHasInitDisturb(true);
                         String title = "";
                         String info = "";
                         MsgAllBean msginfo;
-                        String icon="";
+                        String icon = "";
                         icon = ginfo.getAvatar();
                         //获取最后一条群消息
                         msginfo = msgDao.msgGetLast4Gid(bean.getGid());
@@ -896,7 +897,7 @@ public class MsgMainFragment extends Fragment {
                                 info = name + msginfo.getMsg_typeStr();
                             }
 
-                        }else {
+                        } else {
                             Log.e("taf", "11来消息的时候没有创建群");
                         }
 
@@ -909,11 +910,11 @@ public class MsgMainFragment extends Fragment {
                                 String imgUrl = "";
                                 try {
                                     imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
-                                    if (!StringUtil.isNotNull(imgUrl)){
-                                        imgUrl= creatAndSaveImg(bean.getGid());
+                                    if (!StringUtil.isNotNull(imgUrl)) {
+                                        imgUrl = creatAndSaveImg(bean.getGid());
                                     }
                                 } catch (Exception e) {
-                                    imgUrl= creatAndSaveImg(bean.getGid());
+                                    imgUrl = creatAndSaveImg(bean.getGid());
                                 }
                                 ginfo.setAvatar(imgUrl);
                             } else {
@@ -923,11 +924,15 @@ public class MsgMainFragment extends Fragment {
                         groups.add(ginfo);
                     }
 
-                }else if(bean.getType()==0){
+                } else if (bean.getType() == 0) {
                     UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
                     MsgAllBean msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
                     msgAllBeansList.add(msginfo);
-                    groups.add(finfo);
+                    if (finfo != null) {
+                        groups.add(finfo);
+                        bean.setIsMute(finfo.getDisturb());
+                        bean.setHasInitDisturb(true);
+                    }
                 }
             }
         }
