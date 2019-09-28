@@ -6,6 +6,7 @@ import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.dao.UserDao;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 /***
@@ -30,6 +31,15 @@ public class Session extends RealmObject {
     private int messageType = 1000;
 
     private String atMessage;
+
+    @Ignore
+    private String name; //session名字
+    @Ignore
+    private String avatar;//头像
+    @Ignore
+    private boolean hasInitDisturb = false;//是否已经初始化免打扰
+    @Ignore
+    private MsgAllBean message;//最后消息
 
     public int getMessageType() {
         return messageType;
@@ -56,14 +66,13 @@ public class Session extends RealmObject {
     }
 
     public int getIsMute() {
-        // int isMute =0;
-
-        try {
-            isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!hasInitDisturb) {
+            try {
+                isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
         return isMute;
     }
 
@@ -132,6 +141,35 @@ public class Session extends RealmObject {
 
     public void setUnread_count(int unread_count) {
         this.unread_count = unread_count;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public MsgAllBean getMessage() {
+        return message;
+    }
+
+    public void setMessage(MsgAllBean message) {
+        this.message = message;
+    }
+
+
+    public void setHasInitDisturb(boolean hasInitDisturb) {
+        this.hasInitDisturb = hasInitDisturb;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     @Override
