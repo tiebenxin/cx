@@ -46,6 +46,8 @@ import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
+
 public class SocketData {
     private static final String TAG = "SocketData";
 
@@ -178,6 +180,7 @@ public class SocketData {
         List<String> msgIds = new ArrayList<>();
         //1.先进行数据分割
         for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
+            checkDoubleMessage(wmsg);
             //2.存库:1.存消息表,存会话表
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
             //5.28 如果为空就不保存这类消息
@@ -223,6 +226,19 @@ public class SocketData {
         SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
 
 
+    }
+
+    //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
+    private static void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
+        if (wmsg.getMsgType() == ACCEPT_BE_FRIENDS) {
+            MsgBean.AcceptBeFriendsMessage receiveMessage = wmsg.getAcceptBeFriends();
+            if (receiveMessage != null && !TextUtils.isEmpty(receiveMessage.getSayHi())) {
+                ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), receiveMessage.getSayHi());
+                MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                DaoUtil.save(message);
+                msgDao.sessionReadUpdate(message.getGid(), message.getFrom_uid());
+            }
+        }
     }
 
     private synchronized static void loadUserInfo(final String gid, final Long uid) {
@@ -1031,6 +1047,127 @@ public class SocketData {
 
         if (isGroup) {
             Group group = msgDao.getGroup4Id(gid);
+            if (group != null) {
+                String name = group.getMygroupName();
+                if (StringUtil.isNotNull(name)) {
+                    msg.setFrom_group_nickname(name);
+                }
+            }
+        }
+        switch (msgType) {
+            case ChatEnum.EMessageType.NOTICE:
+                if (obj instanceof MsgNotice) {
+                    msg.setMsgNotice((MsgNotice) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TEXT:
+                if (obj instanceof ChatMessage) {
+                    msg.setChat((ChatMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.STAMP:
+                if (obj instanceof StampMessage) {
+                    msg.setStamp((StampMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.RED_ENVELOPE:
+                if (obj instanceof RedEnvelopeMessage) {
+                    msg.setRed_envelope((RedEnvelopeMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.IMAGE:
+                if (obj instanceof ImageMessage) {
+                    msg.setImage((ImageMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                if (obj instanceof BusinessCardMessage) {
+                    msg.setBusiness_card((BusinessCardMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TRANSFER:
+                if (obj instanceof TransferMessage) {
+                    msg.setTransfer((TransferMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.VOICE:
+                if (obj instanceof VoiceMessage) {
+                    msg.setVoiceMessage((VoiceMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.AT:
+                if (obj instanceof AtMessage) {
+                    msg.setAtMessage((AtMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.ASSISTANT:
+                if (obj instanceof AssistantMessage) {
+                    msg.setAssistantMessage((AssistantMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.MSG_CENCAL:
+                if (obj instanceof MsgCancel) {
+                    msg.setMsgCancel((MsgCancel) obj);
+                } else {
+                    return null;
+                }
+                break;
+
+        }
+
+        return msg;
+    }
+
+    /*
+     * 创建接收到的消息bean
+     * @param uid Long 用户Id,私聊即to_uid,群聊为null
+     * @gid 群id，私聊为空，群聊不能为空
+     * @msgType int 消息类型
+     * @sendStatus int 发送状态
+     * @obj IMsgContent MsgAllBean二级关联表bean
+     * */
+    public static MsgAllBean createMsgBean(MsgBean.UniversalMessage.WrapMessage wrap, @ChatEnum.EMessageType int msgType, @ChatEnum.ESendStatus int sendStatus, long time, IMsgContent obj) {
+        if (wrap == null) {
+            return null;
+        }
+        boolean isGroup = false;
+        if (wrap.getFromUid() <= 0 && !TextUtils.isEmpty(wrap.getGid())) {
+            isGroup = true;
+        }
+
+        MsgAllBean msg = new MsgAllBean();
+        msg.setMsg_id(obj.getMsgId());
+        msg.setMsg_type(msgType);
+        msg.setTimestamp(time > 0 ? time : getFixTime());
+        msg.setFrom_uid(wrap.getFromUid());
+        msg.setFrom_avatar(wrap.getAvatar());
+        msg.setFrom_nickname(wrap.getNickname());
+        msg.setFrom_group_nickname(wrap.getMembername());
+        msg.setGid(wrap.getGid());
+        msg.setSend_state(sendStatus);
+        msg.setRead(false);
+        if (isGroup) {
+            Group group = msgDao.getGroup4Id(wrap.getGid());
             if (group != null) {
                 String name = group.getMygroupName();
                 if (StringUtil.isNotNull(name)) {

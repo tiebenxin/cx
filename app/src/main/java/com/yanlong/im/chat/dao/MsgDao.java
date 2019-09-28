@@ -1142,6 +1142,69 @@ public class MsgDao {
         return rts;
     }
 
+    /***
+     * 获取所有有效会话，去除被踢群聊
+     * @return
+     */
+    public List<Session> sessionGetAllValid() {
+        List<Session> rts = null;
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<Session> list = realm.where(Session.class)
+                    .beginGroup().notEqualTo("from_uid", 1L).and().isNotNull("from_uid").endGroup().
+                            or().isNotNull("gid").sort("up_time", Sort.DESCENDING).findAll();
+            //6.5 优先读取单独表的配置
+            List<Session> removes = new ArrayList<>();
+            if (list != null) {
+                int len = list.size();
+                for (int i = 0; i < len; i++) {
+                    Session l = list.get(i);
+                    Session session = null;
+                    int top = 0;
+                    if (l.getType() == 1) {
+                        GroupConfig config = realm.where(GroupConfig.class).equalTo("gid", l.getGid()).findFirst();
+                        if (config != null && config.getIsExit() == 1) {
+                            session = realm.copyFromRealm(l);
+                            removes.add(session);
+                        } else {
+                            Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
+                            if (group != null) {
+                                top = group.getIsTop();
+                                if (!group.getUsers().contains(UserAction.getMyInfo())){
+                                    session = realm.copyFromRealm(l);
+                                    removes.add(session);
+                                }
+                            }
+                        }
+                    } else {
+                        UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
+                        if (info != null) {
+                            top = info.getIstop();
+                        }
+                    }
+                    l.setIsTop(top);
+                }
+            }
+            realm.copyToRealmOrUpdate(list);
+            list = list.sort("isTop", Sort.DESCENDING);
+            rts = realm.copyFromRealm(list);
+            if (removes.size() > 0) {
+                int len = removes.size();
+                for (int i = 0; i < len; i++) {
+                    rts.remove(removes.get(i));
+                }
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+
+        return rts;
+    }
+
 
     /***
      * 获取最后的消息
@@ -2061,7 +2124,7 @@ public class MsgDao {
                             .beginGroup().equalTo("isRead", false).endGroup()
                             .findAll();
                 }
-            }else {
+            } else {
 
             }
             List<MsgAllBean> list = null;
@@ -2072,7 +2135,7 @@ public class MsgDao {
                 int len = list.size();
                 for (int i = 0; i < len; i++) {
                     MsgAllBean bean = list.get(i);
-                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE){
+                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
                         continue;
                     }
                     bean.setRead(isRead);

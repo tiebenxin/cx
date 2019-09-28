@@ -32,7 +32,7 @@ public class ForwardModel implements IModel {
                 if (msgDao == null) {
                     msgDao = new MsgDao();
                 }
-                List<Session> list = msgDao.sessionGetAll(false);
+                List<Session> list = msgDao.sessionGetAllValid();
                 e.onNext(list);
             }
         });
