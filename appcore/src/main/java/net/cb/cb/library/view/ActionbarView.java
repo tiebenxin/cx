@@ -297,7 +297,7 @@ public class ActionbarView extends LinearLayout {
             String name = attrs.getAttributeName(i);
             String value = attrs.getAttributeValue(i);
 
-            Log.i("ActionbarView", "#onCreate attr[" + i + "] name = " + name + " and value = " + value);
+//            Log.i("ActionbarView", "#onCreate attr[" + i + "] name = " + name + " and value = " + value);
             if ("background".equals(name)) {
                 if (value.startsWith("@")) {
                     int bgResId = Integer.parseInt(value.substring(1));

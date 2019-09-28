@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.umeng.message.UmengNotifyClickActivity;
 import com.yanlong.im.R;
-import com.yanlong.im.user.ui.StartPageActivity;
+import com.yanlong.im.user.ui.SplashActivity;
 
 import org.android.agoo.common.AgooConstants;
 
@@ -28,7 +28,7 @@ public class PushToActivity extends UmengNotifyClickActivity {
         super.onMessage(intent);  //此方法必须调用，否则无法统计打开数
         String body = intent.getStringExtra(AgooConstants.MESSAGE_BODY);
         Log.i(TAG, body);
-        Intent toIntent = new Intent(this, StartPageActivity.class);
+        Intent toIntent = new Intent(this, SplashActivity.class);
         startActivity(toIntent);
         finish();
 
