@@ -96,10 +96,8 @@ public class MainActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
-        if(Build.VERSION.SDK_INT>=23){
-            String[] mPermissionList = new String[]{Manifest.permission.READ_LOGS};
-            ActivityCompat.requestPermissions(this,mPermissionList,PERMISSIONS);
-        }
+
+
         fragments = new Fragment[]{MsgMainFragment.newInstance(), FriendMainFragment.newInstance(), MyFragment.newInstance()};
         tabs = new String[]{"消息", "通讯录", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_me};

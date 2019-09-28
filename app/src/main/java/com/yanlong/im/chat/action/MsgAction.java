@@ -354,6 +354,9 @@ public class MsgAction {
     /**
      * 查询已保存的群聊
      */
+    List<Group> groupList=new ArrayList<>();
+    private int i=0;
+    private int j=0;
     public void getMySaved(final Callback<ReturnBean<List<Group>>> callback) {
 
         NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<Group>>>() {
@@ -362,7 +365,8 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
 //                callback.onResponse(call, response);
-                List<Group> groupList=new ArrayList<>();
+//                List<Group> groupList=new ArrayList<>();
+                i=response.body().getData().size();
                 for (Group ginfo : response.body().getData()) {
                     //保存群信息到本地
                     final Group group= new Group();
@@ -370,22 +374,44 @@ public class MsgAction {
                     group.setAvatar(ginfo.getAvatar());
                     group.setName(ginfo.getName());
                     if (null!=dao.getGroup4Id(ginfo.getGid())){
+                        j=j+1;
                         if (null!=dao.getGroup4Id(ginfo.getGid()).getUsers()&&dao.getGroup4Id(ginfo.getGid()).getUsers().size()>0){
                             group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
-                        }
+
+                    }else{
+                            groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                                    if (response.body().isOk()) {
+                                        Group bean = response.body().getData();
+                                        group.setUsers(bean.getUsers());
+                                    }
+                                }
+                            });
+                    }
+                        dao.groupSave(group);
+                        groupList.add(group);
                     }else{
                         groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
                             @Override
                             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                                 if (response.body().isOk()) {
+                                    j=j+1;
                                     Group bean = response.body().getData();
                                     group.setUsers(bean.getUsers());
+                                    group.setGid(bean.getGid());
+                                    group.setAvatar(bean.getAvatar());
+                                    group.setName(bean.getName());
+                                    dao.groupSave(group);
+                                    groupList.add(group);
+                                    if (j==i){
+
+                                    }
                                 }
                             }
                         });
                     }
-                    dao.groupSave(group);
-                    groupList.add(group);
+
                 }
                 response.body().setData(groupList);
                 callback.onResponse(call, response);

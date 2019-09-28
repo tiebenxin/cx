@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebResourceRequest;
@@ -14,6 +15,7 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.utils.JSInterface;
 
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -43,10 +45,20 @@ public class HelpActivity extends AppActivity {
 //        initData();
     }
 
+    @Override
+    public boolean
+    onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && activity_help_web.canGoBack()) {
+            activity_help_web.goBack();//返回上个页面
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);//退出H5界面
+    }
 
     private void initView() {
         activity_help_web = findViewById(R.id.activity_help_web);
         activity_help_web.getSettings().setJavaScriptEnabled(true);
+        activity_help_web.addJavascriptInterface(new JSInterface(HelpActivity.this),"androidMethod");
         activity_help_web.loadUrl("http://192.168.10.102:8080/");
         activity_help_web.setWebViewClient(new MyWebViewClient());
 //        mEdtSearch = findViewById(R.id.edt_search);

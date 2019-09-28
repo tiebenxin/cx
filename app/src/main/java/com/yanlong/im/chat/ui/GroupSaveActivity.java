@@ -12,8 +12,11 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.ImageUtils;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -22,6 +25,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,12 +110,34 @@ public class GroupSaveActivity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
+            MsgDao msgDao=new MsgDao();
             final Group groupInfoBean = groupInfoBeans.get(position);
             //holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
-            holder.txtName.setText(/*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
+            if (StringUtil.isNotNull(groupInfoBean.getName())){
+                holder.txtName.setText(groupInfoBean.getName());
+            }else{
+                holder.txtName.setText(msgDao.getGroupName(groupInfoBean));
+            }
+//            msgDao.getGroupName(groupInfoBean.getGid()));
            // holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
             String imageHead= groupInfoBean.getAvatar();
-            ImageUtils.showImg(context,imageHead,holder.imgHead,groupInfoBean.getGid());
+//            ImageUtils.showImg(context,imageHead,holder.imgHead,groupInfoBean.getGid());
+
+            if (imageHead!=null&&!imageHead.isEmpty()&& StringUtil.isNotNull(imageHead)){
+                Glide.with(context).load(imageHead)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+            }else{
+
+                String url= msgDao.groupHeadImgGet(groupInfoBean.getGid());
+                if (StringUtil.isNotNull(url)){
+                    Glide.with(context).load(url)
+                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                }else{
+                    creatAndSaveImg(groupInfoBean,holder.imgHead);
+                }
+
+            }
+
 
            // holder.txtName.setText(groupInfoBean.getName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -141,6 +167,28 @@ public class GroupSaveActivity extends AppActivity {
             return holder;
         }
 
+        private void creatAndSaveImg(Group bean, ImageView imgHead) {
+            Group gginfo =bean;
+            int i = gginfo.getUsers().size();
+            i = i > 9 ? 9 : i;
+            //头像地址
+            String url[] = new String[i];
+            for (int j = 0; j < i; j++) {
+                UserInfo userInfo = gginfo.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+                url[j] = userInfo.getHead();
+            }
+            File file = GroupHeadImageUtil.synthesis(getContext(), url);
+            Glide.with(context).load(file)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
+            MsgDao msgDao = new MsgDao();
+            msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+        }
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {

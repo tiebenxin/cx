@@ -147,7 +147,6 @@ public class MsgMainFragment extends Fragment {
     //自动生成的控件事件
     private void initEvent() {
         mtListView.init(new RecyclerViewAdapter());
-
         mtListView.getLoadView().setStateNormal();
 
         //滚动处理-------------------------------------
@@ -423,6 +422,7 @@ public class MsgMainFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);*/
         }
         EventBus.getDefault().register(this);
+        taskListData();
     }
 
     @Override
@@ -465,7 +465,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        taskListData();
+//        taskListData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -511,7 +511,8 @@ public class MsgMainFragment extends Fragment {
             if (bean.getType() == 0) {//单人
 
 
-                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+//                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+                UserInfo finfo = (UserInfo) groups.get(position);
                 if (finfo != null) {
                     icon = finfo.getHead();
                     title = finfo.getName4Show();
@@ -519,7 +520,8 @@ public class MsgMainFragment extends Fragment {
 
 
                 //获取最后一条消息
-                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+//                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+                msginfo = msgAllBeansList.get(position);
                 if (msginfo != null) {
                     info = msginfo.getMsg_typeStr();
                 }
@@ -533,26 +535,21 @@ public class MsgMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
             } else if (bean.getType() == 1) {//群
-                Group ginfo = msgDao.getGroup4Id(bean.getGid());
+//                Group ginfo = msgDao.getGroup4Id(bean.getGid());
+                Group ginfo =  (Group) groups.get(position);
                 if (ginfo != null) {
                     icon = ginfo.getAvatar();
                     //获取最后一条群消息
-                    msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-//                    title = ginfo.getName();
-                    title = msgDao.getGroupName(bean.getGid());
+//                    msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+                    msginfo = msgAllBeansList.get(position);
+                    title = ginfo.getName();
+//                    title = msgDao.getGroupName(bean.getGid());
                     if (msginfo != null) {
                         if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
                             info = msginfo.getMsg_typeStr();
                         } else {
                             String name = "";
                             if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-                               /* name = msginfo.getFrom_nickname() + " : ";
-                                UserInfo fuser = msginfo.getFrom_user();
-
-                                if (fuser != null && StringUtil.isNotNull(fuser.getMkName())) {
-                                    name = fuser.getMkName() + " : ";
-
-                                }*/
                                 //8.9 处理群昵称
                                 name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
                             }
@@ -719,6 +716,7 @@ public class MsgMainFragment extends Fragment {
         }
 
 
+
         //自动寻找ViewHold
         @Override
         public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
@@ -760,12 +758,33 @@ public class MsgMainFragment extends Fragment {
         }
     }
 
-
+    private String creatAndSaveImg(String gid) {
+        Group gginfo = msgDao.getGroup4Id(gid);
+        int i = gginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            UserInfo userInfo = gginfo.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+        return file.getAbsolutePath();
+    }
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
     private UserAction userAction = new UserAction();
     private MsgAction msgAction = new MsgAction();
     private List<Session> listData = new ArrayList<>();
+    private List<Object> groups=new ArrayList<>();
+    private List<MsgAllBean> msgAllBeansList=new ArrayList<>();
 
     private int didIndex = 0;//当前缓存的顺序
     private List<String> dids = new ArrayList<>();//缓存所有未缓存的信息
@@ -780,6 +799,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public List<Session> apply(Integer integer) throws Exception {
                         listData = msgDao.sessionGetAll(true);
+                        doListDataSort();
                         return listData;
                     }
                 }).subscribeOn(Schedulers.io())
@@ -841,6 +861,76 @@ public class MsgMainFragment extends Fragment {
 //            mtListView.notifyDataSetChange();
 //        }
 
+    }
+
+    private void doListDataSort() {
+
+        groups=new ArrayList<>();
+        msgAllBeansList=new ArrayList<>();
+        if (null!=listData&&listData.size()>0){
+            for (int i=0;i<listData.size();i++){
+                Session bean= listData.get(i);
+                if (bean.getType()==1){
+                    Group ginfo = msgDao.getGroup4Id(bean.getGid());
+                    if (null!=ginfo){
+                        String title = "";
+                        String info = "";
+                        MsgAllBean msginfo;
+                        String icon="";
+                        icon = ginfo.getAvatar();
+                        //获取最后一条群消息
+                        msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+                        msgAllBeansList.add(msginfo);
+                        title = msgDao.getGroupName(bean.getGid());
+                        ginfo.setName(title);
+                        if (msginfo != null) {
+                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+                                info = msginfo.getMsg_typeStr();
+                            } else {
+                                String name = "";
+                                if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+                                    //8.9 处理群昵称
+                                    name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
+                                }
+
+                                info = name + msginfo.getMsg_typeStr();
+                            }
+
+                        }else {
+                            Log.e("taf", "11来消息的时候没有创建群");
+                        }
+
+                        Log.e("TAG", icon.toString());
+                        if (StringUtil.isNotNull(icon)) {
+//                           Glide.with(getActivity()).load(icon)
+//                                   .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                        } else {
+                            if (bean.getType() == 1) {
+                                String imgUrl = "";
+                                try {
+                                    imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
+                                    if (!StringUtil.isNotNull(imgUrl)){
+                                        imgUrl= creatAndSaveImg(bean.getGid());
+                                    }
+                                } catch (Exception e) {
+                                    imgUrl= creatAndSaveImg(bean.getGid());
+                                }
+                                ginfo.setAvatar(imgUrl);
+                            } else {
+
+                            }
+                        }
+                        groups.add(ginfo);
+                    }
+
+                }else if(bean.getType()==0){
+                    UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+                    MsgAllBean msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+                    msgAllBeansList.add(msginfo);
+                    groups.add(finfo);
+                }
+            }
+        }
 
     }
 
