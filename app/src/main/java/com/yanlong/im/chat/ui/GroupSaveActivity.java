@@ -93,7 +93,8 @@ public class GroupSaveActivity extends AppActivity {
                     return;
                 }
                 groupInfoBeans.addAll(response.body().getData());
-                mtListView.notifyDataSetChange(response);
+//                mtListView.notifyDataSetChange(response);
+                mtListView.notifyDataSetChange();
             }
         });
     }

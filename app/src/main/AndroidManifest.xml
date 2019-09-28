@@ -486,6 +486,9 @@
             android:name=".user.ui.GroupAddActivity"
             android:screenOrientation="portrait"></activity>
 
+        <activity android:name=".chat.ui.NoticeActivity"
+            android:screenOrientation="portrait"
+            />
 
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">
             <intent-filter>

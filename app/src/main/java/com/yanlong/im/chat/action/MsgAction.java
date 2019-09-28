@@ -374,7 +374,6 @@ public class MsgAction {
                     group.setAvatar(ginfo.getAvatar());
                     group.setName(ginfo.getName());
                     if (null!=dao.getGroup4Id(ginfo.getGid())){
-                        j=j+1;
                         if (null!=dao.getGroup4Id(ginfo.getGid()).getUsers()&&dao.getGroup4Id(ginfo.getGid()).getUsers().size()>0){
                             group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
 
@@ -394,19 +393,16 @@ public class MsgAction {
                     }else{
                         groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
                             @Override
-                            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                                if (response.body().isOk()) {
-                                    j=j+1;
-                                    Group bean = response.body().getData();
+                            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> responseInner) {
+                                if (responseInner.body().isOk()) {
+                                    Group bean = responseInner.body().getData();
                                     group.setUsers(bean.getUsers());
                                     group.setGid(bean.getGid());
                                     group.setAvatar(bean.getAvatar());
                                     group.setName(bean.getName());
                                     dao.groupSave(group);
                                     groupList.add(group);
-                                    if (j==i){
 
-                                    }
                                 }
                             }
                         });
