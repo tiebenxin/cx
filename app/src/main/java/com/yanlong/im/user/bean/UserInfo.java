@@ -184,8 +184,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getStat() {
-        if (stat == null) {
-            stat = 0;
+        if (stat == null) {//stat== null 一定是非好友
+            stat = 1;
         }
         return stat;
     }

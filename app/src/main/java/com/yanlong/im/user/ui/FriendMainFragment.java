@@ -370,9 +370,11 @@ public class FriendMainFragment extends Fragment {
             if (uid > 0) {
                 @CoreEnum.ERosterAction int action = event.getRosterAction();
                 switch (action) {
-//                    case CoreEnum.ERosterAction.REQUEST_FRIEND:
+                    case CoreEnum.ERosterAction.REQUEST_FRIEND:
+                        taskRefreshUser(uid, action);
+                        break;
                     case CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS:
-                        taskRefreshUser(uid);
+                        taskRefreshUser(uid, action);
                         break;
                     case CoreEnum.ERosterAction.REMOVE_FRIEND:
                         taskRemoveUser(uid);
@@ -415,8 +417,8 @@ public class FriendMainFragment extends Fragment {
         });
     }
 
-    public void taskRefreshUser(long uid) {
-        userAction.getUserInfoAndSave(uid, ChatEnum.EUserType.FRIEND, new CallBack<ReturnBean<UserInfo>>() {
+    public void taskRefreshUser(long uid, @CoreEnum.ERosterAction int action) {
+        userAction.getUserInfoAndSave(uid, action == CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS ? ChatEnum.EUserType.FRIEND : ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 taskListData();

@@ -21,7 +21,7 @@ import java.io.File;
 /**
  * @创建人 shenxin
  * @创建时间 2019/9/20 0020 11:19
- * 备注：需要依赖 annotationProcessor 'com.github.bumptech.glide:compiler:4.5.0'， 且在同一个模块，否则不生效
+ * 备注：需要依赖 annotationProcessor 'com.github.bumptech.glide:compiler:4.5.0'， 且在同一个模块，否则GlideModule注解不生效
  */
 @GlideModule
 public class CustomGlideModule extends AppGlideModule {

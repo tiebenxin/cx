@@ -436,7 +436,7 @@ public class HtmlTransitonUtils {
     //端到端加密
     private void setType12(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
         builder.append("聊天中所有信息已进行");
-        String content = "端到端加密";
+        String content = "端对端加密";
         builder.append(content);
         int start, end;
         start = builder.toString().length() - content.length();
