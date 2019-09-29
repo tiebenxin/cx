@@ -59,7 +59,9 @@ public class HelpActivity extends AppActivity {
         activity_help_web = findViewById(R.id.activity_help_web);
         activity_help_web.getSettings().setJavaScriptEnabled(true);
         activity_help_web.addJavascriptInterface(new JSInterface(HelpActivity.this),"androidMethod");
-        activity_help_web.loadUrl("http://192.168.10.102:8080/");
+//        activity_help_web.loadUrl("http://192.168.10.102:8080/");
+        activity_help_web.loadUrl("https://helper.zhixun6.com:8000/");
+
         activity_help_web.setWebViewClient(new MyWebViewClient());
 //        mEdtSearch = findViewById(R.id.edt_search);
         mHeadView = findViewById(R.id.headView);
