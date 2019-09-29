@@ -504,27 +504,30 @@ public class MsgMainFragment extends Fragment {
         public void onBindViewHolder(final RCViewHolder holder, int position) {
             final Session bean = listData.get(position);
 
-            String icon = "";
-            String title = "";
+            String icon = bean.getAvatar();
+            String title = bean.getName();
+            MsgAllBean msginfo = bean.getMessage();
             String info = "";
-            MsgAllBean msginfo = null;
+            if (msginfo != null) {
+                info = msginfo.getMsg_typeStr();
+            }
             if (bean.getType() == 0) {//单人
 
 
 //                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-                UserInfo finfo = (UserInfo) groups.get(position);
-                if (finfo != null) {
-                    icon = finfo.getHead();
-                    title = finfo.getName4Show();
-                }
+//                UserInfo finfo = (UserInfo) groups.get(position);
+//                if (finfo != null) {
+//                    icon = finfo.getHead();
+//                    title = finfo.getName4Show();
+//                }
 
 
                 //获取最后一条消息
 //                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-                msginfo = msgAllBeansList.get(position);
-                if (msginfo != null) {
-                    info = msginfo.getMsg_typeStr();
-                }
+//                msginfo = msgAllBeansList.get(position);
+//                if (msginfo != null) {
+//                    info = msginfo.getMsg_typeStr();
+//                }
 
                 if (StringUtil.isNotNull(bean.getDraft())) {
                     info = "草稿:" + bean.getDraft();
@@ -536,31 +539,31 @@ public class MsgMainFragment extends Fragment {
 
             } else if (bean.getType() == 1) {//群
 //                Group ginfo = msgDao.getGroup4Id(bean.getGid());
-                Group ginfo = (Group) groups.get(position);
-                if (ginfo != null) {
-                    icon = ginfo.getAvatar();
-                    //获取最后一条群消息
+//                Group ginfo = (Group) groups.get(position);
+//                if (ginfo != null) {
+//                    icon = ginfo.getAvatar();
+                //获取最后一条群消息
 //                    msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                    msginfo = msgAllBeansList.get(position);
-                    title = ginfo.getName();
+//                    msginfo = msgAllBeansList.get(position);
+//                    title = ginfo.getName();
 //                    title = msgDao.getGroupName(bean.getGid());
-                    if (msginfo != null) {
-                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
-                            info = msginfo.getMsg_typeStr();
-                        } else {
-                            String name = "";
-                            if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-                                //8.9 处理群昵称
-                                name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
-                            }
-
-                            info = name + msginfo.getMsg_typeStr();
-                        }
-
-                    }
-                } else {
-                    Log.e("taf", "11来消息的时候没有创建群");
-                }
+//                    if (msginfo != null) {
+//                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+//                            info = msginfo.getMsg_typeStr();
+//                        } else {
+//                            String name = "";
+//                            if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+//                                //8.9 处理群昵称
+//                                name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
+//                            }
+//
+//                            info = name + msginfo.getMsg_typeStr();
+//                        }
+//
+//                    }
+//            } else {
+//                Log.e("taf", "11来消息的时候没有创建群");
+//            }
 
                 int type = bean.getMessageType();
                 switch (type) {
@@ -755,6 +758,7 @@ public class MsgMainFragment extends Fragment {
             }
 
         }
+
     }
 
     private String creatAndSaveImg(String gid) {
@@ -813,129 +817,114 @@ public class MsgMainFragment extends Fragment {
                     }
                 });
 
-//        listData = msgDao.sessionGetAll(true);
-//        //缓存所有未缓存的群信息
-//        dids = new ArrayList<>();
-//        didIndex = 0;
-//        if (listData == null) {
-//            mtListView.notifyDataSetChange();
-//            return;
-//        }
-//        mtListView.notifyDataSetChange();
-
-//        for (Session s : listData) {
-//            String gid = s.getGid();
-//            if (StringUtil.isNotNull(gid)) {//缓存群的信息
-//                Group group = msgDao.getGroup4Id(gid);
-//                if (group == null) {
-//                    dids.add(gid);
-//                    msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
-//                        @Override
-//                        public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-//                            didIndex++;
-//                            if (didIndex == dids.size()) {
-//                                mtListView.notifyDataSetChange();
-//                            }
-//                        }
-//                    });
-//                }
-//            } else {//缓存个人的信息
-//                Long fuid = s.getFrom_uid();
-//                UserInfo uinfo = userDao.findUserInfo(fuid);
-//                if (uinfo == null) {
-//                    dids.add(fuid.toString());
-//                    userAction.getUserInfoAndSave(fuid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
-//                        @Override
-//                        public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-//                            didIndex++;
-//                            if (didIndex == dids.size()) {
-//                                mtListView.notifyDataSetChange();
-//                            }
-//                        }
-//                    });
-//                }
-//            }
-//        }
-//
-//        if (didIndex == dids.size()) {
-//            mtListView.notifyDataSetChange();
-//        }
-
     }
 
     private void doListDataSort() {
-        groups = new ArrayList<>();
-        msgAllBeansList = new ArrayList<>();
-        if (null != listData && listData.size() > 0) {
-            for (int i = 0; i < listData.size(); i++) {
-                Session bean = listData.get(i);
-                if (bean.getType() == 1) {
-                    Group ginfo = msgDao.getGroup4Id(bean.getGid());
-                    if (null != ginfo) {
-                        bean.setIsMute(ginfo.getNotNotify());
-                        bean.setHasInitDisturb(true);
-                        String title = "";
-                        String info = "";
-                        MsgAllBean msginfo;
-                        String icon = "";
-                        icon = ginfo.getAvatar();
-                        //获取最后一条群消息
-                        msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                        msgAllBeansList.add(msginfo);
-                        title = msgDao.getGroupName(bean.getGid());
-                        ginfo.setName(title);
-                        if (msginfo != null) {
-                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
-                                info = msginfo.getMsg_typeStr();
-                            } else {
-                                String name = "";
-                                if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-                                    //8.9 处理群昵称
-                                    name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
-                                }
-
-                                info = name + msginfo.getMsg_typeStr();
-                            }
-
-                        } else {
-                            Log.e("taf", "11来消息的时候没有创建群");
-                        }
-
-                        Log.e("TAG", icon.toString());
-                        if (StringUtil.isNotNull(icon)) {
-//                           Glide.with(getActivity()).load(icon)
-//                                   .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                        } else {
-                            if (bean.getType() == 1) {
-                                String imgUrl = "";
-                                try {
-                                    imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
-                                    if (!StringUtil.isNotNull(imgUrl)) {
-                                        imgUrl = creatAndSaveImg(bean.getGid());
-                                    }
-                                } catch (Exception e) {
-                                    imgUrl = creatAndSaveImg(bean.getGid());
-                                }
-                                ginfo.setAvatar(imgUrl);
-                            } else {
-
-                            }
-                        }
-                        groups.add(ginfo);
+        if (listData != null) {
+            int len = listData.size();
+            for (int i = 0; i < len; i++) {
+                Session session = listData.get(i);
+                if (session.getType() == 1) {
+                    Group group = msgDao.getGroup4Id(session.getGid());
+                    if (group != null) {
+                        session.setName(msgDao.getGroupName(group));
+                        session.setIsMute(group.getNotNotify());
+                        session.setHasInitDisturb(true);
+                        session.setAvatar(group.getAvatar());
+                    } else {
+                        session.setName(msgDao.getGroupName(session.getGid()));
                     }
-
-                } else if (bean.getType() == 0) {
-                    UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-                    MsgAllBean msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-                    msgAllBeansList.add(msginfo);
-                    if (finfo != null) {
-                        groups.add(finfo);
-                        bean.setIsMute(finfo.getDisturb());
-                        bean.setHasInitDisturb(true);
+                    MsgAllBean msg = msgDao.msgGetLast4Gid(session.getGid());
+                    if (msg != null) {
+                        session.setMessage(msg);
+                    }
+                } else {
+                    UserInfo info = userDao.findUserInfo(session.getFrom_uid());
+                    if (info != null) {
+                        session.setName(info.getName4Show());
+                        session.setIsMute(info.getDisturb());
+                        session.setHasInitDisturb(true);
+                        session.setAvatar(info.getHead());
+                    }
+                    MsgAllBean msg = msgDao.msgGetLast4FUid(session.getFrom_uid());
+                    if (msg != null) {
+                        session.setMessage(msg);
                     }
                 }
             }
         }
+//        groups = new ArrayList<>();
+//        msgAllBeansList = new ArrayList<>();
+//        if (null != listData && listData.size() > 0) {
+//            for (int i = 0; i < listData.size(); i++) {
+//                Session bean = listData.get(i);
+//                if (bean.getType() == 1) {
+//                    Group ginfo = msgDao.getGroup4Id(bean.getGid());
+//                    if (null != ginfo) {
+//                        bean.setIsMute(ginfo.getNotNotify());
+//                        bean.setHasInitDisturb(true);
+//                        String title = "";
+//                        String info = "";
+//                        MsgAllBean msginfo;
+//                        String icon = "";
+//                        icon = ginfo.getAvatar();
+//                        //获取最后一条群消息
+//                        msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+//                        msgAllBeansList.add(msginfo);
+//                        title = msgDao.getGroupName(bean.getGid());
+//                        ginfo.setName(title);
+//                        if (msginfo != null) {
+//                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+//                                info = msginfo.getMsg_typeStr();
+//                            } else {
+//                                String name = "";
+//                                if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+//                                    //8.9 处理群昵称
+//                                    name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
+//                                }
+//
+//                                info = name + msginfo.getMsg_typeStr();
+//                            }
+//
+//                        } else {
+//                            Log.e("taf", "11来消息的时候没有创建群");
+//                        }
+//
+//                        Log.e("TAG", icon.toString());
+//                        if (StringUtil.isNotNull(icon)) {
+////                           Glide.with(getActivity()).load(icon)
+////                                   .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                        } else {
+//                            if (bean.getType() == 1) {
+//                                String imgUrl = "";
+//                                try {
+//                                    imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
+//                                    if (!StringUtil.isNotNull(imgUrl)) {
+//                                        imgUrl = creatAndSaveImg(bean.getGid());
+//                                    }
+//                                } catch (Exception e) {
+//                                    imgUrl = creatAndSaveImg(bean.getGid());
+//                                }
+//                                ginfo.setAvatar(imgUrl);
+//                            } else {
+//
+//                            }
+//                        }
+//                        groups.add(ginfo);
+//                    }
+//
+//                } else if (bean.getType() == 0) {
+//                    UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+//                    MsgAllBean msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+//                    msgAllBeansList.add(msginfo);
+//                    if (finfo != null) {
+//                        groups.add(finfo);
+//                        bean.setIsMute(finfo.getDisturb());
+//                        bean.setHasInitDisturb(true);
+//                    }
+//                }
+//            }
+//        }
 
     }
 
