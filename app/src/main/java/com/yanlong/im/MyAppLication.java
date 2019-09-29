@@ -45,11 +45,12 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
 
-    private final String U_APP_KEY= "5d53659c570df3d281000225";
+    private final String U_APP_KEY = "5d53659c570df3d281000225";
 
     @Override
     public void onCreate() {
         super.onCreate();
+        AppConfig.setContext(getApplicationContext());
         ///推送处理
         initUPushPre();
         new Handler().postDelayed(new Runnable() {
@@ -113,11 +114,11 @@ public class MyAppLication extends MainApplication {
     }
 
     private void initBugly() {
-        CrashReport.UserStrategy strategy=new CrashReport.UserStrategy(this);
+        CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(this);
         strategy.setAppChannel("BUGLY");
         strategy.setAppVersion("1.0");
         strategy.setAppPackageName(this.getPackageName());
-        CrashReport.initCrashReport(this,"119a8a8e8f",false,strategy);
+        CrashReport.initCrashReport(this, "119a8a8e8f", false, strategy);
 
     }
 
@@ -178,7 +179,7 @@ public class MyAppLication extends MainApplication {
     private void initUPush() {
 
         //设置通知栏显示数量
-       // mPushAgent.setDisplayNotificationNumber(1);
+        // mPushAgent.setDisplayNotificationNumber(1);
         //   mPushAgent.setNotificationClickHandler(notificationClickHandler);
 
         //注册推送服务，每次调用register方法都会回调该接口
