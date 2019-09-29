@@ -184,8 +184,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getStat() {
-        if (stat == null) {
-            stat = 0;
+        if (stat == null) {//stat== null 一定是非好友
+            stat = 1;
         }
         return stat;
     }
@@ -440,11 +440,11 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        if (obj == null) {
+        if (obj == null || this.uid == null) {
             return false;
         }
         if (obj instanceof UserInfo) {
-            if (((UserInfo) obj).uid == (this.uid)) {
+            if (((UserInfo) obj).uid.equals(this.uid)) {
                 return true;
             }
         }

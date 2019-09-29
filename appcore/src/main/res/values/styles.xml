@@ -523,4 +523,9 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
+    <style name="MyPopMenuStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@mipmap/ic_menu_bg</item><!-- popMenu的背景色-->
+        <item name="android:divider">@color/white</item><!-- popMenu分割线-->
+    </style>
+
 </resources>

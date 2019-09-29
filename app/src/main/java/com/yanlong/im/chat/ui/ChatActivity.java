@@ -2615,7 +2615,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             dao.sessionReadClean(null, toUId);
         }
-        dao.updateMsgReaded(toUId,toGid,true);
+        dao.updateMsgReaded(toUId, toGid, true);
     }
 
     /***
@@ -2709,8 +2709,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void taskPayRb() {
         UserInfo info = UserAction.getMyInfo();
-        if (info != null && info.getLockCloudRedEnvelope()== 1){//红包功能被锁定
-            ToastUtil.show(this,"您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
+        if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
+            ToastUtil.show(this, "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
             return;
         }
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
@@ -2897,8 +2897,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
 
                 groupInfo = response.body().getData();
-                contactIntimately = groupInfo.getContactIntimately();
-                master = groupInfo.getMaster();
+                if (groupInfo != null) {
+                    contactIntimately = groupInfo.getContactIntimately();
+                    master = groupInfo.getMaster();
+                }
 
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();

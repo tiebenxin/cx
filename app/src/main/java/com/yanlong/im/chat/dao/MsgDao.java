@@ -1171,7 +1171,8 @@ public class MsgDao {
                             Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
                             if (group != null) {
                                 top = group.getIsTop();
-                                if (!group.getUsers().contains(UserAction.getMyInfo())){
+                                List<UserInfo> users = realm.copyFromRealm(group.getUsers());
+                                if (users != null && !users.contains(UserAction.getMyInfo())) {
                                     session = realm.copyFromRealm(l);
                                     removes.add(session);
                                 }
