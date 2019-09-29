@@ -7,12 +7,10 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.message.PushAgent;
 
 import net.cb.cb.library.AppConfig;
 
@@ -35,7 +33,6 @@ public class AppActivity extends AppCompatActivity {
         alert = new AlertWait(this);
         super.onCreate(savedInstanceState);
         //友盟Push后台进行日活统计及多维度推送的必调用方法
-        PushAgent.getInstance(context).onAppStart();
 
     }
 

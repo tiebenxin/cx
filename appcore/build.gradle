@@ -15,20 +15,42 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters "x86", "armeabi", "armeabi-v7a", 'arm64-v8a'
+        }
+
+        manifestPlaceholders = [
+                JPUSH_PKGNAME: "com.yanlong.im",
+                JPUSH_APPKEY : "3ed4e6a14a17e0be39b20cb5", //JPush 上注册的包名对应的 Appkey.
+                JPUSH_CHANNEL: "developer-default", //暂时填写默认值即可.
+
+                XIAOMI_APPKEY: "MI‐5411801194485",//小米平台注册的appkey
+                XIAOMI_APPID : "MI‐2882303761518011485",//小米平台注册的appid
+
+                HUAWEI_APPID : "101160415", //华为
+
+                MEIZU_APPKEY : "MZ‐e5795872af0d4c77945971a05ad7ad1c",//魅族平台注册的appkey
+                MEIZU_APPID  : "MZ‐1007742",//魅族平台注册的appid
+
+                OPPO_APPKEY : "OP‐5ea85e3c99144bb4a42334cac5d08855", // OPPO平台注册的appkey
+                OPPO_APPID : "OP‐30161375", // OPPO平台注册的appid
+                OPPO_APPSECRET: "OP‐4222a724a70949a1b6db4cdda5c06571",//OPPO平台注册的appsecret
+
+                VIVO_APPKEY   : "f1940b91-4b0d-4c5c-914e-657045438bc4", // VIVO平台注册的appkey
+                VIVO_APPID    : "15217", // VIVO平台注册的appid
+        ]
+
     }
 
     buildscript {
         repositories {
-
             google()
             jcenter()
-
         }
     }
     allprojects {
         repositories {
-
-
             google()
             jcenter()
             mavenCentral()
@@ -102,6 +124,7 @@ dependencies {
     //  api 'com.ycjiang:VideoPlayModule-Lite:2.2.13'
     //滑动删除
     api 'com.github.mcxtzhang:SwipeDelMenuLayout:V1.3.0'
+    api 'androidx.annotation:annotation:1.0.0'
 
     //表情
     // api 'com.android.support:support-emoji-appcompat:28.+'
@@ -115,27 +138,18 @@ dependencies {
     //友盟
     api 'com.umeng.umsdk:common:+'
     api 'com.umeng.umsdk:utdid:+'
-    api 'com.umeng.umsdk:push:+'
     api 'com.umeng.umsdk:analytics:+'
 
     api 'com.umeng.sdk:share-wechat:6.9.1'
-    //小米推送
-    api 'com.umeng.umsdk:xiaomi-push:+'
-    api 'com.umeng.umsdk:xiaomi-umengaccs:+'
-    //华为推送
-    api 'com.umeng.umsdk:huawei-basetb:+'
-    api 'com.umeng.umsdk:huawei-pushtb:+'
-    api 'com.umeng.umsdk:huawei-umengaccs:+'
-    api 'androidx.annotation:annotation:1.0.2'
-    //vivo
-    api 'com.umeng.umsdk:vivo-push:+'
-    api 'com.umeng.umsdk:vivo-umengaccs:+'
-    //oppo
-    api 'com.umeng.umsdk:oppo-push:+'
-    api 'com.umeng.umsdk:oppo-umengaccs:+'
-    //魅族
-    api 'com.umeng.umsdk:meizu-push:+'
-    api 'com.umeng.umsdk:meizu-umengaccs:+'
 
     api 'org.jsoup:jsoup:1.12.1'
+    //极光推送
+    api 'cn.jiguang.sdk:jpush:3.3.6'
+    api 'cn.jiguang.sdk:jcore:2.1.4'
+    api 'cn.jiguang.sdk.plugin:xiaomi:3.3.6'// 小米
+    api 'cn.jiguang.sdk.plugin:huawei:3.3.6'//华为
+    api 'cn.jiguang.sdk.plugin:meizu:3.3.6'//魅族
+    api 'cn.jiguang.sdk.plugin:oppo:3.3.6'// oppo
+    api 'cn.jiguang.sdk.plugin:vivo:3.3.6' //vivo
+
 }
