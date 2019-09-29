@@ -29,16 +29,16 @@
             android:name="com.yanlong.im.utils.CustomGlideModule"
             android:value="AppGlideModule" />
 
-        <meta-data
-            android:name="com.huawei.hms.client.appid"
-            android:value="appid=100836087" />
-        <!-- vivo onCreate-->
-        <meta-data
-            android:name="com.vivo.push.api_key"
-            android:value="f1940b91-4b0d-4c5c-914e-657045438bc4" />
-        <meta-data
-            android:name="com.vivo.push.app_id"
-            android:value="15217" />
+<!--        <meta-data-->
+<!--            android:name="com.huawei.hms.client.appid"-->
+<!--            android:value="appid=100836087" />-->
+<!--        &lt;!&ndash; vivo onCreate&ndash;&gt;-->
+<!--        <meta-data-->
+<!--            android:name="com.vivo.push.api_key"-->
+<!--            android:value="f1940b91-4b0d-4c5c-914e-657045438bc4" />-->
+<!--        <meta-data-->
+<!--            android:name="com.vivo.push.app_id"-->
+<!--            android:value="15217" />-->
         <!-- VIVO end-->
 
         <meta-data
@@ -59,6 +59,26 @@
                   <category android:name="android.intent.category.LAUNCHER" />
               </intent-filter>
          </activity-alias>-->
+        <!-- 极光推送-->
+        <service android:name="com.yanlong.im.notify.PushService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":pushcore">
+            <intent-filter>
+                <action android:name="cn.jiguang.user.service.action" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name="com.yanlong.im.notify.MyJPushMessageReceiver"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
+                <category android:name="com.yanlong.im" />
+            </intent-filter>
+        </receiver>
+
         <activity-alias
             android:name="main"
             android:label="@string/app_name"
@@ -450,21 +470,21 @@
             android:launchMode="singleTask" />
 
         <!--魅族push应用定义消息receiver声明 -->
-        <receiver android:name=".notify.MeizuReceiver">
-            <intent-filter>
-                <!-- 接收push消息 -->
-                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />
-                <!-- 接收register消息 -->
-                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK" />
-                <!-- 接收unregister消息-->
-                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK" />
-                <!-- 兼容低版本Flyme3推送服务配置 -->
-                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />
-                <action android:name="com.meizu.c2dm.intent.RECEIVE" />
+<!--        <receiver android:name=".notify.MeizuReceiver">-->
+<!--            <intent-filter>-->
+<!--                &lt;!&ndash; 接收push消息 &ndash;&gt;-->
+<!--                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />-->
+<!--                &lt;!&ndash; 接收register消息 &ndash;&gt;-->
+<!--                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK" />-->
+<!--                &lt;!&ndash; 接收unregister消息&ndash;&gt;-->
+<!--                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK" />-->
+<!--                &lt;!&ndash; 兼容低版本Flyme3推送服务配置 &ndash;&gt;-->
+<!--                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />-->
+<!--                <action android:name="com.meizu.c2dm.intent.RECEIVE" />-->
 
-                <category android:name="${applicationId}"></category>
-            </intent-filter>
-        </receiver>
+<!--                <category android:name="${applicationId}"></category>-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
         <activity
             android:name=".user.ui.IdentityAttestationActitiy"

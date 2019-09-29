@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
@@ -59,6 +61,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
+import cn.jpush.android.api.JPluginPlatformInterface;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -212,8 +215,13 @@ public class MainActivity extends AppActivity {
         uploadApp();
         checkRosters();
         doRegisterNetReceiver();
-
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
 
     private void doRegisterNetReceiver() {
         if (mNetworkReceiver == null) {
@@ -259,6 +267,14 @@ public class MainActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         updateNetStatus();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == JPluginPlatformInterface.JPLUGIN_REQUEST_CODE) {
+
+        }
     }
 
     private void updateNetStatus() {

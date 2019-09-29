@@ -3,16 +3,12 @@ package com.yanlong.im.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.commonsdk.utils.UMUtils;
-import com.umeng.message.UmengAdHandler;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.chat.server.UpLoadService;
 
-import net.cb.cb.library.utils.ToastUtil;
 
 public class MyException implements Thread.UncaughtExceptionHandler {
     private static MyException mInstance;
