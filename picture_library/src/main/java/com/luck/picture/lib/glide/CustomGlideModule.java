@@ -29,16 +29,21 @@ public class CustomGlideModule extends AppGlideModule {
     public void applyOptions(Context context, GlideBuilder builder) {
         int memoryCacheSizeBytes = 1024 * 1024 * 100;
         //有外部内存写入权限，将缓存设置在外部存储卡中，否则是应用内缓存
-        if (hasPermission(context)) {
+
+        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
+
+//        if (hasPermission(context)) {
 //            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
-            File storageDirectory = Environment.getExternalStorageDirectory();
-            String cachePath = storageDirectory + "/changliaoliao/cache/image";
-            builder.setDiskCache(new DiskLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
-        } else {
-            //设置内存缓存大小,默认缓存位置
-//            System.out.println("Glide缓存位置：默认应用内");
-            builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
-        }
+
+//            File storageDirectory = Environment.getExternalStorageDirectory();
+//            String cachePath = storageDirectory + "/changliaoliao/cache/image";
+//            builder.setDiskCache(new DiskLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
+
+//        } else {
+//            //设置内存缓存大小,默认缓存位置
+////            System.out.println("Glide缓存位置：默认应用内");
+//            builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
+//        }
     }
 
     @Override
@@ -53,7 +58,7 @@ public class CustomGlideModule extends AppGlideModule {
     }
 
     //是否有写入内存权限
-    private boolean hasPermission(Context context) {
+    public static boolean hasPermission(Context context) {
         if (hasSDCard()) {
             if (Build.VERSION.SDK_INT >= 23) {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -69,7 +74,7 @@ public class CustomGlideModule extends AppGlideModule {
         }
     }
 
-    private boolean hasSDCard() {
+    public static boolean hasSDCard() {
         if (Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
             return true;
         }
