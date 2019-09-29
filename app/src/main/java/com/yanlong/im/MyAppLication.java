@@ -1,8 +1,13 @@
 package com.yanlong.im;
 
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.os.Build;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.BuildConfig;
@@ -13,6 +18,7 @@ import net.cb.cb.library.utils.LogUtil;
 
 
 import com.jrmf360.tools.JrmfClient;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
@@ -25,6 +31,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import cn.jpush.android.api.JPushInterface;
 import io.realm.Realm;
+
+import static com.yanlong.im.user.ui.FriendAddAcitvity.PERMISSIONS;
 
 public class MyAppLication extends MainApplication {
 
@@ -79,14 +87,25 @@ public class MyAppLication extends MainApplication {
         //初始化数据库
         Realm.init(getApplicationContext());
 
+        // initUPush();
 
         //--------------------------
         initWeixinConfig();
         initRunstate();
         initRedPacket();
         LogcatHelper.getInstance(this).start();
-        initException();
+//        initException();
         initUploadUtils();
+        initBugly();
+    }
+
+    private void initBugly() {
+        CrashReport.UserStrategy strategy=new CrashReport.UserStrategy(this);
+        strategy.setAppChannel("BUGLY");
+        strategy.setAppVersion("1.0");
+        strategy.setAppPackageName(this.getPackageName());
+        CrashReport.initCrashReport(this,"119a8a8e8f",false,strategy);
+
     }
 
     private void initUploadUtils() {

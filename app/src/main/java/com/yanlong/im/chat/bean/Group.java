@@ -46,7 +46,7 @@ public class Group extends RealmObject {
 
 
     public String getRobotname() {
-        return robotname;
+        return robotname == null ? "" : robotname;
     }
 
     public void setRobotname(String robotname) {
@@ -54,7 +54,7 @@ public class Group extends RealmObject {
     }
 
     public String getRobotid() {
-        return robotid;
+        return robotid == null ? "" : robotid;
     }
 
     public void setRobotid(String robotid) {
@@ -74,7 +74,7 @@ public class Group extends RealmObject {
     }
 
     public Integer getContactIntimately() {
-        if (contactIntimately == null){
+        if (contactIntimately == null) {
             contactIntimately = 0;
         }
         return contactIntimately;
@@ -85,7 +85,7 @@ public class Group extends RealmObject {
     }
 
     public String getAnnouncement() {
-        return announcement;
+        return announcement == null ? "" : announcement;
     }
 
     public void setAnnouncement(String announcement) {
@@ -97,7 +97,7 @@ public class Group extends RealmObject {
     }
 
     public String getGid() {
-        return gid;
+        return gid == null ? "" : gid;
     }
 
     public void setGid(String gid) {
@@ -123,7 +123,7 @@ public class Group extends RealmObject {
     }
 
     public String getAvatar() {
-        return avatar;
+        return avatar == null ? "" : avatar;
     }
 
     public void setAvatar(String avatar) {
@@ -131,7 +131,7 @@ public class Group extends RealmObject {
     }
 
     public String getMaster() {
-        return master;
+        return master == null ? "" : master;
     }
 
     public void setMaster(String master) {
@@ -139,7 +139,7 @@ public class Group extends RealmObject {
     }
 
     public Integer getCeiling() {
-        if (ceiling == null){
+        if (ceiling == null) {
             ceiling = 0;
         }
         return ceiling;

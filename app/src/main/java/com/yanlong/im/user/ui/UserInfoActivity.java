@@ -16,6 +16,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -505,21 +506,23 @@ public class UserInfoActivity extends AppActivity {
         });
     }
 
-
+    /*
+    * 加入黑名单
+    * */
     private void taskFriendBlack(final Long id) {
         userAction.friendBlack(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-//                notifyRefreshRoster();
                 if (response.body() == null) {
                     return;
                 }
                 type = 2;
                 tvBlack.setText("解除黑名单");
                 userDao.updateUserUtype(id, 3);
+                new MsgDao().sessionDel(id, "");
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(id);
-
+                notifyMsgRefresh();
             }
         });
     }
@@ -539,6 +542,10 @@ public class UserInfoActivity extends AppActivity {
                 notifyRefreshRoster(uid);
             }
         });
+    }
+
+    private void notifyMsgRefresh() {
+        EventBus.getDefault().post(new EventRefreshMainMsg());
     }
 
     private void notifyRefreshRoster(long uid) {

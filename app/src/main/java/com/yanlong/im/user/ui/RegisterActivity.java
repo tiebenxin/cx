@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.NoticeActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import net.cb.cb.library.bean.ReturnBean;
@@ -103,6 +104,9 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
         switch (v.getId()) {
             case R.id.tv_get_verification_code:
                 initCountDownUtil();
+                break;
+            case R.id.tv_matters_need_attention:
+                startActivity(new Intent(RegisterActivity.this, NoticeActivity.class));
                 break;
         }
     }

@@ -1,6 +1,9 @@
 package com.yanlong.im.chat.bean;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
+
+import java.io.File;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -102,7 +105,12 @@ public class ImageMessage extends RealmObject implements IMsgContent {
     public String getThumbnailShow() {
         String img = thumbnail;
         if (StringUtil.isNotNull(thumbnail) && StringUtil.isNotNull(localimg)) {
-            img = localimg;
+            File file = new File(localimg);
+            if (file.exists()) {
+                img = localimg;
+            } else {
+                LogUtil.getLog().i(ImageMessage.class.getSimpleName(), "本地图片不存在");
+            }
         }
 
         return img;

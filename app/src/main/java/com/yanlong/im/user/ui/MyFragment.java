@@ -33,6 +33,7 @@ import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
@@ -212,7 +213,7 @@ public class MyFragment extends Fragment {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeManage.goToPage(getContext(),scanResult);
+            QRCodeManage.goToPage(getContext(), scanResult);
 
 //            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivity(), scanResult);
 //            QRCodeManage.goToActivity(getActivity(), bean);
@@ -224,6 +225,11 @@ public class MyFragment extends Fragment {
 
     //钱包
     private void taskWallet() {
+        UserInfo info = UserAction.getMyInfo();
+        if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
+            ToastUtil.show(getActivity(), "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
+            return;
+        }
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {

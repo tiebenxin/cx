@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -83,6 +84,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -141,7 +147,6 @@ public class MsgMainFragment extends Fragment {
     //自动生成的控件事件
     private void initEvent() {
         mtListView.init(new RecyclerViewAdapter());
-
         mtListView.getLoadView().setStateNormal();
 
         //滚动处理-------------------------------------
@@ -387,7 +392,7 @@ public class MsgMainFragment extends Fragment {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeManage.goToPage(getContext(),scanResult);
+            QRCodeManage.goToPage(getContext(), scanResult);
 
 //            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivityMe(), scanResult);
 //            QRCodeManage.goToActivity(getActivityMe(), bean);
@@ -417,6 +422,7 @@ public class MsgMainFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);*/
         }
         EventBus.getDefault().register(this);
+        taskListData();
     }
 
     @Override
@@ -498,25 +504,30 @@ public class MsgMainFragment extends Fragment {
         public void onBindViewHolder(final RCViewHolder holder, int position) {
             final Session bean = listData.get(position);
 
-            String icon = "";
-            String title = "";
+            String icon = bean.getAvatar();
+            String title = bean.getName();
+            MsgAllBean msginfo = bean.getMessage();
             String info = "";
-            MsgAllBean msginfo = null;
+            if (msginfo != null) {
+                info = msginfo.getMsg_typeStr();
+            }
             if (bean.getType() == 0) {//单人
 
 
-                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-                if (finfo != null) {
-                    icon = finfo.getHead();
-                    title = finfo.getName4Show();
-                }
+//                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+//                UserInfo finfo = (UserInfo) groups.get(position);
+//                if (finfo != null) {
+//                    icon = finfo.getHead();
+//                    title = finfo.getName4Show();
+//                }
 
 
                 //获取最后一条消息
-                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-                if (msginfo != null) {
-                    info = msginfo.getMsg_typeStr();
-                }
+//                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+//                msginfo = msgAllBeansList.get(position);
+//                if (msginfo != null) {
+//                    info = msginfo.getMsg_typeStr();
+//                }
 
                 if (StringUtil.isNotNull(bean.getDraft())) {
                     info = "草稿:" + bean.getDraft();
@@ -527,37 +538,32 @@ public class MsgMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
             } else if (bean.getType() == 1) {//群
-                Group ginfo = msgDao.getGroup4Id(bean.getGid());
-                if (ginfo != null) {
-                    icon = ginfo.getAvatar();
-                    //获取最后一条群消息
-                    msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+//                Group ginfo = msgDao.getGroup4Id(bean.getGid());
+//                Group ginfo = (Group) groups.get(position);
+//                if (ginfo != null) {
+//                    icon = ginfo.getAvatar();
+                //获取最后一条群消息
+//                    msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+//                    msginfo = msgAllBeansList.get(position);
 //                    title = ginfo.getName();
-                    title = msgDao.getGroupName(bean.getGid());
-                    if (msginfo != null) {
-                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
-                            info = msginfo.getMsg_typeStr();
-                        } else {
-                            String name = "";
-                            if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-                               /* name = msginfo.getFrom_nickname() + " : ";
-                                UserInfo fuser = msginfo.getFrom_user();
-
-                                if (fuser != null && StringUtil.isNotNull(fuser.getMkName())) {
-                                    name = fuser.getMkName() + " : ";
-
-                                }*/
-                                //8.9 处理群昵称
-                                name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
-                            }
-
-                            info = name + msginfo.getMsg_typeStr();
-                        }
-
-                    }
-                } else {
-                    Log.e("taf", "11来消息的时候没有创建群");
-                }
+//                    title = msgDao.getGroupName(bean.getGid());
+//                    if (msginfo != null) {
+//                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+//                            info = msginfo.getMsg_typeStr();
+//                        } else {
+//                            String name = "";
+//                            if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+//                                //8.9 处理群昵称
+//                                name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
+//                            }
+//
+//                            info = name + msginfo.getMsg_typeStr();
+//                        }
+//
+//                    }
+//            } else {
+//                Log.e("taf", "11来消息的时候没有创建群");
+//            }
 
                 int type = bean.getMessageType();
                 switch (type) {
@@ -644,6 +650,24 @@ public class MsgMainFragment extends Fragment {
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
             holder.sb.setNum(bean.getUnread_count(), false);
+            if (bean.getIsMute() == 1) {
+                if (!msginfo.isRead()) {
+                    holder.iv_disturb_unread.setVisibility(View.VISIBLE);
+                    holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
+                } else {
+                    holder.iv_disturb_unread.setVisibility(View.GONE);
+                }
+            } else {
+                holder.iv_disturb_unread.setVisibility(View.GONE);
+
+//                if (bean.getUnread_count() > 0) {
+//                    holder.tv_num.setVisibility(View.VISIBLE);
+//                    holder.tv_num.setBackgroundResource(R.drawable.shape_unread_bg2);
+//                    holder.tv_num.setText(bean.getUnread_count());
+//                } else {
+//                    holder.tv_num.setVisibility(View.GONE);
+//                }
+            }
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
 
@@ -707,13 +731,15 @@ public class MsgMainFragment extends Fragment {
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private ImageView imgHead;
             private StrikeButton sb;
+
             private View viewIt;
             private Button btnDel;
             private SwipeMenuLayout swipeLayout;
             private TextView txtName;
             private TextView txtInfo;
             private TextView txtTime;
-            private final ImageView iv_disturb;
+            private final ImageView iv_disturb, iv_disturb_unread;
+//            private final TextView tv_num;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -727,76 +753,178 @@ public class MsgMainFragment extends Fragment {
                 txtInfo = convertView.findViewById(R.id.txt_info);
                 txtTime = convertView.findViewById(R.id.txt_time);
                 iv_disturb = convertView.findViewById(R.id.iv_disturb);
+//                tv_num = convertView.findViewById(R.id.tv_num);
+                iv_disturb_unread = convertView.findViewById(R.id.iv_disturb_unread);
             }
 
         }
+
     }
 
+    private String creatAndSaveImg(String gid) {
+        Group gginfo = msgDao.getGroup4Id(gid);
+        int i = gginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            UserInfo userInfo = gginfo.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+        return file.getAbsolutePath();
+    }
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
     private UserAction userAction = new UserAction();
     private MsgAction msgAction = new MsgAction();
     private List<Session> listData = new ArrayList<>();
+    private List<Object> groups = new ArrayList<>();
+    private List<MsgAllBean> msgAllBeansList = new ArrayList<>();
 
     private int didIndex = 0;//当前缓存的顺序
     private List<String> dids = new ArrayList<>();//缓存所有未缓存的信息
 
+    @SuppressLint("CheckResult")
     private void taskListData() {
         if (isSearchMode) {
             return;
         }
-        listData = msgDao.sessionGetAll(true);
+        Observable.just(0)
+                .map(new Function<Integer, List<Session>>() {
+                    @Override
+                    public List<Session> apply(Integer integer) throws Exception {
+                        listData = msgDao.sessionGetAll(true);
+                        doListDataSort();
+                        return listData;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<Session>>empty())
+                .subscribe(new Consumer<List<Session>>() {
+                    @Override
+                    public void accept(List<Session> list) throws Exception {
+                        mtListView.notifyDataSetChange();
 
-        //缓存所有未缓存的群信息
-        dids = new ArrayList<>();
-        didIndex = 0;
-        if (listData == null) {
-            return;
-        }
-        for (Session s : listData) {
-            String gid = s.getGid();
-            if (StringUtil.isNotNull(gid)) {//缓存群的信息
-                Group group = msgDao.getGroup4Id(gid);
-                if (group == null) {
-                    dids.add(gid);
-                    msgAction.groupInfo(gid, new CallBack<ReturnBean<Group>>() {
-                        @Override
-                        public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                            didIndex++;
-                            if (didIndex == dids.size()) {
-                                mtListView.notifyDataSetChange();
-                            }
-                        }
-                    });
+                    }
+                });
+
+    }
+
+    private void doListDataSort() {
+        if (listData != null) {
+            int len = listData.size();
+            for (int i = 0; i < len; i++) {
+                Session session = listData.get(i);
+                if (session.getType() == 1) {
+                    Group group = msgDao.getGroup4Id(session.getGid());
+                    if (group != null) {
+                        session.setName(msgDao.getGroupName(group));
+                        session.setIsMute(group.getNotNotify());
+                        session.setHasInitDisturb(true);
+                        session.setAvatar(group.getAvatar());
+                    } else {
+                        session.setName(msgDao.getGroupName(session.getGid()));
+                    }
+                    MsgAllBean msg = msgDao.msgGetLast4Gid(session.getGid());
+                    if (msg != null) {
+                        session.setMessage(msg);
+                    }
+                } else {
+                    UserInfo info = userDao.findUserInfo(session.getFrom_uid());
+                    if (info != null) {
+                        session.setName(info.getName4Show());
+                        session.setIsMute(info.getDisturb());
+                        session.setHasInitDisturb(true);
+                        session.setAvatar(info.getHead());
+                    }
+                    MsgAllBean msg = msgDao.msgGetLast4FUid(session.getFrom_uid());
+                    if (msg != null) {
+                        session.setMessage(msg);
+                    }
                 }
-            } else {//缓存个人的信息
-                Long fuid = s.getFrom_uid();
-                UserInfo uinfo = userDao.findUserInfo(fuid);
-                if (uinfo == null) {
-                    dids.add(fuid.toString());
-
-
-                    userAction.getUserInfoAndSave(fuid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
-                        @Override
-                        public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                            didIndex++;
-                            if (didIndex == dids.size()) {
-                                mtListView.notifyDataSetChange();
-                            }
-                        }
-                    });
-                }
-
             }
-
-
         }
-
-        if (didIndex == dids.size()) {
-            mtListView.notifyDataSetChange();
-        }
-
+//        groups = new ArrayList<>();
+//        msgAllBeansList = new ArrayList<>();
+//        if (null != listData && listData.size() > 0) {
+//            for (int i = 0; i < listData.size(); i++) {
+//                Session bean = listData.get(i);
+//                if (bean.getType() == 1) {
+//                    Group ginfo = msgDao.getGroup4Id(bean.getGid());
+//                    if (null != ginfo) {
+//                        bean.setIsMute(ginfo.getNotNotify());
+//                        bean.setHasInitDisturb(true);
+//                        String title = "";
+//                        String info = "";
+//                        MsgAllBean msginfo;
+//                        String icon = "";
+//                        icon = ginfo.getAvatar();
+//                        //获取最后一条群消息
+//                        msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+//                        msgAllBeansList.add(msginfo);
+//                        title = msgDao.getGroupName(bean.getGid());
+//                        ginfo.setName(title);
+//                        if (msginfo != null) {
+//                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+//                                info = msginfo.getMsg_typeStr();
+//                            } else {
+//                                String name = "";
+//                                if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+//                                    //8.9 处理群昵称
+//                                    name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
+//                                }
+//
+//                                info = name + msginfo.getMsg_typeStr();
+//                            }
+//
+//                        } else {
+//                            Log.e("taf", "11来消息的时候没有创建群");
+//                        }
+//
+//                        Log.e("TAG", icon.toString());
+//                        if (StringUtil.isNotNull(icon)) {
+////                           Glide.with(getActivity()).load(icon)
+////                                   .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                        } else {
+//                            if (bean.getType() == 1) {
+//                                String imgUrl = "";
+//                                try {
+//                                    imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
+//                                    if (!StringUtil.isNotNull(imgUrl)) {
+//                                        imgUrl = creatAndSaveImg(bean.getGid());
+//                                    }
+//                                } catch (Exception e) {
+//                                    imgUrl = creatAndSaveImg(bean.getGid());
+//                                }
+//                                ginfo.setAvatar(imgUrl);
+//                            } else {
+//
+//                            }
+//                        }
+//                        groups.add(ginfo);
+//                    }
+//
+//                } else if (bean.getType() == 0) {
+//                    UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+//                    MsgAllBean msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+//                    msgAllBeansList.add(msginfo);
+//                    if (finfo != null) {
+//                        groups.add(finfo);
+//                        bean.setIsMute(finfo.getDisturb());
+//                        bean.setHasInitDisturb(true);
+//                    }
+//                }
+//            }
+//        }
 
     }
 

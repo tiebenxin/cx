@@ -4,6 +4,7 @@ import android.accounts.NetworkErrorException;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
@@ -69,6 +70,7 @@ public class SocketUtil {
             //保存消息和处理回执
             LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
             SocketData.magSaveAndACK(bean);
+//            MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onMsg(bean);

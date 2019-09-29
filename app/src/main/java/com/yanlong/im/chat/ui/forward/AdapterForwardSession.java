@@ -18,6 +18,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
+import net.cb.cb.library.utils.StringUtil;
 
 /**
  * @anthor Liszt
@@ -86,6 +87,11 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
                 Group ginfo = msgDao.getGroup4Id(bean.getGid());
                 if (ginfo != null) {
                     icon = ginfo.getAvatar();
+                    if (!StringUtil.isNotNull(icon)){
+                        MsgDao msgDao=new MsgDao();
+                        String url= msgDao.groupHeadImgGet(ginfo.getGid());
+                        icon=url;
+                    }
                     //获取最后一条群消息
 //                    title = ginfo.getName();
                     title = msgDao.getGroupName(ginfo.getGid());

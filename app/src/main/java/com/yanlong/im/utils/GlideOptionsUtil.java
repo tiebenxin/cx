@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import android.widget.ImageView;
+
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -12,6 +14,11 @@ import com.yanlong.im.R;
 public class GlideOptionsUtil {
 
 
+    public static void loadAvatar(String url, ImageView imageView){
+
+    }
+
+
     // glide头像 Options
     public static RequestOptions headImageOptions() {
 
@@ -20,6 +27,7 @@ public class GlideOptionsUtil {
                 .error(R.mipmap.ic_info_head)
                 .placeholder(R.mipmap.ic_info_head)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .dontAnimate()
                 .skipMemoryCache(false);
         return mRequestOptions;
     }
