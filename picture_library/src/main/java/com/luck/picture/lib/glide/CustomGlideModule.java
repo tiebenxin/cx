@@ -30,27 +30,21 @@ public class CustomGlideModule extends AppGlideModule {
         int memoryCacheSizeBytes = 1024 * 1024 * 100;
         //有外部内存写入权限，将缓存设置在外部存储卡中，否则是应用内缓存
 
-//        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
-
-//        if (hasPermission(context)) {
+        if (hasPermission(context)) {
 //            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
-//
-
-//        if (Environment.isExternalStorageEmulated()){
-//            File storageDirectory = Environment.getExternalStorageDirectory();
-//            String cachePath = storageDirectory + "/changliaoliao/cache/image/";
-////            builder.setDiskCache(new DiskLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
+            if (Environment.isExternalStorageEmulated()) {
+                File storageDirectory = Environment.getExternalStorageDirectory();
+                String cachePath = storageDirectory + "/changliaoliao/cache/image/";
+                builder.setDiskCache(new DiskLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
 //            builder.setDiskCache(new DiskLruCacheFactory("/sacard/changliaoliao/cache/image", memoryCacheSizeBytes * 5));
-//        }else{
+            } else {
+                builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
+            }
+        }else{
+
             builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
-//        }
+        }
 
-//            builder.setMemoryCache(new MLruCacheFactory(cachePath, memoryCacheSizeBytes * 5));
-
-//        } else {
-//            //设置内存缓存大小,默认缓存位置
-////            System.out.println("Glide缓存位置：默认应用内");
-//        }
     }
 
     @Override
