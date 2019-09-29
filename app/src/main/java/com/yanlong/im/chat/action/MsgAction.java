@@ -254,13 +254,13 @@ public class MsgAction {
         //8.8 取消从数据库里读取群成员信息
         for (UserInfo userInfo : response.body().getData().getUsers()) {
             GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-            if (link != null) {
+            if (link != null && !TextUtils.isEmpty(link.getMembername())) {
                 userInfo.setMembername(link.getMembername());
+                if (userInfo.getUid().equals(UserAction.getMyId())) {
+                    response.body().getData().setMygroupName(link.getMembername());
+                }
             }
-
-
         }
-
         callback.onResponse(null, response);
     }
 
@@ -354,9 +354,10 @@ public class MsgAction {
     /**
      * 查询已保存的群聊
      */
-    List<Group> groupList=new ArrayList<>();
-    private int i=0;
-    private int j=0;
+    List<Group> groupList = new ArrayList<>();
+    private int i = 0;
+    private int j = 0;
+
     public void getMySaved(final Callback<ReturnBean<List<Group>>> callback) {
 
         NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<Group>>>() {
@@ -366,18 +367,18 @@ public class MsgAction {
                     return;
 //                callback.onResponse(call, response);
 //                List<Group> groupList=new ArrayList<>();
-                i=response.body().getData().size();
+                i = response.body().getData().size();
                 for (Group ginfo : response.body().getData()) {
                     //保存群信息到本地
-                    final Group group= new Group();
+                    final Group group = new Group();
                     group.setGid(ginfo.getGid());
                     group.setAvatar(ginfo.getAvatar());
                     group.setName(ginfo.getName());
-                    if (null!=dao.getGroup4Id(ginfo.getGid())){
-                        if (null!=dao.getGroup4Id(ginfo.getGid()).getUsers()&&dao.getGroup4Id(ginfo.getGid()).getUsers().size()>0){
+                    if (null != dao.getGroup4Id(ginfo.getGid())) {
+                        if (null != dao.getGroup4Id(ginfo.getGid()).getUsers() && dao.getGroup4Id(ginfo.getGid()).getUsers().size() > 0) {
                             group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
 
-                    }else{
+                        } else {
                             groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
                                 @Override
                                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -387,10 +388,10 @@ public class MsgAction {
                                     }
                                 }
                             });
-                    }
+                        }
                         dao.groupSave(group);
                         groupList.add(group);
-                    }else{
+                    } else {
                         groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
                             @Override
                             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> responseInner) {
@@ -542,7 +543,6 @@ public class MsgAction {
     public void changeMaster(String gid, String uid, String membername, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.changeMaster(gid, uid, membername), callback);
     }
-
 
 
 }
