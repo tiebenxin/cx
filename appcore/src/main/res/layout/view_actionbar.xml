@@ -18,8 +18,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -51,11 +50,18 @@
                     android:marqueeRepeatLimit="marquee_forever"
                     android:maxWidth="175dp"
                     android:scrollHorizontally="true"
-                    android:text="Text"
+                    android:text="titlte"
+                    android:visibility="visible"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/white"
+                    android:textColor="@color/white" />
 
-                    />
+                <ImageView
+                    android:id="@+id/iv_disturb"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginLeft="5dp"
+                    android:src="@mipmap/ic_disturb"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <TextView

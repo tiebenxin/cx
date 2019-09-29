@@ -1,15 +1,21 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.utils.JSInterface;
 
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -28,6 +34,7 @@ public class HelpActivity extends AppActivity {
     private HelpAdapter typeAdapter;
     private HeadView mHeadView;
     private TextView tvFeedback;
+    private WebView activity_help_web;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,28 +42,60 @@ public class HelpActivity extends AppActivity {
         setContentView(R.layout.activity_hlep);
         initView();
         initEvent();
-        initData();
+//        initData();
     }
 
+    @Override
+    public boolean
+    onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && activity_help_web.canGoBack()) {
+            activity_help_web.goBack();//返回上个页面
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);//退出H5界面
+    }
 
     private void initView() {
-        mEdtSearch = findViewById(R.id.edt_search);
+        activity_help_web = findViewById(R.id.activity_help_web);
+        activity_help_web.getSettings().setJavaScriptEnabled(true);
+        activity_help_web.addJavascriptInterface(new JSInterface(HelpActivity.this),"androidMethod");
+        activity_help_web.loadUrl("http://192.168.10.102:8080/");
+        activity_help_web.setWebViewClient(new MyWebViewClient());
+//        mEdtSearch = findViewById(R.id.edt_search);
         mHeadView = findViewById(R.id.headView);
-        tvFeedback = findViewById(R.id.tv_feedback);
-        mRecyclerViewHot = findViewById(R.id.recyclerView_hot);
-        LinearLayoutManager hotManger = new LinearLayoutManager(this);
-        mRecyclerViewHot.setLayoutManager(hotManger);
-        mRecyclerViewHot.setNestedScrollingEnabled(false);
+//        tvFeedback = findViewById(R.id.tv_feedback);
+//        mRecyclerViewHot = findViewById(R.id.recyclerView_hot);
+//        LinearLayoutManager hotManger = new LinearLayoutManager(this);
+//        mRecyclerViewHot.setLayoutManager(hotManger);
+//        mRecyclerViewHot.setNestedScrollingEnabled(false);
+//
+//        mRecyclerViewType = findViewById(R.id.recyclerView_type);
+//        LinearLayoutManager typeManger = new LinearLayoutManager(this);
+//        mRecyclerViewType.setLayoutManager(typeManger);
+//        mRecyclerViewType.setNestedScrollingEnabled(false);
+//
+//        hotAdapter = new HelpAdapter();
+//        typeAdapter = new HelpAdapter();
+//        mRecyclerViewHot.setAdapter(hotAdapter);
+//        mRecyclerViewType.setAdapter(typeAdapter);
+    }
 
-        mRecyclerViewType = findViewById(R.id.recyclerView_type);
-        LinearLayoutManager typeManger = new LinearLayoutManager(this);
-        mRecyclerViewType.setLayoutManager(typeManger);
-        mRecyclerViewType.setNestedScrollingEnabled(false);
+    class MyWebViewClient extends WebViewClient {
+        @Override  //WebView代表是当前的WebView
+        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+            view.loadUrl(request.getUrl().toString());
+            return true;
+        }
 
-        hotAdapter = new HelpAdapter();
-        typeAdapter = new HelpAdapter();
-        mRecyclerViewHot.setAdapter(hotAdapter);
-        mRecyclerViewType.setAdapter(typeAdapter);
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+        }
     }
 
     private void initEvent() {
@@ -72,12 +111,12 @@ public class HelpActivity extends AppActivity {
             }
         });
 
-        tvFeedback.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                go(FeedbackActivity.class);
-            }
-        });
+//        tvFeedback.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                go(FeedbackActivity.class);
+//            }
+//        });
     }
 
     private void initData() {

@@ -6,14 +6,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Environment;
 import android.text.TextUtils;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.load.engine.cache.DiskCache;
+import com.bumptech.glide.load.engine.cache.DiskLruCacheFactory;
+import com.bumptech.glide.load.engine.cache.LruResourceCache;
 import com.bumptech.glide.load.engine.cache.SafeKeyGenerator;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.signature.EmptySignature;
+import com.luck.picture.lib.glide.CustomGlideModule;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.AppConfig;
@@ -92,8 +96,27 @@ public class GroupHeadImageUtil {
         String safeKey = safeKeyGenerator.getSafeKey(dataCacheKey);
         try {
             int cacheSize = 100 * 1000 * 1000;
-            DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-            DiskLruCache.Value value = diskLruCache.get(safeKey);
+
+            DiskLruCache.Value value;
+//            if (CustomGlideModule.hasPermission(context)) {
+//            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
+
+//                File storageDirectory = Environment.getExternalStorageDirectory();
+//                String cachePath = storageDirectory + "/changliaoliao/cache/image";
+//                DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+//                value = diskLruCache.get(safeKey);
+
+//            } else {
+//                //设置内存缓存大小,默认缓存位置
+////            System.out.println("Glide缓存位置：默认应用内");
+                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+                value = diskLruCache.get(safeKey);
+//            }
+
+
+
+
+
             if (value != null) {
                 return value.getFile(0);
             }

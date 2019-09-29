@@ -1,5 +1,6 @@
 package com.yanlong.im.user.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
@@ -45,6 +47,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -189,7 +196,7 @@ public class FriendMainFragment extends Fragment {
                     public void onClick(View v) {
                         // ToastUtil.show(getContext(), "添加朋友");
                         taskApplyNumClean();
-                        hd.sbApply.setNum(0,false);
+                        hd.sbApply.setNum(0, false);
                         startActivity(new Intent(getContext(), FriendApplyAcitvity.class));
                     }
                 });
@@ -213,13 +220,13 @@ public class FriendMainFragment extends Fragment {
                         startActivity(new Intent(getContext(), FriendMatchActivity.class));
                     }
                 });
-                hd.sbApply.setNum(taskGetApplyNum(),false);
+                hd.sbApply.setNum(taskGetApplyNum(), false);
             } else if (holder instanceof RCViewHolder) {
 
                 final UserInfo bean = listData.get(position);
                 RCViewHolder hd = (RCViewHolder) holder;
                 hd.txtType.setText(bean.getTag());
-          //      hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+                //      hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
 
                 Glide.with(getActivity()).load(bean.getHead())
                         .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
@@ -324,25 +331,33 @@ public class FriendMainFragment extends Fragment {
     private UserDao userDao = new UserDao();
     private UserAction userAction = new UserAction();
 
+    @SuppressLint("CheckResult")
     private void taskListData() {
-
-
-        listData = userDao.getAllUserInBook();
-
-
-        UserInfo topBean = new UserInfo();
-        topBean.setTag("↑");
-        listData.add(0, topBean);
-        //筛选
-        Collections.sort(listData);
-
-        for (int i = 0; i < listData.size(); i++) {
-            //UserInfo infoBean:
-            viewType.putTag(listData.get(i).getTag(), i);
-        }
-
-        mtListView.notifyDataSetChange();
-
+        Observable.just(0)
+                .map(new Function<Integer, List<UserInfo>>() {
+                    @Override
+                    public List<UserInfo> apply(Integer integer) throws Exception {
+                        listData = userDao.getAllUserInBook();
+                        if (listData != null) {
+                            UserInfo topBean = new UserInfo();
+                            topBean.setTag("↑");
+                            listData.add(0, topBean);
+                            Collections.sort(listData);
+                            for (int i = 0; i < listData.size(); i++) {
+                                viewType.putTag(listData.get(i).getTag(), i);
+                            }
+                        }
+                        return listData;
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<UserInfo>>empty())
+                .subscribe(new Consumer<List<UserInfo>>() {
+                    @Override
+                    public void accept(List<UserInfo> userInfo) throws Exception {
+                        mtListView.notifyDataSetChange();
+                    }
+                });
 
     }
 
@@ -355,9 +370,11 @@ public class FriendMainFragment extends Fragment {
             if (uid > 0) {
                 @CoreEnum.ERosterAction int action = event.getRosterAction();
                 switch (action) {
-//                    case CoreEnum.ERosterAction.REQUEST_FRIEND:
+                    case CoreEnum.ERosterAction.REQUEST_FRIEND:
+                        taskRefreshUser(uid, action);
+                        break;
                     case CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS:
-                        taskRefreshUser(uid);
+                        taskRefreshUser(uid, action);
                         break;
                     case CoreEnum.ERosterAction.REMOVE_FRIEND:
                         taskRemoveUser(uid);
@@ -400,8 +417,8 @@ public class FriendMainFragment extends Fragment {
         });
     }
 
-    public void taskRefreshUser(long uid) {
-        userAction.getUserInfoAndSave(uid, ChatEnum.EUserType.FRIEND, new CallBack<ReturnBean<UserInfo>>() {
+    public void taskRefreshUser(long uid, @CoreEnum.ERosterAction int action) {
+        userAction.getUserInfoAndSave(uid, action == CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS ? ChatEnum.EUserType.FRIEND : ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 taskListData();

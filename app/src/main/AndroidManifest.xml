@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.yanlong.im">
 
-
     <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:name=".MyAppLication"
@@ -21,12 +20,12 @@
                         android:name="JRMF_PARTNER_NAME"
                         android:value="红包"/> -->
         <!--打包渠道-->
-<!--        <meta-data-->
-<!--            android:name="UMENG_CHANNEL"-->
-<!--            android:value="${UMENG_CHANNEL_VALUE}"/>-->
+        <!--<meta-data-->
+            <!--android:name="UMENG_CHANNEL"-->
+            <!--android:value="${UMENG_CHANNEL_VALUE}" />-->
 
         <meta-data
-            android:name="com.yanlong.im.utils.CustomGlideModule"
+            android:name="com.luck.picture.lib.glide.CustomGlideModule"
             android:value="AppGlideModule" />
 
         <meta-data
@@ -62,7 +61,7 @@
         <activity-alias
             android:name="main"
             android:label="@string/app_name"
-            android:targetActivity=".user.ui.StartPageActivity">
+            android:targetActivity=".user.ui.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -76,7 +75,7 @@
 
 
         <activity
-            android:name=".user.ui.StartPageActivity"
+            android:name=".user.ui.SplashActivity"
             android:launchMode="singleTask">
             <!-- <intent-filter>
                  <action android:name="android.intent.action.MAIN" />
@@ -105,7 +104,6 @@
                 <action android:name="android.net.wifi.STATE_CHANGE" />
             </intent-filter>
         </service>
-
 
         <!-- 新的朋友-->
         <activity
@@ -173,13 +171,6 @@
             android:name=".chat.ui.ChatActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".chat.ui.ChatActivity2"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait">
-
-        </activity>
 
         <activity
             android:name=".chat.ui.chat.ChatActivity3"
@@ -495,6 +486,9 @@
             android:name=".user.ui.GroupAddActivity"
             android:screenOrientation="portrait"></activity>
 
+        <activity android:name=".chat.ui.NoticeActivity"
+            android:screenOrientation="portrait"
+            />
 
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">
             <intent-filter>

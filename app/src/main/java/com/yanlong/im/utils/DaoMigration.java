@@ -11,11 +11,11 @@ public class DaoMigration implements RealmMigration {
         // DynamicRealm exposes an editable schema
         RealmSchema schema = realm.getSchema();
         if (newVersion > oldVersion) {
-            if (oldVersion == 0) {
+            if (oldVersion == 0) {//从0升到1
                 updateV1(schema);
                 oldVersion++;
             }
-            if (newVersion > oldVersion) {
+            if (newVersion > oldVersion && oldVersion == 1) {//从1升到2
                 updateV2(schema);
                 oldVersion++;
             }
@@ -32,19 +32,14 @@ public class DaoMigration implements RealmMigration {
     }
 
     /*
-     * 新增群头像表
+     *UserInfo 新增字段  lockCloudRedEnvelope，destroy
      * */
     private void updateV2(RealmSchema schema) {
-//        schema.create("GroupImageHead")
-//                .addField("gid", String.class, FieldAttribute.PRIMARY_KEY)
-//                .addField("imgHeadUrl", String.class);
-    }
+        schema.get("UserInfo")
+                .addField("lockCloudRedEnvelope", int.class)
+                .addField("destroy", int.class)
+                .addField("destroyTime", long.class);
 
-
-    private void updeteV3(RealmSchema schema){
-        schema.create("UserInfo")
-                .addField("destroy", Integer.class)
-                .addField("imgHeadUrl", String.class);
     }
 
 }

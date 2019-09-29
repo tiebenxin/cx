@@ -1,9 +1,12 @@
 package com.yanlong.im.chat.bean;
 
+import androidx.annotation.Nullable;
+
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.dao.UserDao;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
 /***
@@ -22,12 +25,21 @@ public class Session extends RealmObject {
     private String draft;
     //是否置顶
     private int isTop = 0;
-    //时候静音
+    //是否静音，是，免打扰
     private int isMute = 0;
     //  0.单个人 1.所有人 2.草稿
     private int messageType = 1000;
 
     private String atMessage;
+
+    @Ignore
+    private String name; //session名字
+    @Ignore
+    private String avatar;//头像
+    @Ignore
+    private boolean hasInitDisturb = false;//是否已经初始化免打扰
+    @Ignore
+    private MsgAllBean message;//最后消息
 
     public int getMessageType() {
         return messageType;
@@ -54,14 +66,13 @@ public class Session extends RealmObject {
     }
 
     public int getIsMute() {
-        // int isMute =0;
-
-        try {
-            isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!hasInitDisturb) {
+            try {
+                isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
         return isMute;
     }
 
@@ -101,7 +112,7 @@ public class Session extends RealmObject {
     }
 
     public Long getFrom_uid() {
-        return from_uid;
+        return from_uid == null ? -1 : from_uid;
     }
 
     public void setFrom_uid(Long from_uid) {
@@ -130,5 +141,61 @@ public class Session extends RealmObject {
 
     public void setUnread_count(int unread_count) {
         this.unread_count = unread_count;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public MsgAllBean getMessage() {
+        return message;
+    }
+
+    public void setMessage(MsgAllBean message) {
+        this.message = message;
+    }
+
+
+    public void setHasInitDisturb(boolean hasInitDisturb) {
+        this.hasInitDisturb = hasInitDisturb;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof Session) {
+            if (((Session) obj).getType() == 1) {
+                if (((Session) obj).getGid().equals(this.gid)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                if (((Session) obj).getFrom_uid() != null && from_uid != null) {
+                    if (((Session) obj).getFrom_uid() == this.from_uid) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 }

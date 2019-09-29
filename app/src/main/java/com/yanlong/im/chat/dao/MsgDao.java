@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
+import android.widget.TextView;
 
 import com.umeng.commonsdk.debug.E;
 import com.yanlong.im.chat.ChatEnum;
@@ -875,10 +876,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
                 session.setType(1);
-
                 session.setUnread_count(isCancel ? 0 : 1);
-
             } else {
+                if (session.getIsMute() == 1) {//免打扰
+                    return;
+                }
                 int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
                 num = num < 0 ? 0 : num;
                 session.setUnread_count(num);
@@ -896,6 +898,9 @@ public class MsgDao {
                 session.setUnread_count(isCancel ? 0 : 1);
 
             } else {
+                if (session.getIsMute() == 1) {//免打扰
+                    return;
+                }
                 int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
                 num = num < 0 ? 0 : num;
                 session.setUnread_count(num);
@@ -1127,6 +1132,70 @@ public class MsgDao {
             list = list.sort("isTop", Sort.DESCENDING);
             rts = realm.copyFromRealm(list);
 
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+
+        return rts;
+    }
+
+    /***
+     * 获取所有有效会话，去除被踢群聊
+     * @return
+     */
+    public List<Session> sessionGetAllValid() {
+        List<Session> rts = null;
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<Session> list = realm.where(Session.class)
+                    .beginGroup().notEqualTo("from_uid", 1L).and().isNotNull("from_uid").endGroup().
+                            or().isNotNull("gid").sort("up_time", Sort.DESCENDING).findAll();
+            //6.5 优先读取单独表的配置
+            List<Session> removes = new ArrayList<>();
+            if (list != null) {
+                int len = list.size();
+                for (int i = 0; i < len; i++) {
+                    Session l = list.get(i);
+                    Session session = null;
+                    int top = 0;
+                    if (l.getType() == 1) {
+                        GroupConfig config = realm.where(GroupConfig.class).equalTo("gid", l.getGid()).findFirst();
+                        if (config != null && config.getIsExit() == 1) {
+                            session = realm.copyFromRealm(l);
+                            removes.add(session);
+                        } else {
+                            Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
+                            if (group != null) {
+                                top = group.getIsTop();
+                                List<UserInfo> users = realm.copyFromRealm(group.getUsers());
+                                if (users != null && !users.contains(UserAction.getMyInfo())) {
+                                    session = realm.copyFromRealm(l);
+                                    removes.add(session);
+                                }
+                            }
+                        }
+                    } else {
+                        UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
+                        if (info != null) {
+                            top = info.getIstop();
+                        }
+                    }
+                    l.setIsTop(top);
+                }
+            }
+            realm.copyToRealmOrUpdate(list);
+            list = list.sort("isTop", Sort.DESCENDING);
+            rts = realm.copyFromRealm(list);
+            if (removes.size() > 0) {
+                int len = removes.size();
+                for (int i = 0; i < len; i++) {
+                    rts.remove(removes.get(i));
+                }
+            }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -1681,9 +1750,10 @@ public class MsgDao {
         realm.close();
     }
 
-    //是否存在该消息
+    //是否存在该消息,getChat=null 需要删除旧消息
     public boolean isMsgLockExist(String gid, Long uid) {
         MsgAllBean ret = null;
+        MsgAllBean bean = null;
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         if (!TextUtils.isEmpty(gid)) {
@@ -1701,11 +1771,16 @@ public class MsgDao {
                     .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                     .findFirst();
         }
-
+        if (ret != null) {
+            bean = realm.copyFromRealm(ret);
+        }
         realm.commitTransaction();
         realm.close();
-        if (ret != null) {
+        if (bean != null && bean.getChat() != null) {
             return true;
+        }
+        if (bean != null) {
+            DaoUtil.deleteOne(MsgAllBean.class, "msg_id", bean.getMsg_id());
         }
         return false;
     }
@@ -1974,29 +2049,107 @@ public class MsgDao {
      */
     public int getUnreadCount(String gid, Long uid) {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-        List<Session> list;
-        if (!TextUtils.isEmpty(gid)) {
-            list = realm.where(Session.class)
-                    .notEqualTo("gid", gid)
-                    .findAll();
-        } else {
-            list = realm.where(Session.class)
-                    .notEqualTo("from_uid", uid)
-                    .findAll();
-
-        }
-        List<Session> sessions = realm.copyFromRealm(list);
         int sum = 0;
-        int len = sessions.size();
-        for (int i = 0; i < len; i++) {
-            sum += sessions.get(i).getUnread_count();
+        try {
+            realm.beginTransaction();
+            RealmResults<Session> list;
+            if (!TextUtils.isEmpty(gid)) {
+                list = realm.where(Session.class)
+                        .notEqualTo("gid", gid)
+                        .findAll();
+            } else {
+                list = realm.where(Session.class)
+                        .notEqualTo("from_uid", uid)
+                        .findAll();
+
+            }
+            List<Session> sessions = realm.copyFromRealm(list);
+            int len = sessions.size();
+            for (int i = 0; i < len; i++) {
+                sum += sessions.get(i).getUnread_count();
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
         }
-        realm.commitTransaction();
-        realm.close();
         return sum;
+    }
 
+    public boolean isGroupExist(String groupId) {
+        boolean exist = false;
+        if (!TextUtils.isEmpty(groupId)) {
+            Realm realm = DaoUtil.open();
+            try {
+                realm.beginTransaction();
+                Group g = realm.where(Group.class).equalTo("gid", groupId).findFirst();
+                if (g != null) {
+                    exist = true;
+                }
+                realm.commitTransaction();
+                realm.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                DaoUtil.close(realm);
+            }
+        }
+        return exist;
 
+    }
+
+    /*
+     * 更新消息已读状态
+     * @param isRead true 更新为已读，false 更新为未读
+     * 排除语音，等消息
+     *
+     * */
+    public void updateMsgReaded(Long uid, String gid, boolean isRead) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<MsgAllBean> realmResults = null;
+            if (isRead) {//将未读改为已读
+                if (!TextUtils.isEmpty(gid)) {
+                    realmResults = realm.where(MsgAllBean.class)
+                            .beginGroup().equalTo("gid", gid).endGroup()
+                            .and()
+                            .beginGroup().equalTo("isRead", false).endGroup()
+                            .findAll();
+                } else {
+                    realmResults = realm.where(MsgAllBean.class)
+                            .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                            .and()
+                            .beginGroup().equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
+                            .and()
+                            .beginGroup().equalTo("isRead", false).endGroup()
+                            .findAll();
+                }
+            } else {
+
+            }
+            List<MsgAllBean> list = null;
+            if (realmResults != null) {
+                list = realm.copyFromRealm(realmResults);
+            }
+            if (list != null) {
+                int len = list.size();
+                for (int i = 0; i < len; i++) {
+                    MsgAllBean bean = list.get(i);
+                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
+                        continue;
+                    }
+                    bean.setRead(isRead);
+                    realm.insertOrUpdate(bean);
+                }
+            }
+
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
     }
 
 
