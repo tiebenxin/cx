@@ -202,8 +202,8 @@ public class SocketData {
                         loadUids.add(msgAllBean.getFrom_uid());
                         loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
                     } else {
-                        msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(),msgAllBean.getFrom_uid());
+//                        msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(),false);
                         MessageManager.getInstance().setMessageChange(true);
 
                     }
@@ -237,7 +237,8 @@ public class SocketData {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), receiveMessage.getSayHi());
                 MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                 DaoUtil.save(message);
-                msgDao.sessionReadUpdate(message.getGid(), message.getFrom_uid());
+//                msgDao.sessionReadUpdate(message.getGid(), message.getFrom_uid());
+                MessageManager.getInstance().updateSessionUnread(message.getGid(), message.getFrom_uid(),false);
                 MessageManager.getInstance().setMessageChange(true);
             }
         }
@@ -248,7 +249,8 @@ public class SocketData {
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                msgDao.sessionReadUpdate(gid, uid);
+//                msgDao.sessionReadUpdate(gid, uid);
+                MessageManager.getInstance().updateSessionUnread(gid, uid,false);
                 MessageManager.getInstance().setMessageChange(true);
             }
         });
@@ -260,7 +262,8 @@ public class SocketData {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
-                msgDao.sessionReadUpdate(gid, uid);
+//                msgDao.sessionReadUpdate(gid, uid);
+                MessageManager.getInstance().updateSessionUnread(gid, uid,false);
                 MessageManager.getInstance().setMessageChange(true);
             }
         });

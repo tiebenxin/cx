@@ -126,8 +126,8 @@ public class MessageManager {
         msgDao.sessionCreate(gid, uid);
     }
 
-    public void updateSessionUnread(String gid, Long from_uid) {
-        msgDao.sessionReadUpdate(gid,from_uid);
+    public void updateSessionUnread(String gid, Long from_uid,boolean isCancel) {
+        msgDao.sessionReadUpdate(gid,from_uid,isCancel);
     }
 
     public void nootifyRefreshMsg() {

@@ -321,7 +321,8 @@ public class ChatServer extends Service {
                         gid = null;
                     }
                     long fuid = msg.getFromUid();
-                    msgDao.sessionReadUpdate(gid, fuid, true);
+//                    msgDao.sessionReadUpdate(gid, fuid, true);
+                    MessageManager.getInstance().updateSessionUnread(gid,fuid,true);
                     msgDao.msgDel4Cancel(msg.getMsgId(), msg.getCancel().getMsgId());
                     EventBus.getDefault().post(new EventRefreshChat());
                     MessageManager.getInstance().setMessageChange(true);
