@@ -203,6 +203,7 @@ public class SocketData {
                         loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
                     } else {
                         msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(),msgAllBean.getFrom_uid());
                         MessageManager.getInstance().setMessageChange(true);
 
                     }

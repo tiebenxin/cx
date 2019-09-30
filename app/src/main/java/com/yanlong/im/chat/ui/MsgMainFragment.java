@@ -507,11 +507,11 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
-            if (payloads.isEmpty()){
+            if (payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
-            }else{
-                int type=(int)payloads.get(0);
-                switch (type){
+            } else {
+                int type = (int) payloads.get(0);
+                switch (type) {
                     case 0:
                         break;
                     case 1:
@@ -720,7 +720,7 @@ public class MsgMainFragment extends Fragment {
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                     );
-                    if (bean.getUnread_count() > 0) {
+                    if (bean.getUnread_count() > 0 || (bean.getMessage() != null && !bean.getMessage().isRead())) {
                         MessageManager.getInstance().setMessageChange(true);
                     }
 

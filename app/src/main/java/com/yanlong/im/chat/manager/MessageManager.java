@@ -14,9 +14,12 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,5 +120,17 @@ public class MessageManager {
 
     public void setMessageChange(boolean isChange) {
         this.isMessageChange = isChange;
+    }
+
+    public void createSession(String gid, Long uid) {
+        msgDao.sessionCreate(gid, uid);
+    }
+
+    public void updateSessionUnread(String gid, Long from_uid) {
+        msgDao.sessionReadUpdate(gid,from_uid);
+    }
+
+    public void nootifyRefreshMsg() {
+        EventBus.getDefault().post(new EventRefreshMainMsg());
     }
 }

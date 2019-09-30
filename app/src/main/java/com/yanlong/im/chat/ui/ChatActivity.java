@@ -64,6 +64,7 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
@@ -354,7 +355,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         taskGroupConf();
                     } else {
                         taskGroupConf();
-                        GroupHeadImageUtil.creatAndSaveImg(this,groupInfo.getGid());
+                        GroupHeadImageUtil.creatAndSaveImg(this, groupInfo.getGid());
 //                        creatAndSaveImg(groupInfo.getGid());
                     }
                 }
@@ -427,32 +428,32 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void addViewPagerEvent() {
-                emojiLayout = new ArrayList<>();
+        emojiLayout = new ArrayList<>();
 //                View view1 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji, null);
 //                View view2 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji2, null);
 //                View view3 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji3, null);
 //                View view4 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji4, null);
 //                View view5 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji5, null);
-                View view6 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji6, null);
-                View view7 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji7, null);
-                View view8 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji8, null);
-                View view9 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji9, null);
-                View view10 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji10, null);
-                View view11 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji11, null);
+        View view6 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji6, null);
+        View view7 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji7, null);
+        View view8 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji8, null);
+        View view9 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji9, null);
+        View view10 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji10, null);
+        View view11 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji11, null);
 //        emojiLayout.add(view1);
 //        emojiLayout.add(view2);
 //        emojiLayout.add(view3);
 //        emojiLayout.add(view4);
 //        emojiLayout.add(view5);
 //        emojiLayout.add(view5);
-                emojiLayout.add(view6);
-                emojiLayout.add(view7);
-                emojiLayout.add(view8);
-                emojiLayout.add(view9);
-                emojiLayout.add(view10);
-                emojiLayout.add(view11);
-                emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
-                emoji_pager.addOnPageChangeListener(new PageIndicator(ChatActivity.this, (LinearLayout) findViewById(R.id.dot_hor), 6));
+        emojiLayout.add(view6);
+        emojiLayout.add(view7);
+        emojiLayout.add(view8);
+        emojiLayout.add(view9);
+        emojiLayout.add(view10);
+        emojiLayout.add(view11);
+        emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
+        emoji_pager.addOnPageChangeListener(new PageIndicator(ChatActivity.this, (LinearLayout) findViewById(R.id.dot_hor), 6));
 
     }
 
@@ -2627,6 +2628,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
             dao.sessionDraft(toGid, toUId, "");
+            MessageManager.getInstance().setMessageChange(true);
         }
     }
 
@@ -2636,8 +2638,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskDarftSet() {
         String df = edtChat.getText().toString();
         dao.sessionDraft(toGid, toUId, df);
-
-
+        MessageManager.getInstance().setMessageChange(true);
     }
 
     /***

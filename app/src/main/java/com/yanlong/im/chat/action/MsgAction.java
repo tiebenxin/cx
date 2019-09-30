@@ -299,6 +299,7 @@ public class MsgAction {
                     return;
                 if (response.body().isOk()) {//存库
                     dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
+                    MessageManager.getInstance().setMessageChange(true);
                 }
 
                 cb.onResponse(call, response);
