@@ -354,7 +354,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         taskGroupConf();
                     } else {
                         taskGroupConf();
-                        creatAndSaveImg(groupInfo.getGid());
+                        GroupHeadImageUtil.creatAndSaveImg(this,groupInfo.getGid());
+//                        creatAndSaveImg(groupInfo.getGid());
                     }
                 }
                 break;
@@ -368,28 +369,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
-    private void creatAndSaveImg(String gid) {
-        Group gginfo = msgDao.getGroup4Id(gid);
-        int i = gginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            UserInfo userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-//        Glide.with(this).load(file)
-//                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-    }
+//    private void creatAndSaveImg(String gid) {
+//        Group gginfo = msgDao.getGroup4Id(gid);
+//        int i = gginfo.getUsers().size();
+//        i = i > 9 ? 9 : i;
+//        //头像地址
+//        String url[] = new String[i];
+//        for (int j = 0; j < i; j++) {
+//            UserInfo userInfo = gginfo.getUsers().get(j);
+////            if (j == i - 1) {
+////                name += userInfo.getName();
+////            } else {
+////                name += userInfo.getName() + "、";
+////            }
+//            url[j] = userInfo.getHead();
+//        }
+//        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+////        Glide.with(this).load(file)
+////                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+//
+//        MsgDao msgDao = new MsgDao();
+//        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+//    }
 
 
     private List<View> emojiLayout;
@@ -426,36 +427,33 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void addViewPagerEvent() {
-        emojiLayout = new ArrayList<>();
-        String emojiStr = "\n" +
-                "\n" +
-                "\uD83D\uDE42\uD83D\uDE04\uD83D\uDE0A☺️\uD83D\uDE0D\uD83D\uDE02\uD83D\uDE05\uD83D\uDE0C\uD83D\uDE09\uD83D\uDE17\uD83D\uDE0B\uD83D\uDE1D\uD83E\uDD2A\uD83E\uDD28\uD83E\uDDD0\uD83E\uDD13\uD83D\uDE0E\uD83E\uDD29\uD83E\uDD73\uD83D\uDE0F\uD83D\uDE14\uD83D\uDE1F\uD83D\uDE41\uD83D\uDE23\uD83D\uDE16\uD83D\uDE2B\uD83D\uDE29\uD83E\uDD7A\uD83D\uDE22\uD83D\uDE2D\uD83D\uDE24\uD83D\uDE20\uD83D\uDE21\uD83E\uDD14\uD83E\uDD2D\uD83E\uDD2B\uD83E\uDD25\uD83D\uDE36\uD83D\uDE10\uD83E\uDD10\uD83D\uDE44\uD83D\uDE32\uD83D\uDE34\uD83E\uDD24\uD83D\uDE2A\uD83D\uDE35\uD83E\uDD10\uD83E\uDD74\uD83E\uDD12\uD83E\uDD15\uD83D\uDE37\uD83E\uDD11\uD83D\uDE31\uD83D\uDE28\uD83E\uDD76\uD83E\uDD22\uD83E\uDD27\uD83E\uDD20\uD83D\uDE08\uD83E\uDD21\uD83D\uDCA9\uD83D\uDC7B\uD83D\uDC7D\uD83D\uDC50\uD83D\uDC4F\uD83E\uDD1D\uD83D\uDC4D\uD83D\uDC4A\uD83E\uDD1B\uD83E\uDD1C\uD83E\uDD1E✌️\uD83E\uDD1F\uD83D\uDC4C\uD83D\uDD90\uD83D\uDC4B\uD83E\uDD19\uD83D\uDCAA\uD83E\uDDB6\uD83D\uDE4F\uD83D\uDC8B\uD83D\uDC84\uD83D\uDC40\uD83D\uDC76\uD83D\uDC67\uD83E\uDDF6\uD83D\uDC60\uD83D\uDC58\uD83E\uDDE3\uD83D\uDC8D\uD83D\uDC51\uD83D\uDC52\uD83D\uDC36\uD83D\uDC37\uD83D\uDE48\uD83D\uDC1C\uD83D\uDC1B\uD83D\uDC09\uD83C\uDF44\uD83C\uDF39⚡️\uD83C\uDF27\uD83C\uDF24☔️\uD83C\uDF6D\uD83C\uDF67\uD83C\uDF6C\uD83C\uDF61\uD83C\uDF4E\uD83C\uDF4A\uD83C\uDF50\uD83E\uDD51\uD83C\uDF4C\uD83E\uDD6F\uD83E\uDD5A\uD83C\uDF54\uD83C\uDF5A\uD83D\uDCA3\uD83C\uDF82\uD83D\uDEC1\uD83D\uDD11\uD83E\uDD42\uD83C\uDF89\uD83C\uDF80\uD83C\uDF81\uD83D\uDECD\uD83D\uDC98\uD83D\uDC94\uD83D\uDC9E\uD83D\uDD14\uD83D\uDCE2";
-        Log.e("TAG", emojiStr.length() + "");
-        View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
-        View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
-        View view3 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji3, null);
-        View view4 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji4, null);
-        View view5 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji5, null);
-        View view6 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji6, null);
-        View view7 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji7, null);
-        View view8 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji8, null);
-        View view9 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji9, null);
-        View view10 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji10, null);
-        View view11 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji11, null);
+                emojiLayout = new ArrayList<>();
+//                View view1 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji, null);
+//                View view2 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji2, null);
+//                View view3 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji3, null);
+//                View view4 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji4, null);
+//                View view5 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji5, null);
+                View view6 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji6, null);
+                View view7 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji7, null);
+                View view8 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji8, null);
+                View view9 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji9, null);
+                View view10 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji10, null);
+                View view11 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji11, null);
 //        emojiLayout.add(view1);
 //        emojiLayout.add(view2);
 //        emojiLayout.add(view3);
 //        emojiLayout.add(view4);
 //        emojiLayout.add(view5);
 //        emojiLayout.add(view5);
-        emojiLayout.add(view6);
-        emojiLayout.add(view7);
-        emojiLayout.add(view8);
-        emojiLayout.add(view9);
-        emojiLayout.add(view10);
-        emojiLayout.add(view11);
-        emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
-        emoji_pager.addOnPageChangeListener(new PageIndicator(this, (LinearLayout) findViewById(R.id.dot_hor), 6));
+                emojiLayout.add(view6);
+                emojiLayout.add(view7);
+                emojiLayout.add(view8);
+                emojiLayout.add(view9);
+                emojiLayout.add(view10);
+                emojiLayout.add(view11);
+                emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
+                emoji_pager.addOnPageChangeListener(new PageIndicator(ChatActivity.this, (LinearLayout) findViewById(R.id.dot_hor), 6));
+
     }
 
     @Override

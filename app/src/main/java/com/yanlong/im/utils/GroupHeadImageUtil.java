@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.disklrucache.DiskLruCache;
@@ -20,6 +21,10 @@ import com.bumptech.glide.signature.EmptySignature;
 import com.luck.picture.lib.glide.CustomGlideModule;
 import com.luck.picture.lib.glide.OriginalKey;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
@@ -91,6 +96,53 @@ public class GroupHeadImageUtil {
         return save2File(addBitmap(10, bitmaps.toArray(new Bitmap[]{})));
     }
 
+
+
+    public static void creatAndShowGroupHeadImg(Context mContext,Session bean, ImageView imgHead){
+        MsgDao msgDao=new MsgDao();
+        Group gginfo = msgDao.getGroup4Id(bean.getGid());
+        int i = gginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            UserInfo userInfo = gginfo.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(mContext, url);
+        Glide.with(mContext).load(file)
+                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+    }
+
+    public static void creatAndSaveImg(Context mContext,String gid) {
+        MsgDao msgDao=new MsgDao();
+        Group gginfo = msgDao.getGroup4Id(gid);
+        int i = gginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            UserInfo userInfo = gginfo.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(mContext, url);
+//        Glide.with(this).load(file)
+//                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+    }
+
+
     public static File getCacheFileDisk(String url){
             OriginalKey originalKey = new OriginalKey(url, EmptySignature.obtain());
             SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
@@ -117,31 +169,28 @@ public class GroupHeadImageUtil {
         String safeKey = safeKeyGenerator.getSafeKey(dataCacheKey);
         try {
             int cacheSize = 100 * 1000 * 1000;
-
-            DiskLruCache.Value value;
-            if (CustomGlideModule.hasPermission(context)) {
-//            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
-            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-//                //SD卡已装入
-                File storageDirectory = Environment.getExternalStorageDirectory();
-                String cachePath = storageDirectory + "/changliaoliao/cache/image";
-//                DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-                DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, cacheSize);
-                value = diskLruCache.get(safeKey);
-            }else{
                 DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-                value = diskLruCache.get(safeKey);
-            }
-            } else {
-//                //设置内存缓存大小,默认缓存位置
-////            System.out.println("Glide缓存位置：默认应用内");
-                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-                value = diskLruCache.get(safeKey);
-            }
-
-
-
-
+                DiskLruCache.Value value = diskLruCache.get(safeKey);
+//            DiskLruCache.Value value;
+//            if (CustomGlideModule.hasPermission(context)) {
+////            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
+//            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+////                //SD卡已装入
+////                File storageDirectory = Environment.getExternalStorageDirectory();
+////                String cachePath = storageDirectory + "/changliaoliao/cache/image";
+//                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+////                DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, cacheSize);
+//                value = diskLruCache.get(safeKey);
+//            }else{
+//                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+//                value = diskLruCache.get(safeKey);
+//            }
+//            } else {
+////                //设置内存缓存大小,默认缓存位置
+//////            System.out.println("Glide缓存位置：默认应用内");
+//                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+//                value = diskLruCache.get(safeKey);
+//            }
 
             if (value != null) {
                 return value.getFile(0);
