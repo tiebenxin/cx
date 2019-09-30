@@ -98,11 +98,11 @@ public class CustomTabView extends LinearLayout {
                 tv_left.setSelected(true);
                 tv_left.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
                 tv_right.setSelected(false);
-                tv_right.setTextColor(ContextCompat.getColor(getContext(), R.color.blue));
+                tv_right.setTextColor(ContextCompat.getColor(getContext(), R.color.tab_select));
                 break;
             case ETabPosition.RIGHT:
                 tv_left.setSelected(false);
-                tv_left.setTextColor(ContextCompat.getColor(getContext(), R.color.blue));
+                tv_left.setTextColor(ContextCompat.getColor(getContext(), R.color.tab_select));
                 tv_right.setSelected(true);
                 tv_right.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
                 break;

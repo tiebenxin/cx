@@ -13,6 +13,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -323,6 +324,7 @@ public class ChatServer extends Service {
                     msgDao.sessionReadUpdate(gid, fuid, true);
                     msgDao.msgDel4Cancel(msg.getMsgId(), msg.getCancel().getMsgId());
                     EventBus.getDefault().post(new EventRefreshChat());
+                    MessageManager.getInstance().setMessageChange(true);
                     return;
                 case RESOURCE_LOCK://资源锁定
                     updateUserLockCloudRedEnvelope(msg);

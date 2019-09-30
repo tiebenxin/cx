@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -32,6 +33,7 @@ import net.cb.cb.library.view.AppActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.jpush.android.api.JPluginPlatformInterface;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -51,6 +53,7 @@ public class SplashActivity extends AppActivity {
     Handler handler = new Handler(Looper.getMainLooper());
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +69,9 @@ public class SplashActivity extends AppActivity {
         initView();
         initEvent();
         showPage();
+
     }
+
 
 
     private void initView() {

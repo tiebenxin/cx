@@ -99,6 +99,7 @@ public class UserInfoActivity extends AppActivity {
     private String mucNick;
     private int contactIntimately;
     private UserInfo userInfoLocal;
+    private Group group;
 
 
     @Override
@@ -272,7 +273,18 @@ public class UserInfoActivity extends AppActivity {
                         }
                     });
                     alertTouch.show();
-                    alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
+                    if (group != null) {
+                        String name = group.getName();
+                        if (!TextUtils.isEmpty(name)) {
+                            String userName = group.getMygroupName();
+                            if (TextUtils.isEmpty(userName)) {
+                                userName = UserAction.getMyInfo().getName();
+                            }
+                            alertTouch.setContent("我是" + "\"" + name + "\"" + "的" + userName);
+                        }
+                    } else {
+                        alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
+                    }
                     alertTouch.setEdHintOrSize(null, 60);
                 }
             });
@@ -427,7 +439,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskGroupInfo(String gid) {
-        new MsgAction().groupInfo4UserInfo(gid, new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo4Db(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
@@ -435,8 +447,8 @@ public class UserInfoActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    Group group = response.body().getData();
-                    setGoupData(group);
+                    group = response.body().getData();
+                    setGroupData(group);
                 }
             }
 
@@ -444,11 +456,9 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-    private void setGoupData(Group group) {
+    private void setGroupData(Group group) {
         //9.2 开启保护就隐藏加好友
         if (group.getContactIntimately() != null) {
-
-
             if (group.getContactIntimately() == 1 && !group.getMaster().equals(id.toString())) {
                 mBtnAdd.setVisibility(View.GONE);
             }
@@ -507,8 +517,8 @@ public class UserInfoActivity extends AppActivity {
     }
 
     /*
-    * 加入黑名单
-    * */
+     * 加入黑名单
+     * */
     private void taskFriendBlack(final Long id) {
         userAction.friendBlack(id, new CallBack<ReturnBean>() {
             @Override

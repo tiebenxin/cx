@@ -39,6 +39,7 @@ import net.cb.cb.library.utils.encrypt.MD5;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.jpush.android.api.JPushInterface;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -101,32 +102,17 @@ public class UserAction {
      * @return
      */
     public static String getDevId(Context context) {
-        int reTime = 0;
-        String uid = null;
-        try {
-            while (reTime < 5 * 10) {
-                uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
-                if (uid != null) {
-                    break;
-                } else {
-                    LogUtil.getLog().i("youmeng", "等待DevId" + reTime);
-                    Thread.sleep(200);
-                }
-                reTime++;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        String uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
+        uid = JPushInterface.getRegistrationID(context);
         if (TextUtils.isEmpty(uid)) {
-
-            LogUtil.getLog().i("youmeng", "等待DevId失败,自动生成");
-            uid = Installation.id(context);
+            if(TextUtils.isEmpty(uid)){
+                uid = Installation.id(context);
+            }
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
             return uid;
         }
 
-        LogUtil.getLog().i("youmeng", "上传deviceToken------------>" + uid);
+        LogUtil.getLog().i("getDevId",uid+"");
         return uid;
     }
 
