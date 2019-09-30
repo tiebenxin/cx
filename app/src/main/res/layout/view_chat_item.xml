@@ -21,7 +21,7 @@
         tool:text="shijian" />
 
 
-    //通知消息
+    <!-- 通知消息 -->
 
     <LinearLayout
         android:id="@+id/view_broadcast"
@@ -126,17 +126,15 @@
                     android:id="@+id/view_ot_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:background="@drawable/selector_chat_other_touch"
                     android:gravity="left|center_vertical"
-
                     android:visibility="gone">
 
                     <android.support.v7.widget.AppCompatTextView
                         android:id="@+id/txt_ot_1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/emoji_font"
+                        android:fontFamily="noraml"
                         android:maxWidth="210dp"
                         android:selectAllOnFocus="true"
                         android:text="我----已经添加你为好友啦"
@@ -490,7 +488,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_chat_me_touch"
-
                         android:gravity="right|center_vertical"
                         android:visibility="gone">
 
@@ -498,7 +495,7 @@
                             android:id="@+id/txt_me_1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/emoji_font"
+                            android:fontFamily="noraml"
                             android:maxWidth="210dp"
                             android:selectAllOnFocus="true"
                             android:text="我已好友啦"

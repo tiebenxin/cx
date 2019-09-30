@@ -33,13 +33,16 @@ public class Session extends RealmObject {
     private String atMessage;
 
     @Ignore
-    private String name; //session名字
+    private String name; //session名字，群聊即群名，私聊即好友备注或昵称
     @Ignore
     private String avatar;//头像
     @Ignore
     private boolean hasInitDisturb = false;//是否已经初始化免打扰
     @Ignore
     private MsgAllBean message;//最后消息
+
+    @Ignore
+    private String senderName; //发送者名字，群聊
 
     public int getMessageType() {
         return messageType;
@@ -170,6 +173,14 @@ public class Session extends RealmObject {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
     }
 
     @Override

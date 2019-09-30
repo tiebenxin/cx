@@ -698,7 +698,6 @@ public class MsgDao {
      */
     public void groupCreate(String id, String avatar, String name, List<UserInfo> listDataTop) {
         if (!TextUtils.isEmpty(id)) {
-            sessionCreate(id, null);
             Group group = new Group();
             group.setAvatar(avatar == null ? "" : avatar);
             group.setGid(id);
