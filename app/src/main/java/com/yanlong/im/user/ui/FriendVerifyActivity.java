@@ -7,9 +7,16 @@ import android.text.TextUtils;
 
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityFriendVerifyBinding;
+import com.yanlong.im.user.action.UserAction;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * @anthor Liszt
@@ -18,16 +25,20 @@ import net.cb.cb.library.view.AppActivity;
  */
 public class FriendVerifyActivity extends AppActivity {
     public final static String CONTENT = "content";
+    public final static String USER_ID = "user_id";
 
     private ActivityFriendVerifyBinding ui;
+    private Long userId;
+    private String content;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_friend_verify);
         Intent intent = getIntent();
-        String content = intent.getStringExtra(CONTENT);
+        content = intent.getStringExtra(CONTENT);
+        userId = intent.getLongExtra(USER_ID, -1L);
         if (!TextUtils.isEmpty(content)) {
             ui.etTxt.setText(content);
         }
@@ -36,12 +47,32 @@ public class FriendVerifyActivity extends AppActivity {
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-
+                setResult(RESULT_CANCELED);
+                finish();
             }
 
             @Override
             public void onRight() {
+                taskAddFriend(userId, content);
+            }
+        });
+    }
 
+    private void taskAddFriend(Long userId, String sayHi) {
+        if (userId <= 0) {
+            ToastUtil.show(this, "无效用户");
+        }
+        new UserAction().friendApply(userId, sayHi, null, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                if (response.body() == null) {
+                    return;
+                }
+                ToastUtil.show(FriendVerifyActivity.this, response.body().getMsg());
+                if (response.body().isOk()) {
+                    setResult(RESULT_OK);
+                    finish();
+                }
             }
         });
     }
