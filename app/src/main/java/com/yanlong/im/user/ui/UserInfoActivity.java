@@ -53,6 +53,7 @@ import retrofit2.Response;
  */
 public class UserInfoActivity extends AppActivity {
     public static final int SETING_REMARK = 1000;
+    public static final int SEND_VERIFY = 1;
     public static final String ID = "id";
     public static final String SAY_HI = "sayHi";
     public static final String IS_APPLY = "isApply";
@@ -260,32 +261,33 @@ public class UserInfoActivity extends AppActivity {
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertTouch alertTouch = new AlertTouch();
-                    alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
-                        @Override
-                        public void onON() {
-
-                        }
-
-                        @Override
-                        public void onYes(String content) {
-                            taskAddFriend(id, content);
-                        }
-                    });
-                    alertTouch.show();
-                    if (group != null) {
-                        String name = group.getName();
-                        if (!TextUtils.isEmpty(name)) {
-                            String userName = group.getMygroupName();
-                            if (TextUtils.isEmpty(userName)) {
-                                userName = UserAction.getMyInfo().getName();
-                            }
-                            alertTouch.setContent("我是" + "\"" + name + "\"" + "的" + userName);
-                        }
-                    } else {
-                        alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
-                    }
-                    alertTouch.setEdHintOrSize(null, 60);
+                    toSendVerifyActivity();
+//                    AlertTouch alertTouch = new AlertTouch();
+//                    alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
+//                        @Override
+//                        public void onON() {
+//
+//                        }
+//
+//                        @Override
+//                        public void onYes(String content) {
+//                            taskAddFriend(id, content);
+//                        }
+//                    });
+//                    alertTouch.show();
+//                    if (group != null) {
+//                        String name = group.getName();
+//                        if (!TextUtils.isEmpty(name)) {
+//                            String userName = group.getMygroupName();
+//                            if (TextUtils.isEmpty(userName)) {
+//                                userName = UserAction.getMyInfo().getName();
+//                            }
+//                            alertTouch.setContent("我是" + "\"" + name + "\"" + "的" + userName);
+//                        }
+//                    } else {
+//                        alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
+//                    }
+//                    alertTouch.setEdHintOrSize(null, 60);
                 }
             });
         } else {
@@ -299,6 +301,24 @@ public class UserInfoActivity extends AppActivity {
         }
 
 
+    }
+
+    private void toSendVerifyActivity() {
+        String content = "我是" + UserAction.getMyInfo().getName();
+        if (group != null) {
+            String name = group.getName();
+            if (!TextUtils.isEmpty(name)) {
+                String userName = group.getMygroupName();
+                if (TextUtils.isEmpty(userName)) {
+                    userName = UserAction.getMyInfo().getName();
+                }
+                content = "我是" + "\"" + name + "\"" + "的" + userName;
+            }
+        }
+        Intent intent = new Intent(UserInfoActivity.this, FriendVerifyActivity.class);
+        intent.putExtra(FriendVerifyActivity.CONTENT, content);
+        intent.putExtra(FriendVerifyActivity.USER_ID, id);
+        startActivityForResult(intent, SEND_VERIFY);
     }
 
 
@@ -321,13 +341,10 @@ public class UserInfoActivity extends AppActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            String content = data.getStringExtra(CommonSetingActivity.CONTENT);
             switch (requestCode) {
                 case SETING_REMARK:
-                    //6.15
-                    //  if (!TextUtils.isEmpty(content)) {
+                    String content = data.getStringExtra(CommonSetingActivity.CONTENT);
                     taskFriendMark(id, content);
-                    //  }
                     break;
             }
         }
