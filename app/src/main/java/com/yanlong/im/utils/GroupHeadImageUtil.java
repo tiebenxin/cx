@@ -169,28 +169,28 @@ public class GroupHeadImageUtil {
         String safeKey = safeKeyGenerator.getSafeKey(dataCacheKey);
         try {
             int cacheSize = 100 * 1000 * 1000;
+//                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+//                DiskLruCache.Value value = diskLruCache.get(safeKey);
+            DiskLruCache.Value value;
+            if (CustomGlideModule.hasPermission(context)) {
+//            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
+            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+//                //SD卡已装入
+                File storageDirectory = Environment.getExternalStorageDirectory();
+                String cachePath = storageDirectory + "/changliaoliao/cache/image";
+//                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+                DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, cacheSize);
+                value = diskLruCache.get(safeKey);
+            }else{
                 DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-                DiskLruCache.Value value = diskLruCache.get(safeKey);
-//            DiskLruCache.Value value;
-//            if (CustomGlideModule.hasPermission(context)) {
-////            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
-//            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-////                //SD卡已装入
-////                File storageDirectory = Environment.getExternalStorageDirectory();
-////                String cachePath = storageDirectory + "/changliaoliao/cache/image";
-//                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-////                DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, cacheSize);
-//                value = diskLruCache.get(safeKey);
-//            }else{
-//                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-//                value = diskLruCache.get(safeKey);
-//            }
-//            } else {
-////                //设置内存缓存大小,默认缓存位置
-//////            System.out.println("Glide缓存位置：默认应用内");
-//                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-//                value = diskLruCache.get(safeKey);
-//            }
+                value = diskLruCache.get(safeKey);
+            }
+            } else {
+//                //设置内存缓存大小,默认缓存位置
+////            System.out.println("Glide缓存位置：默认应用内");
+                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+                value = diskLruCache.get(safeKey);
+            }
 
             if (value != null) {
                 return value.getFile(0);
