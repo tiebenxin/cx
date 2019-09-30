@@ -471,7 +471,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        taskListData();
+        taskListData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -503,6 +503,21 @@ public class MsgMainFragment extends Fragment {
         @Override
         public int getItemCount() {
             return listData == null ? 0 : listData.size();
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
+            if (payloads.isEmpty()){
+                onBindViewHolder(holder, position);
+            }else{
+                int type=(int)payloads.get(0);
+                switch (type){
+                    case 0:
+                        break;
+                    case 1:
+                        break;
+                }
+            }
         }
 
         //自动生成控件事件
