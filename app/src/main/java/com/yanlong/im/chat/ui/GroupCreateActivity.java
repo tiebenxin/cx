@@ -346,25 +346,10 @@ public class GroupCreateActivity extends AppActivity {
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             UserInfo userInfo = templist.get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-//            File file = getCacheFile2(context,userInfo.getHead());
-//            if (null!=file){
-//                url[j] = userInfo.getHead();
-//            }
+
             url[j] = userInfo.getHead();
         }
         fileImg= GroupHeadImageUtil.synthesis(this, url);
-
-
-//        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
-//        name += "的群";
-//        final String fname = name;
-
-
 
 
 

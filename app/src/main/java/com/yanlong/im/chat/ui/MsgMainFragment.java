@@ -434,6 +434,7 @@ public class MsgMainFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
+
         taskListData();
     }
 
@@ -465,7 +466,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        taskListData();
+//        taskListData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -696,26 +697,8 @@ public class MsgMainFragment extends Fragment {
         }
 
         private void creatAndSaveImg(Session bean, ImageView imgHead) {
-            Group gginfo = msgDao.getGroup4Id(bean.getGid());
-            int i = gginfo.getUsers().size();
-            i = i > 9 ? 9 : i;
-            //头像地址
-            String url[] = new String[i];
-            for (int j = 0; j < i; j++) {
-                UserInfo userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-                url[j] = userInfo.getHead();
-            }
-            File file = GroupHeadImageUtil.synthesis(getContext(), url);
-            Glide.with(getActivity()).load(file)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-            MsgDao msgDao = new MsgDao();
-            msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+//
+            GroupHeadImageUtil.creatAndShowGroupHeadImg(getActivity(),bean,imgHead);
         }
 
 
