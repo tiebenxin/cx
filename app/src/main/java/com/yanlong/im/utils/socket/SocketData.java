@@ -23,6 +23,7 @@ import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
@@ -31,7 +32,6 @@ import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.CallBack4Btn;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -204,6 +203,7 @@ public class SocketData {
                         loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
                     } else {
                         msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                        MessageManager.getInstance().setMessageChange(true);
 
                     }
                     LogUtil.getLog().e(TAG, ">>>>>累计 ");
@@ -237,6 +237,7 @@ public class SocketData {
                 MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                 DaoUtil.save(message);
                 msgDao.sessionReadUpdate(message.getGid(), message.getFrom_uid());
+                MessageManager.getInstance().setMessageChange(true);
             }
         }
     }
@@ -247,6 +248,7 @@ public class SocketData {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 msgDao.sessionReadUpdate(gid, uid);
+                MessageManager.getInstance().setMessageChange(true);
             }
         });
     }
@@ -258,6 +260,7 @@ public class SocketData {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
                 msgDao.sessionReadUpdate(gid, uid);
+                MessageManager.getInstance().setMessageChange(true);
             }
         });
     }
@@ -301,7 +304,7 @@ public class SocketData {
             MsgDao msgDao = new MsgDao();
 
             msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
-
+            MessageManager.getInstance().setMessageChange(true);
 
         }
         //6.25 移除重发列队
@@ -339,6 +342,7 @@ public class SocketData {
             MsgDao msgDao = new MsgDao();
 
             msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+            MessageManager.getInstance().setMessageChange(true);
         }
     }
 
@@ -374,6 +378,7 @@ public class SocketData {
             MsgDao msgDao = new MsgDao();
 
             msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+            MessageManager.getInstance().setMessageChange(true);
 
             //移除重发列队
             SendList.removeSendListJust(bean.getRequestId());
@@ -711,6 +716,7 @@ public class SocketData {
 
         DaoUtil.update(msgAllBean);
         msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+        MessageManager.getInstance().setMessageChange(true);
         return msgAllBean;
     }
 
@@ -1281,6 +1287,7 @@ public class SocketData {
             msgDao = new MsgDao();
         }
         msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
+        MessageManager.getInstance().setMessageChange(true);
     }
 
     public static MsgAllBean createMessageLock(String gid, Long uid) {

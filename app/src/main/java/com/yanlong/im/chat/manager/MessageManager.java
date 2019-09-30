@@ -34,6 +34,7 @@ public class MessageManager {
     private static MessageManager INSTANCE;
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
+    private static boolean isMessageChange;//是否有聊天消息变化
 
     private static List<String> loadGids = new ArrayList<>();
     private static List<Long> loadUids = new ArrayList<>();
@@ -65,16 +66,16 @@ public class MessageManager {
 //                    if (oldMsgId.size() >= 500)
 //                        oldMsgId.remove(0);
 //                    oldMsgId.add(wmsg.getMsgId());
-                    if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
-                        loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                    } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0) {
-                        loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
+                    loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0) {
+                    loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
 
-                    } else {
-                        msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                } else {
+                    msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
 
-                    }
-                    LogUtil.getLog().e(TAG, ">>>>>累计 ");
+                }
+                LogUtil.getLog().e(TAG, ">>>>>累计 ");
 //                } else {
 //                    LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
 //                }
@@ -110,5 +111,11 @@ public class MessageManager {
         });
     }
 
+    public boolean isMessageChange() {
+        return isMessageChange;
+    }
 
+    public void setMessageChange(boolean isChange) {
+        this.isMessageChange = isChange;
+    }
 }

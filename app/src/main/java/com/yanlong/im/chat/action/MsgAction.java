@@ -2,10 +2,7 @@ package com.yanlong.im.chat.action;
 
 import android.text.TextUtils;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -15,30 +12,21 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RobotInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.MsgServer;
-import com.yanlong.im.chat.ui.AddGroupActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.ObjectToUtils;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.ToastUtil;
 
-import org.greenrobot.eventbus.EventBus;
-
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -73,7 +61,8 @@ public class MsgAction {
                 if (response.body().isOk()) {//存库
                     String id = response.body().getData().getGid();
                     dao.groupCreate(id, avatar, name, listDataTop);
-
+                    dao.sessionCreate(id, null);
+                    MessageManager.getInstance().setMessageChange(true);
                 }
                 callback.onResponse(call, response);
             }

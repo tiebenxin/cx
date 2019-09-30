@@ -20,6 +20,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
@@ -44,6 +45,7 @@ import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.chat.ChatActivity3;
 import com.yanlong.im.test.TestRecyclerActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -434,7 +436,11 @@ public class MsgMainFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
-        taskListData();
+        if (MessageManager.getInstance().isMessageChange()) {
+            System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session");
+            taskListData();
+            MessageManager.getInstance().setMessageChange(false);
+        }
     }
 
     @Override
@@ -507,6 +513,8 @@ public class MsgMainFragment extends Fragment {
             String icon = bean.getAvatar();
             String title = bean.getName();
             MsgAllBean msginfo = bean.getMessage();
+            String name = bean.getSenderName();
+
             String info = "";
             if (msginfo != null) {
                 info = msginfo.getMsg_typeStr();
@@ -538,6 +546,24 @@ public class MsgMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
             } else if (bean.getType() == 1) {//群
+
+                if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
+                    info = name + info;
+                }
+//                if (msginfo != null) {
+//                    if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+//                        info = msginfo.getMsg_typeStr();
+//                    } else {
+//                        if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+//                            //8.9 处理群昵称
+//                            name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
+//                        }
+//
+//                        info = name + msginfo.getMsg_typeStr();
+//                    }
+//
+//                }
+
 //                Group ginfo = msgDao.getGroup4Id(bean.getGid());
 //                Group ginfo = (Group) groups.get(position);
 //                if (ginfo != null) {
@@ -679,6 +705,9 @@ public class MsgMainFragment extends Fragment {
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                     );
+                    if (bean.getUnread_count() > 0) {
+                        MessageManager.getInstance().setMessageChange(true);
+                    }
 
                 }
             });
@@ -831,12 +860,22 @@ public class MsgMainFragment extends Fragment {
                         session.setIsMute(group.getNotNotify());
                         session.setHasInitDisturb(true);
                         session.setAvatar(group.getAvatar());
+
                     } else {
                         session.setName(msgDao.getGroupName(session.getGid()));
                     }
                     MsgAllBean msg = msgDao.msgGetLast4Gid(session.getGid());
                     if (msg != null) {
                         session.setMessage(msg);
+                        if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
+                            session.setSenderName("");
+                        } else {
+                            if (msg.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
+                                //8.9 处理群昵称
+                                String name = msgDao.getUsername4Show(msg.getGid(), msg.getFrom_uid(), msg.getFrom_nickname(), msg.getFrom_group_nickname()) + " : ";
+                                session.setSenderName(name);
+                            }
+                        }
                     }
                 } else {
                     UserInfo info = userDao.findUserInfo(session.getFrom_uid());
