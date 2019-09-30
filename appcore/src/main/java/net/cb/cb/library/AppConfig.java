@@ -32,6 +32,10 @@ public class AppConfig {
         APP_CONTEXT = context;
     }
 
+    public static Context getContext() {
+        return APP_CONTEXT;
+    }
+
     public static String getUrlHost() {
         return URL_HOST;
     }

@@ -2628,7 +2628,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
             dao.sessionDraft(toGid, toUId, "");
-            MessageManager.getInstance().setMessageChange(true);
+//            MessageManager.getInstance().setMessageChange(true);
         }
     }
 
