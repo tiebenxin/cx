@@ -393,7 +393,6 @@ public class MainActivity extends AppActivity {
     private void taskGetMsgNum() {
         if (sbmsg == null)
             return;
-
         int num = msgDao.sessionReadGetAll();
         sbmsg.setNum(num,true);
         BadgeUtil.setBadgeCount(getApplicationContext(), num);

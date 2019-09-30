@@ -42,7 +42,7 @@ public class HelpActivity extends AppActivity {
         setContentView(R.layout.activity_hlep);
         initView();
         initEvent();
-//        initData();
+        initData();
     }
 
     @Override
@@ -56,30 +56,30 @@ public class HelpActivity extends AppActivity {
     }
 
     private void initView() {
-        activity_help_web = findViewById(R.id.activity_help_web);
-        activity_help_web.getSettings().setJavaScriptEnabled(true);
-        activity_help_web.addJavascriptInterface(new JSInterface(HelpActivity.this),"androidMethod");
+//        activity_help_web = findViewById(R.id.activity_help_web);
+//        activity_help_web.getSettings().setJavaScriptEnabled(true);
+//        activity_help_web.addJavascriptInterface(new JSInterface(HelpActivity.this),"androidMethod");
 //        activity_help_web.loadUrl("http://192.168.10.102:8080/");
-        activity_help_web.loadUrl("https://helper.zhixun6.com:8000/");
+/*        activity_help_web.loadUrl("https://helper.zhixun6.com:8000/");
+        activity_help_web.setWebViewClient(new MyWebViewClient());*/
 
-        activity_help_web.setWebViewClient(new MyWebViewClient());
-//        mEdtSearch = findViewById(R.id.edt_search);
         mHeadView = findViewById(R.id.headView);
-//        tvFeedback = findViewById(R.id.tv_feedback);
-//        mRecyclerViewHot = findViewById(R.id.recyclerView_hot);
-//        LinearLayoutManager hotManger = new LinearLayoutManager(this);
-//        mRecyclerViewHot.setLayoutManager(hotManger);
-//        mRecyclerViewHot.setNestedScrollingEnabled(false);
-//
-//        mRecyclerViewType = findViewById(R.id.recyclerView_type);
-//        LinearLayoutManager typeManger = new LinearLayoutManager(this);
-//        mRecyclerViewType.setLayoutManager(typeManger);
-//        mRecyclerViewType.setNestedScrollingEnabled(false);
-//
-//        hotAdapter = new HelpAdapter();
-//        typeAdapter = new HelpAdapter();
-//        mRecyclerViewHot.setAdapter(hotAdapter);
-//        mRecyclerViewType.setAdapter(typeAdapter);
+        mEdtSearch = findViewById(R.id.edt_search);
+        tvFeedback = findViewById(R.id.tv_feedback);
+        mRecyclerViewHot = findViewById(R.id.recyclerView_hot);
+        LinearLayoutManager hotManger = new LinearLayoutManager(this);
+        mRecyclerViewHot.setLayoutManager(hotManger);
+        mRecyclerViewHot.setNestedScrollingEnabled(false);
+
+        mRecyclerViewType = findViewById(R.id.recyclerView_type);
+        LinearLayoutManager typeManger = new LinearLayoutManager(this);
+        mRecyclerViewType.setLayoutManager(typeManger);
+        mRecyclerViewType.setNestedScrollingEnabled(false);
+
+        hotAdapter = new HelpAdapter();
+        typeAdapter = new HelpAdapter();
+        mRecyclerViewHot.setAdapter(hotAdapter);
+        mRecyclerViewType.setAdapter(typeAdapter);
     }
 
     class MyWebViewClient extends WebViewClient {
@@ -113,26 +113,28 @@ public class HelpActivity extends AppActivity {
             }
         });
 
-//        tvFeedback.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                go(FeedbackActivity.class);
-//            }
-//        });
+        tvFeedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                go(FeedbackActivity.class);
+            }
+        });
     }
 
     private void initData() {
-        List<String> list = new ArrayList<>();
-        list.add("帮助选项1111");
-        list.add("帮助选项2222");
-        list.add("帮助选项3333");
-        list.add("帮助选项4444");
-        list.add("帮助选项5555");
-        list.add("帮助选项6666");
-        list.add("帮助选项7777");
+        List<String> hotList = new ArrayList<>();
+        hotList.add("为什么我常聊聊没有声音");
+        hotList.add("如何下载常聊聊聊天软件?");
+        hotList.add("如何添加好友?");
 
-        hotAdapter.setData(list);
-        typeAdapter.setData(list);
+        List<String> typeList = new ArrayList<>();
+        typeList.add("好友添加");
+        typeList.add("收发消息");
+        typeList.add("账号设置");
+        typeList.add("群聊");
+
+        hotAdapter.setData(hotList);
+        typeAdapter.setData(typeList);
     }
 
 
@@ -151,12 +153,13 @@ public class HelpActivity extends AppActivity {
         }
 
         @Override
-        public void onBindViewHolder(HelpViewHolder viewHolder, int i) {
+        public void onBindViewHolder(HelpViewHolder viewHolder, final int i) {
             viewHolder.mTvTitle.setText(list.get(i));
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(HelpActivity.this,HelpInfoActivity.class);
+                    intent.putExtra("content",list.get(i));
                     startActivity(intent);
                 }
             });
