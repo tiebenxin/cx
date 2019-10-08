@@ -29,12 +29,10 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.update.UpdateManage;
 
-import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import retrofit2.Call;

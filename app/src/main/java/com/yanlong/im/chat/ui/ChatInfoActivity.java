@@ -1,26 +1,20 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.server.MsgServer;
-import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;

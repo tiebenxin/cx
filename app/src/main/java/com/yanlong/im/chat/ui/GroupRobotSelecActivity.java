@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;

@@ -12,12 +12,10 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.GroupHeadImageUtil;
-import com.yanlong.im.utils.ImageUtils;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;

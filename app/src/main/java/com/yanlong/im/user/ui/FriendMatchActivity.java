@@ -23,8 +23,6 @@ import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
 
-import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -36,16 +34,12 @@ import net.cb.cb.library.view.HeadView;
 import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PySortView;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
-
-import static net.cb.cb.library.CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS;
 
 public class FriendMatchActivity extends AppActivity {
     private HeadView headView;
