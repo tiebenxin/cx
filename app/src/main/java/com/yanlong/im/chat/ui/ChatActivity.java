@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -93,6 +94,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
+import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
@@ -172,7 +174,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private LinearLayout viewAction;
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
-    private LinearLayout viewChatRobot;
+    private LinearLayout viewChatRobot,ll_part_chat_video;
     private View viewChatBottom;
     private View viewChatBottomc;
     private View imgEmojiDel;
@@ -395,7 +397,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
     private List<View> emojiLayout;
-
+    private MediaPlayer mMediaPlayer;
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -419,6 +421,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatBottom = findViewById(R.id.view_chat_bottom);
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         viewChatRobot = findViewById(R.id.view_chat_robot);
+        ll_part_chat_video = findViewById(R.id.ll_part_chat_video);
 //        findViewById(R.id.ll_video_recoder).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -875,6 +878,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         .putExtra(GroupRobotActivity.AGM_GID, toGid)
                         .putExtra(GroupRobotActivity.AGM_RID, groupInfo.getRobotid())
                 );
+            }
+        });
+        //短视频
+        ll_part_chat_video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                startActivityForResult(intent, 1);
+
+                if(mMediaPlayer != null){
+                    mMediaPlayer.stop();
+                    mMediaPlayer.release();
+                    mMediaPlayer = null;
+                }
             }
         });
 

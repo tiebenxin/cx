@@ -1,1 +1,1 @@
-include ':app', 'appcore', ':picture_library', ':ucrop'
+include ':app', 'appcore', ':picture_library', ':ucrop',':weiXinRecorded'
