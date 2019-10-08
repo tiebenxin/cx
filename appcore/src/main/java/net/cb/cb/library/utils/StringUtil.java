@@ -108,11 +108,11 @@ public class StringUtil {
      * @param context
      * @return
      */
-    public static String getChanneData(Context context){
+    public static String getChannelName(Context context){
         if (context == null) {
-            return "";
+            return "default_android";
         }
-        String resultData = "";
+        String resultData = "default_android";
         try {
             PackageManager packageManager = context.getPackageManager();
             if (packageManager != null) {
@@ -126,7 +126,7 @@ public class StringUtil {
                 }
             }
         } catch (PackageManager.NameNotFoundException e) {
-            return "";
+            return "default_android";
         }
         return resultData;
     }

@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -528,5 +530,6 @@ public class MainActivity extends AppActivity {
         SharedPreferencesUtil sp = new SharedPreferencesUtil(NOTIFICATION);
         sp.save2Json(config, "notify_config");
     }
+
 
 }

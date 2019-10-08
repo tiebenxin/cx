@@ -38,11 +38,12 @@ public class MyAppLication extends MainApplication {
 
     private static final String TAG = "MyAppLication";
 
-    private final String U_APP_KEY= "5d53659c570df3d281000225";
+    private final String U_APP_KEY = "5d53659c570df3d281000225";
 
     @Override
     public void onCreate() {
         super.onCreate();
+        AppConfig.setContext(getApplicationContext());
         ///推送处理
         initUPushPre();
 
@@ -100,11 +101,11 @@ public class MyAppLication extends MainApplication {
     }
 
     private void initBugly() {
-        CrashReport.UserStrategy strategy=new CrashReport.UserStrategy(this);
+        CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(this);
         strategy.setAppChannel("BUGLY");
         strategy.setAppVersion("1.0");
         strategy.setAppPackageName(this.getPackageName());
-        CrashReport.initCrashReport(this,"119a8a8e8f",false,strategy);
+        CrashReport.initCrashReport(this, "119a8a8e8f", false, strategy);
 
     }
 

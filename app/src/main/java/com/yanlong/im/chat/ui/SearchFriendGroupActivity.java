@@ -62,10 +62,12 @@ public class SearchFriendGroupActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView =  findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        edtSearch =  findViewById(R.id.edt_search);
-        mtListView =  findViewById(R.id.mtListView);
+        edtSearch = findViewById(R.id.edt_search);
+        mtListView = findViewById(R.id.mtListView);
+        actionbar.setTitle("通讯录搜索");
+        edtSearch.setHint("当前通讯录搜索");
     }
 
 
@@ -205,7 +207,7 @@ public class SearchFriendGroupActivity extends AppActivity {
                         });
                         holder.setGroupName(group, key);
                     }
-                   // holder.imgHead.setImageURI(Uri.parse("" + url));
+                    // holder.imgHead.setImageURI(Uri.parse("" + url));
 
                     Glide.with(context).load(url)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -290,12 +292,12 @@ public class SearchFriendGroupActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewTagFried =  convertView.findViewById(R.id.view_tag_fried);
-                viewTagGroup =  convertView.findViewById(R.id.view_tag_group);
-                viewIt =  convertView.findViewById(R.id.view_it);
-                imgHead =  convertView.findViewById(R.id.img_head);
-                txtName =  convertView.findViewById(R.id.txt_name);
-                txtContent =  convertView.findViewById(R.id.txt_content);
+                viewTagFried = convertView.findViewById(R.id.view_tag_fried);
+                viewTagGroup = convertView.findViewById(R.id.view_tag_group);
+                viewIt = convertView.findViewById(R.id.view_it);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                txtContent = convertView.findViewById(R.id.txt_content);
             }
 
             @RequiresApi(api = Build.VERSION_CODES.M)

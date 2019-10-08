@@ -67,7 +67,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/bg_edt_chat"
-                                android:fontFamily="@font/emoji_font"
+                                android:fontFamily="normal"
                                 android:maxLines="3"
                                 android:minHeight="34dp"
                                 android:singleLine="false"
@@ -121,7 +121,10 @@
 
                     <include layout="@layout/part_chat_func" />
 
-                    <include layout="@layout/part_chat_emoji" android:visibility="gone"/>
+                    <include
+                        layout="@layout/part_chat_emoji"
+                        android:visibility="gone" />
+
                     <include layout="@layout/item_emoji_pager" />
                 </LinearLayout>
 

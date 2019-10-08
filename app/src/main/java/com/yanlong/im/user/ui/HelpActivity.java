@@ -48,7 +48,7 @@ public class HelpActivity extends AppActivity {
     @Override
     public boolean
     onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && activity_help_web.canGoBack()) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && (activity_help_web != null && activity_help_web.canGoBack())) {
             activity_help_web.goBack();//返回上个页面
             return true;
         }
@@ -158,8 +158,8 @@ public class HelpActivity extends AppActivity {
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(HelpActivity.this,HelpInfoActivity.class);
-                    intent.putExtra("content",list.get(i));
+                    Intent intent = new Intent(HelpActivity.this, HelpInfoActivity.class);
+                    intent.putExtra("content", list.get(i));
                     startActivity(intent);
                 }
             });
