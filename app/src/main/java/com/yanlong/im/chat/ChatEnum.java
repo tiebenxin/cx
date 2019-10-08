@@ -162,7 +162,7 @@ public class ChatEnum {
     /*
      * 消息type
      * */
-    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED, EMessageType.LOCK})
+    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED, EMessageType.MSG_VIDEO,EMessageType.LOCK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -177,6 +177,7 @@ public class ChatEnum {
         int AT = 8;//艾特@消息
         int ASSISTANT = 9;//小助手
         int MSG_CENCAL = 10; //撤回消息
+        int MSG_VIDEO = 11; //短视频消息
 
         int LOCK = 100; //端到端加密提示消息,本地自定义消息
     }

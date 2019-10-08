@@ -6,12 +6,15 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -62,6 +65,7 @@ import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
+import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -125,6 +129,7 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -201,6 +206,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     //红包和转账
     public static final int REQ_RP = 9653;
+    public static final int VIDEO_RP = 9419;
     public static final int REQ_TRANS = 9653;
 
 
@@ -885,8 +891,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         ll_part_chat_video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.CAMERA}, CaptureActivity.REQ_PERM_CAMERA);
+                    return;
+                }
                 Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, VIDEO_RP);
 
                 if(mMediaPlayer != null){
                     mMediaPlayer.stop();
@@ -1381,12 +1392,70 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private UpFileAction upFileAction = new UpFileAction();
 
+    private VideoMessage getVideoAtt(String mUri)
+    {
+        VideoMessage videoMessage=new VideoMessage();
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null)
+            {
+                HashMap<String, String> headers = null;
+                if (headers == null)
+                {
+                    headers = new HashMap<String, String>();
+                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
+                }
+                mmr.setDataSource(mUri, headers);
+            } else
+            {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+
+            String duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+            String width = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);//宽
+            String height = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);//高
+            videoMessage.setDuration(Long.parseLong(duration));
+            videoMessage.setWidth(Long.parseLong(width));
+            videoMessage.setHeight(Long.parseLong(height));
+            videoMessage.setBg_url(mmr.getFrameAtTime().toString());
+
+        } catch (Exception ex)
+        {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return videoMessage;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
+                case VIDEO_RP:
+                    int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
+                    if(dataType == RecordedActivity.RESULT_TYPE_VIDEO){
+                        String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                        final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                        final String imgMsgId = SocketData.getUUID();
+                        VideoMessage videoMessage= getVideoAtt(file);
+                        VideoMessage imageMessage = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight());
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+
+                        msgListData.add(imgMsgBean);
+                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+                        startService(new Intent(getContext(), UpLoadService.class));
+                        notifyData2Bottom(true);
+
+
+                    }else if(dataType == RecordedActivity.RESULT_TYPE_PHOTO){
+                        String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
+//                        tv_path.setText("图片地址: "+photoPath);
+//                        iv_photo.setVisibility(View.VISIBLE);
+//                        iv_photo.setImageBitmap(BitmapFactory.decodeFile(photoPath));
+                    }
+                    break;
                 case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
