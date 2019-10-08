@@ -690,7 +690,6 @@ public class MsgMainFragment extends Fragment {
 
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
-            holder.sb.setNum(bean.getUnread_count(), false);
             if (bean.getIsMute() == 1) {
                 if (!msginfo.isRead()) {
                     holder.iv_disturb_unread.setVisibility(View.VISIBLE);
@@ -698,16 +697,12 @@ public class MsgMainFragment extends Fragment {
                 } else {
                     holder.iv_disturb_unread.setVisibility(View.GONE);
                 }
+                holder.sb.setVisibility(View.GONE);
+
             } else {
                 holder.iv_disturb_unread.setVisibility(View.GONE);
-
-//                if (bean.getUnread_count() > 0) {
-//                    holder.tv_num.setVisibility(View.VISIBLE);
-//                    holder.tv_num.setBackgroundResource(R.drawable.shape_unread_bg2);
-//                    holder.tv_num.setText(bean.getUnread_count());
-//                } else {
-//                    holder.tv_num.setVisibility(View.GONE);
-//                }
+                holder.sb.setVisibility(View.VISIBLE);
+                holder.sb.setNum(bean.getUnread_count(), false);
             }
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
