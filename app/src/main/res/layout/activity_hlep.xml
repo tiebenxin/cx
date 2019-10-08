@@ -7,6 +7,10 @@
     android:background="@color/gray_100"
     app:headview_title="帮助">
 
+<!--    <WebView-->
+<!--        android:id="@+id/activity_help_web"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"/>-->
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

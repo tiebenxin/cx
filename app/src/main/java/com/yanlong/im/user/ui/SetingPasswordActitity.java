@@ -82,6 +82,10 @@ public class SetingPasswordActitity extends AppActivity {
             ToastUtil.show(context,"请填写密码");
             return;
         }
+        if(password.length() < 6){
+            ToastUtil.show(context,"密码不能少于六位");
+            return;
+        }
         if(TextUtils.isEmpty(nextPassword)){
             ToastUtil.show(context,"请填写验证密码");
             return;
@@ -134,7 +138,7 @@ public class SetingPasswordActitity extends AppActivity {
     private void taskExit() {
         finish();
         new UserAction().loginOut();
-        EventBus.getDefault().post(new EventLoginOut());
+        EventBus.getDefault().post(new EventLoginOut(1));
     }
 
 

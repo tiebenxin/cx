@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -22,12 +23,15 @@ import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
+import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -38,7 +42,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import io.realm.RealmList;
+import retrofit2.Call;
+import retrofit2.Response;
+
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 
 public class SocketData {
     private static final String TAG = "SocketData";
@@ -48,6 +55,9 @@ public class SocketData {
 
 
     private static MsgDao msgDao = new MsgDao();
+
+    private static List<String> loadGids = new ArrayList<>();
+    private static List<Long> loadUids = new ArrayList<>();
 
 
     /***
@@ -160,7 +170,7 @@ public class SocketData {
     private static CopyOnWriteArrayList<String> oldMsgId = new CopyOnWriteArrayList<>();
 
     /***
-     * 保存消息和发送消息回执
+     * 保存接收到的消息及发送消息回执
      */
     public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
@@ -169,10 +179,12 @@ public class SocketData {
         List<String> msgIds = new ArrayList<>();
         //1.先进行数据分割
         for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
+            checkDoubleMessage(wmsg);
             //2.存库:1.存消息表,存会话表
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
             //5.28 如果为空就不保存这类消息
             if (msgAllBean != null) {
+                msgAllBean.setRead(false);//设置未读
                 msgAllBean.setTo_uid(bean.getToUid());
                 LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
                 //收到直接存表
@@ -183,7 +195,18 @@ public class SocketData {
                     if (oldMsgId.size() >= 500)
                         oldMsgId.remove(0);
                     oldMsgId.add(wmsg.getMsgId());
-                    msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                    if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid()) && !loadGids.contains(msgAllBean.getGid())) {
+                        loadGids.add(msgAllBean.getGid());
+                        loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                    } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
+                        loadUids.add(msgAllBean.getFrom_uid());
+                        loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                    } else {
+//                        msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(),false);
+                        MessageManager.getInstance().setMessageChange(true);
+
+                    }
                     LogUtil.getLog().e(TAG, ">>>>>累计 ");
                 } else {
                     LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
@@ -205,10 +228,46 @@ public class SocketData {
 
 
     }
-//---------------------------------
 
+    //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
+    private static void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
+        if (wmsg.getMsgType() == ACCEPT_BE_FRIENDS) {
+            MsgBean.AcceptBeFriendsMessage receiveMessage = wmsg.getAcceptBeFriends();
+            if (receiveMessage != null && !TextUtils.isEmpty(receiveMessage.getSayHi())) {
+                ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), receiveMessage.getSayHi());
+                MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
+                DaoUtil.save(message);
+//                msgDao.sessionReadUpdate(message.getGid(), message.getFrom_uid());
+                MessageManager.getInstance().updateSessionUnread(message.getGid(), message.getFrom_uid(),false);
+                MessageManager.getInstance().setMessageChange(true);
+            }
+        }
+    }
 
-    //------------消息内容发送处理----------------
+    private synchronized static void loadUserInfo(final String gid, final Long uid) {
+//        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
+        new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+//                msgDao.sessionReadUpdate(gid, uid);
+                MessageManager.getInstance().updateSessionUnread(gid, uid,false);
+                MessageManager.getInstance().setMessageChange(true);
+            }
+        });
+    }
+
+    private synchronized static void loadGroupInfo(final String gid, final long uid) {
+//        System.out.println("加载数据--loadGroupInfo" + "--gid =" + gid + "--uid =" + uid);
+        new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                super.onResponse(call, response);
+//                msgDao.sessionReadUpdate(gid, uid);
+                MessageManager.getInstance().updateSessionUnread(gid, uid,false);
+                MessageManager.getInstance().setMessageChange(true);
+            }
+        });
+    }
 
     /***
      * 在服务器接收到自己发送的消息后,本地保存
@@ -249,7 +308,7 @@ public class SocketData {
             MsgDao msgDao = new MsgDao();
 
             msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
-
+            MessageManager.getInstance().setMessageChange(true);
 
         }
         //6.25 移除重发列队
@@ -287,6 +346,7 @@ public class SocketData {
             MsgDao msgDao = new MsgDao();
 
             msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+            MessageManager.getInstance().setMessageChange(true);
         }
     }
 
@@ -322,6 +382,7 @@ public class SocketData {
             MsgDao msgDao = new MsgDao();
 
             msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+            MessageManager.getInstance().setMessageChange(true);
 
             //移除重发列队
             SendList.removeSendListJust(bean.getRequestId());
@@ -659,6 +720,7 @@ public class SocketData {
 
         DaoUtil.update(msgAllBean);
         msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
+        MessageManager.getInstance().setMessageChange(true);
         return msgAllBean;
     }
 
@@ -919,6 +981,9 @@ public class SocketData {
                     }
                     note = "你已不是" + "\"<font color='#276baa' id='" + bean.getTo_uid() + "'>" + name + "</font>\"" + "的好友, 请先" + "<font color='#276baa' id='" + bean.getTo_uid() + "'>" + "添加对方为好友" + "</font>";
                     break;
+                case ChatEnum.ENoticeType.LOCK:
+                    note = "聊天中所有信息已进行" + "<font color='#1f5305' tag=" + ChatEnum.ETagType.LOCK + ">" + "端对端加密" + "</font>" + "保护";
+                    break;
             }
         }
         return note;
@@ -1083,6 +1148,127 @@ public class SocketData {
         return msg;
     }
 
+    /*
+     * 创建接收到的消息bean
+     * @param uid Long 用户Id,私聊即to_uid,群聊为null
+     * @gid 群id，私聊为空，群聊不能为空
+     * @msgType int 消息类型
+     * @sendStatus int 发送状态
+     * @obj IMsgContent MsgAllBean二级关联表bean
+     * */
+    public static MsgAllBean createMsgBean(MsgBean.UniversalMessage.WrapMessage wrap, @ChatEnum.EMessageType int msgType, @ChatEnum.ESendStatus int sendStatus, long time, IMsgContent obj) {
+        if (wrap == null) {
+            return null;
+        }
+        boolean isGroup = false;
+        if (wrap.getFromUid() <= 0 && !TextUtils.isEmpty(wrap.getGid())) {
+            isGroup = true;
+        }
+
+        MsgAllBean msg = new MsgAllBean();
+        msg.setMsg_id(obj.getMsgId());
+        msg.setMsg_type(msgType);
+        msg.setTimestamp(time > 0 ? time : getFixTime());
+        msg.setFrom_uid(wrap.getFromUid());
+        msg.setFrom_avatar(wrap.getAvatar());
+        msg.setFrom_nickname(wrap.getNickname());
+        msg.setFrom_group_nickname(wrap.getMembername());
+        msg.setGid(wrap.getGid());
+        msg.setSend_state(sendStatus);
+        msg.setRead(false);
+        if (isGroup) {
+            Group group = msgDao.getGroup4Id(wrap.getGid());
+            if (group != null) {
+                String name = group.getMygroupName();
+                if (StringUtil.isNotNull(name)) {
+                    msg.setFrom_group_nickname(name);
+                }
+            }
+        }
+        switch (msgType) {
+            case ChatEnum.EMessageType.NOTICE:
+                if (obj instanceof MsgNotice) {
+                    msg.setMsgNotice((MsgNotice) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TEXT:
+                if (obj instanceof ChatMessage) {
+                    msg.setChat((ChatMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.STAMP:
+                if (obj instanceof StampMessage) {
+                    msg.setStamp((StampMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.RED_ENVELOPE:
+                if (obj instanceof RedEnvelopeMessage) {
+                    msg.setRed_envelope((RedEnvelopeMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.IMAGE:
+                if (obj instanceof ImageMessage) {
+                    msg.setImage((ImageMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.BUSINESS_CARD:
+                if (obj instanceof BusinessCardMessage) {
+                    msg.setBusiness_card((BusinessCardMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.TRANSFER:
+                if (obj instanceof TransferMessage) {
+                    msg.setTransfer((TransferMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.VOICE:
+                if (obj instanceof VoiceMessage) {
+                    msg.setVoiceMessage((VoiceMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.AT:
+                if (obj instanceof AtMessage) {
+                    msg.setAtMessage((AtMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.ASSISTANT:
+                if (obj instanceof AssistantMessage) {
+                    msg.setAssistantMessage((AssistantMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
+            case ChatEnum.EMessageType.MSG_CENCAL:
+                if (obj instanceof MsgCancel) {
+                    msg.setMsgCancel((MsgCancel) obj);
+                } else {
+                    return null;
+                }
+                break;
+
+        }
+
+        return msg;
+    }
+
 
     public static AtMessage createAtMessage(String msgId, String content, @ChatEnum.EAtType int atType) {
         AtMessage message = new AtMessage();
@@ -1090,7 +1276,13 @@ public class SocketData {
         message.setAt_type(atType);
         message.setMsg(content);
         return message;
+    }
 
+    public static ChatMessage createChatMessage(String msgId, String content) {
+        ChatMessage message = new ChatMessage();
+        message.setMsgid(msgId);
+        message.setMsg(content);
+        return message;
     }
 
     public static void saveMessage(MsgAllBean bean) {
@@ -1099,5 +1291,25 @@ public class SocketData {
             msgDao = new MsgDao();
         }
         msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
+        MessageManager.getInstance().setMessageChange(true);
     }
+
+    public static MsgAllBean createMessageLock(String gid, Long uid) {
+        MsgAllBean bean = new MsgAllBean();
+        if (!TextUtils.isEmpty(gid)) {
+            bean.setGid(gid);
+            bean.setFrom_uid(UserAction.getMyInfo().getUid());
+        } else if (uid != null) {
+            bean.setFrom_uid(uid);
+        } else {
+            return null;
+        }
+        bean.setMsg_type(ChatEnum.EMessageType.LOCK);
+        bean.setMsg_id(SocketData.getUUID());
+        bean.setTimestamp(0L);
+        ChatMessage message = SocketData.createChatMessage(bean.getMsg_id(), getNoticeString(bean, ChatEnum.ENoticeType.LOCK));
+        bean.setChat(message);
+        return bean;
+    }
+
 }

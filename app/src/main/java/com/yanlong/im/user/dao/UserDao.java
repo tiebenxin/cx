@@ -396,4 +396,28 @@ public class UserDao {
         }
         return isInit;
     }
+
+    /**
+     * 更新好友在线状态
+     *
+     * @param type 0:不在线,1:在线
+     */
+    public void updateUserLockRedEnvelope(Long uid, int type) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            UserInfo userInfo = realm.copyFromRealm(user);
+            if (userInfo != null) {
+                userInfo.setLockCloudRedEnvelope(type);
+                realm.insertOrUpdate(userInfo);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
 }

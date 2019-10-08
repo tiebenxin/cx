@@ -1,5 +1,6 @@
 package com.yanlong.im.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -10,11 +11,15 @@ import android.text.TextUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
+import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
+import com.yanlong.im.notify.LockDialog;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 
@@ -68,6 +73,9 @@ public class HtmlTransitonUtils {
                     break;
                 case ChatEnum.ENoticeType.NO_FRI_ERROR://被好友删除，消息发送失败
                     setType11(context, style, bean);
+                    break;
+                case ChatEnum.ENoticeType.LOCK://端到端加密
+                    setType12(context, style, bean);
                     break;
 
             }
@@ -425,6 +433,35 @@ public class HtmlTransitonUtils {
 
     }
 
+    //端到端加密
+    private void setType12(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        builder.append("聊天中所有信息已进行");
+        String content = "端对端加密";
+        builder.append(content);
+        int start, end;
+        start = builder.toString().length() - content.length();
+        end = builder.toString().length();
+
+        ClickableSpan clickProtocol = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                showLockDialog(context);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                ds.setUnderlineText(false);
+            }
+
+        };
+        builder.setSpan(clickProtocol, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#1f5305"));
+        builder.setSpan(protocolColorSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        builder.append("保护");
+
+    }
+
 
     private void goToUserInfoActivity(Context context, Long id, String gid) {
         context.startActivity(new Intent(context, UserInfoActivity.class)
@@ -444,6 +481,7 @@ public class HtmlTransitonUtils {
             String id = element.id();
             if (!TextUtils.isEmpty(element.id())) {
                 Log.v(TAG, "id------------>" + element.id());
+                bean.setId(id);
             }
             String name = element.text();
             if (!TextUtils.isEmpty(element.val())) {
@@ -464,5 +502,18 @@ public class HtmlTransitonUtils {
         }
 
         return htmlBean;
+    }
+
+    public void showLockDialog(Context context) {
+        LockDialog lockDialog = new LockDialog(context, R.style.MyDialogNoFadedTheme);
+        lockDialog.setCancelable(true);
+        lockDialog.setCanceledOnTouchOutside(true);
+//        WindowManager windowManager = ((Activity) context).getWindowManager();
+//        Display display = windowManager.getDefaultDisplay();
+//        WindowManager.LayoutParams lp = lockDialog.getWindow().getAttributes();
+//        lp.width = (int) (display.getWidth()); //设置宽度
+//        lockDialog.getWindow().setAttributes(lp);
+        lockDialog.create();
+        lockDialog.show();
     }
 }

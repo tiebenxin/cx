@@ -57,6 +57,8 @@ public class FindFriendActivity extends AppActivity {
         mEdtSearch = findViewById(R.id.edt_search);
         mMtListView = findViewById(R.id.mtListView);
         mMtListView.getLoadView().setStateNormal();
+        mEdtSearch.setHint("输入产品号/手机号搜索联系人");
+        mHeadView.getActionbar().setTitle("搜索好友");
     }
 
     private void initEvent() {
@@ -135,12 +137,12 @@ public class FindFriendActivity extends AppActivity {
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(userInfo.getUid().equals(UserAction.getMyId())){
-                        Intent intent = new Intent(FindFriendActivity.this,MyselfInfoActivity.class);
+                    if (userInfo.getUid().equals(UserAction.getMyId())) {
+                        Intent intent = new Intent(FindFriendActivity.this, MyselfInfoActivity.class);
                         startActivity(intent);
-                    }else{
-                        Intent intent = new Intent(FindFriendActivity.this,UserInfoActivity.class);
-                        intent.putExtra(UserInfoActivity.ID,userInfo.getUid());
+                    } else {
+                        Intent intent = new Intent(FindFriendActivity.this, UserInfoActivity.class);
+                        intent.putExtra(UserInfoActivity.ID, userInfo.getUid());
                         startActivity(intent);
                     }
                 }
@@ -150,7 +152,7 @@ public class FindFriendActivity extends AppActivity {
         @Override
         public int getItemCount() {
             if (userInfos != null) {
-               return userInfos.size();
+                return userInfos.size();
             }
             return 0;
         }

@@ -111,7 +111,8 @@ public class FriendAddAcitvity extends AppActivity {
             ActivityCompat.requestPermissions(this,mPermissionList,PERMISSIONS);
         }
 
-        UMImage thumb =  new UMImage(this, R.mipmap.ic_launcher);
+        UMImage thumb =  new UMImage(this, R.mipmap.icon_share_logo);
+        thumb.setThumb(thumb);
         UMWeb web = new UMWeb("https://changliaoliao.zhixun5588.com/fx/");
         web.setTitle("我们一起用“常聊聊”来聊天吧");//标题
         web.setThumb(thumb);  //缩略图
@@ -160,8 +161,9 @@ public class FriendAddAcitvity extends AppActivity {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeBean bean = QRCodeManage.getQRCodeBean(this,scanResult);
-            QRCodeManage.goToActivity(this,bean);
+            QRCodeManage.goToPage(this,scanResult);
+//            QRCodeBean bean = QRCodeManage.getQRCodeBean(this,scanResult);
+//            QRCodeManage.goToActivity(this,bean);
         }else if(requestCode == PERMISSIONS && resultCode == RESULT_OK){ //分享权限返回
             ToastUtil.show(this,"失败");
         }

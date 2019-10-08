@@ -26,16 +26,19 @@ import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.ImageUtils;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.QRCodeBean;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -73,6 +76,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     private String imageUrl;
     private ImgSizeUtil.ImageSize imgsize;//获取图片大小
     private ImageView imageCodeHead;
+    private View viewQrCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +96,7 @@ public class MyselfQRCodeActivity extends AppActivity {
         mHeadView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         mViewMyQrcode = findViewById(R.id.view_my_qrcode);
+        viewQrCode = findViewById(R.id.view_qr_code);
         type = getIntent().getIntExtra(TYPE, 0);
         UMShareAPI.get(this);
     }
@@ -109,6 +114,14 @@ public class MyselfQRCodeActivity extends AppActivity {
                 initPopup();
             }
         });
+
+        viewQrCode.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                initPopup();
+                return false;
+            }
+        });
     }
 
 
@@ -122,11 +135,13 @@ public class MyselfQRCodeActivity extends AppActivity {
                     .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
 
             mTvUserName.setText(userInfo.getName() + "");
+            mHeadView.getActionbar().setTitle("我的二维码");
+
+            imageCodeHead.setVisibility(View.VISIBLE);
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_FRIEND_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, uid);
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
-
 
         } else {
             Intent intent = getIntent();
@@ -134,9 +149,11 @@ public class MyselfQRCodeActivity extends AppActivity {
             groupHead = intent.getStringExtra(GROUP_HEAD);
             groupName = intent.getStringExtra(GROUP_NAME);
             // mImgHead.setImageURI(groupHead + "");
-            Glide.with(this).load(groupHead)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
+            ImageUtils.showImg(this,groupHead,mImgHead,groupId);
+
             mTvUserName.setText(groupName + "");
+            mHeadView.getActionbar().setTitle("群二维码");
+            imageCodeHead.setVisibility(View.GONE);
             qrCodeBean.setHead(QRCodeManage.HEAD);
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, groupId);
@@ -321,8 +338,8 @@ public class MyselfQRCodeActivity extends AppActivity {
         if (requestCode == CaptureActivity.REQ_QR_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
-            QRCodeBean bean = QRCodeManage.getQRCodeBean(this, scanResult);
-            QRCodeManage.goToActivity(this, bean);
+            QRCodeManage.goToPage(this,scanResult);
+
         } else if (requestCode == SelectUserActivity.RET_CODE_SELECTUSR && resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {
             Bundle bundle = data.getExtras();
             String jsonBean = bundle.getString(SelectUserActivity.RET_JSON);

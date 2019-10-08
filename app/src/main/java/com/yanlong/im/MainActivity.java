@@ -1,14 +1,20 @@
 package com.yanlong.im;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
@@ -16,6 +22,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.server.ChatServer;
@@ -31,8 +38,10 @@ import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
+import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
@@ -41,9 +50,11 @@ import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -56,9 +67,11 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
+import cn.jpush.android.api.JPluginPlatformInterface;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static com.yanlong.im.user.ui.FriendAddAcitvity.PERMISSIONS;
 import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
 public class MainActivity extends AppActivity {
@@ -89,11 +102,13 @@ public class MainActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
+
+
         fragments = new Fragment[]{MsgMainFragment.newInstance(), FriendMainFragment.newInstance(), MyFragment.newInstance()};
         tabs = new String[]{"消息", "通讯录", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_me_h};
-
+        viewPage.setOffscreenPageLimit(2);
         viewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int i) {
@@ -112,9 +127,9 @@ public class MainActivity extends AppActivity {
                 viewPage.setCurrentItem(tab.getPosition());
                 for (int i = 0; i < bottomTab.getTabCount(); i++) {
                     View rootView = bottomTab.getTabAt(i).getCustomView();
-                    LinearLayout viewItem =  rootView.findViewById(R.id.view_item);
-                    StrikeButton sb =  rootView.findViewById(R.id.sb);
-                    TextView txt =  rootView.findViewById(R.id.txt);
+                    LinearLayout viewItem = rootView.findViewById(R.id.view_item);
+                    StrikeButton sb = rootView.findViewById(R.id.sb);
+                    TextView txt = rootView.findViewById(R.id.txt);
                     if (i == tab.getPosition()) { // 选中状态
                         sb.setButtonBackground(iconHRes[i]);
                         txt.setTextColor(getResources().getColor(R.color.green_500));
@@ -124,7 +139,7 @@ public class MainActivity extends AppActivity {
                     }
                 }
 
-                if(tab.getPosition() == 1 || tab.getPosition() == 2){
+                if (tab.getPosition() == 1 || tab.getPosition() == 2) {
                     MsgMainFragment.newInstance().hidePopView();
                 }
 
@@ -143,17 +158,17 @@ public class MainActivity extends AppActivity {
         // 提供自定义的布局添加Tab
         for (int i = 0; i < fragments.length; i++) {
             View rootView = getLayoutInflater().inflate(R.layout.tab_item, null);
-            TextView txt =  rootView.findViewById(R.id.txt);
-            StrikeButton sb =  rootView.findViewById(R.id.sb);
+            TextView txt = rootView.findViewById(R.id.txt);
+            StrikeButton sb = rootView.findViewById(R.id.sb);
             if (i == 2) {
                 sb.setSktype(1);
                 //设置值
-                sb.setNum(0);
+                sb.setNum(0, true);
                 sbme = sb;
             }
             if (i == 1) {
                 sb.setSktype(1);
-                sb.setNum(0);
+                sb.setNum(0, true);
                 sbfriend = sb;
             }
 
@@ -209,8 +224,13 @@ public class MainActivity extends AppActivity {
         uploadApp();
         checkRosters();
         doRegisterNetReceiver();
-
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
 
     private void doRegisterNetReceiver() {
         if (mNetworkReceiver == null) {
@@ -255,6 +275,22 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        updateNetStatus();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == JPluginPlatformInterface.JPLUGIN_REQUEST_CODE) {
+
+        }
+    }
+
+    private void updateNetStatus() {
+        if (NetUtil.isNetworkConnected()) {
+            EventNetStatus netStatusEvent = new EventNetStatus(CoreEnum.ENetStatus.SUCCESS_ON_NET);
+            EventBus.getDefault().post(netStatusEvent);
+        }
     }
 
     @Override
@@ -283,6 +319,9 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventLoginOut(EventLoginOut event) {
+        if (event.loginType != 1) {
+            ToastUtil.show(context, "因长期未登录已过有效期,请重新登录");
+        }
         loginoutComment();
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
@@ -360,9 +399,8 @@ public class MainActivity extends AppActivity {
     private void taskGetMsgNum() {
         if (sbmsg == null)
             return;
-
         int num = msgDao.sessionReadGetAll();
-        sbmsg.setNum(num);
+        sbmsg.setNum(num, true);
         BadgeUtil.setBadgeCount(getApplicationContext(), num);
     }
 
@@ -375,7 +413,7 @@ public class MainActivity extends AppActivity {
         sum += msgDao.remidGet("friend_apply");
         // sum+=msgDao.remidGet("friend_apply");
         //  sum+=msgDao.remidGet("friend_apply");
-        sbfriend.setNum(sum);
+        sbfriend.setNum(sum, true);
 
     }
 
@@ -400,9 +438,9 @@ public class MainActivity extends AppActivity {
 
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {
-                                sbme.setNum(1);
+                                sbme.setNum(1, true);
                             } else {
-                                sbme.setNum(0);
+                                sbme.setNum(0, true);
                             }
                         }
                     }
@@ -492,5 +530,6 @@ public class MainActivity extends AppActivity {
         SharedPreferencesUtil sp = new SharedPreferencesUtil(NOTIFICATION);
         sp.save2Json(config, "notify_config");
     }
+
 
 }

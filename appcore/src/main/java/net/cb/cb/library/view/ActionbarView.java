@@ -20,6 +20,7 @@ import androidx.annotation.RequiresApi;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.ClickFilter;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 
@@ -45,6 +46,7 @@ public class ActionbarView extends LinearLayout {
 
     private Context context;
     private ListenEvent listenEvent;
+    private ImageView iv_disturb;
 
     public void setOnListenEvent(ListenEvent listenEvent) {
         this.listenEvent = listenEvent;
@@ -104,8 +106,18 @@ public class ActionbarView extends LinearLayout {
      *
      * @param txt
      */
-    public void setTxtLeft(String txt, int drawableId) {
+    public void setTxtLeft(String txt, int drawableId, int size) {
         txtLeft.setBackgroundResource(drawableId);
+        if (size > 0) {
+            txtLeft.setTextSize(size);
+            LinearLayout.LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            params.width = DensityUtil.dip2px(getContext(), 22);
+            params.height = DensityUtil.dip2px(getContext(), 22);
+            txtLeft.setLayoutParams(params);
+        } else {
+            txtLeft.setTextSize(DensityUtil.sp2px(getContext(), 9));
+
+        }
         if (!TextUtils.isEmpty(txt)) {
             txtLeft.setText(txt);
             txtLeft.setVisibility(View.VISIBLE);
@@ -209,6 +221,7 @@ public class ActionbarView extends LinearLayout {
         ViewLeft = rootView.findViewById(R.id.action_left);
         ViewRight = rootView.findViewById(R.id.action_right);
         loadBar = (ProgressBar) rootView.findViewById(R.id.load_bar);
+        iv_disturb = rootView.findViewById(R.id.iv_disturb);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ActionbarView);
         // 左图标
@@ -284,7 +297,7 @@ public class ActionbarView extends LinearLayout {
             String name = attrs.getAttributeName(i);
             String value = attrs.getAttributeValue(i);
 
-            Log.i("ActionbarView", "#onCreate attr[" + i + "] name = " + name + " and value = " + value);
+//            Log.i("ActionbarView", "#onCreate attr[" + i + "] name = " + name + " and value = " + value);
             if ("background".equals(name)) {
                 if (value.startsWith("@")) {
                     int bgResId = Integer.parseInt(value.substring(1));
@@ -351,6 +364,13 @@ public class ActionbarView extends LinearLayout {
         //白色主题 1.16
         rootView.findViewById(R.id.ll_main).setBackgroundColor(Color.parseColor("#ffffff"));
         txtTitle.setTextColor(Color.parseColor("#000000"));
+    }
+
+    public void showDisturb(boolean isShow) {
+        if (iv_disturb == null) {
+            return;
+        }
+        iv_disturb.setVisibility(isShow ? VISIBLE : GONE);
     }
 
 }

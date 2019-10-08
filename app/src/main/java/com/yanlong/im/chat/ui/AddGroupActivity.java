@@ -13,6 +13,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -129,7 +130,7 @@ public class AddGroupActivity extends AppActivity {
                         intent.putExtra(ChatActivity.AGM_TOGID, gid);
                         startActivity(intent);
                         new MsgDao().sessionCreate(gid,null);
-
+                        MessageManager.getInstance().setMessageChange(true);
                     } else {
                         ToastUtil.show(AddGroupActivity.this, "加群成功,等待群主验证");
                     }

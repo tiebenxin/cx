@@ -200,7 +200,7 @@ public class ChatInfoActivity extends AppActivity {
                 case 0:
                     userInfo = fUserInfo;
 
-                   // holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
+                    // holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
                     Glide.with(context).load(userInfo.getHead())
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
@@ -219,12 +219,13 @@ public class ChatInfoActivity extends AppActivity {
                     holder.imgHead.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if(fUserInfo.getuType()==2){//是好友
-                            finish();
-                            EventBus.getDefault().post(new EventExitChat());
+                            if (fUserInfo.getuType() == 2) {//是好友
+                                finish();
+                                EventBus.getDefault().post(new EventExitChat());
 
-                            startActivity(new Intent(getContext(), GroupCreateActivity.class).putExtra(GroupCreateActivity.AGM_SELECT_UID, ""+fUserInfo.getUid()));
-                        }}
+                                startActivity(new Intent(getContext(), GroupCreateActivity.class).putExtra(GroupCreateActivity.AGM_SELECT_UID, "" + fUserInfo.getUid()));
+                            }
+                        }
                     });
                     break;
             }
@@ -247,7 +248,7 @@ public class ChatInfoActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
-                imgHead =  convertView.findViewById(R.id.img_head);
+                imgHead = convertView.findViewById(R.id.img_head);
             }
 
         }
@@ -263,11 +264,11 @@ public class ChatInfoActivity extends AppActivity {
             session = msgDao.sessionCreate(null, fuid);
         }*/
         fUserInfo = DaoUtil.findOne(UserInfo.class, "uid", fuid);
-        if(fUserInfo.getuType()!=2){//非好友不能设置开关等
+        if (fUserInfo.getuType() != 2) {//非好友不能设置开关等
             ckDisturb.setEnabled(false);
             ckTop.setEnabled(false);
 
-        }else{
+        } else {
             ckDisturb.setEnabled(true);
             ckTop.setEnabled(true);
 

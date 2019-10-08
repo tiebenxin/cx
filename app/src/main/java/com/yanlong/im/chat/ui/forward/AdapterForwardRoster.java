@@ -37,7 +37,6 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
             return new RCViewMucHolder(mInflater.inflate(R.layout.item_select_muc, parent, false));
         } else {
             return new RCViewHolder(mInflater.inflate(R.layout.item_msg_friend, parent, false));
-
         }
     }
 
@@ -45,10 +44,9 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         if (holder instanceof RCViewHolder) {
-            UserInfo info = (UserInfo) mBeanList.get(position);
+            UserInfo info = (UserInfo) mBeanList.get(position - 1);
             RCViewHolder viewHolder = (RCViewHolder) holder;
             viewHolder.bindData(info, position);
-
         }
     }
 
@@ -57,17 +55,17 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
         return position == 0 ? 0 : 1;
     }
 
-//    @Override
-//    public int getItemCount() {
-//        return mBeanList != null ? mBeanList.size() + 1 : 0;
-//    }
+    @Override
+    public int getItemCount() {
+        return mBeanList != null ? mBeanList.size() + 1 : 0;
+    }
 
     public void setForwardListener(IForwardRosterListener l) {
         listener = l;
     }
 
     public UserInfo getUserByPosition(int position) {
-        if (position < getItemCount()) {
+        if (position < getItemCount() - 1) {
             return (UserInfo) mBeanList.get(position);
         }
         return null;
@@ -101,18 +99,23 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
 
             txtName.setText(bean.getName4Show());
             if (bean.getLastonline() > 0) {
-                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(),false));
+                txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
                 txtTime.setVisibility(View.VISIBLE);
             } else {
                 txtTime.setVisibility(View.GONE);
             }
 
-
-            UserInfo lastBean = getUserByPosition(position - 1);
-            if (lastBean.getTag().equals(bean.getTag())) {
-                viewType.setVisibility(View.GONE);
-            } else {
+            if (position > 1) {
+                UserInfo lastBean = getUserByPosition(position - 2);
+                if (lastBean.getTag().equals(bean.getTag())) {
+                    viewType.setVisibility(View.GONE);
+                } else {
+                    viewType.setVisibility(View.VISIBLE);
+                }
+            } else if (position == 1) {
                 viewType.setVisibility(View.VISIBLE);
+            } else {
+                viewType.setVisibility(View.GONE);
             }
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

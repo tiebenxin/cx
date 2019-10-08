@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import com.yanlong.im.chat.ChatEnum;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +13,9 @@ public class HtmlBean {
 
     private String gid;
     private List<HtmlBeanList> list = new ArrayList<>();
+
+    @ChatEnum.ETagType
+    private int tagType;
 
     public List<HtmlBeanList> getList() {
         return list;
@@ -28,4 +33,11 @@ public class HtmlBean {
         this.gid = gid;
     }
 
+    public int getTagType() {
+        return tagType;
+    }
+
+    public void setTagType(int tagType) {
+        this.tagType = tagType;
+    }
 }
