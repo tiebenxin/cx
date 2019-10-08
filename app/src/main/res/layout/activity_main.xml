@@ -23,12 +23,9 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             android:orientation="vertical"
-
             app:layout_scrollFlags="enterAlways">
 
-
         </LinearLayout>
-
 
     </android.support.design.widget.AppBarLayout>
 

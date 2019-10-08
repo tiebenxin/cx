@@ -3,11 +3,12 @@ package com.yanlong.im.utils;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
 import com.yanlong.im.chat.server.ChatServer;
+import com.yanlong.im.chat.server.MsgServer;
+import com.yanlong.im.chat.server.UpLoadService;
 
-import net.cb.cb.library.utils.ToastUtil;
 
 public class MyException implements Thread.UncaughtExceptionHandler {
     private static MyException mInstance;
@@ -33,6 +34,9 @@ public class MyException implements Thread.UncaughtExceptionHandler {
        // ToastUtil.show(mContext,"程序异常!即将退出");
        try{
            // Thread.sleep(3000);
+           MobclickAgent.reportError(mContext,ex);
+           mContext.stopService(new Intent(mContext, MsgServer.class));
+           mContext.stopService(new Intent(mContext, UpLoadService.class));
            mContext.stopService(new Intent(mContext, ChatServer.class));
            android.os.Process.killProcess(android.os.Process.myPid());
            System.exit(0);

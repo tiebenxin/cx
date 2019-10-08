@@ -1,15 +1,21 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.yanlong.im.R;
+import com.yanlong.im.utils.JSInterface;
 
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -28,6 +34,7 @@ public class HelpActivity extends AppActivity {
     private HelpAdapter typeAdapter;
     private HeadView mHeadView;
     private TextView tvFeedback;
+    private WebView activity_help_web;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +45,26 @@ public class HelpActivity extends AppActivity {
         initData();
     }
 
+    @Override
+    public boolean
+    onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && (activity_help_web != null && activity_help_web.canGoBack())) {
+            activity_help_web.goBack();//返回上个页面
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);//退出H5界面
+    }
 
     private void initView() {
-        mEdtSearch = findViewById(R.id.edt_search);
+//        activity_help_web = findViewById(R.id.activity_help_web);
+//        activity_help_web.getSettings().setJavaScriptEnabled(true);
+//        activity_help_web.addJavascriptInterface(new JSInterface(HelpActivity.this),"androidMethod");
+//        activity_help_web.loadUrl("http://192.168.10.102:8080/");
+/*        activity_help_web.loadUrl("https://helper.zhixun6.com:8000/");
+        activity_help_web.setWebViewClient(new MyWebViewClient());*/
+
         mHeadView = findViewById(R.id.headView);
+        mEdtSearch = findViewById(R.id.edt_search);
         tvFeedback = findViewById(R.id.tv_feedback);
         mRecyclerViewHot = findViewById(R.id.recyclerView_hot);
         LinearLayoutManager hotManger = new LinearLayoutManager(this);
@@ -57,6 +80,24 @@ public class HelpActivity extends AppActivity {
         typeAdapter = new HelpAdapter();
         mRecyclerViewHot.setAdapter(hotAdapter);
         mRecyclerViewType.setAdapter(typeAdapter);
+    }
+
+    class MyWebViewClient extends WebViewClient {
+        @Override  //WebView代表是当前的WebView
+        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+            view.loadUrl(request.getUrl().toString());
+            return true;
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+        }
     }
 
     private void initEvent() {
@@ -81,17 +122,19 @@ public class HelpActivity extends AppActivity {
     }
 
     private void initData() {
-        List<String> list = new ArrayList<>();
-        list.add("帮助选项1111");
-        list.add("帮助选项2222");
-        list.add("帮助选项3333");
-        list.add("帮助选项4444");
-        list.add("帮助选项5555");
-        list.add("帮助选项6666");
-        list.add("帮助选项7777");
+        List<String> hotList = new ArrayList<>();
+        hotList.add("为什么我常聊聊没有声音");
+        hotList.add("如何下载常聊聊聊天软件?");
+        hotList.add("如何添加好友?");
 
-        hotAdapter.setData(list);
-        typeAdapter.setData(list);
+        List<String> typeList = new ArrayList<>();
+        typeList.add("好友添加");
+        typeList.add("收发消息");
+        typeList.add("账号设置");
+        typeList.add("群聊");
+
+        hotAdapter.setData(hotList);
+        typeAdapter.setData(typeList);
     }
 
 
@@ -110,12 +153,13 @@ public class HelpActivity extends AppActivity {
         }
 
         @Override
-        public void onBindViewHolder(HelpViewHolder viewHolder, int i) {
+        public void onBindViewHolder(HelpViewHolder viewHolder, final int i) {
             viewHolder.mTvTitle.setText(list.get(i));
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(HelpActivity.this,HelpInfoActivity.class);
+                    Intent intent = new Intent(HelpActivity.this, HelpInfoActivity.class);
+                    intent.putExtra("content", list.get(i));
                     startActivity(intent);
                 }
             });

@@ -21,4 +21,6 @@
     <color name="color_4d">#4d4d4d</color>
     <color name="color_orange">#E0FF6100</color>
     <color name="green_200">#67c257</color>
+    <color name="blue_100">#1BADEE</color>
+    <color name="tab_select">#699fe2</color>
 </resources>

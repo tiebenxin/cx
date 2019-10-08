@@ -13,7 +13,7 @@
         android:id="@+id/action_bar"
         app:actionbar_txtTitle="通讯录" />
 
-    <LinearLayout style="@style/app_layout_list2">
+    <LinearLayout style="@style/app_layout_list3">
 
 <!--        <LinearLayout-->
 <!--            android:id="@+id/view_search"-->
@@ -41,13 +41,14 @@
 
 
         <RelativeLayout
+            android:id="@+id/view_search"
             android:layout_width="wrap_content"
-            android:layout_height="42dp"
+            android:layout_height="48dp"
             android:background="@color/white"
+            android:clickable="true"
             >
             <LinearLayout
-                android:layout_marginTop="5dp"
-                android:id="@+id/view_search"
+                android:layout_marginTop="8dp"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:background="@drawable/shape_search_bg"
@@ -55,17 +56,19 @@
                 >
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginTop="1dp"
                     android:layout_marginRight="6dp"
-                    android:src="@mipmap/ic_msg_search" />
+                    android:background="@mipmap/ic_msg_search" />
 
-                <net.cb.cb.library.view.ClearEditText
-                    android:id="@+id/edt_search"
-                    style="@style/app_edt1"
-                    android:hint="搜索"
-                    android:background="@color/transparent"
-                    android:imeOptions="actionSearch" />
+                                <TextView
+                                android:gravity="center_vertical"
+                                android:id="@+id/edt_search"
+                                style="@style/app_edt1"
+                                android:enabled="false"
+                                android:layout_marginRight="@dimen/app_margin_main"
+                                android:hint="当前通讯录搜索" />
 
 
             </LinearLayout>
@@ -76,7 +79,7 @@
 
     <View
         style="@style/app_line"
-        android:layout_marginTop="@dimen/app_margin_item_top" />
+         />
 
     <FrameLayout
         android:layout_width="match_parent"

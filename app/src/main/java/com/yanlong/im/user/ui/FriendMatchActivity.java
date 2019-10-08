@@ -78,6 +78,7 @@ public class FriendMatchActivity extends AppActivity {
         mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
         mCeSearch = findViewById(R.id.ce_search);
+        mCeSearch.setHint("输入联系人昵称搜索");
     }
 
 
@@ -328,11 +329,11 @@ public class FriendMatchActivity extends AppActivity {
                 if (response.body().isOk()) {
                     listData.remove(position);
                     mtListView.notifyDataSetChange();
-                    EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
-                    eventRefreshFriend.setUid(uid);
-                    eventRefreshFriend.setLocal(false);
-                    eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
-                    EventBus.getDefault().post(eventRefreshFriend);
+//                    EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
+//                    eventRefreshFriend.setUid(uid);
+//                    eventRefreshFriend.setLocal(false);
+//                    eventRefreshFriend.setRosterAction(CoreEnum.ERosterAction.REQUEST_FRIEND);
+//                    EventBus.getDefault().post(eventRefreshFriend);
                 }
                 ToastUtil.show(FriendMatchActivity.this, response.body().getMsg());
             }

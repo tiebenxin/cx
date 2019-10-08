@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -33,7 +32,6 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -66,6 +64,7 @@ import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.cell.FactoryChatCell;
@@ -83,7 +82,6 @@ import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.audio.AudioPlayManager;
@@ -357,7 +355,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         taskGroupConf();
                     } else {
                         taskGroupConf();
-                        creatAndSaveImg(groupInfo.getGid());
+                        GroupHeadImageUtil.creatAndSaveImg(this, groupInfo.getGid());
+//                        creatAndSaveImg(groupInfo.getGid());
                     }
                 }
                 break;
@@ -371,28 +370,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
-    private void creatAndSaveImg(String gid) {
-        Group gginfo = msgDao.getGroup4Id(gid);
-        int i = gginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            UserInfo userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-//        Glide.with(this).load(file)
-//                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-    }
+//    private void creatAndSaveImg(String gid) {
+//        Group gginfo = msgDao.getGroup4Id(gid);
+//        int i = gginfo.getUsers().size();
+//        i = i > 9 ? 9 : i;
+//        //头像地址
+//        String url[] = new String[i];
+//        for (int j = 0; j < i; j++) {
+//            UserInfo userInfo = gginfo.getUsers().get(j);
+////            if (j == i - 1) {
+////                name += userInfo.getName();
+////            } else {
+////                name += userInfo.getName() + "、";
+////            }
+//            url[j] = userInfo.getHead();
+//        }
+//        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+////        Glide.with(this).load(file)
+////                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+//
+//        MsgDao msgDao = new MsgDao();
+//        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+//    }
 
 
     private List<View> emojiLayout;
@@ -445,18 +444,32 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void addViewPagerEvent() {
         emojiLayout = new ArrayList<>();
-        View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
-        View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
-        View view3 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji3, null);
-        View view4 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji4, null);
-        View view5 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji5, null);
-        emojiLayout.add(view1);
-        emojiLayout.add(view2);
-        emojiLayout.add(view3);
-        emojiLayout.add(view4);
-        emojiLayout.add(view5);
+//                View view1 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji, null);
+//                View view2 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji2, null);
+//                View view3 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji3, null);
+//                View view4 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji4, null);
+//                View view5 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji5, null);
+        View view6 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji6, null);
+        View view7 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji7, null);
+        View view8 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji8, null);
+        View view9 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji9, null);
+        View view10 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji10, null);
+        View view11 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji11, null);
+//        emojiLayout.add(view1);
+//        emojiLayout.add(view2);
+//        emojiLayout.add(view3);
+//        emojiLayout.add(view4);
+//        emojiLayout.add(view5);
+//        emojiLayout.add(view5);
+        emojiLayout.add(view6);
+        emojiLayout.add(view7);
+        emojiLayout.add(view8);
+        emojiLayout.add(view9);
+        emojiLayout.add(view10);
+        emojiLayout.add(view11);
         emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
-        emoji_pager.addOnPageChangeListener(new PageIndicator(this, (LinearLayout) findViewById(R.id.dot_hor), 5));
+        emoji_pager.addOnPageChangeListener(new PageIndicator(ChatActivity.this, (LinearLayout) findViewById(R.id.dot_hor), 6));
+
     }
 
     @Override
@@ -530,25 +543,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //test 8.21测试发送
-                // if(AppConfig.DEBUG){
-                String txt = edtChat.getText().toString();
-                if (txt.startsWith("@000")) {
-                    int count = Integer.parseInt(txt.split("_")[1]);
+                //test 8.
+                String text = edtChat.getText().toString().trim();
+                if (TextUtils.isEmpty(text)) {
+                    ToastUtil.show(ChatActivity.this, "不能发送空白消息");
+                    edtChat.getText().clear();
+                    return;
+                }
+                if (text.startsWith("@000")) {
+                    int count = Integer.parseInt(text.split("_")[1]);
                     taskTestSend(count);
                     return;
                 }
-                //  }
 
+                int totalSize = text.length();
                 if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
-                    String text = edtChat.getText().toString();
-                    if (!TextUtils.isEmpty(text)) {
-                        int totalSize = text.length();
-                        if (totalSize > MIN_TEXT) {
-                            ToastUtil.show(ChatActivity.this, "@消息长度不能超过" + MIN_TEXT);
-                            edtChat.getText().clear();
-                            return;
-                        }
+                    if (totalSize > MIN_TEXT) {
+                        ToastUtil.show(ChatActivity.this, "@消息长度不能超过" + MIN_TEXT);
+                        edtChat.getText().clear();
+                        return;
                     }
                     if (edtChat.isAtAll()) {
                         MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList());
@@ -561,9 +574,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 } else {
                     //发送普通消息
-                    String text = edtChat.getText().toString();
                     if (!TextUtils.isEmpty(text)) {
-                        int totalSize = text.length();
                         int per = totalSize / MIN_TEXT;
                         if (per > 10) {
                             ToastUtil.show(ChatActivity.this, "文本长度不能超过" + 10 * MIN_TEXT);
@@ -1287,7 +1298,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void onStart() {
         super.onStart();
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
-            msgDao.insertOrUpdateMessage(msgAction.createMessageLock(toGid, toUId));
+            msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
         initData();
 
@@ -1788,7 +1799,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 holder.viewChatItem.setHeadOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        edtChat.addAtSpan("@", msgbean.getFrom_user().getName(), msgbean.getFrom_uid());
+                        String name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        if (!TextUtils.isEmpty(name)) {
+                            edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                        } else {
+                            edtChat.addAtSpan("@", msgbean.getFrom_user().getName(), msgbean.getFrom_uid());
+
+                        }
                         return true;
                     }
                 });
@@ -1971,7 +1988,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                     break;
-                case 8:
+                case ChatEnum.EMessageType.AT:
                     menus.add(new OptionMenu("复制"));
                     menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
@@ -1979,6 +1996,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 case ChatEnum.EMessageType.ASSISTANT:
                     holder.viewChatItem.setDataAssistant(msgbean.getAssistantMessage().getMsg());
+                    break;
+                case ChatEnum.EMessageType.LOCK:
+//                    holder.viewChatItem.setLock(msgbean.getChat().getMsg());
+                    holder.viewChatItem.setLock(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, msgbean.getChat().getMsg(), ChatEnum.ENoticeType.LOCK));
                     break;
 
 
@@ -2380,9 +2401,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskSessionInfo() {
         String title = "";
         if (isGroup()) {
-//            Group ginfo = msgDao.getGroup4Id(toGid);
-//            title = ginfo.getName();
-            title = msgDao.getGroupName(toGid);
+            Group ginfo = msgDao.getGroup4Id(toGid);
+            if (ginfo != null) {
+                if (!TextUtils.isEmpty(ginfo.getName())) {
+                    title = ginfo.getName();
+                } else {
+                    title = "群聊";
+                }
+                int memberCount = 0;
+                if (ginfo.getUsers() != null) {
+                    memberCount = ginfo.getUsers().size();
+                }
+                if (memberCount > 0) {
+                    title = title + "(" + memberCount + ")";
+                }
+            }
+//            title = msgDao.getGroupName(toGid);
             //6.15 设置右上角点击
             taskGroupConf();
 
@@ -2392,10 +2426,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (finfo.getLastonline() > 0) {
                 actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
             }
-
-
         }
         actionbar.setTitle(title);
+        setDisturb();
+    }
+
+    private void setDisturb() {
+        Session session = dao.sessionGet(toGid, toUId);
+        if (session == null) {
+            return;
+        }
+        actionbar.showDisturb(session.getIsMute() == 1);
 
     }
 
@@ -2594,7 +2635,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             dao.sessionReadClean(null, toUId);
         }
-
+        dao.updateMsgReaded(toUId, toGid, true);
     }
 
     /***
@@ -2608,6 +2649,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
             dao.sessionDraft(toGid, toUId, "");
+//            MessageManager.getInstance().setMessageChange(true);
         }
     }
 
@@ -2617,8 +2659,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskDarftSet() {
         String df = edtChat.getText().toString();
         dao.sessionDraft(toGid, toUId, df);
-
-
+        MessageManager.getInstance().setMessageChange(true);
     }
 
     /***
@@ -2687,6 +2728,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 发红包
      */
     private void taskPayRb() {
+        UserInfo info = UserAction.getMyInfo();
+        if (info != null && info.getLockCloudRedEnvelope() == 1) {//红包功能被锁定
+            ToastUtil.show(this, "您的云红包功能已暂停使用，如有疑问请咨询官方客服号");
+            return;
+        }
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<SignatureBean>> call, Response<ReturnBean<SignatureBean>> response) {
@@ -2871,8 +2917,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
 
                 groupInfo = response.body().getData();
-                contactIntimately = groupInfo.getContactIntimately();
-                master = groupInfo.getMaster();
+                if (groupInfo != null) {
+                    contactIntimately = groupInfo.getContactIntimately();
+                    master = groupInfo.getMaster();
+                }
 
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();

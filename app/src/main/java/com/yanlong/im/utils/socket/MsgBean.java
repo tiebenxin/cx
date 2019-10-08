@@ -113,7 +113,7 @@ public final class MsgBean {
     CANCEL(10),
     /**
      * <pre>
-     * 请求加好友消息
+     * SHORT_VIDEO = 11; //短视频消息
      * </pre>
      *
      * <code>REQUEST_FRIEND = 100;</code>
@@ -201,7 +201,11 @@ public final class MsgBean {
     CHANGE_GROUP_META(112),
     /**
      * <pre>
-     * 强制下线
+     * CHANGE_SURVIVAL_TIME = 113; //阅后即焚消息
+     * AU_VIDEO_DIAL = 114; //音视频发起消息
+     * AU_VIDEO_HANG_UP = 115; //音视频取消或挂断消息
+     * AU_VIDEO_REFUSE = 116; //音视频拒绝消息
+     * AU_VIDEO_ACCEPT = 117; //音视频接受消息
      * </pre>
      *
      * <code>FORCE_OFFLINE = 200;</code>
@@ -215,6 +219,14 @@ public final class MsgBean {
      * <code>ACTIVE_STAT_CHANGE = 201;</code>
      */
     ACTIVE_STAT_CHANGE(201),
+    /**
+     * <pre>
+     *资源锁定
+     * </pre>
+     *
+     * <code>RESOURCE_LOCK = 202;</code>
+     */
+    RESOURCE_LOCK(202),
     UNRECOGNIZED(-1),
     ;
 
@@ -308,7 +320,7 @@ public final class MsgBean {
     public static final int CANCEL_VALUE = 10;
     /**
      * <pre>
-     * 请求加好友消息
+     * SHORT_VIDEO = 11; //短视频消息
      * </pre>
      *
      * <code>REQUEST_FRIEND = 100;</code>
@@ -396,7 +408,11 @@ public final class MsgBean {
     public static final int CHANGE_GROUP_META_VALUE = 112;
     /**
      * <pre>
-     * 强制下线
+     * CHANGE_SURVIVAL_TIME = 113; //阅后即焚消息
+     * AU_VIDEO_DIAL = 114; //音视频发起消息
+     * AU_VIDEO_HANG_UP = 115; //音视频取消或挂断消息
+     * AU_VIDEO_REFUSE = 116; //音视频拒绝消息
+     * AU_VIDEO_ACCEPT = 117; //音视频接受消息
      * </pre>
      *
      * <code>FORCE_OFFLINE = 200;</code>
@@ -410,6 +426,14 @@ public final class MsgBean {
      * <code>ACTIVE_STAT_CHANGE = 201;</code>
      */
     public static final int ACTIVE_STAT_CHANGE_VALUE = 201;
+    /**
+     * <pre>
+     *资源锁定
+     * </pre>
+     *
+     * <code>RESOURCE_LOCK = 202;</code>
+     */
+    public static final int RESOURCE_LOCK_VALUE = 202;
 
 
     public final int getNumber() {
@@ -454,6 +478,7 @@ public final class MsgBean {
         case 112: return CHANGE_GROUP_META;
         case 200: return FORCE_OFFLINE;
         case 201: return ACTIVE_STAT_CHANGE;
+        case 202: return RESOURCE_LOCK;
         default: return null;
       }
     }
@@ -10284,6 +10309,24 @@ public final class MsgBean {
   public interface AcceptBeFriendsMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:AcceptBeFriendsMessage)
       com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * 招呼语
+     * </pre>
+     *
+     * <code>string say_hi = 1;</code>
+     */
+    java.lang.String getSayHi();
+    /**
+     * <pre>
+     * 招呼语
+     * </pre>
+     *
+     * <code>string say_hi = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getSayHiBytes();
   }
   /**
    * <pre>
@@ -10302,6 +10345,7 @@ public final class MsgBean {
       super(builder);
     }
     private AcceptBeFriendsMessage() {
+      sayHi_ = "";
     }
 
     @java.lang.Override
@@ -10317,6 +10361,7 @@ public final class MsgBean {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
+      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -10332,6 +10377,12 @@ public final class MsgBean {
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
+              break;
+            }
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              sayHi_ = s;
               break;
             }
           }
@@ -10358,6 +10409,48 @@ public final class MsgBean {
               com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage.class, com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage.Builder.class);
     }
 
+    public static final int SAY_HI_FIELD_NUMBER = 1;
+    private volatile java.lang.Object sayHi_;
+    /**
+     * <pre>
+     * 招呼语
+     * </pre>
+     *
+     * <code>string say_hi = 1;</code>
+     */
+    public java.lang.String getSayHi() {
+      java.lang.Object ref = sayHi_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        sayHi_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 招呼语
+     * </pre>
+     *
+     * <code>string say_hi = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getSayHiBytes() {
+      java.lang.Object ref = sayHi_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        sayHi_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -10370,6 +10463,9 @@ public final class MsgBean {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      if (!getSayHiBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, sayHi_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -10378,6 +10474,9 @@ public final class MsgBean {
       if (size != -1) return size;
 
       size = 0;
+      if (!getSayHiBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, sayHi_);
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -10394,6 +10493,8 @@ public final class MsgBean {
       com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage other = (com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage) obj;
 
       boolean result = true;
+      result = result && getSayHi()
+          .equals(other.getSayHi());
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -10405,6 +10506,8 @@ public final class MsgBean {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + SAY_HI_FIELD_NUMBER;
+      hash = (53 * hash) + getSayHi().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -10538,6 +10641,8 @@ public final class MsgBean {
       }
       public Builder clear() {
         super.clear();
+        sayHi_ = "";
+
         return this;
       }
 
@@ -10560,6 +10665,7 @@ public final class MsgBean {
 
       public com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage buildPartial() {
         com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage result = new com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage(this);
+        result.sayHi_ = sayHi_;
         onBuilt();
         return result;
       }
@@ -10601,6 +10707,10 @@ public final class MsgBean {
 
       public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage other) {
         if (other == com.yanlong.im.utils.socket.MsgBean.AcceptBeFriendsMessage.getDefaultInstance()) return this;
+        if (!other.getSayHi().isEmpty()) {
+          sayHi_ = other.sayHi_;
+          onChanged();
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -10625,6 +10735,95 @@ public final class MsgBean {
             mergeFrom(parsedMessage);
           }
         }
+        return this;
+      }
+
+      private java.lang.Object sayHi_ = "";
+      /**
+       * <pre>
+       * 招呼语
+       * </pre>
+       *
+       * <code>string say_hi = 1;</code>
+       */
+      public java.lang.String getSayHi() {
+        java.lang.Object ref = sayHi_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          sayHi_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 招呼语
+       * </pre>
+       *
+       * <code>string say_hi = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getSayHiBytes() {
+        java.lang.Object ref = sayHi_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          sayHi_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 招呼语
+       * </pre>
+       *
+       * <code>string say_hi = 1;</code>
+       */
+      public Builder setSayHi(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        sayHi_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 招呼语
+       * </pre>
+       *
+       * <code>string say_hi = 1;</code>
+       */
+      public Builder clearSayHi() {
+        
+        sayHi_ = getDefaultInstance().getSayHi();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 招呼语
+       * </pre>
+       *
+       * <code>string say_hi = 1;</code>
+       */
+      public Builder setSayHiBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        sayHi_ = value;
+        onChanged();
         return this;
       }
       public final Builder setUnknownFields(
@@ -20493,6 +20692,714 @@ public final class MsgBean {
 
   }
 
+  public interface ResourceLockMessageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:ResourceLockMessage)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * 资源锁定类型
+     * </pre>
+     *
+     * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+     */
+    int getResourceLockTypeValue();
+    /**
+     * <pre>
+     * 资源锁定类型
+     * </pre>
+     *
+     * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+     */
+    com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType getResourceLockType();
+
+    /**
+     * <pre>
+     * 解锁(0),锁定(1)
+     * </pre>
+     *
+     * <code>uint32 lock = 2;</code>
+     */
+    int getLock();
+  }
+  /**
+   * <pre>
+   * 资源锁定
+   * </pre>
+   *
+   * Protobuf type {@code ResourceLockMessage}
+   */
+  public  static final class ResourceLockMessage extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:ResourceLockMessage)
+      ResourceLockMessageOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use ResourceLockMessage.newBuilder() to construct.
+    private ResourceLockMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private ResourceLockMessage() {
+      resourceLockType_ = 0;
+      lock_ = 0;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private ResourceLockMessage(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              int rawValue = input.readEnum();
+
+              resourceLockType_ = rawValue;
+              break;
+            }
+            case 16: {
+
+              lock_ = input.readUInt32();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_ResourceLockMessage_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.yanlong.im.utils.socket.MsgBean.internal_static_ResourceLockMessage_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.class, com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.Builder.class);
+    }
+
+    /**
+     * <pre>
+     * 资源锁定类型
+     * </pre>
+     *
+     * Protobuf enum {@code ResourceLockMessage.ResourceLockType}
+     */
+    public enum ResourceLockType
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <pre>
+       * 云红包
+       * </pre>
+       *
+       * <code>CLOUDREDENVELOPE = 0;</code>
+       */
+      CLOUDREDENVELOPE(0),
+      UNRECOGNIZED(-1),
+      ;
+
+      /**
+       * <pre>
+       * 云红包
+       * </pre>
+       *
+       * <code>CLOUDREDENVELOPE = 0;</code>
+       */
+      public static final int CLOUDREDENVELOPE_VALUE = 0;
+
+
+      public final int getNumber() {
+        if (this == UNRECOGNIZED) {
+          throw new java.lang.IllegalArgumentException(
+              "Can't get the number of an unknown enum value.");
+        }
+        return value;
+      }
+
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static ResourceLockType valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static ResourceLockType forNumber(int value) {
+        switch (value) {
+          case 0: return CLOUDREDENVELOPE;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<ResourceLockType>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          ResourceLockType> internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<ResourceLockType>() {
+              public ResourceLockType findValueByNumber(int number) {
+                return ResourceLockType.forNumber(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(ordinal());
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final ResourceLockType[] VALUES = values();
+
+      public static ResourceLockType valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        if (desc.getIndex() == -1) {
+          return UNRECOGNIZED;
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int value;
+
+      private ResourceLockType(int value) {
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:ResourceLockMessage.ResourceLockType)
+    }
+
+    public static final int RESOURCE_LOCK_TYPE_FIELD_NUMBER = 1;
+    private int resourceLockType_;
+    /**
+     * <pre>
+     * 资源锁定类型
+     * </pre>
+     *
+     * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+     */
+    public int getResourceLockTypeValue() {
+      return resourceLockType_;
+    }
+    /**
+     * <pre>
+     * 资源锁定类型
+     * </pre>
+     *
+     * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+     */
+    public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType getResourceLockType() {
+      com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType result = com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType.valueOf(resourceLockType_);
+      return result == null ? com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType.UNRECOGNIZED : result;
+    }
+
+    public static final int LOCK_FIELD_NUMBER = 2;
+    private int lock_;
+    /**
+     * <pre>
+     * 解锁(0),锁定(1)
+     * </pre>
+     *
+     * <code>uint32 lock = 2;</code>
+     */
+    public int getLock() {
+      return lock_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (resourceLockType_ != com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType.CLOUDREDENVELOPE.getNumber()) {
+        output.writeEnum(1, resourceLockType_);
+      }
+      if (lock_ != 0) {
+        output.writeUInt32(2, lock_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (resourceLockType_ != com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType.CLOUDREDENVELOPE.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(1, resourceLockType_);
+      }
+      if (lock_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(2, lock_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage)) {
+        return super.equals(obj);
+      }
+      com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage other = (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) obj;
+
+      boolean result = true;
+      result = result && resourceLockType_ == other.resourceLockType_;
+      result = result && (getLock()
+          == other.getLock());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + RESOURCE_LOCK_TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + resourceLockType_;
+      hash = (37 * hash) + LOCK_FIELD_NUMBER;
+      hash = (53 * hash) + getLock();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * 资源锁定
+     * </pre>
+     *
+     * Protobuf type {@code ResourceLockMessage}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:ResourceLockMessage)
+        com.yanlong.im.utils.socket.MsgBean.ResourceLockMessageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_ResourceLockMessage_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_ResourceLockMessage_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.class, com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.Builder.class);
+      }
+
+      // Construct using com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        resourceLockType_ = 0;
+
+        lock_ = 0;
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return com.yanlong.im.utils.socket.MsgBean.internal_static_ResourceLockMessage_descriptor;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage getDefaultInstanceForType() {
+        return com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance();
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage build() {
+        com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage buildPartial() {
+        com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage result = new com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage(this);
+        result.resourceLockType_ = resourceLockType_;
+        result.lock_ = lock_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) {
+          return mergeFrom((com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage other) {
+        if (other == com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance()) return this;
+        if (other.resourceLockType_ != 0) {
+          setResourceLockTypeValue(other.getResourceLockTypeValue());
+        }
+        if (other.getLock() != 0) {
+          setLock(other.getLock());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private int resourceLockType_ = 0;
+      /**
+       * <pre>
+       * 资源锁定类型
+       * </pre>
+       *
+       * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+       */
+      public int getResourceLockTypeValue() {
+        return resourceLockType_;
+      }
+      /**
+       * <pre>
+       * 资源锁定类型
+       * </pre>
+       *
+       * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+       */
+      public Builder setResourceLockTypeValue(int value) {
+        resourceLockType_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 资源锁定类型
+       * </pre>
+       *
+       * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType getResourceLockType() {
+        com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType result = com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType.valueOf(resourceLockType_);
+        return result == null ? com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType.UNRECOGNIZED : result;
+      }
+      /**
+       * <pre>
+       * 资源锁定类型
+       * </pre>
+       *
+       * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+       */
+      public Builder setResourceLockType(com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.ResourceLockType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        resourceLockType_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 资源锁定类型
+       * </pre>
+       *
+       * <code>.ResourceLockMessage.ResourceLockType resource_lock_type = 1;</code>
+       */
+      public Builder clearResourceLockType() {
+        
+        resourceLockType_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int lock_ ;
+      /**
+       * <pre>
+       * 解锁(0),锁定(1)
+       * </pre>
+       *
+       * <code>uint32 lock = 2;</code>
+       */
+      public int getLock() {
+        return lock_;
+      }
+      /**
+       * <pre>
+       * 解锁(0),锁定(1)
+       * </pre>
+       *
+       * <code>uint32 lock = 2;</code>
+       */
+      public Builder setLock(int value) {
+        
+        lock_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 解锁(0),锁定(1)
+       * </pre>
+       *
+       * <code>uint32 lock = 2;</code>
+       */
+      public Builder clearLock() {
+        
+        lock_ = 0;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:ResourceLockMessage)
+    }
+
+    // @@protoc_insertion_point(class_scope:ResourceLockMessage)
+    private static final com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage();
+    }
+
+    public static com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ResourceLockMessage>
+        PARSER = new com.google.protobuf.AbstractParser<ResourceLockMessage>() {
+      public ResourceLockMessage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new ResourceLockMessage(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ResourceLockMessage> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ResourceLockMessage> getParserForType() {
+      return PARSER;
+    }
+
+    public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface AckMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:AckMessage)
       com.google.protobuf.MessageOrBuilder {
@@ -22944,14 +23851,26 @@ public final class MsgBean {
       com.yanlong.im.utils.socket.MsgBean.CancelMessageOrBuilder getCancelOrBuilder();
 
       /**
+       * <pre>
+       * ShortVideoMessage short_video = 10011;
+       * </pre>
+       *
        * <code>.RequestFriendMessage request_friend = 10100;</code>
        */
       boolean hasRequestFriend();
       /**
+       * <pre>
+       * ShortVideoMessage short_video = 10011;
+       * </pre>
+       *
        * <code>.RequestFriendMessage request_friend = 10100;</code>
        */
       com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage getRequestFriend();
       /**
+       * <pre>
+       * ShortVideoMessage short_video = 10011;
+       * </pre>
+       *
        * <code>.RequestFriendMessage request_friend = 10100;</code>
        */
       com.yanlong.im.utils.socket.MsgBean.RequestFriendMessageOrBuilder getRequestFriendOrBuilder();
@@ -23087,14 +24006,38 @@ public final class MsgBean {
       com.yanlong.im.utils.socket.MsgBean.ChangeGroupMetaMessageOrBuilder getChangeGroupMetaOrBuilder();
 
       /**
+       * <pre>
+       * ChangeSurvivalTimeMessage change_survival_time = 10213;
+       * AuVideoDialMessage au_video_dial = 10214;
+       * AuVideoHangUpMessage au_video_hang_up = 10215;
+       * AuVideoRefuseMessage au_video_refuse = 10216;
+       * AuVideoAcceptMessage au_video_accept = 10217;
+       * </pre>
+       *
        * <code>.ForceOfflineMessage force_offline = 10300;</code>
        */
       boolean hasForceOffline();
       /**
+       * <pre>
+       * ChangeSurvivalTimeMessage change_survival_time = 10213;
+       * AuVideoDialMessage au_video_dial = 10214;
+       * AuVideoHangUpMessage au_video_hang_up = 10215;
+       * AuVideoRefuseMessage au_video_refuse = 10216;
+       * AuVideoAcceptMessage au_video_accept = 10217;
+       * </pre>
+       *
        * <code>.ForceOfflineMessage force_offline = 10300;</code>
        */
       com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage getForceOffline();
       /**
+       * <pre>
+       * ChangeSurvivalTimeMessage change_survival_time = 10213;
+       * AuVideoDialMessage au_video_dial = 10214;
+       * AuVideoHangUpMessage au_video_hang_up = 10215;
+       * AuVideoRefuseMessage au_video_refuse = 10216;
+       * AuVideoAcceptMessage au_video_accept = 10217;
+       * </pre>
+       *
        * <code>.ForceOfflineMessage force_offline = 10300;</code>
        */
       com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder getForceOfflineOrBuilder();
@@ -23111,6 +24054,19 @@ public final class MsgBean {
        * <code>.ActiveStatChangeMessage active_stat_change = 10301;</code>
        */
       com.yanlong.im.utils.socket.MsgBean.ActiveStatChangeMessageOrBuilder getActiveStatChangeOrBuilder();
+
+      /**
+       * <code>.ResourceLockMessage resource_lock = 10302;</code>
+       */
+      boolean hasResourceLock();
+      /**
+       * <code>.ResourceLockMessage resource_lock = 10302;</code>
+       */
+      com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage getResourceLock();
+      /**
+       * <code>.ResourceLockMessage resource_lock = 10302;</code>
+       */
+      com.yanlong.im.utils.socket.MsgBean.ResourceLockMessageOrBuilder getResourceLockOrBuilder();
 
       public com.yanlong.im.utils.socket.MsgBean.UniversalMessage.WrapMessage.RealMsgCase getRealMsgCase();
     }
@@ -23151,6 +24107,7 @@ public final class MsgBean {
           throw new java.lang.NullPointerException();
         }
         int mutable_bitField0_ = 0;
+        int mutable_bitField1_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
         try {
@@ -23550,6 +24507,20 @@ public final class MsgBean {
                 realMsgCase_ = 10301;
                 break;
               }
+              case 82418: {
+                com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.Builder subBuilder = null;
+                if (realMsgCase_ == 10302) {
+                  subBuilder = ((com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_).toBuilder();
+                }
+                realMsg_ =
+                    input.readMessage(com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.parser(), extensionRegistry);
+                if (subBuilder != null) {
+                  subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_);
+                  realMsg_ = subBuilder.buildPartial();
+                }
+                realMsgCase_ = 10302;
+                break;
+              }
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -23602,6 +24573,7 @@ public final class MsgBean {
         CHANGE_GROUP_META(10212),
         FORCE_OFFLINE(10300),
         ACTIVE_STAT_CHANGE(10301),
+        RESOURCE_LOCK(10302),
         REALMSG_NOT_SET(0);
         private final int value;
         private RealMsgCase(int value) {
@@ -23641,6 +24613,7 @@ public final class MsgBean {
             case 10212: return CHANGE_GROUP_META;
             case 10300: return FORCE_OFFLINE;
             case 10301: return ACTIVE_STAT_CHANGE;
+            case 10302: return RESOURCE_LOCK;
             case 0: return REALMSG_NOT_SET;
             default: return null;
           }
@@ -24196,12 +25169,20 @@ public final class MsgBean {
 
       public static final int REQUEST_FRIEND_FIELD_NUMBER = 10100;
       /**
+       * <pre>
+       * ShortVideoMessage short_video = 10011;
+       * </pre>
+       *
        * <code>.RequestFriendMessage request_friend = 10100;</code>
        */
       public boolean hasRequestFriend() {
         return realMsgCase_ == 10100;
       }
       /**
+       * <pre>
+       * ShortVideoMessage short_video = 10011;
+       * </pre>
+       *
        * <code>.RequestFriendMessage request_friend = 10100;</code>
        */
       public com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage getRequestFriend() {
@@ -24211,6 +25192,10 @@ public final class MsgBean {
         return com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage.getDefaultInstance();
       }
       /**
+       * <pre>
+       * ShortVideoMessage short_video = 10011;
+       * </pre>
+       *
        * <code>.RequestFriendMessage request_friend = 10100;</code>
        */
       public com.yanlong.im.utils.socket.MsgBean.RequestFriendMessageOrBuilder getRequestFriendOrBuilder() {
@@ -24482,12 +25467,28 @@ public final class MsgBean {
 
       public static final int FORCE_OFFLINE_FIELD_NUMBER = 10300;
       /**
+       * <pre>
+       * ChangeSurvivalTimeMessage change_survival_time = 10213;
+       * AuVideoDialMessage au_video_dial = 10214;
+       * AuVideoHangUpMessage au_video_hang_up = 10215;
+       * AuVideoRefuseMessage au_video_refuse = 10216;
+       * AuVideoAcceptMessage au_video_accept = 10217;
+       * </pre>
+       *
        * <code>.ForceOfflineMessage force_offline = 10300;</code>
        */
       public boolean hasForceOffline() {
         return realMsgCase_ == 10300;
       }
       /**
+       * <pre>
+       * ChangeSurvivalTimeMessage change_survival_time = 10213;
+       * AuVideoDialMessage au_video_dial = 10214;
+       * AuVideoHangUpMessage au_video_hang_up = 10215;
+       * AuVideoRefuseMessage au_video_refuse = 10216;
+       * AuVideoAcceptMessage au_video_accept = 10217;
+       * </pre>
+       *
        * <code>.ForceOfflineMessage force_offline = 10300;</code>
        */
       public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage getForceOffline() {
@@ -24497,6 +25498,14 @@ public final class MsgBean {
         return com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.getDefaultInstance();
       }
       /**
+       * <pre>
+       * ChangeSurvivalTimeMessage change_survival_time = 10213;
+       * AuVideoDialMessage au_video_dial = 10214;
+       * AuVideoHangUpMessage au_video_hang_up = 10215;
+       * AuVideoRefuseMessage au_video_refuse = 10216;
+       * AuVideoAcceptMessage au_video_accept = 10217;
+       * </pre>
+       *
        * <code>.ForceOfflineMessage force_offline = 10300;</code>
        */
       public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder getForceOfflineOrBuilder() {
@@ -24530,6 +25539,32 @@ public final class MsgBean {
            return (com.yanlong.im.utils.socket.MsgBean.ActiveStatChangeMessage) realMsg_;
         }
         return com.yanlong.im.utils.socket.MsgBean.ActiveStatChangeMessage.getDefaultInstance();
+      }
+
+      public static final int RESOURCE_LOCK_FIELD_NUMBER = 10302;
+      /**
+       * <code>.ResourceLockMessage resource_lock = 10302;</code>
+       */
+      public boolean hasResourceLock() {
+        return realMsgCase_ == 10302;
+      }
+      /**
+       * <code>.ResourceLockMessage resource_lock = 10302;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage getResourceLock() {
+        if (realMsgCase_ == 10302) {
+           return (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_;
+        }
+        return com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance();
+      }
+      /**
+       * <code>.ResourceLockMessage resource_lock = 10302;</code>
+       */
+      public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessageOrBuilder getResourceLockOrBuilder() {
+        if (realMsgCase_ == 10302) {
+           return (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_;
+        }
+        return com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance();
       }
 
       private byte memoizedIsInitialized = -1;
@@ -24639,6 +25674,9 @@ public final class MsgBean {
         }
         if (realMsgCase_ == 10301) {
           output.writeMessage(10301, (com.yanlong.im.utils.socket.MsgBean.ActiveStatChangeMessage) realMsg_);
+        }
+        if (realMsgCase_ == 10302) {
+          output.writeMessage(10302, (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_);
         }
         unknownFields.writeTo(output);
       }
@@ -24771,6 +25809,10 @@ public final class MsgBean {
           size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(10301, (com.yanlong.im.utils.socket.MsgBean.ActiveStatChangeMessage) realMsg_);
         }
+        if (realMsgCase_ == 10302) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(10302, (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_);
+        }
         size += unknownFields.getSerializedSize();
         memoizedSize = size;
         return size;
@@ -24902,6 +25944,10 @@ public final class MsgBean {
             result = result && getActiveStatChange()
                 .equals(other.getActiveStatChange());
             break;
+          case 10302:
+            result = result && getResourceLock()
+                .equals(other.getResourceLock());
+            break;
           case 0:
           default:
         }
@@ -25030,6 +26076,10 @@ public final class MsgBean {
           case 10301:
             hash = (37 * hash) + ACTIVE_STAT_CHANGE_FIELD_NUMBER;
             hash = (53 * hash) + getActiveStatChange().hashCode();
+            break;
+          case 10302:
+            hash = (37 * hash) + RESOURCE_LOCK_FIELD_NUMBER;
+            hash = (53 * hash) + getResourceLock().hashCode();
             break;
           case 0:
           default:
@@ -25379,6 +26429,13 @@ public final class MsgBean {
               result.realMsg_ = activeStatChangeBuilder_.build();
             }
           }
+          if (realMsgCase_ == 10302) {
+            if (resourceLockBuilder_ == null) {
+              result.realMsg_ = realMsg_;
+            } else {
+              result.realMsg_ = resourceLockBuilder_.build();
+            }
+          }
           result.realMsgCase_ = realMsgCase_;
           onBuilt();
           return result;
@@ -25545,6 +26602,10 @@ public final class MsgBean {
             }
             case ACTIVE_STAT_CHANGE: {
               mergeActiveStatChange(other.getActiveStatChange());
+              break;
+            }
+            case RESOURCE_LOCK: {
+              mergeResourceLock(other.getResourceLock());
               break;
             }
             case REALMSG_NOT_SET: {
@@ -27657,12 +28718,20 @@ public final class MsgBean {
         private com.google.protobuf.SingleFieldBuilderV3<
             com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage, com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage.Builder, com.yanlong.im.utils.socket.MsgBean.RequestFriendMessageOrBuilder> requestFriendBuilder_;
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         public boolean hasRequestFriend() {
           return realMsgCase_ == 10100;
         }
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         public com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage getRequestFriend() {
@@ -27679,6 +28748,10 @@ public final class MsgBean {
           }
         }
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         public Builder setRequestFriend(com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage value) {
@@ -27695,6 +28768,10 @@ public final class MsgBean {
           return this;
         }
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         public Builder setRequestFriend(
@@ -27709,6 +28786,10 @@ public final class MsgBean {
           return this;
         }
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         public Builder mergeRequestFriend(com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage value) {
@@ -27731,6 +28812,10 @@ public final class MsgBean {
           return this;
         }
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         public Builder clearRequestFriend() {
@@ -27750,12 +28835,20 @@ public final class MsgBean {
           return this;
         }
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         public com.yanlong.im.utils.socket.MsgBean.RequestFriendMessage.Builder getRequestFriendBuilder() {
           return getRequestFriendFieldBuilder().getBuilder();
         }
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         public com.yanlong.im.utils.socket.MsgBean.RequestFriendMessageOrBuilder getRequestFriendOrBuilder() {
@@ -27769,6 +28862,10 @@ public final class MsgBean {
           }
         }
         /**
+         * <pre>
+         * ShortVideoMessage short_video = 10011;
+         * </pre>
+         *
          * <code>.RequestFriendMessage request_friend = 10100;</code>
          */
         private com.google.protobuf.SingleFieldBuilderV3<
@@ -29153,12 +30250,28 @@ public final class MsgBean {
         private com.google.protobuf.SingleFieldBuilderV3<
             com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder> forceOfflineBuilder_;
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         public boolean hasForceOffline() {
           return realMsgCase_ == 10300;
         }
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage getForceOffline() {
@@ -29175,6 +30288,14 @@ public final class MsgBean {
           }
         }
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         public Builder setForceOffline(com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage value) {
@@ -29191,6 +30312,14 @@ public final class MsgBean {
           return this;
         }
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         public Builder setForceOffline(
@@ -29205,6 +30334,14 @@ public final class MsgBean {
           return this;
         }
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         public Builder mergeForceOffline(com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage value) {
@@ -29227,6 +30364,14 @@ public final class MsgBean {
           return this;
         }
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         public Builder clearForceOffline() {
@@ -29246,12 +30391,28 @@ public final class MsgBean {
           return this;
         }
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder getForceOfflineBuilder() {
           return getForceOfflineFieldBuilder().getBuilder();
         }
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder getForceOfflineOrBuilder() {
@@ -29265,6 +30426,14 @@ public final class MsgBean {
           }
         }
         /**
+         * <pre>
+         * ChangeSurvivalTimeMessage change_survival_time = 10213;
+         * AuVideoDialMessage au_video_dial = 10214;
+         * AuVideoHangUpMessage au_video_hang_up = 10215;
+         * AuVideoRefuseMessage au_video_refuse = 10216;
+         * AuVideoAcceptMessage au_video_accept = 10217;
+         * </pre>
+         *
          * <code>.ForceOfflineMessage force_offline = 10300;</code>
          */
         private com.google.protobuf.SingleFieldBuilderV3<
@@ -29420,6 +30589,142 @@ public final class MsgBean {
           realMsgCase_ = 10301;
           onChanged();;
           return activeStatChangeBuilder_;
+        }
+
+        private com.google.protobuf.SingleFieldBuilderV3<
+            com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage, com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ResourceLockMessageOrBuilder> resourceLockBuilder_;
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        public boolean hasResourceLock() {
+          return realMsgCase_ == 10302;
+        }
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage getResourceLock() {
+          if (resourceLockBuilder_ == null) {
+            if (realMsgCase_ == 10302) {
+              return (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_;
+            }
+            return com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance();
+          } else {
+            if (realMsgCase_ == 10302) {
+              return resourceLockBuilder_.getMessage();
+            }
+            return com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance();
+          }
+        }
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        public Builder setResourceLock(com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage value) {
+          if (resourceLockBuilder_ == null) {
+            if (value == null) {
+              throw new NullPointerException();
+            }
+            realMsg_ = value;
+            onChanged();
+          } else {
+            resourceLockBuilder_.setMessage(value);
+          }
+          realMsgCase_ = 10302;
+          return this;
+        }
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        public Builder setResourceLock(
+            com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.Builder builderForValue) {
+          if (resourceLockBuilder_ == null) {
+            realMsg_ = builderForValue.build();
+            onChanged();
+          } else {
+            resourceLockBuilder_.setMessage(builderForValue.build());
+          }
+          realMsgCase_ = 10302;
+          return this;
+        }
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        public Builder mergeResourceLock(com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage value) {
+          if (resourceLockBuilder_ == null) {
+            if (realMsgCase_ == 10302 &&
+                realMsg_ != com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance()) {
+              realMsg_ = com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.newBuilder((com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_)
+                  .mergeFrom(value).buildPartial();
+            } else {
+              realMsg_ = value;
+            }
+            onChanged();
+          } else {
+            if (realMsgCase_ == 10302) {
+              resourceLockBuilder_.mergeFrom(value);
+            }
+            resourceLockBuilder_.setMessage(value);
+          }
+          realMsgCase_ = 10302;
+          return this;
+        }
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        public Builder clearResourceLock() {
+          if (resourceLockBuilder_ == null) {
+            if (realMsgCase_ == 10302) {
+              realMsgCase_ = 0;
+              realMsg_ = null;
+              onChanged();
+            }
+          } else {
+            if (realMsgCase_ == 10302) {
+              realMsgCase_ = 0;
+              realMsg_ = null;
+            }
+            resourceLockBuilder_.clear();
+          }
+          return this;
+        }
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.Builder getResourceLockBuilder() {
+          return getResourceLockFieldBuilder().getBuilder();
+        }
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.ResourceLockMessageOrBuilder getResourceLockOrBuilder() {
+          if ((realMsgCase_ == 10302) && (resourceLockBuilder_ != null)) {
+            return resourceLockBuilder_.getMessageOrBuilder();
+          } else {
+            if (realMsgCase_ == 10302) {
+              return (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_;
+            }
+            return com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance();
+          }
+        }
+        /**
+         * <code>.ResourceLockMessage resource_lock = 10302;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilderV3<
+            com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage, com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ResourceLockMessageOrBuilder> 
+            getResourceLockFieldBuilder() {
+          if (resourceLockBuilder_ == null) {
+            if (!(realMsgCase_ == 10302)) {
+              realMsg_ = com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance();
+            }
+            resourceLockBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage, com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ResourceLockMessageOrBuilder>(
+                    (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_,
+                    getParentForChildren(),
+                    isClean());
+            realMsg_ = null;
+          }
+          realMsgCase_ = 10302;
+          onChanged();;
+          return resourceLockBuilder_;
         }
         public final Builder setUnknownFields(
             final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -30455,6 +31760,11 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ActiveStatChangeMessage_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ResourceLockMessage_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ResourceLockMessage_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_AckMessage_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -30510,91 +31820,97 @@ public final class MsgBean {
       "MULTIPLE\020\000\022\007\n\003ALL\020\001\"\037\n\020AssistantMessage\022" +
       "\013\n\003msg\030\001 \001(\t\"\037\n\rCancelMessage\022\016\n\006msg_id\030" +
       "\001 \001(\t\"<\n\024RequestFriendMessage\022\016\n\006say_hi\030" +
-      "\001 \001(\t\022\024\n\014contact_name\030\002 \001(\t\"\030\n\026AcceptBeF" +
-      "riendsMessage\"\025\n\023RemoveFriendMessage\"C\n\022" +
-      "GroupNoticeMessage\022\013\n\003uid\030\001 \001(\004\022\016\n\006avata" +
-      "r\030\002 \001(\t\022\020\n\010nickname\030\003 \001(\t\"E\n\026InviteJoinG" +
-      "roupMessage\022+\n\016notice_message\030\001 \001(\0132\023.Gr" +
-      "oupNoticeMessage\"\214\001\n\023RequestGroupMessage" +
+      "\001 \001(\t\022\024\n\014contact_name\030\002 \001(\t\"(\n\026AcceptBeF" +
+      "riendsMessage\022\016\n\006say_hi\030\001 \001(\t\"\025\n\023RemoveF" +
+      "riendMessage\"C\n\022GroupNoticeMessage\022\013\n\003ui" +
+      "d\030\001 \001(\004\022\016\n\006avatar\030\002 \001(\t\022\020\n\010nickname\030\003 \001(" +
+      "\t\"E\n\026InviteJoinGroupMessage\022+\n\016notice_me" +
+      "ssage\030\001 \001(\0132\023.GroupNoticeMessage\"\214\001\n\023Req" +
+      "uestGroupMessage\022+\n\016notice_message\030\001 \003(\013" +
+      "2\023.GroupNoticeMessage\022\017\n\007inviter\030\002 \001(\004\022!" +
+      "\n\tjoin_type\030\003 \001(\0162\016.JoinGroupType\022\024\n\014inv" +
+      "iter_name\030\004 \001(\t\"\215\001\n\024AcceptBeGroupMessage" +
       "\022+\n\016notice_message\030\001 \003(\0132\023.GroupNoticeMe" +
       "ssage\022\017\n\007inviter\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(" +
       "\0162\016.JoinGroupType\022\024\n\014inviter_name\030\004 \001(\t\"" +
-      "\215\001\n\024AcceptBeGroupMessage\022+\n\016notice_messa" +
-      "ge\030\001 \003(\0132\023.GroupNoticeMessage\022\017\n\007inviter" +
-      "\030\002 \001(\004\022!\n\tjoin_type\030\003 \001(\0162\016.JoinGroupTyp" +
-      "e\022\024\n\014inviter_name\030\004 \001(\t\"E\n\030RemoveGroupMe" +
-      "mberMessage\022\013\n\003gid\030\001 \001(\t\022\016\n\006avatar\030\002 \001(\t" +
-      "\022\014\n\004name\030\003 \001(\t\"(\n\031RemoveGroupMember2Mess" +
-      "age\022\013\n\003uid\030\001 \003(\004\";\n\030ChangeGroupMasterMes" +
-      "sage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmembername\030\002 \001(\t\"`\n" +
-      "\026ChangeGroupMetaMessage\022\016\n\004name\030\001 \001(\tH\000\022" +
-      "\030\n\016protect_member\030\002 \001(\010H\000\022\020\n\006avatar\030\003 \001(" +
-      "\tH\000B\n\n\010real_msg\"@\n\023DestroyGroupMessage\022\013" +
-      "\n\003uid\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(" +
-      "\t\"H\n\023ForceOfflineMessage\0221\n\024force_offlin" +
-      "e_reason\030\001 \001(\0162\023.ForceOfflineReason\"\036\n\017O" +
-      "utGroupMessage\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027ActiveSt" +
-      "atChangeMessage\0228\n\013active_type\030\001 \001(\0162#.A" +
-      "ctiveStatChangeMessage.ActiveType\022\021\n\ttim" +
-      "estamp\030\002 \001(\004\"%\n\nActiveType\022\013\n\007OFFLINE\020\000\022" +
-      "\n\n\006ONLINE\020\001\"e\n\nAckMessage\022 \n\013reject_type" +
-      "\030\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002 \001(\t\022" +
-      "\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022Au" +
-      "thRequestMessage\022\024\n\014access_token\030\001 \001(\t\"\'" +
-      "\n\023AuthResponseMessage\022\020\n\010accepted\030\001 \001(\021\"" +
-      "\355\n\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(\t" +
-      "\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Uni" +
-      "versalMessage.WrapMessage\032\203\n\n\013WrapMessag" +
-      "e\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014" +
-      ".MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid" +
-      "\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n" +
-      "\006avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\035\n\004cha" +
-      "t\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\013" +
-      "2\r.ImageMessageH\000\022,\n\014red_envelope\030\222N \001(\013" +
-      "2\023.RedEnvelopeMessageH\000\022;\n\024receive_red_e" +
-      "nvelope\030\223N \001(\0132\032.ReceiveRedEnvelopeMessa" +
-      "geH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferMessag" +
-      "eH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\r" +
-      "business_card\030\226N \001(\0132\024.BusinessCardMessa" +
-      "geH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n" +
-      "\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassistant\030\231N" +
-      " \001(\0132\021.AssistantMessageH\000\022!\n\006cancel\030\232N \001" +
-      "(\0132\016.CancelMessageH\000\0220\n\016request_friend\030\364" +
-      "N \001(\0132\025.RequestFriendMessageH\000\0225\n\021accept" +
-      "_be_friends\030\365N \001(\0132\027.AcceptBeFriendsMess" +
-      "ageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.RemoveFr" +
-      "iendMessageH\000\022.\n\rrequest_group\030\330O \001(\0132\024." +
-      "RequestGroupMessageH\000\0221\n\017accept_be_group" +
-      "\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023remo" +
-      "ve_group_member\030\332O \001(\0132\031.RemoveGroupMemb" +
-      "erMessageH\000\0229\n\023change_group_master\030\333O \001(" +
-      "\0132\031.ChangeGroupMasterMessageH\000\022.\n\rdestro" +
-      "y_group\030\336O \001(\0132\024.DestroyGroupMessageH\000\022;" +
-      "\n\024remove_group_member2\030\337O \001(\0132\032.RemoveGr" +
-      "oupMember2MessageH\000\022&\n\tout_group\030\342O \001(\0132" +
-      "\020.OutGroupMessageH\000\0225\n\021change_group_meta" +
-      "\030\344O \001(\0132\027.ChangeGroupMetaMessageH\000\022.\n\rfo" +
-      "rce_offline\030\274P \001(\0132\024.ForceOfflineMessage" +
-      "H\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Active" +
-      "StatChangeMessageH\000B\n\n\010real_msg*\302\003\n\013Mess" +
-      "ageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVE" +
-      "LOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TR" +
-      "ANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t" +
-      "\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANC" +
-      "EL\020\n\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FR" +
-      "IENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GR" +
-      "OUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GRO" +
-      "UP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024" +
-      "REMOVE_GROUP_MEMBER2\020k\022\021\n\rDESTROY_GROUP\020" +
-      "m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHANGE_GROUP_META\020p\022" +
-      "\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANG" +
-      "E\020\311\001*.\n\022ForceOfflineReason\022\014\n\010CONFLICT\020\000" +
-      "\022\n\n\006LOCKED\020\001*v\n\nRejectType\022\014\n\010ACCEPTED\020\000" +
-      "\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_" +
-      "BLACKLIST\020\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_U" +
-      "NAVAILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020" +
-      "\000\022\013\n\007PASSIVE\020\001B&\n\033com.yanlong.im.utils.s" +
-      "ocketB\007MsgBeanb\006proto3"
+      "E\n\030RemoveGroupMemberMessage\022\013\n\003gid\030\001 \001(\t" +
+      "\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"(\n\031Remove" +
+      "GroupMember2Message\022\013\n\003uid\030\001 \003(\004\";\n\030Chan" +
+      "geGroupMasterMessage\022\013\n\003uid\030\001 \001(\004\022\022\n\nmem" +
+      "bername\030\002 \001(\t\"`\n\026ChangeGroupMetaMessage\022" +
+      "\016\n\004name\030\001 \001(\tH\000\022\030\n\016protect_member\030\002 \001(\010H" +
+      "\000\022\020\n\006avatar\030\003 \001(\tH\000B\n\n\010real_msg\"@\n\023Destr" +
+      "oyGroupMessage\022\013\n\003uid\030\001 \003(\004\022\016\n\006avatar\030\002 " +
+      "\001(\t\022\014\n\004name\030\003 \001(\t\"H\n\023ForceOfflineMessage" +
+      "\0221\n\024force_offline_reason\030\001 \001(\0162\023.ForceOf" +
+      "flineReason\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 " +
+      "\001(\t\"\215\001\n\027ActiveStatChangeMessage\0228\n\013activ" +
+      "e_type\030\001 \001(\0162#.ActiveStatChangeMessage.A" +
+      "ctiveType\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiveTy" +
+      "pe\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023Resource" +
+      "LockMessage\022A\n\022resource_lock_type\030\001 \001(\0162" +
+      "%.ResourceLockMessage.ResourceLockType\022\014" +
+      "\n\004lock\030\002 \001(\r\"(\n\020ResourceLockType\022\024\n\020CLOU" +
+      "DREDENVELOPE\020\000\"e\n\nAckMessage\022 \n\013reject_t" +
+      "ype\030\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002 \001" +
+      "(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n" +
+      "\022AuthRequestMessage\022\024\n\014access_token\030\001 \001(" +
+      "\t\"\'\n\023AuthResponseMessage\022\020\n\010accepted\030\001 \001" +
+      "(\021\"\235\013\n\020UniversalMessage\022\022\n\nrequest_id\030\001 " +
+      "\001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035." +
+      "UniversalMessage.WrapMessage\032\263\n\n\013WrapMes" +
+      "sage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(" +
+      "\0162\014.MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_" +
+      "uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t" +
+      "\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\035\n\004" +
+      "chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N " +
+      "\001(\0132\r.ImageMessageH\000\022,\n\014red_envelope\030\222N " +
+      "\001(\0132\023.RedEnvelopeMessageH\000\022;\n\024receive_re" +
+      "d_envelope\030\223N \001(\0132\032.ReceiveRedEnvelopeMe" +
+      "ssageH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferMes" +
+      "sageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022" +
+      ".\n\rbusiness_card\030\226N \001(\0132\024.BusinessCardMe" +
+      "ssageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000" +
+      "\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassistant" +
+      "\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006cancel\030\232" +
+      "N \001(\0132\016.CancelMessageH\000\0220\n\016request_frien" +
+      "d\030\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021acc" +
+      "ept_be_friends\030\365N \001(\0132\027.AcceptBeFriendsM" +
+      "essageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.Remov" +
+      "eFriendMessageH\000\022.\n\rrequest_group\030\330O \001(\013" +
+      "2\024.RequestGroupMessageH\000\0221\n\017accept_be_gr" +
+      "oup\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023r" +
+      "emove_group_member\030\332O \001(\0132\031.RemoveGroupM" +
+      "emberMessageH\000\0229\n\023change_group_master\030\333O" +
+      " \001(\0132\031.ChangeGroupMasterMessageH\000\022.\n\rdes" +
+      "troy_group\030\336O \001(\0132\024.DestroyGroupMessageH" +
+      "\000\022;\n\024remove_group_member2\030\337O \001(\0132\032.Remov" +
+      "eGroupMember2MessageH\000\022&\n\tout_group\030\342O \001" +
+      "(\0132\020.OutGroupMessageH\000\0225\n\021change_group_m" +
+      "eta\030\344O \001(\0132\027.ChangeGroupMetaMessageH\000\022.\n" +
+      "\rforce_offline\030\274P \001(\0132\024.ForceOfflineMess" +
+      "ageH\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Act" +
+      "iveStatChangeMessageH\000\022.\n\rresource_lock\030" +
+      "\276P \001(\0132\024.ResourceLockMessageH\000B\n\n\010real_m" +
+      "sg*\326\003\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022" +
+      "\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELO" +
+      "PER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINE" +
+      "SS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTAN" +
+      "T\020\t\022\n\n\006CANCEL\020\n\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021A" +
+      "CCEPT_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n" +
+      "\rREQUEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n" +
+      "\023REMOVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_M" +
+      "ASTER\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022\021\n\rDES" +
+      "TROY_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHANGE_GR" +
+      "OUP_META\020p\022\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIVE" +
+      "_STAT_CHANGE\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001*.\n\022F" +
+      "orceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKE" +
+      "D\020\001*v\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_F" +
+      "RIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLIST" +
+      "\020\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAILABL" +
+      "E\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007PASS" +
+      "IVE\020\001B&\n\033com.yanlong.im.utils.socketB\007Ms" +
+      "gBeanb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -30685,7 +32001,7 @@ public final class MsgBean {
     internal_static_AcceptBeFriendsMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AcceptBeFriendsMessage_descriptor,
-        new java.lang.String[] { });
+        new java.lang.String[] { "SayHi", });
     internal_static_RemoveFriendMessage_descriptor =
       getDescriptor().getMessageTypes().get(13);
     internal_static_RemoveFriendMessage_fieldAccessorTable = new
@@ -30764,26 +32080,32 @@ public final class MsgBean {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ActiveStatChangeMessage_descriptor,
         new java.lang.String[] { "ActiveType", "Timestamp", });
-    internal_static_AckMessage_descriptor =
+    internal_static_ResourceLockMessage_descriptor =
       getDescriptor().getMessageTypes().get(26);
+    internal_static_ResourceLockMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ResourceLockMessage_descriptor,
+        new java.lang.String[] { "ResourceLockType", "Lock", });
+    internal_static_AckMessage_descriptor =
+      getDescriptor().getMessageTypes().get(27);
     internal_static_AckMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AckMessage_descriptor,
         new java.lang.String[] { "RejectType", "RequestId", "MsgId", "Timestamp", });
     internal_static_AuthRequestMessage_descriptor =
-      getDescriptor().getMessageTypes().get(27);
+      getDescriptor().getMessageTypes().get(28);
     internal_static_AuthRequestMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AuthRequestMessage_descriptor,
         new java.lang.String[] { "AccessToken", });
     internal_static_AuthResponseMessage_descriptor =
-      getDescriptor().getMessageTypes().get(28);
+      getDescriptor().getMessageTypes().get(29);
     internal_static_AuthResponseMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_AuthResponseMessage_descriptor,
         new java.lang.String[] { "Accepted", });
     internal_static_UniversalMessage_descriptor =
-      getDescriptor().getMessageTypes().get(29);
+      getDescriptor().getMessageTypes().get(30);
     internal_static_UniversalMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_UniversalMessage_descriptor,
@@ -30793,7 +32115,7 @@ public final class MsgBean {
     internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_UniversalMessage_WrapMessage_descriptor,
-        new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ForceOffline", "ActiveStatChange", "RealMsg", });
+        new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ForceOffline", "ActiveStatChange", "ResourceLock", "RealMsg", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

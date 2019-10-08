@@ -3,7 +3,6 @@ package com.yanlong.im.chat.action;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
-import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -13,23 +12,20 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RobotInfoBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
-import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -65,7 +61,8 @@ public class MsgAction {
                 if (response.body().isOk()) {//存库
                     String id = response.body().getData().getGid();
                     dao.groupCreate(id, avatar, name, listDataTop);
-
+                    dao.sessionCreate(id, null);
+                    MessageManager.getInstance().setMessageChange(true);
                 }
                 callback.onResponse(call, response);
             }
@@ -220,15 +217,9 @@ public class MsgAction {
                             if (link != null) {
                                 userInfo.setMembername(link.getMembername());
                             }
-
-
                         }
-
-
                     }
                     callback.onResponse(call, response);
-
-
                 }
             });
         } else {//从缓存中读
@@ -252,13 +243,13 @@ public class MsgAction {
         //8.8 取消从数据库里读取群成员信息
         for (UserInfo userInfo : response.body().getData().getUsers()) {
             GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-            if (link != null) {
+            if (link != null && !TextUtils.isEmpty(link.getMembername())) {
                 userInfo.setMembername(link.getMembername());
+                if (userInfo.getUid().equals(UserAction.getMyId())) {
+                    response.body().getData().setMygroupName(link.getMembername());
+                }
             }
-
-
         }
-
         callback.onResponse(null, response);
     }
 
@@ -308,6 +299,7 @@ public class MsgAction {
                     return;
                 if (response.body().isOk()) {//存库
                     dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
+                    MessageManager.getInstance().setMessageChange(true);
                 }
 
                 cb.onResponse(call, response);
@@ -352,6 +344,10 @@ public class MsgAction {
     /**
      * 查询已保存的群聊
      */
+    List<Group> groupList = new ArrayList<>();
+    private int i = 0;
+    private int j = 0;
+
     public void getMySaved(final Callback<ReturnBean<List<Group>>> callback) {
 
         NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<Group>>>() {
@@ -359,18 +355,53 @@ public class MsgAction {
             public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
                 if (response.body() == null)
                     return;
-                callback.onResponse(call, response);
-
-
+//                callback.onResponse(call, response);
+//                List<Group> groupList=new ArrayList<>();
+                i = response.body().getData().size();
                 for (Group ginfo : response.body().getData()) {
                     //保存群信息到本地
-                    Group group = new Group();
+                    final Group group = new Group();
                     group.setGid(ginfo.getGid());
                     group.setAvatar(ginfo.getAvatar());
                     group.setName(ginfo.getName());
-                    dao.groupSave(group);
-                }
+                    if (null != dao.getGroup4Id(ginfo.getGid())) {
+                        if (null != dao.getGroup4Id(ginfo.getGid()).getUsers() && dao.getGroup4Id(ginfo.getGid()).getUsers().size() > 0) {
+                            group.setUsers(dao.getGroup4Id(ginfo.getGid()).getUsers());
 
+                        } else {
+                            groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
+                                @Override
+                                public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                                    if (response.body().isOk()) {
+                                        Group bean = response.body().getData();
+                                        group.setUsers(bean.getUsers());
+                                    }
+                                }
+                            });
+                        }
+                        dao.groupSave(group);
+                        groupList.add(group);
+                    } else {
+                        groupInfo(ginfo.getGid(), new CallBack<ReturnBean<Group>>() {
+                            @Override
+                            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> responseInner) {
+                                if (responseInner.body().isOk()) {
+                                    Group bean = responseInner.body().getData();
+                                    group.setUsers(bean.getUsers());
+                                    group.setGid(bean.getGid());
+                                    group.setAvatar(bean.getAvatar());
+                                    group.setName(bean.getName());
+                                    dao.groupSave(group);
+                                    groupList.add(group);
+
+                                }
+                            }
+                        });
+                    }
+
+                }
+                response.body().setData(groupList);
+                callback.onResponse(call, response);
             }
         });
     }
@@ -501,22 +532,6 @@ public class MsgAction {
      */
     public void changeMaster(String gid, String uid, String membername, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.changeMaster(gid, uid, membername), callback);
-    }
-
-    public MsgAllBean createMessageLock(String gid, Long uid) {
-        MsgAllBean bean = new MsgAllBean();
-        if (!TextUtils.isEmpty(gid)) {
-            bean.setGid(gid);
-            bean.setFrom_uid(UserAction.getMyInfo().getUid());
-        } else if (uid != null) {
-            bean.setFrom_uid(uid);
-        } else {
-            return null;
-        }
-        bean.setMsg_type(ChatEnum.EMessageType.LOCK);
-        bean.setMsg_id(SocketData.getUUID());
-        bean.setTimestamp(0L);
-        return bean;
     }
 
 

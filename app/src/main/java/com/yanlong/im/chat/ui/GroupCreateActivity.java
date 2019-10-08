@@ -45,6 +45,8 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static com.yanlong.im.utils.GroupHeadImageUtil.getCacheFile2;
+
 /***
  * 创建群聊
  */
@@ -324,7 +326,7 @@ public class GroupCreateActivity extends AppActivity {
     }
 
     private UpFileAction upFileAction = new UpFileAction();
-
+    private  File fileImg;
     private void taskCreate() {
         if (listDataTop.size() < 2) {
             ToastUtil.show(getContext(), "人数必须大于3人");
@@ -344,21 +346,10 @@ public class GroupCreateActivity extends AppActivity {
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
             UserInfo userInfo = templist.get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
+
             url[j] = userInfo.getHead();
         }
-        final File file = GroupHeadImageUtil.synthesis(this, url);
-
-
-//        name = name.length() > 14 ? StringUtil.splitEmojiString(name, 0, 14) : name;
-//        name += "的群";
-//        final String fname = name;
-
-
+        fileImg= GroupHeadImageUtil.synthesis(this, url);
 
 
 
@@ -376,7 +367,7 @@ public class GroupCreateActivity extends AppActivity {
 //                    group.setAvatar(file.getAbsolutePath());
 //                    msgDao.groupSave(group);
 //                    msgDao.groupSaveJustImgHead(response.body().getData().getGid(),file.getAbsolutePath());
-                    msgDao.groupHeadImgCreate(response.body().getData().getGid(),file.getAbsolutePath());
+                    msgDao.groupHeadImgCreate(response.body().getData().getGid(),fileImg.getAbsolutePath());
 
                     startActivity(new Intent(getContext(), ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())

@@ -16,6 +16,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -52,6 +53,7 @@ import retrofit2.Response;
  */
 public class UserInfoActivity extends AppActivity {
     public static final int SETING_REMARK = 1000;
+    public static final int SEND_VERIFY = 1;
     public static final String ID = "id";
     public static final String SAY_HI = "sayHi";
     public static final String IS_APPLY = "isApply";
@@ -98,6 +100,7 @@ public class UserInfoActivity extends AppActivity {
     private String mucNick;
     private int contactIntimately;
     private UserInfo userInfoLocal;
+    private Group group;
 
 
     @Override
@@ -258,21 +261,33 @@ public class UserInfoActivity extends AppActivity {
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertTouch alertTouch = new AlertTouch();
-                    alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
-                        @Override
-                        public void onON() {
-
-                        }
-
-                        @Override
-                        public void onYes(String content) {
-                            taskAddFriend(id, content);
-                        }
-                    });
-                    alertTouch.show();
-                    alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
-                    alertTouch.setEdHintOrSize(null, 60);
+                    toSendVerifyActivity();
+//                    AlertTouch alertTouch = new AlertTouch();
+//                    alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
+//                        @Override
+//                        public void onON() {
+//
+//                        }
+//
+//                        @Override
+//                        public void onYes(String content) {
+//                            taskAddFriend(id, content);
+//                        }
+//                    });
+//                    alertTouch.show();
+//                    if (group != null) {
+//                        String name = group.getName();
+//                        if (!TextUtils.isEmpty(name)) {
+//                            String userName = group.getMygroupName();
+//                            if (TextUtils.isEmpty(userName)) {
+//                                userName = UserAction.getMyInfo().getName();
+//                            }
+//                            alertTouch.setContent("我是" + "\"" + name + "\"" + "的" + userName);
+//                        }
+//                    } else {
+//                        alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
+//                    }
+//                    alertTouch.setEdHintOrSize(null, 60);
                 }
             });
         } else {
@@ -286,6 +301,24 @@ public class UserInfoActivity extends AppActivity {
         }
 
 
+    }
+
+    private void toSendVerifyActivity() {
+        String content = "我是" + UserAction.getMyInfo().getName();
+        if (group != null) {
+            String name = group.getName();
+            if (!TextUtils.isEmpty(name)) {
+                String userName = group.getMygroupName();
+                if (TextUtils.isEmpty(userName)) {
+                    userName = UserAction.getMyInfo().getName();
+                }
+                content = "我是" + "\"" + name + "\"" + "的" + userName;
+            }
+        }
+        Intent intent = new Intent(UserInfoActivity.this, FriendVerifyActivity.class);
+        intent.putExtra(FriendVerifyActivity.CONTENT, content);
+        intent.putExtra(FriendVerifyActivity.USER_ID, id);
+        startActivityForResult(intent, SEND_VERIFY);
     }
 
 
@@ -308,13 +341,10 @@ public class UserInfoActivity extends AppActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            String content = data.getStringExtra(CommonSetingActivity.CONTENT);
             switch (requestCode) {
                 case SETING_REMARK:
-                    //6.15
-                    //  if (!TextUtils.isEmpty(content)) {
+                    String content = data.getStringExtra(CommonSetingActivity.CONTENT);
                     taskFriendMark(id, content);
-                    //  }
                     break;
             }
         }
@@ -426,7 +456,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskGroupInfo(String gid) {
-        new MsgAction().groupInfo4UserInfo(gid, new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo4Db(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
@@ -434,8 +464,8 @@ public class UserInfoActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    Group group = response.body().getData();
-                    setGoupData(group);
+                    group = response.body().getData();
+                    setGroupData(group);
                 }
             }
 
@@ -443,11 +473,9 @@ public class UserInfoActivity extends AppActivity {
     }
 
 
-    private void setGoupData(Group group) {
+    private void setGroupData(Group group) {
         //9.2 开启保护就隐藏加好友
         if (group.getContactIntimately() != null) {
-
-
             if (group.getContactIntimately() == 1 && !group.getMaster().equals(id.toString())) {
                 mBtnAdd.setVisibility(View.GONE);
             }
@@ -505,21 +533,23 @@ public class UserInfoActivity extends AppActivity {
         });
     }
 
-
+    /*
+     * 加入黑名单
+     * */
     private void taskFriendBlack(final Long id) {
         userAction.friendBlack(id, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-//                notifyRefreshRoster();
                 if (response.body() == null) {
                     return;
                 }
                 type = 2;
                 tvBlack.setText("解除黑名单");
-                userDao.updeteUserUtype(id, 3);
+                userDao.updateUserUtype(id, 3);
+                new MsgDao().sessionDel(id, "");
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(id);
-
+                notifyMsgRefresh();
             }
         });
     }
@@ -534,11 +564,15 @@ public class UserInfoActivity extends AppActivity {
                 }
                 type = 0;
                 tvBlack.setText("加入黑名单");
-                userDao.updeteUserUtype(id, 2);
+                userDao.updateUserUtype(id, 2);
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(uid);
             }
         });
+    }
+
+    private void notifyMsgRefresh() {
+        EventBus.getDefault().post(new EventRefreshMainMsg());
     }
 
     private void notifyRefreshRoster(long uid) {
@@ -559,7 +593,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 //刷新好友和退出
                 if (response.body().isOk()) {
-                    userDao.updeteUserUtype(id, 0);
+                    userDao.updateUserUtype(id, 0);
                     notifyRefreshRoster(id);
                     finish();
                 }

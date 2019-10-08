@@ -1,9 +1,7 @@
 package com.yanlong.im.user.action;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
@@ -15,14 +13,13 @@ import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.NewVersionBean;
-import com.yanlong.im.user.bean.SmsBean;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.server.UserServer;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.PhoneListUtil;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
@@ -36,9 +33,9 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import cn.jpush.android.api.JPushInterface;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -46,7 +43,6 @@ import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Field;
 
 /***
  * @author jyj
@@ -101,32 +97,17 @@ public class UserAction {
      * @return
      */
     public static String getDevId(Context context) {
-        int reTime = 0;
-        String uid = null;
-        try {
-            while (reTime < 5 * 10) {
-                uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
-                if (uid != null) {
-                    break;
-                } else {
-                    LogUtil.getLog().i("youmeng", "等待DevId" + reTime);
-                    Thread.sleep(200);
-                }
-                reTime++;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        String uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
+        uid = JPushInterface.getRegistrationID(context);
         if (TextUtils.isEmpty(uid)) {
-
-            LogUtil.getLog().i("youmeng", "等待DevId失败,自动生成");
-            uid = Installation.id(context);
+            if(TextUtils.isEmpty(uid)){
+                uid = Installation.id(context);
+            }
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
             return uid;
         }
 
-        LogUtil.getLog().i("youmeng", "上传deviceToken------------>" + uid);
+        LogUtil.getLog().i("getDevId",uid+"");
         return uid;
     }
 
@@ -164,7 +145,7 @@ public class UserAction {
     public void login(final String phone, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
         cleanInfo();
-        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", VersionUtil.getPhoneModel()), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login(MD5.md5(pwd), phone, devid, "android", VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
@@ -183,6 +164,34 @@ public class UserAction {
             }
         });
     }
+
+
+    /**
+     * 常聊号密码登录
+     */
+    public void login4Imid(final String imid, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
+
+        cleanInfo();
+        NetUtil.getNet().exec(server.login4Imid(MD5.md5(pwd), imid, devid, "android", VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    initDB("" + response.body().getData().getUid());
+                    setToken(response.body().getData());
+                    getMyInfo4Web(response.body().getData().getUid());
+                }
+
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                super.onFailure(call, t);
+                callback.onFailure(call, t);
+            }
+        });
+    }
+
 
     /***
      * 拉取服务器的自己的信息到数据库
@@ -532,7 +541,7 @@ public class UserAction {
      */
     public void register(String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, VersionUtil.getPhoneModel()), new CallBack<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.register(phone, captcha, "android", devid, VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext())), new CallBack<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 super.onResponse(call, response);
@@ -558,7 +567,7 @@ public class UserAction {
      */
     public void login4Captch(final String phone, String captcha, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
         cleanInfo();
-        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, VersionUtil.getPhoneModel()), new Callback<ReturnBean<TokenBean>>() {
+        NetUtil.getNet().exec(server.login4Captch(phone, captcha, "android", devid, VersionUtil.getPhoneModel(), StringUtil.getChannelName(AppConfig.getContext())), new Callback<ReturnBean<TokenBean>>() {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token

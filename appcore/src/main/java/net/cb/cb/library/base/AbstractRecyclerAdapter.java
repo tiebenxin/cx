@@ -58,5 +58,9 @@ public abstract class AbstractRecyclerAdapter<T> extends RecyclerView.Adapter<Re
         this.mItemClickListener = mItemClickListener;
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
 
 }

@@ -3,6 +3,8 @@ package com.yanlong.im.user.bean;
 
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import net.cb.cb.library.utils.StringUtil;
@@ -51,6 +53,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Long lastonline;
     private int activeType; //是否在线（0：离线|1：在线）
     private String describe; //用户描述
+    private int lockCloudRedEnvelope; //1锁定红包，0不锁定
+    private int destroy; //销毁开关
+    private long destroyTime; //销毁时间
     @Ignore
     private int joinType;
     @Ignore
@@ -179,8 +184,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public Integer getStat() {
-        if (stat == null) {
-            stat = 0;
+        if (stat == null) {//stat== null 一定是非好友
+            stat = 1;
         }
         return stat;
     }
@@ -423,5 +428,26 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public void setDescribe(String describe) {
         this.describe = describe;
+    }
+
+    public int getLockCloudRedEnvelope() {
+        return lockCloudRedEnvelope;
+    }
+
+    public void setLockCloudRedEnvelope(int lockCloudRedEnvelope) {
+        this.lockCloudRedEnvelope = lockCloudRedEnvelope;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null || this.uid == null) {
+            return false;
+        }
+        if (obj instanceof UserInfo) {
+            if (((UserInfo) obj).uid.equals(this.uid)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

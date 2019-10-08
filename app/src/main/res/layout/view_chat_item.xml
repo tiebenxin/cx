@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tool="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:paddingLeft="@dimen/app_margin_main"
     android:paddingTop="5dp"
@@ -17,16 +17,18 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="10dp"
+        android:visibility="gone"
         tool:text="shijian" />
 
 
-    //通知消息
+    <!-- 通知消息 -->
 
     <LinearLayout
         android:id="@+id/view_broadcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:visibility="gone"
         android:orientation="horizontal">
 
         <ImageView
@@ -46,7 +48,6 @@
             android:gravity="center"
             android:singleLine="false"
             android:text="公告"
-
             android:textColor="@color/white" />
     </LinearLayout>
 
@@ -58,15 +59,19 @@
         android:layout_marginLeft="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/bg_chat_item"
+        android:background="#ecdf8b"
         android:orientation="horizontal"
+        android:visibility="gone"
         android:padding="3dp">
+        <!--android:background="@drawable/bg_chat_item"-->
+
 
         <ImageView
             android:id="@+id/iv_lock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
+            android:visibility="gone"
             android:src="@drawable/ic_lock_black" />
 
         <TextView
@@ -78,7 +83,7 @@
             android:gravity="center"
             android:singleLine="false"
             android:text="聊天中所有信息已进行端对端加密保护"
-            android:textColor="@color/white" />
+            android:textColor="@color/black" />
 
     </LinearLayout>
 
@@ -121,17 +126,15 @@
                     android:id="@+id/view_ot_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:background="@drawable/selector_chat_other_touch"
                     android:gravity="left|center_vertical"
-
                     android:visibility="gone">
 
                     <android.support.v7.widget.AppCompatTextView
                         android:id="@+id/txt_ot_1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/emoji_font"
+                        android:fontFamily="normal"
                         android:maxWidth="210dp"
                         android:selectAllOnFocus="true"
                         android:text="我----已经添加你为好友啦"
@@ -287,9 +290,9 @@
 
                         <ImageView
                             android:id="@+id/img_ot_5"
+                            style="@style/app_img_head"
                             android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            style="@style/app_img_head"/>
+                            android:layout_height="50dp" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -485,7 +488,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_chat_me_touch"
-
                         android:gravity="right|center_vertical"
                         android:visibility="gone">
 
@@ -493,7 +495,7 @@
                             android:id="@+id/txt_me_1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/emoji_font"
+                            android:fontFamily="normal"
                             android:maxWidth="210dp"
                             android:selectAllOnFocus="true"
                             android:text="我已好友啦"
@@ -683,9 +685,9 @@
 
                             <ImageView
                                 android:id="@+id/img_me_5"
+                                style="@style/app_img_head"
                                 android:layout_width="50dp"
-                                android:layout_height="50dp"
-                                style="@style/app_img_head"/>
+                                android:layout_height="50dp" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"

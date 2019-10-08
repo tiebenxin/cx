@@ -136,6 +136,7 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewMe8;
     private AppCompatTextView txtMe8;
     private View viewLock;
+    private TextView tvLock;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -221,6 +222,7 @@ public class ChatItemView extends LinearLayout {
 
         //端到端加密提示消息
         viewLock = rootView.findViewById(R.id.view_lock);
+        tvLock = rootView.findViewById(R.id.tv_lock);
 
 
     }
@@ -583,6 +585,13 @@ public class ChatItemView extends LinearLayout {
         }, 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         span.setSpan(new ForegroundColorSpan(Color.BLUE), 0, url.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return span;
+    }
+
+
+    //端到端加密
+    public void setLock(SpannableStringBuilder stringBuilder) {
+        tvLock.setText(stringBuilder);
+        tvLock.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
 

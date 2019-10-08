@@ -9,6 +9,7 @@ import android.util.Log;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.TransAccountBean;
 import com.jrmf360.rplib.utils.callback.TransAccountCallBack;
+import com.jrmf360.tools.utils.ThreadUtil;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -192,8 +193,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                     }
                 }
             }
-                loadAndSetData();
-            }
+            loadAndSetData();
+        }
         if (isSendingHypertext) {
             if (sendTexts != null && sendTexts.size() > 0 && textPosition != sendTexts.size() - 1) {
                 sendHypertext(sendTexts, textPosition + 1);
@@ -226,7 +227,12 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         if (needRefresh) {
             loadAndSetData();
         }
-        initUnreadCount();
+        ThreadUtil.getInstance().runMainThread(new Runnable() {
+            @Override
+            public void run() {
+                initUnreadCount();
+            }
+        });
     }
 
     @Override

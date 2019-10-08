@@ -1,5 +1,8 @@
 package net.cb.cb.library.utils;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import java.util.regex.Matcher;
@@ -98,5 +101,33 @@ public class StringUtil {
         }
 //        LogUtil.getLog().i("检测Emoji", content.substring(onCreate, end) + "--onCreate=" + onCreate + "--end=" + end);
         return content.substring(start, end);
+    }
+
+    /**
+     * 获取APK渠道号
+     * @param context
+     * @return
+     */
+    public static String getChannelName(Context context){
+        if (context == null) {
+            return "default_android";
+        }
+        String resultData = "default_android";
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            if (packageManager != null) {
+                //注意此处为ApplicationInfo，因为友盟设置的meta-data是在application标签中
+                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+                if (applicationInfo != null) {
+                    if (applicationInfo.metaData != null) {
+                        //key要与manifest中的配置文件标识一致
+                        resultData = applicationInfo.metaData.getString("UMENG_CHANNEL");
+                    }
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            return "default_android";
+        }
+        return resultData;
     }
 }
