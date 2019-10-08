@@ -75,7 +75,8 @@ public class MessageManager {
                     loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
 
                 } else {
-                    msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+//                    msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+                    updateSessionUnread(msgAllBean.getGid(),msgAllBean.getFrom_uid(),false);
 
                 }
                 LogUtil.getLog().e(TAG, ">>>>>累计 ");
@@ -98,7 +99,9 @@ public class MessageManager {
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                msgDao.sessionReadUpdate(gid, uid);
+//                msgDao.sessionReadUpdate(gid, uid);
+                updateSessionUnread(gid, uid,false);
+
             }
         });
     }
@@ -109,7 +112,8 @@ public class MessageManager {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
-                msgDao.sessionReadUpdate(gid, uid);
+//                msgDao.sessionReadUpdate(gid, uid);
+                updateSessionUnread(gid, uid,false);
             }
         });
     }
