@@ -216,6 +216,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private String master;
     private TextView tv_ban;
     private ConstraintLayout emoji_pager_con;
+    private String draft;
 
 
     private boolean isGroup() {
@@ -1259,7 +1260,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Override
     protected void onDestroy() {
-        taskDarftSet();
+        taskDraftSet();
         EventBus.getDefault().post(new EventRefreshMainMsg());
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
@@ -1784,7 +1785,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 holder.viewChatItem.setHeadOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        edtChat.addAtSpan("@", msgbean.getFrom_user().getName(), msgbean.getFrom_uid());
+                        String name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        if (!TextUtils.isEmpty(name)) {
+                            edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                        } else {
+                            edtChat.addAtSpan("@", msgbean.getFrom_user().getName(), msgbean.getFrom_uid());
+
+                        }
                         return true;
                     }
                 });
@@ -2624,21 +2631,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         Session session = dao.sessionGet(toGid, toUId);
         if (session == null)
             return;
-        if (StringUtil.isNotNull(session.getDraft())) {
+        draft = session.getDraft();
+        if (StringUtil.isNotNull(draft)) {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
             dao.sessionDraft(toGid, toUId, "");
-//            MessageManager.getInstance().setMessageChange(true);
         }
     }
 
     /***
      * 设置草稿
      */
-    private void taskDarftSet() {
-        String df = edtChat.getText().toString();
+    private void taskDraftSet() {
+        String df = edtChat.getText().toString().trim();
         dao.sessionDraft(toGid, toUId, df);
-        MessageManager.getInstance().setMessageChange(true);
+        if (!TextUtils.isEmpty(draft)) {
+            if (!TextUtils.isEmpty(df) && !draft.equals(df)) {
+                MessageManager.getInstance().setMessageChange(true);
+            }
+        } else {
+            if (!TextUtils.isEmpty(df)) {
+                MessageManager.getInstance().setMessageChange(true);
+            }
+        }
     }
 
     /***

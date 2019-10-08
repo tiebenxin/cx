@@ -65,7 +65,7 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
     }
 
     public UserInfo getUserByPosition(int position) {
-        if (position < getItemCount()) {
+        if (position < getItemCount() - 1) {
             return (UserInfo) mBeanList.get(position);
         }
         return null;
@@ -105,12 +105,17 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
                 txtTime.setVisibility(View.GONE);
             }
 
-
-            UserInfo lastBean = getUserByPosition(position-2);
-            if (lastBean.getTag().equals(bean.getTag())) {
-                viewType.setVisibility(View.GONE);
-            } else {
+            if (position > 1) {
+                UserInfo lastBean = getUserByPosition(position - 2);
+                if (lastBean.getTag().equals(bean.getTag())) {
+                    viewType.setVisibility(View.GONE);
+                } else {
+                    viewType.setVisibility(View.VISIBLE);
+                }
+            } else if (position == 1) {
                 viewType.setVisibility(View.VISIBLE);
+            } else {
+                viewType.setVisibility(View.GONE);
             }
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

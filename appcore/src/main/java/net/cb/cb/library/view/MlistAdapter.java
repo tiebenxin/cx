@@ -41,16 +41,16 @@ public class MlistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
-        try {
+//        try {
             if (payloads == null || payloads.isEmpty()) {
                 super.onBindViewHolder(holder, position, payloads);
             } else {
                 adapter.onBindViewHolder(holder, position, payloads);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
     }
 

@@ -72,6 +72,7 @@ public class FriendMatchActivity extends AppActivity {
         mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
         mCeSearch = findViewById(R.id.ce_search);
+        mCeSearch.setHint("输入联系人昵称搜索");
     }
 
 
