@@ -1784,7 +1784,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 holder.viewChatItem.setHeadOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        edtChat.addAtSpan("@", msgbean.getFrom_user().getName(), msgbean.getFrom_uid());
+                        String name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        if (!TextUtils.isEmpty(name)) {
+                            edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                        } else {
+                            edtChat.addAtSpan("@", msgbean.getFrom_user().getName(), msgbean.getFrom_uid());
+
+                        }
                         return true;
                     }
                 });
