@@ -265,6 +265,10 @@ public class FriendMainFragment extends Fragment {
 
         }
 
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+            onBindViewHolder(holder, position);
+        }
 
         @Override
         public int getItemViewType(int position) {
@@ -367,7 +371,12 @@ public class FriendMainFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshFriend(EventRefreshFriend event) {
         if (event.isLocal()) {
-            taskListData();
+            long uid = event.getUid();
+            if (uid > 0) {
+                refreshPosition(uid);
+            } else {
+                taskListData();
+            }
         } else {
             long uid = event.getUid();
             if (uid > 0) {
@@ -389,6 +398,21 @@ public class FriendMainFragment extends Fragment {
             } else {
                 taskListData();
 
+            }
+        }
+    }
+
+    private void refreshPosition(long uid) {
+        if (listData != null) {
+            UserInfo info = userDao.findUserInfo(uid);
+            if (info != null) {
+                if (listData.contains(info)) {
+                    int index = listData.indexOf(info);
+                    if (index > 0) {
+                        listData.set(index, info);
+                        mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                    }
+                }
             }
         }
     }

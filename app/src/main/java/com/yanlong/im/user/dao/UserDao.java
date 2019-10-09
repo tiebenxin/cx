@@ -270,9 +270,10 @@ public class UserDao {
      * @param head
      * @param name
      */
-    public void userHeadNameUpdate(Long uid, String head, String name) {
+    public boolean userHeadNameUpdate(Long uid, String head, String name) {
+        boolean hasChange = false;
         if (uid == null)
-            return;
+            return false;
         Realm realm = DaoUtil.open();
         try {
             UserInfo u = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
@@ -280,6 +281,7 @@ public class UserDao {
                 if (u.getHead().equals(head) && u.getName().equals(name)) {
 
                 } else {
+                    hasChange = true;
                     realm.beginTransaction();
                     u.setHead(head);
                     u.setName(name);
@@ -292,6 +294,7 @@ public class UserDao {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
+        return hasChange;
     }
 
 
