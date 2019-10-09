@@ -199,4 +199,6 @@ dependencies {
 
     implementation  'com.tencent.bugly:crashreport:latest.release'
     implementation  'com.tencent.bugly:nativecrashreport:latest.release'
+    api project(':nim_lib')
+
 }
