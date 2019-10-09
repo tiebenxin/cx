@@ -26,6 +26,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -338,13 +339,15 @@ public class FriendMainFragment extends Fragment {
                     public List<UserInfo> apply(Integer integer) throws Exception {
                         listData = userDao.getAllUserInBook();
                         if (listData != null) {
-                            UserInfo topBean = new UserInfo();
-                            topBean.setTag("↑");
-                            listData.add(0, topBean);
+//                            UserInfo topBean = new UserInfo();
+//                            topBean.setTag("↑");
+//                            listData.add(0, topBean);
                             Collections.sort(listData);
                             for (int i = 0; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
                             }
+                            // 添加存在用户的首字母列表
+                            viewType.addItemView(UserUtil.userParseString(listData));
                         }
                         return listData;
                     }

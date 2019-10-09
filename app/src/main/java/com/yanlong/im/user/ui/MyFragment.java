@@ -29,11 +29,14 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
+import com.yanlong.im.utils.SpUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
@@ -156,8 +159,12 @@ public class MyFragment extends Fragment {
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                taskWallet();
-
+                String value = SpUtil.getSpUtil().getSPValue("ServieAgreement","");
+                if(StringUtil.isNotNull(value)){
+                    taskWallet();
+                }else{
+                    IntentUtil.gotoActivity(getActivity(),ServiceAgreementActivity.class);
+                }
             }
         });
     }
