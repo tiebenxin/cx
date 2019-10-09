@@ -20,6 +20,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
@@ -314,7 +315,7 @@ public class ChatServer extends Service {
                     }
                     long fuid = msg.getFromUid();
 //                    msgDao.sessionReadUpdate(gid, fuid, true);
-                    MessageManager.getInstance().updateSessionUnread(gid,fuid,true);
+                    MessageManager.getInstance().updateSessionUnread(gid, fuid, true);
                     msgDao.msgDel4Cancel(msg.getMsgId(), msg.getCancel().getMsgId());
                     EventBus.getDefault().post(new EventRefreshChat());
                     MessageManager.getInstance().setMessageChange(true);
@@ -337,24 +338,7 @@ public class ChatServer extends Service {
             }
             //-----------------
 
-            if (isGroup && SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
-                //当前会话是本群不提示
-
-            } else if (SESSION_TYPE == 1 && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
-                if (msg.getMsgType() == MsgBean.MessageType.STAMP) {
-                    playVibration();
-                }
-
-            } else if (SESSION_TYPE == 3) {//静音模式
-
-            } else if (SESSION_TYPE == 0 && msg.getMsgType() == MsgBean.MessageType.STAMP) {//戳一戳
-                startActivity(new Intent(getApplicationContext(), ChatActionActivity.class)
-                        .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                );
-            } else {
-                palydingdong();
-            }
+            checkNotifyVoice(msg, isGroup);
         }
 
         @Override
@@ -366,6 +350,33 @@ public class ChatServer extends Service {
 
         }
     };
+
+    /*
+     * 检测接收消息是否发出通知或者震动
+     * */
+    private void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg, boolean isGroup) {
+        if (SocketData.oldMsgId.contains(msg.getMsgId())) {//重复消息不发出通知声音
+            return;
+        }
+        if (isGroup && SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
+            //当前会话是本群不提示
+
+        } else if (SESSION_TYPE == 1 && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
+            if (msg.getMsgType() == MsgBean.MessageType.STAMP) {
+                playVibration();
+            }
+
+        } else if (SESSION_TYPE == 3) {//静音模式
+
+        } else if (SESSION_TYPE == 0 && msg.getMsgType() == MsgBean.MessageType.STAMP) {//戳一戳
+            startActivity(new Intent(getApplicationContext(), ChatActionActivity.class)
+                    .putExtra(ChatActionActivity.AGM_DATA, msg.toByteArray())
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            );
+        } else {
+            palydingdong();
+        }
+    }
 
     private void notifyRefreshFriend(boolean isLocal, long uid, @CoreEnum.ERosterAction int action) {
         EventRefreshFriend event = new EventRefreshFriend();
