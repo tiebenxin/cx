@@ -6,10 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -46,8 +42,6 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.chat.ChatActivity3;
-import com.yanlong.im.test.TestRecyclerActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -64,9 +58,6 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
-import net.cb.cb.library.bean.QRCodeBean;
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -91,8 +82,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -725,7 +714,7 @@ public class MsgMainFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     holder.swipeLayout.quickClose();
-                    taskDelSissen(bean.getFrom_uid(), bean.getGid());
+                    taskDelSession(bean.getFrom_uid(), bean.getGid());
                 }
             });
 //            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
@@ -1031,10 +1020,9 @@ public class MsgMainFragment extends Fragment {
     }
 
 
-    private void taskDelSissen(Long from_uid, String gid) {
-        msgDao.sessionDel(from_uid, gid);
-        msgDao.msgDel(from_uid, gid);
-        EventBus.getDefault().post(new EventRefreshMainMsg());
+    private void taskDelSession(Long from_uid, String gid) {
+        MessageManager.getInstance().deleteSessionAndMsg(from_uid, gid);
+        MessageManager.getInstance().notifyRefreshMsg();
         taskListData();
     }
 

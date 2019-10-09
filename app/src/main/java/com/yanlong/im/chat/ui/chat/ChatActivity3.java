@@ -29,9 +29,9 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.chat.ui.GroupRobotActivity;
@@ -51,7 +51,6 @@ import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.base.BaseMvpActivity;
-import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
@@ -537,7 +536,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
 
         //9.17 进去后就清理会话的阅读数量
         mChatModel.clearUnreadCount();
-        EventBus.getDefault().post(new EventRefreshMainMsg());
+        MessageManager.getInstance().notifyRefreshMsg();
 
     }
 

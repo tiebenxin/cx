@@ -17,8 +17,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.GroupSaveActivity;
 import com.yanlong.im.chat.ui.SearchFriendGroupActivity;
@@ -29,7 +29,6 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
-import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
@@ -442,8 +441,7 @@ public class FriendMainFragment extends Fragment {
 
     private void taskApplyNumClean() {
         msgDao.remidClear("friend_apply");
-
-        EventBus.getDefault().post(new EventRefreshMainMsg());
+        MessageManager.getInstance().notifyRefreshMsg();
     }
 
     public void taskGetUsersOnlineStatus() {

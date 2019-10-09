@@ -132,7 +132,12 @@ public class MessageManager {
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
     }
 
-    public void nootifyRefreshMsg() {
+    public void notifyRefreshMsg() {
         EventBus.getDefault().post(new EventRefreshMainMsg());
+    }
+
+    public void deleteSessionAndMsg(Long uid,String gid){
+        msgDao.sessionDel(uid, gid);
+        msgDao.msgDel(uid, gid);
     }
 }
