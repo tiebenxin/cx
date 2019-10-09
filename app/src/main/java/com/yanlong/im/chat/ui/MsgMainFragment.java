@@ -656,7 +656,6 @@ public class MsgMainFragment extends Fragment {
                         break;
                 }
 
-                Log.e("TAG", icon.toString());
                 if (StringUtil.isNotNull(icon)) {
                     Glide.with(getActivity()).load(icon)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);

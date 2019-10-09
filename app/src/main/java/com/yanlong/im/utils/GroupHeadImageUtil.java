@@ -201,7 +201,7 @@ public class GroupHeadImageUtil {
         return null;
     }
 
-    private static File save2File(Bitmap bt) {
+    public static File save2File(Bitmap bt) {
         FileOutputStream out = null;
         File file;
         // 获取SDCard指定目录下

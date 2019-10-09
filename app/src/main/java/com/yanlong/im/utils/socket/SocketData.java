@@ -711,6 +711,10 @@ public class SocketData {
                 VoiceMessage voice = (VoiceMessage) t;
                 msgAllBean.setVoiceMessage(voice);
                 break;
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                VideoMessage video = (VideoMessage) t;
+                msgAllBean.setVideoMessage(video);
+                break;
         }
 
         msgAllBean.setTo_uid(toId);

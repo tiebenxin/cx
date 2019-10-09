@@ -7,11 +7,13 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
@@ -136,6 +138,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -191,6 +194,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     public static final String AGM_TOUID = "toUId";
     public static final String AGM_TOGID = "toGId";
+    public static final String GROUP_CREAT = "creat";
 
     private Gson gson = new Gson();
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
@@ -1392,32 +1396,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private UpFileAction upFileAction = new UpFileAction();
 
-    private VideoMessage getVideoAtt(String mUri)
+    private String getVideoAtt(String mUri)
     {
         VideoMessage videoMessage=new VideoMessage();
+        String duration = null;
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
             if (mUri != null)
             {
-                HashMap<String, String> headers = null;
-                if (headers == null)
-                {
-                    headers = new HashMap<String, String>();
-                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
-                }
-                mmr.setDataSource(mUri, headers);
+//                HashMap<String, String> headers = null;
+//                if (headers == null)
+//                {
+//                    headers = new HashMap<String, String>();
+//                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
+//                }
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
             } else
             {
                 //mmr.setDataSource(mFD, mOffset, mLength);
             }
-
-            String duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
-            String width = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);//宽
-            String height = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);//高
-            videoMessage.setDuration(Long.parseLong(duration));
-            videoMessage.setWidth(Long.parseLong(width));
-            videoMessage.setHeight(Long.parseLong(height));
-            videoMessage.setBg_url(mmr.getFrameAtTime().toString());
+            duration= mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
 
         } catch (Exception ex)
         {
@@ -1425,7 +1425,90 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } finally {
             mmr.release();
         }
-        return videoMessage;
+        return duration;
+    }
+
+    private String getVideoAttWeith(String mUri)
+    {
+        VideoMessage videoMessage=new VideoMessage();
+        String width = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null)
+            {
+//                HashMap<String, String> headers = null;
+//                if (headers == null)
+//                {
+//                    headers = new HashMap<String, String>();
+//                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
+//                }
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else
+            {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            width = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);//宽
+
+        } catch (Exception ex)
+        {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return width;
+    }
+
+    private String getVideoAttHeigh(String mUri)
+    {
+        VideoMessage videoMessage=new VideoMessage();
+        String height = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null)
+            {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else
+            {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            height = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);//高
+
+        } catch (Exception ex)
+        {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return height;
+    }
+
+    private String getVideoAttBitmap(String mUri)
+    {
+        VideoMessage videoMessage=new VideoMessage();
+        File file = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null)
+            {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else
+            {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            file= GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+        } catch (Exception ex)
+        {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return file.getAbsolutePath();
     }
 
     @Override
@@ -1439,13 +1522,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         final String imgMsgId = SocketData.getUUID();
-                        VideoMessage videoMessage= getVideoAtt(file);
-                        VideoMessage imageMessage = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight());
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+                        VideoMessage videoMessage= new VideoMessage();
+                        videoMessage.setHeight( Long.parseLong(getVideoAttHeigh(file)));
+                        videoMessage.setWidth( Long.parseLong(getVideoAttWeith(file)));
+                        videoMessage.setDuration( Long.parseLong(getVideoAtt(file)));
+                        videoMessage.setBg_url(getVideoAttBitmap(file));
+                        Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
+                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight());
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
-                        startService(new Intent(getContext(), UpLoadService.class));
+//                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+//                        startService(new Intent(getContext(), UpLoadService.class));
                         notifyData2Bottom(true);
 
 
@@ -1832,6 +1920,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.updateVoice(msgbean);
 //                        LogUtil.getLog().i(TAG, "刷新语音updateVoice" + "--position=" + position);
                         break;
+                    case ChatEnum.EMessageType.MSG_VIDEO:
+//                        holder.viewChatItem.
+                        break;
                     default:
                         onBindViewHolder(holder, position);
                         break;
@@ -2015,6 +2106,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             showBigPic(msgbean.getMsg_id(), uri);
                         }
                     }, pg);
+                    // holder.viewChatItem.setImgageProg(pg);
+                    break;
+
+                case ChatEnum.EMessageType.MSG_VIDEO:
+
+                    menus.add(new OptionMenu("转发"));
+                    menus.add(new OptionMenu("删除"));
+                    Integer pgVideo = null;
+                    pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
+
+
+                    holder.viewChatItem.setDataVideo(msgbean.getVideoMessage(), msgbean.getVideoMessage().getUrl(), new ChatItemView.EventPic() {
+                        @Override
+                        public void onClick(String uri) {
+                            //  ToastUtil.show(getContext(), "大图:" + uri);
+//                            showBigPic(msgbean.getMsg_id(), uri);
+                            Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
+                            intent.putExtra("videopath",msgbean.getVideoMessage().getUrl());
+                            startActivity(intent);
+                        }
+                    }, pgVideo);
                     // holder.viewChatItem.setImgageProg(pg);
                     break;
                 case ChatEnum.EMessageType.BUSINESS_CARD:

@@ -17,6 +17,19 @@ public class VideoMessage extends RealmObject implements IMsgContent {
         return duration;
     }
 
+    @Override
+    public String toString() {
+        return "VideoMessage{" +
+                "msgId='" + msgId + '\'' +
+                ", duration=" + duration +
+                ", bg_url='" + bg_url + '\'' +
+                ", width=" + width +
+                ", height=" + height +
+                ", url='" + url + '\'' +
+                ", isReadOrigin=" + isReadOrigin +
+                '}';
+    }
+
     public void setDuration(long duration) {
         this.duration = duration;
     }
