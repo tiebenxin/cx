@@ -388,7 +388,6 @@
         <item name="android:layout_marginTop">@dimen/app_margin_item_top</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-
         <item name="android:orientation">vertical</item>
         <item name="android:divider">@drawable/bg_list1_divider</item>
         <item name="android:showDividers">middle</item>
@@ -407,6 +406,16 @@
     <style name="app_layout_list2_item">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingLeft">@dimen/app_margin_main</item>
+        <item name="android:paddingRight">@dimen/app_margin_main</item>
+    </style>
+
+    <style name="app_layout_list4_item">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@color/white</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>

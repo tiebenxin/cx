@@ -48,8 +48,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private boolean emptyPassword = false;// 是否未设置密码
 
     //阅后即焚
-    private Integer destroy = 1;
-    private Long destroyTime = 30L;
+//    private Integer destroy = 1;
+//    private Long destroyTime = 30L;
 
     @Ignore
     private String membername;//群的昵称
