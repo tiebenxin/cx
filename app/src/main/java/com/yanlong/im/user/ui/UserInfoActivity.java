@@ -14,9 +14,12 @@ import com.bumptech.glide.Glide;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -25,7 +28,6 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
-import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
@@ -59,7 +61,9 @@ public class UserInfoActivity extends AppActivity {
     public static final String GID = "gid";
     public static final String JION_TYPE_SHOW = "joinTypeShow";
     public static final String IS_BUSINESS_CARD = "isBusinessCard"; //是否是群名片路径
-    public static final String MUC_NICK = "mucNick";//群昵称
+    public static final String MUC_NICK = "mucNick";//
+    public static final String FROM = "from";//从哪个页面跳转过来
+
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -100,6 +104,9 @@ public class UserInfoActivity extends AppActivity {
     private int contactIntimately;
     private UserInfo userInfoLocal;
     private Group group;
+
+    @ChatEnum.EFromType
+    private int from;
 
 
     @Override
@@ -330,6 +337,7 @@ public class UserInfoActivity extends AppActivity {
         joinTypeShow = intent.getIntExtra(JION_TYPE_SHOW, 0);
         contactIntimately = intent.getIntExtra(IS_BUSINESS_CARD, 0);
         gid = intent.getStringExtra(GID);
+        from = intent.getIntExtra(FROM, ChatEnum.EFromType.DEFALUT);
         resetLayout();
         taskFindExist();
         taskUserInfo(id);
@@ -344,6 +352,9 @@ public class UserInfoActivity extends AppActivity {
                 case SETING_REMARK:
                     String content = data.getStringExtra(CommonSetingActivity.CONTENT);
                     taskFriendMark(id, content);
+                    break;
+                case SEND_VERIFY:
+                    finish();
                     break;
             }
         }
@@ -411,6 +422,13 @@ public class UserInfoActivity extends AppActivity {
                     }
                     final UserInfo info = response.body().getData();
                     setData(info);
+                    if (info != null) {
+                        Session session = new MsgDao().sessionGet("", info.getUid());
+                        if (session != null) {
+                            MessageManager.getInstance().setMessageChange(true);
+                            MessageManager.getInstance().notifyRefreshMsg();
+                        }
+                    }
 
                 }
             });
@@ -548,7 +566,7 @@ public class UserInfoActivity extends AppActivity {
                 new MsgDao().sessionDel(id, "");
                 ToastUtil.show(context, response.body().getMsg());
                 notifyRefreshRoster(id);
-                notifyMsgRefresh();
+                MessageManager.getInstance().notifyRefreshMsg();
             }
         });
     }
@@ -570,10 +588,6 @@ public class UserInfoActivity extends AppActivity {
         });
     }
 
-    private void notifyMsgRefresh() {
-        EventBus.getDefault().post(new EventRefreshMainMsg());
-    }
-
     private void notifyRefreshRoster(long uid) {
         EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
         eventRefreshFriend.setLocal(true);
@@ -593,6 +607,7 @@ public class UserInfoActivity extends AppActivity {
                 //刷新好友和退出
                 if (response.body().isOk()) {
                     userDao.updateUserUtype(id, 0);
+                    MessageManager.getInstance().deleteSessionAndMsg(id, "");
                     notifyRefreshRoster(id);
                     finish();
                 }
@@ -611,7 +626,7 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     updateUserInfo(mark);
                     notifyRefreshRoster(id);
-                    EventBus.getDefault().post(new EventRefreshMainMsg());
+                    MessageManager.getInstance().notifyRefreshMsg();
                 }
                 taskUserInfo(id);
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());

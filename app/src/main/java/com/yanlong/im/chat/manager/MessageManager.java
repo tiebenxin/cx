@@ -99,9 +99,7 @@ public class MessageManager {
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-//                msgDao.sessionReadUpdate(gid, uid);
-                updateSessionUnread(gid, uid,false);
-
+                updateSessionUnread(gid, uid, false);
             }
         });
     }
@@ -112,8 +110,7 @@ public class MessageManager {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
-//                msgDao.sessionReadUpdate(gid, uid);
-                updateSessionUnread(gid, uid,false);
+                updateSessionUnread(gid, uid, false);
             }
         });
     }
@@ -130,11 +127,16 @@ public class MessageManager {
         msgDao.sessionCreate(gid, uid);
     }
 
-    public void updateSessionUnread(String gid, Long from_uid,boolean isCancel) {
-        msgDao.sessionReadUpdate(gid,from_uid,isCancel);
+    public void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
+        msgDao.sessionReadUpdate(gid, from_uid, isCancel);
     }
 
-    public void nootifyRefreshMsg() {
+    public void notifyRefreshMsg() {
         EventBus.getDefault().post(new EventRefreshMainMsg());
+    }
+
+    public void deleteSessionAndMsg(Long uid,String gid){
+        msgDao.sessionDel(uid, gid);
+        msgDao.msgDel(uid, gid);
     }
 }

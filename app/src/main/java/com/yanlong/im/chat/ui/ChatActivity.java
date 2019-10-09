@@ -97,7 +97,6 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
@@ -995,7 +994,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //9.17 进去后就清理会话的阅读数量
         taskCleanRead();
-        EventBus.getDefault().post(new EventRefreshMainMsg());
+        MessageManager.getInstance().notifyRefreshMsg();
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
@@ -1261,7 +1260,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Override
     protected void onDestroy() {
         taskDraftSet();
-        EventBus.getDefault().post(new EventRefreshMainMsg());
+        MessageManager.getInstance().notifyRefreshMsg();
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);

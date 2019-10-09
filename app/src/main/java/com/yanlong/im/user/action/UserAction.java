@@ -97,17 +97,13 @@ public class UserAction {
      * @return
      */
     public static String getDevId(Context context) {
-        String uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).get4Json(String.class);
-        uid = JPushInterface.getRegistrationID(context);
+        String uid = JPushInterface.getRegistrationID(context);
         if (TextUtils.isEmpty(uid)) {
-            if(TextUtils.isEmpty(uid)){
-                uid = Installation.id(context);
-            }
+            uid = Installation.id(context);
             new SharedPreferencesUtil(SharedPreferencesUtil.SPName.DEV_ID).save2Json(uid);
             return uid;
         }
-
-        LogUtil.getLog().i("getDevId",uid+"");
+        LogUtil.getLog().i("getDevId", uid + "");
         return uid;
     }
 
@@ -223,12 +219,13 @@ public class UserAction {
                 //写入用户信息到数据库
                 if (response.body() != null) {
                     UserInfo userInfo = response.body().getData();
-                    if (userInfo != null)
+                    if (userInfo != null) {
                         dao.userHeadNameUpdate(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
+                        callBack.onResponse(call, response);
+                    } else {
+                        callBack.onFailure(call, new Throwable());
+                    }
                 }
-
-                callBack.onResponse(call, response);
-
             }
 
             @Override

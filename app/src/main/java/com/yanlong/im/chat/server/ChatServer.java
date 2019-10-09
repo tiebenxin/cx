@@ -9,7 +9,6 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -19,10 +18,8 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
@@ -30,7 +27,6 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
-import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -40,14 +36,10 @@ import net.cb.cb.library.utils.TimeToString;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.realm.RealmList;
-
-import static com.umeng.socialize.utils.ContextUtil.getContext;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
@@ -168,7 +160,7 @@ public class ChatServer extends Service {
 
             }
             //通知界面刷新
-            EventBus.getDefault().post(new EventRefreshMainMsg());
+            MessageManager.getInstance().notifyRefreshMsg();
 
         }
 

@@ -203,7 +203,7 @@ public class SocketData {
                         loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
                     } else {
 //                        msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(),false);
+                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
                         MessageManager.getInstance().setMessageChange(true);
 
                     }
@@ -237,8 +237,7 @@ public class SocketData {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), receiveMessage.getSayHi());
                 MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                 DaoUtil.save(message);
-//                msgDao.sessionReadUpdate(message.getGid(), message.getFrom_uid());
-                MessageManager.getInstance().updateSessionUnread(message.getGid(), message.getFrom_uid(),false);
+//                MessageManager.getInstance().updateSessionUnread(message.getGid(), message.getFrom_uid(),false);//不更新未读，只需要一条即可
                 MessageManager.getInstance().setMessageChange(true);
             }
         }
@@ -250,8 +249,9 @@ public class SocketData {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
 //                msgDao.sessionReadUpdate(gid, uid);
-                MessageManager.getInstance().updateSessionUnread(gid, uid,false);
+                MessageManager.getInstance().updateSessionUnread(gid, uid, false);
                 MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg();
             }
         });
     }
@@ -263,8 +263,9 @@ public class SocketData {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
 //                msgDao.sessionReadUpdate(gid, uid);
-                MessageManager.getInstance().updateSessionUnread(gid, uid,false);
+                MessageManager.getInstance().updateSessionUnread(gid, uid, false);
                 MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg();
             }
         });
     }

@@ -460,7 +460,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        taskListData();
+        taskListData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -714,7 +714,7 @@ public class MsgMainFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     holder.swipeLayout.quickClose();
-                    taskDelSissen(bean.getFrom_uid(), bean.getGid());
+                    taskDelSession(bean.getFrom_uid(), bean.getGid());
                 }
             });
 //            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
@@ -1020,10 +1020,9 @@ public class MsgMainFragment extends Fragment {
     }
 
 
-    private void taskDelSissen(Long from_uid, String gid) {
-        msgDao.sessionDel(from_uid, gid);
-        msgDao.msgDel(from_uid, gid);
-        EventBus.getDefault().post(new EventRefreshMainMsg());
+    private void taskDelSession(Long from_uid, String gid) {
+        MessageManager.getInstance().deleteSessionAndMsg(from_uid, gid);
+        MessageManager.getInstance().notifyRefreshMsg();
         taskListData();
     }
 
