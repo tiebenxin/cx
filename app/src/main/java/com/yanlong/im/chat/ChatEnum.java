@@ -282,4 +282,16 @@ public class ChatEnum {
         int LOCK = 1; // 端到端
     }
 
+    /*
+     *from
+     * */
+    @IntDef({ETagType.USER, ETagType.LOCK})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EFromType {
+        int DEFALUT = 0; // 默认
+        int SEARCH = 1; // 好友搜索界面
+        int FRIEND = 2; // 通讯录好友界面
+        int GROUP = 3; // 群详情界面
+    }
+
 }

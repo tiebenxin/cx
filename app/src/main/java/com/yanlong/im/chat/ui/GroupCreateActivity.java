@@ -1,11 +1,9 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -28,11 +26,9 @@ import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
-import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
@@ -44,8 +40,6 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
-
-import static com.yanlong.im.utils.GroupHeadImageUtil.getCacheFile2;
 
 /***
  * 创建群聊

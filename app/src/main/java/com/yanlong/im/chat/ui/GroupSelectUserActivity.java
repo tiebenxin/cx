@@ -19,7 +19,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
