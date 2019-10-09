@@ -20,9 +20,9 @@ android {
         applicationId "com.yanlong.im"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 14
+        versionCode 16
         //  versionName "0.9.0_${releaseTime()}"
-        versionName "1.0.12"
+        versionName "1.0.14"
         //---------------------------------------
         //升级的时候,如果数据库有改动,一定要升级数据库,具体在一些类中修改
         //1.DaoUtil.initConfig()中指定当前数据库版本dbVer
@@ -31,6 +31,8 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         flavorDimensions "default_android"
+        multiDexEnabled true
+
         ndk {
             abiFilters "x86", "armeabi", "armeabi-v7a", 'arm64-v8a'
         }
@@ -133,6 +135,10 @@ android {
 
     dataBinding {
         enabled = true
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
     }
 
     /*

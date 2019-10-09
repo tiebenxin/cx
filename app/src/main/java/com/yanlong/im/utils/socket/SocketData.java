@@ -167,7 +167,7 @@ public class SocketData {
     }
 
     //6.6 为后端擦屁股
-    private static CopyOnWriteArrayList<String> oldMsgId = new CopyOnWriteArrayList<>();
+    public static CopyOnWriteArrayList<String> oldMsgId = new CopyOnWriteArrayList<>();
 
     /***
      * 保存接收到的消息及发送消息回执
@@ -184,14 +184,14 @@ public class SocketData {
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
             //5.28 如果为空就不保存这类消息
             if (msgAllBean != null) {
-                msgAllBean.setRead(false);//设置未读
-                msgAllBean.setTo_uid(bean.getToUid());
-                LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
-                //收到直接存表
-                DaoUtil.update(msgAllBean);
+                if (!oldMsgId.contains(wmsg.getMsgId())) {//不是重复消息才更新
+                    msgAllBean.setRead(false);//设置未读
+                    msgAllBean.setTo_uid(bean.getToUid());
+                    LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
+                    //收到直接存表
+                    DaoUtil.update(msgAllBean);
 
-                //6.6 为后端擦屁股
-                if (!oldMsgId.contains(wmsg.getMsgId())) {
+                    //6.6 为后端擦屁股
                     if (oldMsgId.size() >= 500)
                         oldMsgId.remove(0);
                     oldMsgId.add(wmsg.getMsgId());
@@ -202,10 +202,8 @@ public class SocketData {
                         loadUids.add(msgAllBean.getFrom_uid());
                         loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
                     } else {
-//                        msgDao.sessionReadUpdate(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(),false);
+                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
                         MessageManager.getInstance().setMessageChange(true);
-
                     }
                     LogUtil.getLog().e(TAG, ">>>>>累计 ");
                 } else {
@@ -237,8 +235,7 @@ public class SocketData {
                 ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), receiveMessage.getSayHi());
                 MsgAllBean message = createMsgBean(wmsg, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), chatMessage);
                 DaoUtil.save(message);
-//                msgDao.sessionReadUpdate(message.getGid(), message.getFrom_uid());
-                MessageManager.getInstance().updateSessionUnread(message.getGid(), message.getFrom_uid(),false);
+//                MessageManager.getInstance().updateSessionUnread(message.getGid(), message.getFrom_uid(),false);//不更新未读，只需要一条即可
                 MessageManager.getInstance().setMessageChange(true);
             }
         }
@@ -250,8 +247,9 @@ public class SocketData {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
 //                msgDao.sessionReadUpdate(gid, uid);
-                MessageManager.getInstance().updateSessionUnread(gid, uid,false);
+                MessageManager.getInstance().updateSessionUnread(gid, uid, false);
                 MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg();
             }
         });
     }
@@ -263,8 +261,9 @@ public class SocketData {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
 //                msgDao.sessionReadUpdate(gid, uid);
-                MessageManager.getInstance().updateSessionUnread(gid, uid,false);
+                MessageManager.getInstance().updateSessionUnread(gid, uid, false);
                 MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg();
             }
         });
     }

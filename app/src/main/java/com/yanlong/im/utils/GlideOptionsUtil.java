@@ -5,7 +5,8 @@ import android.widget.ImageView;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
-import com.yanlong.im.R;
+
+import net.cb.cb.library.R;
 
 /**
  * @创建人 shenxin

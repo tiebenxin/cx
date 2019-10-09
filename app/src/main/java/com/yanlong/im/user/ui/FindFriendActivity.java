@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -143,6 +144,7 @@ public class FindFriendActivity extends AppActivity {
                     } else {
                         Intent intent = new Intent(FindFriendActivity.this, UserInfoActivity.class);
                         intent.putExtra(UserInfoActivity.ID, userInfo.getUid());
+                        intent.putExtra(UserInfoActivity.FROM, ChatEnum.EFromType.SEARCH);
                         startActivity(intent);
                     }
                 }

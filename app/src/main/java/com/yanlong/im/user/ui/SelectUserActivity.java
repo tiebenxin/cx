@@ -1,9 +1,7 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +15,10 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
@@ -32,10 +26,6 @@ import net.cb.cb.library.view.PySortView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 /***
  * 从通讯录中选择单个用户
