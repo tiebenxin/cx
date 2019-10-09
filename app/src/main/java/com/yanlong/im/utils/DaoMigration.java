@@ -41,5 +41,15 @@ public class DaoMigration implements RealmMigration {
                 .addField("destroyTime", long.class);
 
     }
-
+    //短视频数据库
+    private void updateV3(RealmSchema schema) {
+        schema.create("VideoMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("duration", long.class)
+                .addField("bg_url", String.class)
+                .addField("width", long.class)
+                .addField("height", long.class)
+                .addField("isReadOrigin", boolean.class)
+                .addField("url", String.class);
+    }
 }

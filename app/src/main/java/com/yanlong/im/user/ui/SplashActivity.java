@@ -27,6 +27,7 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 
 
@@ -171,6 +172,7 @@ public class SplashActivity extends AppActivity {
                     @Override
                     public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                         LogUtil.getLog().i("youmeng", "SplashActivity---->updateToken---->onFailure");
+                        ToastUtil.show(context,"因长期未登录已过有效期,请重新登录");
                         if (isFlast) {
                             startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));
                             finish();
@@ -185,7 +187,6 @@ public class SplashActivity extends AppActivity {
                         }
                     }
                 });
-
             }
         }).run();
 

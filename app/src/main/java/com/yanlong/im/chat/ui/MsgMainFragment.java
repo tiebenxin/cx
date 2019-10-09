@@ -471,7 +471,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        taskListData();
+        taskListData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -507,11 +507,11 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
-            if (payloads.isEmpty()) {
+            if (payloads.isEmpty()){
                 onBindViewHolder(holder, position);
-            } else {
-                int type = (int) payloads.get(0);
-                switch (type) {
+            }else{
+                int type=(int)payloads.get(0);
+                switch (type){
                     case 0:
                         break;
                     case 1:
@@ -656,7 +656,7 @@ public class MsgMainFragment extends Fragment {
                         break;
                 }
 
-//                Log.e("TAG", icon.toString());
+                Log.e("TAG", icon.toString());
                 if (StringUtil.isNotNull(icon)) {
                     Glide.with(getActivity()).load(icon)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -690,19 +690,24 @@ public class MsgMainFragment extends Fragment {
 
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
+            holder.sb.setNum(bean.getUnread_count(), false);
             if (bean.getIsMute() == 1) {
-                if (msginfo != null && !msginfo.isRead()) {
+                if (!msginfo.isRead()) {
                     holder.iv_disturb_unread.setVisibility(View.VISIBLE);
                     holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
                 } else {
                     holder.iv_disturb_unread.setVisibility(View.GONE);
                 }
-                holder.sb.setVisibility(View.GONE);
-
             } else {
                 holder.iv_disturb_unread.setVisibility(View.GONE);
-                holder.sb.setVisibility(View.VISIBLE);
-                holder.sb.setNum(bean.getUnread_count(), false);
+
+//                if (bean.getUnread_count() > 0) {
+//                    holder.tv_num.setVisibility(View.VISIBLE);
+//                    holder.tv_num.setBackgroundResource(R.drawable.shape_unread_bg2);
+//                    holder.tv_num.setText(bean.getUnread_count());
+//                } else {
+//                    holder.tv_num.setVisibility(View.GONE);
+//                }
             }
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
@@ -715,7 +720,7 @@ public class MsgMainFragment extends Fragment {
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                     );
-                    if (bean.getUnread_count() > 0 || (bean.getMessage() != null && !bean.getMessage().isRead())) {
+                    if (bean.getUnread_count() > 0) {
                         MessageManager.getInstance().setMessageChange(true);
                     }
 
@@ -841,11 +846,8 @@ public class MsgMainFragment extends Fragment {
                 .map(new Function<Integer, List<Session>>() {
                     @Override
                     public List<Session> apply(Integer integer) throws Exception {
-                        System.out.println("开始获取数据--" + System.currentTimeMillis());
                         listData = msgDao.sessionGetAll(true);
                         doListDataSort();
-                        System.out.println("结束获取数据--" + System.currentTimeMillis());
-
                         return listData;
                     }
                 }).subscribeOn(Schedulers.io())
@@ -855,7 +857,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
-                        System.out.println("显示获取数据--" + System.currentTimeMillis());
+
                     }
                 });
 

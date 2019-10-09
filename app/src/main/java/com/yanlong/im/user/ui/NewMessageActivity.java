@@ -170,6 +170,9 @@ public class NewMessageActivity extends AppActivity implements CompoundButton.On
                     return;
                 }
                 UserInfo userInfo = response.body().getData();
+                if (userInfo == null){
+                    return;
+                }
                 if (userInfo.getMessagenotice() == 0) {
                     mCbReceiveMessage.setChecked(false);
                 } else {

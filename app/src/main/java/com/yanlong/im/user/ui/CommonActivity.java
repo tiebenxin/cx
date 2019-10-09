@@ -185,10 +185,9 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
      * 退出
      */
     private void taskExit() {
-
         finish();
         userAction.loginOut();
-        EventBus.getDefault().post(new EventLoginOut());
+        EventBus.getDefault().post(new EventLoginOut(1));
 
     }
 

@@ -1,11 +1,9 @@
 package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -20,22 +18,24 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 
+import com.yanlong.im.chat.bean.GroupCreateMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.ClickFilter;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
-import net.cb.cb.library.utils.UpFileUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,8 +44,6 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
-
-import static com.yanlong.im.utils.GroupHeadImageUtil.getCacheFile2;
 
 /***
  * 创建群聊
@@ -368,9 +366,11 @@ public class GroupCreateActivity extends AppActivity {
 //                    msgDao.groupSave(group);
 //                    msgDao.groupSaveJustImgHead(response.body().getData().getGid(),file.getAbsolutePath());
                     msgDao.groupHeadImgCreate(response.body().getData().getGid(),fileImg.getAbsolutePath());
-
+                    MessageManager.getInstance().setMessageChange(true);
+//                    EventBus.getDefault().post(new EventRefreshMainMsg());
+                    EventBus.getDefault().post(new GroupCreateMsg());
                     startActivity(new Intent(getContext(), ChatActivity.class)
-                            .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
+                            .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid()).putExtra(ChatActivity.GROUP_CREAT,"creat")
                     );
                     finish();
                 } else {

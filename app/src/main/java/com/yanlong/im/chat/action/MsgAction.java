@@ -206,7 +206,7 @@ public class MsgAction {
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null)
                         return;
-                    if (response.body().isOk()) {//保存群友信息到数据库
+                    if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
                         response.body().getData().getMygroupName();
                         dao.groupNumberSave(response.body().getData());
 
@@ -218,8 +218,10 @@ public class MsgAction {
                                 userInfo.setMembername(link.getMembername());
                             }
                         }
+                        callback.onResponse(call, response);
+                    } else {
+                        callback.onFailure(call, new Throwable());
                     }
-                    callback.onResponse(call, response);
                 }
             });
         } else {//从缓存中读

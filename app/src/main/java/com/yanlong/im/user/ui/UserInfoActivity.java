@@ -16,7 +16,9 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -412,6 +414,13 @@ public class UserInfoActivity extends AppActivity {
                     }
                     final UserInfo info = response.body().getData();
                     setData(info);
+                    if (info != null) {
+                        Session session = new MsgDao().sessionGet("", info.getUid());
+                        if (session != null) {
+                            MessageManager.getInstance().setMessageChange(true);
+                            EventBus.getDefault().post(new EventRefreshMainMsg());
+                        }
+                    }
 
                 }
             });

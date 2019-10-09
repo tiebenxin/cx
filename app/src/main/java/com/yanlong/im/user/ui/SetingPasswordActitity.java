@@ -138,7 +138,7 @@ public class SetingPasswordActitity extends AppActivity {
     private void taskExit() {
         finish();
         new UserAction().loginOut();
-        EventBus.getDefault().post(new EventLoginOut());
+        EventBus.getDefault().post(new EventLoginOut(1));
     }
 
 

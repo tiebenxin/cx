@@ -891,16 +891,16 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             // 有可能本地图片
             try {
                 String fileName = getFileExt(path);
-                String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
-                        fileName, directory_path);
-                PictureFileUtils.copyFile(path, dirPath);
-                //刷新相册的广播
-                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                Uri uri = Uri.fromFile(new File(dirPath));
-                intent.setData(uri);
-                getApplicationContext().sendBroadcast(intent);
-                MediaStore.Images.Media.insertImage(mContext.getContentResolver(), dirPath, fileName, null);
-                ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + dirPath);
+//                String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
+//                        fileName, directory_path);
+//                PictureFileUtils.copyFile(path, dirPath);
+//                //刷新相册的广播
+//                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//                Uri uri = Uri.fromFile(new File(dirPath));
+//                intent.setData(uri);
+//                getApplicationContext().sendBroadcast(intent);
+                MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
+                ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + path);
                 dismissDialog();
             } catch (IOException e) {
                 ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_error) + "\n" + e.getMessage());
