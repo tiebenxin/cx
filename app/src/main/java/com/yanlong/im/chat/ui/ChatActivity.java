@@ -18,6 +18,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -122,6 +123,7 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
+import net.cb.cb.library.view.PopView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -142,6 +144,7 @@ import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
 import me.kareluo.ui.OptionMenuView;
 import me.kareluo.ui.PopupMenuView;
+import me.kareluo.ui.PopupView;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -216,6 +219,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private TextView tv_ban;
     private ConstraintLayout emoji_pager_con;
 
+    // 气泡视图
+    private PopupWindow mPopupWindow;// 长按消息弹出气泡PopupWindow
+    private int popupWidth;// 气泡宽
+    private int popupHeight;// 气泡高
+    private ImageView mImgTriangleUp;// 上箭头
+    private ImageView mImgTriangleDown;// 下箭头
+    private TextView mTxtView1;
+    private TextView mTxtView2;
+    private TextView mTxtView3;
+    private TextView mTxtView4;
+    private TextView mTxtDelete;
+    private View layoutContent;
+    private View mRootView;
+    private View mViewLine1;
+    private View mViewLine2;
+    private View mViewLine3;
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -1293,6 +1312,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void initData() {
         taskRefreshMessage();
         initUnreadCount();
+        initPopupWindow();
     }
 
     private void initUnreadCount() {
@@ -1602,7 +1622,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 View view = (View) args[1];
                 IMenuSelectListener listener = (IMenuSelectListener) args[2];
                 if (view != null && menus != null && menus.size() > 0) {
-                    showPop(view, menus, message, listener);
+                    showPop(view, menus, message, listener,null);
                 }
                 break;
             case ChatEnum.ECellEventType.TRANSFER_CLICK:
@@ -2047,7 +2067,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
                             }, 100);
                         }
-                    });
+                    },holder);
                     return true;
                 }
             });
@@ -2276,87 +2296,356 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * @param msgbean
      */
     private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean,
-                         final IMenuSelectListener listener) {
+                         final IMenuSelectListener listener, RecyclerViewAdapter.RCViewHolder holder) {
         //禁止滑动
         //mtListView.getListView().setNestedScrollingEnabled(true);
 
-        final PopupMenuView menuView = new PopupMenuView(getContext());
-        menuView.setMenuItems(menus);
-        menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
+//        final PopupMenuView menuView = new PopupMenuView(getContext());
+//
+//        menuView.setMenuItems(menus);
+//        menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
+//            @Override
+//            public boolean onOptionMenuClick(int position, OptionMenu menu) {
+//                //放开滑动
+//                // mtListView.getListView().setNestedScrollingEnabled(true);
+//                if (listener != null) {
+//                    listener.onSelected();
+//                }
+//
+//
+//                if (menu.getTitle().equals("删除")) {
+//
+//                    AlertYesNo alertYesNo = new AlertYesNo();
+//                    alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
+//                        @Override
+//                        public void onON() {
+//
+//                        }
+//
+//                        @Override
+//                        public void onYes() {
+//                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
+//                            msgListData.remove(msgbean);
+//                            notifyData();
+//                        }
+//                    });
+//                    alertYesNo.show();
+//
+//
+//                } else if (menu.getTitle().equals("转发")) {
+//                    /*  */
+//                    startActivity(new Intent(getContext(), MsgForwardActivity.class)
+//                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
+//                    );
+//
+//                } else if (menu.getTitle().equals("复制")) {//只有文本
+//                    String txt = "";
+//                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
+//                        txt = msgbean.getAtMessage().getMsg();
+//                    } else {
+//                        txt = msgbean.getChat().getMsg();
+//                    }
+//                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+//                    ClipData mClipData = ClipData.newPlainText(txt, txt);
+//                    cm.setPrimaryClip(mClipData);
+//
+//                } else if (menu.getTitle().equals("听筒播放")) {
+//                    msgDao.userSetingVoicePlayer(1);
+//                } else if (menu.getTitle().equals("扬声器播放")) {
+//                    msgDao.userSetingVoicePlayer(0);
+//                } else if (menu.getTitle().equals("撤回")) {
+//
+//
+//                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+//
+//
+//                }
+//                menuView.dismiss();
+//                return true;
+//            }
+//        });
+//
+//        menuView.setOnDismissListener(new PopupWindow.OnDismissListener() {
+//            @Override
+//            public void onDismiss() {
+//                if (listener != null) {
+//                    listener.onSelected();
+//                }
+//                menuView.dismiss();
+//
+//            }
+//        });
+//
+//        menuView.show(v);
+//        mPopupWindow.showAsDropDown(v);
+
+        initPopWindowEvent(msgbean);
+        setMessageType(menus);
+
+        // 重新获取自身的长宽高
+        mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        popupWidth = mRootView.getMeasuredWidth();
+        popupHeight = mRootView.getMeasuredHeight();
+
+        // 获取ActionBar位置，判断消息是否到顶部
+        // 获取ListView在屏幕顶部的位置
+        int[] location = new int[2];
+        mtListView.getLocationOnScreen(location);
+        // 获取View在屏幕的位置
+        int[] locationView = new int[2];
+        v.getLocationOnScreen(locationView);
+
+        mPopupWindow = new PopupWindow(mRootView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        // 设置弹窗外可点击
+        mPopupWindow.setTouchable(true);
+        mPopupWindow.setTouchInterceptor(new View.OnTouchListener() {
+
             @Override
-            public boolean onOptionMenuClick(int position, OptionMenu menu) {
-                //放开滑动
-                // mtListView.getListView().setNestedScrollingEnabled(true);
-                if (listener != null) {
-                    listener.onSelected();
-                }
+            public boolean onTouch(View v, MotionEvent event) {
 
-
-                if (menu.getTitle().equals("删除")) {
-
-                    AlertYesNo alertYesNo = new AlertYesNo();
-                    alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
-                        @Override
-                        public void onON() {
-
-                        }
-
-                        @Override
-                        public void onYes() {
-                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
-                            msgListData.remove(msgbean);
-                            notifyData();
-                        }
-                    });
-                    alertYesNo.show();
-
-
-                } else if (menu.getTitle().equals("转发")) {
-                    /*  */
-                    startActivity(new Intent(getContext(), MsgForwardActivity.class)
-                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
-                    );
-
-                } else if (menu.getTitle().equals("复制")) {//只有文本
-                    String txt = "";
-                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
-                        txt = msgbean.getAtMessage().getMsg();
-                    } else {
-                        txt = msgbean.getChat().getMsg();
-                    }
-                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData mClipData = ClipData.newPlainText(txt, txt);
-                    cm.setPrimaryClip(mClipData);
-
-                } else if (menu.getTitle().equals("听筒播放")) {
-                    msgDao.userSetingVoicePlayer(1);
-                } else if (menu.getTitle().equals("扬声器播放")) {
-                    msgDao.userSetingVoicePlayer(0);
-                } else if (menu.getTitle().equals("撤回")) {
-
-
-                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
-
-
-                }
-                menuView.dismiss();
-                return true;
+                return false;
+                // 这里如果返回true的话，touch事件将被拦截
+                // 拦截后 PopupWindow的onTouchEvent不被调用，这样点击外部区域无法dismiss
             }
         });
 
-        menuView.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        popupWindowDismiss(listener);
+        // 当View Y轴的位置小于ListView Y轴的位置时 气泡向下弹出来，否则向上弹出
+        if (locationView[1] < location[1]) {
+            mImgTriangleUp.setVisibility(VISIBLE);
+            mImgTriangleDown.setVisibility(GONE);
+            mPopupWindow.showAsDropDown(v);
+        } else {
+            mImgTriangleUp.setVisibility(GONE);
+            mImgTriangleDown.setVisibility(VISIBLE);
+            showPopupWindowUp(v);
+        }
+    }
+
+    /**
+     * 初始化PopupWindow
+     */
+    private void initPopupWindow() {
+        mRootView = getLayoutInflater().inflate(R.layout.view_chat_bubble, null);
+        //获取自身的长宽高
+        mRootView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        popupWidth = mRootView.getMeasuredWidth();
+        popupHeight = mRootView.getMeasuredHeight();
+
+        mImgTriangleUp = mRootView.findViewById(R.id.img_triangle_up);
+        mImgTriangleDown = mRootView.findViewById(R.id.img_triangle_down);
+        layoutContent = mRootView.findViewById(R.id.layout_content);
+        mTxtView1 = mRootView.findViewById(R.id.txt_value1);
+        mTxtView2 = mRootView.findViewById(R.id.txt_value2);
+        mTxtView3 = mRootView.findViewById(R.id.txt_value3);
+        mTxtView4 = mRootView.findViewById(R.id.txt_value4);
+        mTxtDelete = mRootView.findViewById(R.id.txt_delete);
+        mViewLine1 = mRootView.findViewById(R.id.view_line1);
+        mViewLine2 = mRootView.findViewById(R.id.view_line2);
+        mViewLine3 = mRootView.findViewById(R.id.view_line3);
+    }
+
+    private void initPopWindowEvent(final MsgAllBean msgbean) {
+        mTxtView1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPopupWindow != null) mPopupWindow.dismiss();
+                onBubbleClick(mTxtView1.getText().toString(), msgbean);
+            }
+        });
+        mTxtView2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPopupWindow != null) mPopupWindow.dismiss();
+                onBubbleClick(mTxtView2.getText().toString(), msgbean);
+            }
+        });
+        mTxtView3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPopupWindow != null) mPopupWindow.dismiss();
+                onBubbleClick(mTxtView3.getText().toString(), msgbean);
+            }
+        });
+        mTxtView4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPopupWindow != null) mPopupWindow.dismiss();
+                onBubbleClick(mTxtView4.getText().toString(), msgbean);
+            }
+        });
+        mTxtDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPopupWindow != null) mPopupWindow.dismiss();
+                onBubbleClick(mTxtDelete.getText().toString(), msgbean);
+            }
+        });
+    }
+
+    /**
+     * 气泡点击事件处理
+     *
+     * @param value
+     * @param msgbean
+     *
+     */
+    private void onBubbleClick(String value, MsgAllBean msgbean) {
+        if ("复制".equals(value)) {
+            onCopy(msgbean);
+        } else if ("删除".equals(value)) {
+            onDelete(msgbean);
+        } else if ("听筒播放".equals(value)) {
+            msgDao.userSetingVoicePlayer(1);
+        } else if ("转发".equals(value)) {
+            onRetransmission(msgbean);
+        } else if ("撤回".equals(value)) {
+            onRecall(msgbean);
+        }else if("扬声器播放".equals(value)){
+            msgDao.userSetingVoicePlayer(0);
+        }
+    }
+
+    /**
+     * 复制
+     *
+     * @param msgbean
+     */
+    private void onCopy(MsgAllBean msgbean) {
+        String txt = "";
+        if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
+            txt = msgbean.getAtMessage().getMsg();
+        } else {
+            txt = msgbean.getChat().getMsg();
+        }
+        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData mClipData = ClipData.newPlainText(txt, txt);
+        cm.setPrimaryClip(mClipData);
+    }
+
+    /**
+     * 删除
+     *
+     * @param msgbean
+     */
+    private void onDelete(final MsgAllBean msgbean) {
+        AlertYesNo alertYesNo = new AlertYesNo();
+        alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
+            @Override
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes() {
+                msgDao.msgDel4MsgId(msgbean.getMsg_id());
+                msgListData.remove(msgbean);
+                notifyData();
+            }
+        });
+        alertYesNo.show();
+    }
+
+    /**
+     * 转发
+     *
+     * @param msgbean
+     */
+    private void onRetransmission(final MsgAllBean msgbean) {
+        startActivity(new Intent(getContext(), MsgForwardActivity.class)
+                .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
+    }
+
+    /**
+     * 撤回
+     *
+     * @param msgbean
+     */
+    private void onRecall(final MsgAllBean msgbean) {
+        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+    }
+
+    /**
+     * 设置不同的消息类型弹出对应气泡
+     *
+     * @param menus
+     */
+    private void setMessageType(List<OptionMenu> menus) {
+        if (menus.size() == 1) {
+            layoutContent.setVisibility(GONE);
+            mTxtDelete.setVisibility(VISIBLE);
+            mTxtDelete.setText(menus.get(0).getTitle());
+        } else if (menus.size() == 2) {
+            layoutContent.setVisibility(VISIBLE);
+            mTxtDelete.setVisibility(GONE);
+            mTxtView1.setVisibility(VISIBLE);
+            mTxtView2.setVisibility(GONE);
+            mTxtView3.setVisibility(GONE);
+            mTxtView4.setVisibility(VISIBLE);
+            mViewLine1.setVisibility(VISIBLE);
+            mViewLine2.setVisibility(GONE);
+            mViewLine3.setVisibility(GONE);
+            mTxtView1.setText(menus.get(0).getTitle());
+            mTxtView4.setText(menus.get(1).getTitle());
+        } else if (menus.size() == 3) {
+            layoutContent.setVisibility(VISIBLE);
+            mTxtDelete.setVisibility(GONE);
+            mTxtView1.setVisibility(VISIBLE);
+            mTxtView2.setVisibility(VISIBLE);
+            mTxtView3.setVisibility(GONE);
+            mTxtView4.setVisibility(VISIBLE);
+            mViewLine1.setVisibility(VISIBLE);
+            mViewLine2.setVisibility(VISIBLE);
+            mViewLine3.setVisibility(GONE);
+            mTxtView1.setText(menus.get(0).getTitle());
+            mTxtView2.setText(menus.get(1).getTitle());
+            mTxtView4.setText(menus.get(2).getTitle());
+        } else if (menus.size() == 4) {
+            layoutContent.setVisibility(VISIBLE);
+            mTxtDelete.setVisibility(GONE);
+            mTxtView1.setVisibility(VISIBLE);
+            mTxtView2.setVisibility(VISIBLE);
+            mTxtView3.setVisibility(VISIBLE);
+            mTxtView4.setVisibility(VISIBLE);
+            mViewLine1.setVisibility(VISIBLE);
+            mViewLine2.setVisibility(VISIBLE);
+            mViewLine3.setVisibility(VISIBLE);
+            mTxtView1.setText(menus.get(0).getTitle());
+            mTxtView2.setText(menus.get(1).getTitle());
+            mTxtView3.setText(menus.get(2).getTitle());
+            mTxtView4.setText(menus.get(3).getTitle());
+        }
+    }
+
+    /**
+     * 设置显示在v上方(以v的左边距为开始位置)
+     *
+     * @param v
+     */
+    public void showPopupWindowUp(View v) {
+        //获取需要在其上方显示的控件的位置信息
+        int[] location = new int[2];
+        v.getLocationOnScreen(location);
+        //在控件上方显示
+        mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, (location[0] + v.getWidth() / 2) - popupWidth / 2, location[1] - popupHeight);
+    }
+
+    /**
+     * 恢复气泡的默认背景颜色
+     *
+     * @param listener
+     */
+    public void popupWindowDismiss(final IMenuSelectListener listener) {
+        mPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
                 if (listener != null) {
                     listener.onSelected();
                 }
-                menuView.dismiss();
-
             }
         });
-
-        menuView.show(v);
     }
+
 
     private void notifyData2Bottom(boolean isScrollBottom) {
         notifyData();

@@ -22,6 +22,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.PhoneListUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -185,7 +186,8 @@ public class FriendMatchActivity extends AppActivity {
         for (int i = 0; i < listData.size(); i++) {
             viewType.putTag(listData.get(i).getTag(), i);
         }
-
+        // 添加存在用户的首字母列表
+        viewType.addItemView(UserUtil.friendParseString(listData));
     }
 
     @Override

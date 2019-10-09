@@ -21,6 +21,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -224,7 +225,8 @@ public class SelectUserActivity extends AppActivity {
             //UserInfo infoBean:
             viewType.putTag(listData.get(i).getTag(), i);
         }
-
+        // 添加存在用户的首字母列表
+        viewType.addItemView(UserUtil.userParseString(listData));
         mtListView.notifyDataSetChange();
 
 

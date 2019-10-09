@@ -14,15 +14,21 @@ import java.util.Locale;
 public class MainApplication extends MultiDexApplication {
     private Context context;
     private static final String TAG = "MainApplication";
+    public static MainApplication instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
+        instance = this;
         AppConfig.APP_CONTEXT = context;
         initOther();
        // initFont();
 
+    }
+
+    public static MainApplication getInstance() {
+        return instance;
     }
 
 

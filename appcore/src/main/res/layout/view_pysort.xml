@@ -16,15 +16,11 @@
         android:text="A" />
 
     <LinearLayout
-        android:background="@color/black_a_20"
         android:id="@+id/view_py_ipt"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="right"
         android:gravity="center"
         android:orientation="vertical">
-
-
-
     </LinearLayout>
 </FrameLayout>

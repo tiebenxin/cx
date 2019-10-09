@@ -25,6 +25,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -311,7 +312,6 @@ public class GroupCreateActivity extends AppActivity {
 
     private void taskListData() {
 
-
         listData = userDao.friendGetAll();
 
         Collections.sort(listData);
@@ -319,10 +319,9 @@ public class GroupCreateActivity extends AppActivity {
             //UserInfo infoBean:
             viewType.putTag(listData.get(i).getTag(), i);
         }
-
+        // 添加存在用户的首字母列表
+        viewType.addItemView(UserUtil.userParseString(listData));
         selectUser();
-
-
     }
 
     private UpFileAction upFileAction = new UpFileAction();
