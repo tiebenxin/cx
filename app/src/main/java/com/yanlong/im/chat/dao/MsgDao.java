@@ -875,7 +875,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
                 session.setType(1);
-                session.setUnread_count(isCancel ? 0 : 1);
+                if (session.getIsMute() == 1) {//免打扰
+                    session.setUnread_count(0);
+                } else {
+                    session.setUnread_count(isCancel ? 0 : 1);
+                }
             } else {
                 if (session.getIsMute() == 1) {//免打扰
                     return;
@@ -886,7 +890,6 @@ public class MsgDao {
             }
             session.setUp_time(System.currentTimeMillis());
 
-
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
             if (session == null) {
@@ -894,8 +897,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(from_uid);
                 session.setType(0);
-                session.setUnread_count(isCancel ? 0 : 1);
-
+                if (session.getIsMute() == 1) {//免打扰
+                    session.setUnread_count(0);
+                } else {
+                    session.setUnread_count(isCancel ? 0 : 1);
+                }
             } else {
                 if (session.getIsMute() == 1) {//免打扰
                     return;
@@ -2150,8 +2156,6 @@ public class MsgDao {
             DaoUtil.close(realm);
         }
     }
-
-
 
 
 }

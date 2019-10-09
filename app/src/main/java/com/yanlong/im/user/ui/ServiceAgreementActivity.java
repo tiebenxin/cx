@@ -1,12 +1,16 @@
 package com.yanlong.im.user.ui;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
@@ -27,6 +31,7 @@ import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.WebPageActivity;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -67,25 +72,29 @@ public class ServiceAgreementActivity extends AppActivity {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-               ToastUtil.show(ServiceAgreementActivity.this,"用户服务协议");
+                Intent intent = new Intent(ServiceAgreementActivity.this, WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL,"https://changliaoliao.zhixun5588.com/yhxy.html");
+                startActivity(intent);
             }
         };
         ClickableSpan clickableSpan1 = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                ToastUtil.show(ServiceAgreementActivity.this,"隐私政策");
+                Intent intent = new Intent(ServiceAgreementActivity.this,WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL,"https://changliaoliao.zhixun5588.com/yszc.html");
+                startActivity(intent);
             }
         };
         style.setSpan(clickableSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         style.setSpan(clickableSpan1, startIndexs, endIndexs, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
+        //设置部分文字颜色
+//        ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(Color.parseColor("#374882"));
+//        style.setSpan(foregroundColorSpan, startIndex, endIndex, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+//        style.setSpan(foregroundColorSpan, startIndexs, endIndexs, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+
         mBinding.txtContent.setMovementMethod(LinkMovementMethod.getInstance());
         mBinding.txtContent.setText(style);
-
-        //设置部分文字颜色
-        ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(Color.parseColor("#374882"));
-        style.setSpan(foregroundColorSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        style.setSpan(foregroundColorSpan, startIndexs, endIndexs, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         onEvent();
     }

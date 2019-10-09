@@ -36,6 +36,9 @@ public class PySortView extends LinearLayout {
     //记录目标项位置
     private int mToPosition;
     private LayoutInflater mInflater;
+    private float spHeight = 0;
+    private int height = 0;
+    private int maxheight = 0;
 
     private Event mEvent = new Event() {
         @Override
@@ -148,7 +151,6 @@ public class PySortView extends LinearLayout {
      * @param list 首字母列表
      */
     public void addItemView(List<String> list) {
-        Log.d("1213", "addItemView");
         if (list == null || list.size() == 0) {
             return;
         }
@@ -163,12 +165,11 @@ public class PySortView extends LinearLayout {
         if (mInflater == null) {
             mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
-        maxSize = listTemp.size() + 2;
-        addView("↑");
+        maxSize = listTemp.size();
+
         for (int i = 0; i < listTemp.size(); i++) {
             addView(listTemp.get(i));
         }
-//        addView("#");
     }
 
     public void addView(String value) {
@@ -184,16 +185,11 @@ public class PySortView extends LinearLayout {
         layoutParams.width = DensityUtil.dip2px(getContext(), 25);
     }
 
-    private float spHeight = 0;
-    private int height = 0;
-    private int maxheight = 0;
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         height = getMeasuredHeight();
         spHeight = getMeasuredHeight() / maxSize;
-
         maxheight = height - txtSelectView.getMeasuredHeight();
     }
 

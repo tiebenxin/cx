@@ -166,8 +166,7 @@
                         android:id="@+id/txt_ot_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/emoji_font"
-
+                        android:fontFamily="normal"
                         android:text="我已经添加你为好友啦"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
@@ -423,8 +422,7 @@
                         android:id="@+id/txt_ot_8"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/emoji_font"
-
+                        android:fontFamily="normal"
                         android:selectAllOnFocus="true"
                         android:text="我----已经添加你为好友啦"
                         android:textColor="@color/black"
@@ -526,8 +524,7 @@
                             android:id="@+id/txt_me_2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/emoji_font"
-
+                            android:fontFamily="normal"
                             android:text="添加你为好友啦"
                             android:textColor="@color/black"
                             android:textSize="15sp" />
@@ -817,7 +814,7 @@
                             android:id="@+id/txt_me_8"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/emoji_font"
+                            android:fontFamily="normal"
                             android:selectAllOnFocus="true"
                             android:text="我已好友啦"
                             android:textColor="@color/black"
