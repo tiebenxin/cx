@@ -336,8 +336,6 @@ public class ChatServer extends Service {
             if (session != null && session.getIsMute() == 1) {
                 return;
             }
-            //-----------------
-
             checkNotifyVoice(msg, isGroup);
         }
 
@@ -355,9 +353,9 @@ public class ChatServer extends Service {
      * 检测接收消息是否发出通知或者震动
      * */
     private void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg, boolean isGroup) {
-        if (SocketData.oldMsgId.contains(msg.getMsgId())) {//重复消息不发出通知声音
-            return;
-        }
+//        if (SocketData.oldMsgId.contains(msg.getMsgId())) {//重复消息不发出通知声音
+//            return;
+//        }
         if (isGroup && SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
             //当前会话是本群不提示
 
