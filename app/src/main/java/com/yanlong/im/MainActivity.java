@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.notify.NotifySettingDialog;
@@ -142,7 +143,7 @@ public class MainActivity extends AppActivity {
                     MsgMainFragment.newInstance().hidePopView();
                 }
 
-                if(tab.getPosition() == 2){
+                if (tab.getPosition() == 2) {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 }
@@ -266,7 +267,8 @@ public class MainActivity extends AppActivity {
         userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                EventBus.getDefault().post(new EventRefreshFriend());
+//                EventBus.getDefault().post(new EventRefreshFriend());
+                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.DEFAULT);
             }
 
             @Override

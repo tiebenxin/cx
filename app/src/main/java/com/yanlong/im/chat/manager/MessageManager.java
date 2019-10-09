@@ -16,6 +16,8 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -143,5 +145,15 @@ public class MessageManager {
     public void deleteSessionAndMsg(Long uid, String gid) {
         msgDao.sessionDel(uid, gid);
         msgDao.msgDel(uid, gid);
+    }
+
+    public void notifyRefreshFriend(boolean isLocal, long uid, @CoreEnum.ERosterAction int action) {
+        EventRefreshFriend event = new EventRefreshFriend();
+        event.setLocal(isLocal);
+        if (action != CoreEnum.ERosterAction.DEFAULT) {
+            event.setUid(uid);
+            event.setRosterAction(action);
+        }
+        EventBus.getDefault().post(event);
     }
 }
