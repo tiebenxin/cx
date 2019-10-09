@@ -148,7 +148,7 @@ public class PySortView extends LinearLayout {
      * @param list 首字母列表
      */
     public void addItemView(List<String> list) {
-        Log.d("1213","addItemView");
+        Log.d("1213", "addItemView");
         if (list == null || list.size() == 0) {
             return;
         }
@@ -168,7 +168,7 @@ public class PySortView extends LinearLayout {
         for (int i = 0; i < listTemp.size(); i++) {
             addView(listTemp.get(i));
         }
-        addView("#");
+//        addView("#");
     }
 
     public void addView(String value) {
@@ -211,22 +211,25 @@ public class PySortView extends LinearLayout {
 
                 idx = idx < 0 ? 0 : idx;
                 idx = idx > maxSize ? maxSize - 1 : idx;
-                //设置显示文字
-                String txt = (String) txtPyIptView.getChildAt(idx.intValue()).getTag();
-                if(StringUtil.isNotNull(txt)){
-                    txtSelectView.setText(txt);
-                }
-                //动态设置文字位置
-                float y = event.getY();
-                y = y < 0 ? 0 : y;
-                y = y > maxheight ? maxheight : y;
-                txtSelectView.setY(y);
+                View view = txtPyIptView.getChildAt(idx.intValue());
+                if (view != null) {
+                    //设置显示文字
+                    String txt = (String) view.getTag();
+                    if (StringUtil.isNotNull(txt)) {
+                        txtSelectView.setText(txt);
+                    }
+                    //动态设置文字位置
+                    float y = event.getY();
+                    y = y < 0 ? 0 : y;
+                    y = y > maxheight ? maxheight : y;
+                    txtSelectView.setY(y);
 
-                //处理回掉事件
-                if (mEvent != null) {
-                    if (!oldTxt.equals(txt)) {
-                        oldTxt = txt;
-                        mEvent.onChange(txt);
+                    //处理回掉事件
+                    if (mEvent != null) {
+                        if (!oldTxt.equals(txt)) {
+                            oldTxt = txt;
+                            mEvent.onChange(txt);
+                        }
                     }
                 }
                 break;

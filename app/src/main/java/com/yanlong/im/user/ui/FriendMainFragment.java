@@ -346,8 +346,7 @@ public class FriendMainFragment extends Fragment {
                             for (int i = 0; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
                             }
-                            // 添加存在用户的首字母列表
-                            viewType.addItemView(UserUtil.userParseString(listData));
+
                         }
                         return listData;
                     }
@@ -358,6 +357,8 @@ public class FriendMainFragment extends Fragment {
                     @Override
                     public void accept(List<UserInfo> userInfo) throws Exception {
                         mtListView.notifyDataSetChange();
+                        // 添加存在用户的首字母列表
+                        viewType.addItemView(UserUtil.userParseString(listData));
                     }
                 });
 

@@ -160,11 +160,11 @@ public class MyFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String value = SpUtil.getSpUtil().getSPValue("ServieAgreement","");
-                if(StringUtil.isNotNull(value)){
-                    taskWallet();
-                }else{
+//                if(StringUtil.isNotNull(value)){
+//                    taskWallet();
+//                }else{
                     IntentUtil.gotoActivity(getActivity(),ServiceAgreementActivity.class);
-                }
+//                }
             }
         });
     }
