@@ -58,16 +58,16 @@ public class ChatInfoActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
-        viewLog = (LinearLayout) findViewById(R.id.view_log);
-        viewTop = (LinearLayout) findViewById(R.id.view_top);
-        ckTop = (CheckBox) findViewById(R.id.ck_top);
-        viewDisturb = (LinearLayout) findViewById(R.id.view_disturb);
-        ckDisturb = (CheckBox) findViewById(R.id.ck_disturb);
-        viewLogClean = (LinearLayout) findViewById(R.id.view_log_clean);
-        viewFeedback = (LinearLayout) findViewById(R.id.view_feedback);
+        topListView = findViewById(R.id.topListView);
+        viewLog = findViewById(R.id.view_log);
+        viewTop = findViewById(R.id.view_top);
+        ckTop = findViewById(R.id.ck_top);
+        viewDisturb = findViewById(R.id.view_disturb);
+        ckDisturb = findViewById(R.id.ck_disturb);
+        viewLogClean = findViewById(R.id.view_log_clean);
+        viewFeedback = findViewById(R.id.view_feedback);
     }
 
 
@@ -193,6 +193,7 @@ public class ChatInfoActivity extends AppActivity {
             switch (position) {
                 case 0:
                     userInfo = fUserInfo;
+
 
                     // holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
                     Glide.with(context).load(userInfo.getHead())

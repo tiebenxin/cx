@@ -167,6 +167,7 @@
 
 
             <LinearLayout
+                android:id="@+id/view_destroy_time"
                 style="@style/app_layout_list4_item"
                 android:orientation="vertical"
                 android:paddingTop="10dp"
