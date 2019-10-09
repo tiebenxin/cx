@@ -19,21 +19,30 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.jrmf360.walletlib.JrmfWalletClient;
+import com.tencent.mm.opensdk.utils.Log;
 import com.yanlong.im.R;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
+import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
+import com.yanlong.im.utils.SpUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -73,6 +82,20 @@ public class MyFragment extends Fragment {
         mViewHelp = rootView.findViewById(R.id.view_help);
         tvNewVersions = rootView.findViewById(R.id.tv_new_versions);
 
+        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+        VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
+        if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+            if (new UpdateManage(getContext(), getActivity()).check(bean.getVersion())) {
+                tvNewVersions.setVisibility(View.VISIBLE);
+            } else {
+                tvNewVersions.setVisibility(View.GONE);
+            }
+        }
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void checkVersion(EventCheckVersionBean eventCheckVersionBean) {
         SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
@@ -136,8 +159,12 @@ public class MyFragment extends Fragment {
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                taskWallet();
-
+                String value = SpUtil.getSpUtil().getSPValue("ServieAgreement","");
+                if(StringUtil.isNotNull(value)){
+                    taskWallet();
+                }else{
+                    IntentUtil.gotoActivity(getActivity(),ServiceAgreementActivity.class);
+                }
             }
         });
     }
@@ -183,6 +210,10 @@ public class MyFragment extends Fragment {
         ViewGroup.LayoutParams layparm = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         rootView.setLayoutParams(layparm);
         findViews(rootView);
+
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         return rootView;
     }
 
@@ -203,6 +234,14 @@ public class MyFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
     @Override
