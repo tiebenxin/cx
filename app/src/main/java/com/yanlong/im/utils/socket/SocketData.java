@@ -539,6 +539,9 @@ public class SocketData {
             case CANCEL:
                 wmsg.setCancel((MsgBean.CancelMessage) value);
                 break;
+            case SHORT_VIDEO:
+                wmsg.setShortVideo((MsgBean.ShortVideoMessage)value);
+                break;
             case UNRECOGNIZED:
                 break;
 
@@ -660,7 +663,46 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, msgb);
     }
 
+    /***
+     * 发送视频
+     * @param toId
+     * @param toGid
+     * @param url
+     * @return
+     */
+    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url,String bg_URL , boolean isOriginal, VideoMessage imageSize, long time,int width,int height) {
+        MsgBean.ShortVideoMessage.Builder msg;
+//        String extTh = "/below-20k";
+//        String extPv = "/below-200k";
+//        if (url.toLowerCase().contains(".gif")) {
+//            extTh = "";
+//            extPv = "";
+//        }
+//        if (isOriginal) {
+//            msg = MsgBean.ShortVideoMessage.newBuilder().set
+//                    .setOrigin(url)
+//                    .setPreview(url + extPv)
+//                    .setThumbnail(url + extTh);
+//
+//        } else {
+//            msg = MsgBean.ShortVideoMessage.newBuilder()
+//                    .setPreview(url)
+//                    .setThumbnail(url + extTh);
+//
+//        }
+//        MsgBean.ImageMessage msgb;
+//        if (imageSize != null) {
+//            msgb = msg.setWidth((int)imageSize.getWidth())
+//                    .setHeight((int)imageSize.getHeight())
+//                    .setSize((int)size)
+//                    .build();
+//        } else {
+//            msgb = msg.build();
+//        }
 
+            msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int)time).setUrl(url).setWidth(width).setHeight(height);
+        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
+    }
     /***
      * 转发处理
      * @param toId

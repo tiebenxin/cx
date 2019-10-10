@@ -1,8 +1,13 @@
 package net.cb.cb.library.utils;
 
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 
 /***
@@ -28,6 +33,37 @@ public class ImgSizeUtil {
         return imageSize;
 
     }
+
+    public static long getVideoSize(String mUri)
+    {
+        long size = 0;
+        File f= new File(mUri);
+        FileChannel fc= null;
+        FileInputStream fis= null;
+        if (f.exists() && f.isFile()){
+
+            try {
+
+                fis = new FileInputStream(f);
+                fc= fis.getChannel();
+                size=fc.size();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                try {
+                    fis.close();
+                    fc.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }else{
+        }
+        return size;
+    }
+
 
     public static String formatFileSize(long fileS) {
         DecimalFormat df = new DecimalFormat("#.0");
