@@ -35,7 +35,7 @@ public class PicSaveUtils {
             fos.flush();
             fos.close();
             Log.e("TAG",file.getAbsolutePath());
-//            MediaStore.Images.Media.insertImage(mContext.getContentResolver(), file.getAbsolutePath(), bitName, null);
+            MediaStore.Images.Media.insertImage(mContext.getContentResolver(), file.getAbsolutePath(), bitName, null);
 
 //            Toast.show(mContext,"保存成功至"+file.getAbsolutePath());
             Toast.makeText(mContext,"保存成功至"+file.getAbsolutePath(),Toast.LENGTH_SHORT).show();

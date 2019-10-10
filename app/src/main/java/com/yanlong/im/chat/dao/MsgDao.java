@@ -61,12 +61,19 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-            if (g != null) {//已经存在
-                g.setName(group.getName());
-                g.setAvatar(group.getAvatar());
-                if (group.getUsers() != null)
-                    g.setUsers(group.getUsers());
-                realm.insertOrUpdate(group);
+            if (null!=g) {//已经存在
+            try {
+             List<UserInfo> objects=  g.getUsers();
+             if (null!=objects&&objects.size()>0){
+                 g.setName(group.getName());
+                 g.setAvatar(group.getAvatar());
+                 if (group.getUsers() != null)
+                     g.setUsers(group.getUsers());
+                 realm.insertOrUpdate(group);
+             }
+            }catch (Exception e){
+                return;
+            }
             } else {//不存在
                 realm.insertOrUpdate(group);
             }

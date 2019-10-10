@@ -23,7 +23,7 @@ import retrofit2.Response;
  */
 public class UpFileAction {
     public static enum PATH {
-        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE,HEAD_GROUP_CHANGE
+        HEAD, HEAD_GROUP, COMPLAINT, FEEDBACK, IMG, VOICE,HEAD_GROUP_CHANGE,VIDEO
     }
 
     private UpFileServer server;
@@ -79,6 +79,9 @@ public class UpFileAction {
                 break;
             case HEAD_GROUP_CHANGE:
                 pt = AppConfig.UP_PATH + "/group-change-avatar/" + simpleDateFormat.format(data) + "/";
+                break;
+            case VIDEO:
+                pt = AppConfig.UP_PATH + "/video/";
                 break;
             default:
                 data.setTime(System.currentTimeMillis());

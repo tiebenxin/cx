@@ -1550,8 +1550,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
-//                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
-//                        startService(new Intent(getContext(), UpLoadService.class));
+                        UpLoadService.onAddVideo(this.context,imgMsgId, file, "",isArtworkMaster, toUId, toGid, 10,videoMessageSD);
+                        startService(new Intent(getContext(), UpLoadService.class));
                         notifyData2Bottom(true);
 
 

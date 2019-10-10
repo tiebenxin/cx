@@ -65,7 +65,7 @@ public class DaoUtil {
      */
     public static Realm open() {
         //  return Realm.getDefaultInstance();
-        LogUtil.getLog().i(TAG, "---->数据库:" + config.getRealmFileName());
+//        LogUtil.getLog().i(TAG, "---->数据库:" + config.getRealmFileName());
         return Realm.getInstance(config);
     }
 
