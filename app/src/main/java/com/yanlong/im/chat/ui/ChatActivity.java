@@ -184,7 +184,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private LinearLayout viewAction;
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
-    private LinearLayout viewChatRobot,ll_part_chat_video;
+    private LinearLayout viewChatRobot, ll_part_chat_video;
     private View viewChatBottom;
     private View viewChatBottomc;
     private View imgEmojiDel;
@@ -248,10 +248,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View mViewLine1;
     private View mViewLine2;
     private View mViewLine3;
+    private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
     }
+
     //消息监听事件
     private SocketEvent msgEvent = new SocketEvent() {
         @Override
@@ -369,6 +371,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     //消息的分发
     public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
 
+        if (!isGroup()) {
+            return;
+        }
         switch (msg.getMsgType()) {
 
             case DESTROY_GROUP:
@@ -378,22 +383,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 taskGroupConf();
                 break;
             case ACCEPT_BE_GROUP://邀请进群刷新
-                if (StringUtil.isNotNull(groupInfo.getAvatar())) {
-                    taskGroupConf();
-                } else {
-                    if (groupInfo.getUsers().size() >= 9) {
+                if (groupInfo != null) {
+                    if (StringUtil.isNotNull(groupInfo.getAvatar())) {
                         taskGroupConf();
                     } else {
-                        taskGroupConf();
-                        GroupHeadImageUtil.creatAndSaveImg(this, groupInfo.getGid());
+                        if (groupInfo.getUsers().size() >= 9) {
+                            taskGroupConf();
+                        } else {
+                            taskGroupConf();
+                            GroupHeadImageUtil.creatAndSaveImg(this, groupInfo.getGid());
 //                        creatAndSaveImg(groupInfo.getGid());
+                        }
                     }
                 }
                 break;
 //            case OTHER_REMOVE_GROUP:
 //                creatAndSaveImg(groupInfo.getGid());
 //                break;
-            case CHANGE_GROUP_META:
+            case CHANGE_GROUP_META:// 修改群信息
                 taskSessionInfo();
                 break;
         }
@@ -426,6 +433,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private List<View> emojiLayout;
     private MediaPlayer mMediaPlayer;
+
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -920,7 +928,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                 startActivityForResult(intent, VIDEO_RP);
 
-                if(mMediaPlayer != null){
+                if (mMediaPlayer != null) {
                     mMediaPlayer.stop();
                     mMediaPlayer.release();
                     mMediaPlayer = null;
@@ -1414,14 +1422,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private UpFileAction upFileAction = new UpFileAction();
 
-    private String getVideoAtt(String mUri)
-    {
-        VideoMessage videoMessage=new VideoMessage();
+    private String getVideoAtt(String mUri) {
+        VideoMessage videoMessage = new VideoMessage();
         String duration = null;
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
-            if (mUri != null)
-            {
+            if (mUri != null) {
 //                HashMap<String, String> headers = null;
 //                if (headers == null)
 //                {
@@ -1431,14 +1437,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
                 mmr.setDataSource(inputStream.getFD());
 //                mmr.setDataSource(mUri, headers);
-            } else
-            {
+            } else {
                 //mmr.setDataSource(mFD, mOffset, mLength);
             }
-            duration= mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+            duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
 
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             Log.e("TAG", "MediaMetadataRetriever exception " + ex);
         } finally {
             mmr.release();
@@ -1446,14 +1450,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         return duration;
     }
 
-    private String getVideoAttWeith(String mUri)
-    {
-        VideoMessage videoMessage=new VideoMessage();
+    private String getVideoAttWeith(String mUri) {
+        VideoMessage videoMessage = new VideoMessage();
         String width = null;
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
-            if (mUri != null)
-            {
+            if (mUri != null) {
 //                HashMap<String, String> headers = null;
 //                if (headers == null)
 //                {
@@ -1463,14 +1465,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
                 mmr.setDataSource(inputStream.getFD());
 //                mmr.setDataSource(mUri, headers);
-            } else
-            {
+            } else {
                 //mmr.setDataSource(mFD, mOffset, mLength);
             }
             width = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);//宽
 
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             Log.e("TAG", "MediaMetadataRetriever exception " + ex);
         } finally {
             mmr.release();
@@ -1478,25 +1478,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         return width;
     }
 
-    private String getVideoAttHeigh(String mUri)
-    {
-        VideoMessage videoMessage=new VideoMessage();
+    private String getVideoAttHeigh(String mUri) {
+        VideoMessage videoMessage = new VideoMessage();
         String height = null;
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
-            if (mUri != null)
-            {
+            if (mUri != null) {
                 FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
                 mmr.setDataSource(inputStream.getFD());
 //                mmr.setDataSource(mUri, headers);
-            } else
-            {
+            } else {
                 //mmr.setDataSource(mFD, mOffset, mLength);
             }
             height = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);//高
 
-        } catch (Exception ex)
-        {
+        } catch (Exception ex) {
             Log.e("TAG", "MediaMetadataRetriever exception " + ex);
         } finally {
             mmr.release();
@@ -1504,24 +1500,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         return height;
     }
 
-    private String getVideoAttBitmap(String mUri)
-    {
-        VideoMessage videoMessage=new VideoMessage();
+    private String getVideoAttBitmap(String mUri) {
+        VideoMessage videoMessage = new VideoMessage();
         File file = null;
         android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
         try {
-            if (mUri != null)
-            {
+            if (mUri != null) {
                 FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
                 mmr.setDataSource(inputStream.getFD());
 //                mmr.setDataSource(mUri, headers);
-            } else
-            {
+            } else {
                 //mmr.setDataSource(mFD, mOffset, mLength);
             }
-            file= GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
-        } catch (Exception ex)
-        {
+            file = GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+        } catch (Exception ex) {
             Log.e("TAG", "MediaMetadataRetriever exception " + ex);
         } finally {
             mmr.release();
@@ -1536,17 +1528,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             switch (requestCode) {
                 case VIDEO_RP:
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
-                    if(dataType == RecordedActivity.RESULT_TYPE_VIDEO){
+                    if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         final String imgMsgId = SocketData.getUUID();
-                        VideoMessage videoMessage= new VideoMessage();
-                        videoMessage.setHeight( Long.parseLong(getVideoAttHeigh(file)));
-                        videoMessage.setWidth( Long.parseLong(getVideoAttWeith(file)));
-                        videoMessage.setDuration( Long.parseLong(getVideoAtt(file)));
+                        VideoMessage videoMessage = new VideoMessage();
+                        videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(file)));
+                        videoMessage.setWidth(Long.parseLong(getVideoAttWeith(file)));
+                        videoMessage.setDuration(Long.parseLong(getVideoAtt(file)));
                         videoMessage.setBg_url(getVideoAttBitmap(file));
-                        Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
-                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight());
+                        Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
+                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight());
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
@@ -1555,7 +1547,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         notifyData2Bottom(true);
 
 
-                    }else if(dataType == RecordedActivity.RESULT_TYPE_PHOTO){
+                    } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
 //                        tv_path.setText("图片地址: "+photoPath);
 //                        iv_photo.setVisibility(View.VISIBLE);
@@ -1578,6 +1570,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         //1.上传图片
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
+                        // 记录本次上传图片的ID跟本地路径
+                        mTempImgPath.put(imgMsgId, "file://" + file);
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
 
@@ -1809,7 +1803,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 View view = (View) args[1];
                 IMenuSelectListener listener = (IMenuSelectListener) args[2];
                 if (view != null && menus != null && menus.size() > 0) {
-                    showPop(view, menus, message, listener,null);
+                    showPop(view, menus, message, listener, null);
                 }
                 break;
             case ChatEnum.ECellEventType.TRANSFER_CLICK:
@@ -2140,8 +2134,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
-                            Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
-                            intent.putExtra("videopath",msgbean.getVideoMessage().getUrl());
+                            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                            intent.putExtra("videopath", msgbean.getVideoMessage().getUrl());
                             startActivity(intent);
                         }
                     }, pgVideo);
@@ -2284,7 +2278,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
                             }, 100);
                         }
-                    },holder);
+                    }, holder);
                     return true;
                 }
             });
@@ -2705,7 +2699,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      *
      * @param value
      * @param msgbean
-     *
      */
     private void onBubbleClick(String value, MsgAllBean msgbean) {
         if ("复制".equals(value)) {
@@ -2718,7 +2711,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             onRetransmission(msgbean);
         } else if ("撤回".equals(value)) {
             onRecall(msgbean);
-        }else if("扬声器播放".equals(value)){
+        } else if ("扬声器播放".equals(value)) {
             msgDao.userSetingVoicePlayer(0);
         }
     }
@@ -2987,6 +2980,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
+                        onBusPicture();
                         int len = list.size();
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
                             lastPosition = 0;
@@ -2998,6 +2992,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 });
 
+    }
+
+    /**
+     * TODO 当本次有本地发送图片时，用本地图片路径展示，是为了解决发图片之后，在发内容第一次会闪一下重新加载问题，
+     * TODO 问题原因是第一次加载本地路径，图片上传成功后加载的是服务器中午路径
+     */
+    private void onBusPicture() {
+        if (mTempImgPath != null && mTempImgPath.size() > 0 && msgListData != null) {
+            for (MsgAllBean bean : msgListData) {
+                for (String key : mTempImgPath.keySet()) {
+                    if (bean.getMsg_id().equals(key)) {
+                        bean.getImage().setThumbnail(mTempImgPath.get(key));
+                    }
+                }
+            }
+        }
     }
 
     /***
@@ -3022,7 +3032,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 加载更多
      */
     private void taskMoreMessage() {
-
         int addItem = msgListData.size();
 
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
@@ -3034,6 +3043,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
+        onBusPicture();
         notifyData();
 //        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "size=" + msgListData.size());
 
@@ -3099,7 +3109,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             head = userInfo.getHead();
 
 
-            Log.d("tak", "taskName: " + nkname);
+//            Log.d("tak", "taskName: " + nkname);
 
             msg.setFrom_nickname(nkname);
             msg.setFrom_avatar(head);

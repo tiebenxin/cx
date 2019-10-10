@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -241,7 +242,7 @@ public class FriendMainFragment extends Fragment {
 
 
                 UserInfo lastbean = listData.get(position - 1);
-                if (lastbean.getTag().equals(bean.getTag())) {
+                if (lastbean.getTag().equals(bean.getTag()) && position != 1) {
                     hd.viewType.setVisibility(View.GONE);
                 } else {
                     hd.viewType.setVisibility(View.VISIBLE);
@@ -339,11 +340,11 @@ public class FriendMainFragment extends Fragment {
                     public List<UserInfo> apply(Integer integer) throws Exception {
                         listData = userDao.getAllUserInBook();
                         if (listData != null) {
-//                            UserInfo topBean = new UserInfo();
-//                            topBean.setTag("↑");
-//                            listData.add(0, topBean);
+                            UserInfo topBean = new UserInfo();
+                            topBean.setTag("↑");
+                            listData.add(0, topBean);
                             Collections.sort(listData);
-                            for (int i = 0; i < listData.size(); i++) {
+                            for (int i = 1; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
                             }
 

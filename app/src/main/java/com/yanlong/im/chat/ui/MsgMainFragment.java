@@ -496,11 +496,11 @@ public class MsgMainFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
-            if (payloads.isEmpty()){
+            if (payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
-            }else{
-                int type=(int)payloads.get(0);
-                switch (type){
+            } else {
+                int type = (int) payloads.get(0);
+                switch (type) {
                     case 0:
                         break;
                     case 1:
@@ -729,25 +729,27 @@ public class MsgMainFragment extends Fragment {
 
         private void creatAndSaveImg(Session bean, ImageView imgHead) {
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
-            int i = gginfo.getUsers().size();
-            i = i > 9 ? 9 : i;
-            //头像地址
-            String url[] = new String[i];
-            for (int j = 0; j < i; j++) {
-                UserInfo userInfo = gginfo.getUsers().get(j);
+            if (gginfo != null) {
+                int i = gginfo.getUsers().size();
+                i = i > 9 ? 9 : i;
+                //头像地址
+                String url[] = new String[i];
+                for (int j = 0; j < i; j++) {
+                    UserInfo userInfo = gginfo.getUsers().get(j);
 //            if (j == i - 1) {
 //                name += userInfo.getName();
 //            } else {
 //                name += userInfo.getName() + "、";
 //            }
-                url[j] = userInfo.getHead();
-            }
-            File file = GroupHeadImageUtil.synthesis(getContext(), url);
-            Glide.with(getActivity()).load(file)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+                    url[j] = userInfo.getHead();
+                }
+                File file = GroupHeadImageUtil.synthesis(getContext(), url);
+                Glide.with(getActivity()).load(file)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
-            MsgDao msgDao = new MsgDao();
-            msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+                MsgDao msgDao = new MsgDao();
+                msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+            }
         }
 
 

@@ -156,9 +156,9 @@ public class PySortView extends LinearLayout {
         }
         // 去掉重复值
         List<String> listTemp = new ArrayList<>();
-        for (String vlaue : list) {
-            if (!listTemp.contains(vlaue)) {
-                listTemp.add(vlaue);
+        for (String value : list) {
+            if (!listTemp.contains(value) && !"↑".equals(value)) {
+                listTemp.add(value);
             }
         }
         txtPyIptView.removeAllViews();
@@ -173,6 +173,9 @@ public class PySortView extends LinearLayout {
     }
 
     public void addView(String value) {
+        if ("↑".equals(value)) {
+            return;
+        }
         TextView txtViewTop = (TextView) mInflater.inflate(R.layout.view_pysort_item, null);
         txtViewTop.setText(value);
         txtViewTop.setTag(txtViewTop.getText().toString());
@@ -189,7 +192,9 @@ public class PySortView extends LinearLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         height = getMeasuredHeight();
-        spHeight = getMeasuredHeight() / maxSize;
+        if (maxSize > 0) {
+            spHeight = getMeasuredHeight() / maxSize;
+        }
         maxheight = height - txtSelectView.getMeasuredHeight();
     }
 
