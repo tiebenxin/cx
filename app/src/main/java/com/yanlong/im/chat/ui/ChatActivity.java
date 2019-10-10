@@ -248,6 +248,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View mViewLine1;
     private View mViewLine2;
     private View mViewLine3;
+    private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -1578,6 +1579,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         //1.上传图片
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
+                        // 记录本次上传图片的ID跟本地路径
+                        mTempImgPath.put(imgMsgId, "file://" + file);
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
 
@@ -1809,7 +1812,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 View view = (View) args[1];
                 IMenuSelectListener listener = (IMenuSelectListener) args[2];
                 if (view != null && menus != null && menus.size() > 0) {
-                    showPop(view, menus, message, listener,null);
+                    showPop(view, menus, message, listener, null);
                 }
                 break;
             case ChatEnum.ECellEventType.TRANSFER_CLICK:
@@ -2284,7 +2287,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
                             }, 100);
                         }
-                    },holder);
+                    }, holder);
                     return true;
                 }
             });
@@ -2705,7 +2708,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      *
      * @param value
      * @param msgbean
-     *
      */
     private void onBubbleClick(String value, MsgAllBean msgbean) {
         if ("复制".equals(value)) {
@@ -2718,7 +2720,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             onRetransmission(msgbean);
         } else if ("撤回".equals(value)) {
             onRecall(msgbean);
-        }else if("扬声器播放".equals(value)){
+        } else if ("扬声器播放".equals(value)) {
             msgDao.userSetingVoicePlayer(0);
         }
     }
@@ -2987,6 +2989,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
+                        onBusPicture();
                         int len = list.size();
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
                             lastPosition = 0;
@@ -2998,6 +3001,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 });
 
+    }
+
+    /**
+     * TODO 当本次有本地发送图片时，用本地图片路径展示，是为了解决发图片之后，在发内容第一次会闪一下重新加载问题，
+     * TODO 问题原因是第一次加载本地路径，图片上传成功后加载的是服务器中午路径
+     */
+    private void onBusPicture(){
+        if (mTempImgPath != null && mTempImgPath.size() > 0 && msgListData != null) {
+            for (MsgAllBean bean : msgListData) {
+                for (String key : mTempImgPath.keySet()) {
+                    if (bean.getMsg_id().equals(key)) {
+                        bean.getImage().setThumbnail(mTempImgPath.get(key));
+                    }
+                }
+            }
+        }
     }
 
     /***
@@ -3022,7 +3041,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 加载更多
      */
     private void taskMoreMessage() {
-
         int addItem = msgListData.size();
 
         //  msgListData.addAll(0, msgAction.getMsg4User(toGid, toUId, page));
@@ -3034,6 +3052,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
+        onBusPicture();
         notifyData();
 //        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "size=" + msgListData.size());
 
@@ -3099,7 +3118,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             head = userInfo.getHead();
 
 
-            Log.d("tak", "taskName: " + nkname);
+//            Log.d("tak", "taskName: " + nkname);
 
             msg.setFrom_nickname(nkname);
             msg.setFrom_avatar(head);

@@ -5,7 +5,7 @@
         android:id="@+id/headView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:headview_title="用户服务协议及隐私政策">
+        app:headview_title="服务协议及隐私">
 
         <RelativeLayout
             android:layout_width="match_parent"
