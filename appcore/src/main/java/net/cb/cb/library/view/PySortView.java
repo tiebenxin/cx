@@ -192,7 +192,9 @@ public class PySortView extends LinearLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         height = getMeasuredHeight();
-        spHeight = getMeasuredHeight() / maxSize;
+        if (maxSize > 0) {
+            spHeight = getMeasuredHeight() / maxSize;
+        }
         maxheight = height - txtSelectView.getMeasuredHeight();
     }
 
