@@ -152,7 +152,8 @@
 
             <LinearLayout
                 android:id="@+id/view_exit_destroy"
-                style="@style/app_layout_list2_item">
+                style="@style/app_layout_list2_item"
+                android:visibility="gone">
 
                 <TextView
                     style="@style/app_txt_title_2"
@@ -171,7 +172,8 @@
                 style="@style/app_layout_list4_item"
                 android:orientation="vertical"
                 android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+                android:paddingBottom="10dp"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"

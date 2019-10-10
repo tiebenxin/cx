@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
@@ -29,6 +32,7 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.HeadView;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -42,9 +46,9 @@ public class ChatInfoActivity extends AppActivity {
     public static final String AGM_FUID = "fuid";
     private Long fuid;
 
-    private net.cb.cb.library.view.HeadView headView;
+    private HeadView headView;
     private ActionbarView actionbar;
-    private android.support.v7.widget.RecyclerView topListView;
+    private RecyclerView topListView;
     private LinearLayout viewLog;
     private LinearLayout viewTop;
     private CheckBox ckTop;
@@ -54,6 +58,23 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewFeedback;
     //  private Session session;
     private UserInfo fUserInfo;
+    private CheckBox ckRedDestroy;
+    private LinearLayout viewExitDestroy;
+    private CheckBox ckExitDestroy;
+    private LinearLayout viewDestroyTime;
+    private TextView tvDestroyTime;
+    private SeekBar sbDestroyTime;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat_info);
+        findViews();
+        initEvent();
+        initData();
+        controlDestroyView();
+    }
 
 
     //自动寻找控件
@@ -68,6 +89,12 @@ public class ChatInfoActivity extends AppActivity {
         ckDisturb = findViewById(R.id.ck_disturb);
         viewLogClean = findViewById(R.id.view_log_clean);
         viewFeedback = findViewById(R.id.view_feedback);
+        ckRedDestroy = findViewById(R.id.ck_red_destroy);
+        viewExitDestroy = findViewById(R.id.view_exit_destroy);
+        ckExitDestroy = findViewById(R.id.ck_exit_destroy);
+        viewDestroyTime = findViewById(R.id.view_destroy_time);
+        tvDestroyTime = findViewById(R.id.tv_destroy_time);
+        sbDestroyTime = findViewById(R.id.sb_destroy_time);
     }
 
 
@@ -159,22 +186,95 @@ public class ChatInfoActivity extends AppActivity {
 //        setResult(ChatActivity.REQ_REFRESH);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_info);
-        findViews();
-        initEvent();
-        initData();
-    }
 
     private void initData() {
 
-
     }
 
 
-    private List<String> listDataTop = new ArrayList<>();
+    private void controlDestroyView() {
+        ckRedDestroy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    viewExitDestroy.setVisibility(View.VISIBLE);
+                    viewDestroyTime.setVisibility(View.VISIBLE);
+                } else {
+                    viewExitDestroy.setVisibility(View.GONE);
+                    viewDestroyTime.setVisibility(View.GONE);
+                }
+
+
+            }
+        });
+
+        ckExitDestroy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    viewDestroyTime.setVisibility(View.GONE);
+                } else {
+                    viewDestroyTime.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        sbDestroyTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (progress > 0) {
+                    viewExitDestroy.setVisibility(View.GONE);
+                } else {
+                    viewExitDestroy.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int progress = seekBar.getProgress();
+//                if (progress == 0 || progress <= 4.5) {
+//                    seekBar.setProgress(0);
+//                } else if (progress >= 4.5 || progress <= 13.5) {
+//                    seekBar.setProgress(9);
+//                } else if (progress >= 13.5 || progress <= 22.5) {
+//                    seekBar.setProgress(18);
+//                } else if (progress >= 22.5 || progress <= 31.5) {
+//                    seekBar.setProgress(27);
+//                } else if (progress >= 31.5 || progress <= 40.5) {
+//                    seekBar.setProgress(36);
+//                } else if (progress >= 40.5 || progress <= 49.5) {
+//                    seekBar.setProgress(45);
+//                } else if (progress >= 49.5 || progress <= 58.5) {
+//                    seekBar.setProgress(54);
+//                } else if (progress >= 58.5 || progress <= 67.5) {
+//                    seekBar.setProgress(63);
+//                } else if (progress >= 67.5 || progress <= 75.5) {
+//                    seekBar.setProgress(72);
+//                } else if (progress >= 75.5 || progress <= 84.5) {
+//                    seekBar.setProgress(81);
+//                } else if (progress >= 84.5 || progress <= 100) {
+//                    seekBar.setProgress(100);
+//                }
+
+
+                double sss = 100 / cont;
+                Log.v("SeekBar", sss + "sss");
+                double xxx = sss / 2;
+                Log.v("SeekBar", xxx + "xxx");
+                int ccc = (int) (progress / xxx);
+                Log.v("SeekBar", ccc + "ccc");
+
+            }
+        });
+    }
+
+    private int cont = 12;
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewTopAdapter extends RecyclerView.Adapter<RecyclerViewTopAdapter.RCViewTopHolder> {
