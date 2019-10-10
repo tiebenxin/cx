@@ -21,6 +21,7 @@ import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
+import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -709,6 +710,10 @@ public class SocketData {
                 VoiceMessage voice = (VoiceMessage) t;
                 msgAllBean.setVoiceMessage(voice);
                 break;
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                VideoMessage video = (VideoMessage) t;
+                msgAllBean.setVideoMessage(video);
+                break;
         }
 
         msgAllBean.setTo_uid(toId);
@@ -762,6 +767,23 @@ public class SocketData {
         }
         return image;
     }
+
+    @NonNull
+    public static VideoMessage createVideoMessage(String msgId, String url, String bgUrl,boolean isOriginal,long duration,long width,long height) {
+        VideoMessage videoMessage = new VideoMessage();
+        videoMessage.setMsgId(msgId);
+        videoMessage.setUrl(url);
+        videoMessage.setBg_url(bgUrl);
+        ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
+        videoMessage.setDuration(duration);
+        videoMessage.setHeight(height);
+        videoMessage.setWidth(width);
+        if (isOriginal) {
+            videoMessage.setReadOrigin(isOriginal);
+        }
+        return videoMessage;
+    }
+
 
     /**
      * 图片发送失败

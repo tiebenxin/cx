@@ -143,7 +143,7 @@ public class ChatEnum {
      * cell 点击事件类型
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
-            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK})
+            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK,ECellEventType.VIDEO_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -156,13 +156,14 @@ public class ChatEnum {
         int RESEND_CLICK = 7;//点击重新发送
         int AVATAR_LONG_CLICK = 8;//头像长按事件
         int VOICE_CLICK = 9;//语音消息
+        int VIDEO_CLICK = 10;//视屏消息
     }
 
 
     /*
      * 消息type
      * */
-    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED, EMessageType.LOCK})
+    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED, EMessageType.MSG_VIDEO,EMessageType.LOCK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -177,6 +178,7 @@ public class ChatEnum {
         int AT = 8;//艾特@消息
         int ASSISTANT = 9;//小助手
         int MSG_CENCAL = 10; //撤回消息
+        int MSG_VIDEO = 11; //短视频消息
 
         int LOCK = 100; //端到端加密提示消息,本地自定义消息
     }

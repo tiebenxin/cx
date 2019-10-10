@@ -41,6 +41,15 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private ChatMessage chat;
 
     private ImageMessage image;
+    private VideoMessage videoMessage;
+
+    public VideoMessage getVideoMessage() {
+        return videoMessage;
+    }
+
+    public void setVideoMessage(VideoMessage videoMessage) {
+        this.videoMessage = videoMessage;
+    }
 
     private RedEnvelopeMessage red_envelope;
 

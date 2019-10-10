@@ -430,6 +430,7 @@ public class UserInfoActivity extends AppActivity {
                         }
                     }
 
+
                 }
             });
         }

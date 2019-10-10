@@ -319,9 +319,9 @@ public class MyselfQRCodeActivity extends AppActivity {
                 e.printStackTrace();
             }
         }
-        //通知相册更新
-        MediaStore.Images.Media.insertImage(this.getContentResolver(),
-                bmp, fileName, null);
+//        //通知相册更新
+//        MediaStore.Images.Media.insertImage(this.getContentResolver(),
+//                bmp, fileName, null);
         Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         Uri uri = Uri.fromFile(file);
         intent.setData(uri);

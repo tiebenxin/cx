@@ -595,6 +595,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".user.ui.FriendVerifyActivity" />
+        <activity android:name=".chat.ui.VideoPlayActivity"/>
 
     </application>
 

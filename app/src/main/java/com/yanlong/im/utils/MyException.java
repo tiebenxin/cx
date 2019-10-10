@@ -38,7 +38,7 @@ public class MyException implements Thread.UncaughtExceptionHandler {
            mContext.stopService(new Intent(mContext, MsgServer.class));
            mContext.stopService(new Intent(mContext, UpLoadService.class));
            mContext.stopService(new Intent(mContext, ChatServer.class));
-            android.os.Process.killProcess(android.os.Process.myPid());
+           android.os.Process.killProcess(android.os.Process.myPid());
            System.exit(0);
        }catch (Exception exce){
         }

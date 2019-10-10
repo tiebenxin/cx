@@ -323,7 +323,8 @@ public class ChatServer extends Service {
                 case RESOURCE_LOCK://资源锁定
                     updateUserLockCloudRedEnvelope(msg);
                     return;
-
+                case SHORT_VIDEO:
+                    return;
             }
 
             //↑↑↑9.4 不需要播放收到通知的响声,请return,否则使用break

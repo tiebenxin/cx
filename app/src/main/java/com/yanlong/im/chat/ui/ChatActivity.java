@@ -6,11 +6,17 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -62,6 +68,7 @@ import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
+import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.interf.IMenuSelectListener;
@@ -94,6 +101,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
+import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
@@ -124,12 +132,14 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
 import net.cb.cb.library.view.PopView;
+import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -174,7 +184,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private LinearLayout viewAction;
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
-    private LinearLayout viewChatRobot;
+    private LinearLayout viewChatRobot,ll_part_chat_video;
     private View viewChatBottom;
     private View viewChatBottomc;
     private View imgEmojiDel;
@@ -186,6 +196,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     public static final String AGM_TOUID = "toUId";
     public static final String AGM_TOGID = "toGId";
+    public static final String GROUP_CREAT = "creat";
 
     private Gson gson = new Gson();
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
@@ -201,6 +212,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     //红包和转账
     public static final int REQ_RP = 9653;
+    public static final int VIDEO_RP = 9419;
     public static final int REQ_TRANS = 9653;
 
 
@@ -240,7 +252,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
     }
-
     //消息监听事件
     private SocketEvent msgEvent = new SocketEvent() {
         @Override
@@ -414,7 +425,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
     private List<View> emojiLayout;
-
+    private MediaPlayer mMediaPlayer;
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -438,6 +449,22 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatBottom = findViewById(R.id.view_chat_bottom);
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         viewChatRobot = findViewById(R.id.view_chat_robot);
+        ll_part_chat_video = findViewById(R.id.ll_part_chat_video);
+//        findViewById(R.id.ll_video_recoder).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                CommFunKt.rxRequestPermissions(ChatActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO}, "相机、存储、录音", new Function0<Unit>() {
+//                    @Override
+//                    public Unit invoke() {
+//                        Intent intent=new Intent(ChatActivity.this, VideoRecordActivity.class);
+//                        startActivityForResult(intent,101);
+//                        return null;
+//                    }
+//                });
+//
+//
+//            }
+//        });
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
         txtVoice = findViewById(R.id.txt_voice);
@@ -879,6 +906,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         .putExtra(GroupRobotActivity.AGM_GID, toGid)
                         .putExtra(GroupRobotActivity.AGM_RID, groupInfo.getRobotid())
                 );
+            }
+        });
+        //短视频
+        ll_part_chat_video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.CAMERA}, CaptureActivity.REQ_PERM_CAMERA);
+                    return;
+                }
+                Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                startActivityForResult(intent, VIDEO_RP);
+
+                if(mMediaPlayer != null){
+                    mMediaPlayer.stop();
+                    mMediaPlayer.release();
+                    mMediaPlayer = null;
+                }
             }
         });
 
@@ -1368,12 +1414,154 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private UpFileAction upFileAction = new UpFileAction();
 
+    private String getVideoAtt(String mUri)
+    {
+        VideoMessage videoMessage=new VideoMessage();
+        String duration = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null)
+            {
+//                HashMap<String, String> headers = null;
+//                if (headers == null)
+//                {
+//                    headers = new HashMap<String, String>();
+//                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
+//                }
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else
+            {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            duration= mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+
+        } catch (Exception ex)
+        {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return duration;
+    }
+
+    private String getVideoAttWeith(String mUri)
+    {
+        VideoMessage videoMessage=new VideoMessage();
+        String width = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null)
+            {
+//                HashMap<String, String> headers = null;
+//                if (headers == null)
+//                {
+//                    headers = new HashMap<String, String>();
+//                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
+//                }
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else
+            {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            width = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);//宽
+
+        } catch (Exception ex)
+        {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return width;
+    }
+
+    private String getVideoAttHeigh(String mUri)
+    {
+        VideoMessage videoMessage=new VideoMessage();
+        String height = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null)
+            {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else
+            {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            height = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);//高
+
+        } catch (Exception ex)
+        {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return height;
+    }
+
+    private String getVideoAttBitmap(String mUri)
+    {
+        VideoMessage videoMessage=new VideoMessage();
+        File file = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null)
+            {
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else
+            {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            file= GroupHeadImageUtil.save2File(mmr.getFrameAtTime());
+        } catch (Exception ex)
+        {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return file.getAbsolutePath();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
+                case VIDEO_RP:
+                    int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
+                    if(dataType == RecordedActivity.RESULT_TYPE_VIDEO){
+                        String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                        final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                        final String imgMsgId = SocketData.getUUID();
+                        VideoMessage videoMessage= new VideoMessage();
+                        videoMessage.setHeight( Long.parseLong(getVideoAttHeigh(file)));
+                        videoMessage.setWidth( Long.parseLong(getVideoAttWeith(file)));
+                        videoMessage.setDuration( Long.parseLong(getVideoAtt(file)));
+                        videoMessage.setBg_url(getVideoAttBitmap(file));
+                        Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
+                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight());
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
+
+                        msgListData.add(imgMsgBean);
+//                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+//                        startService(new Intent(getContext(), UpLoadService.class));
+                        notifyData2Bottom(true);
+
+
+                    }else if(dataType == RecordedActivity.RESULT_TYPE_PHOTO){
+                        String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
+//                        tv_path.setText("图片地址: "+photoPath);
+//                        iv_photo.setVisibility(View.VISIBLE);
+//                        iv_photo.setImageBitmap(BitmapFactory.decodeFile(photoPath));
+                    }
+                    break;
                 case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
@@ -1750,6 +1938,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.updateVoice(msgbean);
 //                        LogUtil.getLog().i(TAG, "刷新语音updateVoice" + "--position=" + position);
                         break;
+                    case ChatEnum.EMessageType.MSG_VIDEO:
+//                        holder.viewChatItem.
+                        break;
                     default:
                         onBindViewHolder(holder, position);
                         break;
@@ -1933,6 +2124,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             showBigPic(msgbean.getMsg_id(), uri);
                         }
                     }, pg);
+                    // holder.viewChatItem.setImgageProg(pg);
+                    break;
+
+                case ChatEnum.EMessageType.MSG_VIDEO:
+
+                    menus.add(new OptionMenu("转发"));
+                    menus.add(new OptionMenu("删除"));
+                    Integer pgVideo = null;
+                    pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
+
+
+                    holder.viewChatItem.setDataVideo(msgbean.getVideoMessage(), msgbean.getVideoMessage().getUrl(), new ChatItemView.EventPic() {
+                        @Override
+                        public void onClick(String uri) {
+                            //  ToastUtil.show(getContext(), "大图:" + uri);
+//                            showBigPic(msgbean.getMsg_id(), uri);
+                            Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
+                            intent.putExtra("videopath",msgbean.getVideoMessage().getUrl());
+                            startActivity(intent);
+                        }
+                    }, pgVideo);
                     // holder.viewChatItem.setImgageProg(pg);
                     break;
                 case ChatEnum.EMessageType.BUSINESS_CARD:
