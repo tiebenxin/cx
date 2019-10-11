@@ -152,10 +152,10 @@ public class MyAppLication extends MainApplication {
 
 
     private void initUPushPre() {
-//        UMConfigure.init(this, "5d53659c570df3d281000225",
-//                "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
-//                "f045bf243689c2363d5714b781ce556e");
-//        UMConfigure.setLogEnabled(AppConfig.DEBUG);
+        UMConfigure.init(this, "5d53659c570df3d281000225",
+                "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
+                "f045bf243689c2363d5714b781ce556e");
+        UMConfigure.setLogEnabled(AppConfig.DEBUG);
 
         //极光推送初始化
         JPushInterface.setDebugMode(true);
