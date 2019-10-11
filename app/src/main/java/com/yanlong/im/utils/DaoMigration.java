@@ -19,8 +19,12 @@ public class DaoMigration implements RealmMigration {
                 updateV2(schema);
                 oldVersion++;
             }
-            if (newVersion > oldVersion && oldVersion == 2) {//从1升到2
+            if (newVersion > oldVersion && oldVersion == 2) {//从2升到3
                 updateV3(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 3) {//从1升到2
+                updateV4(schema);
                 oldVersion++;
             }
         }
@@ -33,6 +37,14 @@ public class DaoMigration implements RealmMigration {
         schema.create("GroupImageHead")
                 .addField("gid", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("imgHeadUrl", String.class);
+    }
+
+    /*
+     * 新增群头像表
+     * */
+    private void updateV4(RealmSchema schema) {
+        schema.create("VideoMessage")
+                .addField("localUrl", String.class);
     }
 
     /*
@@ -54,7 +66,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("width", long.class)
                 .addField("height", long.class)
                 .addField("isReadOrigin", boolean.class)
-                .addField("url", String.class)
-                .addField("localUrl", String.class);
+                .addField("url", String.class);
+//                .addField("localUrl", String.class);
     }
 }
