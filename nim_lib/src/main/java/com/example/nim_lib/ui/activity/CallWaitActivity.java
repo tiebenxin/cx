@@ -1,4 +1,4 @@
-package com.example.nim_lib.ui;
+package com.example.nim_lib.ui.activity;
 
 import android.os.Bundle;
 

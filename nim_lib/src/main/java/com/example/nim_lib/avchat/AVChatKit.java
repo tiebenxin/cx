@@ -2,17 +2,15 @@ package com.example.nim_lib.avchat;
 
 import android.app.Notification;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.util.SparseArray;
 
 import com.example.nim_lib.avchat.config.AVChatOptions;
 import com.example.nim_lib.avchat.log.ILogUtil;
 import com.example.nim_lib.avchat.model.ITeamDataProvider;
-import com.example.nim_lib.avchat.model.IUserInfoProvider;
+import com.example.nim_lib.uikit.api.model.user.IUserInfoProvider;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
-import com.netease.nimlib.sdk.avchat.constant.AVChatControlCommand;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
 
 import java.util.ArrayList;

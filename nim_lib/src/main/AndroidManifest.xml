@@ -41,6 +41,7 @@
 
 
     <application>
-        <activity android:name=".ui.CallWaitActivity" />
+        <activity android:name=".ui.activity.CallWaitActivity" />
+        <activity android:name=".ui.activity.AVChatActivity" />
     </application>
 </manifest>

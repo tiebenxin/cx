@@ -130,4 +130,13 @@ public class NimManager {
 
         return storageRootPath;
     }
+
+
+    public void login(String account,String token){
+
+    }
+
+
+
+
 }
