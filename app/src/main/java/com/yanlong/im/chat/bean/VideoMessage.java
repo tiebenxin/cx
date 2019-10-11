@@ -15,6 +15,7 @@ public class VideoMessage extends RealmObject implements IMsgContent {
     private String localUrl;
 
 
+
     public long getDuration() {
         return duration;
     }

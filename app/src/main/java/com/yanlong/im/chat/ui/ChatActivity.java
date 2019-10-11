@@ -1546,7 +1546,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAddVideo(this.context,imgMsgId, file, "",isArtworkMaster, toUId, toGid, 10,videoMessageSD);
+                        UpLoadService.onAddVideo(this.context,imgMsgId, file, videoMessage.getBg_url(),isArtworkMaster, toUId, toGid, 10,videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
                         notifyData2Bottom(true);
 
@@ -1645,14 +1645,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            Log.d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
-
-
         } else if (event.getState() == 1) {
             //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
             replaceListDataAndNotify(msgAllbean);
-
-
         } else {
             //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgId());
         }
@@ -1881,7 +1877,43 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     replaceListDataAndNotify(reMsg);
 //                                taskRefreshMessage();
                 }
-            } else {
+            }else if(reMsg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO){
+                //todo 重新上传视频
+                String url = reMsg.getVideoMessage().getLocalUrl();
+                if (!TextUtils.isEmpty(url)) {
+//                    boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? true : false;
+//                    ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), url, isArtworkMaster);
+//                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
+//                    replaceListDataAndNotify(imgMsgBean);
+//                    UpLoadService.onAdd(reMsg.getMsg_id(), url, isArtworkMaster, toUId, toGid, reMsg.getTimestamp());
+//                    startService(new Intent(getContext(), UpLoadService.class));
+
+
+                    final String imgMsgId = SocketData.getUUID();
+                    VideoMessage videoMessage= new VideoMessage();
+                    videoMessage.setHeight( Long.parseLong(getVideoAttHeigh(url)));
+                    videoMessage.setWidth( Long.parseLong(getVideoAttWeith(url)));
+                    videoMessage.setDuration( Long.parseLong(getVideoAtt(url)));
+                    videoMessage.setBg_url(getVideoAttBitmap(url));
+                    videoMessage.setLocalUrl(url);
+                    Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
+                    VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + url, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),url);
+                    MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
+
+//                    msgListData.add(imgMsgBeanReSend);
+                    UpLoadService.onAddVideo(this.context,imgMsgId, url, videoMessage.getBg_url(),false, toUId, toGid, 10,videoMessageSD);
+                    startService(new Intent(getContext(), UpLoadService.class));
+
+                } else {
+                    //点击发送的时候如果要改变成发送中的状态
+                    reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
+                    DaoUtil.update(reMsg);
+                    MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
+                    SocketUtil.getSocketUtil().sendData4Msg(bean);
+                    taskRefreshMessage();
+                }
+            }
+            else {
                 //点击发送的时候如果要改变成发送中的状态
                 reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                 DaoUtil.update(reMsg);
@@ -1937,7 +1969,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        LogUtil.getLog().i(TAG, "刷新语音updateVoice" + "--position=" + position);
                         break;
                     case ChatEnum.EMessageType.MSG_VIDEO:
-//                        holder.viewChatItem.
+                        Integer pgVideo = null;
+                        pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
+                        LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
+                        holder.viewChatItem.setErr(msgbean.getSend_state());
+                        holder.viewChatItem.setImgageProg(pgVideo);
                         break;
                     default:
                         onBindViewHolder(holder, position);
