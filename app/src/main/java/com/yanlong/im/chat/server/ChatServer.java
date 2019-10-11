@@ -324,9 +324,17 @@ public class ChatServer extends Service {
                     updateUserLockCloudRedEnvelope(msg);
                     return;
                 case CHANGE_SURVIVAL_TIME: //阅后即焚
+                    int survivalTime = msg.getChangeSurvivalTime().getSurvivalTime();
+                    if(TextUtils.isEmpty(msg.getGid())){
+                        //msgDao.msgDel4MsgId();
 
 
-                    break;
+                    }else{
+
+                    }
+
+
+                    return;
             }
 
             //↑↑↑9.4 不需要播放收到通知的响声,请return,否则使用break
