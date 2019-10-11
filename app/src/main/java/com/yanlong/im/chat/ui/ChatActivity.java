@@ -1619,7 +1619,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
 
-            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), "向你推荐一个人");
+            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), userInfo.getImid());
             showSendObj(msgAllbean);
         }/* else if (resultCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
             mks.clear();
@@ -2150,7 +2150,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
                             msgbean.getBusiness_card().getComment(),
-                            msgbean.getBusiness_card().getAvatar(), null, new View.OnClickListener() {
+                            msgbean.getBusiness_card().getAvatar(), "人个名片", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");

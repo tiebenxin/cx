@@ -172,7 +172,6 @@ public class SplashActivity extends AppActivity {
                     @Override
                     public void onFailure(Call<ReturnBean<TokenBean>> call, Throwable t) {
                         LogUtil.getLog().i("youmeng", "SplashActivity---->updateToken---->onFailure");
-                        ToastUtil.show(context,"因长期未登录已过有效期,请重新登录");
                         if (isFlast) {
                             startActivity(new Intent(SplashActivity.this, SelectLoginActivity.class));
                             finish();

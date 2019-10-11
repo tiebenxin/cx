@@ -524,23 +524,6 @@ public class MsgMainFragment extends Fragment {
                 info = msginfo.getMsg_typeStr();
             }
             if (bean.getType() == 0) {//单人
-
-
-//                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-//                UserInfo finfo = (UserInfo) groups.get(position);
-//                if (finfo != null) {
-//                    icon = finfo.getHead();
-//                    title = finfo.getName4Show();
-//                }
-
-
-                //获取最后一条消息
-//                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-//                msginfo = msgAllBeansList.get(position);
-//                if (msginfo != null) {
-//                    info = msginfo.getMsg_typeStr();
-//                }
-
                 if (StringUtil.isNotNull(bean.getDraft())) {
                     info = "草稿:" + bean.getDraft();
                 }
@@ -554,52 +537,11 @@ public class MsgMainFragment extends Fragment {
                 if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
                     info = name + info;
                 }
-//                if (msginfo != null) {
-//                    if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
-//                        info = msginfo.getMsg_typeStr();
-//                    } else {
-//                        if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-//                            //8.9 处理群昵称
-//                            name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
-//                        }
-//
-//                        info = name + msginfo.getMsg_typeStr();
-//                    }
-//
-//                }
-
-//                Group ginfo = msgDao.getGroup4Id(bean.getGid());
-//                Group ginfo = (Group) groups.get(position);
-//                if (ginfo != null) {
-//                    icon = ginfo.getAvatar();
-                //获取最后一条群消息
-//                    msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-//                    msginfo = msgAllBeansList.get(position);
-//                    title = ginfo.getName();
-//                    title = msgDao.getGroupName(bean.getGid());
-//                    if (msginfo != null) {
-//                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
-//                            info = msginfo.getMsg_typeStr();
-//                        } else {
-//                            String name = "";
-//                            if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-//                                //8.9 处理群昵称
-//                                name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
-//                            }
-//
-//                            info = name + msginfo.getMsg_typeStr();
-//                        }
-//
-//                    }
-//            } else {
-//                Log.e("taf", "11来消息的时候没有创建群");
-//            }
-
                 int type = bean.getMessageType();
                 switch (type) {
                     case 0:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
+                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[有人@你]" + bean.getAtMessage());
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
@@ -616,7 +558,7 @@ public class MsgMainFragment extends Fragment {
                         break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo.getMsg_type() == null) {
+                            if (msginfo == null || msginfo.getMsg_type() == null) {
                                 return;
                             }
                             if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
@@ -680,7 +622,7 @@ public class MsgMainFragment extends Fragment {
             holder.sb.setButtonBackground(R.color.transparent);
             holder.sb.setNum(bean.getUnread_count(), false);
             if (bean.getIsMute() == 1) {
-                if (!msginfo.isRead()) {
+                if (msginfo != null && !msginfo.isRead()) {
                     holder.iv_disturb_unread.setVisibility(View.VISIBLE);
                     holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
                 } else {
@@ -688,14 +630,6 @@ public class MsgMainFragment extends Fragment {
                 }
             } else {
                 holder.iv_disturb_unread.setVisibility(View.GONE);
-
-//                if (bean.getUnread_count() > 0) {
-//                    holder.tv_num.setVisibility(View.VISIBLE);
-//                    holder.tv_num.setBackgroundResource(R.drawable.shape_unread_bg2);
-//                    holder.tv_num.setText(bean.getUnread_count());
-//                } else {
-//                    holder.tv_num.setVisibility(View.GONE);
-//                }
             }
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
@@ -736,11 +670,6 @@ public class MsgMainFragment extends Fragment {
                 String url[] = new String[i];
                 for (int j = 0; j < i; j++) {
                     UserInfo userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
                     url[j] = userInfo.getHead();
                 }
                 File file = GroupHeadImageUtil.synthesis(getContext(), url);
