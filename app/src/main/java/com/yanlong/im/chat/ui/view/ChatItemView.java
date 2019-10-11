@@ -664,6 +664,16 @@ public class ChatItemView extends LinearLayout {
 //                .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
         Glide.with(this).load(videoMessage.getBg_url()).apply(GlideOptionsUtil.imageOptions()).into(imgOt4);
         Glide.with(this).load(videoMessage.getBg_url()).apply(GlideOptionsUtil.imageOptions()).into(imgMe4);
+
+        if (pg != null) {
+            setImgageProg(pg);
+        } else {
+            if (netState == -1) {
+                setImgageProg(0);
+            } else {
+                setImgageProg(null);
+            }
+        }
     }
 
     //图片消息
