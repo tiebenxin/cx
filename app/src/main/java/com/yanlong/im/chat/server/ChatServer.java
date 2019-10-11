@@ -301,7 +301,7 @@ public class ChatServer extends Service {
                     }
                 case ACTIVE_STAT_CHANGE:
                     updateUserOnlineStatus(msg);
-                    notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.DEFAULT);
+                    notifyRefreshFriend(true, msg.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
                     EventBus.getDefault().post(new EventUserOnlineChange());
                     return;
                 case ASSISTANT:
@@ -314,7 +314,6 @@ public class ChatServer extends Service {
                         gid = null;
                     }
                     long fuid = msg.getFromUid();
-//                    msgDao.sessionReadUpdate(gid, fuid, true);
                     MessageManager.getInstance().updateSessionUnread(gid, fuid, true);
                     msgDao.msgDel4Cancel(msg.getMsgId(), msg.getCancel().getMsgId());
                     EventBus.getDefault().post(new EventRefreshChat());

@@ -61,19 +61,19 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-            if (null!=g) {//已经存在
-            try {
-             List<UserInfo> objects=  g.getUsers();
-             if (null!=objects&&objects.size()>0){
-                 g.setName(group.getName());
-                 g.setAvatar(group.getAvatar());
-                 if (group.getUsers() != null)
-                     g.setUsers(group.getUsers());
-                 realm.insertOrUpdate(group);
-             }
-            }catch (Exception e){
-                return;
-            }
+            if (null != g) {//已经存在
+                try {
+                    List<UserInfo> objects = g.getUsers();
+                    if (null != objects && objects.size() > 0) {
+                        g.setName(group.getName());
+                        g.setAvatar(group.getAvatar());
+                        if (group.getUsers() != null)
+                            g.setUsers(group.getUsers());
+                        realm.insertOrUpdate(group);
+                    }
+                } catch (Exception e) {
+                    return;
+                }
             } else {//不存在
                 realm.insertOrUpdate(group);
             }
@@ -2013,12 +2013,16 @@ public class MsgDao {
                 for (int i = 0; i < len; i++) {
                     UserInfo info = users.get(i);
                     GropLinkInfo linkInfo = getGropLinkInfo(group.getGid(), info.getUid());
-                    String memberName = linkInfo.getMembername();
+                    String memberName = "";
+                    if (linkInfo != null && !TextUtils.isEmpty(linkInfo.getMembername())) {
+                        memberName = linkInfo.getMembername();
+                    }
                     if (i == len - 1) {
                         result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid());
                     } else {
                         result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid()) + "、";
                     }
+
                 }
                 result = result.length() > 14 ? StringUtil.splitEmojiString(result, 0, 14) : result;
                 result += "的群";
