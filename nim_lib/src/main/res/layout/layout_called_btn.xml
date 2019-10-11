@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tv_refuse"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_hang_up"
+        android:drawablePadding="5dp"
+        android:gravity="center_horizontal|bottom"
+        android:text="挂断"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/tv_receive"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_receive"
+        android:drawablePadding="5dp"
+        android:gravity="center_horizontal|bottom"
+        android:text="接听"
+        android:textColor="@color/white" />
+
+</LinearLayout>

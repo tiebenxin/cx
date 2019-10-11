@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tv_mute"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/selector_call_mute"
+        android:drawablePadding="5dp"
+        android:gravity="center_horizontal|bottom"
+        android:text="静音"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/tv_hang"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/ic_hang_up"
+        android:drawablePadding="5dp"
+        android:gravity="center_horizontal|bottom"
+        android:text="挂断"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/tv_switch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/selector_call_switch_camera"
+        android:drawablePadding="5dp"
+        android:gravity="center_horizontal|bottom"
+        android:text="转换摄像头"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/tv_hands_free"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/selector_call_hand_free"
+        android:drawablePadding="5dp"
+        android:gravity="center_horizontal|bottom"
+        android:text="免提"
+        android:textColor="@color/white"
+        android:visibility="gone" />
+
+</LinearLayout>

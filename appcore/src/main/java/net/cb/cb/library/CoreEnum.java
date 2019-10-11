@@ -24,13 +24,14 @@ public class CoreEnum {
      *花名册指令
      *
      * */
-    @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND})
+    @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND, ERosterAction.UPDATE_INFO})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ERosterAction {
         int DEFAULT = 0; // 默认，无指令
         int REQUEST_FRIEND = 1; // 请求添加好友
         int ACCEPT_BE_FRIENDS = 2; // 接收请求添加为好友
         int REMOVE_FRIEND = 3; // 删除好友
+        int UPDATE_INFO = 4; // 信息更新
     }
 
 
