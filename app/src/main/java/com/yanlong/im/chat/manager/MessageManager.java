@@ -105,6 +105,9 @@ public class MessageManager {
 
     }
 
+    /*
+     * 网络加载用户信息
+     * */
     private synchronized void loadUserInfo(final String gid, final Long uid) {
 //        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
@@ -115,6 +118,9 @@ public class MessageManager {
         });
     }
 
+    /*
+     * 网络加载群信息
+     * */
     private synchronized void loadGroupInfo(final String gid, final long uid) {
 //        System.out.println("加载数据--loadGroupInfo" + "--gid =" + gid + "--uid =" + uid);
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
@@ -138,12 +144,30 @@ public class MessageManager {
         msgDao.sessionCreate(gid, uid);
     }
 
+    /*
+     * 更新session未读数
+     * */
     public void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
     }
 
+    /*
+     * 通知刷新消息列表，及未读数
+     * */
     public void notifyRefreshMsg() {
         EventBus.getDefault().post(new EventRefreshMainMsg());
+    }
+
+    /*
+     * 通知刷新消息列表，及未读数
+     * */
+    public void notifyRefreshMsg(int chatType, long uid, String gid, int refreshTag) {
+        EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
+        eventRefreshMainMsg.setType(chatType);
+        eventRefreshMainMsg.setUid(uid);
+        eventRefreshMainMsg.setGid(gid);
+        eventRefreshMainMsg.setRefreshTag(refreshTag);
+        EventBus.getDefault().post(eventRefreshMainMsg);
     }
 
     public void deleteSessionAndMsg(Long uid, String gid) {
@@ -151,6 +175,12 @@ public class MessageManager {
         msgDao.msgDel(uid, gid);
     }
 
+    /*
+     * 刷新通讯录
+     * @param isLocal 是否是本地刷新
+     * @param uid 需要刷新的用户id
+     * @param action 花名册操作类型
+     * */
     public void notifyRefreshFriend(boolean isLocal, long uid, @CoreEnum.ERosterAction int action) {
         EventRefreshFriend event = new EventRefreshFriend();
         event.setLocal(isLocal);
@@ -161,6 +191,9 @@ public class MessageManager {
         EventBus.getDefault().post(event);
     }
 
+    /*
+     * 获取缓存信息中用户信息
+     * */
     public UserInfo getCacheUserInfo(Long uid) {
         UserInfo info = null;
         if (uid != null && uid > 0) {
@@ -172,6 +205,9 @@ public class MessageManager {
         return info;
     }
 
+    /*
+     * 获取缓存数据中群信息
+     * */
     public Group getCacheGroup(String gid) {
         Group group = null;
         if (!TextUtils.isEmpty(gid)) {
@@ -181,5 +217,12 @@ public class MessageManager {
             }
         }
         return group;
+    }
+
+    /*
+     * 更新用户头像和昵称
+     * */
+    public boolean updateUserAvatarAndNick(long uid, String avatar, String nickName) {
+        return userDao.userHeadNameUpdate(uid, avatar, nickName);
     }
 }

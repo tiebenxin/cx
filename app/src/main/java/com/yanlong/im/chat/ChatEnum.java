@@ -143,7 +143,7 @@ public class ChatEnum {
      * cell 点击事件类型
      * */
     @IntDef({ECellEventType.TXT_CLICK, ECellEventType.IMAGE_CLICK, ECellEventType.CARD_CLICK, ECellEventType.RED_ENVELOPE_CLICK, ECellEventType.LONG_CLICK, ECellEventType.TRANSFER_CLICK,
-            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK,ECellEventType.VIDEO_CLICK})
+            ECellEventType.AVATAR_CLICK, ECellEventType.RESEND_CLICK, ECellEventType.AVATAR_LONG_CLICK, ECellEventType.VOICE_CLICK, ECellEventType.VIDEO_CLICK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ECellEventType {
         int TXT_CLICK = 0; //点击文本消息
@@ -163,7 +163,7 @@ public class ChatEnum {
     /*
      * 消息type
      * */
-    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED, EMessageType.MSG_VIDEO,EMessageType.LOCK})
+    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED, EMessageType.MSG_VIDEO, EMessageType.LOCK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -287,13 +287,12 @@ public class ChatEnum {
     /*
      *from
      * */
-    @IntDef({ETagType.USER, ETagType.LOCK})
+    @IntDef({EFromType.DEFAULT, EFromType.SEARCH, EFromType.FRIEND, EFromType.GROUP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EFromType {
-        int DEFALUT = 0; // 默认
+        int DEFAULT = 0; // 默认
         int SEARCH = 1; // 好友搜索界面
         int FRIEND = 2; // 通讯录好友界面
         int GROUP = 3; // 群详情界面
     }
-
 }

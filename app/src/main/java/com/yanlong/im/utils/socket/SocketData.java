@@ -199,6 +199,8 @@ public class SocketData {
                     if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid()) && !loadGids.contains(msgAllBean.getGid())) {
                         loadGids.add(msgAllBean.getGid());
                         loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
+//                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+//                        MessageManager.getInstance().setMessageChange(true);
                     } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
                         loadUids.add(msgAllBean.getFrom_uid());
                         loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
@@ -210,8 +212,6 @@ public class SocketData {
                 } else {
                     LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
                 }
-
-
                 msgIds.add(wmsg.getMsgId());
             } else {
                 LogUtil.getLog().e(TAG, ">>>>>忽略保存消息: " + wmsg.getMsgId());
@@ -244,10 +244,12 @@ public class SocketData {
 
     private synchronized static void loadUserInfo(final String gid, final Long uid) {
 //        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
+        if (uid == 1L) {
+            return;
+        }
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-//                msgDao.sessionReadUpdate(gid, uid);
                 MessageManager.getInstance().updateSessionUnread(gid, uid, false);
                 MessageManager.getInstance().setMessageChange(true);
                 MessageManager.getInstance().notifyRefreshMsg();
@@ -538,7 +540,7 @@ public class SocketData {
                 wmsg.setCancel((MsgBean.CancelMessage) value);
                 break;
             case SHORT_VIDEO:
-                wmsg.setShortVideo((MsgBean.ShortVideoMessage)value);
+                wmsg.setShortVideo((MsgBean.ShortVideoMessage) value);
                 break;
             case UNRECOGNIZED:
                 break;
@@ -668,7 +670,7 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url,String bg_URL , boolean isOriginal, VideoMessage imageSize, long time,int width,int height) {
+    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, VideoMessage imageSize, long time, int width, int height) {
         MsgBean.ShortVideoMessage msg;
 //        String extTh = "/below-20k";
 //        String extPv = "/below-200k";
@@ -698,9 +700,10 @@ public class SocketData {
 //            msgb = msg.build();
 //        }
 
-            msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int)time).setUrl(url).setWidth(width).setHeight(height).build();
+        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
+
     /***
      * 转发处理
      * @param toId
@@ -810,7 +813,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static VideoMessage createVideoMessage(String msgId, String url, String bgUrl,boolean isOriginal,long duration,long width,long height,String localUrl) {
+    public static VideoMessage createVideoMessage(String msgId, String url, String bgUrl, boolean isOriginal, long duration, long width, long height, String localUrl) {
         VideoMessage videoMessage = new VideoMessage();
         videoMessage.setMsgId(msgId);
         videoMessage.setUrl(url);

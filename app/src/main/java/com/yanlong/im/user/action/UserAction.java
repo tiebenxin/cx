@@ -221,7 +221,7 @@ public class UserAction {
                 if (response.body() != null) {
                     UserInfo userInfo = response.body().getData();
                     if (userInfo != null) {
-                        boolean hasChange = dao.userHeadNameUpdate(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
+                        boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
                         if (hasChange) {
                             MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);
                         }

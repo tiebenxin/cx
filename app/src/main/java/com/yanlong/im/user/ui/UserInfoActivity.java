@@ -337,7 +337,7 @@ public class UserInfoActivity extends AppActivity {
         joinTypeShow = intent.getIntExtra(JION_TYPE_SHOW, 0);
         contactIntimately = intent.getIntExtra(IS_BUSINESS_CARD, 0);
         gid = intent.getStringExtra(GID);
-        from = intent.getIntExtra(FROM, ChatEnum.EFromType.DEFALUT);
+        from = intent.getIntExtra(FROM, ChatEnum.EFromType.DEFAULT);
         resetLayout();
         taskFindExist();
         taskUserInfo(id);

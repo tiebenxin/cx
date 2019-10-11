@@ -28,6 +28,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -349,19 +350,6 @@ public class MsgMainFragment extends Fragment {
                 break;
 
         }
-//        if (isGone) {
-//            viewNetwork.setVisibility(View.GONE);
-//        } else {
-//            viewNetwork.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//
-//                    viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
-//
-//
-//                }
-//            }, 10 * 1000);
-//        }
     }
 
     private void removeHandler() {
@@ -426,9 +414,31 @@ public class MsgMainFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
         if (MessageManager.getInstance().isMessageChange()) {
-            System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session");
-            taskListData();
-            MessageManager.getInstance().setMessageChange(false);
+            if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
+                taskListData();
+                MessageManager.getInstance().setMessageChange(false);
+            } else {
+                Session session = msgDao.sessionGet(event.getGid(), event.getUid());
+                refreshPosition(session);
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
+
+            }
+        }
+    }
+
+
+
+    /*
+     * 刷新单一位置
+     * */
+    private void refreshPosition(Session session) {
+        if (listData != null) {
+            int index = listData.indexOf(session);
+            if (index > 0) {
+                listData.set(index, session);
+                mtListView.getListView().getAdapter().notifyItemRangeInserted(index, index);
+            }
         }
     }
 
@@ -642,9 +652,9 @@ public class MsgMainFragment extends Fragment {
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                     );
-                    if (bean.getUnread_count() > 0) {
-                        MessageManager.getInstance().setMessageChange(true);
-                    }
+//                    if (bean.getUnread_count() > 0) {
+//                        MessageManager.getInstance().setMessageChange(true);
+//                    }
 
                 }
             });

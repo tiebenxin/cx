@@ -103,6 +103,7 @@ import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -110,11 +111,11 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.DownloadUtil;
-import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
@@ -1067,7 +1068,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //9.17 进去后就清理会话的阅读数量
         taskCleanRead();
-        MessageManager.getInstance().notifyRefreshMsg();
+        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
@@ -1333,7 +1334,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Override
     protected void onDestroy() {
         taskDraftSet();
-        MessageManager.getInstance().notifyRefreshMsg();
+        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -1539,14 +1540,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         videoMessage.setBg_url(getVideoAttBitmap(file));
                         videoMessage.setLocalUrl(file);
                         Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
-                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(),file);
+                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), file);
 
 //                        Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAddVideo(this.context,imgMsgId, file, "",isArtworkMaster, toUId, toGid, 10,videoMessageSD);
+                        UpLoadService.onAddVideo(this.context, imgMsgId, file, "", isArtworkMaster, toUId, toGid, 10, videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
                         notifyData2Bottom(true);
 
@@ -3068,7 +3069,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskMkName(List<MsgAllBean> msgListData) {
         mks.clear();
         for (MsgAllBean msg : msgListData) {
-            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL || msg.getMsg_type() == ChatEnum.EMessageType.LOCK||msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {  //通知类型的不处理
+            if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL || msg.getMsg_type() == ChatEnum.EMessageType.LOCK || msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {  //通知类型的不处理
                 continue;
             }
             String k = msg.getFrom_uid() + "";
@@ -3130,10 +3131,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 清理已读
      */
     private void taskCleanRead() {
-        if (isGroup()) {
-            dao.sessionReadClean(toGid, null);
-        } else {
-            dao.sessionReadClean(null, toUId);
+        Session session = StringUtil.isNotNull(toGid) ? DaoUtil.findOne(Session.class, "gid", toGid) :
+                DaoUtil.findOne(Session.class, "from_uid", toUId);
+        if (session != null && session.getUnread_count() > 0) {
+//            if (isGroup()) {
+//                dao.sessionReadClean(toGid, null);
+//            } else {
+//                dao.sessionReadClean(null, toUId);
+//            }
+            dao.sessionReadClean(session);
+            MessageManager.getInstance().setMessageChange(true);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
         }
         dao.updateMsgReaded(toUId, toGid, true);
     }
@@ -3162,10 +3170,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (!TextUtils.isEmpty(draft)) {
             if (!TextUtils.isEmpty(df) && !draft.equals(df)) {
                 MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
                 MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
             }
         }
     }

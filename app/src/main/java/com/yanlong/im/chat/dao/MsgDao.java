@@ -945,6 +945,18 @@ public class MsgDao {
     }
 
     /***
+     * 清理单个会话阅读数量
+     * @param gid
+     * @param from_uid
+     */
+    public void sessionReadClean(Session session) {
+        if (session != null) {
+            session.setUnread_count(0);
+            DaoUtil.update(session);
+        }
+    }
+
+    /***
      * 查询会话所有未读消息
      * @return
      */

@@ -44,5 +44,25 @@ public class CoreEnum {
         int ERROR_ON_SERVER = 3;//服务器错误
     }
 
+    /*
+     *聊天类型，单聊还是群聊
+     * */
+    @IntDef({EChatType.PRIVATE, EChatType.GROUP})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EChatType {
+        int PRIVATE = 0; // 私聊或单聊
+        int GROUP = 1; // 群聊
+    }
+
+    /*
+     *session刷新类型
+     * */
+    @IntDef({ESessionRefreshTag.SINGLE, ESessionRefreshTag.ALL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ESessionRefreshTag {
+        int SINGLE = 0; // 单刷
+        int ALL = 1; //全刷
+    }
+
 
 }

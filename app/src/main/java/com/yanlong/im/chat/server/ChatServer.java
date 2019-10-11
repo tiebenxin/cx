@@ -20,7 +20,6 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
@@ -397,14 +396,16 @@ public class ChatServer extends Service {
             return;
         }
 
-        userDao.userHeadNameUpdate(msg.getFromUid(), msg.getAvatar(), msg.getNickname());
+        boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(msg.getFromUid(), msg.getAvatar(), msg.getNickname());
         //避免重复刷新通讯录
         if (msg.getMsgType() == REQUEST_FRIEND || msg.getMsgType() == ACCEPT_BE_FRIENDS
                 || msg.getMsgType() == REMOVE_FRIEND || msg.getMsgType() == REQUEST_GROUP
                 || msg.getMsgType() == ACTIVE_STAT_CHANGE) {
             return;
         }
-        notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.DEFAULT);
+        if (hasChange) {
+            notifyRefreshFriend(true, msg.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+        }
 
     }
 
