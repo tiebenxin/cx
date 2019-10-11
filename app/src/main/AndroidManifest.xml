@@ -53,16 +53,12 @@
         <meta-data
             android:name="com.netease.nim.appKey"
             android:value="key_of_your_app" />
-        <!-- <activity-alias
-              android:name="test"
-              android:label="测试页面"
-              android:targetActivity=".test.TestActivity">
-              <intent-filter>
-                  <action android:name="android.intent.action.MAIN" />
 
-                  <category android:name="android.intent.category.LAUNCHER" />
-              </intent-filter>
-         </activity-alias>-->
+        <!-- 配置bugly APP ID -->
+        <meta-data
+            android:name="BUGLY_APPID"
+            android:value="7780d7e928" />
+
         <!-- 极光推送-->
         <service android:name="com.yanlong.im.notify.PushService"
             android:enabled="true"

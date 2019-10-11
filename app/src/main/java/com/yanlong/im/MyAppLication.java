@@ -1,21 +1,9 @@
 package com.yanlong.im;
 
 
-import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.os.Build;
-import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
-
-import net.cb.cb.library.AppConfig;
-import net.cb.cb.library.BuildConfig;
-import net.cb.cb.library.MainApplication;
-import net.cb.cb.library.bean.EventRunState;
-import net.cb.cb.library.utils.AppFrontBackHelper;
-import net.cb.cb.library.utils.LogUtil;
-
+import android.text.TextUtils;
 
 import com.jrmf360.tools.JrmfClient;
 import com.tencent.bugly.crashreport.CrashReport;
@@ -25,14 +13,24 @@ import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyException;
 
+import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.BuildConfig;
+import net.cb.cb.library.MainApplication;
+import net.cb.cb.library.bean.EventRunState;
+import net.cb.cb.library.utils.AppFrontBackHelper;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.UpLoadUtils;
+import net.cb.cb.library.utils.VersionUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import cn.jpush.android.api.JPushInterface;
 import io.realm.Realm;
-
-import static com.yanlong.im.user.ui.FriendAddAcitvity.PERMISSIONS;
 
 public class MyAppLication extends MainApplication {
 
@@ -101,12 +99,46 @@ public class MyAppLication extends MainApplication {
     }
 
     private void initBugly() {
+        String packageName = this.getPackageName();
         CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(this);
-        strategy.setAppChannel("BUGLY");
-        strategy.setAppVersion("1.0");
+        strategy.setAppChannel(StringUtil.getChannelName(this));
+        strategy.setAppVersion(VersionUtil.getVerName(this));
         strategy.setAppPackageName(this.getPackageName());
-        CrashReport.initCrashReport(this, "119a8a8e8f", false, strategy);
+        // 获取当前进程名
+        String processName = getProcessName(android.os.Process.myPid());
+        // 设置是否为上报进程
+        strategy.setUploadProcess(processName == null || processName.equals(packageName));
+        CrashReport.initCrashReport(this, "7780d7e928", false, strategy);
 
+    }
+
+    /**
+     * 获取进程号对应的进程名
+     *
+     * @param pid 进程号
+     * @return 进程名
+     */
+    private static String getProcessName(int pid) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("/proc/" + pid + "/cmdline"));
+            String processName = reader.readLine();
+            if (!TextUtils.isEmpty(processName)) {
+                processName = processName.trim();
+            }
+            return processName;
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+        return null;
     }
 
     private void initUploadUtils() {
@@ -150,7 +182,6 @@ public class MyAppLication extends MainApplication {
     }
 
 
-
     private void initUPushPre() {
         UMConfigure.init(this, "5d53659c570df3d281000225",
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
@@ -163,7 +194,6 @@ public class MyAppLication extends MainApplication {
 
         MiPushClient.getRegId(getApplicationContext());
     }
-
 
 
     private void initWeixinConfig() {
