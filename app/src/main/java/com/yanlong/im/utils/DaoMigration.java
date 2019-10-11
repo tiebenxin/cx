@@ -19,6 +19,10 @@ public class DaoMigration implements RealmMigration {
                 updateV2(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 2) {//从1升到2
+                updateV3(schema);
+                oldVersion++;
+            }
         }
     }
 
