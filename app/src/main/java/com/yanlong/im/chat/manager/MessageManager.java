@@ -161,7 +161,7 @@ public class MessageManager {
     /*
      * 通知刷新消息列表，及未读数
      * */
-    public void notifyRefreshMsg(int chatType, long uid, String gid, int refreshTag) {
+    public void notifyRefreshMsg(int chatType, Long uid, String gid, int refreshTag) {
         EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
         eventRefreshMainMsg.setType(chatType);
         eventRefreshMainMsg.setUid(uid);
