@@ -26,7 +26,9 @@ import net.cb.cb.library.utils.LogUtil;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -47,6 +49,8 @@ public class MessageManager {
 
     private static List<String> loadGids = new ArrayList<>();
     private static List<Long> loadUids = new ArrayList<>();
+    private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
+    private static Map<String, Group> cacheGroups = new HashMap<>();//群信息数据缓存
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -155,5 +159,27 @@ public class MessageManager {
             event.setRosterAction(action);
         }
         EventBus.getDefault().post(event);
+    }
+
+    public UserInfo getCacheUserInfo(Long uid) {
+        UserInfo info = null;
+        if (uid != null && uid > 0) {
+            info = cacheUsers.get(uid);
+            if (info == null) {
+                info = userDao.findUserInfo(uid);
+            }
+        }
+        return info;
+    }
+
+    public Group getCacheGroup(String gid) {
+        Group group = null;
+        if (!TextUtils.isEmpty(gid)) {
+            group = cacheGroups.get(gid);
+            if (group == null) {
+                group = msgDao.getGroup4Id(gid);
+            }
+        }
+        return group;
     }
 }
