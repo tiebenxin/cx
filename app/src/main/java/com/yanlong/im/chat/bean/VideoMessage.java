@@ -12,9 +12,20 @@ public class VideoMessage extends RealmObject implements IMsgContent {
     private long height;
     private String url;
     private boolean isReadOrigin = false;
+    private String localUrl;
+
 
     public long getDuration() {
         return duration;
+    }
+
+
+    public String getLocalUrl() {
+        return localUrl;
+    }
+
+    public void setLocalUrl(String localUrl) {
+        this.localUrl = localUrl;
     }
 
     @Override
@@ -27,6 +38,7 @@ public class VideoMessage extends RealmObject implements IMsgContent {
                 ", height=" + height +
                 ", url='" + url + '\'' +
                 ", isReadOrigin=" + isReadOrigin +
+                ", localUrl='" + localUrl + '\'' +
                 '}';
     }
 

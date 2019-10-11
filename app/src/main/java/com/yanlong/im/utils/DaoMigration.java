@@ -54,6 +54,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("width", long.class)
                 .addField("height", long.class)
                 .addField("isReadOrigin", boolean.class)
-                .addField("url", String.class);
+                .addField("url", String.class)
+                .addField("localUrl", String.class);
     }
 }
