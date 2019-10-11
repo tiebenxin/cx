@@ -179,33 +179,84 @@ public class UpLoadService extends Service {
                 upFileAction.upFile(UpFileAction.PATH.VIDEO, mContext, new UpFileUtil.OssUpCallback() {
                     @Override
                     public void success(String url) {
-
 //                alert.dismiss();
 //                String gid = getIntent().getExtras().getString("gid");
 //                taskGroupInfoSet(gid, url, null, null);
-
 //                        doUpVideoPro(id,url,netBgUrl,isOriginal,toUId,toGid,time,videoMessage);
+                        EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                        // upProgress.setProgress(100);
+                        updateProgress(id, 100);
+                        eventUpImgLoadEvent.setMsgid(id);
+                        eventUpImgLoadEvent.setState(1);
+                        eventUpImgLoadEvent.setUrl(url);
+                        eventUpImgLoadEvent.setOriginal(isOriginal);
                         Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url,netBgUrl,isOriginal, videoMessage, time,(int)videoMessage.getWidth(),(int)videoMessage.getHeight());
+
+                        eventUpImgLoadEvent.setMsgAllBean(msgbean);
+                        EventBus.getDefault().post(eventUpImgLoadEvent);
+
+//                        Object msgbeanVideo = SocketData.发送视频信息(id, toUId, toGid, url,netBgUrl,isOriginal, videoMessage, time,(int)videoMessage.getWidth(),(int)videoMessage.getHeight());
                     }
 
                     @Override
                     public void fail() {
 //                alert.dismiss();
 //                ToastUtil.show(getContext(), "上传失败!");
+                        EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                        //  Log.d("tag", "fail : ===============>"+id);
+                        //alert.dismiss();
+                        // ToastUtil.show(getContext(), "上传失败,请稍候重试");
+
+                        //  upProgress.setProgress(100);
+                        updateProgress(id, 100);
+                        eventUpImgLoadEvent.setMsgid(id);
+                        eventUpImgLoadEvent.setState(-1);
+                        eventUpImgLoadEvent.setUrl("");
+                        eventUpImgLoadEvent.setOriginal(isOriginal);
+                        eventUpImgLoadEvent.setMsgAllBean(msgDao.fixStataMsg(id, 1));//写库
+                        EventBus.getDefault().post(eventUpImgLoadEvent);
                     }
 
                     @Override
                     public void inProgress(long progress, long zong) {
+                        if (System.currentTimeMillis() - oldUptime < 100) {
+                            return;
+                        }
+                        EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                        // Log.d("tag", "inProgress : ===============>"+id);
+                        oldUptime = System.currentTimeMillis();
 
+                        int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
+
+                        // upProgress.setProgress(new Double(pg);
+                        updateProgress(id, pg);
+                        eventUpImgLoadEvent.setMsgid(id);
+                        eventUpImgLoadEvent.setState(0);
+                        eventUpImgLoadEvent.setUrl("");
+                        eventUpImgLoadEvent.setOriginal(isOriginal);
+                        EventBus.getDefault().post(eventUpImgLoadEvent);
                     }
                 }, file);
             }
             @Override
             public void fail() {
+                EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                //  Log.d("tag", "fail : ===============>"+id);
+                //alert.dismiss();
+                // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
+                //  upProgress.setProgress(100);
+                updateProgress(id, 100);
+                eventUpImgLoadEvent.setMsgid(id);
+                eventUpImgLoadEvent.setState(-1);
+                eventUpImgLoadEvent.setUrl("");
+                eventUpImgLoadEvent.setOriginal(isOriginal);
+                eventUpImgLoadEvent.setMsgAllBean(msgDao.fixStataMsg(id, 1));//写库
+                EventBus.getDefault().post(eventUpImgLoadEvent);
             }
-        });
 
+        });
+//        queue.offer(upProgress);
 
     }
 
@@ -237,6 +288,8 @@ public class UpLoadService extends Service {
 
             @Override
             public void inProgress(long progress, long zong) {
+                Log.e("TAG",progress+"---------"+zong);
+
 
             }
         }, file);
