@@ -90,6 +90,7 @@ public class MainActivity extends AppActivity {
     private StrikeButton sbme;
     private NotifySettingDialog notifyDialog;
     private NetworkReceiver mNetworkReceiver;
+    private MsgMainFragment mMsgMainFragment;
 
     //自动寻找控件
     private void findViews() {
@@ -104,7 +105,8 @@ public class MainActivity extends AppActivity {
 
     //自动生成的控件事件
     private void initEvent() {
-        fragments = new Fragment[]{MsgMainFragment.newInstance(), FriendMainFragment.newInstance(), MyFragment.newInstance()};
+        mMsgMainFragment = MsgMainFragment.newInstance();
+        fragments = new Fragment[]{mMsgMainFragment, FriendMainFragment.newInstance(), MyFragment.newInstance()};
         tabs = new String[]{"消息", "通讯录", "我"};
         iconRes = new int[]{R.mipmap.ic_msg, R.mipmap.ic_frend, R.mipmap.ic_me};
         iconHRes = new int[]{R.mipmap.ic_msg_h, R.mipmap.ic_frend_h, R.mipmap.ic_me_h};
@@ -139,15 +141,23 @@ public class MainActivity extends AppActivity {
                     }
                 }
 
-                if (tab.getPosition() == 1 || tab.getPosition() == 2) {
-                    MsgMainFragment.newInstance().hidePopView();
-                }
-
                 if (tab.getPosition() == 2) {
                     //每次点击检查新版泵
                     EventBus.getDefault().post(new EventCheckVersionBean());
                 }
-
+                // 同时点击导航栏跟气泡时，延迟关闭气泡
+                if (tab.getPosition() == 1 || tab.getPosition() == 2) {
+                    if (!isFinishing()) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mMsgMainFragment != null) {
+                                    mMsgMainFragment.hidePopView();
+                                }
+                            }
+                        }, 100);
+                    }
+                }
             }
 
             @Override
