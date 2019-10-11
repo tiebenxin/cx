@@ -261,7 +261,6 @@ public class SocketData {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
-//                msgDao.sessionReadUpdate(gid, uid);
                 MessageManager.getInstance().updateSessionUnread(gid, uid, false);
                 MessageManager.getInstance().setMessageChange(true);
                 MessageManager.getInstance().notifyRefreshMsg();
