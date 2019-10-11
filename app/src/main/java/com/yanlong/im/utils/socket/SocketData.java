@@ -671,7 +671,7 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url,String bg_URL , boolean isOriginal, VideoMessage imageSize, long time,int width,int height) {
-        MsgBean.ShortVideoMessage.Builder msg;
+        MsgBean.ShortVideoMessage msg;
 //        String extTh = "/below-20k";
 //        String extPv = "/below-200k";
 //        if (url.toLowerCase().contains(".gif")) {
@@ -700,7 +700,7 @@ public class SocketData {
 //            msgb = msg.build();
 //        }
 
-            msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int)time).setUrl(url).setWidth(width).setHeight(height);
+            msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int)time).setUrl(url).setWidth(width).setHeight(height).build();
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
     /***
@@ -812,7 +812,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static VideoMessage createVideoMessage(String msgId, String url, String bgUrl,boolean isOriginal,long duration,long width,long height) {
+    public static VideoMessage createVideoMessage(String msgId, String url, String bgUrl,boolean isOriginal,long duration,long width,long height,String localUrl) {
         VideoMessage videoMessage = new VideoMessage();
         videoMessage.setMsgId(msgId);
         videoMessage.setUrl(url);
@@ -821,6 +821,7 @@ public class SocketData {
         videoMessage.setDuration(duration);
         videoMessage.setHeight(height);
         videoMessage.setWidth(width);
+        videoMessage.setLocalUrl(localUrl);
         if (isOriginal) {
             videoMessage.setReadOrigin(isOriginal);
         }
