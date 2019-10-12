@@ -255,22 +255,22 @@ public class MessageManager {
             if (info != null) {
                 info.setHead(avatar);
                 info.setName(nickName);
-                cacheUsers.replace(uid, info);
-            }
+                cacheUsers.remove(info);
+                cacheUsers.put(uid, info);            }
         }
     }
 
     /*
      * 更新缓存用户在线状态及最后在线时间
      * */
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void updateCacheUserOnlineStatus(long uid, int onlineType, long time) {
         if (cacheUsers != null) {
             UserInfo info = getCacheUserInfo(uid);
             if (info != null) {
                 info.setLastonline(time);
                 info.setActiveType(onlineType);
-                cacheUsers.replace(uid, info);
+                cacheUsers.remove(info);
+                cacheUsers.put(uid, info);
             }
         }
     }
