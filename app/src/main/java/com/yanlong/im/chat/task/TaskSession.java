@@ -7,6 +7,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -45,13 +46,12 @@ public class TaskSession extends AsyncTask<Void, Integer, Boolean> {
             return;
         }
         if (session.getType() == 1) {
-            Group group = msgDao.getGroup4Id(session.getGid());
+            Group group = MessageManager.getInstance().getCacheGroup(session.getGid());
             if (group != null) {
                 session.setName(msgDao.getGroupName(group));
                 session.setIsMute(group.getNotNotify());
                 session.setHasInitDisturb(true);
                 session.setAvatar(group.getAvatar());
-
             } else {
                 session.setName(msgDao.getGroupName(session.getGid()));
             }
