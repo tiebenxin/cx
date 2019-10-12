@@ -818,7 +818,6 @@ public class SocketData {
         videoMessage.setMsgId(msgId);
         videoMessage.setUrl(url);
         videoMessage.setBg_url(bgUrl);
-        ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
         videoMessage.setDuration(duration);
         videoMessage.setHeight(height);
         videoMessage.setWidth(width);

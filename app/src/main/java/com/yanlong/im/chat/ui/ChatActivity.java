@@ -1564,6 +1564,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         msgListData.add(imgMsgBean);
                         UpLoadService.onAddVideo(this.context,imgMsgId, file, videoMessage.getBg_url(),isArtworkMaster, toUId, toGid, 10,videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
+//                        MsgDao dao =new MsgDao();
+//                        dao.fixVideoLocalUrl(imgMsgId,file);
                         notifyData2Bottom(true);
 
 
@@ -2198,6 +2200,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
                                     intent.putExtra("videopath",localUrl);
                                     startActivity(intent);
+                                    MsgDao dao =new MsgDao();
+                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(),localUrl);
                                 }else{
                                     downVideo(msgbean,msgbean.getVideoMessage());
                                 }
