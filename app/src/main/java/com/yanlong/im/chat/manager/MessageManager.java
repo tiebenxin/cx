@@ -68,8 +68,19 @@ public class MessageManager {
      * 消息接收流程
      * */
     public synchronized void onReceive(MsgBean.UniversalMessage bean) {
-        boolean isSameMesasge = false;
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
+        if (msgList != null) {
+            int length = msgList.size();
+            if (length > 0) {
+                if (length == 1) {//收到单条消息
+
+                } else {//收到多条消息（离线）
+                    for (int i = 0; i < length; i++) {
+
+                    }
+                }
+            }
+        }
         List<String> msgIds = new ArrayList<>();
         //1.先进行数据分割
         for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
@@ -103,7 +114,6 @@ public class MessageManager {
                 msgIds.add(wmsg.getMsgId());
             } else {
                 LogUtil.getLog().e(TAG, ">>>>>忽略保存消息: " + wmsg.getMsgId());
-                isSameMesasge = true;
             }
         }
         //发送回执
@@ -256,7 +266,8 @@ public class MessageManager {
                 info.setHead(avatar);
                 info.setName(nickName);
                 cacheUsers.remove(info);
-                cacheUsers.put(uid, info);            }
+                cacheUsers.put(uid, info);
+            }
         }
     }
 
