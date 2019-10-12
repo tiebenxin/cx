@@ -46,6 +46,8 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.ui.ChatInfoActivity;
+import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 
@@ -66,9 +68,9 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewOt;
     private ImageView imgOtHead;
     private LinearLayout viewOt1;
-    private android.support.v7.widget.AppCompatTextView txtOt1;
+    private AppCompatTextView txtOt1;
     private LinearLayout viewOt2;
-    private android.support.v7.widget.AppCompatTextView txtOt2;
+    private AppCompatTextView txtOt2;
     private LinearLayout viewOt3;
     private ImageView imgOtRbState;
     private TextView txtOtRbTitle;
@@ -77,9 +79,9 @@ public class ChatItemView extends LinearLayout {
     private ImageView imgOtRbIcon;
     private LinearLayout viewMe;
     private LinearLayout viewMe1;
-    private android.support.v7.widget.AppCompatTextView txtMe1;
+    private AppCompatTextView txtMe1;
     private LinearLayout viewMe2;
-    private android.support.v7.widget.AppCompatTextView txtMe2;
+    private AppCompatTextView txtMe2;
     private LinearLayout viewMe3;
     private ImageView imgMeRbState;
     private TextView txtMeRbTitle;
@@ -137,6 +139,10 @@ public class ChatItemView extends LinearLayout {
     private AppCompatTextView txtMe8;
     private View viewLock;
     private TextView tvLock;
+    private LinearLayout viewReadDestroy;
+    private TextView txtReadDestroy;
+    private ImageView imgReadDestroy;
+    private TextView tvChangeTime;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -224,6 +230,11 @@ public class ChatItemView extends LinearLayout {
         viewLock = rootView.findViewById(R.id.view_lock);
         tvLock = rootView.findViewById(R.id.tv_lock);
 
+        //阅后即焚
+        viewReadDestroy = rootView.findViewById(R.id.view_read_destroy);
+        txtReadDestroy = rootView.findViewById(R.id.txt_read_destroy);
+        imgReadDestroy = rootView.findViewById(R.id.img_read_destroy);
+        tvChangeTime = rootView.findViewById(R.id.tv_change_time);
 
     }
 
@@ -251,7 +262,6 @@ public class ChatItemView extends LinearLayout {
 
     //自动生成的控件事件
     private void initEvent() {
-
 
     }
 
@@ -334,6 +344,11 @@ public class ChatItemView extends LinearLayout {
                 break;
             case ChatEnum.EMessageType.LOCK:
                 viewLock.setVisibility(VISIBLE);
+                viewMe.setVisibility(GONE);
+                viewOt.setVisibility(GONE);
+                break;
+            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+                viewReadDestroy.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
@@ -507,9 +522,8 @@ public class ChatItemView extends LinearLayout {
         viewMe7.init(isMe, second, isRead, isPlay, playStatus);
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
-
-
     }
+
 
     public void updateVoice(MsgAllBean bean) {
         VoiceMessage voice = bean.getVoiceMessage();
@@ -568,7 +582,7 @@ public class ChatItemView extends LinearLayout {
         SpannableString span = new SpannableString(url);
         span.setSpan(new ClickableSpan() {
             @Override
-            public void onClick(@androidx.annotation.NonNull View view) {
+            public void onClick(@NonNull View view) {
                 Intent intent = new Intent(getContext(), WebPageActivity.class);
                 intent.putExtra(WebPageActivity.AGM_URL, url);
 //                Uri uri = Uri.parse(url);
@@ -599,6 +613,7 @@ public class ChatItemView extends LinearLayout {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
         txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
     }
+
 
     public interface EventRP {
         void onClick(boolean isInvalid);
@@ -643,7 +658,7 @@ public class ChatItemView extends LinearLayout {
 
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
 
-                imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
+                imgOt4.setLayoutParams(new LayoutParams(w, h));
 
 
                 lp.width = w;
@@ -771,6 +786,27 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
     }
 
+    public void setReadDestroy(boolean isGroup, int type, String info,Context context) {
+        txtReadDestroy.setText(info);
+        if (type == 0) {
+            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
+        } else {
+            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_seting);
+        }
+        tvChangeTime.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                if (isGroup) {
+                    intent.setClass(context, GroupInfoActivity.class);
+                } else {
+                    intent.setClass(context, ChatInfoActivity.class);
+                }
+                context.startActivity(intent);
+            }
+        });
+    }
+
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -801,11 +837,15 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.startAnimation(rotateAnimation);
                 imgMeErr.setVisibility(VISIBLE);
 
-
                 break;
             case -1://图片待发送
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(INVISIBLE);
+                break;
+            case 3: //阅后即焚
+                imgMeErr.clearAnimation();
+                imgMeErr.setVisibility(VISIBLE);
+                imgMeErr.setImageResource(R.mipmap.icon_read_destroy_seting);
                 break;
             default: // 其他状态如-1:待发送
 

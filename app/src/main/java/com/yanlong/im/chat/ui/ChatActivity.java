@@ -1986,8 +1986,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                    holder.viewChatItem.setLock(msgbean.getChat().getMsg());
                     holder.viewChatItem.setLock(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, msgbean.getChat().getMsg(), ChatEnum.ENoticeType.LOCK));
                     break;
+                case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
 
+                    holder.viewChatItem.setReadDestroy(isGroup(),
+                            msgbean.getChangeSurvivalTimeMessage().getSurvival_time()
+                            , msgbean.getMsgCancel().getNote(),ChatActivity.this);
 
+                    break;
             }
 
             holder.viewChatItem.setOnErr(new View.OnClickListener() {

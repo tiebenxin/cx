@@ -10,6 +10,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
+import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.IMsgContent;
@@ -536,6 +537,9 @@ public class SocketData {
                 break;
             case CANCEL:
                 wmsg.setCancel((MsgBean.CancelMessage) value);
+                break;
+            case CHANGE_SURVIVAL_TIME:
+                wmsg.setChangeSurvivalTime((MsgBean.ChangeSurvivalTimeMessage) value);
                 break;
             case UNRECOGNIZED:
                 break;
@@ -1141,7 +1145,13 @@ public class SocketData {
                     return null;
                 }
                 break;
-
+            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+                if (obj instanceof ChangeSurvivalTimeMessage) {
+                    msg.setChangeSurvivalTimeMessage((ChangeSurvivalTimeMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
         }
 
         return msg;
@@ -1262,7 +1272,13 @@ public class SocketData {
                     return null;
                 }
                 break;
-
+            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+                if (obj instanceof ChangeSurvivalTimeMessage) {
+                    msg.setChangeSurvivalTimeMessage((ChangeSurvivalTimeMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
         }
 
         return msg;
@@ -1292,6 +1308,8 @@ public class SocketData {
         msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
         MessageManager.getInstance().setMessageChange(true);
     }
+
+
 
     public static MsgAllBean createMessageLock(String gid, Long uid) {
         MsgAllBean bean = new MsgAllBean();

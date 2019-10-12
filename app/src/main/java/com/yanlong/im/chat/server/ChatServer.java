@@ -326,7 +326,7 @@ public class ChatServer extends Service {
                 case CHANGE_SURVIVAL_TIME: //阅后即焚
                     int survivalTime = msg.getChangeSurvivalTime().getSurvivalTime();
                     if(TextUtils.isEmpty(msg.getGid())){
-                        //msgDao.msgDel4MsgId();
+                        msg.getMsgId();
 
 
                     }else{

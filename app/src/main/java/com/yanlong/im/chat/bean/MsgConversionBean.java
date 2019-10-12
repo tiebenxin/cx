@@ -374,6 +374,22 @@ public class MsgConversionBean {
                 msgAllBean.setMsgCancel(msgCel);
 
                 break;
+            case CHANGE_SURVIVAL_TIME:
+                String survivaNotice = "";
+                if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
+                    survivaNotice = bean.getNickname() + "设置了退出即焚";
+                } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
+                    survivaNotice = bean.getNickname() + "取消了阅后即焚";
+                } else {
+                    survivaNotice = bean.getNickname() + "设置了消息"+ formatDateTime(bean.getChangeSurvivalTime().getSurvivalTime())+ "后消失";
+                }
+                MsgCancel survivaMsgCel = new MsgCancel();
+                survivaMsgCel.setNote(survivaNotice);
+                ChangeSurvivalTimeMessage changeSurvivalTimeMessage = new ChangeSurvivalTimeMessage();
+                changeSurvivalTimeMessage.setSurvival_time(bean.getChangeSurvivalTime().getSurvivalTime());
+                msgAllBean.setMsgCancel(survivaMsgCel);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
+                break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
         }
@@ -381,5 +397,26 @@ public class MsgConversionBean {
         return msgAllBean;
     }
 
+    public static String formatDateTime(int mss) {
+        String DateTimes = null;
+        int week = mss / (60 * 60 * 24 * 7);
+        int days = mss / (60 * 60 * 24);
+        int hours = (mss % (60 * 60 * 24)) / (60 * 60);
+        int minutes = (mss % (60 * 60)) / 60;
+        int seconds = mss % 60;
+        if (week > 0) {
+            DateTimes = "一个星期";
+        } else if (days > 0) {
+            DateTimes = days + "天";
+        } else if (hours > 0) {
+            DateTimes = hours + "小时";
+        } else if (minutes > 0) {
+            DateTimes = minutes + "分钟";
+        } else {
+            DateTimes = seconds + "秒";
+        }
+
+        return DateTimes;
+    }
 
 }

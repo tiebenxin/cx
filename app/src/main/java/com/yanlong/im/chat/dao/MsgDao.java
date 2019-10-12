@@ -651,6 +651,20 @@ public class MsgDao {
         }
     }
 
+    public void msgSurvivalTime(){
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+
     /***
      * 清除所有的聊天记录
      */
@@ -979,6 +993,28 @@ public class MsgDao {
 
     }
 
+    /**
+     * 存at消息
+     */
+    public void atMessage(String gid, String atMessage, int type) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+
+            if (session != null) {
+                session.setAtMessage(atMessage);
+                session.setMessageType(type);
+                realm.insertOrUpdate(session);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
     /***
      * 存草稿
      * @param gid
@@ -996,28 +1032,6 @@ public class MsgDao {
             if (session != null) {
                 session.setDraft(draft);
                 session.setMessageType(2);
-                realm.insertOrUpdate(session);
-            }
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.close(realm);
-        }
-    }
-
-    /**
-     * 存at消息
-     */
-    public void atMessage(String gid, String atMessage, int type) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
-
-            if (session != null) {
-                session.setAtMessage(atMessage);
-                session.setMessageType(type);
                 realm.insertOrUpdate(session);
             }
             realm.commitTransaction();

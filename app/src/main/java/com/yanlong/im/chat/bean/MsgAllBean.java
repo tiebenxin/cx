@@ -61,6 +61,16 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     private AssistantMessage assistantMessage;
 
+    private ChangeSurvivalTimeMessage changeSurvivalTimeMessage;
+
+    public ChangeSurvivalTimeMessage getChangeSurvivalTimeMessage() {
+        return changeSurvivalTimeMessage;
+    }
+
+    public void setChangeSurvivalTimeMessage(ChangeSurvivalTimeMessage changeSurvivalTimeMessage) {
+        this.changeSurvivalTimeMessage = changeSurvivalTimeMessage;
+    }
+
     //private RequestFriendMessage request_friend;
 
     // private AcceptBeFriendsMessage accept_be_friends;
