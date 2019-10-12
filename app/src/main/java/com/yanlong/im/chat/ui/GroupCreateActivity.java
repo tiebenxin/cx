@@ -18,12 +18,15 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
+import com.yanlong.im.utils.UserUtil;
 
+import com.yanlong.im.chat.bean.GroupCreateMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
@@ -32,6 +35,8 @@ import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -305,7 +310,6 @@ public class GroupCreateActivity extends AppActivity {
 
     private void taskListData() {
 
-
         listData = userDao.friendGetAll();
 
         Collections.sort(listData);
@@ -313,10 +317,9 @@ public class GroupCreateActivity extends AppActivity {
             //UserInfo infoBean:
             viewType.putTag(listData.get(i).getTag(), i);
         }
-
+        // 添加存在用户的首字母列表
+        viewType.addItemView(UserUtil.userParseString(listData));
         selectUser();
-
-
     }
 
     private UpFileAction upFileAction = new UpFileAction();
@@ -362,9 +365,11 @@ public class GroupCreateActivity extends AppActivity {
 //                    msgDao.groupSave(group);
 //                    msgDao.groupSaveJustImgHead(response.body().getData().getGid(),file.getAbsolutePath());
                     msgDao.groupHeadImgCreate(response.body().getData().getGid(),fileImg.getAbsolutePath());
-
+                    MessageManager.getInstance().setMessageChange(true);
+//                    EventBus.getDefault().post(new EventRefreshMainMsg());
+                    EventBus.getDefault().post(new GroupCreateMsg());
                     startActivity(new Intent(getContext(), ChatActivity.class)
-                            .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid())
+                            .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid()).putExtra(ChatActivity.GROUP_CREAT,"creat")
                     );
                     finish();
                 } else {

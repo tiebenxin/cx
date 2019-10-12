@@ -2,6 +2,7 @@ package net.cb.cb.library.view;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,9 +12,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.cb.cb.library.R;
+import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /***
  * 拼音控件
@@ -24,20 +29,30 @@ public class PySortView extends LinearLayout {
     private int maxSize = 28;
     private RecyclerView listview;
     //标签,和列号
-    private HashMap<String,Integer> tagIndex=new HashMap<>();
-    private Event mEvent=new Event() {
+    private HashMap<String, Integer> tagIndex = new HashMap<>();
+
+    //目标项是否在最后一个可见项之后
+    private boolean mShouldScroll;
+    //记录目标项位置
+    private int mToPosition;
+    private LayoutInflater mInflater;
+    private float spHeight = 0;
+    private int height = 0;
+    private int maxheight = 0;
+
+    private Event mEvent = new Event() {
         @Override
         public void onChange(String type) {
-            if(listview==null)
+            if (listview == null)
                 return;
-            if(tagIndex==null)
+            if (tagIndex == null)
                 return;
 
-            if(tagIndex.containsKey(type)){
-              int i=  tagIndex.get(type);
+            if (tagIndex.containsKey(type)) {
+                int i = tagIndex.get(type);
 
                 //listview.smoothScrollToPosition(i);
-                smoothMoveToPosition(listview,i);
+                smoothMoveToPosition(listview, i);
             }
 
         }
@@ -48,17 +63,17 @@ public class PySortView extends LinearLayout {
     }
 
 
-    public void putTag(String tag,int i){
-        if(!tagIndex.containsKey(tag))
-        tagIndex.put(tag,i);
+    public void putTag(String tag, int i) {
+        if (!tagIndex.containsKey(tag))
+            tagIndex.put(tag, i);
     }
 
     public HashMap<String, Integer> getTagIndex() {
         return tagIndex;
     }
 
-    public void setListView(RecyclerView recyclerView){
-        listview=recyclerView;
+    public void setListView(RecyclerView recyclerView) {
+        listview = recyclerView;
         listview.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -71,11 +86,6 @@ public class PySortView extends LinearLayout {
         });
 
     }
-
-    //目标项是否在最后一个可见项之后
-    private boolean mShouldScroll;
-    //记录目标项位置
-    private int mToPosition;
 
     /**
      * 滑动到指定位置
@@ -109,51 +119,88 @@ public class PySortView extends LinearLayout {
     public PySortView(final Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View viewRoot = inflater.inflate(R.layout.view_pysort, this);
+        View viewRoot = mInflater.inflate(R.layout.view_pysort, this);
         txtSelectView = viewRoot.findViewById(R.id.txt_py_select);
         txtPyIptView = viewRoot.findViewById(R.id.view_py_ipt);
         txtSelectView.setVisibility(GONE);
-        for (int i = 0; i < maxSize; i++) {
-
-            TextView textView = (TextView) inflater.inflate(R.layout.view_pysort_item, null);
-
-            if (i == 0) {
-                textView.setText("↑");
-            }else if(i==(maxSize-1)){
-                textView.setText("#");
-            }else {
-                textView.setText("" + (char) (64 + i));
-            }
-            textView.setTag(textView.getText().toString());
-
-
-            txtPyIptView.addView(textView);
-            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) textView.getLayoutParams();
-            layoutParams.weight = 1;
-
-
-        }
-
-
+//        for (int i = 0; i < maxSize; i++) {
+//
+//            TextView textView = (TextView) inflater.inflate(R.layout.view_pysort_item, null);
+//
+//            if (i == 0) {
+//                textView.setText("↑");
+//            }else if(i==(maxSize-1)){
+//                textView.setText("#");
+//            }else {
+//                textView.setText("" + (char) (64 + i));
+//            }
+//            textView.setTag(textView.getText().toString());
+//
+//
+//            txtPyIptView.addView(textView);
+//            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) textView.getLayoutParams();
+//            layoutParams.weight = 1;
+//        }
     }
 
-    private float spHeight = 0;
-    private int height = 0;
-    private int maxheight = 0;
+    /**
+     * 添加首字母视图
+     *
+     * @param list 首字母列表
+     */
+    public void addItemView(List<String> list) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        // 去掉重复值
+        List<String> listTemp = new ArrayList<>();
+        for (String value : list) {
+            if (!listTemp.contains(value) && !"↑".equals(value)) {
+                listTemp.add(value);
+            }
+        }
+        txtPyIptView.removeAllViews();
+        if (mInflater == null) {
+            mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+        maxSize = listTemp.size();
+
+        for (int i = 0; i < listTemp.size(); i++) {
+            addView(listTemp.get(i));
+        }
+    }
+
+    public void addView(String value) {
+        if ("↑".equals(value)) {
+            return;
+        }
+        TextView txtViewTop = (TextView) mInflater.inflate(R.layout.view_pysort_item, null);
+        txtViewTop.setText(value);
+        txtViewTop.setTag(txtViewTop.getText().toString());
+        txtPyIptView.addView(txtViewTop);
+        setLayoutparams(txtViewTop);
+    }
+
+    private void setLayoutparams(TextView txtView) {
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) txtView.getLayoutParams();
+        layoutParams.width = DensityUtil.dip2px(getContext(), 25);
+    }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         height = getMeasuredHeight();
-        spHeight = getMeasuredHeight() / maxSize;
-
+        if (maxSize > 0) {
+            spHeight = getMeasuredHeight() / maxSize;
+        }
         maxheight = height - txtSelectView.getMeasuredHeight();
     }
 
 
-    private String oldTxt="";
+    private String oldTxt = "";
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
@@ -165,26 +212,31 @@ public class PySortView extends LinearLayout {
 
                 idx = idx < 0 ? 0 : idx;
                 idx = idx > maxSize ? maxSize - 1 : idx;
-                //设置显示文字
-                String txt = (String) txtPyIptView.getChildAt(idx.intValue()).getTag();
-                txtSelectView.setText(txt);
-                //动态设置文字位置
-                float y = event.getY();
-                y = y < 0 ? 0 : y;
-                y = y > maxheight ? maxheight : y;
-                txtSelectView.setY(y);
+                View view = txtPyIptView.getChildAt(idx.intValue());
+                if (view != null) {
+                    //设置显示文字
+                    String txt = (String) view.getTag();
+                    if (StringUtil.isNotNull(txt)) {
+                        txtSelectView.setText(txt);
+                    }
+                    //动态设置文字位置
+                    float y = event.getY();
+                    y = y < 0 ? 0 : y;
+                    y = y > maxheight ? maxheight : y;
+                    txtSelectView.setY(y);
 
-                //处理回掉事件
-                if(mEvent!=null){
-                    if( !oldTxt.equals(txt)){
-                        oldTxt=txt;
-                        mEvent.onChange(txt);
+                    //处理回掉事件
+                    if (mEvent != null) {
+                        if (!oldTxt.equals(txt)) {
+                            oldTxt = txt;
+                            mEvent.onChange(txt);
+                        }
                     }
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 txtSelectView.setVisibility(GONE);
-                oldTxt="";
+                oldTxt = "";
                 break;
         }
 

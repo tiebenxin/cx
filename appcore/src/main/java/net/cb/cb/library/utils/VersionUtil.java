@@ -36,8 +36,10 @@ public class VersionUtil {
     public static String getVerName(Context context) {
         String verName = "";
         try {
-            verName = context.getPackageManager().
-                    getPackageInfo(context.getPackageName(), 0).versionName;
+            if (context != null) {
+                verName = context.getPackageManager().
+                        getPackageInfo(context.getPackageName(), 0).versionName;
+            }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -49,8 +51,8 @@ public class VersionUtil {
      * 比较新版本
      */
     public static boolean isNewVersion(Context context, String newVerName) {
-        List<String> newVerNames ;
-        List<String> OldVerNames ;
+        List<String> newVerNames;
+        List<String> OldVerNames;
         if (TextUtils.isEmpty(newVerName)) {
             return false;
         } else {

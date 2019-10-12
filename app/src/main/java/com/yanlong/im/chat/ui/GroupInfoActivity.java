@@ -594,7 +594,7 @@ public class GroupInfoActivity extends AppActivity {
                                 listDataTop.add(ginfo.getUsers().get(i));
                             }
 
-                        } else {
+                         } else {
                             listDataTop.addAll(ginfo.getUsers());
                             viewGroupMore.setVisibility(View.GONE);
                         }

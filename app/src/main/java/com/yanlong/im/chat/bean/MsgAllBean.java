@@ -41,6 +41,15 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private ChatMessage chat;
 
     private ImageMessage image;
+    private VideoMessage videoMessage;
+
+    public VideoMessage getVideoMessage() {
+        return videoMessage;
+    }
+
+    public void setVideoMessage(VideoMessage videoMessage) {
+        this.videoMessage = videoMessage;
+    }
 
     private RedEnvelopeMessage red_envelope;
 
@@ -226,6 +235,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "[常聊通知]";
         } else if (msg_type == ChatEnum.EMessageType.MSG_CENCAL) {//撤回消息
             str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
+        }else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
+            str = "[视频]";
         }
 
         return str;

@@ -61,12 +61,19 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-            if (g != null) {//已经存在
-                g.setName(group.getName());
-                g.setAvatar(group.getAvatar());
-                if (group.getUsers() != null)
-                    g.setUsers(group.getUsers());
-                realm.insertOrUpdate(group);
+            if (null != g) {//已经存在
+                try {
+                    List<UserInfo> objects = g.getUsers();
+                    if (null != objects && objects.size() > 0) {
+                        g.setName(group.getName());
+                        g.setAvatar(group.getAvatar());
+                        if (group.getUsers() != null)
+                            g.setUsers(group.getUsers());
+                        realm.insertOrUpdate(group);
+                    }
+                } catch (Exception e) {
+                    return;
+                }
             } else {//不存在
                 realm.insertOrUpdate(group);
             }
@@ -889,7 +896,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
                 session.setType(1);
-                session.setUnread_count(isCancel ? 0 : 1);
+                if (session.getIsMute() == 1) {//免打扰
+                    session.setUnread_count(0);
+                } else {
+                    session.setUnread_count(isCancel ? 0 : 1);
+                }
             } else {
                 if (session.getIsMute() == 1) {//免打扰
                     return;
@@ -900,7 +911,6 @@ public class MsgDao {
             }
             session.setUp_time(System.currentTimeMillis());
 
-
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
             if (session == null) {
@@ -908,8 +918,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(from_uid);
                 session.setType(0);
-                session.setUnread_count(isCancel ? 0 : 1);
-
+                if (session.getIsMute() == 1) {//免打扰
+                    session.setUnread_count(0);
+                } else {
+                    session.setUnread_count(isCancel ? 0 : 1);
+                }
             } else {
                 if (session.getIsMute() == 1) {//免打扰
                     return;
@@ -943,6 +956,18 @@ public class MsgDao {
             DaoUtil.update(session);
         }
 
+    }
+
+    /***
+     * 清理单个会话阅读数量
+     * @param gid
+     * @param from_uid
+     */
+    public void sessionReadClean(Session session) {
+        if (session != null) {
+            session.setUnread_count(0);
+            DaoUtil.update(session);
+        }
     }
 
     /***
@@ -2014,12 +2039,16 @@ public class MsgDao {
                 for (int i = 0; i < len; i++) {
                     UserInfo info = users.get(i);
                     GropLinkInfo linkInfo = getGropLinkInfo(group.getGid(), info.getUid());
-                    String memberName = linkInfo.getMembername();
+                    String memberName = "";
+                    if (linkInfo != null && !TextUtils.isEmpty(linkInfo.getMembername())) {
+                        memberName = linkInfo.getMembername();
+                    }
                     if (i == len - 1) {
                         result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid());
                     } else {
                         result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid()) + "、";
                     }
+
                 }
                 result = result.length() > 14 ? StringUtil.splitEmojiString(result, 0, 14) : result;
                 result += "的群";
@@ -2164,8 +2193,6 @@ public class MsgDao {
             DaoUtil.close(realm);
         }
     }
-
-
 
 
 }

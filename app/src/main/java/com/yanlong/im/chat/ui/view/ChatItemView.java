@@ -45,6 +45,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
@@ -263,6 +264,7 @@ public class ChatItemView extends LinearLayout {
     //自动生成的控件事件
     private void initEvent() {
 
+
     }
 
     /***
@@ -351,6 +353,10 @@ public class ChatItemView extends LinearLayout {
                 viewReadDestroy.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
+                break;
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                viewMe4.setVisibility(VISIBLE);
+                viewOt4.setVisibility(VISIBLE);
                 break;
         }
 
@@ -522,8 +528,9 @@ public class ChatItemView extends LinearLayout {
         viewMe7.init(isMe, second, isRead, isPlay, playStatus);
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
-    }
 
+
+    }
 
     public void updateVoice(MsgAllBean bean) {
         VoiceMessage voice = bean.getVoiceMessage();
@@ -582,7 +589,7 @@ public class ChatItemView extends LinearLayout {
         SpannableString span = new SpannableString(url);
         span.setSpan(new ClickableSpan() {
             @Override
-            public void onClick(@NonNull View view) {
+            public void onClick(@androidx.annotation.NonNull View view) {
                 Intent intent = new Intent(getContext(), WebPageActivity.class);
                 intent.putExtra(WebPageActivity.AGM_URL, url);
 //                Uri uri = Uri.parse(url);
@@ -617,6 +624,73 @@ public class ChatItemView extends LinearLayout {
 
     public interface EventRP {
         void onClick(boolean isInvalid);
+    }
+
+    //视频消息
+    public void setDataVideo(VideoMessage videoMessage, final String url, final EventPic eventPic, Integer pg) {
+        if (url != null) {
+            final int width = DensityUtil.dip2px(getContext(), 150);
+            final int height = DensityUtil.dip2px(getContext(), 180);
+
+            //设定大小
+            ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
+            if (videoMessage != null) {
+                double mh = videoMessage.getHeight();
+                double mw = videoMessage.getWidth();
+                if (mh == 0) {
+                    mh = height;
+                }
+                if (mw == 0) {
+                    mw = width;
+                }
+
+                double cp = 1;
+                if (mh > mw) {
+                    cp = height / mh;
+                } else {
+                    cp = width / mw;
+                }
+                int w = new Double(mw * cp).intValue();
+                int h = new Double(mh * cp).intValue();
+
+                imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
+                imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
+                lp.width = w;
+                lp.height = h;
+
+            } else {
+                lp.width = width;
+                lp.height = height;
+            }
+
+            viewMeUp.setLayoutParams(lp);
+        }
+
+
+        if (eventPic != null) {
+            OnClickListener onk;
+            viewMeTouch.setOnClickListener(onk = new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    eventPic.onClick(url.toString());
+                }
+            });
+            viewOtTouch.setOnClickListener(onk);
+        }
+//        Glide.with(this).load(imageHead)
+//                .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
+        Glide.with(this).load(videoMessage.getBg_url()).apply(GlideOptionsUtil.imageOptions()).into(imgOt4);
+        Glide.with(this).load(videoMessage.getBg_url()).apply(GlideOptionsUtil.imageOptions()).into(imgMe4);
+
+        if (pg != null) {
+            setImgageProg(pg);
+        } else {
+            if (netState == -1) {
+                setImgageProg(0);
+            } else {
+                setImgageProg(null);
+            }
+        }
     }
 
     //图片消息
@@ -658,7 +732,7 @@ public class ChatItemView extends LinearLayout {
 
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
 
-                imgOt4.setLayoutParams(new LayoutParams(w, h));
+                imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
 
 
                 lp.width = w;
@@ -836,6 +910,7 @@ public class ChatItemView extends LinearLayout {
                 Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
                 imgMeErr.startAnimation(rotateAnimation);
                 imgMeErr.setVisibility(VISIBLE);
+
 
                 break;
             case -1://图片待发送

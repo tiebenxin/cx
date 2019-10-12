@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -240,7 +242,7 @@ public class FriendMainFragment extends Fragment {
 
 
                 UserInfo lastbean = listData.get(position - 1);
-                if (lastbean.getTag().equals(bean.getTag())) {
+                if (lastbean.getTag().equals(bean.getTag()) && position != 1) {
                     hd.viewType.setVisibility(View.GONE);
                 } else {
                     hd.viewType.setVisibility(View.VISIBLE);
@@ -264,6 +266,10 @@ public class FriendMainFragment extends Fragment {
 
         }
 
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+            onBindViewHolder(holder, position);
+        }
 
         @Override
         public int getItemViewType(int position) {
@@ -342,9 +348,10 @@ public class FriendMainFragment extends Fragment {
                             topBean.setTag("↑");
                             listData.add(0, topBean);
                             Collections.sort(listData);
-                            for (int i = 0; i < listData.size(); i++) {
+                            for (int i = 1; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
                             }
+
                         }
                         return listData;
                     }
@@ -355,6 +362,8 @@ public class FriendMainFragment extends Fragment {
                     @Override
                     public void accept(List<UserInfo> userInfo) throws Exception {
                         mtListView.notifyDataSetChange();
+                        // 添加存在用户的首字母列表
+                        viewType.addItemView(UserUtil.userParseString(listData));
                     }
                 });
 
@@ -363,7 +372,12 @@ public class FriendMainFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshFriend(EventRefreshFriend event) {
         if (event.isLocal()) {
-            taskListData();
+            long uid = event.getUid();
+            if (uid > 0) {
+                refreshPosition(uid);
+            } else {
+                taskListData();
+            }
         } else {
             long uid = event.getUid();
             if (uid > 0) {
@@ -385,6 +399,21 @@ public class FriendMainFragment extends Fragment {
             } else {
                 taskListData();
 
+            }
+        }
+    }
+
+    private void refreshPosition(long uid) {
+        if (listData != null) {
+            UserInfo info = userDao.findUserInfo(uid);
+            if (info != null) {
+                if (listData.contains(info)) {
+                    int index = listData.indexOf(info);
+                    if (index > 0) {
+                        listData.set(index, info);
+                        mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                    }
+                }
             }
         }
     }

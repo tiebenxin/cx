@@ -58,4 +58,8 @@ dependencies {
     api files('libs/nim-avchat-6.9.1.jar')
     api files('libs/nim-basesdk-6.9.1.jar')
     api files('libs/nrtc-sdk.jar')
+    implementation 'com.alibaba:fastjson:1.2.55'
+
+    implementation project(':appcore')
+
 }

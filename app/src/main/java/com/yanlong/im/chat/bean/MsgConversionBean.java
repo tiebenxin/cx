@@ -140,6 +140,21 @@ public class MsgConversionBean {
                 msgAllBean.setVoiceMessage(voiceMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.VOICE);
                 break;
+            case SHORT_VIDEO:
+                MsgAllBean videoMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
+                VideoMessage videoMessage=new VideoMessage();
+                videoMessage.setMsgId(msgAllBean.getMsg_id());
+                videoMessage.setUrl(bean.getShortVideo().getUrl());
+                videoMessage.setBg_url(bean.getShortVideo().getBgUrl());
+                videoMessage.setWidth(bean.getShortVideo().getWidth());
+                videoMessage.setHeight(bean.getShortVideo().getHeight());
+                videoMessage.setDuration(bean.getShortVideo().getDuration());
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VIDEO);
+                msgAllBean.setVideoMessage(videoMessage);
+//                videoMsg.setMsg_type(ChatEnum.EMessageType.MSG_VIDEO);
+//                videoMsg.setVideoMessage(videoMessage);
+//                videoMessage.setLocalUrl(bean.getShortVideo().getLocalUrl());
+                break;
             case TRANSFER:
                 TransferMessage transferMessage = new TransferMessage();
                 transferMessage.setMsgid(msgAllBean.getMsg_id());

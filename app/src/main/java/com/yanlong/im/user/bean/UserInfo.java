@@ -461,7 +461,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        if (obj == null || this.uid == null) {
+        if (obj == null || this.uid == null || ((UserInfo) obj).uid == null) {
             return false;
         }
         if (obj instanceof UserInfo) {

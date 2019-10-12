@@ -91,7 +91,13 @@ public class MessageAdapter extends RecyclerView.Adapter {
             } else if (msg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
                 ChatCellVoice voiceCell = (ChatCellVoice) viewHolder;
                 voiceCell.updateVoice();
-            } else {
+            } else if(msg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO){
+                ChatCellVideo videoCell=(ChatCellVideo) viewHolder;
+                videoCell.updateMessage(msg);
+                int progress = UpLoadService.getProgress(msg.getMsg_id());
+                videoCell.updateProgress(msg.getSend_state(), progress);
+            }
+            else {
                 onBindViewHolder(viewHolder, position);
             }
         }

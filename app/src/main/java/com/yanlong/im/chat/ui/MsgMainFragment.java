@@ -28,6 +28,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -349,19 +350,6 @@ public class MsgMainFragment extends Fragment {
                 break;
 
         }
-//        if (isGone) {
-//            viewNetwork.setVisibility(View.GONE);
-//        } else {
-//            viewNetwork.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//
-//                    viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
-//
-//
-//                }
-//            }, 10 * 1000);
-//        }
     }
 
     private void removeHandler() {
@@ -426,9 +414,31 @@ public class MsgMainFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
         if (MessageManager.getInstance().isMessageChange()) {
-            System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session");
-            taskListData();
-            MessageManager.getInstance().setMessageChange(false);
+            if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
+                taskListData();
+                MessageManager.getInstance().setMessageChange(false);
+            } else {
+                Session session = msgDao.sessionGet(event.getGid(), event.getUid());
+                refreshPosition(session);
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
+
+            }
+        }
+    }
+
+
+
+    /*
+     * 刷新单一位置
+     * */
+    private void refreshPosition(Session session) {
+        if (listData != null) {
+            int index = listData.indexOf(session);
+            if (index > 0) {
+                listData.set(index, session);
+                mtListView.getListView().getAdapter().notifyItemRangeInserted(index, index);
+            }
         }
     }
 
@@ -524,23 +534,6 @@ public class MsgMainFragment extends Fragment {
                 info = msginfo.getMsg_typeStr();
             }
             if (bean.getType() == 0) {//单人
-
-
-//                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-//                UserInfo finfo = (UserInfo) groups.get(position);
-//                if (finfo != null) {
-//                    icon = finfo.getHead();
-//                    title = finfo.getName4Show();
-//                }
-
-
-                //获取最后一条消息
-//                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-//                msginfo = msgAllBeansList.get(position);
-//                if (msginfo != null) {
-//                    info = msginfo.getMsg_typeStr();
-//                }
-
                 if (StringUtil.isNotNull(bean.getDraft())) {
                     info = "草稿:" + bean.getDraft();
                 }
@@ -554,52 +547,11 @@ public class MsgMainFragment extends Fragment {
                 if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
                     info = name + info;
                 }
-//                if (msginfo != null) {
-//                    if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
-//                        info = msginfo.getMsg_typeStr();
-//                    } else {
-//                        if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-//                            //8.9 处理群昵称
-//                            name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
-//                        }
-//
-//                        info = name + msginfo.getMsg_typeStr();
-//                    }
-//
-//                }
-
-//                Group ginfo = msgDao.getGroup4Id(bean.getGid());
-//                Group ginfo = (Group) groups.get(position);
-//                if (ginfo != null) {
-//                    icon = ginfo.getAvatar();
-                //获取最后一条群消息
-//                    msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-//                    msginfo = msgAllBeansList.get(position);
-//                    title = ginfo.getName();
-//                    title = msgDao.getGroupName(bean.getGid());
-//                    if (msginfo != null) {
-//                        if (msginfo.getMsg_type() == ChatEnum.EMessageType.NOTICE || msginfo.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
-//                            info = msginfo.getMsg_typeStr();
-//                        } else {
-//                            String name = "";
-//                            if (msginfo.getFrom_uid().longValue() != UserAction.getMyId().longValue()) {//自己的不加昵称
-//                                //8.9 处理群昵称
-//                                name = msgDao.getUsername4Show(msginfo.getGid(), msginfo.getFrom_uid(), msginfo.getFrom_nickname(), msginfo.getFrom_group_nickname()) + " : ";
-//                            }
-//
-//                            info = name + msginfo.getMsg_typeStr();
-//                        }
-//
-//                    }
-//            } else {
-//                Log.e("taf", "11来消息的时候没有创建群");
-//            }
-
                 int type = bean.getMessageType();
                 switch (type) {
                     case 0:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
+                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
                                 style.append("[有人@你]" + bean.getAtMessage());
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
@@ -616,7 +568,7 @@ public class MsgMainFragment extends Fragment {
                         break;
                     case 1:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo.getMsg_type() == null) {
+                            if (msginfo == null || msginfo.getMsg_type() == null) {
                                 return;
                             }
                             if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
@@ -645,7 +597,6 @@ public class MsgMainFragment extends Fragment {
                         break;
                 }
 
-//                Log.e("TAG", icon.toString());
                 if (StringUtil.isNotNull(icon)) {
                     Glide.with(getActivity()).load(icon)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -679,6 +630,7 @@ public class MsgMainFragment extends Fragment {
 
             holder.txtName.setText(title);
             holder.sb.setButtonBackground(R.color.transparent);
+            holder.sb.setNum(bean.getUnread_count(), false);
             if (bean.getIsMute() == 1) {
                 if (msginfo != null && !msginfo.isRead()) {
                     holder.iv_disturb_unread.setVisibility(View.VISIBLE);
@@ -686,12 +638,8 @@ public class MsgMainFragment extends Fragment {
                 } else {
                     holder.iv_disturb_unread.setVisibility(View.GONE);
                 }
-                holder.sb.setVisibility(View.GONE);
-
             } else {
                 holder.iv_disturb_unread.setVisibility(View.GONE);
-                holder.sb.setVisibility(View.VISIBLE);
-                holder.sb.setNum(bean.getUnread_count(), false);
             }
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
@@ -704,9 +652,9 @@ public class MsgMainFragment extends Fragment {
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
                     );
-                    if (bean.getUnread_count() > 0 || (bean.getMessage() != null && !bean.getMessage().isRead())) {
-                        MessageManager.getInstance().setMessageChange(true);
-                    }
+//                    if (bean.getUnread_count() > 0) {
+//                        MessageManager.getInstance().setMessageChange(true);
+//                    }
 
                 }
             });
@@ -725,25 +673,22 @@ public class MsgMainFragment extends Fragment {
 
         private void creatAndSaveImg(Session bean, ImageView imgHead) {
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
-            int i = gginfo.getUsers().size();
-            i = i > 9 ? 9 : i;
-            //头像地址
-            String url[] = new String[i];
-            for (int j = 0; j < i; j++) {
-                UserInfo userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-                url[j] = userInfo.getHead();
-            }
-            File file = GroupHeadImageUtil.synthesis(getContext(), url);
-            Glide.with(getActivity()).load(file)
-                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+            if (gginfo != null) {
+                int i = gginfo.getUsers().size();
+                i = i > 9 ? 9 : i;
+                //头像地址
+                String url[] = new String[i];
+                for (int j = 0; j < i; j++) {
+                    UserInfo userInfo = gginfo.getUsers().get(j);
+                    url[j] = userInfo.getHead();
+                }
+                File file = GroupHeadImageUtil.synthesis(getContext(), url);
+                Glide.with(getActivity()).load(file)
+                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
-            MsgDao msgDao = new MsgDao();
-            msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+                MsgDao msgDao = new MsgDao();
+                msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+            }
         }
 
 
@@ -830,11 +775,8 @@ public class MsgMainFragment extends Fragment {
                 .map(new Function<Integer, List<Session>>() {
                     @Override
                     public List<Session> apply(Integer integer) throws Exception {
-                        System.out.println("开始获取数据--" + System.currentTimeMillis());
                         listData = msgDao.sessionGetAll(true);
                         doListDataSort();
-                        System.out.println("结束获取数据--" + System.currentTimeMillis());
-
                         return listData;
                     }
                 }).subscribeOn(Schedulers.io())
@@ -844,7 +786,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
-                        System.out.println("显示获取数据--" + System.currentTimeMillis());
+
                     }
                 });
 

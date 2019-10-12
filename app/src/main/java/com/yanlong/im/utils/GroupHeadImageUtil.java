@@ -46,22 +46,22 @@ public class GroupHeadImageUtil {
      * @param url
      * @return
      */
-    public static File synthesis(Context context, String... url)  {
+    public static File synthesis(Context context, String... url) {
         List<Bitmap> bitmaps = new ArrayList<>();
         for (int i = 0; i < url.length; i++) {
 //            FileBinaryResource resource = (FileBinaryResource) Fresco.getImagePipelineFactory()
 //                    .getMainFileCache().getResource(new SimpleCacheKey(url[i]));
             //               File file = resource.getFile();
-            if(TextUtils.isEmpty(url[i])){
+            if (TextUtils.isEmpty(url[i])) {
                 Bitmap bt = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_info_head);
                 if (bt != null) {
                     bitmaps.add(bt);
                 }
-            }else{
-                File file = getCacheFile2(context,url[i]);
+            } else {
+                File file = getCacheFile2(context, url[i]);
 //                File file = getCacheFileDisk(url[i]);
                 FileInputStream inputStream = null;
-                if(file != null){
+                if (file != null) {
                     try {
                         inputStream = new FileInputStream(file);
                         if (file.exists()) {
@@ -79,7 +79,7 @@ public class GroupHeadImageUtil {
 
                     } finally {
                         try {
-                            if(inputStream != null){
+                            if (inputStream != null) {
                                 inputStream.close();
                             }
 
@@ -94,9 +94,8 @@ public class GroupHeadImageUtil {
     }
 
 
-
-    public static void creatAndShowGroupHeadImg(Context mContext,Session bean, ImageView imgHead){
-        MsgDao msgDao=new MsgDao();
+    public static void creatAndShowGroupHeadImg(Context mContext, Session bean, ImageView imgHead) {
+        MsgDao msgDao = new MsgDao();
         Group gginfo = msgDao.getGroup4Id(bean.getGid());
         int i = gginfo.getUsers().size();
         i = i > 9 ? 9 : i;
@@ -117,47 +116,48 @@ public class GroupHeadImageUtil {
         msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
     }
 
-    public static void creatAndSaveImg(Context mContext,String gid) {
-        MsgDao msgDao=new MsgDao();
+    public static void creatAndSaveImg(Context mContext, String gid) {
+        MsgDao msgDao = new MsgDao();
         Group gginfo = msgDao.getGroup4Id(gid);
-        int i = gginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            UserInfo userInfo = gginfo.getUsers().get(j);
+        if (gginfo != null) {
+            int i = gginfo.getUsers().size();
+            i = i > 9 ? 9 : i;
+            //头像地址
+            String url[] = new String[i];
+            for (int j = 0; j < i; j++) {
+                UserInfo userInfo = gginfo.getUsers().get(j);
 //            if (j == i - 1) {
 //                name += userInfo.getName();
 //            } else {
 //                name += userInfo.getName() + "、";
 //            }
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(mContext, url);
+                url[j] = userInfo.getHead();
+            }
+            File file = GroupHeadImageUtil.synthesis(mContext, url);
 //        Glide.with(this).load(file)
 //                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+            msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+        }
     }
 
 
-    public static File getCacheFileDisk(String url){
-            OriginalKey originalKey = new OriginalKey(url, EmptySignature.obtain());
-            SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
-            String safeKey = safeKeyGenerator.getSafeKey(originalKey);
-            try {
-                File storageDirectory = Environment.getExternalStorageDirectory();
-                String cachePath = storageDirectory + "/changliaoliao/cache/image/";
-                DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, DiskCache.Factory.DEFAULT_DISK_CACHE_SIZE);
-                DiskLruCache.Value value = diskLruCache.get(safeKey);
-                if (value != null) {
-                    return value.getFile(0);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+    public static File getCacheFileDisk(String url) {
+        OriginalKey originalKey = new OriginalKey(url, EmptySignature.obtain());
+        SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
+        String safeKey = safeKeyGenerator.getSafeKey(originalKey);
+        try {
+            File storageDirectory = Environment.getExternalStorageDirectory();
+            String cachePath = storageDirectory + "/changliaoliao/cache/image/";
+            DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, DiskCache.Factory.DEFAULT_DISK_CACHE_SIZE);
+            DiskLruCache.Value value = diskLruCache.get(safeKey);
+            if (value != null) {
+                return value.getFile(0);
             }
-            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
+        return null;
+    }
 
 
     public static File getCacheFile2(Context context, String url) {
@@ -171,17 +171,17 @@ public class GroupHeadImageUtil {
             DiskLruCache.Value value;
             if (CustomGlideModule.hasPermission(context)) {
 //            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
-            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 //                //SD卡已装入
-                File storageDirectory = Environment.getExternalStorageDirectory();
-                String cachePath = storageDirectory + "/changliaoliao/cache/image";
+                    File storageDirectory = Environment.getExternalStorageDirectory();
+                    String cachePath = storageDirectory + "/changliaoliao/cache/image";
 //                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-                DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, cacheSize);
-                value = diskLruCache.get(safeKey);
-            }else{
-                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
-                value = diskLruCache.get(safeKey);
-            }
+                    DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, cacheSize);
+                    value = diskLruCache.get(safeKey);
+                } else {
+                    DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
+                    value = diskLruCache.get(safeKey);
+                }
             } else {
 //                //设置内存缓存大小,默认缓存位置
 ////            System.out.println("Glide缓存位置：默认应用内");
@@ -198,7 +198,7 @@ public class GroupHeadImageUtil {
         return null;
     }
 
-    private static File save2File(Bitmap bt) {
+    public static File save2File(Bitmap bt) {
         FileOutputStream out = null;
         File file;
         // 获取SDCard指定目录下

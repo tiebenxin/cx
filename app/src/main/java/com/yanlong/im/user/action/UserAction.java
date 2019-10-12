@@ -7,6 +7,7 @@ import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
 import com.jrmf360.tools.http.OkHttpModelCallBack;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 
@@ -220,7 +221,10 @@ public class UserAction {
                 if (response.body() != null) {
                     UserInfo userInfo = response.body().getData();
                     if (userInfo != null) {
-                        dao.userHeadNameUpdate(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
+                        boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
+                        if (hasChange) {
+                            MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+                        }
                         callBack.onResponse(call, response);
                     } else {
                         callBack.onFailure(call, new Throwable());

@@ -209,15 +209,17 @@ public class MsgAction {
                     if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
                         response.body().getData().getMygroupName();
                         dao.groupNumberSave(response.body().getData());
-
-                        response.body().getData().setUsers(DaoUtil.findOne(Group.class, "gid", gid).getUsers());
-                        //8.8 取消从数据库里读取群成员信息
-                        for (UserInfo userInfo : response.body().getData().getUsers()) {
-                            GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-                            if (link != null) {
-                                userInfo.setMembername(link.getMembername());
+                        Group group = DaoUtil.findOne(Group.class, "gid", gid);
+                        if (group != null && group.getUsers() != null) {
+                            response.body().getData().setUsers(group.getUsers());
+                            for (UserInfo userInfo : response.body().getData().getUsers()) {
+                                GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+                                if (link != null) {
+                                    userInfo.setMembername(link.getMembername());
+                                }
                             }
                         }
+                        //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);
                     } else {
                         callback.onFailure(call, new Throwable());

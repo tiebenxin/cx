@@ -16,6 +16,8 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketUtil;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRefreshMainMsg;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -24,7 +26,9 @@ import net.cb.cb.library.utils.LogUtil;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -45,6 +49,8 @@ public class MessageManager {
 
     private static List<String> loadGids = new ArrayList<>();
     private static List<Long> loadUids = new ArrayList<>();
+    private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
+    private static Map<String, Group> cacheGroups = new HashMap<>();//群信息数据缓存
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -99,6 +105,9 @@ public class MessageManager {
 
     }
 
+    /*
+     * 网络加载用户信息
+     * */
     private synchronized void loadUserInfo(final String gid, final Long uid) {
 //        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
@@ -109,6 +118,9 @@ public class MessageManager {
         });
     }
 
+    /*
+     * 网络加载群信息
+     * */
     private synchronized void loadGroupInfo(final String gid, final long uid) {
 //        System.out.println("加载数据--loadGroupInfo" + "--gid =" + gid + "--uid =" + uid);
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
@@ -132,16 +144,85 @@ public class MessageManager {
         msgDao.sessionCreate(gid, uid);
     }
 
+    /*
+     * 更新session未读数
+     * */
     public void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
     }
 
+    /*
+     * 通知刷新消息列表，及未读数
+     * */
     public void notifyRefreshMsg() {
         EventBus.getDefault().post(new EventRefreshMainMsg());
+    }
+
+    /*
+     * 通知刷新消息列表，及未读数
+     * */
+    public void notifyRefreshMsg(int chatType, Long uid, String gid, int refreshTag) {
+        EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
+        eventRefreshMainMsg.setType(chatType);
+        eventRefreshMainMsg.setUid(uid);
+        eventRefreshMainMsg.setGid(gid);
+        eventRefreshMainMsg.setRefreshTag(refreshTag);
+        EventBus.getDefault().post(eventRefreshMainMsg);
     }
 
     public void deleteSessionAndMsg(Long uid, String gid) {
         msgDao.sessionDel(uid, gid);
         msgDao.msgDel(uid, gid);
+    }
+
+    /*
+     * 刷新通讯录
+     * @param isLocal 是否是本地刷新
+     * @param uid 需要刷新的用户id
+     * @param action 花名册操作类型
+     * */
+    public void notifyRefreshFriend(boolean isLocal, long uid, @CoreEnum.ERosterAction int action) {
+        EventRefreshFriend event = new EventRefreshFriend();
+        event.setLocal(isLocal);
+        if (action != CoreEnum.ERosterAction.DEFAULT) {
+            event.setUid(uid);
+            event.setRosterAction(action);
+        }
+        EventBus.getDefault().post(event);
+    }
+
+    /*
+     * 获取缓存信息中用户信息
+     * */
+    public UserInfo getCacheUserInfo(Long uid) {
+        UserInfo info = null;
+        if (uid != null && uid > 0) {
+            info = cacheUsers.get(uid);
+            if (info == null) {
+                info = userDao.findUserInfo(uid);
+            }
+        }
+        return info;
+    }
+
+    /*
+     * 获取缓存数据中群信息
+     * */
+    public Group getCacheGroup(String gid) {
+        Group group = null;
+        if (!TextUtils.isEmpty(gid)) {
+            group = cacheGroups.get(gid);
+            if (group == null) {
+                group = msgDao.getGroup4Id(gid);
+            }
+        }
+        return group;
+    }
+
+    /*
+     * 更新用户头像和昵称
+     * */
+    public boolean updateUserAvatarAndNick(long uid, String avatar, String nickName) {
+        return userDao.userHeadNameUpdate(uid, avatar, nickName);
     }
 }

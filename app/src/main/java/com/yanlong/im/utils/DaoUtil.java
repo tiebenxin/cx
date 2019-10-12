@@ -24,7 +24,7 @@ public class DaoUtil {
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer = 2;
+        long dbVer = 3;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
 //            config = new RealmConfiguration.Builder()
 //                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
@@ -65,7 +65,7 @@ public class DaoUtil {
      */
     public static Realm open() {
         //  return Realm.getDefaultInstance();
-        LogUtil.getLog().i(TAG, "---->数据库:" + config.getRealmFileName());
+//        LogUtil.getLog().i(TAG, "---->数据库:" + config.getRealmFileName());
         return Realm.getInstance(config);
     }
 

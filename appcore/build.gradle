@@ -152,8 +152,4 @@ dependencies {
     api 'cn.jiguang.sdk.plugin:oppo:3.3.6'// oppo
     api 'cn.jiguang.sdk.plugin:vivo:3.3.6' //vivo
 
-
-    api project(':nim_lib')
-
-
 }
