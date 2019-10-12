@@ -101,6 +101,7 @@ public class MultiListView extends LinearLayout {
         layoutManager = new YLLinearLayoutManager(context);
         listView.setLayoutManager(layoutManager);
         ((SimpleItemAnimator) listView.getItemAnimator()).setSupportsChangeAnimations(false);
+        listView.setItemAnimator(null);
         // ------------------------------------------
         // 下拉刷新
         swipeLayout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
