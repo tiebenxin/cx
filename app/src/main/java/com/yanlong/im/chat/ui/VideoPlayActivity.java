@@ -76,4 +76,30 @@ public class VideoPlayActivity extends AppActivity {
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (null!=mMediaPlayer){
+            mMediaPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (null!=mMediaPlayer){
+            mMediaPlayer.start();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (null!=mMediaPlayer){
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer=null;
+        }
+    }
 }
