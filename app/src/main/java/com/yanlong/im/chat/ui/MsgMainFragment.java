@@ -415,10 +415,10 @@ public class MsgMainFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventRefreshMainMsg event) {
         if (MessageManager.getInstance().isMessageChange()) {
+            MessageManager.getInstance().setMessageChange(false);
             if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
-                MessageManager.getInstance().setMessageChange(false);
             } else {
                 refreshPosition(event.getGid(), event.getUid());
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");

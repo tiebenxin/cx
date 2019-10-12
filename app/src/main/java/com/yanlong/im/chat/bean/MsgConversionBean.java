@@ -323,7 +323,7 @@ public class MsgConversionBean {
                 if (TextUtils.isEmpty(name)) {
                     name = new MsgDao().getUsername4Show(gid, bean.getFromUid());
                 }
-                goutNotice.setNote("\"<font color='#276baa' id='" + bean.getChangeGroupMaster().getUid() + "'>" + name + "</font>\"" + "离开群聊" + "<div id='" + bean.getGid() + "'></div>");
+                goutNotice.setNote("\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + name + "</font>\"" + "离开群聊" + "<div id='" + bean.getGid() + "'></div>");
                 msgAllBean.setMsgNotice(goutNotice);
                 break;
             case CHANGE_GROUP_META://修改群信息
