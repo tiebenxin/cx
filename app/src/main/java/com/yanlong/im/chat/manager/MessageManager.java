@@ -1,6 +1,9 @@
 package com.yanlong.im.chat.manager;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 
 import androidx.annotation.RequiresApi;
@@ -56,6 +59,13 @@ public class MessageManager {
     private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
     private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
     private static List<Session> cacheSessions = new ArrayList<>();//Session缓存
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        }
+    };
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -73,51 +83,53 @@ public class MessageManager {
             int length = msgList.size();
             if (length > 0) {
                 if (length == 1) {//收到单条消息
-
+                    MsgBean.UniversalMessage.WrapMessage wmsg = msgList.get(0);
+                    dealWithMsg(wmsg);
                 } else {//收到多条消息（离线）
                     for (int i = 0; i < length; i++) {
-
+                        MsgBean.UniversalMessage.WrapMessage wmsg = msgList.get(i);
+                        dealWithMsg(wmsg);
                     }
                 }
             }
         }
-        List<String> msgIds = new ArrayList<>();
-        //1.先进行数据分割
-        for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
-            if (!oldMsgId.contains(wmsg.getMsgId())) {
-                //2.存库:1.存消息表,存会话表
-                MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
-                //5.28 如果为空就不保存这类消息
-                if (msgAllBean != null) {
-                    msgAllBean.setTo_uid(bean.getToUid());
-                    LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
-                    //收到直接存表
-                    DaoUtil.update(msgAllBean);
+    }
 
-                    //6.6 为后端擦屁股
-                    if (oldMsgId.size() >= 500)
-                        oldMsgId.remove(0);
-                    oldMsgId.add(wmsg.getMsgId());
-                    if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
-                        loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                    } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0) {
-                        loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                    } else {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-                    }
-                    LogUtil.getLog().e(TAG, ">>>>>累计 ");
-                } else {
-                    LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
-                }
-
-
-                msgIds.add(wmsg.getMsgId());
-            } else {
-                LogUtil.getLog().e(TAG, ">>>>>忽略保存消息: " + wmsg.getMsgId());
-            }
+    /*
+     * 处理接收到的消息
+     * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
+     * */
+    private void dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        if (oldMsgId.contains(wrapMessage.getMsgId())){
+            return;
         }
-        //发送回执
-        SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), msgIds), null);
+        switch (wrapMessage.getMsgType()) {
+            case CHAT://文本
+            case IMAGE://图片
+            case STAMP://戳一戳
+            case VOICE://语音
+            case SHORT_VIDEO://短视频
+            case TRANSFER://转账
+            case BUSINESS_CARD://名片
+            case RED_ENVELOPER://红包
+            case RECEIVE_RED_ENVELOPER://领取红包
+            case ACCEPT_BE_FRIENDS://接受成为好友
+            case ACCEPT_BE_GROUP://接受入群
+            case REMOVE_GROUP_MEMBER://被移除群聊
+            case CHANGE_GROUP_MASTER://转让群主
+            case OUT_GROUP://退出群聊
+            case CHANGE_GROUP_META://修改群信息
+            case AT://@消息
+            case ASSISTANT://小消息
+            case CANCEL://小消息
+                MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
+                if (bean != null) {
+
+                }
+                break;
+            case REMOVE_FRIEND:
+                break;
+        }
 
 
     }
