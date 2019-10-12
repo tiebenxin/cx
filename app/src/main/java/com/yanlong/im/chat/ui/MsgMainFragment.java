@@ -532,6 +532,7 @@ public class MsgMainFragment extends Fragment {
                     case 1:
                         break;
                 }
+                onBindViewHolder(holder, position);
             }
         }
 

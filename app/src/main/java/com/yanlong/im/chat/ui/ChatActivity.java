@@ -1068,7 +1068,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //9.17 进去后就清理会话的阅读数量
         taskCleanRead();
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
