@@ -26,6 +26,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
+import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -1645,6 +1646,25 @@ public class MsgDao {
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
         if (msgAllBean != null) {
             msgAllBean.setSend_state(sendState);
+            realm.insertOrUpdate(msgAllBean);
+            ret = realm.copyFromRealm(msgAllBean);
+        }
+        realm.commitTransaction();
+        realm.close();
+
+        return ret;
+
+    }
+
+
+    //修改消息状态
+    public VideoMessage fixVideoLocalUrl(String msgid, String localUrl) {
+        VideoMessage ret = null;
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        VideoMessage msgAllBean = realm.where(VideoMessage.class).equalTo("msgId", msgid).findFirst();
+        if (msgAllBean != null) {
+            msgAllBean.setLocalUrl(localUrl);
             realm.insertOrUpdate(msgAllBean);
             ret = realm.copyFromRealm(msgAllBean);
         }
