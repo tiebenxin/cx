@@ -220,7 +220,7 @@ public class UserAction {
                 //写入用户信息到数据库
                 if (response.body() != null) {
                     UserInfo userInfo = response.body().getData();
-                    if (userInfo != null) {
+                    if (userInfo != null && userInfo.getUid() != null) {
                         boolean hasChange = MessageManager.getInstance().updateUserAvatarAndNick(userInfo.getUid(), userInfo.getHead(), userInfo.getName());
                         if (hasChange) {
                             MessageManager.getInstance().notifyRefreshFriend(true, userInfo.getUid(), CoreEnum.ERosterAction.UPDATE_INFO);

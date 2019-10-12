@@ -43,8 +43,11 @@ public class DaoMigration implements RealmMigration {
      * 新增群头像表
      * */
     private void updateV4(RealmSchema schema) {
+        schema.get("MsgAllBean")
+                .addRealmObjectField("videoMessage", schema.get("VideoMessage"));
         schema.get("VideoMessage")
                 .addField("localUrl", String.class);
+
     }
 
     /*

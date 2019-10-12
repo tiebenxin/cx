@@ -1,12 +1,16 @@
 package com.yanlong.im.chat.manager;
 
+import android.os.Build;
 import android.text.TextUtils;
+
+import androidx.annotation.RequiresApi;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -50,7 +54,8 @@ public class MessageManager {
     private static List<String> loadGids = new ArrayList<>();
     private static List<Long> loadUids = new ArrayList<>();
     private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
-    private static Map<String, Group> cacheGroups = new HashMap<>();//群信息数据缓存
+    private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
+    private static List<Session> cacheSessions = new ArrayList<>();//Session缓存
 
     public static MessageManager getInstance() {
         if (INSTANCE == null) {
@@ -59,7 +64,9 @@ public class MessageManager {
         return INSTANCE;
     }
 
-
+    /*
+     * 消息接收流程
+     * */
     public synchronized void onReceive(MsgBean.UniversalMessage bean) {
         boolean isSameMesasge = false;
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
@@ -152,7 +159,7 @@ public class MessageManager {
     }
 
     /*
-     * 通知刷新消息列表，及未读数
+     * 通知刷新消息列表，及未读数，未设置及整体刷新
      * */
     public void notifyRefreshMsg() {
         EventBus.getDefault().post(new EventRefreshMainMsg());
@@ -173,6 +180,7 @@ public class MessageManager {
     public void deleteSessionAndMsg(Long uid, String gid) {
         msgDao.sessionDel(uid, gid);
         msgDao.msgDel(uid, gid);
+
     }
 
     /*
@@ -200,6 +208,9 @@ public class MessageManager {
             info = cacheUsers.get(uid);
             if (info == null) {
                 info = userDao.findUserInfo(uid);
+                if (info != null) {
+                    cacheUsers.put(uid, info);
+                }
             }
         }
         return info;
@@ -214,6 +225,9 @@ public class MessageManager {
             group = cacheGroups.get(gid);
             if (group == null) {
                 group = msgDao.getGroup4Id(gid);
+                if (group != null) {
+                    cacheGroups.put(gid, group);
+                }
             }
         }
         return group;
@@ -222,7 +236,46 @@ public class MessageManager {
     /*
      * 更新用户头像和昵称
      * */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean updateUserAvatarAndNick(long uid, String avatar, String nickName) {
-        return userDao.userHeadNameUpdate(uid, avatar, nickName);
+        boolean hasChange = userDao.userHeadNameUpdate(uid, avatar, nickName);
+        if (hasChange) {
+            updateCacheUserAvatarAndName(uid, avatar, nickName);
+        }
+        return hasChange;
+    }
+
+    /*
+     * 更新缓存用户头像及昵称
+     * */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void updateCacheUserAvatarAndName(long uid, String avatar, String nickName) {
+        if (cacheUsers != null) {
+            UserInfo info = getCacheUserInfo(uid);
+            if (info != null) {
+                info.setHead(avatar);
+                info.setName(nickName);
+                cacheUsers.replace(uid, info);
+            }
+        }
+    }
+
+    /*
+     * 更新缓存用户在线状态及最后在线时间
+     * */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void updateCacheUserOnlineStatus(long uid, int onlineType, long time) {
+        if (cacheUsers != null) {
+            UserInfo info = getCacheUserInfo(uid);
+            if (info != null) {
+                info.setLastonline(time);
+                info.setActiveType(onlineType);
+                cacheUsers.replace(uid, info);
+            }
+        }
+    }
+
+    public List<Session> getCacheSession() {
+        return cacheSessions;
     }
 }
