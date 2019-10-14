@@ -3,6 +3,7 @@ package com.zhaoss.weixinrecorded.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -16,10 +17,10 @@ import com.zhaoss.weixinrecorded.R;
 
 public class RecordView extends View {
 
-    private Paint paint;
+    private Paint paint,progressPaint;
     private OnGestureListener mOnGestureListener;
 
-    private int downColor;
+    private int downColor,progress_green;
     private int upColor;
 
     private float slideDis;
@@ -53,12 +54,21 @@ public class RecordView extends View {
 
         downColor = R.color.video_gray;
         upColor = R.color.white;
+        progress_green = R.color.progress_green;
 
         paint = new Paint();
         paint.setAntiAlias(true);//抗锯齿
         paint.setStyle(Paint.Style.STROKE);//画笔属性是空心圆
         currentStrokeWidth = getResources().getDimension(R.dimen.dp10);
         paint.setStrokeWidth(currentStrokeWidth);//设置画笔粗细
+
+        progressPaint=new Paint();
+
+        progressPaint.setAntiAlias(true);//抗锯齿
+        progressPaint.setStyle(Paint.Style.STROKE);//画笔属性是空心圆
+        currentStrokeWidth = getResources().getDimension(R.dimen.dp10);
+        progressPaint.setStrokeWidth(currentStrokeWidth);//设置画笔粗细
+        progressPaint.setColor(ContextCompat.getColor(getContext(), progress_green));
 
         slideDis = getResources().getDimension(R.dimen.dp10);
         radiusDis = getResources().getDimension(R.dimen.dp3);
@@ -142,6 +152,11 @@ public class RecordView extends View {
     public void setOnGestureListener(OnGestureListener listener){
         this.mOnGestureListener = listener;
     }
+    private float currentProgress=0;
+    public void updateProgress(float progress){
+        currentProgress=progress;
+        invalidate();
+    }
 
     public interface OnGestureListener{
         void onDown();
@@ -155,30 +170,32 @@ public class RecordView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(down){
-            paint.setColor(ContextCompat.getColor(getContext(), downColor));
-            if(changeStrokeWidth){
-                if (isAdd) {
-                    currentStrokeWidth += strokeWidthDis;
-                    if (currentStrokeWidth > maxStrokeWidth) isAdd = false;
-                } else {
-                    currentStrokeWidth -= strokeWidthDis;
-                    if (currentStrokeWidth < minStrokeWidth) isAdd = true;
-                }
-                paint.setStrokeWidth(currentStrokeWidth);
-                currentRadius = getWidth()*0.5f-currentStrokeWidth;
-            }else {
-                if (currentRadius < downRadius) {
-                    currentRadius += radiusDis;
-                } else if (currentRadius >= downRadius) {
-                    currentRadius = downRadius;
-                    isAdd = true;
-                    changeStrokeWidth = true;
-                }
-            }
-            canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
-            invalidate();
-        }else {
+//        if(down){
+//            paint.setColor(ContextCompat.getColor(getContext(), downColor));
+//            if(changeStrokeWidth){
+//                if (isAdd) {
+//                    currentStrokeWidth += strokeWidthDis;
+//                    if (currentStrokeWidth > maxStrokeWidth) isAdd = false;
+//                } else {
+//                    currentStrokeWidth -= strokeWidthDis;
+//                    if (currentStrokeWidth < minStrokeWidth) isAdd = true;
+//                }
+//                paint.setStrokeWidth(currentStrokeWidth);
+//                currentRadius = getWidth()*0.5f-currentStrokeWidth;
+//            }else {
+//                if (currentRadius < downRadius) {
+//                    currentRadius += radiusDis;
+//                } else if (currentRadius >= downRadius) {
+//                    currentRadius = downRadius;
+//                    isAdd = true;
+//                    changeStrokeWidth = true;
+//                }
+//            }
+//            canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
+
+
+//            invalidate();
+//        }else {
             changeStrokeWidth = false;
             currentStrokeWidth = minStrokeWidth;
             paint.setStrokeWidth(currentStrokeWidth);
@@ -191,6 +208,11 @@ public class RecordView extends View {
                 invalidate();
             }
             canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
-        }
+
+        RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
+        canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
+
+
+//        }
     }
 }
