@@ -197,7 +197,7 @@ public class Session extends RealmObject {
                 }
             } else {
                 if (((Session) obj).getFrom_uid() != null && from_uid != null) {
-                    if (((Session) obj).getFrom_uid() == this.from_uid) {
+                    if (((Session) obj).getFrom_uid().equals(this.from_uid)) {
                         return true;
                     } else {
                         return false;
