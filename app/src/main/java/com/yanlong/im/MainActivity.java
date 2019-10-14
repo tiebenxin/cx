@@ -448,9 +448,10 @@ public class MainActivity extends AppActivity {
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     } else {
 
-                        if (updateManage.isToDayFirst(bean)) {
-                            updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
-                        }
+                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+//                        if (updateManage.isToDayFirst(bean)) {
+//                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
+//                        }
 
                         if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
                             if (new UpdateManage(context, MainActivity.this).check(bean.getVersion())) {

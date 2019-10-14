@@ -192,7 +192,7 @@ public class QRCodeManage {
             ToastUtil.show(mContext, "识别二维码失败");
         } else {
             String text = result.getText();
-            if (text.contains("qr.alipay.com")) {
+            if (text.contains("qr.alipay.com") || text.contains("QR.ALIPAY.COM")) {
                 openAliPay2Pay(mContext, text);
             } else if (text.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext,text);
@@ -209,7 +209,7 @@ public class QRCodeManage {
         if (result == null) {
             ToastUtil.show(mContext, "识别二维码失败");
         } else {
-            if (result.contains("qr.alipay.com")) {
+            if (result.contains("qr.alipay.com") || result.contains("QR.ALIPAY.COM")) {
                 openAliPay2Pay(mContext, result);
             } else if (result.contains(DOWNLOAD_APP_URL)) {
                 openUri(mContext,result);
