@@ -449,9 +449,9 @@ public class MsgMainFragment extends Fragment {
                     public void accept(Session session) throws Exception {
                         if (listData != null) {
                             int index = listData.indexOf(session);
-                            if (index > 0) {
+                            if (index >= 0) {
                                 listData.set(index, session);
-                                mtListView.getListView().getAdapter().notifyItemRangeInserted(index, index);
+                                mtListView.getListView().getAdapter().notifyItemChanged(index, index);
                             }
                         }
                     }

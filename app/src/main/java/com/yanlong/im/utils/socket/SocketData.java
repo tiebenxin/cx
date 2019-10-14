@@ -965,12 +965,16 @@ public class SocketData {
         return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
     }
 
-    /***
+    /**
      * 撤回消息
-     * @param msgId
+     * @param toId
+     * @param toGid
+     * @param msgId 消息ID
+     * @param msgContent 撤回内容
+     * @param msgType 撤回的消息类型
      * @return
      */
-    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId) {
+    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId,String msgContent,Integer msgType) {
 
         MsgBean.CancelMessage msg = MsgBean.CancelMessage.newBuilder()
                 .setMsgId(msgId)
@@ -978,6 +982,10 @@ public class SocketData {
 
         String id = getUUID();
         MsgAllBean msgAllBean = send4Base(false, true, id, toId, toGid, -1, MsgBean.MessageType.CANCEL, msg);
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setMsg(msgContent);
+        chatMessage.setMsgid(msgType+"");// 暂时用来存放撤回的消息类型
+        msgAllBean.setChat(chatMessage);
         ChatServer.addCanceLsit(id, msgAllBean);
 
         return msgAllBean;
