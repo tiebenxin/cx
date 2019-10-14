@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -25,9 +26,15 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.util.TimeUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -170,6 +177,8 @@ import static android.view.View.VISIBLE;
 public class ChatActivity extends AppActivity implements ICellEventListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
+    private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
+    private final String REST_EDIT = "重新编辑";
 
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
@@ -1562,7 +1571,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAddVideo(this.context,imgMsgId, file, videoMessage.getBg_url(),isArtworkMaster, toUId, toGid, 10,videoMessageSD);
+                        UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, 10, videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
                         notifyData2Bottom(true);
 
@@ -1893,7 +1902,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     replaceListDataAndNotify(reMsg);
 //                                taskRefreshMessage();
                 }
-            }else if(reMsg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO){
+            } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 //todo 重新上传视频
                 String url = reMsg.getVideoMessage().getLocalUrl();
                 if (!TextUtils.isEmpty(url)) {
@@ -1906,18 +1915,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                     final String imgMsgId = SocketData.getUUID();
-                    VideoMessage videoMessage= new VideoMessage();
-                    videoMessage.setHeight( Long.parseLong(getVideoAttHeigh(url)));
-                    videoMessage.setWidth( Long.parseLong(getVideoAttWeith(url)));
-                    videoMessage.setDuration( Long.parseLong(getVideoAtt(url)));
+                    VideoMessage videoMessage = new VideoMessage();
+                    videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(url)));
+                    videoMessage.setWidth(Long.parseLong(getVideoAttWeith(url)));
+                    videoMessage.setDuration(Long.parseLong(getVideoAtt(url)));
                     videoMessage.setBg_url(getVideoAttBitmap(url));
                     videoMessage.setLocalUrl(url);
-                    Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
-                    VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + url, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),url);
+                    Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
+                    VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + url, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), url);
                     MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
 //                    msgListData.add(imgMsgBeanReSend);
-                    UpLoadService.onAddVideo(this.context,imgMsgId, url, videoMessage.getBg_url(),false, toUId, toGid, 10,videoMessageSD);
+                    UpLoadService.onAddVideo(this.context, imgMsgId, url, videoMessage.getBg_url(), false, toUId, toGid, 10, videoMessageSD);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
@@ -1928,8 +1937,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage();
                 }
-            }
-            else {
+            } else {
                 //点击发送的时候如果要改变成发送中的状态
                 reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                 DaoUtil.update(reMsg);
@@ -2101,13 +2109,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     }
                     break;
-                case ChatEnum.EMessageType.MSG_CENCAL:
+                case ChatEnum.EMessageType.MSG_CENCAL:// 撤回消息
                     if (msgbean.getMsgCancel() != null) {
-                        if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
-                            holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                        // 发送消息小于5分钟显示 重新编辑
+                        Long mss = System.currentTimeMillis() - msgbean.getTimestamp();
+                        long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
+                        String content = "";
+                        Integer msgType = 0;
+                        if (msgbean.getStamp() != null) {
+                            content = msgbean.getStamp().getComment();
+                            if (StringUtil.isNotNull(msgbean.getStamp().getMsgId())) {
+                                msgType = Integer.parseInt(msgbean.getStamp().getMsgId());
+                            }
+                        }
+                        // 是文本且小于5分钟 显示重新编辑
+                        if (msgType == ChatEnum.EMessageType.TEXT && minutes < RELINQUISH_TIME) {
+                            onRestEdit(holder, msgbean.getMsgCancel().getNote(), content, msgbean.getTimestamp());
                         } else {
-                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
-                                    msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
+                            holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
                         }
                     }
                     break;
@@ -2215,7 +2234,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
                             msgbean.getBusiness_card().getComment(),
-                            msgbean.getBusiness_card().getAvatar(), "人个名片", new View.OnClickListener() {
+                            msgbean.getBusiness_card().getAvatar(), "个人名片", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
@@ -2295,6 +2314,50 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             });
             itemLongClick(holder, msgbean, menus);
 
+        }
+
+        /**
+         * 重新编辑
+         *
+         * @param holder
+         * @param value
+         * @param restContent 撤回內容
+         * @param timesTamp   撤回時間
+         */
+        private void onRestEdit(RCViewHolder holder, String value, String restContent, Long timesTamp) {
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            value = value + "  " + REST_EDIT;
+            int startIndex = value.indexOf(REST_EDIT);
+            int endIndex = startIndex + REST_EDIT.length();
+
+            builder.append(value);
+            //设置部分文字点击事件
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    // 大于5分钟后不可撤回
+                    Long mss = System.currentTimeMillis() - timesTamp;
+                    long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
+                    if (minutes >= RELINQUISH_TIME) {
+                        ToastUtil.show(ChatActivity.this, "只能重新编辑5分钟以内的消息");
+                    } else {
+                        showVoice(false);
+                        InputUtil.showKeyboard(edtChat);
+                        edtChat.setText(edtChat.getText().toString() + restContent);
+                        edtChat.requestFocus();
+                        edtChat.setSelection(edtChat.getText().length());
+                    }
+                }
+
+                @Override
+                public void updateDrawState(@androidx.annotation.NonNull TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+            };
+            builder.setSpan(clickableSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            holder.viewChatItem.setData0(builder);
         }
 
         /***
@@ -2895,7 +2958,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * @param msgbean
      */
     private void onRecall(final MsgAllBean msgbean) {
-        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+        String msg = "";
+        Integer msgType = 0;
+        if (msgbean.getChat() != null) {
+            msg = msgbean.getChat().getMsg();
+        }
+        msgType = msgbean.getMsg_type();
+        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
     }
 
     /**

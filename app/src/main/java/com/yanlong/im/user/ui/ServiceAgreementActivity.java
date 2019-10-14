@@ -9,6 +9,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
@@ -16,6 +17,7 @@ import android.text.style.ForegroundColorSpan;
 import android.view.View;
 
 import com.jrmf360.walletlib.JrmfWalletClient;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.umeng.socialize.utils.SocializeSpUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityServiceAgreementBinding;
@@ -49,10 +51,10 @@ public class ServiceAgreementActivity extends AppActivity {
 
     private PayAction payAction = new PayAction();
     private ActivityServiceAgreementBinding mBinding;
-    private final String USER_SERICE="《用户服务协议》";
-    private final String SERCICE_SERICE="《隐私政策》";
+    private final String USER_SERICE = "《用户服务协议》";
+    private final String SERCICE_SERICE = "《隐私政策》";
 
-    private String mValue="        尊敬的常聊聊用户，为了更好地保障您的合法权益，正常使用云红包服务，广州之讯网络科技有限公司依照国家法律法规，对支付账户进行实名管理、履行反洗钱职责并采取风险防控措施。您需要提交身份信息、联系方式、交易信息。\n" +
+    private String mValue = "        尊敬的常聊聊用户，为了更好地保障您的合法权益，正常使用云红包服务，广州之讯网络科技有限公司依照国家法律法规，对支付账户进行实名管理、履行反洗钱职责并采取风险防控措施。您需要提交身份信息、联系方式、交易信息。\n" +
             "        广州之讯网络科技有限公司将严格按照国家法律法规收集、存储、使用您的个人信息，确保信息安全。\n" +
             "        请您务必阅读并充分理解《用户服务协议》和《隐私政策》，若你同意接受前述协议，请点击“同意”并继续注册操作。点击“不同意”终止注册操作。";
 
@@ -72,26 +74,43 @@ public class ServiceAgreementActivity extends AppActivity {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
+                if (DoubleUtils.isFastDoubleClick()) {//防止快速点击弹出两个界面
+                    return;
+                }
                 Intent intent = new Intent(ServiceAgreementActivity.this, WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL,"https://changliaoliao.zhixun5588.com/yhxy.html");
+                intent.putExtra(WebPageActivity.AGM_URL, "https://changliaoliao.zhixun5588.com/yhxy.html");
                 startActivity(intent);
+            }
+
+            @Override
+            public void updateDrawState(@androidx.annotation.NonNull TextPaint ds) {
+                ds.setUnderlineText(false);
             }
         };
         ClickableSpan clickableSpan1 = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
-                Intent intent = new Intent(ServiceAgreementActivity.this,WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL,"https://changliaoliao.zhixun5588.com/yszc.html");
+                if (DoubleUtils.isFastDoubleClick()) {//防止快速点击弹出两个界面
+                    return;
+                }
+                Intent intent = new Intent(ServiceAgreementActivity.this, WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL, "https://changliaoliao.zhixun5588.com/yszc.html");
                 startActivity(intent);
+            }
+
+            @Override
+            public void updateDrawState(@androidx.annotation.NonNull TextPaint ds) {
+                ds.setUnderlineText(false);
             }
         };
         style.setSpan(clickableSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         style.setSpan(clickableSpan1, startIndexs, endIndexs, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         //设置部分文字颜色
-//        ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(Color.parseColor("#374882"));
-//        style.setSpan(foregroundColorSpan, startIndex, endIndex, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-//        style.setSpan(foregroundColorSpan, startIndexs, endIndexs, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(Color.parseColor("#374882"));
+        ForegroundColorSpan foregroundColorSpan1 = new ForegroundColorSpan(Color.parseColor("#374882"));
+        style.setSpan(foregroundColorSpan, startIndex, endIndex, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        style.setSpan(foregroundColorSpan1, startIndexs, endIndexs, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
 
         mBinding.txtContent.setMovementMethod(LinkMovementMethod.getInstance());
         mBinding.txtContent.setText(style);
@@ -99,7 +118,7 @@ public class ServiceAgreementActivity extends AppActivity {
         onEvent();
     }
 
-    protected void onEvent(){
+    protected void onEvent() {
         mBinding.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -142,8 +161,8 @@ public class ServiceAgreementActivity extends AppActivity {
                     return;
                 if (response.body().isOk()) {
                     // 记录第一次
-                    SpUtil spUtil= SpUtil.getSpUtil();
-                    spUtil.putSPValue("ServieAgreement","true");
+                    SpUtil spUtil = SpUtil.getSpUtil();
+                    spUtil.putSPValue("ServieAgreement", "true");
 
                     String token = response.body().getData().getSign();
                     UserInfo minfo = UserAction.getMyInfo();
