@@ -106,7 +106,7 @@ public class MessageManager {
             if (length > 0) {
                 if (length == 1) {//收到单条消息
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(0);
-                    boolean result = dealWithMsg(wrapMessage, false);
+                    boolean result = dealWithMsg(wrapMessage, false, true);
                     if (result) {
                         notifyRefreshMsg();
                     }
@@ -124,11 +124,11 @@ public class MessageManager {
      * @param wrapMessage 接收到的消息
      * @param isList 是否是批量消息
      * */
-    public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList) {
+    public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
         boolean result = false;
         if (oldMsgId.contains(wrapMessage.getMsgId())) {
             LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-            return result;
+            return false;
         } else {
             if (oldMsgId.size() >= 500) {
                 oldMsgId.remove(0);
@@ -240,7 +240,7 @@ public class MessageManager {
                 updateUserLockCloudRedEnvelope(wrapMessage);
                 break;
         }
-        checkNotifyVoice(wrapMessage);
+        checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
     }
 
@@ -548,7 +548,7 @@ public class MessageManager {
 
     /***
      * 群
-     * @param sid
+     * @param sid 群id
      */
     public void setSessionGroup(String sid) {
         if (SESSION_TYPE == 3)
@@ -592,8 +592,23 @@ public class MessageManager {
 
     /*
      * 检测接收消息是否发出通知或者震动
+     * @param isList 是否是批量消息
+     * @param canNotify 是否能发出通知声音后震动，批量消息只要通知一声
      * */
-    private void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg) {
+    private void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg, boolean isList, boolean canNotify) {
+        if (!isList) {
+            doNotify(msg);
+        } else {
+            if (canNotify) {
+                doNotify(msg);
+            }
+        }
+    }
+
+    /*
+     * 发出通知声音或者震动
+     * */
+    private void doNotify(MsgBean.UniversalMessage.WrapMessage msg) {
         boolean isGroup = StringUtil.isNotNull(msg.getGid());
         //会话已经静音
         Session session = isGroup ? DaoUtil.findOne(Session.class, "gid", msg.getGid()) : DaoUtil.findOne(Session.class, "from_uid", msg.getFromUid());
@@ -603,7 +618,7 @@ public class MessageManager {
         if (isGroup && SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
             //当前会话是本群不提示
 
-        } else if (SESSION_TYPE == 1 && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
+        } else if (SESSION_TYPE == 1 && SESSION_FUID != null && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
             if (msg.getMsgType() == MsgBean.MessageType.STAMP) {
                 playVibration();
             }
