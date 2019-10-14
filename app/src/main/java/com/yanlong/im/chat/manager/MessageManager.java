@@ -225,7 +225,7 @@ public class MessageManager {
                 }
                 long fromUid = wrapMessage.getFromUid();
                 MessageManager.getInstance().updateSessionUnread(gid, fromUid, true);
-                msgDao.msgDel4Cancel(wrapMessage.getMsgId(), wrapMessage.getCancel().getMsgId());
+                msgDao.msgDel4Cancel(wrapMessage.getMsgId(), wrapMessage.getCancel().getMsgId(), "", "");
                 EventBus.getDefault().post(new EventRefreshChat());
                 MessageManager.getInstance().setMessageChange(true);
                 break;

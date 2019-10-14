@@ -12,7 +12,7 @@ import io.realm.annotations.PrimaryKey;
 /***
  * 会话
  */
-public class Session extends RealmObject {
+public class Session extends RealmObject implements Comparable<Session> {
     @PrimaryKey
     private String sid;
     //会话类型,0:单人,1群
@@ -208,5 +208,11 @@ public class Session extends RealmObject {
             }
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(Session o) {
+//        return (int) (this.up_time - o.up_time);//升序
+        return (int) (o.up_time - this.up_time);//降序
     }
 }

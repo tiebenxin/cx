@@ -77,6 +77,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -455,10 +456,11 @@ public class MsgMainFragment extends Fragment {
                             int index = listData.indexOf(session);
                             if (index >= 0) {
                                 Session s = listData.get(index);
-                                if (s != null && s.getUp_time().equals(session.getUp_time())) {
-                                    listData.set(index, session);
+                                listData.set(index, session);
+                                if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
                                     mtListView.getListView().getAdapter().notifyItemChanged(index, index);
                                 } else {//时间需要重拍
+                                    Collections.sort(listData);//重新排序
                                     mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
                                 }
                             } else {
