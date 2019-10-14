@@ -263,6 +263,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View mViewLine2;
     private View mViewLine3;
     private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
+    private MsgAllBean currentPlayBean;
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -941,7 +942,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         startActivityForResult(intent, VIDEO_RP);
                     }
 
-//                  @Override
+                    //                  @Override
                     public void onFail() {
 
                     }
@@ -1326,7 +1327,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //清理会话数量
         taskCleanRead();
-        AudioPlayManager.getInstance().stopPlay();
         Log.v(TAG, "onBackPressed");
         clearScrollPosition();
         super.onBackPressed();
@@ -1351,8 +1351,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Override
     protected void onStop() {
-
         super.onStop();
+        AudioPlayManager.getInstance().stopPlay();
+        if (currentPlayBean != null) {
+            updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
+        }
     }
 
     @Override
@@ -1465,7 +1468,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             } else {
                 //mmr.setDataSource(mFD, mOffset, mLength);
             }
-            duration= mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+            duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
 
         } catch (Exception ex) {
             Log.e("TAG", "MediaMetadataRetriever exception " + ex);
@@ -2212,20 +2215,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
 
-                            String localUrl= msgbean.getVideoMessage().getLocalUrl();
-                            if (StringUtil.isNotNull(localUrl)){
-                                File file=new File(localUrl);
-                                if (file.exists()){
-                                    Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
-                                    intent.putExtra("videopath",localUrl);
+                            String localUrl = msgbean.getVideoMessage().getLocalUrl();
+                            if (StringUtil.isNotNull(localUrl)) {
+                                File file = new File(localUrl);
+                                if (file.exists()) {
+                                    Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                                    intent.putExtra("videopath", localUrl);
                                     startActivity(intent);
-                                    MsgDao dao =new MsgDao();
-                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(),localUrl);
-                                }else{
-                                    downVideo(msgbean,msgbean.getVideoMessage());
+                                    MsgDao dao = new MsgDao();
+                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
+                                } else {
+                                    downVideo(msgbean, msgbean.getVideoMessage());
                                 }
-                            }else{
-                                downVideo(msgbean,msgbean.getVideoMessage());
+                            } else {
+                                downVideo(msgbean, msgbean.getVideoMessage());
                             }
 
 
@@ -2443,37 +2446,39 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
     }
-    private Handler handler=new Handler(){
+
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Bundle bundle= msg.getData();
-            MsgDao dao =new MsgDao();
-            dao.fixVideoLocalUrl(bundle.getString("msgid"),bundle.getString("url"));
+            Bundle bundle = msg.getData();
+            MsgDao dao = new MsgDao();
+            dao.fixVideoLocalUrl(bundle.getString("msgid"), bundle.getString("url"));
 
         }
     };
-    private void downVideo(final MsgAllBean msgAllBean,final VideoMessage videoMessage) {
 
-        String bitName= SystemClock.currentThreadTimeMillis()+"";
+    private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
+
+        String bitName = SystemClock.currentThreadTimeMillis() + "";
         final File appDir = new File("/sdcard/yanlong/download/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
         final String fileName = bitName + ".mp4";
         final File fileVideo = new File(appDir, fileName);
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
-                        Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
-                        intent.putExtra("videopath",fileVideo.getAbsolutePath());
-                        Message message=new Message();
-                        Bundle bundle=new Bundle();
-                        bundle.putString("msgid",msgAllBean.getVideoMessage().getMsgId());
-                        bundle.putString("url",fileVideo.getAbsolutePath());
+                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                        intent.putExtra("videopath", fileVideo.getAbsolutePath());
+                        Message message = new Message();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("msgid", msgAllBean.getVideoMessage().getMsgId());
+                        bundle.putString("url", fileVideo.getAbsolutePath());
                         message.setData(bundle);
                         handler.sendMessage(message);
                         videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
@@ -2510,6 +2515,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {
+        currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
         if (!msgBean.isMe() && !msgBean.isRead()) {
