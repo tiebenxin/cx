@@ -153,8 +153,10 @@ public class MessageManager {
 
     /*
      * 更新session未读数
+     * 由于Session 的索引未sessionId，是随机值，而不是uid或者gid
+     * 所以为避免异步操作产生重复数据，设置同步方法
      * */
-    public void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
+    public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
     }
 
