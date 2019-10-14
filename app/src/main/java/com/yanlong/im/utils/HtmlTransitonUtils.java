@@ -70,8 +70,8 @@ public class HtmlTransitonUtils {
                 case ChatEnum.ENoticeType.RECEIVE_RED_ENVELOPE: // 你领取的xxx的云红包
                     setType8(context, style, bean);
                     break;
-                case ChatEnum.EMessageType.MSG_CENCAL: //消息撤回
-                    setType9(context, style, html);
+                case ChatEnum.ENoticeType.CANCEL: //消息撤回
+                    setType9(context, style, bean);
                     break;
                 case ChatEnum.ENoticeType.RED_ENVELOPE_RECEIVED_SELF://自己领取了自己的云红包
 
@@ -360,22 +360,37 @@ public class HtmlTransitonUtils {
     }
 
 
-    private void setType9(final Context context, SpannableStringBuilder builder, String vlaue) {
-        vlaue= vlaue+"  "+REST_EDIT;
-        int startIndex = vlaue.indexOf(REST_EDIT);
-        int endIndex = startIndex + REST_EDIT.length();
+    private void setType9(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
+        List<HtmlBeanList> list = htmlBean.getList();
+        for (final HtmlBeanList bean : list) {
+            final String content = "\"" + bean.getName() + "\"";
+            builder.append(content);
 
-        builder.append(vlaue);
-        //设置部分文字点击事件
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(View widget) {
-                ToastUtil.show(context,"1212");
-            }
-        };
-        builder.setSpan(clickableSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
-        builder.setSpan(protocolColorSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            int state = builder.toString().length() - content.length() + 1;
+            int end = builder.toString().length() - 1;
+
+            ClickableSpan clickProtocol = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+//                    Intent intent = new Intent(context, UserInfoActivity.class);
+//                    intent.putExtra(UserInfoActivity.ID, Long.valueOf(bean.getId()));
+//                    intent.putExtra(UserInfoActivity.JION_TYPE_SHOW, 1);
+//                    context.startActivity(intent);
+
+                    goToUserInfoActivity(context, Long.valueOf(bean.getId()), htmlBean.getGid());
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+
+            };
+            builder.setSpan(clickProtocol, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, state, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        builder.append("撤回了一条消息");
     }
 
     private void setType11(final Context context, SpannableStringBuilder builder, final HtmlBean htmlBean) {
