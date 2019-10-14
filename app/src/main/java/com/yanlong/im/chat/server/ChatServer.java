@@ -33,6 +33,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -324,6 +325,7 @@ public class ChatServer extends Service {
                 case SHORT_VIDEO:
                     return;
                 case CHANGE_SURVIVAL_TIME: //阅后即焚
+                    Log.v("CHANGE_SURVIVAL_TIME","CHANGE_SURVIVAL_TIME");
                     int survivalTime = msg.getChangeSurvivalTime().getSurvivalTime();
                     if(TextUtils.isEmpty(msg.getGid())){
                         msg.getMsgId();

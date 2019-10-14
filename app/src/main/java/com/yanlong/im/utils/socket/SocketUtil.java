@@ -668,7 +668,6 @@ public class SocketUtil {
                         //开始启动消息重发队列
                         sendListThread();
 
-
                     }
 
 

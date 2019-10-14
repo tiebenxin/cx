@@ -108,7 +108,15 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean<RobotInfoBean>> robotInfo(@Field("robotid") String robotid,@Field("gid") String gid);
 
-    @POST("group/change-master")
+    @POST("/group/change-master")
     @FormUrlEncoded
     Call<ReturnBean> changeMaster(@Field("gid") String gid,@Field("uid") String uid,@Field("membername") String membername);
+
+    @POST("/friends/set-survival-time")
+    @FormUrlEncoded
+    Call<ReturnBean> setSurvivalTime(@Field("friend") long friend,@Field("survivalTime") int survivalTime);
+
+    @POST("/group/change-survival-time")
+    @FormUrlEncoded
+    Call<ReturnBean> changeSurvivalTime(@Field("gid") String gid,@Field("survivalTime") int survivalTime);
 }

@@ -53,6 +53,7 @@ public class AppActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         alert.dismiss4distory();
+
     }
 
     //字体缩放倍数

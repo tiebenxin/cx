@@ -67,6 +67,26 @@ public class UserDao {
         }
     }
 
+    /***
+     * 更新阅后即焚状态
+     */
+    public void updateReadDestroy(Long uid, int type) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (userInfo != null) {
+                userInfo.setDestroy(type);
+                realm.insertOrUpdate(userInfo);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
 
     /***
      * 如果存在了就不更新

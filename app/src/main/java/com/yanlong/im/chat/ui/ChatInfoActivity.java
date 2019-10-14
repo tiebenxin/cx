@@ -17,8 +17,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
@@ -35,6 +37,8 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +68,7 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewDestroyTime;
     private TextView tvDestroyTime;
     private SeekBar sbDestroyTime;
+    private int destroyTime;
 
 
     @Override
@@ -74,7 +79,45 @@ public class ChatInfoActivity extends AppActivity {
         initEvent();
         initData();
         controlDestroyView();
+        EventBus.getDefault().register(this);
     }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ToastUtil.show(context, destroyTime + "---" + fuid);
+        taskSurvivalTime(fuid, destroyTime);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setingReadDestroy(ReadDestroyBean bean){
+        destroyTime = bean.survivaltime;
+        if(destroyTime == -1){
+            ckRedDestroy.setChecked(true);
+            ckExitDestroy.setChecked(true);
+            viewExitDestroy.setVisibility(View.VISIBLE);
+            viewDestroyTime.setVisibility(View.GONE);
+        }else if(destroyTime == 0){
+            ckRedDestroy.setChecked(false);
+            ckExitDestroy.setChecked(false);
+            viewExitDestroy.setVisibility(View.GONE);
+            viewDestroyTime.setVisibility(View.GONE);
+        }else{
+            ckRedDestroy.setChecked(true);
+            ckExitDestroy.setChecked(false);
+            sbDestroyTime.setProgress(50);
+            viewExitDestroy.setVisibility(View.VISIBLE);
+            viewDestroyTime.setVisibility(View.VISIBLE);
+        }
+    }
+
 
 
     //自动寻找控件
@@ -188,7 +231,25 @@ public class ChatInfoActivity extends AppActivity {
 
 
     private void initData() {
-
+        UserInfo userInfo = userDao.findUserInfo(fuid);
+        destroyTime = userInfo.getDestroy();
+        if(destroyTime == -1){
+            ckRedDestroy.setChecked(true);
+            ckExitDestroy.setChecked(true);
+            viewExitDestroy.setVisibility(View.VISIBLE);
+            viewDestroyTime.setVisibility(View.GONE);
+        }else if(destroyTime == 0){
+            ckRedDestroy.setChecked(false);
+            ckExitDestroy.setChecked(false);
+            viewExitDestroy.setVisibility(View.GONE);
+            viewDestroyTime.setVisibility(View.GONE);
+        }else{
+            ckRedDestroy.setChecked(true);
+            ckExitDestroy.setChecked(false);
+            sbDestroyTime.setProgress(50);
+            viewExitDestroy.setVisibility(View.VISIBLE);
+            viewDestroyTime.setVisibility(View.VISIBLE);
+        }
     }
 
 
@@ -199,12 +260,12 @@ public class ChatInfoActivity extends AppActivity {
                 if (isChecked) {
                     viewExitDestroy.setVisibility(View.VISIBLE);
                     viewDestroyTime.setVisibility(View.VISIBLE);
+                    destroyTime = 5;
                 } else {
                     viewExitDestroy.setVisibility(View.GONE);
                     viewDestroyTime.setVisibility(View.GONE);
+                    destroyTime = 0;
                 }
-
-
             }
         });
 
@@ -213,8 +274,10 @@ public class ChatInfoActivity extends AppActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     viewDestroyTime.setVisibility(View.GONE);
+                    destroyTime = -1;
                 } else {
                     viewDestroyTime.setVisibility(View.VISIBLE);
+                    destroyTime = 5;
                 }
             }
         });
@@ -260,8 +323,7 @@ public class ChatInfoActivity extends AppActivity {
 //                } else if (progress >= 84.5 || progress <= 100) {
 //                    seekBar.setProgress(100);
 //                }
-
-
+                destroyTime = 5;
                 double sss = 100 / cont;
                 Log.v("SeekBar", sss + "sss");
                 double xxx = sss / 2;
@@ -351,6 +413,7 @@ public class ChatInfoActivity extends AppActivity {
 
     private MsgDao msgDao = new MsgDao();
     private MsgAction msgAction = new MsgAction();
+    private UserDao userDao = new UserDao();
 
     //获取会话和对方信息
     private void taskGetInfo() {
@@ -398,6 +461,22 @@ public class ChatInfoActivity extends AppActivity {
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
 
+                }
+            }
+        });
+    }
+
+    private void taskSurvivalTime(long friend, int survivalTime) {
+        msgAction.setSurvivalTime(friend, survivalTime, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    userDao.updateReadDestroy(fuid,survivalTime);
+                    // ToastUtil.show(context,"设置成功");
                 }
             }
         });
