@@ -1,17 +1,8 @@
 package com.yanlong.im.chat.task;
 
 import android.os.AsyncTask;
-import android.text.TextUtils;
 
-import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.Session;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.socket.MsgBean;
 
 import java.util.List;
@@ -19,7 +10,9 @@ import java.util.List;
 /**
  * @anthor Liszt
  * @data 2019/10/11
- * Description 批量处理接收到的消息
+ * Description 批量处理接收到的消息，针对收到单聊，或者群聊消息，而本地无用户或者群数据，需要异步请求用户或者群数据的情况。
+ * 批量消息必须所有消息处理完毕，才能通知刷新session和未读数
+ * 风险：当请求用户数据和群数据失败的时候，可能导致任务无法正常处理完
  */
 public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     List<MsgBean.UniversalMessage.WrapMessage> messages;
@@ -34,7 +27,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         if (messages != null) {
             int length = messages.size();
             taskCount = length;
-            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--总任务数=" + taskCount);
+//            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--总任务数=" + taskCount);
             for (int i = 0; i < length; i++) {
                 MsgBean.UniversalMessage.WrapMessage wrapMessage = messages.get(i);
                 boolean result = MessageManager.getInstance().dealWithMsg(wrapMessage, true, i == length - 1);//最后一条消息，发出通知声音
@@ -44,10 +37,10 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             }
         }
         if (taskCount == 0) {
-            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理完成YES");
+//            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理完成YES");
             return true;
         } else {
-            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理未完成NO");
+//            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理未完成NO");
             return false;
         }
     }
@@ -58,17 +51,21 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         if (aBoolean) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg();
-            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面");
+//            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面");
         }
     }
 
+    /*
+     * 更新任务数
+     * 应用场景：异步加载用户数据或者群数据成功后
+     * */
     public void updateTaskCount() {
         taskCount--;
-        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新一次任务数");
+//        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新一次任务数");
         if (taskCount == 0) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg();
-            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面");
+//            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面");
         }
     }
 }

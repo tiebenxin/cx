@@ -1,15 +1,8 @@
 package com.yanlong.im.chat.manager;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -34,7 +27,9 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
-import net.cb.cb.library.bean.EventRefreshMainMsg;
+
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -64,7 +59,7 @@ import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 /**
  * @anthor Liszt
  * @data 2019/9/24
- * Description
+ * Description 消息管理类
  */
 public class MessageManager {
     private final String TAG = MessageManager.class.getSimpleName();
@@ -78,8 +73,8 @@ public class MessageManager {
     private UserDao userDao = new UserDao();
     private static boolean isMessageChange;//是否有聊天消息变化
 
-    private static List<String> loadGids = new ArrayList<>();
-    private static List<Long> loadUids = new ArrayList<>();
+    private static List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
+    private static List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
     private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
     private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
     private static List<Session> cacheSessions = new ArrayList<>();//Session缓存
@@ -106,10 +101,8 @@ public class MessageManager {
             if (length > 0) {
                 if (length == 1) {//收到单条消息
                     MsgBean.UniversalMessage.WrapMessage wrapMessage = msgList.get(0);
-                    boolean result = dealWithMsg(wrapMessage, false, true);
-                    if (result) {
-                        notifyRefreshMsg();
-                    }
+                    dealWithMsg(wrapMessage, false, true);
+
                 } else {//收到多条消息（如离线）
                     taskMsgList = new TaskDealWithMsgList(msgList);
                     taskMsgList.execute();
@@ -240,6 +233,11 @@ public class MessageManager {
                 updateUserLockCloudRedEnvelope(wrapMessage);
                 break;
         }
+        //刷新单个
+        if (result && !isList && bean != null) {
+            setMessageChange(true);
+            notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), wrapMessage.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
+        }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
     }
@@ -277,10 +275,10 @@ public class MessageManager {
         DaoUtil.update(msgAllBean);
         if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid()) && !loadGids.contains(msgAllBean.getGid())) {
             loadGids.add(msgAllBean.getGid());
-            loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList);
+            loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
         } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
             loadUids.add(msgAllBean.getFrom_uid());
-            loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList);
+            loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
         } else {
             MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
             if (isList) {
@@ -294,7 +292,7 @@ public class MessageManager {
     /*
      * 网络加载用户信息
      * */
-    private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList) {
+    private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
 //        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
             @Override
@@ -305,8 +303,9 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg();
+                    setMessageChange(true);
+                    notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
+
                 }
             }
         });
@@ -315,7 +314,7 @@ public class MessageManager {
     /*
      * 网络加载群信息
      * */
-    private synchronized void loadGroupInfo(final String gid, final long uid, boolean isList) {
+    private synchronized void loadGroupInfo(final String gid, final long uid, boolean isList, MsgAllBean bean) {
 //        System.out.println("加载数据--loadGroupInfo" + "--gid =" + gid + "--uid =" + uid);
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
@@ -327,8 +326,8 @@ public class MessageManager {
                         taskMsgList.updateTaskCount();
                     }
                 } else {
-                    MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg();
+                    setMessageChange(true);
+                    notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
                 }
             }
         });
@@ -350,7 +349,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
-        System.out.println("更新Session");
+        System.out.println(TAG + "--更新Session--updateSessionUnread");
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
     }
 
@@ -363,13 +362,20 @@ public class MessageManager {
 
     /*
      * 通知刷新消息列表，及未读数
+     * @param chatType 单聊群聊
+     * @param uid 单聊即用户id，群聊为null
+     * @param gid 群聊即群id，单聊为""
+     * @param msg,最后一条消息，也要刷新时间
      * */
-    public void notifyRefreshMsg(int chatType, Long uid, String gid, int refreshTag) {
+    public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, Long uid, String gid, @CoreEnum.ESessionRefreshTag int refreshTag, MsgAllBean msg) {
         EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
         eventRefreshMainMsg.setType(chatType);
         eventRefreshMainMsg.setUid(uid);
         eventRefreshMainMsg.setGid(gid);
         eventRefreshMainMsg.setRefreshTag(refreshTag);
+        if (msg != null) {
+            eventRefreshMainMsg.setMsgAllBean(msg);
+        }
         EventBus.getDefault().post(eventRefreshMainMsg);
     }
 

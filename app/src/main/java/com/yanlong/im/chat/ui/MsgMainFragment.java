@@ -28,7 +28,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -58,7 +57,9 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
-import net.cb.cb.library.bean.EventRefreshMainMsg;
+
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -420,7 +421,7 @@ public class MsgMainFragment extends Fragment {
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
             } else {
-                refreshPosition(event.getGid(), event.getUid());
+                refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean());
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
 
             }
@@ -432,12 +433,15 @@ public class MsgMainFragment extends Fragment {
      * 刷新单一位置
      * */
     @SuppressLint("CheckResult")
-    private void refreshPosition(String gid, Long uid) {
+    private void refreshPosition(String gid, Long uid, MsgAllBean bean) {
         Observable.just(0)
                 .map(new Function<Integer, Session>() {
                     @Override
                     public Session apply(Integer integer) throws Exception {
                         Session session = msgDao.sessionGet(gid, uid);
+                        if (bean != null) {
+                            session.setMessage(bean);
+                        }
                         prepareSession(session);
                         return session;
                     }
@@ -449,9 +453,12 @@ public class MsgMainFragment extends Fragment {
                     public void accept(Session session) throws Exception {
                         if (listData != null) {
                             int index = listData.indexOf(session);
-                            if (index > 0) {
+                            if (index >= 0) {
                                 listData.set(index, session);
-                                mtListView.getListView().getAdapter().notifyItemRangeInserted(index, index);
+                                mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                            }else {
+                                listData.add(0, session);//新会话，
+                                mtListView.getListView().getAdapter().notifyItemChanged(index, index);
                             }
                         }
                     }
@@ -810,7 +817,7 @@ public class MsgMainFragment extends Fragment {
 
     }
 
-    private void getSessionsAndRefresh(){
+    private void getSessionsAndRefresh() {
         listData = MessageManager.getInstance().getCacheSession();
         mtListView.notifyDataSetChange();
 
@@ -842,7 +849,10 @@ public class MsgMainFragment extends Fragment {
             } else {
                 session.setName(msgDao.getGroupName(session.getGid()));
             }
-            MsgAllBean msg = msgDao.msgGetLast4Gid(session.getGid());
+            MsgAllBean msg = session.getMessage();
+            if (msg == null) {
+                msg = msgDao.msgGetLast4Gid(session.getGid());
+            }
             if (msg != null) {
                 session.setMessage(msg);
                 if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
@@ -863,7 +873,10 @@ public class MsgMainFragment extends Fragment {
                 session.setHasInitDisturb(true);
                 session.setAvatar(info.getHead());
             }
-            MsgAllBean msg = msgDao.msgGetLast4FUid(session.getFrom_uid());
+            MsgAllBean msg = session.getMessage();
+            if (msg == null) {
+                msg = msgDao.msgGetLast4FUid(session.getFrom_uid());
+            }
             if (msg != null) {
                 session.setMessage(msg);
             }

@@ -6,21 +6,15 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -115,11 +109,11 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.DownloadUtil;
-import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
@@ -136,8 +130,6 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
-import net.cb.cb.library.view.PopView;
-import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -157,9 +149,6 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
-import me.kareluo.ui.OptionMenuView;
-import me.kareluo.ui.PopupMenuView;
-import me.kareluo.ui.PopupView;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -1349,7 +1338,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Override
     protected void onDestroy() {
         taskDraftSet();
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
+        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -3256,7 +3245,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            }
             dao.sessionReadClean(session);
             MessageManager.getInstance().setMessageChange(true);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
         }
         dao.updateMsgReaded(toUId, toGid, true);
     }
@@ -3285,12 +3274,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (!TextUtils.isEmpty(draft)) {
             if (!TextUtils.isEmpty(df) && !draft.equals(df)) {
                 MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
                 MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
             }
         }
     }
