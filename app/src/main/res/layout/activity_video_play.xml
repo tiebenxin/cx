@@ -8,8 +8,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"/>
+
+    <ImageView
+        android:id="@+id/activity_video_big_con"
+        android:layout_width="77dp"
+        android:layout_height="77dp"
+        android:clickable="true"
+        android:background="@mipmap/video_play_play"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="300dp"
+        android:visibility="invisible"
+        />
+
     <RelativeLayout
         android:id="@+id/activity_video_rel_con"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -23,15 +36,7 @@
             android:background="@mipmap/video_play_close"
             />
 
-        <ImageView
-            android:id="@+id/activity_video_big_con"
-            android:layout_width="77dp"
-            android:layout_height="77dp"
-            android:clickable="true"
-            android:background="@mipmap/video_play_play"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="300dp"
-            />
+
             <RelativeLayout
 
                 android:layout_width="343dp"
@@ -45,7 +50,7 @@
                     android:id="@+id/activity_video_img_con"
                     android:layout_width="14dp"
                     android:layout_height="16dp"
-                    android:background="@mipmap/video_play_con_play"
+                    android:background="@mipmap/video_play_con_pause"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="13dp"
                     android:clickable="true"
