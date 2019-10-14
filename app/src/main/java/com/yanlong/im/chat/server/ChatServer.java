@@ -546,6 +546,7 @@ public class ChatServer extends Service {
         fetchTimeDiff(message.getTimestamp());
         UserDao userDao = new UserDao();
         userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
+        MessageManager.getInstance().updateCacheUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
     }
 
     private void fetchTimeDiff(long timestamp) {
@@ -572,7 +573,5 @@ public class ChatServer extends Service {
                     break;
             }
         }
-
-
     }
 }
