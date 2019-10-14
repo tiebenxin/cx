@@ -145,22 +145,18 @@ public class ChatServer extends Service {
                     EventBus.getDefault().post(new EventRefreshChat());
                     cancelList.remove(msgid);
                 }
-
             }
-
-
         }
 
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
 
-            //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
-            for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
-                onMsgbranch(msg);
-
-            }
-            //通知界面刷新
-            MessageManager.getInstance().notifyRefreshMsg();
+//            for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
+//                onMsgbranch(msg);
+//
+//            }
+//            //通知界面刷新
+//            MessageManager.getInstance().notifyRefreshMsg();
 
         }
 

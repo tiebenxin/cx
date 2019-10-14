@@ -139,8 +139,10 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     private void setCurrentSession() {
         if (isGroup) {
             ChatServer.setSessionGroup(gid);
+            MessageManager.getInstance().setSessionGroup(gid);
         } else {
             ChatServer.setSessionSolo(uid);
+            MessageManager.getInstance().setSessionSolo(uid);
         }
     }
 

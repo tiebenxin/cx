@@ -72,8 +72,8 @@ public class SocketUtil {
             //发送回执
             LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
-            SocketData.magSaveAndACK(bean);
-//            MessageManager.getInstance().onReceive(bean);
+//            SocketData.magSaveAndACK(bean);
+            MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onMsg(bean);
