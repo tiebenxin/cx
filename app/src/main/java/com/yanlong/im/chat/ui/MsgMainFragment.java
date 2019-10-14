@@ -459,14 +459,15 @@ public class MsgMainFragment extends Fragment {
                                 listData.set(index, session);
                                 if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
                                     mtListView.getListView().getAdapter().notifyItemChanged(index, index);
-                                } else {//时间需要重拍
+                                } else {//有时间更新,需要重排
                                     Collections.sort(listData);//重新排序
                                     mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
                                 }
                             } else {
-                                listData.add(0, session);//新会话，
-                                mtListView.getListView().getAdapter().notifyDataSetChanged();//整个刷新
-//                                mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                                listData.add(0, session);//新会话，插入刷新
+//                                mtListView.getListView().getAdapter().notifyDataSetChanged();//整个刷新
+                                mtListView.getListView().getAdapter().notifyItemRangeInserted(0, 1);
+                                mtListView.getListView().scrollToPosition(0);
                             }
                         }
                     }
