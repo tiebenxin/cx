@@ -454,11 +454,17 @@ public class MsgMainFragment extends Fragment {
                         if (listData != null) {
                             int index = listData.indexOf(session);
                             if (index >= 0) {
-                                listData.set(index, session);
-                                mtListView.getListView().getAdapter().notifyItemChanged(index, index);
-                            }else {
+                                Session s = listData.get(index);
+                                if (s != null && s.getUp_time().equals(session.getUp_time())) {
+                                    listData.set(index, session);
+                                    mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                                } else {//时间需要重拍
+                                    mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
+                                }
+                            } else {
                                 listData.add(0, session);//新会话，
-                                mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                                mtListView.getListView().getAdapter().notifyDataSetChanged();//整个刷新
+//                                mtListView.getListView().getAdapter().notifyItemChanged(index, index);
                             }
                         }
                     }

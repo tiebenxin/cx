@@ -19,7 +19,7 @@ public class Session extends RealmObject {
     private int type = 0;
     private Long from_uid;
     private String gid;
-    private Long up_time;
+    private Long up_time;//更新时间
     private int unread_count = 0;
     //草稿
     private String draft;
