@@ -543,9 +543,6 @@ public class SocketData {
             case SHORT_VIDEO:
                 wmsg.setShortVideo((MsgBean.ShortVideoMessage) value);
                 break;
-            case CHANGE_SURVIVAL_TIME:
-                wmsg.setChangeSurvivalTime((MsgBean.ChangeSurvivalTimeMessage) value);
-                break;
             case UNRECOGNIZED:
                 break;
 
@@ -1212,13 +1209,13 @@ public class SocketData {
                     return null;
                 }
                 break;
-            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
-                if (obj instanceof ChangeSurvivalTimeMessage) {
-                    msg.setChangeSurvivalTimeMessage((ChangeSurvivalTimeMessage) obj);
-                } else {
-                    return null;
-                }
-                break;
+//            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+//                if (obj instanceof ChangeSurvivalTimeMessage) {
+//                    msg.setChangeSurvivalTimeMessage((ChangeSurvivalTimeMessage) obj);
+//                } else {
+//                    return null;
+//                }
+//                break;
         }
 
         return msg;
@@ -1339,13 +1336,13 @@ public class SocketData {
                     return null;
                 }
                 break;
-            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
-                if (obj instanceof ChangeSurvivalTimeMessage) {
-                    msg.setChangeSurvivalTimeMessage((ChangeSurvivalTimeMessage) obj);
-                } else {
-                    return null;
-                }
-                break;
+//            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+//                if (obj instanceof ChangeSurvivalTimeMessage) {
+//                    msg.setChangeSurvivalTimeMessage((ChangeSurvivalTimeMessage) obj);
+//                } else {
+//                    return null;
+//                }
+//                break;
         }
 
         return msg;

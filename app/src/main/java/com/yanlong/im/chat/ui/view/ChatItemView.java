@@ -860,7 +860,7 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
     }
 
-    public void setReadDestroy(boolean isGroup, int type, String info,Context context) {
+    public void setReadDestroy(String gid,long uid, int type, String info,Context context) {
         txtReadDestroy.setText(info);
         if (type == 0) {
             imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
@@ -871,10 +871,12 @@ public class ChatItemView extends LinearLayout {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                if (isGroup) {
+                if (!TextUtils.isEmpty(gid)) {
                     intent.setClass(context, GroupInfoActivity.class);
                 } else {
+                    intent.putExtra(ChatInfoActivity.AGM_FUID, uid);
                     intent.setClass(context, ChatInfoActivity.class);
+
                 }
                 context.startActivity(intent);
             }

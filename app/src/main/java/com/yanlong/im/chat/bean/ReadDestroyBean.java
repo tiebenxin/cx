@@ -7,9 +7,13 @@ package com.yanlong.im.chat.bean;
 public class ReadDestroyBean {
 
     public int survivaltime;
+    public String gid;
+    public long uid;
 
-    public ReadDestroyBean(int survivaltime){
+    public ReadDestroyBean(int survivaltime, String gid, long uid) {
         this.survivaltime = survivaltime;
+        this.gid = gid;
+        this.uid = uid;
     }
 
 }

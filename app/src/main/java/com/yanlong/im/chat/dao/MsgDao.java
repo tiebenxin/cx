@@ -8,6 +8,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
+import com.yanlong.im.chat.bean.ChangeSurvivalTimeMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.ContactNameBean;
 import com.yanlong.im.chat.bean.GropLinkInfo;
@@ -659,11 +660,40 @@ public class MsgDao {
         }
     }
 
-    public void msgSurvivalTime(){
+
+    /**
+     * 阅后即焚消息
+     */
+    public void msgSurvivalTime(String msgid,String gid, long uid, String nickname, String avatar, int survivalTime) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
+            //MsgAllBean msgAllBean = realm.where(MsgAllBean.class).equalTo("msg_id", msgid).findFirst();
 
+            MsgAllBean msgAllBean = new MsgAllBean();
+            msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
+            msgAllBean.setMsg_id(msgid);
+            if (!TextUtils.isEmpty(gid)) {
+
+            } else {
+                msgAllBean.setFrom_uid(uid);
+                msgAllBean.setFrom_avatar(avatar);
+                msgAllBean.setFrom_nickname(nickname);
+
+            }
+            MsgNotice notice = new MsgNotice();
+            if(survivalTime == -1 ){
+                notice.setNote(nickname+"设置了退出即焚");
+            }else if(survivalTime == 0){
+                notice.setNote(nickname+"取消了阅后即焚");
+            }else{
+                notice.setNote(nickname+"设置了消息10s后消失");
+            }
+            msgAllBean.setMsgNotice(notice);
+            ChangeSurvivalTimeMessage message = new ChangeSurvivalTimeMessage();
+            message.setSurvival_time(survivalTime);
+            msgAllBean.setChangeSurvivalTimeMessage(message);
+            realm.insertOrUpdate(msgAllBean);
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {

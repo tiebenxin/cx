@@ -10,10 +10,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActionActivity;
+import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -154,7 +156,6 @@ public class ChatServer extends Service {
 
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
-
             //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
             for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
                 onMsgbranch(msg);
@@ -325,15 +326,18 @@ public class ChatServer extends Service {
                 case SHORT_VIDEO:
                     return;
                 case CHANGE_SURVIVAL_TIME: //阅后即焚
-                    Log.v("CHANGE_SURVIVAL_TIME","CHANGE_SURVIVAL_TIME");
                     int survivalTime = msg.getChangeSurvivalTime().getSurvivalTime();
-                    if(TextUtils.isEmpty(msg.getGid())){
+
+    //                msgDao.msgSurvivalTime(msg.getMsgId(),null,msg.getFromUid(),msg.getNickname(),msg.getAvatar(),msg.getChangeSurvivalTime().getSurvivalTime());
+
+                    if(!TextUtils.isEmpty(msg.getGid())){
                         msg.getMsgId();
 
-
                     }else{
-
+                        userDao.updateReadDestroy(msg.getFromUid(),survivalTime);
                     }
+
+                    EventBus.getDefault().post(new ReadDestroyBean(survivalTime,msg.getGid(),msg.getFromUid()));
 
 
                     return;

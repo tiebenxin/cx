@@ -391,6 +391,8 @@ public class MsgConversionBean {
                 break;
             case CHANGE_SURVIVAL_TIME:
                 String survivaNotice = "";
+                Log.v("CHANGE_SURVIVAL_TIME",msgAllBean.getMsg_id());
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
                     survivaNotice = bean.getNickname() + "设置了退出即焚";
                 } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
@@ -400,10 +402,10 @@ public class MsgConversionBean {
                 }
                 MsgCancel survivaMsgCel = new MsgCancel();
                 survivaMsgCel.setNote(survivaNotice);
+                msgAllBean.setMsgCancel(survivaMsgCel);
                 ChangeSurvivalTimeMessage changeSurvivalTimeMessage = new ChangeSurvivalTimeMessage();
                 changeSurvivalTimeMessage.setSurvival_time(bean.getChangeSurvivalTime().getSurvivalTime());
-                msgAllBean.setMsgCancel(survivaMsgCel);
-                msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
+                msgAllBean.setChangeSurvivalTimeMessage(changeSurvivalTimeMessage);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

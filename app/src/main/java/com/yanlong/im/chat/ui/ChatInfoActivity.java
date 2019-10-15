@@ -98,23 +98,26 @@ public class ChatInfoActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void setingReadDestroy(ReadDestroyBean bean){
-        destroyTime = bean.survivaltime;
-        if(destroyTime == -1){
-            ckRedDestroy.setChecked(true);
-            ckExitDestroy.setChecked(true);
-            viewExitDestroy.setVisibility(View.VISIBLE);
-            viewDestroyTime.setVisibility(View.GONE);
-        }else if(destroyTime == 0){
-            ckRedDestroy.setChecked(false);
-            ckExitDestroy.setChecked(false);
-            viewExitDestroy.setVisibility(View.GONE);
-            viewDestroyTime.setVisibility(View.GONE);
-        }else{
-            ckRedDestroy.setChecked(true);
-            ckExitDestroy.setChecked(false);
-            sbDestroyTime.setProgress(50);
-            viewExitDestroy.setVisibility(View.VISIBLE);
-            viewDestroyTime.setVisibility(View.VISIBLE);
+
+        if(bean.uid == fuid){
+            destroyTime = bean.survivaltime;
+            if(destroyTime == -1){
+                ckRedDestroy.setChecked(true);
+                ckExitDestroy.setChecked(true);
+                viewExitDestroy.setVisibility(View.VISIBLE);
+                viewDestroyTime.setVisibility(View.GONE);
+            }else if(destroyTime == 0){
+                ckRedDestroy.setChecked(false);
+                ckExitDestroy.setChecked(false);
+                viewExitDestroy.setVisibility(View.GONE);
+                viewDestroyTime.setVisibility(View.GONE);
+            }else{
+                ckRedDestroy.setChecked(true);
+                ckExitDestroy.setChecked(false);
+                sbDestroyTime.setProgress(50);
+                viewExitDestroy.setVisibility(View.VISIBLE);
+                viewDestroyTime.setVisibility(View.VISIBLE);
+            }
         }
     }
 
