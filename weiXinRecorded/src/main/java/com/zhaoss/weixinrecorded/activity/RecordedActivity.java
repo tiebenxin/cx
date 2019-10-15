@@ -48,7 +48,7 @@ public class RecordedActivity extends BaseActivity {
 
     public static final int REQUEST_CODE_KEY = 100;
 
-    public static final float MAX_VIDEO_TIME = 15f*1000;  //最大录制时间
+    public static final float MAX_VIDEO_TIME = 18f*1000;  //最大录制时间
     public static final float MIN_VIDEO_TIME = 2f*1000;  //最小录制时间
 
     private SurfaceView surfaceView;
