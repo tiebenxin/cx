@@ -666,10 +666,31 @@ public class SocketData {
      * 发送视频
      * @param toId
      * @param toGid
+     * @param videoMessage
+     * @return
+     */
+    public static MsgAllBean 发送视频整体信息(Long toId,String toGid,VideoMessage videoMessage) {
+        String bg_URL=videoMessage.getBg_url();
+        long time=videoMessage.getDuration();
+        String url=videoMessage.getUrl();
+        long width=videoMessage.getWidth();
+        long height=videoMessage.getHeight();
+        String msgId=videoMessage.getMsgId();
+
+
+        MsgBean.ShortVideoMessage msg;
+        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int)width).setHeight((int)height).build();
+        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
+    }
+
+    /***
+     * 发送视频
+     * @param toId
+     * @param toGid
      * @param url
      * @return
      */
-    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, VideoMessage imageSize, long time, int width, int height) {
+    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal,  long time, int width, int height) {
         MsgBean.ShortVideoMessage msg;
 //        String extTh = "/below-20k";
 //        String extPv = "/below-200k";
@@ -817,7 +838,6 @@ public class SocketData {
         videoMessage.setMsgId(msgId);
         videoMessage.setUrl(url);
         videoMessage.setBg_url(bgUrl);
-        ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
         videoMessage.setDuration(duration);
         videoMessage.setHeight(height);
         videoMessage.setWidth(width);

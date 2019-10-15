@@ -899,10 +899,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 //                Uri uri = Uri.fromFile(new File(dirPath));
 //                intent.setData(uri);
 //                getApplicationContext().sendBroadcast(intent);
-                MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
+
+
+//                MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
                 ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + path);
                 dismissDialog();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_error) + "\n" + e.getMessage());
                 dismissDialog();
                 e.printStackTrace();

@@ -223,6 +223,27 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     finish();
                 }
             });
+        }else if(msgAllBean.getVideoMessage() != null){
+            alertForward.init(MsgForwardActivity.this, mIcon, mName,  null, msgAllBean.getVideoMessage().getBg_url(),"发送", new AlertForward.Event() {
+                @Override
+                public void onON() {
+
+                }
+
+                @Override
+                public void onYes(String content) {
+                    // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
+//                    Long toUId = bean.getFrom_uid();
+//                    String toGid = bean.getGid();
+                    SocketData.发送视频整体信息(toUid,toGid,msgAllBean.getVideoMessage());
+//                    SocketData.send4Chat(toUid, toGid, msgAllBean.getVideoMessage());
+//                    if (StringUtil.isNotNull(content)) {
+//                        SocketData.send4Chat(toUid, toGid, content);
+//                    }
+                    finish();
+                }
+            });
+
         }
 
 

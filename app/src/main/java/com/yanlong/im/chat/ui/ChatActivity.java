@@ -255,6 +255,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View mViewLine2;
     private View mViewLine3;
     private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
+    private MsgAllBean currentPlayBean;
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -1318,7 +1319,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //清理会话数量
         taskCleanRead();
-        AudioPlayManager.getInstance().stopPlay();
         Log.v(TAG, "onBackPressed");
         clearScrollPosition();
         super.onBackPressed();
@@ -1343,8 +1343,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Override
     protected void onStop() {
-
         super.onStop();
+        AudioPlayManager.getInstance().stopPlay();
+        if (currentPlayBean != null) {
+            updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
+        }
     }
 
     @Override
@@ -1561,6 +1564,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         msgListData.add(imgMsgBean);
                         UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, 10, videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
+//                        MsgDao dao =new MsgDao();
+//                        dao.fixVideoLocalUrl(imgMsgId,file);
                         notifyData2Bottom(true);
 
 
@@ -2207,6 +2212,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     startActivity(intent);
                                 } else {
                                     downVideo(msgbean, msgbean.getVideoMessage());
+                                    MsgDao dao = new MsgDao();
+                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
                                 }
                             } else {
                                 downVideo(msgbean, msgbean.getVideoMessage());
@@ -2496,6 +2503,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {
+        currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
         if (!msgBean.isMe() && !msgBean.isRead()) {
@@ -3320,7 +3328,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
         }
-        dao.updateMsgReaded(toUId, toGid, true);
+//        dao.updateMsgReaded(toUId, toGid, true);
     }
 
     /***

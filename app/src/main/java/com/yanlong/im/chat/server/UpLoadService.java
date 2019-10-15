@@ -190,7 +190,7 @@ public class UpLoadService extends Service {
                         eventUpImgLoadEvent.setState(1);
                         eventUpImgLoadEvent.setUrl(url);
                         eventUpImgLoadEvent.setOriginal(isOriginal);
-                        Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url,netBgUrl,isOriginal, videoMessage, time,(int)videoMessage.getWidth(),(int)videoMessage.getHeight());
+                        Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url,netBgUrl,isOriginal, time,(int)videoMessage.getWidth(),(int)videoMessage.getHeight());
 
                         eventUpImgLoadEvent.setMsgAllBean(msgbean);
                         EventBus.getDefault().post(eventUpImgLoadEvent);
@@ -317,7 +317,7 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setState(1);
                 eventUpImgLoadEvent.setUrl(url);
                 eventUpImgLoadEvent.setOriginal(isOriginal);
-                Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url,video_bg,isOriginal, videoMessage, time,(int)videoMessage.getWidth(),(int)videoMessage.getHeight());
+                Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url,video_bg,isOriginal,time,(int)videoMessage.getWidth(),(int)videoMessage.getHeight());
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
@@ -330,7 +330,6 @@ public class UpLoadService extends Service {
                 //  Log.d("tag", "fail : ===============>"+id);
                 //alert.dismiss();
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
-
                 //  upProgress.setProgress(100);
                 updateProgress(id, 100);
                 eventUpImgLoadEvent.setMsgid(id);

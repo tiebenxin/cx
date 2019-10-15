@@ -13,5 +13,6 @@
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="black2">#262F40</color>
+    <color name="progress_green">#db07c160</color>
 
 </resources>

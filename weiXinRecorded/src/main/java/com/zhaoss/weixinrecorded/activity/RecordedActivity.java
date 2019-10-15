@@ -48,7 +48,7 @@ public class RecordedActivity extends BaseActivity {
 
     public static final int REQUEST_CODE_KEY = 100;
 
-    public static final float MAX_VIDEO_TIME = 10f*1000;  //最大录制时间
+    public static final float MAX_VIDEO_TIME = 15f*1000;  //最大录制时间
     public static final float MIN_VIDEO_TIME = 2f*1000;  //最小录制时间
 
     private SurfaceView surfaceView;
@@ -277,9 +277,9 @@ public class RecordedActivity extends BaseActivity {
             public void onClick(View v) {
                 mCameraHelp.changeFlash();
                 if (mCameraHelp.isFlashOpen()) {
-                    iv_flash_video.setImageResource(R.mipmap.video_flash_open);
+//                    iv_flash_video.setImageResource(R.mipmap.video_flash_open);
                 } else {
-                    iv_flash_video.setImageResource(R.mipmap.video_flash_close);
+//                    iv_flash_video.setImageResource(R.mipmap.video_flash_close);
                 }
             }
         });
@@ -414,6 +414,7 @@ public class RecordedActivity extends BaseActivity {
                 }
                 if (countTime <= MAX_VIDEO_TIME) {
                     lineProgressView.setProgress(countTime/ MAX_VIDEO_TIME);
+                    recordView.updateProgress(countTime/MAX_VIDEO_TIME*360);
                 }else{
                     upEvent();
                     iv_next.callOnClick();
@@ -466,9 +467,9 @@ public class RecordedActivity extends BaseActivity {
     private void initRecorderState(){
 
         if(segmentList.size() > 0){
-            tv_hint.setText("长按录像");
+//            tv_hint.setText("长按录像");
         }else{
-            tv_hint.setText("长按录像 点击拍照");
+//            tv_hint.setText("长按录像 点击拍照");
         }
         tv_hint.setVisibility(View.VISIBLE);
 
