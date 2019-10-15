@@ -2271,8 +2271,9 @@ public class MsgDao {
      * 排除语音，等消息
      *
      * */
-    public void updateMsgReaded(Long uid, String gid, boolean isRead) {
+    public boolean updateMsgRead(Long uid, String gid, boolean isRead) {
         Realm realm = DaoUtil.open();
+        boolean hasChange = false;
         try {
             realm.beginTransaction();
             RealmResults<MsgAllBean> realmResults = null;
@@ -2301,13 +2302,16 @@ public class MsgDao {
             }
             if (list != null) {
                 int len = list.size();
-                for (int i = 0; i < len; i++) {
-                    MsgAllBean bean = list.get(i);
-                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
-                        continue;
+                if (len > 0) {
+                    hasChange = true;
+                    for (int i = 0; i < len; i++) {
+                        MsgAllBean bean = list.get(i);
+                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                            continue;
+                        }
+                        bean.setRead(isRead);
+                        realm.insertOrUpdate(bean);
                     }
-                    bean.setRead(isRead);
-                    realm.insertOrUpdate(bean);
                 }
             }
 
@@ -2317,6 +2321,7 @@ public class MsgDao {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
+        return hasChange;
     }
 
 
