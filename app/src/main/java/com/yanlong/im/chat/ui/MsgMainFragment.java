@@ -502,7 +502,7 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        taskListData();
+//        taskListData();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -238,6 +238,14 @@ public class MessageManager {
             setMessageChange(true);
             notifyRefreshMsg(isGroup(wrapMessage.getFromUid(), bean.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
         }
+        //记录批量信息来源
+        if (isList && taskMsgList != null) {
+            if (isGroup(wrapMessage.getFromUid(), bean.getGid())) {
+                taskMsgList.addGid(bean.getGid());
+            } else {
+                taskMsgList.addUid(wrapMessage.getFromUid());
+            }
+        }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
     }
@@ -657,5 +665,33 @@ public class MessageManager {
         }
         playVBTimeOld = System.currentTimeMillis();
         MediaBackUtil.playVibration(AppConfig.getContext(), 200);
+    }
+
+    /*
+     * 更新缓存群头像
+     * */
+    public void updateCacheGroupAvatar(String gid, String url) {
+        if (!TextUtils.isEmpty(gid) && !TextUtils.isEmpty(url)) {
+            Group group = getCacheGroup(gid);
+            if (group != null) {
+                group.setAvatar(url);
+                cacheGroups.remove(gid);
+                cacheGroups.put(gid, group);
+            }
+        }
+    }
+
+    /*
+     * 更新缓存置顶或者免打扰
+     * */
+    public void updateCacheTopOrDisturb(String gid, int top, int disturb) {
+        if (!TextUtils.isEmpty(gid)) {
+            Group group = getCacheGroup(gid);
+            if (group != null) {
+//                group.setAvatar(url);
+                cacheGroups.remove(gid);
+                cacheGroups.put(gid, group);
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.NetUtil;
@@ -303,7 +304,9 @@ public class MsgAction {
                     return;
                 if (response.body().isOk()) {//存库
                     dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
+
                     MessageManager.getInstance().setMessageChange(true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
 
                 cb.onResponse(call, response);
