@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import androidx.annotation.Nullable;
+
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
@@ -60,6 +62,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("destroyTime", long.class);
 
     }
+
     //短视频数据库
     private void updateV3(RealmSchema schema) {
         schema.create("VideoMessage")
@@ -71,5 +74,15 @@ public class DaoMigration implements RealmMigration {
                 .addField("isReadOrigin", boolean.class)
                 .addField("url", String.class);
 //                .addField("localUrl", String.class);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return obj instanceof DaoMigration;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }
