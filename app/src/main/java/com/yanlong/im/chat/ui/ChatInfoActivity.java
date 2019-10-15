@@ -25,6 +25,7 @@ import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -69,6 +70,7 @@ public class ChatInfoActivity extends AppActivity {
     private TextView tvDestroyTime;
     private SeekBar sbDestroyTime;
     private int destroyTime;
+    private ReadDestroyUtil readDestroyUtil;
 
 
     @Override
@@ -97,30 +99,30 @@ public class ChatInfoActivity extends AppActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void setingReadDestroy(ReadDestroyBean bean){
+    public void setingReadDestroy(ReadDestroyBean bean) {
 
-        if(bean.uid == fuid){
+        if (bean.uid == fuid) {
             destroyTime = bean.survivaltime;
-            if(destroyTime == -1){
+            if (destroyTime == -1) {
                 ckRedDestroy.setChecked(true);
                 ckExitDestroy.setChecked(true);
                 viewExitDestroy.setVisibility(View.VISIBLE);
                 viewDestroyTime.setVisibility(View.GONE);
-            }else if(destroyTime == 0){
+            } else if (destroyTime == 0) {
                 ckRedDestroy.setChecked(false);
                 ckExitDestroy.setChecked(false);
                 viewExitDestroy.setVisibility(View.GONE);
                 viewDestroyTime.setVisibility(View.GONE);
-            }else{
+            } else {
                 ckRedDestroy.setChecked(true);
                 ckExitDestroy.setChecked(false);
-                sbDestroyTime.setProgress(50);
                 viewExitDestroy.setVisibility(View.VISIBLE);
                 viewDestroyTime.setVisibility(View.VISIBLE);
+                readDestroyUtil.initSeekBarnProgress(sbDestroyTime, destroyTime);
+                tvDestroyTime.setText(readDestroyUtil.formatDateTime(destroyTime));
             }
         }
     }
-
 
 
     //自动寻找控件
@@ -234,24 +236,26 @@ public class ChatInfoActivity extends AppActivity {
 
 
     private void initData() {
+        readDestroyUtil = new ReadDestroyUtil();
         UserInfo userInfo = userDao.findUserInfo(fuid);
         destroyTime = userInfo.getDestroy();
-        if(destroyTime == -1){
+        if (destroyTime == -1) {
             ckRedDestroy.setChecked(true);
             ckExitDestroy.setChecked(true);
             viewExitDestroy.setVisibility(View.VISIBLE);
             viewDestroyTime.setVisibility(View.GONE);
-        }else if(destroyTime == 0){
+        } else if (destroyTime == 0) {
             ckRedDestroy.setChecked(false);
             ckExitDestroy.setChecked(false);
             viewExitDestroy.setVisibility(View.GONE);
             viewDestroyTime.setVisibility(View.GONE);
-        }else{
+        } else {
             ckRedDestroy.setChecked(true);
             ckExitDestroy.setChecked(false);
-            sbDestroyTime.setProgress(50);
             viewExitDestroy.setVisibility(View.VISIBLE);
             viewDestroyTime.setVisibility(View.VISIBLE);
+            readDestroyUtil.initSeekBarnProgress(sbDestroyTime, destroyTime);
+            tvDestroyTime.setText(readDestroyUtil.formatDateTime(destroyTime));
         }
     }
 
@@ -263,7 +267,7 @@ public class ChatInfoActivity extends AppActivity {
                 if (isChecked) {
                     viewExitDestroy.setVisibility(View.VISIBLE);
                     viewDestroyTime.setVisibility(View.VISIBLE);
-                    destroyTime = 5;
+                    sbDestroyTime.setProgress(60);
                 } else {
                     viewExitDestroy.setVisibility(View.GONE);
                     viewDestroyTime.setVisibility(View.GONE);
@@ -280,7 +284,7 @@ public class ChatInfoActivity extends AppActivity {
                     destroyTime = -1;
                 } else {
                     viewDestroyTime.setVisibility(View.VISIBLE);
-                    destroyTime = 5;
+                    sbDestroyTime.setProgress(60);
                 }
             }
         });
@@ -288,11 +292,7 @@ public class ChatInfoActivity extends AppActivity {
         sbDestroyTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress > 0) {
-                    viewExitDestroy.setVisibility(View.GONE);
-                } else {
-                    viewExitDestroy.setVisibility(View.VISIBLE);
-                }
+                destroyTime = readDestroyUtil.setSeekBarnProgress(seekBar, progress, tvDestroyTime);
             }
 
             @Override
@@ -302,43 +302,10 @@ public class ChatInfoActivity extends AppActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                int progress = seekBar.getProgress();
-//                if (progress == 0 || progress <= 4.5) {
-//                    seekBar.setProgress(0);
-//                } else if (progress >= 4.5 || progress <= 13.5) {
-//                    seekBar.setProgress(9);
-//                } else if (progress >= 13.5 || progress <= 22.5) {
-//                    seekBar.setProgress(18);
-//                } else if (progress >= 22.5 || progress <= 31.5) {
-//                    seekBar.setProgress(27);
-//                } else if (progress >= 31.5 || progress <= 40.5) {
-//                    seekBar.setProgress(36);
-//                } else if (progress >= 40.5 || progress <= 49.5) {
-//                    seekBar.setProgress(45);
-//                } else if (progress >= 49.5 || progress <= 58.5) {
-//                    seekBar.setProgress(54);
-//                } else if (progress >= 58.5 || progress <= 67.5) {
-//                    seekBar.setProgress(63);
-//                } else if (progress >= 67.5 || progress <= 75.5) {
-//                    seekBar.setProgress(72);
-//                } else if (progress >= 75.5 || progress <= 84.5) {
-//                    seekBar.setProgress(81);
-//                } else if (progress >= 84.5 || progress <= 100) {
-//                    seekBar.setProgress(100);
-//                }
-                destroyTime = 5;
-                double sss = 100 / cont;
-                Log.v("SeekBar", sss + "sss");
-                double xxx = sss / 2;
-                Log.v("SeekBar", xxx + "xxx");
-                int ccc = (int) (progress / xxx);
-                Log.v("SeekBar", ccc + "ccc");
 
             }
         });
     }
-
-    private int cont = 12;
 
 
     //自动生成RecyclerViewAdapter
@@ -478,7 +445,7 @@ public class ChatInfoActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                    userDao.updateReadDestroy(fuid,survivalTime);
+                    userDao.updateReadDestroy(fuid, survivalTime);
                     // ToastUtil.show(context,"设置成功");
                 }
             }

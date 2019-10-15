@@ -14,6 +14,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -24,6 +25,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -35,6 +37,7 @@ import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventExitChat;
@@ -49,6 +52,8 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -94,6 +99,15 @@ public class GroupInfoActivity extends AppActivity {
     private Gson gson = new Gson();
     private Group ginfo;
 
+    private CheckBox ckRedDestroy;
+    private LinearLayout viewExitDestroy;
+    private CheckBox ckExitDestroy;
+    private LinearLayout viewDestroyTime;
+    private TextView tvDestroyTime;
+    private SeekBar sbDestroyTime;
+    private int destroyTime;
+    private ReadDestroyUtil readDestroyUtil;
+
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -123,6 +137,14 @@ public class GroupInfoActivity extends AppActivity {
         ckGroupSave = findViewById(R.id.ck_group_save);
         btnDel = findViewById(R.id.btn_del);
         viewClearChatRecord = findViewById(R.id.view_clear_chat_record);
+
+        ckRedDestroy = findViewById(R.id.ck_red_destroy);
+        viewExitDestroy = findViewById(R.id.view_exit_destroy);
+        ckExitDestroy = findViewById(R.id.ck_exit_destroy);
+        viewDestroyTime = findViewById(R.id.view_destroy_time);
+        tvDestroyTime = findViewById(R.id.tv_destroy_time);
+        sbDestroyTime = findViewById(R.id.sb_destroy_time);
+        readDestroyUtil = new ReadDestroyUtil();
     }
 
     @Override
@@ -308,6 +330,80 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
+
+    private void controlDestroyView() {
+        ckRedDestroy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    viewExitDestroy.setVisibility(View.VISIBLE);
+                    viewDestroyTime.setVisibility(View.VISIBLE);
+                    sbDestroyTime.setProgress(60);
+                } else {
+                    viewExitDestroy.setVisibility(View.GONE);
+                    viewDestroyTime.setVisibility(View.GONE);
+                    destroyTime = 0;
+                }
+            }
+        });
+
+        ckExitDestroy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    viewDestroyTime.setVisibility(View.GONE);
+                    destroyTime = -1;
+                } else {
+                    viewDestroyTime.setVisibility(View.VISIBLE);
+                    sbDestroyTime.setProgress(60);
+                }
+            }
+        });
+
+        sbDestroyTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                destroyTime = readDestroyUtil.setSeekBarnProgress(seekBar, progress, tvDestroyTime);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setingReadDestroy(ReadDestroyBean bean) {
+        if (bean.gid == gid) {
+            destroyTime = bean.survivaltime;
+            if (destroyTime == -1) {
+                ckRedDestroy.setChecked(true);
+                ckExitDestroy.setChecked(true);
+                viewExitDestroy.setVisibility(View.VISIBLE);
+                viewDestroyTime.setVisibility(View.GONE);
+            } else if (destroyTime == 0) {
+                ckRedDestroy.setChecked(false);
+                ckExitDestroy.setChecked(false);
+                viewExitDestroy.setVisibility(View.GONE);
+                viewDestroyTime.setVisibility(View.GONE);
+            } else {
+                ckRedDestroy.setChecked(true);
+                ckExitDestroy.setChecked(false);
+                viewExitDestroy.setVisibility(View.VISIBLE);
+                viewDestroyTime.setVisibility(View.VISIBLE);
+                readDestroyUtil.initSeekBarnProgress(sbDestroyTime, destroyTime);
+                tvDestroyTime.setText(readDestroyUtil.formatDateTime(destroyTime));
+            }
+        }
+    }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -319,13 +415,26 @@ public class GroupInfoActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
         findViews();
-
+        controlDestroyView();
+        EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         initEvent();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        changeSurvivalTime(gid,destroyTime);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     public boolean isPercentage = true;
@@ -384,6 +493,28 @@ public class GroupInfoActivity extends AppActivity {
                 );
             }
         });
+
+
+        destroyTime = ginfo.getSurvivaltime();
+        if (destroyTime == -1) {
+            ckRedDestroy.setChecked(true);
+            ckExitDestroy.setChecked(true);
+            viewExitDestroy.setVisibility(View.VISIBLE);
+            viewDestroyTime.setVisibility(View.GONE);
+        } else if (destroyTime == 0) {
+            ckRedDestroy.setChecked(false);
+            ckExitDestroy.setChecked(false);
+            viewExitDestroy.setVisibility(View.GONE);
+            viewDestroyTime.setVisibility(View.GONE);
+        } else {
+            ckRedDestroy.setChecked(true);
+            ckExitDestroy.setChecked(false);
+            viewExitDestroy.setVisibility(View.VISIBLE);
+            viewDestroyTime.setVisibility(View.VISIBLE);
+            readDestroyUtil.initSeekBarnProgress(sbDestroyTime, destroyTime);
+            tvDestroyTime.setText(readDestroyUtil.formatDateTime(destroyTime));
+        }
+
     }
 
     private List<UserInfo> listDataTop = new ArrayList<>();
@@ -551,14 +682,6 @@ public class GroupInfoActivity extends AppActivity {
         };
 
         msgAction.groupQuit(gid,UserAction.getMyInfo().getName(), callBack);
-
-//        if (isAdmin()) {//群主解散
-//            msgAction.groupDestroy(gid, callBack);
-//        } else {//成员退出
-//
-//        }
-
-
     }
 
     private boolean isAdmin() {
@@ -820,6 +943,22 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     txtGroupNick.setText(name);
                     initEvent();
+                }
+            }
+        });
+    }
+
+    private void changeSurvivalTime(String gid, int survivalTime) {
+        msgAction.changeSurvivalTime(gid, survivalTime, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                  //  userDao.updateReadDestroy(fuid, survivalTime);
+                    // ToastUtil.show(context,"设置成功");
                 }
             }
         });

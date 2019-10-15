@@ -27,6 +27,10 @@ public class DaoMigration implements RealmMigration {
                 updateV4(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 4) {
+                updateV5(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -60,6 +64,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("destroyTime", long.class);
 
     }
+
     //短视频数据库
     private void updateV3(RealmSchema schema) {
         schema.create("VideoMessage")
@@ -72,4 +77,12 @@ public class DaoMigration implements RealmMigration {
                 .addField("url", String.class);
 //                .addField("localUrl", String.class);
     }
+
+    //新增群阅后即焚
+    private void updateV5(RealmSchema schema) {
+        schema.get("Group")
+                .addField("survivaltime", int.class);
+    }
+
+
 }

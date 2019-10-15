@@ -14,6 +14,8 @@ import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
 
+import org.greenrobot.eventbus.EventBus;
+
 /***
  * 统一的activity
  * @author jyj
@@ -53,7 +55,6 @@ public class AppActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         alert.dismiss4distory();
-
     }
 
     //字体缩放倍数
