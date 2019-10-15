@@ -2128,10 +2128,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
                         }
                         // 是文本且小于5分钟 显示重新编辑
-                        if (msgType == ChatEnum.EMessageType.TEXT && minutes < RELINQUISH_TIME) {
+                        if (msgType == ChatEnum.EMessageType.TEXT && minutes < RELINQUISH_TIME && msgbean.isMe()) {
                             onRestEdit(holder, msgbean.getMsgCancel().getNote(), content, msgbean.getTimestamp());
                         } else {
-                            holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                            if (msgbean.isMe()) {
+                                holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                            } else {
+                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
+                                        msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
+                            }
                         }
                     }
                     break;
