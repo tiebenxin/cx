@@ -236,10 +236,17 @@ public class MessageManager {
         //刷新单个
         if (result && !isList && bean != null) {
             setMessageChange(true);
-            notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), wrapMessage.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
+            notifyRefreshMsg(isGroup(wrapMessage.getFromUid(), bean.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    private boolean isGroup(Long uid, String gid) {
+        if (!TextUtils.isEmpty(gid)) {
+            return true;
+        }
+        return false;
     }
 
     /*
