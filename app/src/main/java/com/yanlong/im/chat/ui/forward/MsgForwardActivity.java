@@ -232,14 +232,9 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
                 @Override
                 public void onYes(String content) {
-                    // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
-//                    Long toUId = bean.getFrom_uid();
-//                    String toGid = bean.getGid();
+
                     SocketData.转发送视频整体信息(toUid,toGid,msgAllBean.getVideoMessage());
-//                    SocketData.send4Chat(toUid, toGid, msgAllBean.getVideoMessage());
-//                    if (StringUtil.isNotNull(content)) {
-//                        SocketData.send4Chat(toUid, toGid, content);
-//                    }
+
                     if (StringUtil.isNotNull(content)) {
                         SocketData.send4Chat(toUid, toGid, content);
                     }
