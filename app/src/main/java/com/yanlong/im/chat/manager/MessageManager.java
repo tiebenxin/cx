@@ -240,8 +240,12 @@ public class MessageManager {
         }
         //记录批量信息来源
         if (isList && taskMsgList != null) {
-            if (isGroup(wrapMessage.getFromUid(), bean.getGid())) {
-                taskMsgList.addGid(bean.getGid());
+            String gid = wrapMessage.getGid();
+            if (TextUtils.isEmpty(gid) && bean != null) {
+                gid = bean.getGid();
+            }
+            if (isGroup(wrapMessage.getFromUid(), gid)) {
+                taskMsgList.addGid(gid);
             } else {
                 taskMsgList.addUid(wrapMessage.getFromUid());
             }
@@ -382,14 +386,44 @@ public class MessageManager {
      * @param gid 群聊即群id，单聊为""
      * @param msg,最后一条消息，也要刷新时间
      * */
-    public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, Long uid, String gid, @CoreEnum.ESessionRefreshTag int refreshTag, MsgAllBean msg) {
+    public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, Long uid, String gid, @CoreEnum.ESessionRefreshTag int refreshTag, Object object) {
         EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
         eventRefreshMainMsg.setType(chatType);
         eventRefreshMainMsg.setUid(uid);
         eventRefreshMainMsg.setGid(gid);
         eventRefreshMainMsg.setRefreshTag(refreshTag);
-        if (msg != null) {
-            eventRefreshMainMsg.setMsgAllBean(msg);
+        if (object != null) {
+            if (object instanceof MsgAllBean) {
+                eventRefreshMainMsg.setMsgAllBean((MsgAllBean) object);
+            } else if (object instanceof Session) {
+                eventRefreshMainMsg.setSession((Session) object);
+
+            }
+        }
+        EventBus.getDefault().post(eventRefreshMainMsg);
+    }
+
+    /*
+     * 通知刷新消息列表，及未读数
+     * @param chatType 单聊群聊
+     * @param uid 单聊即用户id，群聊为null
+     * @param gid 群聊即群id，单聊为""
+     * @param msg,最后一条消息，也要刷新时间
+     * */
+    public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, Long uid, String gid, @CoreEnum.ESessionRefreshTag int refreshTag, Object object,boolean isRefreshTop) {
+        EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
+        eventRefreshMainMsg.setType(chatType);
+        eventRefreshMainMsg.setUid(uid);
+        eventRefreshMainMsg.setGid(gid);
+        eventRefreshMainMsg.setRefreshTag(refreshTag);
+        eventRefreshMainMsg.setRefreshTop(isRefreshTop);
+        if (object != null) {
+            if (object instanceof MsgAllBean) {
+                eventRefreshMainMsg.setMsgAllBean((MsgAllBean) object);
+            } else if (object instanceof Session) {
+                eventRefreshMainMsg.setSession((Session) object);
+
+            }
         }
         EventBus.getDefault().post(eventRefreshMainMsg);
     }
@@ -691,6 +725,28 @@ public class MessageManager {
 //                group.setAvatar(url);
                 cacheGroups.remove(gid);
                 cacheGroups.put(gid, group);
+            }
+        }
+    }
+
+    public void updateCacheGroup(Group group) {
+        if (cacheGroups != null) {
+            if (cacheGroups.containsValue(group)) {
+                cacheGroups.remove(group.getGid());
+                cacheGroups.put(group.getGid(), group);
+            } else {
+                cacheGroups.put(group.getGid(), group);
+            }
+        }
+    }
+
+    public void updateCacheUser(Group group) {
+        if (cacheGroups != null) {
+            if (cacheGroups.containsValue(group)) {
+                cacheGroups.remove(group.getGid());
+                cacheGroups.put(group.getGid(), group);
+            } else {
+                cacheGroups.put(group.getGid(), group);
             }
         }
     }

@@ -30,6 +30,7 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -1318,21 +1319,129 @@ public class MsgDao {
      * @param saved
      * @param needVerification
      */
-    public void saveSession4Switch(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
+    public Session saveSession4Switch(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
         Session session = DaoUtil.findOne(Session.class, "gid", gid);
         if (session == null)
-            return;
+            return null;
         if (notNotify != null)
             session.setIsMute(notNotify);
 
         if (isTop != null)
             session.setIsTop(isTop);
-
+//        Session result = realm.copyFromRealm(session);
         realm.insertOrUpdate(session);
 
+        realm.commitTransaction();
+        realm.close();
+        return session;
+    }
+
+    /*
+     * 更新群置顶
+     * */
+    public void updateGroupTop(String gid, int top) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group group = DaoUtil.findOne(Group.class, "gid", gid);
+        if (group == null)
+            return;
+        group.setIsTop(top);
+        realm.insertOrUpdate(group);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /*
+     * 更新群置顶
+     * */
+    public void updateGroupDisturb(String gid, int disturb) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group group = DaoUtil.findOne(Group.class, "gid", gid);
+        if (group == null)
+            return;
+        group.setNotNotify(disturb);
+        realm.insertOrUpdate(group);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /***
+     * 保存单聊置顶
+     * @param uid
+     * @param isTop
+     */
+    public Session updateUserSessionTop(Long uid, int isTop) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Session session = DaoUtil.findOne(Session.class, "from_uid", uid);
+        if (session == null)
+            return null;
+        session.setIsTop(isTop);
+        realm.insertOrUpdate(session);
+        realm.commitTransaction();
+        realm.close();
+        return session;
+    }
+
+    /***
+     * 保存单聊置顶
+     * @param uid
+     * @param isTop
+     */
+    public void updateUserTop(Long uid, int isTop) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
+        if (user == null)
+            return;
+        user.setIstop(isTop);
+        realm.insertOrUpdate(user);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+
+    /***
+     * 保存单聊免打扰
+     * @param uid
+     * @param isTop
+     */
+    public Session updateUserSessionDisturb(Long uid, int disturb) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Session session = DaoUtil.findOne(Session.class, "from_uid", uid);
+        if (session == null)
+            return null;
+        session.setIsMute(disturb);
+        realm.insertOrUpdate(session);
+        realm.commitTransaction();
+        realm.close();
+        return session;
+    }
+
+    /***
+     * 保存单聊置顶
+     * @param uid
+     * @param isTop
+     */
+    public void updateUserDisturb(Long uid, int isTop) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
+        if (user == null)
+            return;
+        user.setDisturb(isTop);
+        realm.insertOrUpdate(user);
         realm.commitTransaction();
         realm.close();
     }

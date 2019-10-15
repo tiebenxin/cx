@@ -39,6 +39,8 @@ public class Session extends RealmObject implements Comparable<Session> {
     @Ignore
     private boolean hasInitDisturb = false;//是否已经初始化免打扰
     @Ignore
+    private boolean hasInitTop = false;//是否已经初始化置顶
+    @Ignore
     private MsgAllBean message;//最后消息
 
     @Ignore
@@ -76,6 +78,7 @@ public class Session extends RealmObject implements Comparable<Session> {
                 e.printStackTrace();
             }
         }
+//        hasInitDisturb = false;
         return isMute;
     }
 
@@ -85,12 +88,14 @@ public class Session extends RealmObject implements Comparable<Session> {
 
     public int getIsTop() {
         // int isTop=0;
-        try {
-            isTop = type == 0 ? new UserDao().findUserInfo(from_uid).getIstop() : new MsgDao().getGroup4Id(gid).getIsTop();
-        } catch (Exception e) {
-            //  e.printStackTrace();
+        if (!hasInitTop) {
+            try {
+                isTop = type == 0 ? new UserDao().findUserInfo(from_uid).getIstop() : new MsgDao().getGroup4Id(gid).getIsTop();
+            } catch (Exception e) {
+                //  e.printStackTrace();
+            }
         }
-
+//        hasInitTop = false;
         return isTop;
     }
 
@@ -113,8 +118,8 @@ public class Session extends RealmObject implements Comparable<Session> {
     public void setType(int type) {
         this.type = type;
     }
-
     public Long getFrom_uid() {
+
         return from_uid == null ? -1 : from_uid;
     }
 
@@ -181,6 +186,19 @@ public class Session extends RealmObject implements Comparable<Session> {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
+    }
+
+
+    public void setHasInitTop(boolean hasInitTop) {
+        this.hasInitTop = hasInitTop;
+    }
+
+    public boolean isHasInitDisturb() {
+        return hasInitDisturb;
+    }
+
+    public boolean isHasInitTop() {
+        return hasInitTop;
     }
 
     @Override
