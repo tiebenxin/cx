@@ -684,6 +684,20 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
+    public static MsgAllBean 转发送视频整体信息(Long toId,String toGid,VideoMessage videoMessage) {
+        String bg_URL=videoMessage.getBg_url();
+        long time=videoMessage.getDuration();
+        String url=videoMessage.getUrl();
+        long width=videoMessage.getWidth();
+        long height=videoMessage.getHeight();
+        String msgId=videoMessage.getMsgId();
+
+
+        MsgBean.ShortVideoMessage msg;
+        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int)width).setHeight((int)height).build();
+        return send4Base( toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
+    }
+
     /***
      * 发送视频
      * @param toId
@@ -723,6 +737,12 @@ public class SocketData {
 
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
+    }
+
+    public static MsgAllBean 转发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal,  long time, int width, int height) {
+        MsgBean.ShortVideoMessage msg;
+        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
+        return send4Base( toId, toGid,  MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
     /***
