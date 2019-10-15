@@ -28,7 +28,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -58,7 +57,9 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
-import net.cb.cb.library.bean.EventRefreshMainMsg;
+
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -76,6 +77,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -420,7 +422,7 @@ public class MsgMainFragment extends Fragment {
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
             } else {
-                refreshPosition(event.getGid(), event.getUid());
+                refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean());
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
 
             }
@@ -432,12 +434,15 @@ public class MsgMainFragment extends Fragment {
      * 刷新单一位置
      * */
     @SuppressLint("CheckResult")
-    private void refreshPosition(String gid, Long uid) {
+    private void refreshPosition(String gid, Long uid, MsgAllBean bean) {
         Observable.just(0)
                 .map(new Function<Integer, Session>() {
                     @Override
                     public Session apply(Integer integer) throws Exception {
                         Session session = msgDao.sessionGet(gid, uid);
+                        if (bean != null) {
+                            session.setMessage(bean);
+                        }
                         prepareSession(session);
                         return session;
                     }
@@ -450,8 +455,19 @@ public class MsgMainFragment extends Fragment {
                         if (listData != null) {
                             int index = listData.indexOf(session);
                             if (index >= 0) {
+                                Session s = listData.get(index);
                                 listData.set(index, session);
-                                mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                                if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
+                                    mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                                } else {//有时间更新,需要重排
+                                    Collections.sort(listData);//重新排序
+                                    mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
+                                }
+                            } else {
+                                listData.add(0, session);//新会话，插入刷新
+//                                mtListView.getListView().getAdapter().notifyDataSetChanged();//整个刷新
+                                mtListView.getListView().getAdapter().notifyItemRangeInserted(0, 1);
+                                mtListView.getListView().scrollToPosition(0);
                             }
                         }
                     }
@@ -854,7 +870,10 @@ public class MsgMainFragment extends Fragment {
             } else {
                 session.setName(msgDao.getGroupName(session.getGid()));
             }
-            MsgAllBean msg = msgDao.msgGetLast4Gid(session.getGid());
+            MsgAllBean msg = session.getMessage();
+            if (msg == null) {
+                msg = msgDao.msgGetLast4Gid(session.getGid());
+            }
             if (msg != null) {
                 session.setMessage(msg);
                 if (msg.getMsg_type() == ChatEnum.EMessageType.NOTICE || msg.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL) {//通知不要加谁发的消息
@@ -875,7 +894,10 @@ public class MsgMainFragment extends Fragment {
                 session.setHasInitDisturb(true);
                 session.setAvatar(info.getHead());
             }
-            MsgAllBean msg = msgDao.msgGetLast4FUid(session.getFrom_uid());
+            MsgAllBean msg = session.getMessage();
+            if (msg == null) {
+                msg = msgDao.msgGetLast4FUid(session.getFrom_uid());
+            }
             if (msg != null) {
                 session.setMessage(msg);
             }

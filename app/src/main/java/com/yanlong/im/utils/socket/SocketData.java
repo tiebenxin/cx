@@ -98,19 +98,18 @@ public class SocketData {
     }
 
     /***
-     * 回执
+     * 回执,可以不发送msgId
      * @return
      */
     public static byte[] msg4ACK(String rid, List<String> msgids) {
 
         MsgBean.AckMessage ack;
-        MsgBean.AckMessage.Builder amsg = MsgBean.AckMessage.newBuilder()
-                .setRequestId(rid);
-
-        for (int i = 0; i < msgids.size(); i++) {
-            amsg.addMsgId(msgids.get(i));
+        MsgBean.AckMessage.Builder amsg = MsgBean.AckMessage.newBuilder().setRequestId(rid);
+        if (msgids != null) {
+            for (int i = 0; i < msgids.size(); i++) {
+                amsg.addMsgId(msgids.get(i));
+            }
         }
-
         ack = amsg.build();
 
         return SocketPact.getPakage(SocketPact.DataType.ACK, ack.toByteArray());
@@ -223,7 +222,7 @@ public class SocketData {
 
         //3.发送回执
         LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
-        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
+//        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
 
 
     }

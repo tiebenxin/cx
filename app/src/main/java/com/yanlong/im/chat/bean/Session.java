@@ -12,14 +12,14 @@ import io.realm.annotations.PrimaryKey;
 /***
  * 会话
  */
-public class Session extends RealmObject {
+public class Session extends RealmObject implements Comparable<Session> {
     @PrimaryKey
     private String sid;
     //会话类型,0:单人,1群
     private int type = 0;
     private Long from_uid;
     private String gid;
-    private Long up_time;
+    private Long up_time;//更新时间
     private int unread_count = 0;
     //草稿
     private String draft;
@@ -197,7 +197,7 @@ public class Session extends RealmObject {
                 }
             } else {
                 if (((Session) obj).getFrom_uid() != null && from_uid != null) {
-                    if (((Session) obj).getFrom_uid().equals(this.from_uid)) {
+                    if (((Session) obj).getFrom_uid().equals(this.from_uid)) {//Long 类型不能用==
                         return true;
                     } else {
                         return false;
@@ -208,5 +208,11 @@ public class Session extends RealmObject {
             }
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(Session o) {
+//        return (int) (this.up_time - o.up_time);//升序
+        return (int) (o.up_time - this.up_time);//降序
     }
 }
