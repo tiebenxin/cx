@@ -475,8 +475,10 @@ public class MsgMainFragment extends Fragment {
                                         listData.set(index, session);
                                         sortSession(index == 0);
                                         int newIndex = listData.indexOf(session);//获取重排后新位置
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(index, newIndex - index + 1);//范围刷新,刷新旧位置和新位置之间即可
-                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新取消置顶消息--start=" + index + "--count=" + (newIndex - index + 1));
+                                        int start = index > newIndex ? newIndex : index;//谁小，取谁
+                                        int count = Math.abs(newIndex - index + 1);
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);////范围刷新,刷新旧位置和新位置之间即可
+                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新取消置顶消息--start=" + start + "--count=" + count);
                                     }
                                 } else {
                                     listData.set(index, session);
@@ -485,7 +487,10 @@ public class MsgMainFragment extends Fragment {
                                     } else {//有时间更新,需要重排
                                         sortSession(index == 0);
                                         int newIndex = listData.indexOf(session);
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(index, newIndex - index + 1);//范围刷新
+                                        int start = index > newIndex ? newIndex : index;//谁小，取谁
+                                        int count = Math.abs(newIndex - index + 1);
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);//范围刷新
+                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--时间刷新重排--start=" + start + "--count=" + count);
                                     }
                                 }
                             } else {
