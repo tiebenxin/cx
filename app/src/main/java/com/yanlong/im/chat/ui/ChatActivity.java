@@ -1974,7 +1974,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 final List<OptionMenu> menus = new ArrayList<>();
 
                 //只更新单条处理
-
                 switch (msgbean.getMsg_type()) {
                     case ChatEnum.EMessageType.IMAGE:
                         Integer pg = null;
@@ -2005,7 +2004,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         onBindViewHolder(holder, position);
                         break;
                 }
-
                 itemLongClick(holder, msgbean, menus);
 
             }
@@ -2218,6 +2216,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 if (file.exists()){
                                     Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
                                     intent.putExtra("videopath",localUrl);
+                                    intent.putExtra("videomsg",new Gson().toJson(msgbean));
                                     startActivity(intent);
                                     MsgDao dao =new MsgDao();
                                     dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(),localUrl);
