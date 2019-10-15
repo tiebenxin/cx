@@ -296,7 +296,7 @@ public class RecordedActivity extends BaseActivity {
             }
         });
     }
-
+    private String aacPath;
     public void finishVideo(){
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
@@ -308,7 +308,7 @@ public class RecordedActivity extends BaseActivity {
                 String mp4Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".mp4";
                 mVideoEditor.h264ToMp4(h264Path, mp4Path);
                 //合成音频
-                String aacPath = mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
+                aacPath= mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
                 //音视频混合
                 mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, aacPath);
                 return mp4Path;
@@ -316,6 +316,13 @@ public class RecordedActivity extends BaseActivity {
             @Override
             public void onFinish(String result) {
                 closeProgressDialog();
+                //todo 删除合成钱原始音视频文件
+                if (null!=aacPath){
+                   File file=new File(aacPath);
+                   if (file.exists()){
+                       file.delete();
+                   }
+                }
                 Intent intent = new Intent(mContext, EditVideoActivity.class);
                 intent.putExtra(INTENT_PATH, result);
                 startActivityForResult(intent, REQUEST_CODE_KEY);
