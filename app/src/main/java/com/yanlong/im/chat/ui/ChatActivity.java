@@ -3363,14 +3363,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void taskDraftSet() {
         String df = edtChat.getText().toString().trim();
-        dao.sessionDraft(toGid, toUId, df);
         if (!TextUtils.isEmpty(draft)) {
             if (!TextUtils.isEmpty(df) && !draft.equals(df)) {
+                dao.sessionDraft(toGid, toUId, df);
+
                 MessageManager.getInstance().setMessageChange(true);
                 MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
+                dao.sessionDraft(toGid, toUId, df);
                 MessageManager.getInstance().setMessageChange(true);
                 MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
             }

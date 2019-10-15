@@ -552,9 +552,15 @@ public class MsgMainFragment extends Fragment {
             }
             if (bean.getType() == 0) {//单人
                 if (StringUtil.isNotNull(bean.getDraft())) {
-                    info = "草稿:" + bean.getDraft();
+                    //                    info = "草稿:" + bean.getDraft();
+                    SpannableStringBuilder style = new SpannableStringBuilder();
+                    style.append("[草稿]" + bean.getDraft());
+                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                    style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    holder.txtInfo.setText(style);
+                } else {
+                    holder.txtInfo.setText(info);
                 }
-                holder.txtInfo.setText(info);
 
                 Glide.with(getActivity()).load(icon)
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -605,9 +611,15 @@ public class MsgMainFragment extends Fragment {
                         break;
                     case 2:
                         if (StringUtil.isNotNull(bean.getDraft())) {
-                            info = "草稿:" + bean.getDraft();
+//                            info = "草稿:" + bean.getDraft();
+                            SpannableStringBuilder style = new SpannableStringBuilder();
+                            style.append("[草稿]" + bean.getDraft());
+                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                            style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            holder.txtInfo.setText(style);
+                        } else {
+                            holder.txtInfo.setText(info);
                         }
-                        holder.txtInfo.setText(info);
                         break;
                     default:
                         holder.txtInfo.setText(info);
@@ -810,7 +822,7 @@ public class MsgMainFragment extends Fragment {
 
     }
 
-    private void getSessionsAndRefresh(){
+    private void getSessionsAndRefresh() {
         listData = MessageManager.getInstance().getCacheSession();
         mtListView.notifyDataSetChange();
 

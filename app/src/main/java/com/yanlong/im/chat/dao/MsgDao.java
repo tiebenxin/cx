@@ -31,6 +31,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -1017,7 +1018,7 @@ public class MsgDao {
     }
 
     /***
-     * 存草稿
+     * 存草稿  需要更新时间
      * @param gid
      * @param uid
      * @param draft
@@ -1026,13 +1027,11 @@ public class MsgDao {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
-
             Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() : realm.where(Session.class).equalTo("from_uid", uid).findFirst();
-
-
             if (session != null) {
                 session.setDraft(draft);
                 session.setMessageType(2);
+                session.setUp_time(SocketData.getSysTime());
                 realm.insertOrUpdate(session);
             }
             realm.commitTransaction();
