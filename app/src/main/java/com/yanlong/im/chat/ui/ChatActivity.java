@@ -2112,14 +2112,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         if (msgbean.getStamp() != null) {
                             content = msgbean.getStamp().getComment();
                             if (StringUtil.isNotNull(msgbean.getStamp().getMsgId())) {
-                                msgType = Integer.parseInt(msgbean.getStamp().getMsgId());
+                                msgType = Integer.parseInt(msgbean.getStamp().getMsgId());// MsgId存放的是撤回的消息类型
                             }
                         }
                         // 是文本且小于5分钟 显示重新编辑
-                        if (msgType == ChatEnum.EMessageType.TEXT && minutes < RELINQUISH_TIME && msgbean.isMe()) {
+                        if (msgType == ChatEnum.EMessageType.TEXT && minutes < RELINQUISH_TIME && StringUtil.isNotNull(content)) {
                             onRestEdit(holder, msgbean.getMsgCancel().getNote(), content, msgbean.getTimestamp());
                         } else {
-                            if (msgbean.isMe()) {
+                            if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
                                 holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
                             } else {
                                 holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
