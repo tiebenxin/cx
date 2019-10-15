@@ -23,6 +23,8 @@ import com.yanlong.im.R;
 import net.cb.cb.library.view.AppActivity;
 
 import java.sql.Time;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -86,17 +88,19 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                if (fromUser){
+                    mMediaPlayer.seekTo(progress*mMediaPlayer.getDuration()/100);
+                }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                mMediaPlayer.pause();
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                mMediaPlayer.start();
             }
         });
 
@@ -105,18 +109,23 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
+            NumberFormat numberFormat = NumberFormat.getPercentInstance();
+            numberFormat.setMinimumFractionDigits(0);
+            DecimalFormat df=new DecimalFormat("0.00");
+            String result= df.format((double) currentTime/mMediaPlayer.getDuration());
+            activity_video_seek.setProgress((int)(Double.parseDouble(result)*100));
             if (currentTime/1000<10){
                 activity_video_current_time.setText("00:0"+currentTime/1000);
             }else{
                 activity_video_current_time.setText("00:"+currentTime/1000);
             }
-
         }
     };
     private int currentTime=0;
+    private  Timer timer;
     private void getProgress() {
 
-        Timer timer = new Timer();
+        timer= new Timer();
         timer.schedule(new TimerTask() {
 
             @Override
@@ -182,15 +191,23 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         super.onPause();
         if (null!=mMediaPlayer){
             mMediaPlayer.pause();
+            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+        }
+        if (null!=timer){
+            timer.cancel();
+            timer=null;
         }
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (null!=mMediaPlayer){
-            mMediaPlayer.start();
-        }
+//        if (null!=mMediaPlayer){
+//            mMediaPlayer.start();
+//        }
+//        if (null!=timer){
+//            timer.purge();
+//        }
     }
 
     @Override
@@ -200,6 +217,10 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             mMediaPlayer.stop();
             mMediaPlayer.release();
             mMediaPlayer=null;
+        }
+        if (null!=timer){
+            timer.cancel();
+            timer=null;
         }
     }
 
@@ -220,6 +241,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     }else{
                         mMediaPlayer.start();
                         activity_video_big_con.setVisibility(View.INVISIBLE);
+
                     }
                 }
                 break;
@@ -231,6 +253,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     }else{
                         mMediaPlayer.start();
                         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
+                        getProgress();
                     }
                 }
                 break;

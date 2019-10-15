@@ -170,7 +170,7 @@ public class RecordView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-//        if(down){
+        if(down){
 //            paint.setColor(ContextCompat.getColor(getContext(), downColor));
 //            if(changeStrokeWidth){
 //                if (isAdd) {
@@ -192,10 +192,11 @@ public class RecordView extends View {
 //                }
 //            }
 //            canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
-
-
-//            invalidate();
-//        }else {
+            currentRadius = getWidth()*0.5f-currentStrokeWidth*2;
+            canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
+            RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
+            canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
+        }else {
             changeStrokeWidth = false;
             currentStrokeWidth = minStrokeWidth;
             paint.setStrokeWidth(currentStrokeWidth);
@@ -209,10 +210,11 @@ public class RecordView extends View {
             }
             canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
 
-        RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
-        canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
+            RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
+            canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
 
-
-//        }
+//        RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
+//        canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
+        }
     }
 }
