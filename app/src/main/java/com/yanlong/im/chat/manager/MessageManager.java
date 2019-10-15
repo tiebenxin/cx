@@ -602,6 +602,9 @@ public class MessageManager {
      * @param canNotify 是否能发出通知声音后震动，批量消息只要通知一声
      * */
     private void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg, boolean isList, boolean canNotify) {
+        if (msg.getMsgType() != null && msg.getMsgType().getNumber() > 100) {
+            return;
+        }
         if (!isList) {
             doNotify(msg);
         } else {
