@@ -1965,7 +1965,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 final List<OptionMenu> menus = new ArrayList<>();
 
                 //只更新单条处理
-
                 switch (msgbean.getMsg_type()) {
                     case ChatEnum.EMessageType.IMAGE:
                         Integer pg = null;
@@ -1996,7 +1995,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         onBindViewHolder(holder, position);
                         break;
                 }
-
                 itemLongClick(holder, msgbean, menus);
 
             }
@@ -2208,20 +2206,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
 
-                            String localUrl = msgbean.getVideoMessage().getLocalUrl();
-                            if (StringUtil.isNotNull(localUrl)) {
-                                File file = new File(localUrl);
-                                if (file.exists()) {
-                                    Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-                                    intent.putExtra("videopath", localUrl);
+                            String localUrl= msgbean.getVideoMessage().getLocalUrl();
+                            if (StringUtil.isNotNull(localUrl)){
+                                File file=new File(localUrl);
+                                if (file.exists()){
+                                    Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
+                                    intent.putExtra("videopath",localUrl);
+                                    intent.putExtra("videomsg",new Gson().toJson(msgbean));
                                     startActivity(intent);
-                                } else {
-                                    downVideo(msgbean, msgbean.getVideoMessage());
-                                    MsgDao dao = new MsgDao();
-                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
+                                    MsgDao dao =new MsgDao();
+                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(),localUrl);
+                                }else{
+                                    downVideo(msgbean,msgbean.getVideoMessage());
                                 }
-                            } else {
-                                downVideo(msgbean, msgbean.getVideoMessage());
+                            }else{
+                                downVideo(msgbean,msgbean.getVideoMessage());
                             }
 
 
