@@ -3,6 +3,7 @@ package com.yanlong.im.notify;
 import android.content.Context;
 
 import cn.jpush.android.api.JPushMessage;
+import cn.jpush.android.api.NotificationMessage;
 import cn.jpush.android.service.JPushMessageReceiver;
 
 /**
@@ -30,5 +31,28 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     public void onMobileNumberOperatorResult(Context context, JPushMessage jPushMessage) {
         TagAliasOperatorHelper.getInstance().onMobileNumberOperatorResult(context,jPushMessage);
         super.onMobileNumberOperatorResult(context, jPushMessage);
+    }
+
+    @Override
+    public void onNotifyMessageArrived(Context context, NotificationMessage notificationMessage) {
+        super.onNotifyMessageArrived(context, notificationMessage);
+//        String title = notificationMessage.notificationTitle;
+//        Log.v("MyJPushMessageReceiver",title+"");
+//
+//        KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+//        String text = km.inKeyguardRestrictedInputMode() ? "锁屏了" : "屏幕亮着的";
+//        if (km.inKeyguardRestrictedInputMode()) {
+//            //判断是否锁屏
+//            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+//            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP, "bright");
+//            wl.acquire(); // 点亮屏幕
+//            wl.release(); // 释放
+//
+//
+//            Intent alarmIntent = new Intent(context, MessageActivity.class);
+//            //在广播中启动Activity的context可能不是Activity对象，所以需要添加NEW_TASK的标志，否则启动时可能会报错。
+//            alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(alarmIntent); //启动显示锁屏消息的activity
+//        }
     }
 }

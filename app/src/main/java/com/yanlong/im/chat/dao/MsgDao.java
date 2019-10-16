@@ -31,7 +31,9 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -443,13 +445,13 @@ public class MsgDao {
         GropLinkInfo gropLinkInfo = null;
         Realm realm = DaoUtil.open();
         try {
-            realm.beginTransaction();
+//            realm.beginTransaction();
 
             GropLinkInfo info = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
             if (info != null) {
                 gropLinkInfo = realm.copyFromRealm(info);
             }
-            realm.commitTransaction();
+//            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -589,11 +591,15 @@ public class MsgDao {
         }
     }
 
-    /***
+    /**
      * 撤回消息
+     *
+     * @param msgid       消息ID
      * @param msgCancelId
+     * @param content     撤回内容
+     * @param msgType     撤回的消息类型
      */
-    public void msgDel4Cancel(String msgid, String msgCancelId) {
+    public void msgDel4Cancel(String msgid, String msgCancelId, String content, String msgType) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -614,6 +620,13 @@ public class MsgDao {
                 cancel.setTo_uid(UserAction.getMyId());
                 cancel.setGid(bean.getGid());
                 cancel.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
+                // 保存临时消息，用于重新编辑
+                if (StringUtil.isNotNull(content)) {
+                    StampMessage stampMessage = new StampMessage();
+                    stampMessage.setComment(content);
+                    stampMessage.setMsgid(msgType);
+                    cancel.setStamp(stampMessage);
+                }
                 MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgid);
                 msgCel.setNote("你撤回了一条消息");
@@ -866,10 +879,16 @@ public class MsgDao {
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
             if (session == null) {
+
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
                 session.setType(1);
+                Group group = DaoUtil.findOne(Group.class, "gid", gid);
+                if (group != null) {
+                    session.setIsTop(group.getIsTop());
+                    session.setIsMute(group.getNotNotify());
+                }
             }
 
         } else {//个人消息
@@ -879,6 +898,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(toUid);
                 session.setType(0);
+                UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", toUid);
+                if (user != null) {
+                    session.setIsTop(user.getIstop());
+                    session.setIsMute(user.getDisturb());
+                }
             }
         }
 
@@ -909,15 +933,10 @@ public class MsgDao {
         realm.close();
     }
 
-    /***
-     * 会话未读数量+1
-     * @param gid 群id
-     * @param from_uid 单人id
-     */
-    public void sessionReadUpdate(String gid, Long from_uid) {
-        sessionReadUpdate(gid, from_uid, false);
-    }
-
+    /*
+     * 更新或者创建session
+     *
+     * */
     public void sessionReadUpdate(String gid, Long from_uid, boolean isCancel) {
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
@@ -927,6 +946,11 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
                 session.setType(1);
+                Group group = DaoUtil.findOne(Group.class, "gid", gid);
+                if (group != null) {
+                    session.setIsTop(group.getIsTop());
+                    session.setIsMute(group.getNotNotify());
+                }
                 if (session.getIsMute() == 1) {//免打扰
                     session.setUnread_count(0);
                 } else {
@@ -949,11 +973,17 @@ public class MsgDao {
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(from_uid);
                 session.setType(0);
+                UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", from_uid);
+                if (user != null) {
+                    session.setIsTop(user.getIstop());
+                    session.setIsMute(user.getDisturb());
+                }
                 if (session.getIsMute() == 1) {//免打扰
                     session.setUnread_count(0);
                 } else {
                     session.setUnread_count(isCancel ? 0 : 1);
                 }
+
             } else {
                 if (session.getIsMute() == 1) {//免打扰
                     return;
@@ -970,6 +1000,43 @@ public class MsgDao {
             session.setMessageType(1000);
         }
 
+        DaoUtil.update(session);
+    }
+
+    /*
+     * 跟随群信，或用户信息更新，更新session置顶免打扰字段
+     * */
+    public void updateSessionTopAndDisturb(String gid, Long from_uid, int top, int disturb) {
+        Session session;
+        if (StringUtil.isNotNull(gid)) {//群消息
+            session = DaoUtil.findOne(Session.class, "gid", gid);
+            if (session == null) {
+                session = new Session();
+                session.setSid(UUID.randomUUID().toString());
+                session.setGid(gid);
+                session.setType(1);
+                session.setIsMute(disturb);
+                session.setIsTop(top);
+                session.setUnread_count(0);
+            } else {
+                session.setIsMute(disturb);
+                session.setIsTop(top);
+            }
+        } else {//个人消息
+            session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
+            if (session == null) {
+                session = new Session();
+                session.setSid(UUID.randomUUID().toString());
+                session.setFrom_uid(from_uid);
+                session.setType(0);
+                session.setIsMute(disturb);
+                session.setIsTop(top);
+                session.setUnread_count(0);
+            } else {
+                session.setIsMute(disturb);
+                session.setIsTop(top);
+            }
+        }
         DaoUtil.update(session);
     }
 
@@ -1049,6 +1116,31 @@ public class MsgDao {
 
     }
 
+    /***
+     * 存草稿  需要更新时间
+     * @param gid
+     * @param uid
+     * @param draft
+     */
+    public void sessionDraft(String gid, Long uid, String draft) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() : realm.where(Session.class).equalTo("from_uid", uid).findFirst();
+            if (session != null) {
+                session.setDraft(draft);
+                session.setMessageType(2);
+                session.setUp_time(SocketData.getSysTime());
+                realm.insertOrUpdate(session);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
     /**
      * 存at消息
      */
@@ -1061,33 +1153,6 @@ public class MsgDao {
             if (session != null) {
                 session.setAtMessage(atMessage);
                 session.setMessageType(type);
-                realm.insertOrUpdate(session);
-            }
-            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.close(realm);
-        }
-    }
-
-    /***
-     * 存草稿
-     * @param gid
-     * @param uid
-     * @param draft
-     */
-    public void sessionDraft(String gid, Long uid, String draft) {
-        Realm realm = DaoUtil.open();
-        try {
-            realm.beginTransaction();
-
-            Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() : realm.where(Session.class).equalTo("from_uid", uid).findFirst();
-
-
-            if (session != null) {
-                session.setDraft(draft);
-                session.setMessageType(2);
                 realm.insertOrUpdate(session);
             }
             realm.commitTransaction();
@@ -1169,11 +1234,12 @@ public class MsgDao {
      * @return
      */
     public List<Session> sessionGetAll(boolean isAll) {
+//        System.out.println(MsgDao.class.getSimpleName() + "开始查询时间=" + System.currentTimeMillis());
         List<Session> rts = null;
         Realm realm = DaoUtil.open();
         try {
 
-            realm.beginTransaction();
+//            realm.beginTransaction();
             RealmResults<Session> list;
             if (isAll) {
                 list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
@@ -1182,32 +1248,32 @@ public class MsgDao {
                         or().isNotNull("gid").sort("up_time", Sort.DESCENDING).findAll();
             }
             //6.5 优先读取单独表的配置
-            for (Session l : list) {
-                int top = 0;
-                if (l.getType() == 1) {
-                    Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
-                    if (group != null) {
-                        top = group.getIsTop();
-                    }
-                } else {
-                    UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
-                    if (info != null) {
-                        top = info.getIstop();
-                    }
-                }
-                l.setIsTop(top);
-            }
-            realm.copyToRealmOrUpdate(list);
+//            for (Session l : list) {
+//                int top = 0;
+//                if (l.getType() == 1) {
+//                    Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
+//                    if (group != null) {
+//                        top = group.getIsTop();
+//                    }
+//                } else {
+//                    UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
+//                    if (info != null) {
+//                        top = info.getIstop();
+//                    }
+//                }
+//                l.setIsTop(top);
+//            }
+//            realm.copyToRealmOrUpdate(list);
             list = list.sort("isTop", Sort.DESCENDING);
             rts = realm.copyFromRealm(list);
 
-            realm.commitTransaction();
+//            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
-
+//        System.out.println(MsgDao.class.getSimpleName() + "结束查询时间=" + System.currentTimeMillis());
         return rts;
     }
 
@@ -1352,21 +1418,129 @@ public class MsgDao {
      * @param saved
      * @param needVerification
      */
-    public void saveSession4Switch(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
+    public Session saveSession4Switch(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
 
         Session session = DaoUtil.findOne(Session.class, "gid", gid);
         if (session == null)
-            return;
+            return null;
         if (notNotify != null)
             session.setIsMute(notNotify);
 
         if (isTop != null)
             session.setIsTop(isTop);
-
+//        Session result = realm.copyFromRealm(session);
         realm.insertOrUpdate(session);
 
+        realm.commitTransaction();
+        realm.close();
+        return session;
+    }
+
+    /*
+     * 更新群置顶
+     * */
+    public void updateGroupTop(String gid, int top) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group group = DaoUtil.findOne(Group.class, "gid", gid);
+        if (group == null)
+            return;
+        group.setIsTop(top);
+        realm.insertOrUpdate(group);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /*
+     * 更新群置顶
+     * */
+    public void updateGroupDisturb(String gid, int disturb) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group group = DaoUtil.findOne(Group.class, "gid", gid);
+        if (group == null)
+            return;
+        group.setNotNotify(disturb);
+        realm.insertOrUpdate(group);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    /***
+     * 保存单聊置顶
+     * @param uid
+     * @param isTop
+     */
+    public Session updateUserSessionTop(Long uid, int isTop) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Session session = DaoUtil.findOne(Session.class, "from_uid", uid);
+        if (session == null)
+            return null;
+        session.setIsTop(isTop);
+        realm.insertOrUpdate(session);
+        realm.commitTransaction();
+        realm.close();
+        return session;
+    }
+
+    /***
+     * 保存单聊置顶
+     * @param uid
+     * @param isTop
+     */
+    public void updateUserTop(Long uid, int isTop) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
+        if (user == null)
+            return;
+        user.setIstop(isTop);
+        realm.insertOrUpdate(user);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+
+    /***
+     * 保存单聊免打扰
+     * @param uid
+     * @param isTop
+     */
+    public Session updateUserSessionDisturb(Long uid, int disturb) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Session session = DaoUtil.findOne(Session.class, "from_uid", uid);
+        if (session == null)
+            return null;
+        session.setIsMute(disturb);
+        realm.insertOrUpdate(session);
+        realm.commitTransaction();
+        realm.close();
+        return session;
+    }
+
+    /***
+     * 保存单聊置顶
+     * @param uid
+     * @param isTop
+     */
+    public void updateUserDisturb(Long uid, int isTop) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
+        if (user == null)
+            return;
+        user.setDisturb(isTop);
+        realm.insertOrUpdate(user);
         realm.commitTransaction();
         realm.close();
     }
@@ -2196,8 +2370,9 @@ public class MsgDao {
      * 排除语音，等消息
      *
      * */
-    public void updateMsgReaded(Long uid, String gid, boolean isRead) {
+    public boolean updateMsgRead(Long uid, String gid, boolean isRead) {
         Realm realm = DaoUtil.open();
+        boolean hasChange = false;
         try {
             realm.beginTransaction();
             RealmResults<MsgAllBean> realmResults = null;
@@ -2226,13 +2401,16 @@ public class MsgDao {
             }
             if (list != null) {
                 int len = list.size();
-                for (int i = 0; i < len; i++) {
-                    MsgAllBean bean = list.get(i);
-                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {
-                        continue;
+                if (len > 0) {
+                    hasChange = true;
+                    for (int i = 0; i < len; i++) {
+                        MsgAllBean bean = list.get(i);
+                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                            continue;
+                        }
+                        bean.setRead(isRead);
+                        realm.insertOrUpdate(bean);
                     }
-                    bean.setRead(isRead);
-                    realm.insertOrUpdate(bean);
                 }
             }
 
@@ -2242,6 +2420,7 @@ public class MsgDao {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
+        return hasChange;
     }
 
 

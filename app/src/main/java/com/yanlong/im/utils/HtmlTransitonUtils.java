@@ -20,8 +20,12 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.notify.LockDialog;
+import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
+
+import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.WebPageActivity;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,6 +41,7 @@ import java.util.List;
  */
 public class HtmlTransitonUtils {
     private static final String TAG = "HtmlTransitonUtils";
+    private final String REST_EDIT="重新编辑";
 
     public SpannableStringBuilder getSpannableString(Context context, String html, int type) {
         SpannableStringBuilder style = new SpannableStringBuilder();

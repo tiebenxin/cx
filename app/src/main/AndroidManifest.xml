@@ -21,23 +21,23 @@
                         android:value="红包"/> -->
         <!--打包渠道-->
         <!--<meta-data-->
-            <!--android:name="UMENG_CHANNEL"-->
-            <!--android:value="${UMENG_CHANNEL_VALUE}" />-->
+        <!--android:name="UMENG_CHANNEL"-->
+        <!--android:value="${UMENG_CHANNEL_VALUE}" />-->
 
         <meta-data
             android:name="com.luck.picture.lib.glide.CustomGlideModule"
             android:value="AppGlideModule" />
 
-<!--        <meta-data-->
-<!--            android:name="com.huawei.hms.client.appid"-->
-<!--            android:value="appid=100836087" />-->
-<!--        &lt;!&ndash; vivo onCreate&ndash;&gt;-->
-<!--        <meta-data-->
-<!--            android:name="com.vivo.push.api_key"-->
-<!--            android:value="f1940b91-4b0d-4c5c-914e-657045438bc4" />-->
-<!--        <meta-data-->
-<!--            android:name="com.vivo.push.app_id"-->
-<!--            android:value="15217" />-->
+        <!--        <meta-data-->
+        <!--            android:name="com.huawei.hms.client.appid"-->
+        <!--            android:value="appid=100836087" />-->
+        <!--        &lt;!&ndash; vivo onCreate&ndash;&gt;-->
+        <!--        <meta-data-->
+        <!--            android:name="com.vivo.push.api_key"-->
+        <!--            android:value="f1940b91-4b0d-4c5c-914e-657045438bc4" />-->
+        <!--        <meta-data-->
+        <!--            android:name="com.vivo.push.app_id"-->
+        <!--            android:value="15217" />-->
         <!-- VIVO end-->
 
         <meta-data
@@ -50,9 +50,9 @@
             android:value="云红包" />
 
         <!--网易云-->
-<!--        <meta-data-->
-<!--            android:name="com.netease.nim.appKey"-->
-<!--            android:value="key_of_your_app" />-->
+        <!--        <meta-data-->
+        <!--            android:name="com.netease.nim.appKey"-->
+        <!--            android:value="key_of_your_app" />-->
 
         <!-- 配置bugly APP ID -->
         <meta-data
@@ -60,7 +60,8 @@
             android:value="7780d7e928" />
 
         <!-- 极光推送-->
-        <service android:name="com.yanlong.im.notify.PushService"
+        <service
+            android:name="com.yanlong.im.notify.PushService"
             android:enabled="true"
             android:exported="false"
             android:process=":pushcore">
@@ -72,32 +73,32 @@
         <receiver
             android:name="com.yanlong.im.notify.MyJPushMessageReceiver"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
                 <category android:name="com.yanlong.im" />
             </intent-filter>
         </receiver>
 
-<!--        <activity-alias-->
-<!--            android:name="main"-->
-<!--            android:label="@string/app_name"-->
-<!--            android:targetActivity=".user.ui.SplashActivity">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
+        <!--        <activity-alias-->
+        <!--            android:name="main"-->
+        <!--            android:label="@string/app_name"-->
+        <!--            android:targetActivity=".user.ui.SplashActivity">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity-alias>-->
+        <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+        <!--            </intent-filter>-->
+        <!--        </activity-alias>-->
 
         <activity
             android:name=".user.ui.SplashActivity"
             android:launchMode="singleTask">
-             <intent-filter>
-                 <action android:name="android.intent.action.MAIN" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-                 <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".test.TestActivity"
@@ -198,7 +199,7 @@
         <activity
             android:name=".chat.ui.SearchFriendGroupActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
 
         <!--搜索消息-->
         <activity
@@ -395,12 +396,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
 
-
-        <!--支付宝网页支付-->
-        <activity
-            android:name=".utils.pay.H5PayActivity"
-            android:screenOrientation="portrait" />
-
         <!--帮助-->
         <activity
             android:name=".user.ui.HelpActivity"
@@ -450,29 +445,6 @@
             android:name=".wxapi.WXEntryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <!-- android:screenOrientation="portrait"-->
-
-        <activity
-            android:name=".notify.PushToActivity"
-            android:exported="true"
-            android:launchMode="singleTask" />
-
-        <!--魅族push应用定义消息receiver声明 -->
-<!--        <receiver android:name=".notify.MeizuReceiver">-->
-<!--            <intent-filter>-->
-<!--                &lt;!&ndash; 接收push消息 &ndash;&gt;-->
-<!--                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />-->
-<!--                &lt;!&ndash; 接收register消息 &ndash;&gt;-->
-<!--                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK" />-->
-<!--                &lt;!&ndash; 接收unregister消息&ndash;&gt;-->
-<!--                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK" />-->
-<!--                &lt;!&ndash; 兼容低版本Flyme3推送服务配置 &ndash;&gt;-->
-<!--                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />-->
-<!--                <action android:name="com.meizu.c2dm.intent.RECEIVE" />-->
-
-<!--                <category android:name="${applicationId}"></category>-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
 
         <activity
             android:name=".user.ui.IdentityAttestationActitiy"
@@ -502,15 +474,36 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".notify.MessageActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity="" />
+
+        <activity
             android:name=".user.ui.FeedbackShowImageActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".user.ui.GroupAddActivity"
             android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".chat.ui.NoticeActivity"
-            android:screenOrientation="portrait"
-            />
+<!--        <receiver-->
+<!--            android:name=".notify.MyReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="cn.jpush.android.intent.REGISTRATION" />-->
+<!--                <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" />-->
+<!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED" />-->
+<!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_OPENED" />-->
+<!--                <action android:name="cn.jpush.android.intent.NOTIFICATION_CLICK_ACTION" />-->
+<!--                <action android:name="cn.jpush.android.intent.CONNECTION" />-->
+<!--                <category android:name="com.yanlong.im" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
+
+        <activity
+            android:name=".chat.ui.NoticeActivity"
+            android:screenOrientation="portrait" />
 
         <receiver android:name=".utils.audio.AudioPlayManager$HeadsetReceiver">
             <intent-filter>
@@ -548,7 +541,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".user.ui.FriendVerifyActivity" />
-        <activity android:name=".chat.ui.VideoPlayActivity"/>
+        <activity android:name=".chat.ui.VideoPlayActivity" />
 
     </application>
 

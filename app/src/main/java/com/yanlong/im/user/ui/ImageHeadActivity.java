@@ -20,11 +20,13 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventMyUserInfo;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
@@ -70,7 +72,8 @@ public class ImageHeadActivity extends AppActivity {
     }
 
 
-    private String urlImg=null;
+    private String urlImg = null;
+
     private void initView() {
         imageHead = getIntent().getStringExtra(IMAGE_HEAD);
         String gid = getIntent().getStringExtra("gid");
@@ -82,15 +85,15 @@ public class ImageHeadActivity extends AppActivity {
         }
         mSdImageHead = findViewById(R.id.sd_image_head);
 
-        if (imageHead!=null&&!imageHead.isEmpty()&& StringUtil.isNotNull(imageHead)){
-            urlImg=imageHead;
+        if (imageHead != null && !imageHead.isEmpty() && StringUtil.isNotNull(imageHead)) {
+            urlImg = imageHead;
             Glide.with(this).load(imageHead)
                     .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
-        }else{
-            if (isGroup){
-                MsgDao msgDao=new MsgDao();
-                String url= msgDao.groupHeadImgGet(gid);
-                urlImg=url;
+        } else {
+            if (isGroup) {
+                MsgDao msgDao = new MsgDao();
+                String url = msgDao.groupHeadImgGet(gid);
+                urlImg = url;
                 Glide.with(this).load(url)
                         .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
             }
@@ -133,7 +136,7 @@ public class ImageHeadActivity extends AppActivity {
             @Override
             public boolean onLongClick(View v) {
 
-                  initSaveImage();
+                initSaveImage();
 
 //                List<LocalMedia> selectList = new ArrayList<>();
 //                LocalMedia lc = new LocalMedia();
@@ -155,7 +158,7 @@ public class ImageHeadActivity extends AppActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-                        saveImageToGallery(((BitmapDrawable)mSdImageHead.getDrawable()).getBitmap(), urlImg);
+                        saveImageToGallery(((BitmapDrawable) mSdImageHead.getDrawable()).getBitmap(), urlImg);
                         break;
                 }
                 saveImagePopup.dismiss();
@@ -165,15 +168,14 @@ public class ImageHeadActivity extends AppActivity {
 
     /**
      * 保存图片到图库
+     *
      * @param bmp
      */
-    public  void saveImageToGallery(Bitmap bmp, String bitName ) {
+    public void saveImageToGallery(Bitmap bmp, String bitName) {
         // 首先保存图片
-            bitName=SystemClock.currentThreadTimeMillis()+"";
-        PicSaveUtils.saveImgLoc(this,bmp,bitName);
+        bitName = SystemClock.currentThreadTimeMillis() + "";
+        PicSaveUtils.saveImgLoc(this, bmp, bitName);
     }
-
-
 
 
     private void initPopup() {
@@ -295,12 +297,12 @@ public class ImageHeadActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
+                if (response.body().isOk()) {
+                    MessageManager.getInstance().updateCacheGroupAvatar(gid, url);
+                    MessageManager.getInstance().setMessageChange(true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                }
                 imageHead = url;
-//                if (avatar != null) {
-//                    UserInfo userInfo = new UserInfo();
-//                    userInfo.setHead(avatar);
-//                    EventBus.getDefault().post(new EventMyUserInfo(userInfo, EventMyUserInfo.ALTER_HEAD));
-//                }
                 ToastUtil.show(ImageHeadActivity.this, response.body().getMsg());
             }
 

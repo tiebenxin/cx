@@ -6,27 +6,27 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -115,11 +115,11 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.DownloadUtil;
-import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
@@ -136,8 +136,6 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
-import net.cb.cb.library.view.PopView;
-import net.cb.cb.library.zxing.activity.CaptureActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -157,9 +155,6 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.RealmList;
 import me.kareluo.ui.OptionMenu;
-import me.kareluo.ui.OptionMenuView;
-import me.kareluo.ui.PopupMenuView;
-import me.kareluo.ui.PopupView;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -170,6 +165,8 @@ import static android.view.View.VISIBLE;
 public class ChatActivity extends AppActivity implements ICellEventListener {
     private static String TAG = "ChatActivity";
     public final static int MIN_TEXT = 1000;//
+    private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
+    private final String REST_EDIT = "重新编辑";
 
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
@@ -254,6 +251,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View mViewLine2;
     private View mViewLine3;
     private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
+    private MsgAllBean currentPlayBean;
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -543,11 +541,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewChatBottom.setVisibility(View.VISIBLE);
         } else {
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
-            if (toUId == 1L) {
-                viewChatBottom.setVisibility(View.GONE);
-            } else {
-                viewChatBottom.setVisibility(View.VISIBLE);
-            }
+            viewChatBottom.setVisibility(View.VISIBLE);
+//            if (toUId == 1L) {
+//                viewChatBottom.setVisibility(View.GONE);
+//            } else {
+//                viewChatBottom.setVisibility(View.VISIBLE);
+//            }
         }
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -932,7 +931,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         startActivityForResult(intent, VIDEO_RP);
                     }
 
-//                  @Override
+                    //                  @Override
                     public void onFail() {
 
                     }
@@ -1084,6 +1083,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //9.17 进去后就清理会话的阅读数量
         taskCleanRead();
+    }
+
+    //是否是常聊聊小助手用户
+    public boolean isAssitanceUser() {
+        if (toUId != null && toUId == 1L) {
+            return true;
+        }
+        return false;
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
@@ -1317,7 +1324,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //清理会话数量
         taskCleanRead();
-        AudioPlayManager.getInstance().stopPlay();
         Log.v(TAG, "onBackPressed");
         clearScrollPosition();
         super.onBackPressed();
@@ -1342,14 +1348,23 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Override
     protected void onStop() {
-
         super.onStop();
+        AudioPlayManager.getInstance().stopPlay();
+        if (currentPlayBean != null) {
+            updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
+        }
+        boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
+        if (hasUpdate) {
+            MessageManager.getInstance().setMessageChange(true);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        }
+
     }
 
     @Override
     protected void onDestroy() {
         taskDraftSet();
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
+        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -1414,16 +1429,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //激活当前会话
         if (isGroup()) {
             ChatServer.setSessionGroup(toGid);
+            MessageManager.getInstance().setSessionGroup(toGid);
         } else {
             ChatServer.setSessionSolo(toUId);
+            MessageManager.getInstance().setSessionSolo(toUId);
         }
 
-       /* if (flag_isHistory) {
-            flag_isHistory = false;
-            return;
-        }*/
-        //6.15 取消每次刷新
-        //  taskRefreshMessage();
         //刷新群资料
         taskSessionInfo();
     }
@@ -1456,7 +1467,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             } else {
                 //mmr.setDataSource(mFD, mOffset, mLength);
             }
-            duration= mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+            duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
 
         } catch (Exception ex) {
             Log.e("TAG", "MediaMetadataRetriever exception " + ex);
@@ -1562,8 +1573,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAddVideo(this.context,imgMsgId, file, videoMessage.getBg_url(),isArtworkMaster, toUId, toGid, 10,videoMessageSD);
+                        UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, 10, videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
+//                        MsgDao dao =new MsgDao();
+//                        dao.fixVideoLocalUrl(imgMsgId,file);
                         notifyData2Bottom(true);
 
 
@@ -1893,7 +1906,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     replaceListDataAndNotify(reMsg);
 //                                taskRefreshMessage();
                 }
-            }else if(reMsg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO){
+            } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 //todo 重新上传视频
                 String url = reMsg.getVideoMessage().getLocalUrl();
                 if (!TextUtils.isEmpty(url)) {
@@ -1906,18 +1919,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
                     final String imgMsgId = SocketData.getUUID();
-                    VideoMessage videoMessage= new VideoMessage();
-                    videoMessage.setHeight( Long.parseLong(getVideoAttHeigh(url)));
-                    videoMessage.setWidth( Long.parseLong(getVideoAttWeith(url)));
-                    videoMessage.setDuration( Long.parseLong(getVideoAtt(url)));
+                    VideoMessage videoMessage = new VideoMessage();
+                    videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(url)));
+                    videoMessage.setWidth(Long.parseLong(getVideoAttWeith(url)));
+                    videoMessage.setDuration(Long.parseLong(getVideoAtt(url)));
                     videoMessage.setBg_url(getVideoAttBitmap(url));
                     videoMessage.setLocalUrl(url);
-                    Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
-                    VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + url, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),url);
+                    Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
+                    VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + url, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), url);
                     MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
 //                    msgListData.add(imgMsgBeanReSend);
-                    UpLoadService.onAddVideo(this.context,imgMsgId, url, videoMessage.getBg_url(),false, toUId, toGid, 10,videoMessageSD);
+                    UpLoadService.onAddVideo(this.context, imgMsgId, url, videoMessage.getBg_url(), false, toUId, toGid, 10, videoMessageSD);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
@@ -1928,8 +1941,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage();
                 }
-            }
-            else {
+            } else {
                 //点击发送的时候如果要改变成发送中的状态
                 reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                 DaoUtil.update(reMsg);
@@ -1964,7 +1976,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 final List<OptionMenu> menus = new ArrayList<>();
 
                 //只更新单条处理
-
                 switch (msgbean.getMsg_type()) {
                     case ChatEnum.EMessageType.IMAGE:
                         Integer pg = null;
@@ -2002,7 +2013,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         onBindViewHolder(holder, position);
                         break;
                 }
-
                 itemLongClick(holder, msgbean, menus);
 
             }
@@ -2108,13 +2118,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     }
                     break;
-                case ChatEnum.EMessageType.MSG_CENCAL:
+                case ChatEnum.EMessageType.MSG_CENCAL:// 撤回消息
                     if (msgbean.getMsgCancel() != null) {
-                        if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
-                            holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                        // 发送消息小于5分钟显示 重新编辑
+                        Long mss = System.currentTimeMillis() - msgbean.getTimestamp();
+                        long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
+                        String content = "";
+                        Integer msgType = 0;
+                        if (msgbean.getStamp() != null) {
+                            content = msgbean.getStamp().getComment();
+                            if (StringUtil.isNotNull(msgbean.getStamp().getMsgId())) {
+                                msgType = Integer.parseInt(msgbean.getStamp().getMsgId());// MsgId存放的是撤回的消息类型
+                            }
+                        }
+                        // 是文本且小于5分钟 显示重新编辑
+                        if (msgType == ChatEnum.EMessageType.TEXT && minutes < RELINQUISH_TIME && StringUtil.isNotNull(content)) {
+                            onRestEdit(holder, msgbean.getMsgCancel().getNote(), content, msgbean.getTimestamp());
                         } else {
-                            holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
-                                    msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
+                            if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
+                                holder.viewChatItem.setData0(msgbean.getMsgCancel().getNote());
+                            } else {
+                                holder.viewChatItem.setData0(new HtmlTransitonUtils().getSpannableString(ChatActivity.this,
+                                        msgbean.getMsgCancel().getNote(), msgbean.getMsgCancel().getMsgType()));
+                            }
                         }
                     }
                     break;
@@ -2198,18 +2224,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
 
-                            String localUrl= msgbean.getVideoMessage().getLocalUrl();
-                            if (StringUtil.isNotNull(localUrl)){
-                                File file=new File(localUrl);
-                                if (file.exists()){
-                                    Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
-                                    intent.putExtra("videopath",localUrl);
+                            String localUrl = msgbean.getVideoMessage().getLocalUrl();
+                            if (StringUtil.isNotNull(localUrl)) {
+                                File file = new File(localUrl);
+                                if (file.exists()) {
+                                    Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                                    intent.putExtra("videopath", localUrl);
+                                    intent.putExtra("videomsg", new Gson().toJson(msgbean));
                                     startActivity(intent);
-                                }else{
-                                    downVideo(msgbean,msgbean.getVideoMessage());
+                                    MsgDao dao = new MsgDao();
+                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
+                                } else {
+                                    downVideo(msgbean, msgbean.getVideoMessage());
                                 }
-                            }else{
-                                downVideo(msgbean,msgbean.getVideoMessage());
+                            } else {
+                                downVideo(msgbean, msgbean.getVideoMessage());
                             }
 
 
@@ -2222,7 +2251,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData5(msgbean.getBusiness_card().getNickname(),
                             msgbean.getBusiness_card().getComment(),
-                            msgbean.getBusiness_card().getAvatar(), "人个名片", new View.OnClickListener() {
+                            msgbean.getBusiness_card().getAvatar(), "个人名片", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
@@ -2309,6 +2338,50 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         }
 
+        /**
+         * 重新编辑
+         *
+         * @param holder
+         * @param value
+         * @param restContent 撤回內容
+         * @param timesTamp   撤回時間
+         */
+        private void onRestEdit(RCViewHolder holder, String value, String restContent, Long timesTamp) {
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            value = value + "  " + REST_EDIT;
+            int startIndex = value.indexOf(REST_EDIT);
+            int endIndex = startIndex + REST_EDIT.length();
+
+            builder.append(value);
+            //设置部分文字点击事件
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    // 大于5分钟后不可撤回
+                    Long mss = System.currentTimeMillis() - timesTamp;
+                    long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
+                    if (minutes >= RELINQUISH_TIME) {
+                        ToastUtil.show(ChatActivity.this, "只能重新编辑5分钟以内的消息");
+                    } else {
+                        showVoice(false);
+                        InputUtil.showKeyboard(edtChat);
+                        edtChat.setText(edtChat.getText().toString() + restContent);
+                        edtChat.requestFocus();
+                        edtChat.setSelection(edtChat.getText().length());
+                    }
+                }
+
+                @Override
+                public void updateDrawState(@androidx.annotation.NonNull TextPaint ds) {
+                    ds.setUnderlineText(false);
+                }
+            };
+            builder.setSpan(clickableSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(Color.parseColor("#276baa"));
+            builder.setSpan(protocolColorSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            holder.viewChatItem.setData0(builder);
+        }
+
         /***
          * 长按操作
          * @param holder
@@ -2388,37 +2461,39 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
     }
-    private Handler handler=new Handler(){
+
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Bundle bundle= msg.getData();
-            MsgDao dao =new MsgDao();
-            dao.fixVideoLocalUrl(bundle.getString("msgid"),bundle.getString("url"));
+            Bundle bundle = msg.getData();
+            MsgDao dao = new MsgDao();
+            dao.fixVideoLocalUrl(bundle.getString("msgid"), bundle.getString("url"));
 
         }
     };
-    private void downVideo(final MsgAllBean msgAllBean,final VideoMessage videoMessage) {
 
-        String bitName= SystemClock.currentThreadTimeMillis()+"";
+    private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
+
+        String bitName = SystemClock.currentThreadTimeMillis() + "";
         final File appDir = new File("/sdcard/yanlong/download/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
         final String fileName = bitName + ".mp4";
         final File fileVideo = new File(appDir, fileName);
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess(File file) {
-                        Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
-                        intent.putExtra("videopath",fileVideo.getAbsolutePath());
-                        Message message=new Message();
-                        Bundle bundle=new Bundle();
-                        bundle.putString("msgid",msgAllBean.getVideoMessage().getMsgId());
-                        bundle.putString("url",fileVideo.getAbsolutePath());
+                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                        intent.putExtra("videopath", fileVideo.getAbsolutePath());
+                        Message message = new Message();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("msgid", msgAllBean.getVideoMessage().getMsgId());
+                        bundle.putString("url", fileVideo.getAbsolutePath());
                         message.setData(bundle);
                         handler.sendMessage(message);
                         videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
@@ -2455,6 +2530,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void playVoice(MsgAllBean msgBean, int position) {
+        currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
         if (!msgBean.isMe() && !msgBean.isRead()) {
@@ -2907,7 +2983,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * @param msgbean
      */
     private void onRecall(final MsgAllBean msgbean) {
-        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
+        String msg = "";
+        Integer msgType = 0;
+        if (msgbean.getChat() != null) {
+            msg = msgbean.getChat().getMsg();
+        }
+        msgType = msgbean.getMsg_type();
+        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
     }
 
     /**
@@ -3264,16 +3346,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         Session session = StringUtil.isNotNull(toGid) ? DaoUtil.findOne(Session.class, "gid", toGid) :
                 DaoUtil.findOne(Session.class, "from_uid", toUId);
         if (session != null && session.getUnread_count() > 0) {
-//            if (isGroup()) {
-//                dao.sessionReadClean(toGid, null);
-//            } else {
-//                dao.sessionReadClean(null, toUId);
-//            }
             dao.sessionReadClean(session);
             MessageManager.getInstance().setMessageChange(true);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
-        dao.updateMsgReaded(toUId, toGid, true);
     }
 
     /***
@@ -3296,16 +3372,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void taskDraftSet() {
         String df = edtChat.getText().toString().trim();
-        dao.sessionDraft(toGid, toUId, df);
         if (!TextUtils.isEmpty(draft)) {
             if (!TextUtils.isEmpty(df) && !draft.equals(df)) {
+                dao.sessionDraft(toGid, toUId, df);
+
                 MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
+                dao.sessionDraft(toGid, toUId, df);
                 MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         }
     }

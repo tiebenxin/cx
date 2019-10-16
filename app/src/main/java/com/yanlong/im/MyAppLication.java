@@ -179,6 +179,7 @@ public class MyAppLication extends MainApplication {
         /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
         JrmfClient.init(this);
         com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);
+
     }
 
 
@@ -193,6 +194,8 @@ public class MyAppLication extends MainApplication {
         JPushInterface.init(this);
 
         MiPushClient.getRegId(getApplicationContext());
+
+
     }
 
 

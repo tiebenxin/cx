@@ -409,7 +409,7 @@ public class FriendMainFragment extends Fragment {
             if (info != null) {
                 if (listData.contains(info)) {
                     int index = listData.indexOf(info);
-                    if (index > 0) {
+                    if (index >= 0) {
                         listData.set(index, info);
                         mtListView.getListView().getAdapter().notifyItemChanged(index, index);
                     }

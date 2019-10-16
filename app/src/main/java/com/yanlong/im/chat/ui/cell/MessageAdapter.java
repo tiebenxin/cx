@@ -128,7 +128,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
     //局部刷新
     public void updateItemAndRefresh(MsgAllBean bean) {
         int position = mList.indexOf(bean);
-        if (position > 0 && position < mList.size()) {
+        if (position >= 0 && position < mList.size()) {
             mList.remove(position);
             mList.add(position, bean);
 //            mList.set(position,bean);

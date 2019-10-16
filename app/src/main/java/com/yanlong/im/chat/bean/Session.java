@@ -12,14 +12,14 @@ import io.realm.annotations.PrimaryKey;
 /***
  * 会话
  */
-public class Session extends RealmObject {
+public class Session extends RealmObject implements Comparable<Session> {
     @PrimaryKey
     private String sid;
     //会话类型,0:单人,1群
     private int type = 0;
     private Long from_uid;
     private String gid;
-    private Long up_time;
+    private Long up_time;//更新时间
     private int unread_count = 0;
     //草稿
     private String draft;
@@ -38,6 +38,8 @@ public class Session extends RealmObject {
     private String avatar;//头像
     @Ignore
     private boolean hasInitDisturb = false;//是否已经初始化免打扰
+    @Ignore
+    private boolean hasInitTop = false;//是否已经初始化置顶
     @Ignore
     private MsgAllBean message;//最后消息
 
@@ -69,13 +71,13 @@ public class Session extends RealmObject {
     }
 
     public int getIsMute() {
-        if (!hasInitDisturb) {
-            try {
-                isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        if (!hasInitDisturb) {
+//            try {
+//                isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
         return isMute;
     }
 
@@ -84,13 +86,13 @@ public class Session extends RealmObject {
     }
 
     public int getIsTop() {
-        // int isTop=0;
-        try {
-            isTop = type == 0 ? new UserDao().findUserInfo(from_uid).getIstop() : new MsgDao().getGroup4Id(gid).getIsTop();
-        } catch (Exception e) {
-            //  e.printStackTrace();
-        }
-
+//        if (!hasInitTop) {
+//            try {
+//                isTop = type == 0 ? new UserDao().findUserInfo(from_uid).getIstop() : new MsgDao().getGroup4Id(gid).getIsTop();
+//            } catch (Exception e) {
+//                //  e.printStackTrace();
+//            }
+//        }
         return isTop;
     }
 
@@ -113,8 +115,8 @@ public class Session extends RealmObject {
     public void setType(int type) {
         this.type = type;
     }
-
     public Long getFrom_uid() {
+
         return from_uid == null ? -1 : from_uid;
     }
 
@@ -183,6 +185,19 @@ public class Session extends RealmObject {
         this.senderName = senderName;
     }
 
+
+    public void setHasInitTop(boolean hasInitTop) {
+        this.hasInitTop = hasInitTop;
+    }
+
+    public boolean isHasInitDisturb() {
+        return hasInitDisturb;
+    }
+
+    public boolean isHasInitTop() {
+        return hasInitTop;
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if (obj == null) {
@@ -197,7 +212,7 @@ public class Session extends RealmObject {
                 }
             } else {
                 if (((Session) obj).getFrom_uid() != null && from_uid != null) {
-                    if (((Session) obj).getFrom_uid() == this.from_uid) {
+                    if (((Session) obj).getFrom_uid().equals(this.from_uid)) {//Long 类型不能用==
                         return true;
                     } else {
                         return false;
@@ -208,5 +223,11 @@ public class Session extends RealmObject {
             }
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(Session o) {
+//        return (int) (this.up_time - o.up_time);//升序
+        return (int) (o.up_time - this.up_time);//降序
     }
 }

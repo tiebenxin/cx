@@ -1,23 +1,56 @@
 package com.yanlong.im.chat.ui;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.luck.picture.lib.view.PopupSelectView;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.VideoMessage;
+import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 
-public class VideoPlayActivity extends AppActivity {
+import java.io.File;
+import java.sql.Time;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class VideoPlayActivity extends AppActivity implements View.OnClickListener {
     private InputMethodManager manager;
     private  TextureView textureView;
     private SurfaceTexture surfaceTexture;
     private String path;
+    private String msgAllBean;
+    private RelativeLayout activity_video_rel_con;
+    private ImageView activity_video_img_con,activity_video_big_con,activity_video_img_close;
+    private TextView activity_video_count_time,activity_video_current_time;
+    private SeekBar activity_video_seek;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +60,7 @@ public class VideoPlayActivity extends AppActivity {
         setContentView(R.layout.activity_video_play);
 
         path=getIntent().getExtras().getString("videopath");
+        msgAllBean=(String) getIntent().getExtras().get("videomsg");
         initView();
         initEvent();
     }
@@ -51,10 +85,91 @@ public class VideoPlayActivity extends AppActivity {
 
             }
         });
+        textureView.setOnClickListener(this);
+        textureView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showDownLoadDialog();
+                return false;
+            }
+        });
+//        textureView.setOnClickListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (activity_video_rel_con.getVisibility()==View.VISIBLE){
+//                    activity_video_rel_con.setVisibility(View.INVISIBLE);
+//                }else{
+//                    activity_video_rel_con.setVisibility(View.VISIBLE);
+//                }
+//                return true;
+//            }
+//        });
+        activity_video_img_con.setOnClickListener(this);
+        activity_video_big_con.setOnClickListener(this);
+        activity_video_img_close.setOnClickListener(this);
+        activity_video_seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser){
+                    mMediaPlayer.seekTo(progress*mMediaPlayer.getDuration()/100);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                mMediaPlayer.pause();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mMediaPlayer.start();
+            }
+        });
+
     }
 
+    private Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            NumberFormat numberFormat = NumberFormat.getPercentInstance();
+            numberFormat.setMinimumFractionDigits(0);
+            DecimalFormat df=new DecimalFormat("0.00");
+            String result= df.format((double) currentTime/mMediaPlayer.getDuration());
+            activity_video_seek.setProgress((int)(Double.parseDouble(result)*100));
+            if (currentTime/1000<10){
+                activity_video_current_time.setText("00:0"+currentTime/1000);
+            }else{
+                activity_video_current_time.setText("00:"+currentTime/1000);
+            }
+        }
+    };
+    private int currentTime=0;
+    private  Timer timer;
+    private void getProgress() {
+
+        timer= new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+
+                //获取歌曲的进度
+                currentTime = mMediaPlayer.getCurrentPosition();
+                handler.sendEmptyMessage(419);
+                //将获取歌曲的进度赋值给seekbar
+//                activity_video_seek.setProgress(p);
+            }
+        }, 0, 1000);
+    }
     private void initView() {
         textureView=findViewById(R.id.textureView);
+        activity_video_rel_con=findViewById(R.id.activity_video_rel_con);
+        activity_video_img_con=findViewById(R.id.activity_video_img_con);
+        activity_video_big_con=findViewById(R.id.activity_video_big_con);
+        activity_video_img_close=findViewById(R.id.activity_video_img_close);
+        activity_video_seek=findViewById(R.id.activity_video_seek);
+        activity_video_count_time=findViewById(R.id.activity_video_count_time);
+        activity_video_current_time=findViewById(R.id.activity_video_current_time);
     }
 
     private MediaPlayer mMediaPlayer;
@@ -64,17 +179,33 @@ public class VideoPlayActivity extends AppActivity {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(path);
             mMediaPlayer.setSurface(new Surface(surface));
-            mMediaPlayer.setLooping(true);
+            mMediaPlayer.setLooping(false);
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     mMediaPlayer.start();
+                    if (mMediaPlayer.getDuration()/1000<10){
+                        activity_video_count_time.setText("00:0"+(mMediaPlayer.getDuration()/1000)+"");
+                    }else{
+                        activity_video_count_time.setText("00:"+(mMediaPlayer.getDuration()/1000)+"");
+                    }
+
+                    getProgress();
                 }
             });
             mMediaPlayer.prepareAsync();
+
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mMediaPlayer.pause();
+                activity_video_big_con.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
@@ -82,15 +213,23 @@ public class VideoPlayActivity extends AppActivity {
         super.onPause();
         if (null!=mMediaPlayer){
             mMediaPlayer.pause();
+            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+        }
+        if (null!=timer){
+            timer.cancel();
+            timer=null;
         }
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (null!=mMediaPlayer){
-            mMediaPlayer.start();
-        }
+//        if (null!=mMediaPlayer){
+//            mMediaPlayer.start();
+//        }
+//        if (null!=timer){
+//            timer.purge();
+//        }
     }
 
     @Override
@@ -101,5 +240,157 @@ public class VideoPlayActivity extends AppActivity {
             mMediaPlayer.release();
             mMediaPlayer=null;
         }
+        if (null!=timer){
+            timer.cancel();
+            timer=null;
+        }
     }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.textureView:
+                if (activity_video_rel_con.getVisibility()==View.VISIBLE){
+                    activity_video_rel_con.setVisibility(View.INVISIBLE);
+                }else{
+                    activity_video_rel_con.setVisibility(View.VISIBLE);
+                }
+                break;
+            case R.id.activity_video_big_con:
+                if (null!=mMediaPlayer){
+                    if (mMediaPlayer.isPlaying()){
+                        mMediaPlayer.pause();
+                    }else{
+                        mMediaPlayer.start();
+                        activity_video_big_con.setVisibility(View.INVISIBLE);
+                    }
+                    activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
+                }
+                break;
+            case R.id.activity_video_img_con:
+                if (null!=mMediaPlayer){
+                    if (mMediaPlayer.isPlaying()){
+                        mMediaPlayer.pause();
+                        activity_video_big_con.setVisibility(View.VISIBLE);
+                        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                    }else{
+                        mMediaPlayer.start();
+                        activity_video_big_con.setVisibility(View.INVISIBLE);
+                        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
+                        getProgress();
+                    }
+                }
+                break;
+            case R.id.activity_video_img_close:
+                if (null!=mMediaPlayer){
+                    mMediaPlayer.stop();
+                    mMediaPlayer.release();
+                    mMediaPlayer=null;
+                }
+                finish();
+                break;
+        }
+    }
+
+    /**
+     * 下载图片提示
+     */
+    private String[] strings=new String[]{"发送给朋友","保存视频","取消"};
+    private void showDownLoadDialog() {
+        final PopupSelectView popupSelectView = new PopupSelectView(this, strings);
+        popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
+            @Override
+            public void onItem(String string, int postsion) {
+                if (postsion == 0) {
+                    onRetransmission(msgAllBean);
+                } else if (postsion == 1) {
+                    insertVideoToMediaStore(getContext(),path,System.currentTimeMillis(),mMediaPlayer.getVideoWidth(),mMediaPlayer.getVideoHeight(),mMediaPlayer.getDuration());
+                    ToastUtil.show(VideoPlayActivity.this,"保存成功");
+                }else{
+
+                }
+                popupSelectView.dismiss();
+
+            }
+        });
+        popupSelectView.showAtLocation(textureView, Gravity.BOTTOM, 0, 0);
+
+    }
+    private void onRetransmission(String msgbean) {
+        startActivity(new Intent(getContext(), MsgForwardActivity.class)
+                .putExtra(MsgForwardActivity.AGM_JSON, msgbean));
+    }
+
+    public static void insertVideoToMediaStore(Context context, String filePath, long createTime, int width, int height, long duration) {
+        if (!checkFile(filePath))
+            return;
+        createTime = getTimeWrap(createTime);
+        ContentValues values = initCommonContentValues(filePath, createTime);
+        values.put(MediaStore.Video.VideoColumns.DATE_TAKEN, createTime);
+        if (duration > 0)
+            values.put(MediaStore.Video.VideoColumns.DURATION, duration);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+            if (width > 0) values.put(MediaStore.Video.VideoColumns.WIDTH, width);
+            if (height > 0) values.put(MediaStore.Video.VideoColumns.HEIGHT, height);
+        }
+        values.put(MediaStore.MediaColumns.MIME_TYPE, getVideoMimeType(filePath));
+        context.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+    }
+    // 检测文件存在
+    private static boolean checkFile(String filePath) {
+        //boolean result = FileUtil.fileIsExist(filePath);
+        boolean result = false;
+        File mFile = new File(filePath);
+        if (mFile.exists()){
+            result = true;
+        }
+        Log.e("TAG", "文件不存在 path = " + filePath);
+        return result;
+    }
+
+    // 获得转化后的时间
+    private static long getTimeWrap(long time) {
+        if (time <= 0) {
+            return System.currentTimeMillis();
+        }
+        return time;
+    }
+
+    // 获取video的mine_type,暂时只支持mp4,3gp
+    private static String getVideoMimeType(String path) {
+        String lowerPath = path.toLowerCase();
+        if (lowerPath.endsWith("mp4") || lowerPath.endsWith("mpeg4")) {
+            return "video/mp4";
+        } else if (lowerPath.endsWith("3gp")) {
+            return "video/3gp";
+        }
+        return "video/mp4";
+    }
+
+    // 获取照片的mine_type
+    private static String getPhotoMimeType(String path) {
+        String lowerPath = path.toLowerCase();
+        if (lowerPath.endsWith("jpg") || lowerPath.endsWith("jpeg")) {
+            return "image/jpeg";
+        } else if (lowerPath.endsWith("png")) {
+            return "image/png";
+        } else if (lowerPath.endsWith("gif")) {
+            return "image/gif";
+        }
+        return "image/jpeg";
+    }
+
+    private static ContentValues initCommonContentValues(String filePath, long time) {
+        ContentValues values = new ContentValues();
+        File saveFile = new File(filePath);
+        long timeMillis = getTimeWrap(time);
+        values.put(MediaStore.MediaColumns.TITLE, saveFile.getName());
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, saveFile.getName());
+        values.put(MediaStore.MediaColumns.DATE_MODIFIED, timeMillis);
+        values.put(MediaStore.MediaColumns.DATE_ADDED, timeMillis);
+        values.put(MediaStore.MediaColumns.DATA, saveFile.getAbsolutePath());
+        values.put(MediaStore.MediaColumns.SIZE, saveFile.length());
+        return values;
+    }
+
 }

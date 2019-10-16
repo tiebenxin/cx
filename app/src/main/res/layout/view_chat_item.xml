@@ -754,6 +754,7 @@
                                     android:id="@+id/txt_me_5_info"
                                     style="@style/app_txt_content_1"
                                     android:layout_marginTop="5dp"
+                                    android:visibility="gone"
                                     tool:text="标题" />
                             </LinearLayout>
 

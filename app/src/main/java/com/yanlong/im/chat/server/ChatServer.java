@@ -142,31 +142,35 @@ public class ChatServer extends Service {
                 //处理撤回消息
                 if (cancelList.containsKey(msgid)) {
                     MsgAllBean msgAllBean = cancelList.get(msgid);
-                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel());
+                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel(),msgAllBean.getChat().getMsg(),msgAllBean.getChat().getMsgId());// getMsgId存放的是撤回的消息类型
 
                     Log.i(TAG, "onACK: 收到取消回执,手动刷新列表");
                     EventBus.getDefault().post(new EventRefreshChat());
                     cancelList.remove(msgid);
                 }
-
             }
-
-
         }
 
         @Override
         public void onMsg(MsgBean.UniversalMessage bean) {
-            //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
-            for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
-                onMsgbranch(msg);
 
-            }
-            //通知界面刷新
-            MessageManager.getInstance().notifyRefreshMsg();
+//            for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
+//                onMsgbranch(msg);
+//
+//            }
+//            //通知界面刷新
+//            MessageManager.getInstance().notifyRefreshMsg();
+            //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
+//            for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
+//                onMsgbranch(msg);
+//
+//            }
+//            //通知界面刷新
+//            MessageManager.getInstance().notifyRefreshMsg();
 
         }
 
-        public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
+      /*  public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
             LogUtil.getLog().d(TAG, "<<<<<<<<<<收到类型:" + msg.getMsgType());
 
 
@@ -316,7 +320,7 @@ public class ChatServer extends Service {
                     }
                     long fuid = msg.getFromUid();
                     MessageManager.getInstance().updateSessionUnread(gid, fuid, true);
-                    msgDao.msgDel4Cancel(msg.getMsgId(), msg.getCancel().getMsgId());
+                    msgDao.msgDel4Cancel(msg.getMsgId(), msg.getCancel().getMsgId(),"","");
                     EventBus.getDefault().post(new EventRefreshChat());
                     MessageManager.getInstance().setMessageChange(true);
                     return;
@@ -354,7 +358,7 @@ public class ChatServer extends Service {
                 return;
             }
             checkNotifyVoice(msg, isGroup);
-        }
+        }*/
 
         @Override
         public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {

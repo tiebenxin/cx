@@ -17,6 +17,7 @@
         android:id="@+id/lineProgressView"
         android:layout_width="match_parent"
         android:layout_height="3dp"
+        android:visibility="gone"
         android:layout_marginTop="@dimen/basic_activity_margin"
         android:layout_marginLeft="@dimen/basic_activity_margin2"
         android:layout_marginRight="@dimen/basic_activity_margin2"/>
@@ -26,21 +27,32 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/basic_activity_margin2"
         android:paddingRight="@dimen/basic_activity_margin2"
-        android:layout_marginBottom="@dimen/basic_activity_margin2"
+        android:layout_marginBottom="64dp"
         android:layout_alignParentBottom="true">
         <ImageView
             android:id="@+id/iv_flash_video"
-            android:layout_width="@dimen/title_bar_hei"
-            android:layout_height="@dimen/title_bar_hei"
-            android:padding="@dimen/basic_activity_margin2"
-            android:src="@mipmap/video_flash_close"/>
+            android:layout_width="39dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="42dp"
+            android:background="@mipmap/video_flash"/>
+<!--        <ImageView-->
+<!--            android:id="@+id/iv_camera_mode"-->
+<!--            android:layout_width="@dimen/title_bar_hei"-->
+<!--            android:layout_height="@dimen/title_bar_hei"-->
+<!--            android:layout_alignParentRight="true"-->
+<!--            android:padding="@dimen/basic_activity_margin2"-->
+<!--            android:src="@mipmap/video_camera"/>-->
+
         <ImageView
             android:id="@+id/iv_camera_mode"
-            android:layout_width="@dimen/title_bar_hei"
-            android:layout_height="@dimen/title_bar_hei"
+            android:layout_width="40dp"
+            android:layout_height="34dp"
             android:layout_alignParentRight="true"
+            android:layout_marginRight="45dp"
+
             android:padding="@dimen/basic_activity_margin2"
-            android:src="@mipmap/video_camera"/>
+            android:background="@mipmap/video_swich_canmer"/>
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -48,32 +60,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="70dp">
+        android:layout_marginBottom="130dp">
         <com.zhaoss.weixinrecorded.view.RecordView
             android:id="@+id/recordView"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:layout_centerHorizontal="true" />
+
         <ImageView
             android:id="@+id/iv_delete"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:visibility="invisible"
-            android:layout_toLeftOf="@id/recordView"
-            android:layout_marginRight="@dimen/basic_activity_margin"
+            android:layout_width="29dp"
+            android:layout_height="23dp"
+            android:layout_marginLeft="61dp"
             android:layout_centerVertical="true"
-            android:src="@mipmap/video_delete"/>
+            android:scaleType="fitXY"
+            android:visibility="invisible"
+            android:background="@mipmap/video_cancle"/>
         <ImageView
             android:id="@+id/iv_next"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_toRightOf="@id/recordView"
-            android:layout_marginLeft="@dimen/basic_activity_margin"
+            android:layout_width="33dp"
+            android:layout_height="24dp"
             android:visibility="invisible"
             android:layout_centerVertical="true"
-            android:src="@mipmap/video_next"/>
+            android:layout_marginRight="65dp"
+            android:layout_alignParentRight="true"
+            android:background="@mipmap/video_sure"/>
     </RelativeLayout>
 
+<!--    <TextView-->
+<!--        android:id="@+id/tv_hint"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:textColor="#fff"-->
+<!--        android:textSize="18sp"-->
+<!--        android:padding="5dp"-->
+<!--        android:text="长按继续录制"-->
+<!--        android:background="@drawable/video_hint_circle"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_above="@id/rl_record_button"/>-->
     <TextView
         android:id="@+id/tv_hint"
         android:layout_width="wrap_content"
@@ -81,10 +105,18 @@
         android:textColor="#fff"
         android:textSize="18sp"
         android:padding="5dp"
-        android:text="长按录像 点击拍照"
-        android:background="@drawable/video_hint_circle"
+        android:text="长按继续录制"
         android:layout_centerHorizontal="true"
         android:layout_above="@id/rl_record_button"/>
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textColor="#fff"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        android:layout_above="@id/rl_record_button"
+        />
 
 </RelativeLayout>

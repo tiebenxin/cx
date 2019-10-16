@@ -27,6 +27,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -40,6 +41,7 @@ import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
@@ -475,6 +477,8 @@ public class GroupInfoActivity extends AppActivity {
                 taskSetStateGroupSave(gid, null, null, isChecked ? 1 : 0, null);
             }
         });
+
+        //开启群验证
         ckGroupVerif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -680,7 +684,6 @@ public class GroupInfoActivity extends AppActivity {
                 }
             }
         };
-
         msgAction.groupQuit(gid,UserAction.getMyInfo().getName(), callBack);
     }
 
@@ -698,8 +701,8 @@ public class GroupInfoActivity extends AppActivity {
                     ginfo = response.body().getData();
 
                     Group goldinfo = msgDao.getGroup4Id(gid);
-                    if (!isChange(goldinfo,ginfo)){
-                        doImgHeadChange(gid,ginfo);
+                    if (!isChange(goldinfo, ginfo)) {
+                        doImgHeadChange(gid, ginfo);
                     }
                     //8.8 如果是有群昵称显示自己群昵称
                     for (UserInfo number : ginfo.getUsers()) {
@@ -717,7 +720,7 @@ public class GroupInfoActivity extends AppActivity {
                                 listDataTop.add(ginfo.getUsers().get(i));
                             }
 
-                         } else {
+                        } else {
                             listDataTop.addAll(ginfo.getUsers());
                             viewGroupMore.setVisibility(View.GONE);
                         }
@@ -809,6 +812,9 @@ public class GroupInfoActivity extends AppActivity {
     }
 
 
+    /*
+     * 置顶
+     * */
     private void taskSetState(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
 
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckTop) {
@@ -825,7 +831,9 @@ public class GroupInfoActivity extends AppActivity {
         });
     }
 
-
+    /*
+     * 免打扰
+     * */
     private void taskSetStateDisturb(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
 
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckDisturb) {
@@ -842,6 +850,9 @@ public class GroupInfoActivity extends AppActivity {
         });
     }
 
+    /*
+     * 群保存
+     * */
     private void taskSetStateGroupSave(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
 
         msgAction.groupSwitch(gid, isTop, notNotify, saved, needVerification, new CallBack4Btn<ReturnBean>(ckGroupSave) {
@@ -991,15 +1002,15 @@ public class GroupInfoActivity extends AppActivity {
     }
 
     private boolean isChange(Group goldinfo, Group ginfo) {
-        int a=ginfo.getUsers().size();
-        int b=ginfo.getUsers().size();
-        if (a!=b){
+        int a = ginfo.getUsers().size();
+        int b = ginfo.getUsers().size();
+        if (a != b) {
             return true;
         }
-        int c=a>9?9:a;
-        for (int i=0;i<a;i++){
-            if (StringUtil.isNotNull(goldinfo.getUsers().get(i).getHead())&&StringUtil.isNotNull(ginfo.getUsers().get(i).getHead())){
-                if (!goldinfo.getUsers().get(i).getHead().equals(ginfo.getUsers().get(i).getHead())){
+        int c = a > 9 ? 9 : a;
+        for (int i = 0; i < a; i++) {
+            if (StringUtil.isNotNull(goldinfo.getUsers().get(i).getHead()) && StringUtil.isNotNull(ginfo.getUsers().get(i).getHead())) {
+                if (!goldinfo.getUsers().get(i).getHead().equals(ginfo.getUsers().get(i).getHead())) {
                     return true;
                 }
             }
@@ -1008,19 +1019,19 @@ public class GroupInfoActivity extends AppActivity {
         return false;
     }
 
-    private void doImgHeadChange(String gid,Group ginfo) {
+    private void doImgHeadChange(String gid, Group ginfo) {
 
-                        int i = ginfo.getUsers().size();
-                        i = i > 9 ? 9 : i;
-                        //头像地址
-                        String url[] = new String[i];
-                        for (int j = 0; j < i; j++) {
-                            UserInfo userInfo = ginfo.getUsers().get(j);
-                            url[j] = userInfo.getHead();
-                        }
-                        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-                        MsgDao msgDao = new MsgDao();
-                        msgDao.groupHeadImgUpdate(gid , file.getAbsolutePath());
+        int i = ginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            UserInfo userInfo = ginfo.getUsers().get(j);
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgUpdate(gid, file.getAbsolutePath());
 //                        msgDao.groupSave(ginfo);
     }
 
@@ -1030,7 +1041,7 @@ public class GroupInfoActivity extends AppActivity {
         }
 //        MsgAllBean bean = SocketData.createMessageBean(gid, "@所有人 \r\n" + ginfo.getAnnouncement(), ginfo);
         AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + ginfo.getAnnouncement(), ChatEnum.EAtType.ALL);
-        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL,-1L, atMessage);
+        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
         if (bean != null) {
             SocketData.saveMessage(bean);
         }

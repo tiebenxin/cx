@@ -27,6 +27,8 @@ import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.UserUtil;
 
 import com.yanlong.im.chat.bean.GroupCreateMsg;
+
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
@@ -323,7 +325,8 @@ public class GroupCreateActivity extends AppActivity {
     }
 
     private UpFileAction upFileAction = new UpFileAction();
-    private  File fileImg;
+    private File fileImg;
+
     private void taskCreate() {
         if (listDataTop.size() < 2) {
             ToastUtil.show(getContext(), "人数必须大于3人");
@@ -346,8 +349,7 @@ public class GroupCreateActivity extends AppActivity {
 
             url[j] = userInfo.getHead();
         }
-        fileImg= GroupHeadImageUtil.synthesis(this, url);
-
+        fileImg = GroupHeadImageUtil.synthesis(this, url);
 
 
         msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", "", templist, new CallBack<ReturnBean<Group>>() {
@@ -358,19 +360,11 @@ public class GroupCreateActivity extends AppActivity {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-
-                    MsgDao msgDao=new MsgDao();
-//                    Group group= msgDao.getGroup4Id(response.body().getData().getGid());
-//                    group.setAvatar(file.getAbsolutePath());
-//                    msgDao.groupSave(group);
-//                    msgDao.groupSaveJustImgHead(response.body().getData().getGid(),file.getAbsolutePath());
-                    msgDao.groupHeadImgCreate(response.body().getData().getGid(),fileImg.getAbsolutePath());
+                    MsgDao msgDao = new MsgDao();
+                    msgDao.groupHeadImgCreate(response.body().getData().getGid(), fileImg.getAbsolutePath());
                     MessageManager.getInstance().setMessageChange(true);
-//                    EventBus.getDefault().post(new EventRefreshMainMsg());
-                    EventBus.getDefault().post(new GroupCreateMsg());
-                    startActivity(new Intent(getContext(), ChatActivity.class)
-                            .putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid()).putExtra(ChatActivity.GROUP_CREAT,"creat")
-                    );
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, response.body().getData().getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid()).putExtra(ChatActivity.GROUP_CREAT, "creat"));
                     finish();
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());

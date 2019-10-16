@@ -69,8 +69,11 @@ public class SocketUtil {
         public void onMsg(MsgBean.UniversalMessage bean) {
             //保存消息和处理回执
             LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
-            SocketData.magSaveAndACK(bean);
-//            MessageManager.getInstance().onReceive(bean);
+            //发送回执
+            LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
+            SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
+//            SocketData.magSaveAndACK(bean);
+            MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onMsg(bean);
