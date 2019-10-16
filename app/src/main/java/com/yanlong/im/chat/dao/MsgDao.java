@@ -957,12 +957,11 @@ public class MsgDao {
                     session.setUnread_count(isCancel ? 0 : 1);
                 }
             } else {
-                if (session.getIsMute() == 1) {//免打扰
-                    return;
+                if (session.getIsMute() != 1) {//免打扰
+                    int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
+                    num = num < 0 ? 0 : num;
+                    session.setUnread_count(num);
                 }
-                int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
-                num = num < 0 ? 0 : num;
-                session.setUnread_count(num);
             }
             session.setUp_time(System.currentTimeMillis());
 
@@ -986,16 +985,13 @@ public class MsgDao {
                 }
 
             } else {
-                if (session.getIsMute() == 1) {//免打扰
-                    return;
+                if (session.getIsMute() != 1) {//免打扰
+                    int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
+                    num = num < 0 ? 0 : num;
+                    session.setUnread_count(num);
                 }
-                int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
-                num = num < 0 ? 0 : num;
-                session.setUnread_count(num);
             }
             session.setUp_time(System.currentTimeMillis());
-
-
         }
         if (isCancel) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
             session.setMessageType(1000);
@@ -2018,7 +2014,7 @@ public class MsgDao {
         MsgAllBean ret = null;
         MsgAllBean bean = null;
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
+//        realm.beginTransaction();
         if (!TextUtils.isEmpty(gid)) {
             ret = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("msg_type", ChatEnum.EMessageType.LOCK).endGroup()
@@ -2037,7 +2033,7 @@ public class MsgDao {
         if (ret != null) {
             bean = realm.copyFromRealm(ret);
         }
-        realm.commitTransaction();
+//        realm.commitTransaction();
         realm.close();
         if (bean != null && bean.getChat() != null) {
             return true;
