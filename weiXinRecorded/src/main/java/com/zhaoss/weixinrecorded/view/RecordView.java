@@ -59,14 +59,14 @@ public class RecordView extends View {
         paint = new Paint();
         paint.setAntiAlias(true);//抗锯齿
         paint.setStyle(Paint.Style.STROKE);//画笔属性是空心圆
-        currentStrokeWidth = getResources().getDimension(R.dimen.dp10);
+        currentStrokeWidth = getResources().getDimension(R.dimen.dp6);
         paint.setStrokeWidth(currentStrokeWidth);//设置画笔粗细
 
         progressPaint=new Paint();
 
         progressPaint.setAntiAlias(true);//抗锯齿
         progressPaint.setStyle(Paint.Style.STROKE);//画笔属性是空心圆
-        currentStrokeWidth = getResources().getDimension(R.dimen.dp10);
+//        currentStrokeWidth = getResources().getDimension(R.dimen.dp10);
         progressPaint.setStrokeWidth(currentStrokeWidth);//设置画笔粗细
         progressPaint.setColor(ContextCompat.getColor(getContext(), progress_green));
 
@@ -170,7 +170,7 @@ public class RecordView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-//        if(down){
+        if(down){
 //            paint.setColor(ContextCompat.getColor(getContext(), downColor));
 //            if(changeStrokeWidth){
 //                if (isAdd) {
@@ -192,10 +192,11 @@ public class RecordView extends View {
 //                }
 //            }
 //            canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
-
-
-//            invalidate();
-//        }else {
+            currentRadius = getWidth()*0.5f-currentStrokeWidth*3;
+            canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
+            RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
+            canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
+        }else {
             changeStrokeWidth = false;
             currentStrokeWidth = minStrokeWidth;
             paint.setStrokeWidth(currentStrokeWidth);
@@ -209,10 +210,11 @@ public class RecordView extends View {
             }
             canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
 
-        RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
-        canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
+            RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
+            canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
 
-
-//        }
+//        RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
+//        canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
+        }
     }
 }

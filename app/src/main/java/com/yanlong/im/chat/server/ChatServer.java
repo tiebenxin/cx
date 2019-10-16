@@ -160,7 +160,7 @@ public class ChatServer extends Service {
 
         }
 
-        public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
+      /*  public void onMsgbranch(MsgBean.UniversalMessage.WrapMessage msg) {
             LogUtil.getLog().d(TAG, "<<<<<<<<<<收到类型:" + msg.getMsgType());
 
 
@@ -332,7 +332,7 @@ public class ChatServer extends Service {
                 return;
             }
             checkNotifyVoice(msg, isGroup);
-        }
+        }*/
 
         @Override
         public void onSendMsgFailure(MsgBean.UniversalMessage.Builder bean) {

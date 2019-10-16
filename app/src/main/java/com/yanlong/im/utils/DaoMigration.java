@@ -76,13 +76,13 @@ public class DaoMigration implements RealmMigration {
 //                .addField("localUrl", String.class);
     }
 
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        return obj instanceof DaoMigration;
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
+//    @Override
+//    public boolean equals(@Nullable Object obj) {
+//        return obj instanceof DaoMigration;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return super.hashCode();
+//    }
 }

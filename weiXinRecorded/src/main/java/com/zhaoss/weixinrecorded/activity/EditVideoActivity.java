@@ -231,7 +231,10 @@ public class EditVideoActivity extends BaseActivity {
         tv_finish_video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishVideo();
+                synchronized(this){
+                    finishVideo();
+                };
+
             }
         });
 

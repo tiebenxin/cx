@@ -11,6 +11,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 
 import com.yanlong.im.chat.bean.MsgNotice;
 import com.yanlong.im.chat.bean.RobotInfoBean;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.MsgServer;
@@ -219,6 +220,8 @@ public class MsgAction {
                                     userInfo.setMembername(link.getMembername());
                                 }
                             }
+                            MessageManager.getInstance().updateCacheGroup(group);
+                            MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
                         }
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);
@@ -303,10 +306,21 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {//存库
-                    dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
-
-                    MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    Session session = dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
+                    if (session != null && istop != null || notNotify != null || needVerification != null) {
+                        boolean isTop = false;
+                        if (istop != null) {
+                            dao.updateGroupTop(gid, istop.intValue());
+                            session.setHasInitTop(true);
+                            isTop = true;
+                        } else if (notNotify != null) {
+                            dao.updateGroupDisturb(gid, notNotify.intValue());
+                            session.setHasInitDisturb(true);
+                            isTop = false;
+                        }
+                        MessageManager.getInstance().setMessageChange(true);
+                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
+                    }
                 }
 
                 cb.onResponse(call, response);

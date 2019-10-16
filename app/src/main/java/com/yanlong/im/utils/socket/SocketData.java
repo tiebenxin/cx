@@ -172,7 +172,7 @@ public class SocketData {
     /***
      * 保存接收到的消息及发送消息回执
      */
-    public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
+    /*public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
         List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
 
 
@@ -225,7 +225,7 @@ public class SocketData {
 //        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
 
 
-    }
+    }*/
 
     //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
     private static void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
@@ -239,34 +239,6 @@ public class SocketData {
                 MessageManager.getInstance().setMessageChange(true);
             }
         }
-    }
-
-    private synchronized static void loadUserInfo(final String gid, final Long uid) {
-//        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
-        if (uid == 1L) {
-            return;
-        }
-        new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                MessageManager.getInstance().updateSessionUnread(gid, uid, false);
-                MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg();
-            }
-        });
-    }
-
-    private synchronized static void loadGroupInfo(final String gid, final long uid) {
-//        System.out.println("加载数据--loadGroupInfo" + "--gid =" + gid + "--uid =" + uid);
-        new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                super.onResponse(call, response);
-                MessageManager.getInstance().updateSessionUnread(gid, uid, false);
-                MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg();
-            }
-        });
     }
 
     /***
@@ -683,6 +655,20 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
+    public static MsgAllBean 转发送视频整体信息(Long toId,String toGid,VideoMessage videoMessage) {
+        String bg_URL=videoMessage.getBg_url();
+        long time=videoMessage.getDuration();
+        String url=videoMessage.getUrl();
+        long width=videoMessage.getWidth();
+        long height=videoMessage.getHeight();
+        String msgId=videoMessage.getMsgId();
+
+
+        MsgBean.ShortVideoMessage msg;
+        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int)width).setHeight((int)height).build();
+        return send4Base( toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
+    }
+
     /***
      * 发送视频
      * @param toId
@@ -722,6 +708,12 @@ public class SocketData {
 
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
+    }
+
+    public static MsgAllBean 转发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal,  long time, int width, int height) {
+        MsgBean.ShortVideoMessage msg;
+        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
+        return send4Base( toId, toGid,  MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
     /***
