@@ -2340,7 +2340,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     Long mss = System.currentTimeMillis() - timesTamp;
                     long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
                     if (minutes >= RELINQUISH_TIME) {
-                        ToastUtil.show(ChatActivity.this, "只能重新编辑5分钟以内的消息");
+                        ToastUtil.show(ChatActivity.this, "重新编辑不能超过5分钟");
                     } else {
                         showVoice(false);
                         InputUtil.showKeyboard(edtChat);
