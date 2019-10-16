@@ -564,7 +564,11 @@ public class MsgMainFragment extends Fragment {
                 }
             }
             listData.add(position, s);
+        }else {
+            listData = new ArrayList<>();
+            listData.add(s);
         }
+
         return position;
     }
 
