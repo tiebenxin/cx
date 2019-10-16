@@ -1023,8 +1023,6 @@ public class MsgDao {
                 session.setIsMute(disturb);
                 session.setIsTop(top);
             }
-            session.setIsMute(disturb);
-            session.setIsTop(top);
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
             if (session == null) {
