@@ -14,13 +14,16 @@ import android.widget.LinearLayout;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
@@ -285,7 +288,9 @@ public class ChatInfoActivity extends AppActivity {
         EventBus.getDefault().post(new EventRefreshChat());
     }
 
-
+    /*
+     * 置顶和免打扰
+     * */
     private void taskUpSwitch(Integer isMute, Integer istop) {
         msgAction.sessionSwitch(fuid, isMute, istop, new CallBack<ReturnBean>() {
             @Override
@@ -293,10 +298,20 @@ public class ChatInfoActivity extends AppActivity {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-
+                    Session session = null;
+                    if (isMute == null && istop != null) {
+                        session = msgDao.updateUserSessionTop(fuid, istop);
+                        msgDao.updateUserTop(fuid, istop.intValue());
+                        session.setHasInitTop(true);
+                    } else if (isMute != null && istop == null) {
+                        session = msgDao.updateUserSessionDisturb(fuid, isMute);
+                        msgDao.updateUserDisturb(fuid, isMute.intValue());
+                        session.setHasInitDisturb(true);
+                    }
+                    MessageManager.getInstance().setMessageChange(true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session,true);
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
-
                 }
             }
         });

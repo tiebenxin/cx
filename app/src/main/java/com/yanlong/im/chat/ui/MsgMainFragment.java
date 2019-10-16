@@ -419,11 +419,11 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
-                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
+//                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
             } else {
-                refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean());
-                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
+                refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
+//                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
 
             }
         }
@@ -434,17 +434,26 @@ public class MsgMainFragment extends Fragment {
      * 刷新单一位置
      * */
     @SuppressLint("CheckResult")
-    private void refreshPosition(String gid, Long uid, MsgAllBean bean) {
+    private void refreshPosition(String gid, Long uid, MsgAllBean bean, Session s, boolean isRefreshTop) {
         Observable.just(0)
                 .map(new Function<Integer, Session>() {
                     @Override
                     public Session apply(Integer integer) throws Exception {
-                        Session session = msgDao.sessionGet(gid, uid);
-                        if (bean != null) {
-                            session.setMessage(bean);
+                        if (s == null) {
+                            Session session = msgDao.sessionGet(gid, uid);
+                            if (bean != null) {
+                                session.setMessage(bean);
+                            }
+                            prepareSession(session, false);
+                            return session;
+                        } else {
+                            if (bean != null) {
+                                s.setMessage(bean);
+                            }
+                            prepareSession(s, true);
+                            return s;
                         }
-                        prepareSession(session);
-                        return session;
+
                     }
                 }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -456,22 +465,134 @@ public class MsgMainFragment extends Fragment {
                             int index = listData.indexOf(session);
                             if (index >= 0) {
                                 Session s = listData.get(index);
-                                listData.set(index, session);
-                                if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
-                                    mtListView.getListView().getAdapter().notifyItemChanged(index, index);
-                                } else {//有时间更新,需要重排
-                                    Collections.sort(listData);//重新排序
-                                    mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
+                                if (isRefreshTop) {//是否刷新置顶
+                                    if (session.getIsTop() == 1) {//修改了置顶状态
+//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新置顶消息 旧session=" + s.getIsTop() + "--新session=" + session.getIsTop());
+                                        listData.remove(index);
+                                        listData.add(0, session);//放在首位
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
+                                    } else {//取消置顶
+                                        listData.set(index, session);
+                                        sortSession(index == 0);
+                                        int newIndex = listData.indexOf(session);//获取重排后新位置
+                                        int start = index > newIndex ? newIndex : index;//谁小，取谁
+                                        int count = Math.abs(newIndex - index) + 1;
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);////范围刷新,刷新旧位置和新位置之间即可
+//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新取消置顶消息--start=" + start + "--count=" + count);
+                                    }
+                                } else {
+//                                    System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息 旧session=" + s.getSid() + "--新session=" + session.getSid());
+                                    listData.set(index, session);
+                                    if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
+                                        mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                                    } else {//有时间更新,需要重排
+                                        sortSession(index == 0);
+                                        int newIndex = listData.indexOf(session);
+                                        int start = index > newIndex ? newIndex : index;//谁小，取谁
+                                        int count = Math.abs(newIndex - index) + 1;
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);//范围刷新
+//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--时间刷新重排--start=" + start + "--count=" + count);
+                                    }
                                 }
                             } else {
-                                listData.add(0, session);//新会话，插入刷新
-//                                mtListView.getListView().getAdapter().notifyDataSetChanged();//整个刷新
-                                mtListView.getListView().getAdapter().notifyItemRangeInserted(0, 1);
+//                                System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息0" + "--新session=" + session.getSid());
+                                int position = insertSession(session);
+                                if (position == 0) {
+//                                    mtListView.getListView().getAdapter().notifyDataSetChanged();
+                                    mtListView.notifyDataSetChange();
+                                } else {
+                                    mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
+                                    mtListView.getListView().scrollToPosition(0);
+                                }
+                            }
+                        } else {
+//                            System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息null" + "--新session=" + session.getSid());
+//                                listData.add(0, session);//新会话，插入刷新，考虑置顶
+                            int position = insertSession(session);
+                            if (position == 0) {
+//                                mtListView.getListView().getAdapter().notifyDataSetChanged();
+                                mtListView.notifyDataSetChange();
+
+                            } else {
+                                mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
                                 mtListView.getListView().scrollToPosition(0);
                             }
                         }
                     }
                 });
+    }
+
+
+    /*
+     * 重新排序,置顶和非置顶分别重排
+     * @param isTop 当前要更新的session 是否在列表第一位置（置顶）
+     * */
+    private void sortSession(boolean isTop) {
+        if (listData != null) {
+            int len = listData.size();
+            if (len > 0) {
+                Session first = null;
+                if (!isTop) {
+                    first = listData.get(0);
+                } else {
+                    if (len >= 2) {
+                        first = listData.get(1);
+                    }
+                }
+                if (first != null && first.getIsTop() == 1) {//有置顶
+                    List<Session> topList = new ArrayList<>();
+                    List<Session> list = new ArrayList<>();
+                    for (int i = 0; i < len; i++) {
+                        Session session = listData.get(i);
+                        if (session.getIsTop() == 1) {
+                            topList.add(session);
+                        } else {
+                            list.add(session);
+                        }
+                    }
+                    listData.clear();
+                    if (topList.size() > 0) {
+                        Collections.sort(topList);
+                        listData.addAll(topList);
+                    }
+                    if (list.size() > 0) {
+                        Collections.sort(list);
+                        listData.addAll(list);
+                    }
+                } else {//无置顶
+                    Collections.sort(listData);
+                }
+            }
+        }
+    }
+
+    /*
+     * 插入位置需要考虑置顶
+     * */
+    private int insertSession(Session s) {
+        int position = 0;//需要插入位置
+        if (listData != null) {
+            int len = listData.size();
+            boolean hasTop = false;
+            for (int i = 0; i < len; i++) {
+                Session session = listData.get(i);
+                if (session.getIsTop() != 1) {
+                    position = i;
+                    break;//结束循环
+                } else {
+                    hasTop = true;
+                }
+            }
+            if (hasTop && position == 0) {//全是置顶
+                position = len;
+            }
+            listData.add(position, s);
+        } else {
+            listData = new ArrayList<>();
+            listData.add(s);
+        }
+
+        return position;
     }
 
     @Override
@@ -556,7 +677,6 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void onBindViewHolder(final RCViewHolder holder, int position) {
             final Session bean = listData.get(position);
-
             String icon = bean.getAvatar();
             String title = bean.getName();
             MsgAllBean msginfo = bean.getMessage();
@@ -816,13 +936,15 @@ public class MsgMainFragment extends Fragment {
         if (isSearchMode) {
             return;
         }
-        System.out.println("重新获取session数据");
+//        System.out.println("MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
         Observable.just(0)
                 .map(new Function<Integer, List<Session>>() {
                     @Override
                     public List<Session> apply(Integer integer) throws Exception {
                         listData = msgDao.sessionGetAll(true);
+//                        System.out.println("MsgMainFragment --结束获取session数据" + System.currentTimeMillis());
                         doListDataSort();
+//                        System.out.println("MsgMainFragment --结束准备session数据" + System.currentTimeMillis());
                         return listData;
                     }
                 }).subscribeOn(Schedulers.io())
@@ -832,7 +954,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
-
+//                        System.out.println("MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
                     }
                 });
 
@@ -849,13 +971,17 @@ public class MsgMainFragment extends Fragment {
             int len = listData.size();
             for (int i = 0; i < len; i++) {
                 Session session = listData.get(i);
-                prepareSession(session);
+                prepareSession(session, false);
 
             }
         }
     }
 
-    private void prepareSession(Session session) {
+    /*
+     * 准备session
+     * @param isNew 是否是新数据，（主要针对置顶，免打扰）
+     * */
+    private void prepareSession(Session session, boolean isNew) {
         if (session == null) {
             return;
         }

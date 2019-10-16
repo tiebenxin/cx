@@ -6,9 +6,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -31,7 +28,6 @@ import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.util.TimeUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -545,11 +541,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewChatBottom.setVisibility(View.VISIBLE);
         } else {
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
-            if (toUId == 1L) {
-                viewChatBottom.setVisibility(View.GONE);
-            } else {
-                viewChatBottom.setVisibility(View.VISIBLE);
-            }
+            viewChatBottom.setVisibility(View.VISIBLE);
+//            if (toUId == 1L) {
+//                viewChatBottom.setVisibility(View.GONE);
+//            } else {
+//                viewChatBottom.setVisibility(View.VISIBLE);
+//            }
         }
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -1088,6 +1085,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         taskCleanRead();
     }
 
+    //是否是常聊聊小助手用户
+    public boolean isAssitanceUser() {
+        if (toUId != null && toUId == 1L) {
+            return true;
+        }
+        return false;
+    }
+
     private void uploadVoice(String file, final MsgAllBean bean) {
         uploadMap.put(bean.getMsg_id(), bean);
         uploadList.add(bean);
@@ -1348,12 +1353,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
+        boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
+        if (hasUpdate) {
+            MessageManager.getInstance().setMessageChange(true);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        }
+
     }
 
     @Override
     protected void onDestroy() {
         taskDraftSet();
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
+        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -1674,6 +1685,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
+        if (seting == null){
+            mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
+            return;
+        }
         switch (seting.getImageBackground()) {
             case 1:
                 mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
@@ -2193,21 +2208,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
 
-                            String localUrl= msgbean.getVideoMessage().getLocalUrl();
-                            if (StringUtil.isNotNull(localUrl)){
-                                File file=new File(localUrl);
-                                if (file.exists()){
-                                    Intent intent=new Intent(ChatActivity.this,VideoPlayActivity.class);
-                                    intent.putExtra("videopath",localUrl);
-                                    intent.putExtra("videomsg",new Gson().toJson(msgbean));
+                            String localUrl = msgbean.getVideoMessage().getLocalUrl();
+                            if (StringUtil.isNotNull(localUrl)) {
+                                File file = new File(localUrl);
+                                if (file.exists()) {
+                                    Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                                    intent.putExtra("videopath", localUrl);
+                                    intent.putExtra("videomsg", new Gson().toJson(msgbean));
                                     startActivity(intent);
-                                    MsgDao dao =new MsgDao();
-                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(),localUrl);
-                                }else{
-                                    downVideo(msgbean,msgbean.getVideoMessage());
+                                    MsgDao dao = new MsgDao();
+                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
+                                } else {
+                                    downVideo(msgbean, msgbean.getVideoMessage());
                                 }
-                            }else{
-                                downVideo(msgbean,msgbean.getVideoMessage());
+                            } else {
+                                downVideo(msgbean, msgbean.getVideoMessage());
                             }
 
 
@@ -3310,16 +3325,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         Session session = StringUtil.isNotNull(toGid) ? DaoUtil.findOne(Session.class, "gid", toGid) :
                 DaoUtil.findOne(Session.class, "from_uid", toUId);
         if (session != null && session.getUnread_count() > 0) {
-//            if (isGroup()) {
-//                dao.sessionReadClean(toGid, null);
-//            } else {
-//                dao.sessionReadClean(null, toUId);
-//            }
             dao.sessionReadClean(session);
             MessageManager.getInstance().setMessageChange(true);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
-//        dao.updateMsgReaded(toUId, toGid, true);
     }
 
     /***
@@ -3347,13 +3356,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 dao.sessionDraft(toGid, toUId, df);
 
                 MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
                 dao.sessionDraft(toGid, toUId, df);
                 MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE,null);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         }
     }

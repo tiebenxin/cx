@@ -80,7 +80,7 @@ public class TimeToString {
     }
 
     public static String getTimeWx(Long timestamp) {
-        if (timestamp == 0L) {
+        if (timestamp == null || timestamp == 0L) {
             return "";
         }
         String result = "";

@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.eventbus;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.Session;
 
 import net.cb.cb.library.CoreEnum;
 
@@ -13,6 +14,8 @@ public class EventRefreshMainMsg {
     private String gid;//刷新群聊session
     private String refreshItem;
     private MsgAllBean msgAllBean;//需要刷新最后一条消息
+    private Session session;//需要刷新整个session
+    private boolean isRefreshTop;//是否刷新置顶
 
     @CoreEnum.ESessionRefreshTag
     private int refreshTag = CoreEnum.ESessionRefreshTag.ALL;//刷新类型，单个刷新还是全部刷新,默认刷新all
@@ -67,5 +70,21 @@ public class EventRefreshMainMsg {
 
     public void setMsgAllBean(MsgAllBean msgAllBean) {
         this.msgAllBean = msgAllBean;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
+
+    public boolean isRefreshTop() {
+        return isRefreshTop;
+    }
+
+    public void setRefreshTop(boolean refreshTop) {
+        isRefreshTop = refreshTop;
     }
 }
