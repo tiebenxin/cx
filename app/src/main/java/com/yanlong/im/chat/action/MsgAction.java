@@ -226,6 +226,7 @@ public class MsgAction {
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);
                     } else {
+                        MessageManager.getInstance().removeLoadGids(gid);
                         callback.onFailure(call, new Throwable());
                     }
                 }

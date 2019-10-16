@@ -260,6 +260,8 @@ public class UserAction {
                     dao.updateUserinfo(userInfo);
                     MessageManager.getInstance().updateSessionTopAndDisturb("", usrid, userInfo.getIstop(), userInfo.getDisturb());
                     cb.onResponse(call, response);
+                } else {
+                    MessageManager.getInstance().removeLoadUids(usrid);
                 }
             }
         });
