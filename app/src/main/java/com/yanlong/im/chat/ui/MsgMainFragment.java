@@ -495,8 +495,25 @@ public class MsgMainFragment extends Fragment {
                                     }
                                 }
                             } else {
-//                                listData.add(0, session);//新会话，插入刷新，考虑置顶
+                                System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息0" + "--新session=" + session.getSid());
                                 int position = insertSession(session);
+                                if (position == 0) {
+//                                    mtListView.getListView().getAdapter().notifyDataSetChanged();
+                                    mtListView.notifyDataSetChange();
+                                } else {
+                                    mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
+                                    mtListView.getListView().scrollToPosition(0);
+                                }
+                            }
+                        } else {
+                            System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息null" + "--新session=" + session.getSid());
+//                                listData.add(0, session);//新会话，插入刷新，考虑置顶
+                            int position = insertSession(session);
+                            if (position == 0) {
+//                                mtListView.getListView().getAdapter().notifyDataSetChanged();
+                                mtListView.notifyDataSetChange();
+
+                            } else {
                                 mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
                                 mtListView.getListView().scrollToPosition(0);
                             }
@@ -564,7 +581,7 @@ public class MsgMainFragment extends Fragment {
                 }
             }
             listData.add(position, s);
-        }else {
+        } else {
             listData = new ArrayList<>();
             listData.add(s);
         }
@@ -654,6 +671,7 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void onBindViewHolder(final RCViewHolder holder, int position) {
             final Session bean = listData.get(position);
+            System.out.println(MsgMainFragment.class.getSimpleName() + " session=" + bean.getSid() + "--gid=" + bean.getGid() + "--uid=" + bean.getFrom_uid());
 
             String icon = bean.getAvatar();
             String title = bean.getName();
