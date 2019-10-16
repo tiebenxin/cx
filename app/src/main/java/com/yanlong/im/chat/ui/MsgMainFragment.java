@@ -933,13 +933,15 @@ public class MsgMainFragment extends Fragment {
         if (isSearchMode) {
             return;
         }
-        System.out.println("MsgMainFragment --重新获取session数据" + System.currentTimeMillis());
+        System.out.println("MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
         Observable.just(0)
                 .map(new Function<Integer, List<Session>>() {
                     @Override
                     public List<Session> apply(Integer integer) throws Exception {
                         listData = msgDao.sessionGetAll(true);
+                        System.out.println("MsgMainFragment --结束获取session数据" + System.currentTimeMillis());
                         doListDataSort();
+                        System.out.println("MsgMainFragment --结束准备session数据" + System.currentTimeMillis());
                         return listData;
                     }
                 }).subscribeOn(Schedulers.io())
@@ -949,7 +951,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
-                        System.out.println("MsgMainFragment --重新获取session数据后刷新" + System.currentTimeMillis());
+                        System.out.println("MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
                     }
                 });
 
