@@ -1685,6 +1685,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
+        if (seting == null){
+            mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
+            return;
+        }
         switch (seting.getImageBackground()) {
             case 1:
                 mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
