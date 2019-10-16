@@ -573,14 +573,17 @@ public class MsgMainFragment extends Fragment {
         int position = 0;//需要插入位置
         if (listData != null) {
             int len = listData.size();
+            boolean hasTop = false;
             for (int i = 0; i < len; i++) {
                 Session session = listData.get(i);
                 if (session.getIsTop() != 1) {
                     position = i;
                     break;//结束循环
+                } else {
+                    hasTop = true;
                 }
             }
-            if (position == 0) {//全是置顶
+            if (hasTop && position == 0) {//全是置顶
                 position = len;
             }
             listData.add(position, s);
@@ -933,15 +936,15 @@ public class MsgMainFragment extends Fragment {
         if (isSearchMode) {
             return;
         }
-        System.out.println("MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
+//        System.out.println("MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
         Observable.just(0)
                 .map(new Function<Integer, List<Session>>() {
                     @Override
                     public List<Session> apply(Integer integer) throws Exception {
                         listData = msgDao.sessionGetAll(true);
-                        System.out.println("MsgMainFragment --结束获取session数据" + System.currentTimeMillis());
+//                        System.out.println("MsgMainFragment --结束获取session数据" + System.currentTimeMillis());
                         doListDataSort();
-                        System.out.println("MsgMainFragment --结束准备session数据" + System.currentTimeMillis());
+//                        System.out.println("MsgMainFragment --结束准备session数据" + System.currentTimeMillis());
                         return listData;
                     }
                 }).subscribeOn(Schedulers.io())
@@ -951,7 +954,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
-                        System.out.println("MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
+//                        System.out.println("MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
                     }
                 });
 
