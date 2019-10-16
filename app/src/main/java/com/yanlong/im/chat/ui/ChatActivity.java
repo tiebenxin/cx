@@ -1914,27 +1914,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 //todo 重新上传视频
                 String url = reMsg.getVideoMessage().getLocalUrl();
                 if (!TextUtils.isEmpty(url)) {
-//                    boolean isArtworkMaster = StringUtil.isNotNull(reMsg.getImage().getOrigin()) ? true : false;
-//                    ImageMessage image = SocketData.createImageMessage(reMsg.getMsg_id(), url, isArtworkMaster);
-//                    MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
-//                    replaceListDataAndNotify(imgMsgBean);
-//                    UpLoadService.onAdd(reMsg.getMsg_id(), url, isArtworkMaster, toUId, toGid, reMsg.getTimestamp());
-//                    startService(new Intent(getContext(), UpLoadService.class));
 
-
-                    final String imgMsgId = SocketData.getUUID();
-                    VideoMessage videoMessage = new VideoMessage();
-                    videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(url)));
-                    videoMessage.setWidth(Long.parseLong(getVideoAttWeith(url)));
-                    videoMessage.setDuration(Long.parseLong(getVideoAtt(url)));
-                    videoMessage.setBg_url(getVideoAttBitmap(url));
-                    videoMessage.setLocalUrl(url);
+                    VideoMessage videoMessage = reMsg.getVideoMessage();
                     Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
-                    VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + url, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), url);
-                    MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-
+                    VideoMessage videoMessageSD = SocketData.createVideoMessage(reMsg.getMsg_id(), "file://" + url, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), url);
+                    MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
+                    replaceListDataAndNotify(imgMsgBeanReSend);
 //                    msgListData.add(imgMsgBeanReSend);
-                    UpLoadService.onAddVideo(this.context, imgMsgId, url, videoMessage.getBg_url(), false, toUId, toGid, 10, videoMessageSD);
+                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid, 10, videoMessageSD);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
@@ -2353,7 +2340,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     Long mss = System.currentTimeMillis() - timesTamp;
                     long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
                     if (minutes >= RELINQUISH_TIME) {
-                        ToastUtil.show(ChatActivity.this, "只能重新编辑5分钟以内的消息");
+                        ToastUtil.show(ChatActivity.this, "重新编辑不能超过5分钟");
                     } else {
                         showVoice(false);
                         InputUtil.showKeyboard(edtChat);

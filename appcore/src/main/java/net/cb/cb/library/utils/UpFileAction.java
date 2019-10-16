@@ -60,32 +60,33 @@ public class UpFileAction {
         switch (type) {
             case IMG:
                 data.setTime(System.currentTimeMillis());
-                pt = AppConfig.UP_PATH + "/android/" + simpleDateFormat.format(data) + "/";
+//                pt = AppConfig.UP_PATH + "/image/android/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.UP_PATH + "/image/android/" ;
                 break;
             case HEAD:
-                pt = AppConfig.UP_PATH + "/avatar/";
+                pt = AppConfig.UP_PATH + "/avatar/android/";
                 break;
             case HEAD_GROUP:
-                pt = AppConfig.UP_PATH + "/group-avatar/";
+                pt = AppConfig.UP_PATH + "/avatar/android/";
                 break;
             case COMPLAINT:
-                pt = AppConfig.UP_PATH + "/android-complaints/";
+                pt = AppConfig.UP_PATH + "/misc/complaint/";
                 break;
             case FEEDBACK:
-                pt = AppConfig.UP_PATH + "/android-feedback/";
+                pt = AppConfig.UP_PATH + "/misc/feedback/";
                 break;
             case VOICE:
-                pt = AppConfig.UP_PATH + "/android-voice/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.UP_PATH + "/voice/android/";
                 break;
             case HEAD_GROUP_CHANGE:
-                pt = AppConfig.UP_PATH + "/group-change-avatar/" + simpleDateFormat.format(data) + "/";
+                pt = AppConfig.UP_PATH + "/avatar/android/";
                 break;
             case VIDEO:
-                pt = AppConfig.UP_PATH + "/video/";
+                pt = AppConfig.UP_PATH + "/video/android/";
                 break;
             default:
                 data.setTime(System.currentTimeMillis());
-                pt = "/" + AppConfig.UP_PATH + "/android/" + simpleDateFormat.format(data) + "/";
+                pt = "/" + AppConfig.UP_PATH + "/android/";
                 break;
 
         }
