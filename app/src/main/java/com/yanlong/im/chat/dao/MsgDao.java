@@ -93,6 +93,48 @@ public class MsgDao {
 
     /***
      * 保存群
+     * @param group
+     */
+    public void saveGroups(List<Group> groups) {
+        if (groups == null || groups.size() > 0) {
+            return;
+        }
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            int len = groups.size();
+            for (int i = 0; i < len; i++) {
+                Group group = groups.get(i);
+                Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
+                if (null != g) {//已经存在
+                    try {
+                        List<UserInfo> objects = g.getUsers();
+                        if (null != objects && objects.size() > 0) {
+                            g.setName(group.getName());
+                            g.setAvatar(group.getAvatar());
+                            if (group.getUsers() != null)
+                                g.setUsers(group.getUsers());
+                            realm.insertOrUpdate(group);
+                        }
+                    } catch (Exception e) {
+                        return;
+                    }
+                } else {//不存在
+                    realm.insertOrUpdate(group);
+                }
+            }
+
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+
+    /***
+     * 保存群
      * @param gid 群id
      * @param imgHead 群头像
      */
@@ -835,7 +877,7 @@ public class MsgDao {
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
             if (session == null) {
-
+                System.out.println("新建会话");
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
@@ -850,6 +892,7 @@ public class MsgDao {
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", toUid);
             if (session == null) {
+                System.out.println("新建会话");
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(toUid);
@@ -898,6 +941,7 @@ public class MsgDao {
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
             if (session == null) {
+                System.out.println("新建会话");
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
@@ -925,6 +969,7 @@ public class MsgDao {
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
             if (session == null) {
+                System.out.println("新建会话");
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(from_uid);
@@ -967,33 +1012,37 @@ public class MsgDao {
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
             if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setGid(gid);
-                session.setType(1);
-                session.setIsMute(disturb);
-                session.setIsTop(top);
-                session.setUnread_count(0);
+//                session = new Session();
+//                session.setSid(UUID.randomUUID().toString());
+//                session.setGid(gid);
+//                session.setType(1);
+//                session.setIsMute(disturb);
+//                session.setIsTop(top);
+//                session.setUnread_count(0);
             } else {
                 session.setIsMute(disturb);
                 session.setIsTop(top);
             }
+            session.setIsMute(disturb);
+            session.setIsTop(top);
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
             if (session == null) {
-                session = new Session();
-                session.setSid(UUID.randomUUID().toString());
-                session.setFrom_uid(from_uid);
-                session.setType(0);
-                session.setIsMute(disturb);
-                session.setIsTop(top);
-                session.setUnread_count(0);
+//                session = new Session();
+//                session.setSid(UUID.randomUUID().toString());
+//                session.setFrom_uid(from_uid);
+//                session.setType(0);
+//                session.setIsMute(disturb);
+//                session.setIsTop(top);
+//                session.setUnread_count(0);
             } else {
                 session.setIsMute(disturb);
                 session.setIsTop(top);
             }
         }
-        DaoUtil.update(session);
+        if (session != null) {
+            DaoUtil.update(session);
+        }
     }
 
     /***
