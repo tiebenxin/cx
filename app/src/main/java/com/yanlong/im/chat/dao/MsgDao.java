@@ -444,13 +444,13 @@ public class MsgDao {
         GropLinkInfo gropLinkInfo = null;
         Realm realm = DaoUtil.open();
         try {
-            realm.beginTransaction();
+//            realm.beginTransaction();
 
             GropLinkInfo info = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
             if (info != null) {
                 gropLinkInfo = realm.copyFromRealm(info);
             }
-            realm.commitTransaction();
+//            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();

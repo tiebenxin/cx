@@ -465,7 +465,7 @@ public class MsgMainFragment extends Fragment {
                             int index = listData.indexOf(session);
                             if (index >= 0) {
                                 Session s = listData.get(index);
-                                if (isRefreshTop) {
+                                if (isRefreshTop) {//是否刷新置顶
                                     if (session.getIsTop() == 1) {//修改了置顶状态
                                         System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新置顶消息 旧session=" + s.getIsTop() + "--新session=" + session.getIsTop());
                                         listData.remove(index);
@@ -476,11 +476,12 @@ public class MsgMainFragment extends Fragment {
                                         sortSession(index == 0);
                                         int newIndex = listData.indexOf(session);//获取重排后新位置
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
-                                        int count = Math.abs(newIndex - index + 1);
+                                        int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);////范围刷新,刷新旧位置和新位置之间即可
                                         System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新取消置顶消息--start=" + start + "--count=" + count);
                                     }
                                 } else {
+                                    System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息 旧session=" + s.getSid() + "--新session=" + session.getSid());
                                     listData.set(index, session);
                                     if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
                                         mtListView.getListView().getAdapter().notifyItemChanged(index, index);
@@ -488,7 +489,7 @@ public class MsgMainFragment extends Fragment {
                                         sortSession(index == 0);
                                         int newIndex = listData.indexOf(session);
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
-                                        int count = Math.abs(newIndex - index + 1);
+                                        int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);//范围刷新
                                         System.out.println(MsgMainFragment.class.getSimpleName() + "--时间刷新重排--start=" + start + "--count=" + count);
                                     }
