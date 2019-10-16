@@ -260,7 +260,6 @@ public class ChatItemView extends LinearLayout {
 
     }
 
-
     //自动生成的控件事件
     private void initEvent() {
 
@@ -301,6 +300,7 @@ public class ChatItemView extends LinearLayout {
         viewMe8.setVisibility(GONE);
         viewOt8.setVisibility(GONE);
         viewLock.setVisibility(GONE);
+        viewReadDestroy.setVisibility(GONE);
         switch (type) {
             case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告

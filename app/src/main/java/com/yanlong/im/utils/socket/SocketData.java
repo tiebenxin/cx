@@ -1228,13 +1228,6 @@ public class SocketData {
                     return null;
                 }
                 break;
-//            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
-//                if (obj instanceof ChangeSurvivalTimeMessage) {
-//                    msg.setChangeSurvivalTimeMessage((ChangeSurvivalTimeMessage) obj);
-//                } else {
-//                    return null;
-//                }
-//                break;
         }
 
         return msg;
@@ -1355,13 +1348,6 @@ public class SocketData {
                     return null;
                 }
                 break;
-//            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
-//                if (obj instanceof ChangeSurvivalTimeMessage) {
-//                    msg.setChangeSurvivalTimeMessage((ChangeSurvivalTimeMessage) obj);
-//                } else {
-//                    return null;
-//                }
-//                break;
         }
 
         return msg;

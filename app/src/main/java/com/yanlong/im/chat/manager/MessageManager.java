@@ -10,6 +10,7 @@ import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
@@ -232,6 +233,18 @@ public class MessageManager {
             case RESOURCE_LOCK://资源锁定
                 updateUserLockCloudRedEnvelope(wrapMessage);
                 break;
+            case CHANGE_SURVIVAL_TIME: //阅后即焚
+                if (bean != null) {
+                    result = saveMessage(bean, isList);
+                }
+                int survivalTime = wrapMessage.getChangeSurvivalTime().getSurvivalTime();
+                if(!TextUtils.isEmpty(wrapMessage.getGid())){
+                    wrapMessage.getMsgId();
+                }else{
+                    userDao.updateReadDestroy(wrapMessage.getFromUid(),survivalTime);
+                }
+                EventBus.getDefault().post(new ReadDestroyBean(survivalTime,wrapMessage.getGid(),wrapMessage.getFromUid()));
+                break;
         }
         //刷新单个
         if (result && !isList && bean != null) {
@@ -286,6 +299,10 @@ public class MessageManager {
      * @param msgAllBean 消息
      * @isList 是否是批量消息
      * */
+    /*
+     * 网络加载用户信息
+     * */
+
     private boolean saveMessage(MsgAllBean msgAllBean, boolean isList) {
         msgAllBean.setRead(false);//设置未读
         msgAllBean.setTo_uid(msgAllBean.getTo_uid());
@@ -307,10 +324,6 @@ public class MessageManager {
         }
         return result;
     }
-
-    /*
-     * 网络加载用户信息
-     * */
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
 //        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {

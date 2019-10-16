@@ -2006,13 +2006,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pgVideo);
                         break;
-                    case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
-
-                        holder.viewChatItem.setReadDestroy(toGid,msgbean.getFrom_uid(),
-                                msgbean.getChangeSurvivalTimeMessage().getSurvival_time()
-                                , msgbean.getMsgCancel().getNote(),ChatActivity.this);
-
-                        break;
+//                    case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+//
+//                        holder.viewChatItem.setReadDestroy(toGid,msgbean.getFrom_uid(),
+//                                msgbean.getChangeSurvivalTimeMessage().getSurvival_time()
+//                                , msgbean.getMsgCancel().getNote(),ChatActivity.this);
+//
+//                        break;
                     default:
                         onBindViewHolder(holder, position);
                         break;
