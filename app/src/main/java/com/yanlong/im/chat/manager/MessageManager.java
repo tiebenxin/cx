@@ -410,7 +410,7 @@ public class MessageManager {
      * @param gid 群聊即群id，单聊为""
      * @param msg,最后一条消息，也要刷新时间
      * */
-    public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, Long uid, String gid, @CoreEnum.ESessionRefreshTag int refreshTag, Object object,boolean isRefreshTop) {
+    public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, Long uid, String gid, @CoreEnum.ESessionRefreshTag int refreshTag, Object object, boolean isRefreshTop) {
         EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
         eventRefreshMainMsg.setType(chatType);
         eventRefreshMainMsg.setUid(uid);
@@ -749,5 +749,12 @@ public class MessageManager {
                 cacheGroups.put(group.getGid(), group);
             }
         }
+    }
+
+    /*
+     * 更新session 置顶及免打扰字段
+     * */
+    public void updateSessionTopAndDisturb(String gid, Long uid, int top, int disturb) {
+        msgDao.updateSessionTopAndDisturb(gid, uid, top, disturb);
     }
 }

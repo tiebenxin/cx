@@ -221,6 +221,7 @@ public class MsgAction {
                                 }
                             }
                             MessageManager.getInstance().updateCacheGroup(group);
+                            MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
                         }
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);

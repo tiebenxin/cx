@@ -541,11 +541,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewChatBottom.setVisibility(View.VISIBLE);
         } else {
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
-            if (toUId == 1L) {
-                viewChatBottom.setVisibility(View.GONE);
-            } else {
-                viewChatBottom.setVisibility(View.VISIBLE);
-            }
+            viewChatBottom.setVisibility(View.VISIBLE);
+//            if (toUId == 1L) {
+//                viewChatBottom.setVisibility(View.GONE);
+//            } else {
+//                viewChatBottom.setVisibility(View.VISIBLE);
+//            }
         }
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
@@ -1082,6 +1083,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //9.17 进去后就清理会话的阅读数量
         taskCleanRead();
+    }
+
+    //是否是常聊聊小助手用户
+    public boolean isAssitanceUser() {
+        if (toUId != null && toUId == 1L) {
+            return true;
+        }
+        return false;
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {

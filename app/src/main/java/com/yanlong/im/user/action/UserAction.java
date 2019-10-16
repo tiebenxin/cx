@@ -7,6 +7,7 @@ import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
 import com.jrmf360.tools.http.OkHttpModelCallBack;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
@@ -257,6 +258,7 @@ public class UserAction {
                         userInfo.setuType(ChatEnum.EUserType.FRIEND);
                     }
                     dao.updateUserinfo(userInfo);
+                    MessageManager.getInstance().updateSessionTopAndDisturb("", usrid, userInfo.getIstop(), userInfo.getDisturb());
                     cb.onResponse(call, response);
                 }
             }

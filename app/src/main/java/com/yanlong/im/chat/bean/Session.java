@@ -71,14 +71,13 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
     public int getIsMute() {
-        if (!hasInitDisturb) {
-            try {
-                isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-//        hasInitDisturb = false;
+//        if (!hasInitDisturb) {
+//            try {
+//                isMute = type == 0 ? new UserDao().findUserInfo(from_uid).getDisturb() : new MsgDao().getGroup4Id(gid).getNotNotify();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
         return isMute;
     }
 
@@ -87,15 +86,13 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
     public int getIsTop() {
-        // int isTop=0;
-        if (!hasInitTop) {
-            try {
-                isTop = type == 0 ? new UserDao().findUserInfo(from_uid).getIstop() : new MsgDao().getGroup4Id(gid).getIsTop();
-            } catch (Exception e) {
-                //  e.printStackTrace();
-            }
-        }
-//        hasInitTop = false;
+//        if (!hasInitTop) {
+//            try {
+//                isTop = type == 0 ? new UserDao().findUserInfo(from_uid).getIstop() : new MsgDao().getGroup4Id(gid).getIsTop();
+//            } catch (Exception e) {
+//                //  e.printStackTrace();
+//            }
+//        }
         return isTop;
     }
 

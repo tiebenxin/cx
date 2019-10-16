@@ -942,6 +942,43 @@ public class MsgDao {
         DaoUtil.update(session);
     }
 
+    /*
+     * 跟随群信，或用户信息更新，更新session置顶免打扰字段
+     * */
+    public void updateSessionTopAndDisturb(String gid, Long from_uid, int top, int disturb) {
+        Session session;
+        if (StringUtil.isNotNull(gid)) {//群消息
+            session = DaoUtil.findOne(Session.class, "gid", gid);
+            if (session == null) {
+                session = new Session();
+                session.setSid(UUID.randomUUID().toString());
+                session.setGid(gid);
+                session.setType(1);
+                session.setIsMute(disturb);
+                session.setIsTop(top);
+                session.setUnread_count(0);
+            } else {
+                session.setIsMute(disturb);
+                session.setIsTop(top);
+            }
+        } else {//个人消息
+            session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
+            if (session == null) {
+                session = new Session();
+                session.setSid(UUID.randomUUID().toString());
+                session.setFrom_uid(from_uid);
+                session.setType(0);
+                session.setIsMute(disturb);
+                session.setIsTop(top);
+                session.setUnread_count(0);
+            } else {
+                session.setIsMute(disturb);
+                session.setIsTop(top);
+            }
+        }
+        DaoUtil.update(session);
+    }
+
     /***
      * 清理单个会话阅读数量
      * @param gid
@@ -1136,11 +1173,12 @@ public class MsgDao {
      * @return
      */
     public List<Session> sessionGetAll(boolean isAll) {
+//        System.out.println(MsgDao.class.getSimpleName() + "开始查询时间=" + System.currentTimeMillis());
         List<Session> rts = null;
         Realm realm = DaoUtil.open();
         try {
 
-            realm.beginTransaction();
+//            realm.beginTransaction();
             RealmResults<Session> list;
             if (isAll) {
                 list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
@@ -1149,32 +1187,32 @@ public class MsgDao {
                         or().isNotNull("gid").sort("up_time", Sort.DESCENDING).findAll();
             }
             //6.5 优先读取单独表的配置
-            for (Session l : list) {
-                int top = 0;
-                if (l.getType() == 1) {
-                    Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
-                    if (group != null) {
-                        top = group.getIsTop();
-                    }
-                } else {
-                    UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
-                    if (info != null) {
-                        top = info.getIstop();
-                    }
-                }
-                l.setIsTop(top);
-            }
-            realm.copyToRealmOrUpdate(list);
+//            for (Session l : list) {
+//                int top = 0;
+//                if (l.getType() == 1) {
+//                    Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
+//                    if (group != null) {
+//                        top = group.getIsTop();
+//                    }
+//                } else {
+//                    UserInfo info = realm.where(UserInfo.class).equalTo("uid", l.getFrom_uid()).findFirst();
+//                    if (info != null) {
+//                        top = info.getIstop();
+//                    }
+//                }
+//                l.setIsTop(top);
+//            }
+//            realm.copyToRealmOrUpdate(list);
             list = list.sort("isTop", Sort.DESCENDING);
             rts = realm.copyFromRealm(list);
 
-            realm.commitTransaction();
+//            realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
-
+//        System.out.println(MsgDao.class.getSimpleName() + "结束查询时间=" + System.currentTimeMillis());
         return rts;
     }
 
