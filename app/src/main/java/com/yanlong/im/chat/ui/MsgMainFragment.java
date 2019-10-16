@@ -419,11 +419,11 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
-                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
+//                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
             } else {
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
-                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
+//                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
 
             }
         }
@@ -467,7 +467,7 @@ public class MsgMainFragment extends Fragment {
                                 Session s = listData.get(index);
                                 if (isRefreshTop) {//是否刷新置顶
                                     if (session.getIsTop() == 1) {//修改了置顶状态
-                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新置顶消息 旧session=" + s.getIsTop() + "--新session=" + session.getIsTop());
+//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新置顶消息 旧session=" + s.getIsTop() + "--新session=" + session.getIsTop());
                                         listData.remove(index);
                                         listData.add(0, session);//放在首位
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
@@ -478,10 +478,10 @@ public class MsgMainFragment extends Fragment {
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);////范围刷新,刷新旧位置和新位置之间即可
-                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新取消置顶消息--start=" + start + "--count=" + count);
+//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新取消置顶消息--start=" + start + "--count=" + count);
                                     }
                                 } else {
-                                    System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息 旧session=" + s.getSid() + "--新session=" + session.getSid());
+//                                    System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息 旧session=" + s.getSid() + "--新session=" + session.getSid());
                                     listData.set(index, session);
                                     if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
                                         mtListView.getListView().getAdapter().notifyItemChanged(index, index);
@@ -491,11 +491,11 @@ public class MsgMainFragment extends Fragment {
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);//范围刷新
-                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--时间刷新重排--start=" + start + "--count=" + count);
+//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--时间刷新重排--start=" + start + "--count=" + count);
                                     }
                                 }
                             } else {
-                                System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息0" + "--新session=" + session.getSid());
+//                                System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息0" + "--新session=" + session.getSid());
                                 int position = insertSession(session);
                                 if (position == 0) {
 //                                    mtListView.getListView().getAdapter().notifyDataSetChanged();
@@ -506,7 +506,7 @@ public class MsgMainFragment extends Fragment {
                                 }
                             }
                         } else {
-                            System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息null" + "--新session=" + session.getSid());
+//                            System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息null" + "--新session=" + session.getSid());
 //                                listData.add(0, session);//新会话，插入刷新，考虑置顶
                             int position = insertSession(session);
                             if (position == 0) {
@@ -579,6 +579,9 @@ public class MsgMainFragment extends Fragment {
                     position = i;
                     break;//结束循环
                 }
+            }
+            if (position == 0) {//全是置顶
+                position = len;
             }
             listData.add(position, s);
         } else {
@@ -671,8 +674,6 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void onBindViewHolder(final RCViewHolder holder, int position) {
             final Session bean = listData.get(position);
-            System.out.println(MsgMainFragment.class.getSimpleName() + " session=" + bean.getSid() + "--gid=" + bean.getGid() + "--uid=" + bean.getFrom_uid());
-
             String icon = bean.getAvatar();
             String title = bean.getName();
             MsgAllBean msginfo = bean.getMessage();
@@ -932,7 +933,7 @@ public class MsgMainFragment extends Fragment {
         if (isSearchMode) {
             return;
         }
-        System.out.println("MsgMainFragment --重新获取session数据");
+        System.out.println("MsgMainFragment --重新获取session数据" + System.currentTimeMillis());
         Observable.just(0)
                 .map(new Function<Integer, List<Session>>() {
                     @Override
@@ -948,7 +949,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
-
+                        System.out.println("MsgMainFragment --重新获取session数据后刷新" + System.currentTimeMillis());
                     }
                 });
 
