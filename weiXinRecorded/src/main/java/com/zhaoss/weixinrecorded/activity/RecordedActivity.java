@@ -358,7 +358,7 @@ public class RecordedActivity extends BaseActivity {
 
     private void goneRecordLayout(){
 
-        tv_hint.setVisibility(View.GONE);
+//        tv_hint.setVisibility(View.GONE);
         iv_delete.setVisibility(View.GONE);
         iv_next.setVisibility(View.GONE);
     }
@@ -422,6 +422,7 @@ public class RecordedActivity extends BaseActivity {
                 if (countTime <= MAX_VIDEO_TIME) {
                     lineProgressView.setProgress(countTime/ MAX_VIDEO_TIME);
                     recordView.updateProgress(countTime/MAX_VIDEO_TIME*360);
+                    tv_hint.setText(countTime/1000+"秒");
                 }else{
                     upEvent();
                     iv_next.callOnClick();
@@ -478,6 +479,7 @@ public class RecordedActivity extends BaseActivity {
         }else{
 //            tv_hint.setText("长按录像 点击拍照");
         }
+        tv_hint.setText("长按继续录制");
         tv_hint.setVisibility(View.VISIBLE);
 
         if (lineProgressView.getSplitCount() > 0) {
