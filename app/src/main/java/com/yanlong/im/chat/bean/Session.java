@@ -115,6 +115,7 @@ public class Session extends RealmObject implements Comparable<Session> {
     public void setType(int type) {
         this.type = type;
     }
+
     public Long getFrom_uid() {
 
         return from_uid == null ? -1 : from_uid;
@@ -133,7 +134,7 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
     public Long getUp_time() {
-        return up_time;
+        return up_time == null ? 0 : up_time;
     }
 
     public void setUp_time(Long up_time) {

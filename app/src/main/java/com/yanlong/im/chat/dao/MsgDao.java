@@ -1190,7 +1190,6 @@ public class MsgDao {
      * @return
      */
     public List<Session> sessionGetAll(boolean isAll) {
-//        System.out.println(MsgDao.class.getSimpleName() + "开始查询时间=" + System.currentTimeMillis());
         List<Session> rts = null;
         Realm realm = DaoUtil.open();
         try {
@@ -1229,7 +1228,6 @@ public class MsgDao {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
-//        System.out.println(MsgDao.class.getSimpleName() + "结束查询时间=" + System.currentTimeMillis());
         return rts;
     }
 
@@ -2377,6 +2375,24 @@ public class MsgDao {
             DaoUtil.close(realm);
         }
         return hasChange;
+    }
+
+    /*
+     * 删除所有session
+     * */
+    public void clearSessions() {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            RealmResults<Session> list;
+            list = realm.where(Session.class).sort("up_time", Sort.DESCENDING).findAll();
+            list.deleteAllFromRealm();
+            realm.beginTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
     }
 
 
