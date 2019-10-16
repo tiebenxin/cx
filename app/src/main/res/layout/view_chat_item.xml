@@ -244,6 +244,9 @@
 
                 </LinearLayout>
                 <!-- 图片消息-->
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
                 <LinearLayout
                     android:id="@+id/view_ot_4"
                     android:layout_width="wrap_content"
@@ -265,8 +268,26 @@
                         android:layout_width="150dp"
                         android:layout_height="180dp" />
 
-
                 </LinearLayout>
+                    <ImageView
+                        android:id="@+id/img_ot_4_play"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@mipmap/video_play_play"
+                        android:layout_centerInParent="true"
+                        android:visibility="invisible"
+                        />
+                    <TextView
+                        android:id="@+id/img_ot_4_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00:00"
+                        android:textColor="#fff"
+                        android:visibility="invisible"
+                        />
+                </RelativeLayout>
+
+
 
                 <!-- 名片消息-->
                 <LinearLayout

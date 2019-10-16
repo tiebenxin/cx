@@ -61,7 +61,7 @@ public class UpFileAction {
             case IMG:
                 data.setTime(System.currentTimeMillis());
 //                pt = AppConfig.UP_PATH + "/image/android/" + simpleDateFormat.format(data) + "/";
-                pt = AppConfig.UP_PATH + "/image/android/" ;
+                pt = AppConfig.UP_PATH + "/image/android/"+ simpleDateFormat.format(data) + "/" ;
                 break;
             case HEAD:
                 pt = AppConfig.UP_PATH + "/avatar/android/";
@@ -76,13 +76,13 @@ public class UpFileAction {
                 pt = AppConfig.UP_PATH + "/misc/feedback/";
                 break;
             case VOICE:
-                pt = AppConfig.UP_PATH + "/voice/android/";
+                pt = AppConfig.UP_PATH + "/voice/android/"+ simpleDateFormat.format(data) + "/";
                 break;
             case HEAD_GROUP_CHANGE:
                 pt = AppConfig.UP_PATH + "/avatar/android/";
                 break;
             case VIDEO:
-                pt = AppConfig.UP_PATH + "/video/android/";
+                pt = AppConfig.UP_PATH + "/video/android/"+ simpleDateFormat.format(data) + "/";
                 break;
             default:
                 data.setTime(System.currentTimeMillis());

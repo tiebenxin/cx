@@ -1557,12 +1557,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
                     if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                        int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT,0);
+                        int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH,0);
+                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME,0);
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         final String imgMsgId = SocketData.getUUID();
                         VideoMessage videoMessage = new VideoMessage();
-                        videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(file)));
-                        videoMessage.setWidth(Long.parseLong(getVideoAttWeith(file)));
-                        videoMessage.setDuration(Long.parseLong(getVideoAtt(file)));
+                        videoMessage.setHeight(height);
+                        videoMessage.setWidth(width);
+                        videoMessage.setDuration(time);
                         videoMessage.setBg_url(getVideoAttBitmap(file));
                         videoMessage.setLocalUrl(file);
                         Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
@@ -1573,12 +1576,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, 10, videoMessageSD);
+                        UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
 //                        MsgDao dao =new MsgDao();
 //                        dao.fixVideoLocalUrl(imgMsgId,file);
                         notifyData2Bottom(true);
-
 
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
