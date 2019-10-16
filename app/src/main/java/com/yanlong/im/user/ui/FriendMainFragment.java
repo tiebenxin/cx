@@ -241,8 +241,8 @@ public class FriendMainFragment extends Fragment {
                 }
 
 
-                UserInfo lastbean = listData.get(position - 1);
-                if (lastbean.getTag().equals(bean.getTag()) && position != 1) {
+                UserInfo lastBean = listData.get(position - 1);
+                if (lastBean != null && lastBean.getTag().equals(bean.getTag()) && position != 1) {
                     hd.viewType.setVisibility(View.GONE);
                 } else {
                     hd.viewType.setVisibility(View.VISIBLE);
