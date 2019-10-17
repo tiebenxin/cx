@@ -3352,7 +3352,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (StringUtil.isNotNull(draft)) {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
-            dao.sessionDraft(toGid, toUId, "");
+//            dao.sessionDraft(toGid, toUId, "");
         }
     }
 
