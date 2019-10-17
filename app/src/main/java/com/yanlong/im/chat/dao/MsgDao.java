@@ -2457,9 +2457,9 @@ public class MsgDao {
     }
 
     /***
-     * 保存群
+     * 修改群名
      * @param gid 群id
-     * @param imgHead 群头像
+     * @param name 群名
      */
     public boolean updateGroupName(String gid, String name) {
         Realm realm = DaoUtil.open();

@@ -78,7 +78,7 @@
                 style="@style/app_txt_title_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="常聊聊客服1：CLL1888" />
+                android:text="常聊聊客服1：CLL888" />
             <TextView
                 style="@style/app_txt_title_4"
                 android:layout_width="wrap_content"
