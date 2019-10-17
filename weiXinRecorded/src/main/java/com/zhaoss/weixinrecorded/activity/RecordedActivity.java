@@ -41,6 +41,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RecordedActivity extends BaseActivity {
 
     public static final String INTENT_PATH = "intent_path";
+    public static final String INTENT_VIDEO_WIDTH= "intent_width";
+    public static final String INTENT_PATH_HEIGHT = "intent_height";
+    public static final String INTENT_PATH_TIME = "intent_time";
     public static final String INTENT_DATA_TYPE = "result_data_type";
 
     public static final int RESULT_TYPE_VIDEO = 1;
@@ -533,6 +536,9 @@ public class RecordedActivity extends BaseActivity {
             if(requestCode == REQUEST_CODE_KEY){
                 Intent intent = new Intent();
                 intent.putExtra(INTENT_PATH, data.getStringExtra(INTENT_PATH));
+                intent.putExtra(INTENT_VIDEO_WIDTH, data.getIntExtra(INTENT_VIDEO_WIDTH,720));
+                intent.putExtra(INTENT_PATH_HEIGHT, data.getIntExtra(INTENT_PATH_HEIGHT,1080));
+                intent.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME,10));
                 intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intent);
                 finish();

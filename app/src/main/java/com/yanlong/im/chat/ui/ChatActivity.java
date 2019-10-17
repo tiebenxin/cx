@@ -43,6 +43,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -931,6 +932,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onSuccess() {
                         Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                         startActivityForResult(intent, VIDEO_RP);
+//                        PictureSelector.create(ChatActivity.this)
+//                                .openCamera(PictureMimeType.ofVideo())
+//                                .compress(true)
+//                                .forResult(PictureConfig.REQUEST_CAMERA);
                     }
 
                     //                  @Override
@@ -939,18 +944,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }, new String[]{Manifest.permission.CAMERA});
 
-//                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.CAMERA}, CaptureActivity.REQ_PERM_CAMERA);
-//                    return;
-//                }
-//                Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-//                startActivityForResult(intent, VIDEO_RP);
-//
-//                if(mMediaPlayer != null){
-//                    mMediaPlayer.stop();
-//                    mMediaPlayer.release();
-//                    mMediaPlayer = null;
-//                }
             }
         });
 
@@ -1569,12 +1562,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
                     if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
+                        int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT,0);
+                        int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH,0);
+                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME,0);
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         final String imgMsgId = SocketData.getUUID();
                         VideoMessage videoMessage = new VideoMessage();
-                        videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(file)));
-                        videoMessage.setWidth(Long.parseLong(getVideoAttWeith(file)));
-                        videoMessage.setDuration(Long.parseLong(getVideoAtt(file)));
+                        videoMessage.setHeight(height);
+                        videoMessage.setWidth(width);
+                        videoMessage.setDuration(time);
                         videoMessage.setBg_url(getVideoAttBitmap(file));
                         videoMessage.setLocalUrl(file);
                         Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
@@ -1582,15 +1578,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 //                        Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
+//                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, System.currentTimeMillis(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                         MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
 
                         msgListData.add(imgMsgBean);
-                        UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, 10, videoMessageSD);
+                        UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
 //                        MsgDao dao =new MsgDao();
 //                        dao.fixVideoLocalUrl(imgMsgId,file);
-                        notifyData2Bottom(true);
 
+                        notifyData2Bottom(true);
 
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
@@ -1933,7 +1930,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                     replaceListDataAndNotify(imgMsgBeanReSend);
 //                    msgListData.add(imgMsgBeanReSend);
-                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid, 10, videoMessageSD);
+                    UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
                     startService(new Intent(getContext(), UpLoadService.class));
 
                 } else {
@@ -1988,14 +1985,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pg);
 
-//                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
-//                        }
+                        }
 
                         break;
                     case ChatEnum.EMessageType.VOICE:
                         holder.viewChatItem.updateVoice(msgbean);
+
+                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                            menus.add(new OptionMenu("转发"));
+                            menus.add(new OptionMenu("删除"));
+                        }
+
 //                        LogUtil.getLog().i(TAG, "刷新语音updateVoice" + "--position=" + position);
                         break;
                     case ChatEnum.EMessageType.MSG_VIDEO:
@@ -2004,6 +2007,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pgVideo);
+
+                        if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                            menus.add(new OptionMenu("转发"));
+                            menus.add(new OptionMenu("删除"));
+                        }
                         break;
                     default:
                         onBindViewHolder(holder, position);
@@ -2189,9 +2197,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
 
                 case ChatEnum.EMessageType.IMAGE:
-
-                    menus.add(new OptionMenu("转发"));
-                    menus.add(new OptionMenu("删除"));
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+                        menus.add(new OptionMenu("转发"));
+                        menus.add(new OptionMenu("删除"));
+                    }else{
+                        menus.add(new OptionMenu("删除"));
+                    }
                     Integer pg = null;
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
 
@@ -2207,9 +2218,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
 
                 case ChatEnum.EMessageType.MSG_VIDEO:
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+                        menus.add(new OptionMenu("转发"));
+                        menus.add(new OptionMenu("删除"));
+                    }else{
+                        menus.add(new OptionMenu("删除"));
+                    }
 
-                    menus.add(new OptionMenu("转发"));
-                    menus.add(new OptionMenu("删除"));
                     Integer pgVideo = null;
                     pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
 
