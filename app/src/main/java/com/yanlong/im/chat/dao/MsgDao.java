@@ -877,7 +877,6 @@ public class MsgDao {
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
             if (session == null) {
-                System.out.println("新建会话");
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
@@ -892,7 +891,6 @@ public class MsgDao {
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", toUid);
             if (session == null) {
-                System.out.println("新建会话");
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(toUid);
@@ -941,7 +939,6 @@ public class MsgDao {
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
             if (session == null) {
-                System.out.println("新建会话");
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setGid(gid);
@@ -968,7 +965,6 @@ public class MsgDao {
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
             if (session == null) {
-                System.out.println("新建会话");
                 session = new Session();
                 session.setSid(UUID.randomUUID().toString());
                 session.setFrom_uid(from_uid);
