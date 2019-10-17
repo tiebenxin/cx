@@ -1354,17 +1354,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
-        if (hasUpdate) {
+        boolean hasChange = taskDraftSet();
+        if (hasUpdate || hasChange) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        } else {
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
-
     }
 
     @Override
     protected void onDestroy() {
-        taskDraftSet();
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -1685,7 +1686,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
-        if (seting == null){
+        if (seting == null) {
             mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
             return;
         }
@@ -3348,23 +3349,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /***
      * 设置草稿
+     *
      */
-    private void taskDraftSet() {
+    private boolean taskDraftSet() {
         String df = edtChat.getText().toString().trim();
+        boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
-            if (!TextUtils.isEmpty(df) && !draft.equals(df)) {
+            if (TextUtils.isEmpty(df) || !draft.equals(df)) {
+                System.out.println("修改草稿");
+                hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-
-                MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+//                MessageManager.getInstance().setMessageChange(true);
+//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
+                System.out.println("修改草稿");
+                hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-                MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+//                MessageManager.getInstance().setMessageChange(true);
+//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         }
+        return hasChange;
     }
 
     /***
