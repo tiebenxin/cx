@@ -26,6 +26,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
@@ -627,7 +628,8 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     updateUserInfo(mark);
                     notifyRefreshRoster(id);
-                    MessageManager.getInstance().notifyRefreshMsg();
+                    MessageManager.getInstance().setMessageChange(true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
                 taskUserInfo(id);
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());

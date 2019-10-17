@@ -2456,5 +2456,26 @@ public class MsgDao {
         }
     }
 
+    /***
+     * 保存群
+     * @param gid 群id
+     * @param imgHead 群头像
+     */
+    public boolean updateGroupName(String gid, String name) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (g != null) {//已经存在
+            g.setName(name);
+            realm.insertOrUpdate(g);
+        } else {//不存在
+            return false;
+        }
+        realm.commitTransaction();
+        realm.close();
+        return true;
+    }
+
 
 }

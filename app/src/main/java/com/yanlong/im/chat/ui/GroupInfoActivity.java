@@ -815,6 +815,9 @@ public class GroupInfoActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     txtGroupName.setText(name);
+                    msgDao.updateGroupName(gid, name);
+                    MessageManager.getInstance().setMessageChange(true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                     initEvent();
                 }
             }
