@@ -727,24 +727,21 @@ public class MessageManager {
     }
 
     public void updateCacheGroup(Group group) {
-        if (cacheGroups != null) {
+        if (cacheGroups != null && group != null) {
             if (cacheGroups.containsValue(group)) {
                 cacheGroups.remove(group.getGid());
-                cacheGroups.put(group.getGid(), group);
-            } else {
-                cacheGroups.put(group.getGid(), group);
             }
+            cacheGroups.put(group.getGid(), group);
         }
     }
 
-    public void updateCacheUser(Group group) {
-        if (cacheGroups != null) {
-            if (cacheGroups.containsValue(group)) {
-                cacheGroups.remove(group.getGid());
-                cacheGroups.put(group.getGid(), group);
-            } else {
-                cacheGroups.put(group.getGid(), group);
+    public void updateCacheUser(UserInfo user) {
+        if (cacheUsers != null && user != null) {
+            if (cacheUsers.containsValue(user)) {
+                cacheUsers.remove(user.getUid());
             }
+            cacheUsers.put(user.getUid(), user);
+
         }
     }
 
