@@ -93,9 +93,10 @@ public class MsgDao {
 
     /***
      * 保存群
-     * @param group
+     * @param groups 群列表
+     * @param isSave 是否是保存的群
      */
-    public void saveGroups(List<Group> groups) {
+    public void saveGroups(List<Group> groups, boolean isSave) {
         if (groups == null || groups.size() > 0) {
             return;
         }
@@ -105,19 +106,16 @@ public class MsgDao {
             int len = groups.size();
             for (int i = 0; i < len; i++) {
                 Group group = groups.get(i);
+                group.setSaved(1);
                 Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
                 if (null != g) {//已经存在
-                    try {
-                        List<UserInfo> objects = g.getUsers();
-                        if (null != objects && objects.size() > 0) {
-                            g.setName(group.getName());
-                            g.setAvatar(group.getAvatar());
-                            if (group.getUsers() != null)
-                                g.setUsers(group.getUsers());
-                            realm.insertOrUpdate(group);
-                        }
-                    } catch (Exception e) {
-                        return;
+                    List<UserInfo> objects = g.getUsers();
+                    if (null != objects && objects.size() > 0) {
+                        g.setName(group.getName());
+                        g.setAvatar(group.getAvatar());
+                        if (group.getUsers() != null)
+                            g.setUsers(group.getUsers());
+                        realm.insertOrUpdate(group);
                     }
                 } else {//不存在
                     realm.insertOrUpdate(group);
@@ -1528,7 +1526,7 @@ public class MsgDao {
     /***
      * 保存单聊免打扰
      * @param uid
-     * @param isTop
+     * @param disturb
      */
     public Session updateUserSessionDisturb(Long uid, int disturb) {
         Realm realm = DaoUtil.open();

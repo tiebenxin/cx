@@ -253,6 +253,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
     private MsgAllBean currentPlayBean;
     private Session session;
+    private boolean isLoadHistory = false;//是否是搜索历史信息
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -1249,6 +1250,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void showEndMsg() {
+        if (isLoadHistory) {
+            return;
+        }
         mtListView.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -1262,6 +1266,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * @param isMustBottom 是否必须滑动到底部
      * */
     private void scrollListView(boolean isMustBottom) {
+        if (isLoadHistory) {
+            isLoadHistory = false;
+        }
+        System.out.println(TAG + "scrollListView");
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
             if (isMustBottom) {
@@ -1396,7 +1404,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void initData() {
-        taskRefreshMessage();
+        if (!isLoadHistory) {
+            taskRefreshMessage();
+        }
         initUnreadCount();
         initPopupWindow();
     }
@@ -3139,10 +3149,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     @SuppressLint("CheckResult")
     private void taskRefreshMessage() {
-        //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
         if (needRefresh) {
             needRefresh = false;
         }
+        System.out.println(TAG + "--taskRefreshMessage");
         long time = -1L;
         int length = 0;
         if (msgListData != null && msgListData.size() > 0) {
@@ -3214,13 +3224,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskFinadHistoryMessage(EventFindHistory history) {
-        //   flag_isHistory = true;
+        isLoadHistory = true;
         msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
-        //ToastUtil.show(getContext(),"历史"+msgListData.size());
+//        ToastUtil.show(getContext(), "历史" + msgListData.size());
         taskMkName(msgListData);
-
         notifyData();
-
         mtListView.getListView().smoothScrollToPosition(0);
 
     }

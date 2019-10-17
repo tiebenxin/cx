@@ -114,5 +114,5 @@ public interface MsgServer {
 
     @POST("/group/get-batch-group")
     @FormUrlEncoded
-    Call<ReturnBean> getGroupsByIds(@Field("gids") String[] gid);
+    Call<ReturnBean<List<Group>>> getGroupsByIds(@Field("gids") String[] gid);
 }
