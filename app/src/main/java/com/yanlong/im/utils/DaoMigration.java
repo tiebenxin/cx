@@ -29,6 +29,10 @@ public class DaoMigration implements RealmMigration {
                 updateV4(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 4) {
+                updateV5(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -75,6 +79,15 @@ public class DaoMigration implements RealmMigration {
                 .addField("url", String.class);
 //                .addField("localUrl", String.class);
     }
+
+    private void updateV5(RealmSchema schema){
+        schema.get("UserInfo")
+                .addField("joinType", int.class)
+                .addField("joinTime", String.class)
+                .addField("inviter", String.class)
+                .addField("inviterName",String.class);
+    }
+
 
 //    @Override
 //    public boolean equals(@Nullable Object obj) {

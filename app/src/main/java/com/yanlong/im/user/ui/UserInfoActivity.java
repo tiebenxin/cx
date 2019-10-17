@@ -475,7 +475,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskGroupInfo(String gid) {
-        new MsgAction().groupInfo4Db(gid, new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo4UserInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
