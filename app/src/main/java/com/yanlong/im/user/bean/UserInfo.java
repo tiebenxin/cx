@@ -56,13 +56,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private int lockCloudRedEnvelope; //1锁定红包，0不锁定
     private int destroy; //销毁开关
     private long destroyTime; //销毁时间
-    @Ignore
     private int joinType;
-    @Ignore
     private String joinTime;
-    @Ignore
     private String inviter;
-    @Ignore
     private String inviterName;
     @Ignore
     private boolean isChecked = false;
