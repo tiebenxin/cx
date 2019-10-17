@@ -43,6 +43,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -929,6 +930,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onSuccess() {
                         Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                         startActivityForResult(intent, VIDEO_RP);
+//                        PictureSelector.create(ChatActivity.this)
+//                                .openCamera(PictureMimeType.ofVideo())
+//                                .compress(true)
+//                                .forResult(PictureConfig.REQUEST_CAMERA);
                     }
 
                     //                  @Override
@@ -937,18 +942,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }, new String[]{Manifest.permission.CAMERA});
 
-//                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.CAMERA}, CaptureActivity.REQ_PERM_CAMERA);
-//                    return;
-//                }
-//                Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-//                startActivityForResult(intent, VIDEO_RP);
-//
-//                if(mMediaPlayer != null){
-//                    mMediaPlayer.stop();
-//                    mMediaPlayer.release();
-//                    mMediaPlayer = null;
-//                }
             }
         });
 
