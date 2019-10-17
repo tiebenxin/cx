@@ -49,11 +49,15 @@ public class UpFileAction {
         upFile(type, context, callback, filePath, null);
     }
 
+    public void upFile(String id,PATH type, Context context, UpFileUtil.OssUpCallback callback, String filePath) {
+        upFile(type, context, callback, filePath, null,id);
+    }
+
     public void upFile(PATH type, Context context, UpFileUtil.OssUpCallback callback, byte[] fileByte) {
         upFile(type, context, callback, null, fileByte);
     }
 
-    public String getPath(PATH type) {
+    public String getPath(PATH type,String id) {
         Date data = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
         String pt = "";
@@ -64,10 +68,10 @@ public class UpFileAction {
                 pt = AppConfig.UP_PATH + "/image/android/"+ simpleDateFormat.format(data) + "/" ;
                 break;
             case HEAD:
-                pt = AppConfig.UP_PATH + "/avatar/android/";
+                pt = AppConfig.UP_PATH + "/avatar/android/"+id;
                 break;
             case HEAD_GROUP:
-                pt = AppConfig.UP_PATH + "/avatar/android/";
+                pt = AppConfig.UP_PATH + "/avatar/android/"+id;
                 break;
             case COMPLAINT:
                 pt = AppConfig.UP_PATH + "/misc/complaint/";
@@ -79,7 +83,7 @@ public class UpFileAction {
                 pt = AppConfig.UP_PATH + "/voice/android/"+ simpleDateFormat.format(data) + "/";
                 break;
             case HEAD_GROUP_CHANGE:
-                pt = AppConfig.UP_PATH + "/avatar/android/";
+                pt = AppConfig.UP_PATH + "/avatar/android/"+id;
                 break;
             case VIDEO:
                 pt = AppConfig.UP_PATH + "/video/android/"+ simpleDateFormat.format(data) + "/";
@@ -121,7 +125,7 @@ public class UpFileAction {
 //                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
 //                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
 //                                            configBean.getBucket(), callback, filePath, fileByte);
-                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
+                                    UpFileUtil.getInstance().upFile(getPath(type,""), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
                                             configBean.getBucket(), callback, filePath, fileByte);
 
@@ -146,6 +150,61 @@ public class UpFileAction {
 
 
     }
+
+
+    private void upFile(final PATH type, final Context context, final UpFileUtil.OssUpCallback callback, final String filePath, final byte[] fileByte, final String id) {
+        startTime= SystemClock.currentThreadTimeMillis();
+        NetUtil.getNet().exec(
+                server.aliObs()
+                , new CallBack<ReturnBean<AliObsConfigBean>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<AliObsConfigBean>> call, Response<ReturnBean<AliObsConfigBean>> response) {
+                        if (response.body() == null) {
+                            callback.fail();
+                            return;
+                        }
+                        if (response.body().isOk()) {
+                            final AliObsConfigBean configBean = response.body().getData();
+                            if(!StringUtil.isNotNull( configBean.getSecurityToken())){
+
+                                callback.fail();
+                                return;
+                            }
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    long timeCost=SystemClock.currentThreadTimeMillis()-startTime;
+
+//                                    String textToken="CAISmQJ1q6Ft5B2yfSjIr4nRCOvagOxqwLPZMGfB3TIGb9trm5TGuzz2IHtLfXhvAu8Zs/oyn29Z5/sflqZiQplBQkrLKMp1q4ha6h/51G8UT3bwv9I+k5SANTW5OXyShb3vAYjQSNfaZY3aCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZ4PGS/diEURq0VRG1YpdQdKGHaONu0LxfumRCwNkdzvRdmgm4Njsbay8aHuB3Flw+4mK1H5aaJe8j7NZcyZcgvC4rsg7UrL5CsinAAt0J4k45tl7FB9Dv9udWQPkJc+R3uMZCPqYI2fVAiOfdnRfMf86mtyKBiyeXXlpXqzRFWJv1SUCnZS42mzdHNBOSzLNE9eKYM8cVEal1OXRqAAakBtm9ZuHW+cnfVxK4PJgmkPwBpMXLZ99oYyk+5E8jbZ4ArgAtdawN2i/syq8GrlHbVwOkvgeeF+nesQdgbKb86a7ZTHsawGZjzvi+xN6FlQwXMw2EA1tb/Wokcz3+EUxE3RLt6CuQ7PNxk65mvIgWqiyFLUozRV3sAUbElSds+";
+//                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
+//                                            configBean.getAccessKeySecret(), "", configBean.getEndpoint(),
+//                                            configBean.getBucket(), callback, filePath, fileByte);
+                                    UpFileUtil.getInstance().upFile(getPath(type,id), context, configBean.getAccessKeyId(),
+                                            configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
+                                            configBean.getBucket(), callback, filePath, fileByte);
+
+                                    UpLoadUtils.getInstance().upLoadLog(timeCost+"--------"+configBean.toString());
+                                }
+                            }).start();
+                        } else {
+                            ToastUtil.show(context, "上传失败");
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ReturnBean<AliObsConfigBean>> call, Throwable t) {
+                        super.onFailure(call, t);
+                        callback.fail();
+                        long timeCost=SystemClock.currentThreadTimeMillis()-startTime;
+                        UpLoadUtils.getInstance().upLoadLog(timeCost+"--------失败"+call.request().body().toString());
+                    }
+                });
+
+
+    }
+
 
     CountDownLatch signal;
 
@@ -174,7 +233,7 @@ public class UpFileAction {
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    UpFileUtil.getInstance().upFile(getPath(type), context, configBean.getAccessKeyId(),
+                                    UpFileUtil.getInstance().upFile(getPath(type,""), context, configBean.getAccessKeyId(),
                                             configBean.getAccessKeySecret(), configBean.getSecurityToken(), configBean.getEndpoint(),
                                             configBean.getBucket(), new UpFileUtil.OssUpCallback() {
 
