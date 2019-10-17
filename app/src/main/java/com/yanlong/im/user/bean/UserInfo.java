@@ -386,32 +386,26 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
         int last = getTag().charAt(0);
         if (getTag().equals("#")) {
-
-
             return 1;
         }
         if (o.getTag().equals("#")) {
-
             return -1;
         }
 
         if (getTag().equals("↑")) {
-
-
             return -1;
         }
         if (o.getTag().equals("↑")) {
-
             return 1;
         }
 
         if (last > o.getTag().charAt(0)) {
-
             return 1;
+        } else if (last < o.getTag().charAt(0)) {
+            return -1;
+        } else {
+            return 0;
         }
-
-        return -1;
-
     }
 
     public String getTag() {

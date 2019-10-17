@@ -1355,6 +1355,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
         if (hasUpdate || hasChange) {
@@ -1363,11 +1367,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
