@@ -252,6 +252,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View mViewLine3;
     private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
     private MsgAllBean currentPlayBean;
+    private Session session;
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -1354,7 +1355,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
-        boolean hasChange = taskDraftSet();
+        boolean hasChange = updateSessionDraftAndAtMessage();
         if (hasUpdate || hasChange) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
@@ -3336,7 +3337,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 获取草稿
      */
     private void taskDraftGet() {
-        Session session = dao.sessionGet(toGid, toUId);
+        session = dao.sessionGet(toGid, toUId);
         if (session == null)
             return;
         draft = session.getDraft();
@@ -3348,28 +3349,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     /***
-     * 设置草稿
+     * 更新session草稿和at消息
      *
      */
-    private boolean taskDraftSet() {
+    private boolean updateSessionDraftAndAtMessage() {
         String df = edtChat.getText().toString().trim();
         boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
             if (TextUtils.isEmpty(df) || !draft.equals(df)) {
-                System.out.println("修改草稿");
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-//                MessageManager.getInstance().setMessageChange(true);
-//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
-                System.out.println("修改草稿");
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-//                MessageManager.getInstance().setMessageChange(true);
-//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
+        }
+        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
+            hasChange = true;
+            dao.updateSessionAtMsg(toGid, toUId);
         }
         return hasChange;
     }

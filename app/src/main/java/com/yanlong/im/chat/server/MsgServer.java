@@ -111,4 +111,8 @@ public interface MsgServer {
     @POST("group/change-master")
     @FormUrlEncoded
     Call<ReturnBean> changeMaster(@Field("gid") String gid,@Field("uid") String uid,@Field("membername") String membername);
+
+    @POST("/group/get-batch-group")
+    @FormUrlEncoded
+    Call<ReturnBean> getGroupsByIds(@Field("gids") String[] gid);
 }

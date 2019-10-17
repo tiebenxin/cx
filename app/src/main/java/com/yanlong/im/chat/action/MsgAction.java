@@ -557,4 +557,12 @@ public class MsgAction {
     }
 
 
+    /**
+     * 通过群id批量获取群信息
+     */
+    public void getGroupsByIds(String[] gid, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.getGroupsByIds(gid), callback);
+    }
+
+
 }

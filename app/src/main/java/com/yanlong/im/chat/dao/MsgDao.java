@@ -1136,6 +1136,30 @@ public class MsgDao {
         }
     }
 
+    /***
+     * 更新@消息
+     * @param gid
+     * @param uid
+     * @param draft
+     */
+    public void updateSessionAtMsg(String gid, Long uid) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Session session = StringUtil.isNotNull(gid) ? realm.where(Session.class).equalTo("gid", gid).findFirst() : realm.where(Session.class).equalTo("from_uid", uid).findFirst();
+            if (session != null) {
+                session.setAtMessage("");
+                session.setMessageType(1000);
+                realm.insertOrUpdate(session);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
     /**
      * 存at消息
      */

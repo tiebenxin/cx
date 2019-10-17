@@ -405,35 +405,35 @@ public class ChatServer extends Service {
 
     }
 
-    private boolean updateAtMessage(MsgBean.UniversalMessage.WrapMessage msg) {
-        boolean isAt = false;
-
-        MsgDao msgDao = new MsgDao();
-        String gid = msg.getGid();
-        String message = msg.getAt().getMsg();
-        int atType = msg.getAt().getAtType().getNumber();
-        if (atType == 0) {
-            List<Long> list = msg.getAt().getUidList();
-            if (list == null)
-                isAt = false;
-
-            Long uid = UserAction.getMyId();
-            for (int i = 0; i < list.size(); i++) {
-                if (uid.equals(list.get(i))) {
-                    Log.v(TAG, "有人@我" + uid);
-                    msgDao.atMessage(gid, message, atType);
-                    palydingdong();
-                    isAt = true;
-                }
-            }
-        } else {
-            Log.v(TAG, "@所有人");
-            msgDao.atMessage(gid, message, atType);
-            palydingdong();
-            isAt = true;
-        }
-        return isAt;
-    }
+//    private boolean updateAtMessage(MsgBean.UniversalMessage.WrapMessage msg) {
+//        boolean isAt = false;
+//
+//        MsgDao msgDao = new MsgDao();
+//        String gid = msg.getGid();
+//        String message = msg.getAt().getMsg();
+//        int atType = msg.getAt().getAtType().getNumber();
+//        if (atType == 0) {
+//            List<Long> list = msg.getAt().getUidList();
+//            if (list == null)
+//                isAt = false;
+//
+//            Long uid = UserAction.getMyId();
+//            for (int i = 0; i < list.size(); i++) {
+//                if (uid.equals(list.get(i))) {
+//                    Log.v(TAG, "有人@我" + uid);
+//                    msgDao.atMessage(gid, message, atType);
+//                    palydingdong();
+//                    isAt = true;
+//                }
+//            }
+//        } else {
+//            Log.v(TAG, "@所有人");
+//            msgDao.atMessage(gid, message, atType);
+//            palydingdong();
+//            isAt = true;
+//        }
+//        return isAt;
+//    }
 
 
     private long playTimeOld = 0;
