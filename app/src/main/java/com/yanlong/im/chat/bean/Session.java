@@ -19,7 +19,7 @@ public class Session extends RealmObject implements Comparable<Session> {
     private int type = 0;
     private Long from_uid;
     private String gid;
-    private Long up_time;//更新时间
+    private Long up_time = 0L;//更新时间
     private int unread_count = 0;
     //草稿
     private String draft;
@@ -228,7 +228,14 @@ public class Session extends RealmObject implements Comparable<Session> {
 
     @Override
     public int compareTo(Session o) {
-//        return (int) (this.up_time - o.up_time);//升序
-        return (int) (o.up_time - this.up_time);//降序
+        if (o.up_time != null && this.up_time != null) {
+            return (int) (o.up_time - this.up_time);//降序
+        } else if (o.up_time == null) {
+            return -1;
+        } else if (this.up_time == null) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

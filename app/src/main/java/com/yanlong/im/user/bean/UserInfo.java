@@ -419,7 +419,10 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public String getTag() {
-        return tag;
+        if (TextUtils.isEmpty(tag)) {
+            toTag();
+        }
+        return TextUtils.isEmpty(tag) ? "#" : tag;
     }
 
     public String getDescribe() {

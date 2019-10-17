@@ -423,7 +423,7 @@ public class MsgMainFragment extends Fragment {
                 taskListData();
             } else {
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
-//                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
 
             }
         }

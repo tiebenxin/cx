@@ -253,6 +253,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View mViewLine3;
     private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
     private MsgAllBean currentPlayBean;
+    private Session session;
+    private boolean isLoadHistory = false;//是否是搜索历史信息
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -1241,6 +1243,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void showEndMsg() {
+        if (isLoadHistory) {
+            return;
+        }
         mtListView.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -1254,6 +1259,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * @param isMustBottom 是否必须滑动到底部
      * */
     private void scrollListView(boolean isMustBottom) {
+        if (isLoadHistory) {
+            isLoadHistory = false;
+        }
+        System.out.println(TAG + "scrollListView");
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
             if (isMustBottom) {
@@ -1347,17 +1356,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
-        if (hasUpdate) {
+        boolean hasChange = updateSessionDraftAndAtMessage();
+        if (hasUpdate || hasChange) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        } else {
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
-
     }
 
     @Override
     protected void onDestroy() {
-        taskDraftSet();
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -1387,7 +1397,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     private void initData() {
-        taskRefreshMessage();
+        if (!isLoadHistory) {
+            taskRefreshMessage();
+        }
         initUnreadCount();
         initPopupWindow();
     }
@@ -1682,7 +1694,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void setChatImageBackground() {
         UserSeting seting = new MsgDao().userSetingGet();
-        if (seting == null){
+        if (seting == null) {
             mtListView.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_100));
             return;
         }
@@ -2355,7 +2367,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     Long mss = System.currentTimeMillis() - timesTamp;
                     long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
                     if (minutes >= RELINQUISH_TIME) {
-                        ToastUtil.show(ChatActivity.this, "只能重新编辑5分钟以内的消息");
+                        ToastUtil.show(ChatActivity.this, "重新编辑不能超过5分钟");
                     } else {
                         showVoice(false);
                         InputUtil.showKeyboard(edtChat);
@@ -3152,10 +3164,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     @SuppressLint("CheckResult")
     private void taskRefreshMessage() {
-        //  msgListData = msgAction.getMsg4User(toGid, toUId, indexPage);
         if (needRefresh) {
             needRefresh = false;
         }
+        System.out.println(TAG + "--taskRefreshMessage");
         long time = -1L;
         int length = 0;
         if (msgListData != null && msgListData.size() > 0) {
@@ -3227,13 +3239,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskFinadHistoryMessage(EventFindHistory history) {
-        //   flag_isHistory = true;
+        isLoadHistory = true;
         msgListData = msgAction.getMsg4UserHistory(toGid, toUId, history.getStime());
-        //ToastUtil.show(getContext(),"历史"+msgListData.size());
+//        ToastUtil.show(getContext(), "历史" + msgListData.size());
         taskMkName(msgListData);
-
         notifyData();
-
         mtListView.getListView().smoothScrollToPosition(0);
 
     }
@@ -3350,7 +3360,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 获取草稿
      */
     private void taskDraftGet() {
-        Session session = dao.sessionGet(toGid, toUId);
+        session = dao.sessionGet(toGid, toUId);
         if (session == null)
             return;
         draft = session.getDraft();
@@ -3362,24 +3372,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     /***
-     * 设置草稿
+     * 更新session草稿和at消息
+     *
      */
-    private void taskDraftSet() {
+    private boolean updateSessionDraftAndAtMessage() {
         String df = edtChat.getText().toString().trim();
+        boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
-            if (!TextUtils.isEmpty(df) && !draft.equals(df)) {
+            if (TextUtils.isEmpty(df) || !draft.equals(df)) {
+                hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-
-                MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
+                hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-                MessageManager.getInstance().setMessageChange(true);
-                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
         }
+        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
+            hasChange = true;
+            dao.updateSessionAtMsg(toGid, toUId);
+        }
+        return hasChange;
     }
 
     /***

@@ -312,7 +312,6 @@ public class MessageManager {
      * 网络加载用户信息
      * */
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
-//        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
@@ -324,7 +323,6 @@ public class MessageManager {
                 } else {
                     setMessageChange(true);
                     notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
-
                 }
             }
         });
@@ -334,7 +332,6 @@ public class MessageManager {
      * 网络加载群信息
      * */
     private synchronized void loadGroupInfo(final String gid, final long uid, boolean isList, MsgAllBean bean) {
-//        System.out.println("加载数据--loadGroupInfo" + "--gid =" + gid + "--uid =" + uid);
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -730,24 +727,21 @@ public class MessageManager {
     }
 
     public void updateCacheGroup(Group group) {
-        if (cacheGroups != null) {
+        if (cacheGroups != null && group != null) {
             if (cacheGroups.containsValue(group)) {
                 cacheGroups.remove(group.getGid());
-                cacheGroups.put(group.getGid(), group);
-            } else {
-                cacheGroups.put(group.getGid(), group);
             }
+            cacheGroups.put(group.getGid(), group);
         }
     }
 
-    public void updateCacheUser(Group group) {
-        if (cacheGroups != null) {
-            if (cacheGroups.containsValue(group)) {
-                cacheGroups.remove(group.getGid());
-                cacheGroups.put(group.getGid(), group);
-            } else {
-                cacheGroups.put(group.getGid(), group);
+    public void updateCacheUser(UserInfo user) {
+        if (cacheUsers != null && user != null) {
+            if (cacheUsers.containsValue(user)) {
+                cacheUsers.remove(user.getUid());
             }
+            cacheUsers.put(user.getUid(), user);
+
         }
     }
 
@@ -756,5 +750,17 @@ public class MessageManager {
      * */
     public void updateSessionTopAndDisturb(String gid, Long uid, int top, int disturb) {
         msgDao.updateSessionTopAndDisturb(gid, uid, top, disturb);
+    }
+
+    public void removeLoadGids(String gid) {
+        if (loadGids != null && !TextUtils.isEmpty(gid)) {
+            loadGids.remove(gid);
+        }
+    }
+
+    public void removeLoadUids(Long uid) {
+        if (loadUids != null && uid != null) {
+            loadUids.remove(uid);
+        }
     }
 }

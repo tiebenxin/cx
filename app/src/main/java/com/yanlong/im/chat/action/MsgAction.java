@@ -226,6 +226,7 @@ public class MsgAction {
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);
                     } else {
+                        MessageManager.getInstance().removeLoadGids(gid);
                         callback.onFailure(call, new Throwable());
                     }
                 }
@@ -553,6 +554,14 @@ public class MsgAction {
      */
     public void changeMaster(String gid, String uid, String membername, Callback<ReturnBean> callback) {
         NetUtil.getNet().exec(server.changeMaster(gid, uid, membername), callback);
+    }
+
+
+    /**
+     * 通过群id批量获取群信息
+     */
+    public void getGroupsByIds(String[] gid, Callback<ReturnBean<List<Group>>> callback) {
+        NetUtil.getNet().exec(server.getGroupsByIds(gid), callback);
     }
 
 
