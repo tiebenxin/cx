@@ -8,18 +8,21 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityMsgForwardBinding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -36,11 +39,13 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     //    private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
     private MsgAllBean msgAllBean;
+    private MsgAllBean sendMesage;//转发消息
 
 
     @CustomTabView.ETabPosition
     private int currentPager = CustomTabView.ETabPosition.LEFT;
     private String json;
+    boolean hasSendMessage = false;
 
 
     //自动寻找控件
@@ -156,6 +161,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         AlertForward alertForward = new AlertForward();
         if (msgAllBean.getChat() != null) {//转换文字
             alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getChat().getMsg(), null, "发送", new AlertForward.Event() {
+
+
                 @Override
                 public void onON() {
 
@@ -167,11 +174,11 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
 //                    Long toUId = bean.getFrom_uid();
 //                    String toGid = bean.getGid();
-                    SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
+                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
                     if (StringUtil.isNotNull(content)) {
-                        SocketData.send4Chat(toUid, toGid, content);
+                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
-
+                    notifyRefreshMsg(toGid, toUid);
                     finish();
                 }
             });
@@ -189,14 +196,15 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 //                    Long toUId = bean.getFrom_uid();
 //                    String toGid = bean.getGid();
                     ImageMessage imagesrc = msgAllBean.getImage();
-                   if( msgAllBean.getFrom_uid()== UserAction.getMyId().longValue()){
-                       imagesrc.setReadOrigin(true);
-                   }
-                    SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
+                    if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
+                        imagesrc.setReadOrigin(true);
+                    }
+                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
                     msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
                     if (StringUtil.isNotNull(content)) {
-                        SocketData.send4Chat(toUid, toGid, content);
+                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    notifyRefreshMsg(toGid, toUid);
                     finish();
 
                 }
@@ -216,15 +224,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
 //                    Long toUId = bean.getFrom_uid();
 //                    String toGid = bean.getGid();
-                    SocketData.send4Chat(toUid, toGid, msgAllBean.getAtMessage().getMsg());
+                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getAtMessage().getMsg());
                     if (StringUtil.isNotNull(content)) {
-                        SocketData.send4Chat(toUid, toGid, content);
+                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    notifyRefreshMsg(toGid, toUid);
                     finish();
                 }
             });
-        }else if(msgAllBean.getVideoMessage() != null){
-            alertForward.init(MsgForwardActivity.this, mIcon, mName,  null, msgAllBean.getVideoMessage().getBg_url(),"发送", new AlertForward.Event() {
+        } else if (msgAllBean.getVideoMessage() != null) {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getVideoMessage().getBg_url(), "发送", new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -233,20 +242,24 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 @Override
                 public void onYes(String content) {
 
-                    SocketData.转发送视频整体信息(toUid,toGid,msgAllBean.getVideoMessage());
+                    sendMesage = SocketData.转发送视频整体信息(toUid, toGid, msgAllBean.getVideoMessage());
 
                     if (StringUtil.isNotNull(content)) {
-                        SocketData.send4Chat(toUid, toGid, content);
+                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    notifyRefreshMsg(toGid, toUid);
                     finish();
                 }
             });
 
         }
-
-
         alertForward.show();
 
+    }
+
+    private void notifyRefreshMsg(String toGid, long toUid) {
+        MessageManager.getInstance().setMessageChange(true);
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, sendMesage);
     }
 
     @Override
@@ -258,5 +271,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             }
         }
     }
+
 
 }

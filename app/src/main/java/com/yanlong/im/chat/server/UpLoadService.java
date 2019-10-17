@@ -170,6 +170,7 @@ public class UpLoadService extends Service {
 
 
     private static String netBgUrl;
+
     public  static void onAddVideo(final Context mContext, final String id, final String file, String bgUrl , final Boolean isOriginal, final Long toUId, final String toGid, final long time, final VideoMessage videoMessage) {
         上传视频预览图(mContext,bgUrl, new UpLoadCallback() {
             @Override
@@ -179,9 +180,9 @@ public class UpLoadService extends Service {
                 upFileAction.upFile(UpFileAction.PATH.VIDEO, mContext, new UpFileUtil.OssUpCallback() {
                     @Override
                     public void success(String url) {
-//                alert.dismiss();
-//                String gid = getIntent().getExtras().getString("gid");
-//                taskGroupInfoSet(gid, url, null, null);
+    //                alert.dismiss();
+    //                String gid = getIntent().getExtras().getString("gid");
+    //                taskGroupInfoSet(gid, url, null, null);
 //                        doUpVideoPro(id,url,netBgUrl,isOriginal,toUId,toGid,time,videoMessage);
                         EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
                         // upProgress.setProgress(100);

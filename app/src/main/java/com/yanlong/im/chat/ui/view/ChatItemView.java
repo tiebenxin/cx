@@ -87,10 +87,10 @@ public class ChatItemView extends LinearLayout {
     private ImageView imgMeRbState;
     private TextView txtMeRbTitle;
     private TextView txtMeRbInfo;
-    private TextView txtMeRpBt,img_me_4_time;
+    private TextView txtMeRpBt,img_me_4_time,img_ot_4_time;
     private ImageView imgMeRbIcon;
     private ImageView imgMeErr;
-    private ImageView imgMeHead,img_me_4_play;
+    private ImageView imgMeHead,img_me_4_play,img_ot_4_play;
 
     private LinearLayout viewMe4;
     private ProgressBar imgMeUp;
@@ -177,7 +177,9 @@ public class ChatItemView extends LinearLayout {
         imgMeHead = rootView.findViewById(R.id.img_me_head);
         imgMeErr = rootView.findViewById(R.id.img_me_err);
         img_me_4_time = rootView.findViewById(R.id.img_me_4_time);
+        img_ot_4_time = rootView.findViewById(R.id.img_ot_4_time);
         img_me_4_play = rootView.findViewById(R.id.img_me_4_play);
+        img_ot_4_play = rootView.findViewById(R.id.img_ot_4_play);
 
         viewOt4 = rootView.findViewById(R.id.view_ot_4);
         imgOt4 = rootView.findViewById(R.id.img_ot_4);
@@ -349,6 +351,8 @@ public class ChatItemView extends LinearLayout {
                 viewOt4.setVisibility(VISIBLE);
                 img_me_4_time.setVisibility(View.VISIBLE);
                 img_me_4_play.setVisibility(View.VISIBLE);
+                img_ot_4_time.setVisibility(View.VISIBLE);
+                img_ot_4_play.setVisibility(View.VISIBLE);
 //                RelativeLayout.LayoutParams layoutParams=new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
 //                RelativeLayout.LayoutParams layoutParams=( RelativeLayout.LayoutParams)img_me_4_time.getLayoutParams();
 //                layoutParams.setMargins(viewMe4.getMeasuredWidth(),viewMe4.getHeight(),0,0);
@@ -655,17 +659,23 @@ public class ChatItemView extends LinearLayout {
                 layoutParams.setMargins(w-110,h-60,0,0);
 //                layoutParams.setMargins(viewMe4.getMeasuredWidth()-30,viewMe4.getMeasuredHeight()-30,0,0);
                 img_me_4_time.setLayoutParams(layoutParams);
+                img_ot_4_time.setLayoutParams(layoutParams);
                 long currentTime= videoMessage.getDuration();
                 if (currentTime<10){
                     img_me_4_time.setText("00:0"+currentTime);
+                    img_ot_4_time.setText("00:0"+currentTime);
+
                 }else{
                     img_me_4_time.setText("00:"+currentTime);
+                    img_ot_4_time.setText("00:"+currentTime);
                 }
                 if (currentTime*1000> RecordedActivity.MAX_VIDEO_TIME){
                     if (currentTime/1000<10){
                         img_me_4_time.setText("00:0"+currentTime/1000);
+                        img_ot_4_time.setText("00:0"+currentTime/1000);
                     }else{
                         img_me_4_time.setText("00:"+currentTime/1000);
+                        img_ot_4_time.setText("00:"+currentTime/1000);
                     }
                 }
                 lp.width = w;
