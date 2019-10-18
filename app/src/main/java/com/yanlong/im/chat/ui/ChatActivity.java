@@ -560,7 +560,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed();
+                finish();
             }
 
             @Override
@@ -659,7 +659,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         });
 
 
-
         edtChat.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -684,7 +683,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
                     }
                 }
-                isFirst ++ ;
+
             }
 
             @Override
@@ -693,6 +692,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
+
+
+
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1117,6 +1119,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             return true;
         }
         return false;
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
@@ -1592,9 +1603,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
                     if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
-                        int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT,0);
-                        int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH,0);
-                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME,0);
+                        int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
+                        int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
+                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         final String imgMsgId = SocketData.getUUID();
                         VideoMessage videoMessage = new VideoMessage();
@@ -2016,8 +2027,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setImgageProg(pg);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-                        menus.add(new OptionMenu("转发"));
-                        menus.add(new OptionMenu("删除"));
+                            menus.add(new OptionMenu("转发"));
+                            menus.add(new OptionMenu("删除"));
                         }
 
                         break;
@@ -2228,10 +2239,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
 
                 case ChatEnum.EMessageType.IMAGE:
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
-                    }else{
+                    } else {
                         menus.add(new OptionMenu("删除"));
                     }
                     Integer pg = null;
@@ -2249,10 +2260,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
 
                 case ChatEnum.EMessageType.MSG_VIDEO:
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
-                    }else{
+                    } else {
                         menus.add(new OptionMenu("删除"));
                     }
 
@@ -3400,8 +3411,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (StringUtil.isNotNull(draft)) {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
-//            dao.sessionDraft(toGid, toUId, "");
+//            dao.sessionDraft(toGid, toUId, "");`
+
         }
+        // isFirst解决第一次进来草稿中会有@符号的内容
+        isFirst ++;
     }
 
     /***
