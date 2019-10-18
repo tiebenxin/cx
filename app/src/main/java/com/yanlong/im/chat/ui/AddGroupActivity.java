@@ -2,6 +2,7 @@ package com.yanlong.im.chat.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -24,6 +26,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import java.io.File;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -99,8 +103,13 @@ public class AddGroupActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     Group bean = response.body().getData();
-                    Glide.with(context).load(bean.getAvatar())
-                            .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
+                    if (!TextUtils.isEmpty(bean.getAvatar())) {
+                        Glide.with(context).load(bean.getAvatar())
+                                .apply(GlideOptionsUtil.headImageOptions()).into(mSdGroupHead);
+                    } else {
+                        createAndSaveImg(bean, mSdGroupHead);
+                    }
+
                     mTvGroupName.setText(/*bean.getName()*/msgDao.getGroupName(bean));
                     mTvGroupNum.setText(bean.getUsers().size() + "人");
                 } else {
@@ -108,6 +117,25 @@ public class AddGroupActivity extends AppActivity {
                 }
             }
         });
+    }
+
+    private void createAndSaveImg(Group group, ImageView imgHead) {
+        if (group != null) {
+            int i = group.getUsers().size();
+            i = i > 9 ? 9 : i;
+            //头像地址
+            String url[] = new String[i];
+            for (int j = 0; j < i; j++) {
+                UserInfo userInfo = group.getUsers().get(j);
+                url[j] = userInfo.getHead();
+            }
+            File file = GroupHeadImageUtil.synthesis(getContext(), url);
+            Glide.with(this).load(file)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
+            MsgDao msgDao = new MsgDao();
+            msgDao.groupHeadImgCreate(group.getGid(), file.getAbsolutePath());
+        }
     }
 
 
@@ -129,7 +157,7 @@ public class AddGroupActivity extends AppActivity {
                         Intent intent = new Intent(AddGroupActivity.this, ChatActivity.class);
                         intent.putExtra(ChatActivity.AGM_TOGID, gid);
                         startActivity(intent);
-                        new MsgDao().sessionCreate(gid,null);
+                        new MsgDao().sessionCreate(gid, null);
                         MessageManager.getInstance().setMessageChange(true);
                     } else {
                         ToastUtil.show(AddGroupActivity.this, "加群成功,等待群主验证");
