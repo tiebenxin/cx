@@ -54,4 +54,6 @@
     <color name="red_200">#c85749</color>
 
     <color name="red_all_notify">#a7051a</color>
+    <!--语音最小化按钮-->
+    <color name="color_0cb">#0cb709</color>
 </resources>

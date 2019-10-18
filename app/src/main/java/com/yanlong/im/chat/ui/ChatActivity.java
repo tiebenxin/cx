@@ -43,7 +43,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import com.bumptech.glide.disklrucache.DiskLruCache;
+import com.example.nim_lib.ui.CallWaitActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -116,11 +116,14 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
@@ -188,6 +191,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
     private LinearLayout viewChatRobot, ll_part_chat_video;
+    private LinearLayout llChatVideoCall;
     private View viewChatBottom;
     private View viewChatBottomc;
     private View imgEmojiDel;
@@ -465,6 +469,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         viewChatRobot = findViewById(R.id.view_chat_robot);
         ll_part_chat_video = findViewById(R.id.ll_part_chat_video);
+        llChatVideoCall = findViewById(R.id.ll_chat_video_call);
 //        findViewById(R.id.ll_video_recoder).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -948,6 +953,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 }, new String[]{Manifest.permission.CAMERA});
 
+            }
+        });
+
+        // 视频通话
+        llChatVideoCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
+                    @Override
+                    public void onClickItemVideo() {
+
+                    }
+
+                    @Override
+                    public void onClickItemVoice() {
+                        IntentUtil.gotoActivity(ChatActivity.this, CallWaitActivity.class);
+                    }
+
+                    @Override
+                    public void onClickItemCancle() {
+
+                    }
+                });
             }
         });
 
@@ -2139,7 +2167,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
                         }
                         // 是文本且小于5分钟 显示重新编辑
-                        if (msgType == ChatEnum.EMessageType.TEXT && minutes < RELINQUISH_TIME && StringUtil.isNotNull(content)) {
+                        if ((msgType == ChatEnum.EMessageType.TEXT||msgType==ChatEnum.EMessageType.AT)
+                                && minutes < RELINQUISH_TIME && StringUtil.isNotNull(content)) {
                             onRestEdit(holder, msgbean.getMsgCancel().getNote(), content, msgbean.getTimestamp());
                         } else {
                             if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
@@ -2996,6 +3025,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         Integer msgType = 0;
         if (msgbean.getChat() != null) {
             msg = msgbean.getChat().getMsg();
+        }else if(msgbean.getAtMessage()!=null){
+            msg= msgbean.getAtMessage().getMsg();
         }
         msgType = msgbean.getMsg_type();
         SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
