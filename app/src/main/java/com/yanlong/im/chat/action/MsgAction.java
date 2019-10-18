@@ -313,18 +313,17 @@ public class MsgAction {
                         boolean isTop = false;
                         if (istop != null) {
                             dao.updateGroupTop(gid, istop.intValue());
-                            session.setHasInitTop(true);
                             isTop = true;
                         } else if (notNotify != null) {
                             dao.updateGroupDisturb(gid, notNotify.intValue());
-                            session.setHasInitDisturb(true);
+                            dao.updateSessionTopAndDisturb(gid, null, 0, notNotify.intValue());
+                            MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
                             isTop = false;
                         }
                         MessageManager.getInstance().setMessageChange(true);
                         MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
                     }
                 }
-
                 cb.onResponse(call, response);
 
             }
@@ -502,8 +501,8 @@ public class MsgAction {
     /**
      * 修改群公告
      */
-    public void changeGroupAnnouncement(String gid, String announcement, String masterName,Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement,masterName), callback);
+    public void changeGroupAnnouncement(String gid, String announcement, String masterName, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement, masterName), callback);
     }
 
 

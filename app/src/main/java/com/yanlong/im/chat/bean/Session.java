@@ -36,10 +36,10 @@ public class Session extends RealmObject implements Comparable<Session> {
     private String name; //session名字，群聊即群名，私聊即好友备注或昵称
     @Ignore
     private String avatar;//头像
-    @Ignore
-    private boolean hasInitDisturb = false;//是否已经初始化免打扰
-    @Ignore
-    private boolean hasInitTop = false;//是否已经初始化置顶
+//    @Ignore
+//    private boolean hasInitDisturb = false;//是否已经初始化免打扰
+//    @Ignore
+//    private boolean hasInitTop = false;//是否已经初始化置顶
     @Ignore
     private MsgAllBean message;//最后消息
 
@@ -166,9 +166,9 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
 
-    public void setHasInitDisturb(boolean hasInitDisturb) {
-        this.hasInitDisturb = hasInitDisturb;
-    }
+//    public void setHasInitDisturb(boolean hasInitDisturb) {
+//        this.hasInitDisturb = hasInitDisturb;
+//    }
 
     public String getAvatar() {
         return avatar;
@@ -187,17 +187,17 @@ public class Session extends RealmObject implements Comparable<Session> {
     }
 
 
-    public void setHasInitTop(boolean hasInitTop) {
-        this.hasInitTop = hasInitTop;
-    }
-
-    public boolean isHasInitDisturb() {
-        return hasInitDisturb;
-    }
-
-    public boolean isHasInitTop() {
-        return hasInitTop;
-    }
+//    public void setHasInitTop(boolean hasInitTop) {
+//        this.hasInitTop = hasInitTop;
+//    }
+//
+//    public boolean isHasInitDisturb() {
+//        return hasInitDisturb;
+//    }
+//
+//    public boolean isHasInitTop() {
+//        return hasInitTop;
+//    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

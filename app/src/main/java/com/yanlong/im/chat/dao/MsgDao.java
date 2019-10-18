@@ -780,7 +780,7 @@ public class MsgDao {
             GroupImageHead imageHead = new GroupImageHead();
             imageHead.setGid(gid);
             imageHead.setImgHeadUrl(avatar);
-            DaoUtil.save(imageHead);
+            DaoUtil.update(imageHead);
         }
     }
 
@@ -1001,31 +1001,21 @@ public class MsgDao {
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
-            if (session == null) {
-//                session = new Session();
-//                session.setSid(UUID.randomUUID().toString());
-//                session.setGid(gid);
-//                session.setType(1);
-//                session.setIsMute(disturb);
-//                session.setIsTop(top);
-//                session.setUnread_count(0);
-            } else {
+            if (session != null) {
                 session.setIsMute(disturb);
                 session.setIsTop(top);
+                if (disturb == 1) {
+                    session.setUnread_count(0);
+                }
             }
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
-            if (session == null) {
-//                session = new Session();
-//                session.setSid(UUID.randomUUID().toString());
-//                session.setFrom_uid(from_uid);
-//                session.setType(0);
-//                session.setIsMute(disturb);
-//                session.setIsTop(top);
-//                session.setUnread_count(0);
-            } else {
+            if (session != null) {
                 session.setIsMute(disturb);
                 session.setIsTop(top);
+                if (disturb == 1) {
+                    session.setUnread_count(0);
+                }
             }
         }
         if (session != null) {
@@ -1470,7 +1460,7 @@ public class MsgDao {
     }
 
     /*
-     * 更新群置顶
+     * 更新群免打扰
      * */
     public void updateGroupDisturb(String gid, int disturb) {
         Realm realm = DaoUtil.open();

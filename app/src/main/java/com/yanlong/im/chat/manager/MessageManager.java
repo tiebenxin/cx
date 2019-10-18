@@ -119,8 +119,8 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
         boolean result = false;
-        if(!TextUtils.isEmpty(wrapMessage.getMsgId())){
-            if (oldMsgId.contains(wrapMessage.getMsgId()) ) {
+        if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
+            if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
                 return false;
             } else {
@@ -295,16 +295,25 @@ public class MessageManager {
         boolean result = false;
         //收到直接存表
         DaoUtil.update(msgAllBean);
-        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid()) && !loadGids.contains(msgAllBean.getGid())) {
-            loadGids.add(msgAllBean.getGid());
-            loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
+            if (!loadGids.contains(msgAllBean.getGid())) {
+                loadGids.add(msgAllBean.getGid());
+                loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+            } else {
+                System.out.println(TAG + "--加载群信息的更新未读数");
+                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                if (isList) {
+                    setMessageChange(true);
+                }
+                result = true;
+            }
         } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
             loadUids.add(msgAllBean.getFrom_uid());
             loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
         } else {
-            MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+            updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
             if (isList) {
-                MessageManager.getInstance().setMessageChange(true);
+                setMessageChange(true);
             }
             result = true;
         }
@@ -312,10 +321,10 @@ public class MessageManager {
     }
 
     /*
-     * 网络加载用户信息
+     * 网络加载用户信息,只能接受来自好友的信息
      * */
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
-        new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
+        new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.FRIEND, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 updateSessionUnread(gid, uid, false);
@@ -340,6 +349,7 @@ public class MessageManager {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
                 updateSessionUnread(gid, uid, false);
+                System.out.println(TAG + "--加载群信息后的更新");
                 if (isList) {
                     if (taskMsgList != null) {
                         taskMsgList.updateTaskCount();
