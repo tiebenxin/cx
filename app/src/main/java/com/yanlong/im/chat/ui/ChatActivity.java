@@ -96,6 +96,8 @@ import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.HtmlTransitonUtils;
+import com.yanlong.im.utils.MyDiskCache;
+import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
@@ -2523,12 +2525,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
 
-        String bitName = SystemClock.currentThreadTimeMillis() + "";
-        final File appDir = new File("/sdcard/yanlong/download/");
+        final File appDir = new File(getExternalCacheDir().getAbsolutePath()+"/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
-        final String fileName = bitName + ".mp4";
+        final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
         new Thread() {
             @Override
@@ -2549,6 +2550,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
                         startActivity(intent);
+                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath());
                     }
 
                     @Override

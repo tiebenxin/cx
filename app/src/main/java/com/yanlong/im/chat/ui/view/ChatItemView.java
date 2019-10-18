@@ -87,9 +87,11 @@ public class ChatItemView extends LinearLayout {
     private ImageView imgMeRbState;
     private TextView txtMeRbTitle;
     private TextView txtMeRbInfo;
+//    private TextView txtMeRpBt;
     private TextView txtMeRpBt,img_me_4_time,img_ot_4_time;
     private ImageView imgMeRbIcon;
     private ImageView imgMeErr;
+//    private ImageView imgMeHead,img_ot_4_play;
     private ImageView imgMeHead,img_me_4_play,img_ot_4_play;
 
     private LinearLayout viewMe4;
@@ -298,6 +300,8 @@ public class ChatItemView extends LinearLayout {
         viewLock.setVisibility(GONE);
         img_me_4_play.setVisibility(View.GONE);
         img_me_4_time.setVisibility(View.GONE);
+        img_ot_4_time.setVisibility(View.GONE);
+        img_ot_4_play.setVisibility(View.GONE);
         switch (type) {
             case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告
@@ -353,10 +357,6 @@ public class ChatItemView extends LinearLayout {
                 img_me_4_play.setVisibility(View.VISIBLE);
                 img_ot_4_time.setVisibility(View.VISIBLE);
                 img_ot_4_play.setVisibility(View.VISIBLE);
-//                RelativeLayout.LayoutParams layoutParams=new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
-//                RelativeLayout.LayoutParams layoutParams=( RelativeLayout.LayoutParams)img_me_4_time.getLayoutParams();
-//                layoutParams.setMargins(viewMe4.getMeasuredWidth(),viewMe4.getHeight(),0,0);
-//                img_me_4_time.setLayoutParams(layoutParams);
                 break;
         }
 
@@ -653,13 +653,15 @@ public class ChatItemView extends LinearLayout {
                 int h = new Double(mh * cp).intValue();
 
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
-                imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
+                imgOt4.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
 
                 RelativeLayout.LayoutParams layoutParams=( RelativeLayout.LayoutParams)img_me_4_time.getLayoutParams();
                 layoutParams.setMargins(w-110,h-60,0,0);
-//                layoutParams.setMargins(viewMe4.getMeasuredWidth()-30,viewMe4.getMeasuredHeight()-30,0,0);
                 img_me_4_time.setLayoutParams(layoutParams);
-                img_ot_4_time.setLayoutParams(layoutParams);
+
+                RelativeLayout.LayoutParams layoutParamsOT=( RelativeLayout.LayoutParams)img_ot_4_time.getLayoutParams();
+                layoutParamsOT.setMargins(w-110,h-60,0,0);
+                img_ot_4_time.setLayoutParams(layoutParamsOT);
                 long currentTime= videoMessage.getDuration();
                 if (currentTime<10){
                     img_me_4_time.setText("00:0"+currentTime);
@@ -755,7 +757,7 @@ public class ChatItemView extends LinearLayout {
 
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
 
-                imgOt4.setLayoutParams(new LinearLayout.LayoutParams(w, h));
+                imgOt4.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
 
 
                 lp.width = w;

@@ -1,5 +1,17 @@
 package com.yanlong.im.utils;
 
+import com.bumptech.glide.disklrucache.DiskLruCache;
+import com.bumptech.glide.load.engine.cache.DiskCache;
+import com.bumptech.glide.load.engine.cache.SafeKeyGenerator;
+import com.bumptech.glide.signature.EmptySignature;
+import com.luck.picture.lib.glide.OriginalKey;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 public class MyDiskCacheUtils {
 
 
@@ -17,13 +29,92 @@ public class MyDiskCacheUtils {
                     myDiskCacheUtils=new MyDiskCacheUtils();
                 }
             }
-
         }
         return myDiskCacheUtils;
     }
 
-
+    private MyDiskCacheController diskCacheController=null;
+    public MyDiskCacheUtils setDiskController(MyDiskCacheController myDiskCacheController){
+        this.diskCacheController=myDiskCacheController;
+        return myDiskCacheUtils;
+    }
     public Object getObj(String path){
         return null;
+    }
+
+
+    public String getFileNmae(String url){
+        OriginalKey originalKey = new OriginalKey(url, EmptySignature.obtain());
+        SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
+        String safeKey = safeKeyGenerator.getSafeKey(originalKey);
+        if (url.endsWith("mp4")){
+
+        }else if(url.endsWith("png")||url.endsWith("jpg")||url.endsWith("gif")){
+
+        }else if(url.endsWith("caf")){
+
+        }
+//        DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, DiskCache.Factory.DEFAULT_DISK_CACHE_SIZE);
+//        DiskLruCache.Value value = diskLruCache.get(safeKey);
+
+        return safeKey;
+    }
+
+    public boolean putFileNmae(String path){
+        if (null==diskCacheController){
+           throw new IllegalStateException("先初始化控制类设置基础属性");
+        }
+        File file =new File(path);
+        if (file.isDirectory()){
+           long totalSpace= file.length();
+           if (totalSpace>diskCacheController.USABLE_IMAGE_SIZE){
+               clearFile(file);
+           }
+//           file.getUsableSpace();
+//           file.getFreeSpace();
+        }
+        return false;
+    }
+
+    private void clearFile(File path) {
+        if (path.isDirectory()){
+//            File[] files= path.listFiles();
+            List<File> files=getDirAllFile(path);
+            for (int i=0;i<files.size();i++){
+                files.get(i).delete();
+                if (getAvliable(path)){
+                    break;
+                }
+            }
+        }else if(path.exists()){
+            path.delete();
+        }
+    }
+
+    private boolean getAvliable(File path) {
+        return path.length()<diskCacheController.USABLE_VIDEO_SIZE;
+    }
+
+    public static List<File> getDirAllFile(File file) {
+        List<File> fileList = new ArrayList<>();
+        File[] fileArray = file.listFiles();
+        if (fileArray == null)
+            return fileList;
+        for (File f : fileArray) {
+            fileList.add(f);
+        }
+        fileSortByTime(fileList);
+        return fileList;
+    }
+
+    public static void fileSortByTime(List<File> fileList) {
+        Collections.sort(fileList, new Comparator<File>() {
+            public int compare(File p1, File p2) {
+                if (p1.lastModified() < p2.lastModified()) {
+                    return -1;
+                }
+                return 1;
+            }
+        });
     }
 }
