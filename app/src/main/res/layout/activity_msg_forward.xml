@@ -18,17 +18,40 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp" />
 
+
             <FrameLayout
-                android:id="@+id/fl_content"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_weight="1">
+
+                <FrameLayout
+                    android:id="@+id/fl_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/tv_success"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:padding="10dp"
+                    android:background="@color/black_33"
+                    android:gravity="center"
+                    android:text="转发成功"
+                    android:textColor="@color/white"
+                    android:visibility="gone"/>
+            </FrameLayout>
+
+
 
 
 
             <!--<include layout="@layout/layout_tab_custom" />-->
 
         </LinearLayout>
+
+
 
     </net.cb.cb.library.view.HeadView>
 </layout>

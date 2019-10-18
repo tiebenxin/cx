@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.view.View;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
@@ -178,8 +179,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
-                    finish();
                 }
             });
         } else if (msgAllBean.getImage() != null) {
@@ -204,8 +205,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
-                    finish();
 
                 }
             });
@@ -228,8 +229,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
-                    finish();
                 }
             });
         } else if (msgAllBean.getVideoMessage() != null) {
@@ -247,13 +248,26 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
-                    finish();
                 }
             });
 
         }
         alertForward.show();
+
+    }
+
+    public void doSendSuccess() {
+        ui.tvSuccess.setVisibility(View.VISIBLE);
+        ui.tvSuccess.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ui.tvSuccess.setVisibility(View.GONE);
+                finish();
+
+            }
+        }, 1000);
 
     }
 
