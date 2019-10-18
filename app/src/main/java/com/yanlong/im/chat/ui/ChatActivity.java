@@ -43,7 +43,6 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.nim_lib.ui.CallWaitActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -968,7 +967,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     @Override
                     public void onClickItemVoice() {
-                        IntentUtil.gotoActivity(ChatActivity.this, CallWaitActivity.class);
+//                        IntentUtil.gotoActivity(ChatActivity.this, CallWaitActivity.class);
                     }
 
                     @Override
