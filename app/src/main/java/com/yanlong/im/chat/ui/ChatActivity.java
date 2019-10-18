@@ -234,6 +234,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private TextView tv_ban;
     private ConstraintLayout emoji_pager_con;
     private String draft;
+    private int isFirst;
 
     // 气泡视图
     private PopupWindow mPopupWindow;// 长按消息弹出气泡PopupWindow
@@ -652,6 +653,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
             }
         });
+
+
+
         edtChat.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -666,17 +670,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 } else {
                     btnSend.setVisibility(View.GONE);
                 }
-
-                if (isGroup() && !dao.isSaveDraft(toGid)) {
+                // isFirst解决第一次进来草稿中会有@符号的内容
+                if (isGroup() && isFirst != 0) {
                     if (count == 1 && (s.charAt(s.length() - 1) == "@".charAt(0) || s.charAt(s.length() - (s.length() - start)) == "@".charAt(0))) { //添加一个字
                         //跳转到@界面
                         Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
                         intent.putExtra(GroupSelectUserActivity.TYPE, 1);
                         intent.putExtra(GroupSelectUserActivity.GID, toGid);
                         startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
-
                     }
                 }
+                isFirst ++ ;
             }
 
             @Override
