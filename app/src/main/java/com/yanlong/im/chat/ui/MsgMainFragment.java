@@ -419,7 +419,7 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
-//                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
             } else {
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
@@ -990,8 +990,8 @@ public class MsgMainFragment extends Fragment {
             if (group != null) {
                 session.setName(msgDao.getGroupName(group));
                 session.setIsMute(group.getNotNotify());
-                session.setHasInitDisturb(true);
                 session.setAvatar(group.getAvatar());
+
 
             } else {
                 session.setName(msgDao.getGroupName(session.getGid()));
@@ -1017,7 +1017,6 @@ public class MsgMainFragment extends Fragment {
             if (info != null) {
                 session.setName(info.getName4Show());
                 session.setIsMute(info.getDisturb());
-                session.setHasInitDisturb(true);
                 session.setAvatar(info.getHead());
             }
             MsgAllBean msg = session.getMessage();

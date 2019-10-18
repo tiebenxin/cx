@@ -2353,12 +2353,10 @@ public class MsgDao {
         if (!TextUtils.isEmpty(groupId)) {
             Realm realm = DaoUtil.open();
             try {
-                realm.beginTransaction();
                 Group g = realm.where(Group.class).equalTo("gid", groupId).findFirst();
                 if (g != null) {
                     exist = true;
                 }
-                realm.commitTransaction();
                 realm.close();
             } catch (Exception e) {
                 e.printStackTrace();

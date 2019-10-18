@@ -423,4 +423,23 @@ public class UserDao {
         }
     }
 
+    /*
+    *
+    * */
+    public boolean isUserExist(Long uid) {
+        boolean result = false;
+        Realm realm = DaoUtil.open();
+        try {
+            UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (user != null) {
+                result = true;
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+        return result;
+    }
+
 }

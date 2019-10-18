@@ -9,6 +9,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmModel;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 
@@ -224,9 +225,49 @@ public class DaoUtil {
     public static void close(Realm realm) {
         if (realm != null) {
             if (realm.isInTransaction()) {
-                realm.commitTransaction();
+                realm.cancelTransaction();
             }
             realm.close();
         }
     }
+
+    /**
+     * 添加或者修改(性能优于下面的saveOrUpdate（）方法)
+     *
+     * @param object
+     * @return 保存或者修改是否成功
+     */
+    public boolean insertOrUpdate(RealmObject object) {
+        Realm realm = open();
+
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(object);
+            realm.commitTransaction();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            close(realm);
+            return false;
+        }
+    }
+
+    /**
+     * @param list
+     * @return 保存或者修改是否成功
+     */
+    public boolean insertOrUpdateBatch(List<? extends RealmObject> list) {
+        Realm realm = open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(list);
+            realm.commitTransaction();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            close(realm);
+            return false;
+        }
+    }
+
 }

@@ -300,16 +300,26 @@ public class MessageManager {
                 loadGids.add(msgAllBean.getGid());
                 loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
             } else {
-                System.out.println(TAG + "--加载群信息的更新未读数");
                 updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
                 if (isList) {
                     setMessageChange(true);
                 }
                 result = true;
             }
-        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
-            loadUids.add(msgAllBean.getFrom_uid());
-            loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
+            if (!loadUids.contains(msgAllBean.getFrom_uid())) {
+                loadUids.add(msgAllBean.getFrom_uid());
+                loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                System.out.println(TAG + "--需要加载用户信息");
+
+            } else {
+                System.out.println(TAG + "--异步加载用户信息更新未读数");
+                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                if (isList) {
+                    setMessageChange(true);
+                }
+                result = true;
+            }
         } else {
             updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
             if (isList) {

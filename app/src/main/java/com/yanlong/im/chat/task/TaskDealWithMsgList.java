@@ -36,7 +36,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--总任务数=" + taskCount);
             for (int i = 0; i < length; i++) {
                 MsgBean.UniversalMessage.WrapMessage wrapMessage = messages.get(i);
-                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--gid=" + wrapMessage.getGid() + "--uid=" + wrapMessage.getFromUid() + "--msgId=" + wrapMessage.getMsgId());
+//                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--gid=" + wrapMessage.getGid() + "--uid=" + wrapMessage.getFromUid() + "--msgId=" + wrapMessage.getMsgId());
                 boolean result = MessageManager.getInstance().dealWithMsg(wrapMessage, true, i == length - 1);//最后一条消息，发出通知声音
                 if (result) {
                     taskCount--;
