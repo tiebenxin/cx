@@ -193,7 +193,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             //TODO 文件下载重新构建
 
 
-            final String filePath = getExternalCacheDir().getAbsolutePath() + "/";
+            final String filePath = getExternalCacheDir().getAbsolutePath() + "/Image/";
             final String fileName = path.substring(path.lastIndexOf("/") + 1);
             File fileSave = new File(filePath + "/" + fileName);
 

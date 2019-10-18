@@ -244,9 +244,7 @@
 
                 </LinearLayout>
                 <!-- 图片消息-->
-                <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+
                 <LinearLayout
                     android:id="@+id/view_ot_4"
                     android:layout_width="wrap_content"
@@ -263,30 +261,51 @@
                         app:placeholderImage="@mipmap/ic_img_def"
                         app:placeholderImageScaleType="centerInside"
                          />-->
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
                     <ImageView
                         android:id="@+id/img_ot_4"
                         android:layout_width="150dp"
                         android:layout_height="180dp" />
 
-                </LinearLayout>
-                    <ImageView
-                        android:id="@+id/img_ot_4_play"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:background="@mipmap/video_play_play"
-                        android:layout_centerInParent="true"
-                        android:visibility="invisible"
-                        />
-                    <TextView
-                        android:id="@+id/img_ot_4_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="00:00"
-                        android:textColor="#fff"
-                        android:visibility="invisible"
-                        />
-                </RelativeLayout>
+                        <ImageView
+                            android:id="@+id/img_ot_4_play"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@mipmap/video_play_play"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"
+                            />
+                        <TextView
+                            android:id="@+id/img_ot_4_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="00:00"
+                            android:textColor="#fff"
+                            android:visibility="gone"
+                            />
+                    </RelativeLayout>
 
+                </LinearLayout>
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:gravity="left"-->
+<!--                    android:layout_height="wrap_content">-->
+
+<!--                    <ImageView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"></ImageView>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="123"-->
+<!--                        android:textColor="#fff"-->
+<!--                        android:layout_alignParentRight="true"-->
+<!--                        android:layout_alignParentBottom="true"-->
+<!--                        ></TextView>-->
+<!--                </RelativeLayout>-->
 
 
                 <!-- 名片消息-->
@@ -685,7 +704,7 @@
                                 android:layout_height="30dp"
                                 android:background="@mipmap/video_play_play"
                                 android:layout_centerInParent="true"
-                                android:visibility="invisible"
+                                android:visibility="gone"
                                 />
                             <TextView
                                 android:id="@+id/img_me_4_time"
@@ -693,7 +712,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="00:00"
                                 android:textColor="#fff"
-                                android:visibility="invisible"
+                                android:visibility="gone"
                                 />
 
                         </RelativeLayout>

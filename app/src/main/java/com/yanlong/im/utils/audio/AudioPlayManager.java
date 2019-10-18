@@ -364,7 +364,7 @@ public class AudioPlayManager implements SensorEventListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String path = context.getExternalCacheDir().getAbsolutePath();
+                String path = context.getExternalCacheDir().getAbsolutePath()+"/Audio/";
                 String url = bean.getVoiceMessage().getUrl();
                 DownloadUtil.get().download(url, path, getFileName(url), new DownloadUtil.OnDownloadListener() {
                     @Override

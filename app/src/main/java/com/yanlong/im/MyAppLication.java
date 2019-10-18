@@ -11,6 +11,8 @@ import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.utils.LogcatHelper;
+import com.yanlong.im.utils.MyDiskCacheController;
+import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
 
 import net.cb.cb.library.AppConfig;
@@ -96,6 +98,11 @@ public class MyAppLication extends MainApplication {
 //        initException();
         initUploadUtils();
         initBugly();
+        initCache();
+    }
+
+    private void initCache() {
+        MyDiskCacheUtils.getInstance().setDiskController(new MyDiskCacheController());
     }
 
     private void initBugly() {
