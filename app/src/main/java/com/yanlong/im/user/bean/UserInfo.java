@@ -56,13 +56,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private int lockCloudRedEnvelope; //1锁定红包，0不锁定
     private int destroy; //销毁开关
     private long destroyTime; //销毁时间
-    @Ignore
     private int joinType;
-    @Ignore
     private String joinTime;
-    @Ignore
     private String inviter;
-    @Ignore
     private String inviterName;
     @Ignore
     private boolean isChecked = false;
@@ -390,32 +386,26 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
         int last = getTag().charAt(0);
         if (getTag().equals("#")) {
-
-
             return 1;
         }
         if (o.getTag().equals("#")) {
-
             return -1;
         }
 
         if (getTag().equals("↑")) {
-
-
             return -1;
         }
         if (o.getTag().equals("↑")) {
-
             return 1;
         }
 
         if (last > o.getTag().charAt(0)) {
-
             return 1;
+        } else if (last < o.getTag().charAt(0)) {
+            return -1;
+        } else {
+            return 0;
         }
-
-        return -1;
-
     }
 
     public String getTag() {

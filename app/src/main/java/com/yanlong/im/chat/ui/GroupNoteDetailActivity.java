@@ -32,11 +32,13 @@ public class GroupNoteDetailActivity extends AppActivity {
     public static final String NOTE = "note";//群公告
     public final static String CONTENT = "content";//传回内容
     public final static String GID = "gid";//传回内容
+    public final static String GROUP_NICK = "group_nick";//群主的群昵称
 
 
     private ActivityGroupNoteDetailBinding ui;
     private String note;
     private String gid;
+    private String groupNick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class GroupNoteDetailActivity extends AppActivity {
         ui = DataBindingUtil.setContentView(this, R.layout.activity_group_note_detail);
         Intent intent = getIntent();
         boolean isOwner = intent.getBooleanExtra(IS_OWNER, false);
+        groupNick = intent.getStringExtra(GROUP_NICK);
         gid = intent.getStringExtra(GID);
         note = intent.getStringExtra(NOTE);
         if (isOwner) {
@@ -89,19 +92,22 @@ public class GroupNoteDetailActivity extends AppActivity {
 //                    Intent intent = new Intent();
 //                    intent.putExtra(CONTENT, content.trim());
 //                    setResult(RESULT_OK, intent);
-                    changeGroupAnnouncement(gid, content);
+                    if (groupNick == null) {
+                        groupNick = "";
+                    }
+                    changeGroupAnnouncement(gid, content, groupNick);
                 }
 
             }
         });
     }
 
-    private void changeGroupAnnouncement(final String gid, final String announcement) {
+    private void changeGroupAnnouncement(final String gid, final String announcement, String masterName) {
         if (TextUtils.isEmpty(gid)) {
             ToastUtil.show(this, "群信息为空");
             return;
         }
-        new MsgAction().changeGroupAnnouncement(gid, announcement, new CallBack<ReturnBean>() {
+        new MsgAction().changeGroupAnnouncement(gid, announcement, masterName, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

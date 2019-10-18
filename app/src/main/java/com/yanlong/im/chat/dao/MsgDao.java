@@ -780,7 +780,7 @@ public class MsgDao {
             GroupImageHead imageHead = new GroupImageHead();
             imageHead.setGid(gid);
             imageHead.setImgHeadUrl(avatar);
-            DaoUtil.save(imageHead);
+            DaoUtil.update(imageHead);
         }
     }
 
@@ -1001,31 +1001,21 @@ public class MsgDao {
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
-            if (session == null) {
-//                session = new Session();
-//                session.setSid(UUID.randomUUID().toString());
-//                session.setGid(gid);
-//                session.setType(1);
-//                session.setIsMute(disturb);
-//                session.setIsTop(top);
-//                session.setUnread_count(0);
-            } else {
+            if (session != null) {
                 session.setIsMute(disturb);
                 session.setIsTop(top);
+                if (disturb == 1) {
+                    session.setUnread_count(0);
+                }
             }
         } else {//个人消息
             session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
-            if (session == null) {
-//                session = new Session();
-//                session.setSid(UUID.randomUUID().toString());
-//                session.setFrom_uid(from_uid);
-//                session.setType(0);
-//                session.setIsMute(disturb);
-//                session.setIsTop(top);
-//                session.setUnread_count(0);
-            } else {
+            if (session != null) {
                 session.setIsMute(disturb);
                 session.setIsTop(top);
+                if (disturb == 1) {
+                    session.setUnread_count(0);
+                }
             }
         }
         if (session != null) {
@@ -1470,7 +1460,7 @@ public class MsgDao {
     }
 
     /*
-     * 更新群置顶
+     * 更新群免打扰
      * */
     public void updateGroupDisturb(String gid, int disturb) {
         Realm realm = DaoUtil.open();
@@ -2454,6 +2444,27 @@ public class MsgDao {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
+    }
+
+    /***
+     * 修改群名
+     * @param gid 群id
+     * @param name 群名
+     */
+    public boolean updateGroupName(String gid, String name) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (g != null) {//已经存在
+            g.setName(name);
+            realm.insertOrUpdate(g);
+        } else {//不存在
+            return false;
+        }
+        realm.commitTransaction();
+        realm.close();
+        return true;
     }
 
 

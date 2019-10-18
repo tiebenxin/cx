@@ -94,7 +94,7 @@ public interface MsgServer {
 
     @POST("/group/edit-announcement")
     @FormUrlEncoded
-    Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid,@Field("announcement") String announcement);
+    Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid,@Field("announcement") String announcement,@Field("masterName") String masterName);
 
     @POST("/group/search-for-robots")
     @FormUrlEncoded

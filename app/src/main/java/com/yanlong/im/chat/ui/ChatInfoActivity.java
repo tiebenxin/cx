@@ -302,11 +302,9 @@ public class ChatInfoActivity extends AppActivity {
                     if (isMute == null && istop != null) {
                         session = msgDao.updateUserSessionTop(fuid, istop);
                         msgDao.updateUserTop(fuid, istop.intValue());
-                        session.setHasInitTop(true);
                     } else if (isMute != null && istop == null) {
                         session = msgDao.updateUserSessionDisturb(fuid, isMute);
                         msgDao.updateUserDisturb(fuid, isMute.intValue());
-                        session.setHasInitDisturb(true);
                     }
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session,true);

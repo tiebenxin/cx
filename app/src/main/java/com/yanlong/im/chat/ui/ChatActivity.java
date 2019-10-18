@@ -43,7 +43,6 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -118,11 +117,14 @@ import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.inter.ICustomerItemClick;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
@@ -190,6 +192,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private LinearLayout viewTransfer;
     private LinearLayout viewCard;
     private LinearLayout viewChatRobot, ll_part_chat_video;
+    private LinearLayout llChatVideoCall;
     private View viewChatBottom;
     private View viewChatBottomc;
     private View imgEmojiDel;
@@ -236,6 +239,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private TextView tv_ban;
     private ConstraintLayout emoji_pager_con;
     private String draft;
+    private int isFirst;
 
     // 气泡视图
     private PopupWindow mPopupWindow;// 长按消息弹出气泡PopupWindow
@@ -466,6 +470,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
         viewChatRobot = findViewById(R.id.view_chat_robot);
         ll_part_chat_video = findViewById(R.id.ll_part_chat_video);
+        llChatVideoCall = findViewById(R.id.ll_chat_video_call);
 //        findViewById(R.id.ll_video_recoder).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -557,7 +562,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed();
+                finish();
             }
 
             @Override
@@ -654,6 +659,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
             }
         });
+
+
         edtChat.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -668,17 +675,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 } else {
                     btnSend.setVisibility(View.GONE);
                 }
-
-                if (isGroup() && !dao.isSaveDraft(toGid)) {
+                // isFirst解决第一次进来草稿中会有@符号的内容
+                if (isGroup() && isFirst != 0) {
                     if (count == 1 && (s.charAt(s.length() - 1) == "@".charAt(0) || s.charAt(s.length() - (s.length() - start)) == "@".charAt(0))) { //添加一个字
                         //跳转到@界面
                         Intent intent = new Intent(ChatActivity.this, GroupSelectUserActivity.class);
                         intent.putExtra(GroupSelectUserActivity.TYPE, 1);
                         intent.putExtra(GroupSelectUserActivity.GID, toGid);
                         startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
-
                     }
                 }
+
             }
 
             @Override
@@ -687,6 +694,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
+
+
+
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -949,6 +959,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
+        // 视频通话
+        llChatVideoCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
+                    @Override
+                    public void onClickItemVideo() {
+
+                    }
+
+                    @Override
+                    public void onClickItemVoice() {
+//                        IntentUtil.gotoActivity(ChatActivity.this, CallWaitActivity.class);
+                    }
+
+                    @Override
+                    public void onClickItemCancle() {
+
+                    }
+                });
+            }
+        });
+
 
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
@@ -1088,6 +1121,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             return true;
         }
         return false;
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
@@ -1357,6 +1399,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
         if (hasUpdate || hasChange) {
@@ -1365,11 +1411,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -1564,9 +1605,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
                     if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
-                        int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT,0);
-                        int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH,0);
-                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME,0);
+                        int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
+                        int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
+                        int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         final String imgMsgId = SocketData.getUUID();
                         VideoMessage videoMessage = new VideoMessage();
@@ -1988,8 +2029,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setImgageProg(pg);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
-                        menus.add(new OptionMenu("转发"));
-                        menus.add(new OptionMenu("删除"));
+                            menus.add(new OptionMenu("转发"));
+                            menus.add(new OptionMenu("删除"));
                         }
 
                         break;
@@ -2138,7 +2179,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
                         }
                         // 是文本且小于5分钟 显示重新编辑
-                        if (msgType == ChatEnum.EMessageType.TEXT && minutes < RELINQUISH_TIME && StringUtil.isNotNull(content)) {
+                        if ((msgType == ChatEnum.EMessageType.TEXT||msgType==ChatEnum.EMessageType.AT)
+                                && minutes < RELINQUISH_TIME && StringUtil.isNotNull(content)) {
                             onRestEdit(holder, msgbean.getMsgCancel().getNote(), content, msgbean.getTimestamp());
                         } else {
                             if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
@@ -2199,10 +2241,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
 
                 case ChatEnum.EMessageType.IMAGE:
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
-                    }else{
+                    } else {
                         menus.add(new OptionMenu("删除"));
                     }
                     Integer pg = null;
@@ -2220,10 +2262,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
 
                 case ChatEnum.EMessageType.MSG_VIDEO:
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL){
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
-                    }else{
+                    } else {
                         menus.add(new OptionMenu("删除"));
                     }
 
@@ -2995,6 +3037,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         Integer msgType = 0;
         if (msgbean.getChat() != null) {
             msg = msgbean.getChat().getMsg();
+        }else if(msgbean.getAtMessage()!=null){
+            msg= msgbean.getAtMessage().getMsg();
         }
         msgType = msgbean.getMsg_type();
         SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
@@ -3369,8 +3413,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (StringUtil.isNotNull(draft)) {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
             edtChat.setText(session.getDraft());
-            dao.sessionDraft(toGid, toUId, "");
+//            dao.sessionDraft(toGid, toUId, "");`
+
         }
+        // isFirst解决第一次进来草稿中会有@符号的内容
+        isFirst ++;
     }
 
     /***

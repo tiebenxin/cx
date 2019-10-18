@@ -26,6 +26,7 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
@@ -474,7 +475,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void taskGroupInfo(String gid) {
-        new MsgAction().groupInfo4Db(gid, new CallBack<ReturnBean<Group>>() {
+        new MsgAction().groupInfo4UserInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
@@ -627,7 +628,8 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     updateUserInfo(mark);
                     notifyRefreshRoster(id);
-                    MessageManager.getInstance().notifyRefreshMsg();
+                    MessageManager.getInstance().setMessageChange(true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
                 taskUserInfo(id);
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
