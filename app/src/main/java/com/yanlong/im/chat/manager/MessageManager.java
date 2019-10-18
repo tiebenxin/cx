@@ -119,15 +119,18 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
         boolean result = false;
-        if (oldMsgId.contains(wrapMessage.getMsgId())) {
-            LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-            return false;
-        } else {
-            if (oldMsgId.size() >= 500) {
-                oldMsgId.remove(0);
+        if(!TextUtils.isEmpty(wrapMessage.getMsgId())){
+            if (oldMsgId.contains(wrapMessage.getMsgId()) ) {
+                LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
+                return false;
+            } else {
+                if (oldMsgId.size() >= 500) {
+                    oldMsgId.remove(0);
+                }
+                oldMsgId.add(wrapMessage.getMsgId());
             }
-            oldMsgId.add(wrapMessage.getMsgId());
         }
+
         updateUserAvatarAndNick(wrapMessage);
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         switch (wrapMessage.getMsgType()) {
