@@ -221,6 +221,7 @@ public class GroupInfoActivity extends AppActivity {
                     intent.putExtra(GroupNoteDetailActivity.GID, gid);
                     intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
                     intent.putExtra(GroupNoteDetailActivity.IS_OWNER, true);
+                    intent.putExtra(GroupNoteDetailActivity.GROUP_NICK, ginfo.getMygroupName());
                     startActivityForResult(intent, GROUP_NOTE);
                 } else {
                     String note = ginfo.getAnnouncement();
@@ -841,8 +842,8 @@ public class GroupInfoActivity extends AppActivity {
     }
 
 
-    private void changeGroupAnnouncement(final String gid, final String announcement) {
-        msgAction.changeGroupAnnouncement(gid, announcement, new CallBack<ReturnBean>() {
+    private void changeGroupAnnouncement(final String gid, final String announcement, String nick) {
+        msgAction.changeGroupAnnouncement(gid, announcement, nick, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

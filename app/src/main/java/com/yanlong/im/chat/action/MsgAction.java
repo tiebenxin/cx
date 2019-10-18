@@ -502,8 +502,8 @@ public class MsgAction {
     /**
      * 修改群公告
      */
-    public void changeGroupAnnouncement(String gid, String announcement, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement), callback);
+    public void changeGroupAnnouncement(String gid, String announcement, String masterName,Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement,masterName), callback);
     }
 
 
