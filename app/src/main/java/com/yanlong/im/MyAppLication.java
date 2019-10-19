@@ -102,7 +102,7 @@ public class MyAppLication extends MainApplication {
     }
 
     private void initCache() {
-        MyDiskCacheUtils.getInstance().setDiskController(new MyDiskCacheController());
+        MyDiskCacheUtils.getInstance().setDiskController(new MyDiskCacheController()).setContext(this);
     }
 
     private void initBugly() {

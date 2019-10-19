@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import com.yanlong.im.user.action.UserAction;
+
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
 
@@ -19,7 +21,7 @@ public class DaoUtil {
     private static RealmConfiguration config;
 
     //放在初始化中
-    public void initConfig(String dbName) {
+    public static void initConfig(String dbName) {
         //---------------重要-------------------------
         //数据库版本,数据库如果有变动,需要修改2个地方
         // 1.dbVer的版本号+1
@@ -65,8 +67,11 @@ public class DaoUtil {
      * @return
      */
     public static Realm open() {
-        //  return Realm.getDefaultInstance();
-//        LogUtil.getLog().i(TAG, "---->数据库:" + config.getRealmFileName());
+//        if (config == null) {
+//            if (UserAction.getMyId() != null) {
+//                initConfig(UserAction.getMyId() + "");
+//            }
+//        }
         return Realm.getInstance(config);
     }
 

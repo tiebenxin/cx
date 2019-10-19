@@ -4,6 +4,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -428,6 +430,22 @@ public class MsgAction {
         });
     }
 
+    public void getMySavedGroup(final Callback<ReturnBean<List<Group>>> callback) {
+
+        NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<Group>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
+                if (response.body() == null || response.body().getData() == null)
+                    return;
+                if (response.body().isOk()) {
+                    callback.onResponse(call, response);
+                } else {
+                    callback.onFailure(call, new Throwable());
+                }
+            }
+        });
+    }
+
 
     /**
      * 加入群聊
@@ -560,8 +578,8 @@ public class MsgAction {
     /**
      * 通过群id批量获取群信息
      */
-    public void getGroupsByIds(String[] gid, Callback<ReturnBean<List<Group>>> callback) {
-        NetUtil.getNet().exec(server.getGroupsByIds(gid), callback);
+    public void getGroupsByIds(String gids, Callback<ReturnBean<List<Group>>> callback) {
+        NetUtil.getNet().exec(server.getGroupsByIds(gids), callback);
     }
 
 

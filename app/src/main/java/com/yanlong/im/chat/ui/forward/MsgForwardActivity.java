@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.view.View;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
@@ -25,6 +26,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.CustomTabView;
@@ -178,8 +180,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
-                    finish();
                 }
             });
         } else if (msgAllBean.getImage() != null) {
@@ -204,8 +206,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
-                    finish();
 
                 }
             });
@@ -228,8 +230,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
-                    finish();
                 }
             });
         } else if (msgAllBean.getVideoMessage() != null) {
@@ -247,13 +249,28 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
+                    doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
-                    finish();
                 }
             });
 
         }
         alertForward.show();
+
+    }
+
+    public void doSendSuccess() {
+        ToastUtil.show(this,"转发成功");
+        finish();
+        //        ui.tvSuccess.setVisibility(View.VISIBLE);
+//        ui.tvSuccess.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    ui.tvSuccess.setVisibility(View.GONE);
+//                    finish();
+//
+//                }
+//        }, 1000);
 
     }
 
