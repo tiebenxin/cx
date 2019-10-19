@@ -2489,10 +2489,12 @@ public class MsgDao {
                 if (len > 0) {
                     List<Group> temp = new ArrayList<>();
                     for (int i = 0; i < len; i++) {
-                        Group group = groups.get(i);
-                        if (!groupList.contains(group)) {
-                            group.setSaved(0);
-                            temp.add(group);
+                        if (i < len) {
+                            Group group = groups.get(i);
+                            if (!groupList.contains(group)) {
+                                group.setSaved(0);
+                                temp.add(group);
+                            }
                         }
                     }
                     realm.insertOrUpdate(temp);

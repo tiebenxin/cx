@@ -392,8 +392,10 @@ public class MainActivity extends AppActivity {
 
     private void loginoutComment() {
         UserInfo userInfo = UserAction.getMyInfo();
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
-        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
+        if (userInfo != null) {
+            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
+            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone() + "");
+        }
         userAction.cleanInfo();
     }
 
