@@ -768,10 +768,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
-                        PictureSelector.create(ChatActivity.this)
-                                .openCamera(PictureMimeType.ofImage())
-                                .compress(true)
-                                .forResult(PictureConfig.REQUEST_CAMERA);
+//                        PictureSelector.create(ChatActivity.this)
+//                                .openCamera(PictureMimeType.ofImage())
+//                                .compress(true)
+//                                .forResult(PictureConfig.REQUEST_CAMERA);
+
+                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                        startActivityForResult(intent, VIDEO_RP);
                     }
 
                     @Override
@@ -1633,9 +1636,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
-//                        tv_path.setText("图片地址: "+photoPath);
-//                        iv_photo.setVisibility(View.VISIBLE);
-//                        iv_photo.setImageBitmap(BitmapFactory.decodeFile(photoPath));
+                        String file = photoPath;
+
+                        final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                        boolean isGif = FileUtils.isGif(file);
+                        if (isArtworkMaster || isGif) {
+                            //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
+                            file = photoPath;
+                        }
+                        //1.上传图片
+                        // alert.show();
+                        final String imgMsgId = SocketData.getUUID();
+                        // 记录本次上传图片的ID跟本地路径
+                        mTempImgPath.put(imgMsgId, "file://" + file);
+                        ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
+                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+
+                        msgListData.add(imgMsgBean);
+                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+                        startService(new Intent(getContext(), UpLoadService.class));
                     }
                     break;
                 case PictureConfig.REQUEST_CAMERA:
