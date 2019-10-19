@@ -55,6 +55,9 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
                         arrayMap.put(index, array);
                         array = null;
                         index++;
+                    } else if (i == len - 1) {
+                        arrayMap.put(index, array);
+                        array = null;
                     }
                 }
                 loadGroups(position);

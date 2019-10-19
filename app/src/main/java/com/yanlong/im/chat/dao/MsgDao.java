@@ -2531,5 +2531,26 @@ public class MsgDao {
         return results;
     }
 
+    /**
+     * 保存群聊
+     * */
+    public void setSavedGroup(String gid,int saved){
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+
+            if(group != null){
+                group.setSaved(saved);
+                realm.insertOrUpdate(group);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
 
 }

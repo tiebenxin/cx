@@ -742,7 +742,8 @@ public class GroupInfoActivity extends AppActivity {
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    taskGetInfoNetwork();
+                    msgDao.setSavedGroup(gid,saved);
+                  //  taskGetInfoNetwork();
                 }
             }
         });

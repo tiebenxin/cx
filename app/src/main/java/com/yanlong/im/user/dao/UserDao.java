@@ -31,7 +31,6 @@ public class UserDao {
      * @param userInfo
      */
     public void updateUserinfo(UserInfo userInfo) {
-        Log.v("updateUserinfo","updateUserinfo");
         if (userInfo == null) {
             return;
         }
