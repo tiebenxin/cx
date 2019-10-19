@@ -86,7 +86,7 @@ public class AudioPlayManager implements SensorEventListener {
                         this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
                         this._mediaPlayer.setVolume(1.0F, 1.0F);
                         //   this._mediaPlayer.setDataSource(this.context, this._playingUri);
-                        String path = context.getExternalCacheDir().getAbsolutePath();
+                        String path = context.getExternalCacheDir().getAbsolutePath()+"/Audio/";
                         File file = new File(path, getFileName(this._playingUri.toString()));
                         if (file.exists()) {
 //                            Log.v(TAG, "本地播放" + file.getPath());
