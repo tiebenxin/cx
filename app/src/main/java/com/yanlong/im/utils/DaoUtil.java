@@ -67,11 +67,11 @@ public class DaoUtil {
      * @return
      */
     public static Realm open() {
-        if (config == null) {
-            if (UserAction.getMyId() != null) {
-                initConfig(UserAction.getMyId() + "");
-            }
-        }
+//        if (config == null) {
+//            if (UserAction.getMyId() != null) {
+//                initConfig(UserAction.getMyId() + "");
+//            }
+//        }
         return Realm.getInstance(config);
     }
 

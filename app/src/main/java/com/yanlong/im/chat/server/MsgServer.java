@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.server;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.RobotInfoBean;
@@ -9,6 +11,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
@@ -114,5 +117,6 @@ public interface MsgServer {
 
     @POST("/group/get-batch-group")
     @FormUrlEncoded
-    Call<ReturnBean<List<Group>>> getGroupsByIds(@Field("gids") String[] gid);
+    Call<ReturnBean<List<Group>>> getGroupsByIds(@Field("@gids") String json);
+//    Call<ReturnBean<List<Group>>> getGroupsByIds(@Body JsonObject json);
 }
