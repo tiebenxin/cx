@@ -55,7 +55,7 @@ public class ImageHeadActivity extends AppActivity {
     private PopupSelectView popupSelectView;
     private PopupSelectView saveImagePopup;
     private String[] strings = {"拍照", "相册", "取消"};
-    private String[] saveImages = {"保存头像", "取消"};
+    private String[] saveImages = {"保存图片", "取消"};
     private String imageHead;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private Button mBtnImageHead;
@@ -103,7 +103,7 @@ public class ImageHeadActivity extends AppActivity {
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         mBtnImageHead = findViewById(R.id.btn_image_head);
         if (isGroup) {
-            mBtnImageHead.setText("修改群头像");
+            mBtnImageHead.setText("更换群头像");
         }
         if (!isAdmin && isGroup) {
             mBtnImageHead.setVisibility(View.INVISIBLE);
@@ -135,15 +135,7 @@ public class ImageHeadActivity extends AppActivity {
         mSdImageHead.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
                 initSaveImage();
-
-//                List<LocalMedia> selectList = new ArrayList<>();
-//                LocalMedia lc = new LocalMedia();
-//                lc.setPath(imageHead);
-//                selectList.add(lc);
-//                PictureSelector.create(ImageHeadActivity.this).themeStyle(R.style.picture_default_style)
-//                        .isGif(true).openExternalPreview(0, selectList);
                 return false;
             }
         });

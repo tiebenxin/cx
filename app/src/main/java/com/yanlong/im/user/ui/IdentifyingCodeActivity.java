@@ -106,6 +106,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
             case R.id.tv_password:
                 Intent intent = new Intent(this, PasswordLoginActivity.class);
                 startActivity(intent);
+                finish();
                 break;
             case R.id.tv_get_verification_code:
                 initCountDownUtil();
