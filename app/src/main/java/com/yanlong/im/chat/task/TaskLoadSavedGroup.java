@@ -30,6 +30,8 @@ import retrofit2.Response;
 public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
     private MsgDao msgDao = new MsgDao();
     private final List<Group> groups;
+    private Map<Integer, JsonArray> arrayMap = new HashMap<>();
+    private int position = 0;
 
     public TaskLoadSavedGroup(List<Group> g) {
         groups = g;
@@ -40,26 +42,36 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
         if (groups != null) {
             int len = groups.size();
             if (len > 0) {
-//                String[] groupArr = new String[len];
-                List<String> list = new ArrayList<>();
-                JsonArray array = new JsonArray();
+                JsonArray array = null;
+                int index = 0;
                 for (int i = 0; i < len; i++) {
+                    if (array == null) {
+                        array = new JsonArray();
+                    }
                     Group g = groups.get(i);
-//                    groupArr[i] = g.getGid();
-                    list.add(g.getGid());
                     array.add(g.getGid());
+                    if (array.size() == 20) {
+                        arrayMap.put(index, array);
+                        array = null;
+                        index++;
+                    }
                 }
-//                Map<String, List<String>> map = new HashMap<>();
-//                map.put("gids", list);
-//                JsonObject object = new JsonObject();
-//                object.add("gids",array);
-                loadGroups(array.toString());
+                loadGroups(position);
             }
         }
         return true;
     }
 
-    private void loadGroups(String gids) {
+    private void loadGroups(int position) {
+        if (arrayMap != null && position < arrayMap.size()) {
+            sendRequest(arrayMap.get(position).toString());
+        }
+    }
+
+    /*
+     * 发送请求
+     * */
+    private void sendRequest(String gids) {
         new MsgAction().getGroupsByIds(gids, new CallBack<ReturnBean<List<Group>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
@@ -68,6 +80,8 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
                     if (groups != null) {
                         msgDao.saveGroups(groups);
                         msgDao.updateNoSaveGroup(groups);
+                        int next = position++;
+                        loadGroups(next);
                     }
                 }
             }

@@ -118,5 +118,4 @@ public interface MsgServer {
     @POST("/group/get-batch-group")
     @FormUrlEncoded
     Call<ReturnBean<List<Group>>> getGroupsByIds(@Field("@gids") String json);
-//    Call<ReturnBean<List<Group>>> getGroupsByIds(@Body JsonObject json);
 }

@@ -339,6 +339,9 @@ public class MessageManager {
      * 网络加载用户信息,只能接受来自好友的信息
      * */
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
+        if (UserAction.getMyId() != null && uid.equals(UserAction.getMyId())) {
+            return;
+        }
         new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.FRIEND, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
