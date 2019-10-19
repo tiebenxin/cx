@@ -20,6 +20,7 @@ import android.util.Log;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.utils.DownloadUtil;
@@ -372,6 +373,8 @@ public class AudioPlayManager implements SensorEventListener {
                         listener.onDownloadSuccess(file);
                         currentDownBean = null;
                         LogUtil.getLog().i(TAG, "语音下载成功");
+
+                        MyDiskCacheUtils.getInstance().putFileNmae(path);
                     }
 
                     @Override
