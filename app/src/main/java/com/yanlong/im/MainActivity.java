@@ -15,10 +15,13 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
+import com.yanlong.im.chat.task.TaskLoadSavedGroup;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
@@ -38,6 +41,7 @@ import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventNetStatus;
 
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.net.NetworkReceiver;
@@ -255,6 +259,7 @@ public class MainActivity extends AppActivity {
         boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
         if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
             taskLoadFriends();
+            taskLoadSavedGroups();
         } else {
             UserDao userDao = new UserDao();
             boolean hasInit = userDao.isRosterInit();
@@ -262,6 +267,19 @@ public class MainActivity extends AppActivity {
                 taskLoadFriends();
             }
         }
+    }
+
+    private void taskLoadSavedGroups() {
+        new MsgAction().getMySavedGroup(new CallBack<ReturnBean<List<Group>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
+                if (response.body() != null && response.body().getData() != null) {
+                    List<Group> groups = response.body().getData();
+                    TaskLoadSavedGroup taskGroup = new TaskLoadSavedGroup(groups);
+                    taskGroup.execute();
+                }
+            }
+        });
     }
 
     private void taskLoadFriends() {

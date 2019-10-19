@@ -96,32 +96,17 @@ public class MsgDao {
      * @param groups 群列表
      * @param isSave 是否是保存的群
      */
-    public void saveGroups(List<Group> groups, boolean isSave) {
-        if (groups == null || groups.size() > 0) {
+    public void saveGroups(List<Group> groups) {
+        if (groups == null || groups.size() <= 0) {
             return;
         }
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
             int len = groups.size();
-            for (int i = 0; i < len; i++) {
-                Group group = groups.get(i);
-                group.setSaved(1);
-                Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-                if (null != g) {//已经存在
-                    List<UserInfo> objects = g.getUsers();
-                    if (null != objects && objects.size() > 0) {
-                        g.setName(group.getName());
-                        g.setAvatar(group.getAvatar());
-                        if (group.getUsers() != null)
-                            g.setUsers(group.getUsers());
-                        realm.insertOrUpdate(group);
-                    }
-                } else {//不存在
-                    realm.insertOrUpdate(group);
-                }
+            if (len > 0) {
+                realm.insertOrUpdate(groups);
             }
-
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -1128,7 +1113,6 @@ public class MsgDao {
      * 更新@消息
      * @param gid
      * @param uid
-     * @param draft
      */
     public void updateSessionAtMsg(String gid, Long uid) {
         Realm realm = DaoUtil.open();
@@ -2463,6 +2447,86 @@ public class MsgDao {
         realm.commitTransaction();
         realm.close();
         return true;
+    }
+
+    public boolean insertMessages(List<MsgAllBean> list) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insert(list);
+            realm.commitTransaction();
+            realm.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+        return false;
+    }
+
+    /***
+     * 更新非保存群
+     * @param groups 群列表
+     * @param isSave 是否是保存的群
+     */
+    public void updateNoSaveGroup(List<Group> groupList) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            if (groupList == null || groupList.size() <= 0) {
+                List<Group> groups = realm.where(Group.class).equalTo("saved", 1).findAll();
+                int len = groups.size();
+                if (len > 0) {
+                    for (int i = 0; i < len; i++) {
+                        Group group = groups.get(i);
+                        group.setSaved(0);
+                    }
+                }
+                realm.insertOrUpdate(groups);
+            } else {
+                List<Group> groups = realm.where(Group.class).equalTo("saved", 1).findAll();
+                int len = groups.size();
+                if (len > 0) {
+                    List<Group> temp = new ArrayList<>();
+                    for (int i = 0; i < len; i++) {
+                        Group group = groups.get(i);
+                        if (!groupList.contains(group)) {
+                            group.setSaved(0);
+                            temp.add(group);
+                        }
+                    }
+                    realm.insertOrUpdate(temp);
+                }
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+
+    /***
+     * 获取保存群
+     * @param groups 群列表
+     * @param isSave 是否是保存的群
+     */
+    public List<Group> getMySavedGroup() {
+        List<Group> results = null;
+        Realm realm = DaoUtil.open();
+        try {
+            List<Group> groups = realm.where(Group.class).equalTo("saved", 1).findAll();
+            int len = groups.size();
+            if (len > 0) {
+                results = realm.copyFromRealm(groups);
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+        return results;
     }
 
 
