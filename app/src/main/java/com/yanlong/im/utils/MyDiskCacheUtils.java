@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import android.content.Context;
+
 import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.load.engine.cache.DiskCache;
 import com.bumptech.glide.load.engine.cache.SafeKeyGenerator;
@@ -38,6 +40,11 @@ public class MyDiskCacheUtils {
         this.diskCacheController=myDiskCacheController;
         return myDiskCacheUtils;
     }
+    private Context mContext;
+    public MyDiskCacheUtils setContext(Context context){
+        this.mContext=context;
+        return myDiskCacheUtils;
+    }
     public Object getObj(String path){
         return null;
     }
@@ -46,13 +53,15 @@ public class MyDiskCacheUtils {
     public String getFileNmae(String url){
         OriginalKey originalKey = new OriginalKey(url, EmptySignature.obtain());
         SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
-        String safeKey = safeKeyGenerator.getSafeKey(originalKey);
+        String safeKey =  safeKeyGenerator.getSafeKey(originalKey);
+        String[] urls= url.split(".");
+        String path;
         if (url.endsWith("mp4")){
-
+            path= mContext.getExternalCacheDir().getAbsolutePath()+"/Mp4/"+safeKey+"."+urls[1];
         }else if(url.endsWith("png")||url.endsWith("jpg")||url.endsWith("gif")){
-
+            path= mContext.getExternalCacheDir().getAbsolutePath()+"/Image/"+safeKey+"."+urls[1];
         }else if(url.endsWith("caf")){
-
+            path= mContext.getExternalCacheDir().getAbsolutePath()+"/Voice/"+safeKey+"."+urls[1];
         }
 //        DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, DiskCache.Factory.DEFAULT_DISK_CACHE_SIZE);
 //        DiskLruCache.Value value = diskLruCache.get(safeKey);
