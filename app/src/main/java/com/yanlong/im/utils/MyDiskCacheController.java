@@ -2,14 +2,14 @@ package com.yanlong.im.utils;
 
 public class MyDiskCacheController {
 
-    public   long MAX_IMAGE_SIZE = 500 * 1024 * 1024;
-    public   long USABLE_IMAGE_SIZE = 400 * 1024 * 1024;
+    public   long MAX_IMAGE_SIZE = 1024 * 1024 * 1024;
+    public   long USABLE_IMAGE_SIZE = 1024 * 1024 * 1024;
 
-    public   long MAX_VIDEO_SIZE = 500 * 1024 * 1024;
-    public   long USABLE_VIDEO_SIZE = 400 * 1024 * 1024;
+    public   long MAX_VIDEO_SIZE = 1024 * 1024 * 1024;
+    public   long USABLE_VIDEO_SIZE = 1024 * 1024 * 1024;
 
-    public   long MAX_VOICE_SIZE = 500 * 1024 * 1024;
-    public   long USABLE_VOICE_SIZE = 400 * 1024 * 1024;
+    public   long MAX_VOICE_SIZE = 1024 * 1024 * 1024;
+    public   long USABLE_VOICE_SIZE = 1024 * 1024 * 1024;
 
     public  void setMaxImageSize(long maxImageSize) {
         MAX_IMAGE_SIZE = maxImageSize;
