@@ -85,8 +85,8 @@ public class GroupSaveActivity extends AppActivity {
     private void initData() {
         groupInfoBeans = new ArrayList<>();
         mtListView.init(new RecyclerViewAdapter());
-//        taskMySaved();
-        loadSavedGroup();
+        taskMySaved();
+//        loadSavedGroup();
     }
 
 

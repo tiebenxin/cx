@@ -259,7 +259,7 @@ public class MainActivity extends AppActivity {
         boolean isFromLogin = intent.getBooleanExtra(IS_LOGIN, false);
         if (isFromLogin) {//从登陆页面过来，从网络获取最新数据
             taskLoadFriends();
-            taskLoadSavedGroups();
+//            taskLoadSavedGroups();
         } else {
             UserDao userDao = new UserDao();
             boolean hasInit = userDao.isRosterInit();
