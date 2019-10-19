@@ -286,6 +286,7 @@ public class ChatInfoActivity extends AppActivity {
     private void taskDelMsg() {
         msgDao.msgDel(fuid, null);
         EventBus.getDefault().post(new EventRefreshChat());
+        ToastUtil.show(ChatInfoActivity.this, "删除成功");
     }
 
     /*
@@ -307,7 +308,7 @@ public class ChatInfoActivity extends AppActivity {
                         msgDao.updateUserDisturb(fuid, isMute.intValue());
                     }
                     MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session,true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session, true);
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }

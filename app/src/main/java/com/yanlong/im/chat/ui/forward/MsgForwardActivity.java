@@ -26,6 +26,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.CustomTabView;
@@ -259,15 +260,17 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     public void doSendSuccess() {
-        ui.tvSuccess.setVisibility(View.VISIBLE);
-        ui.tvSuccess.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ui.tvSuccess.setVisibility(View.GONE);
-                finish();
-
-            }
-        }, 1000);
+        ToastUtil.show(this,"转发成功");
+        finish();
+        //        ui.tvSuccess.setVisibility(View.VISIBLE);
+//        ui.tvSuccess.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    ui.tvSuccess.setVisibility(View.GONE);
+//                    finish();
+//
+//                }
+//        }, 1000);
 
     }
 

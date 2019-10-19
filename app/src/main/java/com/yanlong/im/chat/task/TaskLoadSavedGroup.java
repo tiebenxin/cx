@@ -8,7 +8,6 @@ import com.yanlong.im.chat.dao.MsgDao;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.NetUtil;
 
 import java.util.List;
 
@@ -30,6 +29,18 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... voids) {
+        if (groups != null) {
+            int len = groups.size();
+            if (len > 0) {
+                String[] groupArr = new String[len];
+                for (int i = 0; i < len; i++) {
+                    Group g = groups.get(i);
+                    groupArr[i] = g.getGid();
+                }
+                loadGroups(groupArr);
+            }
+
+        }
 
         return true;
     }
@@ -38,15 +49,13 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
         new MsgAction().getGroupsByIds(gids, new CallBack<ReturnBean<List<Group>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
-                if (response != null && response.body() != null && response.body().isOk()){
+                if (response != null && response.body() != null && response.body().isOk()) {
                     List<Group> groups = response.body().getData();
-                    if (groups != null){
-                        msgDao.saveGroups(groups,true);
+                    if (groups != null) {
+                        msgDao.saveGroups(groups);
                     }
                 }
             }
         });
     }
-
-
 }
