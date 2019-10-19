@@ -83,6 +83,8 @@ public class MessageManager {
     private static Map<Long, List<MsgAllBean>> cacheMessagePrivate = new HashMap();//私聊消息缓存，以用户id为key
     private static Map<String, List<MsgAllBean>> cacheMessageGroup = new HashMap();//群聊消息缓存，以群id为key
     private static Map<String, MsgAllBean> saveMessages = new HashMap<>();//接收到的消息，待保存到数据库
+    private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
+
 
     private long playTimeOld = 0;//当前声音播放时间
     private long playVBTimeOld = 0; //当前震动时间
@@ -793,5 +795,15 @@ public class MessageManager {
         if (loadUids != null && uid != null) {
             loadUids.remove(uid);
         }
+    }
+
+    public void addSavedGroup(List<Group> list) {
+        if (list != null && list.size() > 0) {
+            saveGroups.addAll(list);
+        }
+    }
+
+    public List<Group> getSavedGroups() {
+        return saveGroups;
     }
 }

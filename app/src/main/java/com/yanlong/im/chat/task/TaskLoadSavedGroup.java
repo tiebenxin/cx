@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -63,8 +64,12 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
     }
 
     private void loadGroups(int position) {
-        if (arrayMap != null && position < arrayMap.size()) {
-            sendRequest(arrayMap.get(position).toString());
+        if (arrayMap != null) {
+            if (position < arrayMap.size()) {
+                sendRequest(arrayMap.get(position).toString());
+            } else if (position == arrayMap.size()) {//已经记载完毕
+                msgDao.updateNoSaveGroup(MessageManager.getInstance().getSavedGroups());
+            }
         }
     }
 
@@ -79,7 +84,7 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
                     List<Group> groups = response.body().getData();
                     if (groups != null) {
                         msgDao.saveGroups(groups);
-                        msgDao.updateNoSaveGroup(groups);
+                        MessageManager.getInstance().addSavedGroup(groups);
                         int next = position++;
                         loadGroups(next);
                     }
