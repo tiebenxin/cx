@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -85,8 +86,8 @@ public class GroupSaveActivity extends AppActivity {
     private void initData() {
         groupInfoBeans = new ArrayList<>();
         mtListView.init(new RecyclerViewAdapter());
-        taskMySaved();
-//        loadSavedGroup();
+//        taskMySaved();
+        loadSavedGroup();
     }
 
 
@@ -208,7 +209,7 @@ public class GroupSaveActivity extends AppActivity {
             //头像地址
             String url[] = new String[i];
             for (int j = 0; j < i; j++) {
-                UserInfo userInfo = gginfo.getUsers().get(j);
+                MemberUser userInfo = gginfo.getUsers().get(j);
 //            if (j == i - 1) {
 //                name += userInfo.getName();
 //            } else {

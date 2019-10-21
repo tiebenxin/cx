@@ -23,8 +23,10 @@ public class Group extends RealmObject {
     private String avatar;
 
     private String master;
-    @SerializedName("members")
-    private RealmList<UserInfo> users;
+//    @SerializedName("members")
+//    private RealmList<UserInfo> users;
+
+    private RealmList<MemberUser> members;
 
     private Integer ceiling;
     private Integer saved;// 是否已保存
@@ -42,7 +44,7 @@ public class Group extends RealmObject {
     private String robotname;
 
     @Ignore
-    private UserInfo keyUser;//符合搜索条件key的群成员
+    private MemberUser keyUser;//符合搜索条件key的群成员
 
 
     public String getRobotname() {
@@ -62,9 +64,9 @@ public class Group extends RealmObject {
     }
 
     public String getMygroupName() {
-        if (!StringUtil.isNotNull(mygroupName) && users != null) {
-            for (UserInfo user : users) {
-                if (UserAction.getMyId().longValue() == user.getUid().longValue()) {
+        if (!StringUtil.isNotNull(mygroupName) && members != null) {
+            for (MemberUser user : members) {
+                if (UserAction.getMyId().longValue() == user.getUid()) {
                     mygroupName = user.getMembername();
                     break;
                 }
@@ -104,13 +106,22 @@ public class Group extends RealmObject {
         this.gid = gid;
     }
 
-    public RealmList<UserInfo> getUsers() {
-        users = users == null ? new RealmList<UserInfo>() : users;
-        return users;
+//    public RealmList<UserInfo> getUsers() {
+//        users = users == null ? new RealmList<UserInfo>() : users;
+//        return users;
+//    }
+//
+//    public void setUsers(RealmList<UserInfo> users) {
+//        this.users = users;
+//    }
+
+    public RealmList<MemberUser> getUsers() {
+        members = members == null ? new RealmList<MemberUser>() : members;
+        return members;
     }
 
-    public void setUsers(RealmList<UserInfo> users) {
-        this.users = users;
+    public void setUsers(RealmList<MemberUser> users) {
+        this.members = users;
     }
 
     public String getName() {
@@ -181,11 +192,11 @@ public class Group extends RealmObject {
         this.isTop = isTop;
     }
 
-    public UserInfo getKeyUser() {
+    public MemberUser getKeyUser() {
         return keyUser;
     }
 
-    public void setKeyUser(UserInfo keyUser) {
+    public void setKeyUser(MemberUser keyUser) {
         this.keyUser = keyUser;
     }
 

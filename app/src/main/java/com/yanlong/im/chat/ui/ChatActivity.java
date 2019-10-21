@@ -64,6 +64,7 @@ import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -3695,12 +3696,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private Group groupInfo;
 
     //获取群资料
-    private UserInfo getGroupInfo(long uid) {
+    private MemberUser getGroupInfo(long uid) {
         if (groupInfo == null)
             return null;
-        List<UserInfo> users = groupInfo.getUsers();
-        for (UserInfo uinfo : users) {
-            if (uinfo.getUid().longValue() == uid) {
+        List<MemberUser> users = groupInfo.getUsers();
+        for (MemberUser uinfo : users) {
+            if (uinfo.getUid() == uid) {
                 return uinfo;
             }
         }
@@ -3726,7 +3727,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();
                     groupInfo.setMaster("");
-                    groupInfo.setUsers(new RealmList<UserInfo>());
+                    groupInfo.setUsers(new RealmList<MemberUser>());
                 }
 
                 if (groupInfo.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
@@ -3737,8 +3738,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 //如果自己不在群里面
                 boolean isExit = false;
-                for (UserInfo uifo : groupInfo.getUsers()) {
-                    if (uifo.getUid().longValue() == UserAction.getMyId().longValue()) {
+                for (MemberUser uifo : groupInfo.getUsers()) {
+                    if (uifo.getUid() == UserAction.getMyId().longValue()) {
                         isExit = true;
                     }
 

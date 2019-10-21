@@ -24,7 +24,7 @@ public class CoreEnum {
      *花名册指令
      *
      * */
-    @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND, ERosterAction.UPDATE_INFO})
+    @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND, ERosterAction.UPDATE_INFO, ERosterAction.LOAD_ALL_SUCESS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ERosterAction {
         int DEFAULT = 0; // 默认，无指令
@@ -32,6 +32,7 @@ public class CoreEnum {
         int ACCEPT_BE_FRIENDS = 2; // 接收请求添加为好友
         int REMOVE_FRIEND = 3; // 删除好友
         int UPDATE_INFO = 4; // 信息更新
+        int LOAD_ALL_SUCESS = 5; // 所有数据加载完毕
     }
 
 

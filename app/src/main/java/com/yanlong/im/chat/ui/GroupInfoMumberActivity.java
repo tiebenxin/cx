@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -155,17 +156,17 @@ public class GroupInfoMumberActivity extends AppActivity {
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
 
 
-            final UserInfo number = ginfo.getUsers().get(position);
+            final MemberUser number = ginfo.getUsers().get(position);
             if (number != null) {
 
                 Glide.with(context).load(number.getHead())
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
-                holder.txtName.setText("" + number.getName4Show());
+                holder.txtName.setText("" + number.getShowName());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (number.getUid().longValue() == UserAction.getMyId().longValue()) {
+                        if (number.getUid() == UserAction.getMyId().longValue()) {
                             return;
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
@@ -176,7 +177,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                         );
                     }
                 });
-                if (ginfo.getMaster().equals("" + number.getUid().longValue())) {
+                if (ginfo.getMaster().equals("" + number.getUid())) {
                     holder.imgGroup.setVisibility(View.VISIBLE);
                 } else {
                     holder.imgGroup.setVisibility(View.GONE);
@@ -250,9 +251,9 @@ public class GroupInfoMumberActivity extends AppActivity {
      * 获取群成员
      * @return
      */
-    private List<UserInfo> taskGetNumbers() {
+    private List<MemberUser> taskGetNumbers() {
         //进入这个信息的时候会统一给的
-        List<UserInfo> userInfos = ginfo.getUsers();
+        List<MemberUser> userInfos = ginfo.getUsers();
 
         for (int i = userInfos.size() - 1; i > 0; i--) {
             if (userInfos.get(i) == null) {
@@ -288,7 +289,7 @@ public class GroupInfoMumberActivity extends AppActivity {
 
 
                     //8.8 如果是有群昵称显示自己群昵称
-                    for (UserInfo number : ginfo.getUsers()) {
+                    for (MemberUser number : ginfo.getUsers()) {
                         if (StringUtil.isNotNull(number.getMembername())) {
                             number.setName(number.getMembername());
                         }
@@ -326,10 +327,10 @@ public class GroupInfoMumberActivity extends AppActivity {
         String key = edtSearch.getText().toString();
         if (key.length() <= 0)
             return;
-        List<UserInfo> temp = new ArrayList<>();
-        for (UserInfo bean : ginfo.getUsers()) {
+        List<MemberUser> temp = new ArrayList<>();
+        for (MemberUser bean : ginfo.getUsers()) {
             if (bean != null) {
-                if (bean.getName4Show().contains(key)) {
+                if (bean.getShowName().contains(key)) {
                     temp.add(bean);
                 }
             }
@@ -342,7 +343,7 @@ public class GroupInfoMumberActivity extends AppActivity {
     }
 
     private void taskAdd() {
-        List<UserInfo> userInfos = taskGetNumbers();
+        List<MemberUser> userInfos = taskGetNumbers();
 
         List<UserInfo> friendsUser = taskGetFriends();
 
@@ -350,8 +351,8 @@ public class GroupInfoMumberActivity extends AppActivity {
 
         for (UserInfo a : friendsUser) {
             boolean isEx = false;
-            for (UserInfo u : userInfos) {
-                if (u.getUid().longValue() == a.getUid().longValue()) {
+            for (MemberUser u : userInfos) {
+                if (u.getUid()== a.getUid().longValue()) {
                     isEx = true;
                 }
             }
@@ -371,9 +372,9 @@ public class GroupInfoMumberActivity extends AppActivity {
     }
 
     private void taskDel() {
-        List<UserInfo> userInfos = taskGetNumbers();
-        for (UserInfo u : userInfos) {
-            if (u.getUid().longValue() == UserAction.getMyId().longValue()) {
+        List<MemberUser> userInfos = taskGetNumbers();
+        for (MemberUser u : userInfos) {
+            if (u.getUid() == UserAction.getMyId().longValue()) {
                 userInfos.remove(u);
                 break;
             }

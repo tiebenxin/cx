@@ -16,6 +16,7 @@ import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
@@ -619,7 +620,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         //头像地址
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
-            UserInfo userInfo = group.getUsers().get(j);
+            MemberUser userInfo = group.getUsers().get(j);
 //            if (j == i - 1) {
 //                name += userInfo.getName();
 //            } else {
@@ -664,7 +665,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();
                     groupInfo.setMaster("");
-                    groupInfo.setUsers(new RealmList<UserInfo>());
+                    groupInfo.setUsers(new RealmList<MemberUser>());
                 }
                 model.setGroup(groupInfo);
 
@@ -676,8 +677,8 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
 
                 //如果自己不在群里面
                 boolean isExit = false;
-                for (UserInfo uifo : groupInfo.getUsers()) {
-                    if (uifo.getUid().longValue() == UserAction.getMyId().longValue()) {
+                for (MemberUser uifo : groupInfo.getUsers()) {
+                    if (uifo.getUid() == UserAction.getMyId().longValue()) {
                         isExit = true;
                     }
                 }

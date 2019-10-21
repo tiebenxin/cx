@@ -13,6 +13,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
@@ -126,7 +127,7 @@ public class AddGroupActivity extends AppActivity {
             //头像地址
             String url[] = new String[i];
             for (int j = 0; j < i; j++) {
-                UserInfo userInfo = group.getUsers().get(j);
+                MemberUser userInfo = group.getUsers().get(j);
                 url[j] = userInfo.getHead();
             }
             File file = GroupHeadImageUtil.synthesis(getContext(), url);

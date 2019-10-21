@@ -42,6 +42,7 @@ import net.cb.cb.library.bean.EventNetStatus;
 
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.net.NetworkReceiver;
@@ -286,13 +287,13 @@ public class MainActivity extends AppActivity {
         userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-//                EventBus.getDefault().post(new EventRefreshFriend());
-                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.DEFAULT);
+                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.LOAD_ALL_SUCESS);
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
                 super.onFailure(call, t);
+                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.LOAD_ALL_SUCESS);
             }
         });
     }
@@ -388,6 +389,13 @@ public class MainActivity extends AppActivity {
             stopService(new Intent(getContext(), ChatServer.class));
         }
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshFriend(EventRefreshFriend event) {
+        if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCESS) {
+            taskLoadSavedGroups();
+        }
     }
 
     private void loginoutComment() {

@@ -11,6 +11,7 @@ import com.google.zxing.Result;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.ui.AddGroupActivity;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -151,10 +152,10 @@ public class QRCodeManage {
                     if (response.body().isOk()) {
                         boolean isNot = false;
                         Group bean = response.body().getData();
-                        RealmList<UserInfo> users = bean.getUsers();
+                        RealmList<MemberUser> users = bean.getUsers();
                         UserInfo userInfo = new UserAction().getMyInfo();
-                        for (UserInfo user : users) {
-                            if (userInfo.getUid().longValue() == user.getUid().longValue()) {
+                        for (MemberUser user : users) {
+                            if (userInfo.getUid().longValue() == user.getUid()) {
                                 isNot = true;
                             }
                         }

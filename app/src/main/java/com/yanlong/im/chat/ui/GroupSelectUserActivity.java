@@ -20,6 +20,8 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -208,30 +210,44 @@ public class GroupSelectUserActivity extends AppActivity {
 
 
     private List<UserInfo> delectMaster(Group group) {
-        List<UserInfo> list = group.getUsers();
-        if (list != null && list.size() > 0) {
-            for (int i = 0; i < list.size(); i++) {
-                if (group.getMaster().equals(list.get(i).getUid() + "")) {
-                    list.remove(i);
+        List<MemberUser> list = group.getUsers();
+        List<UserInfo> users = new ArrayList<>();
+        if (list != null) {
+            int len = list.size();
+            if (len > 0) {
+                for (int i = 0; i < len; i++) {
+                    MemberUser member = list.get(i);
+                    if (group.getMaster().equals(member.getUid() + "")) {
+                        list.remove(i);
+                    } else {
+                        UserInfo info = MessageManager.getInstance().memberToUser(member);
+                        users.add(info);
+                    }
                 }
             }
-            return list;
         }
-        return null;
+        return users;
     }
 
     private List<UserInfo> delectMyslfe(Group group) {
         Long uid = UserAction.getMyId();
-        List<UserInfo> list = group.getUsers();
-        if (list != null && list.size() > 0) {
-            for (int i = 0; i < list.size(); i++) {
-                if (uid.equals(list.get(i).getUid())) {
-                    list.remove(i);
+        List<MemberUser> list = group.getUsers();
+        List<UserInfo> users = new ArrayList<>();
+        if (list != null) {
+            int len = list.size();
+            if (len > 0) {
+                for (int i = 0; i < len; i++) {
+                    MemberUser member = list.get(i);
+                    if (uid.equals(member.getUid())) {
+                        list.remove(i);
+                    } else {
+                        UserInfo info = MessageManager.getInstance().memberToUser(member);
+                        users.add(info);
+                    }
                 }
             }
-            return list;
         }
-        return null;
+        return users;
     }
 
 
