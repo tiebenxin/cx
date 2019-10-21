@@ -19,6 +19,7 @@ import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.libyuv.LibyuvUtil;
 import com.zhaoss.weixinrecorded.R;
+import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
 import com.zhaoss.weixinrecorded.util.RecordUtil;
@@ -26,6 +27,8 @@ import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -135,6 +138,13 @@ public class RecordedActivity extends BaseActivity {
                 if(isShotPhoto.get()){
                     isShotPhoto.set(false);
                     shotPhoto(data);
+//                        PictureSelector.create(ChatActivity.this)
+//                                .openCamera(PictureMimeType.ofImage())
+//                                .compress(true)
+//                                .forResult(PictureConfig.REQUEST_CAMERA);
+
+//                    EventBus.getDefault().post(new ActivityForwordEvent());
+//                    finish();
                 }else{
                     if(isRecordVideo.get() && mOnPreviewFrameListener!=null){
                         mOnPreviewFrameListener.onPreviewFrame(data);
@@ -254,7 +264,8 @@ public class RecordedActivity extends BaseActivity {
             @Override
             public void onClick() {
                 if(segmentList.size() == 0){
-                    isShotPhoto.set(true);
+//                    isShotPhoto.set(true);
+                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -193,6 +193,7 @@
             android:layout_columnWeight="1"
             android:gravity="center"
             android:orientation="vertical"
+            android:visibility="gone"
             >
 
             <ImageView
