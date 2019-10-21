@@ -4,7 +4,7 @@
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:headview_title="意见反馈">
+    app:headview_title="问题反馈">
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -30,7 +30,7 @@
             android:layout_marginTop="15dp"
             android:background="@drawable/bg_edt1"
             android:gravity="top"
-            android:hint="请描述您需要反馈的意见或者问题"
+            android:hint="请描述您需要反馈的问题或者意见"
             android:maxLength="300"
             android:padding="5dp"
             android:textSize="16sp" />

@@ -1,5 +1,7 @@
 package com.yanlong.im.user.dao;
 
+import android.util.Log;
+
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;

@@ -293,6 +293,7 @@ public class GroupInfoActivity extends AppActivity {
                         MsgDao msgDao = new MsgDao();
                         msgDao.msgDel(null, gid);
                         EventBus.getDefault().post(new EventRefreshChat());
+                        ToastUtil.show(GroupInfoActivity.this,"删除成功");
                     }
                 });
                 alertYesNo.show();
@@ -741,7 +742,8 @@ public class GroupInfoActivity extends AppActivity {
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    taskGetInfoNetwork();
+                    msgDao.setSavedGroup(gid,saved);
+                  //  taskGetInfoNetwork();
                 }
             }
         });

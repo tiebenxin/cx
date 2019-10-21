@@ -697,7 +697,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         });
 
 
-
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1135,7 +1134,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             finish();
         }
         return super.onKeyDown(keyCode, event);
@@ -1444,10 +1443,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
         if (hasUpdate || hasChange) {
@@ -1456,6 +1451,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
         //取消监听
         SocketUtil.getSocketUtil().removeEvent(msgEvent);
         EventBus.getDefault().unregister(this);
@@ -2240,7 +2239,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
                         }
                         // 是文本且小于5分钟 显示重新编辑
-                        if ((msgType == ChatEnum.EMessageType.TEXT||msgType==ChatEnum.EMessageType.AT)
+                        if ((msgType == ChatEnum.EMessageType.TEXT || msgType == ChatEnum.EMessageType.AT)
                                 && minutes < RELINQUISH_TIME && StringUtil.isNotNull(content)) {
                             onRestEdit(holder, msgbean.getMsgCancel().getNote(), content, msgbean.getTimestamp());
                         } else {
@@ -2586,7 +2585,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
 
-        final File appDir = new File(getExternalCacheDir().getAbsolutePath()+"/Mp4/");
+        final File appDir = new File(getExternalCacheDir().getAbsolutePath() + "/Mp4/");
         if (!appDir.exists()) {
             appDir.mkdir();
         }
@@ -3098,8 +3097,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         Integer msgType = 0;
         if (msgbean.getChat() != null) {
             msg = msgbean.getChat().getMsg();
-        }else if(msgbean.getAtMessage()!=null){
-            msg= msgbean.getAtMessage().getMsg();
+        } else if (msgbean.getAtMessage() != null) {
+            msg = msgbean.getAtMessage().getMsg();
         }
         msgType = msgbean.getMsg_type();
         SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
@@ -3478,7 +3477,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         }
         // isFirst解决第一次进来草稿中会有@符号的内容
-        isFirst ++;
+        isFirst++;
     }
 
     /***

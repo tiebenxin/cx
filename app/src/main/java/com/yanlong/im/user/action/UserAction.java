@@ -72,7 +72,6 @@ public class UserAction {
      * @return
      */
     public static UserInfo getMyInfo() {
-        // Log.v("ssss","getMyInfo");
         if (myInfo == null) {
             myInfo = new UserDao().myInfo();
         }
@@ -189,6 +188,7 @@ public class UserAction {
             }
         });
     }
+
 
 
     /***
