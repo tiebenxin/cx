@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
@@ -373,10 +374,7 @@ public class ChatServer extends Service {
     /*
      * 检测接收消息是否发出通知或者震动
      * */
-    private void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg, boolean isGroup) {
-//        if (SocketData.oldMsgId.contains(msg.getMsgId())) {//重复消息不发出通知声音
-//            return;
-//        }
+   /* private void checkNotifyVoice(MsgBean.UniversalMessage.WrapMessage msg, boolean isGroup) {
         if (isGroup && SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
             //当前会话是本群不提示
 
@@ -395,9 +393,9 @@ public class ChatServer extends Service {
         } else {
             palydingdong();
         }
-    }
+    }*/
 
-    private void notifyRefreshFriend(boolean isLocal, long uid, @CoreEnum.ERosterAction int action) {
+  /*  private void notifyRefreshFriend(boolean isLocal, long uid, @CoreEnum.ERosterAction int action) {
         EventRefreshFriend event = new EventRefreshFriend();
         event.setLocal(isLocal);
         if (action != CoreEnum.ERosterAction.DEFAULT) {
@@ -407,13 +405,13 @@ public class ChatServer extends Service {
         EventBus.getDefault().post(event);
     }
 
-    private UserDao userDao = new UserDao();
+    private UserDao userDao = new UserDao();*/
 
     /***
      * 更新用户头像等资料
      * @param msg
      */
-    private void taskUpUserinfo(MsgBean.UniversalMessage.WrapMessage msg) {
+   /* private void taskUpUserinfo(MsgBean.UniversalMessage.WrapMessage msg) {
         if (msg.getMsgType().getNumber() > 100) {//通知类消息
             return;
         }
@@ -429,40 +427,40 @@ public class ChatServer extends Service {
             notifyRefreshFriend(true, msg.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
         }
 
-    }
+    }*/
 
-    private boolean updateAtMessage(MsgBean.UniversalMessage.WrapMessage msg) {
-        boolean isAt = false;
+//    private boolean updateAtMessage(MsgBean.UniversalMessage.WrapMessage msg) {
+//        boolean isAt = false;
+//
+//        MsgDao msgDao = new MsgDao();
+//        String gid = msg.getGid();
+//        String message = msg.getAt().getMsg();
+//        int atType = msg.getAt().getAtType().getNumber();
+//        if (atType == 0) {
+//            List<Long> list = msg.getAt().getUidList();
+//            if (list == null)
+//                isAt = false;
+//
+//            Long uid = UserAction.getMyId();
+//            for (int i = 0; i < list.size(); i++) {
+//                if (uid.equals(list.get(i))) {
+//                    Log.v(TAG, "有人@我" + uid);
+//                    msgDao.atMessage(gid, message, atType);
+//                    palydingdong();
+//                    isAt = true;
+//                }
+//            }
+//        } else {
+//            Log.v(TAG, "@所有人");
+//            msgDao.atMessage(gid, message, atType);
+//            palydingdong();
+//            isAt = true;
+//        }
+//        return isAt;
+//    }
 
-        MsgDao msgDao = new MsgDao();
-        String gid = msg.getGid();
-        String message = msg.getAt().getMsg();
-        int atType = msg.getAt().getAtType().getNumber();
-        if (atType == 0) {
-            List<Long> list = msg.getAt().getUidList();
-            if (list == null)
-                isAt = false;
 
-            Long uid = UserAction.getMyId();
-            for (int i = 0; i < list.size(); i++) {
-                if (uid.equals(list.get(i))) {
-                    Log.v(TAG, "有人@我" + uid);
-                    msgDao.atMessage(gid, message, atType);
-                    palydingdong();
-                    isAt = true;
-                }
-            }
-        } else {
-            Log.v(TAG, "@所有人");
-            msgDao.atMessage(gid, message, atType);
-            palydingdong();
-            isAt = true;
-        }
-        return isAt;
-    }
-
-
-    private long playTimeOld = 0;
+   /* private long playTimeOld = 0;
 
     private void palydingdong() {
         if (System.currentTimeMillis() - playTimeOld < 500) {
@@ -473,9 +471,9 @@ public class ChatServer extends Service {
 
         MediaBackUtil.palydingdong(getApplicationContext());
 
-    }
+    }*/
 
-    private long playVBTimeOld = 0;
+  /*  private long playVBTimeOld = 0;
 
     //振动
     private void playVibration() {
@@ -485,7 +483,7 @@ public class ChatServer extends Service {
         playVBTimeOld = System.currentTimeMillis();
 
         MediaBackUtil.playVibration(getApplicationContext(), 200);
-    }
+    }*/
 
 
     @Override
@@ -545,7 +543,7 @@ public class ChatServer extends Service {
 
     }
 
-    private void updateUserOnlineStatus(MsgBean.UniversalMessage.WrapMessage msg) {
+   /* private void updateUserOnlineStatus(MsgBean.UniversalMessage.WrapMessage msg) {
         long fromUid = msg.getFromUid();
         MsgBean.ActiveStatChangeMessage message = msg.getActiveStatChange();
         if (message == null) {
@@ -555,18 +553,17 @@ public class ChatServer extends Service {
         UserDao userDao = new UserDao();
         userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
         MessageManager.getInstance().updateCacheUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
-    }
+    }*/
 
-    private void fetchTimeDiff(long timestamp) {
+  /*  private void fetchTimeDiff(long timestamp) {
         long current = System.currentTimeMillis();//本地系统当前时间
         TimeToString.DIFF_TIME = timestamp - current;
-//        LogUtil.getLog().i("服务器时间与本地时间差值=", TimeToString.DIFF_TIME + "");
-    }
+    }*/
 
     /*
      * 更新云红包锁定状态
      * */
-    private void updateUserLockCloudRedEnvelope(MsgBean.UniversalMessage.WrapMessage msg) {
+   /* private void updateUserLockCloudRedEnvelope(MsgBean.UniversalMessage.WrapMessage msg) {
         MsgBean.ResourceLockMessage lock = msg.getResourceLock();
         if (lock != null) {
             MsgBean.ResourceLockMessage.ResourceLockType type = lock.getResourceLockType();
@@ -581,5 +578,5 @@ public class ChatServer extends Service {
                     break;
             }
         }
-    }
+    }*/
 }

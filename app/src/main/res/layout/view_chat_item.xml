@@ -296,6 +296,7 @@
 
                 </LinearLayout>
                 <!-- 图片消息-->
+
                 <LinearLayout
                     android:id="@+id/view_ot_4"
                     android:layout_width="wrap_content"
@@ -312,13 +313,53 @@
                         app:placeholderImage="@mipmap/ic_img_def"
                         app:placeholderImageScaleType="centerInside"
                          />-->
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
                     <ImageView
                         android:id="@+id/img_ot_4"
                         android:layout_width="150dp"
                         android:layout_height="180dp" />
 
+                        <ImageView
+                            android:id="@+id/img_ot_4_play"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@mipmap/video_msg_play_show"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"
+                            />
+                        <TextView
+                            android:id="@+id/img_ot_4_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="00:00"
+                            android:textColor="#fff"
+                            android:visibility="gone"
+                            android:textSize="12sp"
+                            />
+                    </RelativeLayout>
 
                 </LinearLayout>
+
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:gravity="left"-->
+<!--                    android:layout_height="wrap_content">-->
+
+<!--                    <ImageView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"></ImageView>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="123"-->
+<!--                        android:textColor="#fff"-->
+<!--                        android:layout_alignParentRight="true"-->
+<!--                        android:layout_alignParentBottom="true"-->
+<!--                        ></TextView>-->
+<!--                </RelativeLayout>-->
+
 
                 <!-- 名片消息-->
                 <LinearLayout
@@ -659,9 +700,9 @@
                         android:id="@+id/view_me_4"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
                         android:gravity="right|center_vertical"
-                        android:visibility="gone">
+
+                        >
 
                         <!-- <com.facebook.drawee.view.SimpleDraweeView
                              android:id="@+id/img_me_4"
@@ -671,18 +712,19 @@
                              app:placeholderImage="@mipmap/ic_img_def"
                              app:placeholderImageScaleType="centerInside"
                               />-->
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            >
                         <FrameLayout
                             android:layout_width="wrap_content"
-
                             android:layout_height="wrap_content">
 
                             <ImageView
                                 android:id="@+id/img_me_4"
                                 android:layout_width="150dp"
                                 android:layout_height="180dp"
-
                                 />
-
                             <LinearLayout
                                 android:id="@+id/view_me_up"
                                 android:layout_width="wrap_content"
@@ -707,9 +749,27 @@
                                     android:textColor="@color/white" />
                             </LinearLayout>
 
-
                         </FrameLayout>
 
+                            <ImageView
+                                android:id="@+id/img_me_4_play"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:background="@mipmap/video_msg_play_show"
+                                android:layout_centerInParent="true"
+                                android:visibility="gone"
+                                />
+                            <TextView
+                                android:id="@+id/img_me_4_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="00:00"
+                                android:textColor="#fff"
+                                android:visibility="gone"
+                                android:textSize="12sp"
+                                />
+
+                        </RelativeLayout>
 
                     </LinearLayout>
 

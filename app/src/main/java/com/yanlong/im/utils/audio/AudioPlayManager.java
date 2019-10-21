@@ -20,6 +20,7 @@ import android.util.Log;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.utils.DownloadUtil;
@@ -86,7 +87,7 @@ public class AudioPlayManager implements SensorEventListener {
                         this._mediaPlayer.setAudioStreamType(CONTENT_TYPE_UNKNOWN);
                         this._mediaPlayer.setVolume(1.0F, 1.0F);
                         //   this._mediaPlayer.setDataSource(this.context, this._playingUri);
-                        String path = context.getExternalCacheDir().getAbsolutePath();
+                        String path = context.getExternalCacheDir().getAbsolutePath()+"/Audio/";
                         File file = new File(path, getFileName(this._playingUri.toString()));
                         if (file.exists()) {
 //                            Log.v(TAG, "本地播放" + file.getPath());
@@ -279,7 +280,7 @@ public class AudioPlayManager implements SensorEventListener {
                     }
                 });
 
-                String path = context.getExternalCacheDir().getAbsolutePath();
+                String path = context.getExternalCacheDir().getAbsolutePath()+"/Audio/";
                 File file = new File(path, getFileName(audioUri.toString()));
                 if (file.exists()) {
 //                    Log.v(TAG, "本地播放" + file.getPath());
@@ -353,7 +354,7 @@ public class AudioPlayManager implements SensorEventListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String path = context.getExternalCacheDir().getAbsolutePath();
+                String path = context.getExternalCacheDir().getAbsolutePath()+"/Audio/";
                 DownloadUtil.get().download(url, path, getFileName(url));
             }
         }).start();
@@ -364,7 +365,7 @@ public class AudioPlayManager implements SensorEventListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String path = context.getExternalCacheDir().getAbsolutePath();
+                String path = context.getExternalCacheDir().getAbsolutePath()+"/Audio/";
                 String url = bean.getVoiceMessage().getUrl();
                 DownloadUtil.get().download(url, path, getFileName(url), new DownloadUtil.OnDownloadListener() {
                     @Override
@@ -372,6 +373,8 @@ public class AudioPlayManager implements SensorEventListener {
                         listener.onDownloadSuccess(file);
                         currentDownBean = null;
                         LogUtil.getLog().i(TAG, "语音下载成功");
+
+                        MyDiskCacheUtils.getInstance().putFileNmae(path);
                     }
 
                     @Override

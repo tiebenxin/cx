@@ -1,7 +1,5 @@
 package com.yanlong.im.utils;
 
-import androidx.annotation.Nullable;
-
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
@@ -81,11 +79,20 @@ public class DaoMigration implements RealmMigration {
     }
 
     //新增群阅后即焚
-    private void updateV5(RealmSchema schema) {
+    private void updateV6(RealmSchema schema) {
         schema.get("Group")
                 .addField("survivaltime", int.class);
     }
 
+
+
+    private void updateV5(RealmSchema schema){
+        schema.get("UserInfo")
+                .addField("joinType", int.class)
+                .addField("joinTime", String.class)
+                .addField("inviter", String.class)
+                .addField("inviterName",String.class);
+    }
 
 
 //    @Override

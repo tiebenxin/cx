@@ -177,6 +177,7 @@ public class GroupHeadImageUtil {
                     String cachePath = storageDirectory + "/changliaoliao/cache/image";
 //                DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
                     DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath), 1, 1, cacheSize);
+
                     value = diskLruCache.get(safeKey);
                 } else {
                     DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);

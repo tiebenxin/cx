@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.jrmf360.walletlib.JrmfWalletClient;
-import com.tencent.mm.opensdk.utils.Log;
 import com.yanlong.im.R;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
@@ -29,13 +28,13 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
-import com.yanlong.im.utils.SpUtil;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
@@ -277,6 +276,26 @@ public class MyFragment extends Fragment {
                     UserInfo minfo = UserAction.getMyInfo();
                     JrmfWalletClient.intentWallet(getActivity(), "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
                 }
+            }
+        });
+    }
+
+
+    private void taskGetUserInfo4Id(Long uid){
+        new UserAction().getUserInfo4Id(uid, new CallBack<ReturnBean<UserInfo>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
+                super.onResponse(call, response);
+                if(response.body() == null){
+                    return;
+                }
+                UserInfo userInfo = response.body().getData();
+                Glide.with(MyFragment.this).load(userInfo.getHead() + "")
+                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
+                txtName.setText(userInfo.getName());
+                mTvInfo.setText("常聊号: " + userInfo.getImid() + "");
+
             }
         });
     }

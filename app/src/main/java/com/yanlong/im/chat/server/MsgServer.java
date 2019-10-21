@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.server;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.RobotInfoBean;
@@ -9,6 +11,7 @@ import net.cb.cb.library.bean.ReturnBean;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
@@ -94,7 +97,7 @@ public interface MsgServer {
 
     @POST("/group/edit-announcement")
     @FormUrlEncoded
-    Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid,@Field("announcement") String announcement);
+    Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid,@Field("announcement") String announcement,@Field("masterName") String masterName);
 
     @POST("/group/search-for-robots")
     @FormUrlEncoded
@@ -112,6 +115,7 @@ public interface MsgServer {
     @FormUrlEncoded
     Call<ReturnBean> changeMaster(@Field("gid") String gid,@Field("uid") String uid,@Field("membername") String membername);
 
+<<<<<<< HEAD
     @POST("/friends/set-survival-time")
     @FormUrlEncoded
     Call<ReturnBean> setSurvivalTime(@Field("friend") long friend,@Field("survivalTime") int survivalTime);
@@ -119,4 +123,9 @@ public interface MsgServer {
     @POST("/group/change-survival-time")
     @FormUrlEncoded
     Call<ReturnBean> changeSurvivalTime(@Field("gid") String gid,@Field("survivalTime") int survivalTime);
+=======
+    @POST("/group/get-batch-group")
+    @FormUrlEncoded
+    Call<ReturnBean<List<Group>>> getGroupsByIds(@Field("@gids") String json);
+>>>>>>> b445d342be292ba528cef25ca94fe3eb9e08ef08
 }

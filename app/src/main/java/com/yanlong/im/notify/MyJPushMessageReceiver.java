@@ -1,6 +1,12 @@
 package com.yanlong.im.notify;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
+import com.yanlong.im.user.ui.SplashActivity;
+
+import net.cb.cb.library.utils.LogUtil;
 
 import cn.jpush.android.api.JPushMessage;
 import cn.jpush.android.api.NotificationMessage;
@@ -54,5 +60,15 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
 //            alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //            context.startActivity(alarmIntent); //启动显示锁屏消息的activity
 //        }
+    }
+
+
+    @Override
+    public void onNotifyMessageOpened(Context context, NotificationMessage notificationMessage) {
+        super.onNotifyMessageOpened(context, notificationMessage);
+        LogUtil.getLog().i("MyJPushMessageReceiver","onNotifyMessageOpened");
+        Intent intent = new Intent(context, SplashActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 }

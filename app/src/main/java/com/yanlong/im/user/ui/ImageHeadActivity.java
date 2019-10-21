@@ -55,7 +55,7 @@ public class ImageHeadActivity extends AppActivity {
     private PopupSelectView popupSelectView;
     private PopupSelectView saveImagePopup;
     private String[] strings = {"拍照", "相册", "取消"};
-    private String[] saveImages = {"保存头像", "取消"};
+    private String[] saveImages = {"保存图片", "取消"};
     private String imageHead;
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
     private Button mBtnImageHead;
@@ -73,10 +73,10 @@ public class ImageHeadActivity extends AppActivity {
 
 
     private String urlImg = null;
-
+    private String gGroupid;
     private void initView() {
         imageHead = getIntent().getStringExtra(IMAGE_HEAD);
-        String gid = getIntent().getStringExtra("gid");
+        gGroupid= getIntent().getStringExtra("gid");
         isAdmin = getIntent().getBooleanExtra("admin", false);
         isGroup = getIntent().getBooleanExtra("groupSigle", false);
         mHeadView = findViewById(R.id.headView);
@@ -92,7 +92,7 @@ public class ImageHeadActivity extends AppActivity {
         } else {
             if (isGroup) {
                 MsgDao msgDao = new MsgDao();
-                String url = msgDao.groupHeadImgGet(gid);
+                String url = msgDao.groupHeadImgGet(gGroupid);
                 urlImg = url;
                 Glide.with(this).load(url)
                         .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
@@ -103,7 +103,7 @@ public class ImageHeadActivity extends AppActivity {
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         mBtnImageHead = findViewById(R.id.btn_image_head);
         if (isGroup) {
-            mBtnImageHead.setText("修改群头像");
+            mBtnImageHead.setText("更换群头像");
         }
         if (!isAdmin && isGroup) {
             mBtnImageHead.setVisibility(View.INVISIBLE);
@@ -135,15 +135,7 @@ public class ImageHeadActivity extends AppActivity {
         mSdImageHead.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
                 initSaveImage();
-
-//                List<LocalMedia> selectList = new ArrayList<>();
-//                LocalMedia lc = new LocalMedia();
-//                lc.setPath(imageHead);
-//                selectList.add(lc);
-//                PictureSelector.create(ImageHeadActivity.this).themeStyle(R.style.picture_default_style)
-//                        .isGif(true).openExternalPreview(0, selectList);
                 return false;
             }
         });
@@ -246,7 +238,7 @@ public class ImageHeadActivity extends AppActivity {
                             .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
 
                     if (isGroup) {
-                        upFileAction.upFile(UpFileAction.PATH.HEAD_GROUP_CHANGE, getContext(), new UpFileUtil.OssUpCallback() {
+                        upFileAction.upFile(gGroupid,UpFileAction.PATH.HEAD_GROUP_CHANGE, getContext(), new UpFileUtil.OssUpCallback() {
                             @Override
                             public void success(String url) {
                                 alert.dismiss();
@@ -266,7 +258,7 @@ public class ImageHeadActivity extends AppActivity {
                             }
                         }, file);
                     } else {
-                        upFileAction.upFile(UpFileAction.PATH.HEAD, getContext(), new UpFileUtil.OssUpCallback() {
+                        upFileAction.upFile(UserAction.getMyId()+"",UpFileAction.PATH.HEAD, getContext(), new UpFileUtil.OssUpCallback() {
                             @Override
                             public void success(String url) {
                                 alert.dismiss();

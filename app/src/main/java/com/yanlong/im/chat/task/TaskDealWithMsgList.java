@@ -33,13 +33,16 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         if (messages != null) {
             int length = messages.size();
             taskCount = length;
-//            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--总任务数=" + taskCount);
+            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--总任务数=" + taskCount + "--当前时间=" + System.currentTimeMillis());
             for (int i = 0; i < length; i++) {
                 MsgBean.UniversalMessage.WrapMessage wrapMessage = messages.get(i);
-                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--gid=" + wrapMessage.getGid() + "--uid=" + wrapMessage.getFromUid());
+//                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--gid=" + wrapMessage.getGid() + "--uid=" + wrapMessage.getFromUid() + "--msgId=" + wrapMessage.getMsgId());
                 boolean result = MessageManager.getInstance().dealWithMsg(wrapMessage, true, i == length - 1);//最后一条消息，发出通知声音
                 if (result) {
                     taskCount--;
+//                    System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新一次任务数 taskCount=" + taskCount + "--msgId=" + wrapMessage.getMsgId());
+                } else {
+//                    System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新任务数失败" + "--msgId=" + wrapMessage.getMsgId());
                 }
             }
         }
@@ -56,6 +59,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     protected void onPostExecute(Boolean aBoolean) {
         super.onPostExecute(aBoolean);
         if (aBoolean) {
+            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理完毕" + "--当前时间=" + System.currentTimeMillis());
             MessageManager.getInstance().setMessageChange(true);
             if (checkIsFromSingle()) {
 //                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面,单个刷新");
@@ -78,8 +82,9 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
      * */
     public void updateTaskCount() {
         taskCount--;
-//        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新一次任务数");
+//        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--异步更新一次任务数 taskCount=" + taskCount);
         if (taskCount == 0) {
+            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理完毕" + "--当前时间=" + System.currentTimeMillis());
             MessageManager.getInstance().setMessageChange(true);
             if (checkIsFromSingle()) {
                 if (gids.size() > 0) {

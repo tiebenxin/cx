@@ -65,7 +65,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     private TextView mTvUserName;
     private ImageView mCrCode;
     private PopupSelectView popupSelectView;
-    private String[] strings = {"保存图片", "扫描二维码", "分享给好友", "分享给微信好友", "取消"};
+    private String[] strings = {"保存图片", "分享给好友", "分享给微信好友", "取消"};
     private String QRCode;
     private int type;
     private String groupId;
@@ -193,21 +193,9 @@ public class MyselfQRCodeActivity extends AppActivity {
                         saveBmp2Gallery(getViewBitmap());
                         break;
                     case 1:
-                        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                            // 申请权限
-                            ActivityCompat.requestPermissions(MyselfQRCodeActivity.this,
-                                    new String[]{Manifest.permission.CAMERA},
-                                    CaptureActivity.REQ_PERM_CAMERA);
-                            return;
-                        }
-                        // 二维码扫码
-                        Intent intent = new Intent(MyselfQRCodeActivity.this, CaptureActivity.class);
-                        startActivityForResult(intent, CaptureActivity.REQ_QR_CODE);
-                        break;
-                    case 2:
                         Bitmap2Bytes(getViewBitmap());
                         break;
-                    case 3:
+                    case 2:
                         shareWX(getViewBitmap());
                         break;
                 }

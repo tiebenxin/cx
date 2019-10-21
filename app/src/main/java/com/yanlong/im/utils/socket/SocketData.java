@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -32,20 +31,14 @@ import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
-import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 
@@ -57,9 +50,7 @@ public class SocketData {
 
 
     private static MsgDao msgDao = new MsgDao();
-
-    private static List<String> loadGids = new ArrayList<>();
-    private static List<Long> loadUids = new ArrayList<>();
+    public static long CLL_ASSITANCE_ID = 1L;//常聊聊小助手id
 
 
     /***
@@ -307,7 +298,12 @@ public class SocketData {
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
             // msgAllBean.setTimestamp(bean.getTimestamp());
-            msgAllBean.setSend_state(state);
+            //是发送给群助手的消息直接发送成功
+            if (isNoAssistant(msgAllBean.getTo_uid(), msgAllBean.getGid())) {
+                msgAllBean.setSend_state(state);
+            } else {
+                msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
+            }
             msgAllBean.setSend_data(msg.build().toByteArray());
 
             //移除旧消息// 7.16 通过msgid 判断唯一
@@ -418,11 +414,19 @@ public class SocketData {
             msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
         }
         //立即发送
-        if (isSend) {
+        if (isSend && isNoAssistant(toId, toGid)) {
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
         MsgAllBean msgAllbean = MsgConversionBean.ToBean(msg.getWrapMsg(0));
         return msgAllbean;
+    }
+
+    //不是常聊聊小助手id
+    public static boolean isNoAssistant(Long uid, String gid) {
+        if (TextUtils.isEmpty(gid) && (uid != null && uid == CLL_ASSITANCE_ID)){
+            return false;
+        }
+        return true;
     }
 
 
@@ -642,32 +646,32 @@ public class SocketData {
      * @param videoMessage
      * @return
      */
-    public static MsgAllBean 发送视频整体信息(Long toId,String toGid,VideoMessage videoMessage) {
-        String bg_URL=videoMessage.getBg_url();
-        long time=videoMessage.getDuration();
-        String url=videoMessage.getUrl();
-        long width=videoMessage.getWidth();
-        long height=videoMessage.getHeight();
-        String msgId=videoMessage.getMsgId();
+    public static MsgAllBean 发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage) {
+        String bg_URL = videoMessage.getBg_url();
+        long time = videoMessage.getDuration();
+        String url = videoMessage.getUrl();
+        long width = videoMessage.getWidth();
+        long height = videoMessage.getHeight();
+        String msgId = videoMessage.getMsgId();
 
 
         MsgBean.ShortVideoMessage msg;
-        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int)width).setHeight((int)height).build();
+        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int) width).setHeight((int) height).build();
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
-    public static MsgAllBean 转发送视频整体信息(Long toId,String toGid,VideoMessage videoMessage) {
-        String bg_URL=videoMessage.getBg_url();
-        long time=videoMessage.getDuration();
-        String url=videoMessage.getUrl();
-        long width=videoMessage.getWidth();
-        long height=videoMessage.getHeight();
-        String msgId=videoMessage.getMsgId();
+    public static MsgAllBean 转发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage) {
+        String bg_URL = videoMessage.getBg_url();
+        long time = videoMessage.getDuration();
+        String url = videoMessage.getUrl();
+        long width = videoMessage.getWidth();
+        long height = videoMessage.getHeight();
+        String msgId = videoMessage.getMsgId();
 
 
         MsgBean.ShortVideoMessage msg;
-        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int)width).setHeight((int)height).build();
-        return send4Base( toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
+        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int) width).setHeight((int) height).build();
+        return send4Base(toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
     /***
@@ -677,7 +681,7 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal,  long time, int width, int height) {
+    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
         MsgBean.ShortVideoMessage msg;
 //        String extTh = "/below-20k";
 //        String extPv = "/below-200k";
@@ -711,10 +715,10 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
-    public static MsgAllBean 转发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal,  long time, int width, int height) {
+    public static MsgAllBean 转发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
         MsgBean.ShortVideoMessage msg;
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
-        return send4Base( toId, toGid,  MsgBean.MessageType.SHORT_VIDEO, msg);
+        return send4Base(toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
     /***
@@ -959,14 +963,15 @@ public class SocketData {
 
     /**
      * 撤回消息
+     *
      * @param toId
      * @param toGid
-     * @param msgId 消息ID
+     * @param msgId      消息ID
      * @param msgContent 撤回内容
-     * @param msgType 撤回的消息类型
+     * @param msgType    撤回的消息类型
      * @return
      */
-    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId,String msgContent,Integer msgType) {
+    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId, String msgContent, Integer msgType) {
 
         MsgBean.CancelMessage msg = MsgBean.CancelMessage.newBuilder()
                 .setMsgId(msgId)
@@ -976,7 +981,7 @@ public class SocketData {
         MsgAllBean msgAllBean = send4Base(false, true, id, toId, toGid, -1, MsgBean.MessageType.CANCEL, msg);
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setMsg(msgContent);
-        chatMessage.setMsgid(msgType+"");// 暂时用来存放撤回的消息类型
+        chatMessage.setMsgid(msgType + "");// 暂时用来存放撤回的消息类型
         msgAllBean.setChat(chatMessage);
         ChatServer.addCanceLsit(id, msgAllBean);
 

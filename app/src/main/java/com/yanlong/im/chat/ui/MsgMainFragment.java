@@ -419,11 +419,11 @@ public class MsgMainFragment extends Fragment {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
             if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
-//                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
             } else {
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
-//                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
 
             }
         }
@@ -899,26 +899,26 @@ public class MsgMainFragment extends Fragment {
 
     }
 
-    private String creatAndSaveImg(String gid) {
-        Group gginfo = msgDao.getGroup4Id(gid);
-        int i = gginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            UserInfo userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-        MsgDao msgDao = new MsgDao();
-        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-        return file.getAbsolutePath();
-    }
+//    private String creatAndSaveImg(String gid) {
+//        Group gginfo = msgDao.getGroup4Id(gid);
+//        int i = gginfo.getUsers().size();
+//        i = i > 9 ? 9 : i;
+//        //头像地址
+//        String url[] = new String[i];
+//        for (int j = 0; j < i; j++) {
+//            UserInfo userInfo = gginfo.getUsers().get(j);
+////            if (j == i - 1) {
+////                name += userInfo.getName();
+////            } else {
+////                name += userInfo.getName() + "、";
+////            }
+//            url[j] = userInfo.getHead();
+//        }
+//        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+//        MsgDao msgDao = new MsgDao();
+//        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+//        return file.getAbsolutePath();
+//    }
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
@@ -990,8 +990,8 @@ public class MsgMainFragment extends Fragment {
             if (group != null) {
                 session.setName(msgDao.getGroupName(group));
                 session.setIsMute(group.getNotNotify());
-                session.setHasInitDisturb(true);
                 session.setAvatar(group.getAvatar());
+
 
             } else {
                 session.setName(msgDao.getGroupName(session.getGid()));
@@ -1017,7 +1017,6 @@ public class MsgMainFragment extends Fragment {
             if (info != null) {
                 session.setName(info.getName4Show());
                 session.setIsMute(info.getDisturb());
-                session.setHasInitDisturb(true);
                 session.setAvatar(info.getHead());
             }
             MsgAllBean msg = session.getMessage();

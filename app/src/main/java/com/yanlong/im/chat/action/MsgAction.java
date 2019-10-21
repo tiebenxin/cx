@@ -1,8 +1,11 @@
 package com.yanlong.im.chat.action;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
@@ -226,6 +229,7 @@ public class MsgAction {
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);
                     } else {
+                        MessageManager.getInstance().removeLoadGids(gid);
                         callback.onFailure(call, new Throwable());
                     }
                 }
@@ -311,18 +315,17 @@ public class MsgAction {
                         boolean isTop = false;
                         if (istop != null) {
                             dao.updateGroupTop(gid, istop.intValue());
-                            session.setHasInitTop(true);
                             isTop = true;
                         } else if (notNotify != null) {
                             dao.updateGroupDisturb(gid, notNotify.intValue());
-                            session.setHasInitDisturb(true);
+                            dao.updateSessionTopAndDisturb(gid, null, 0, notNotify.intValue());
+                            MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
                             isTop = false;
                         }
                         MessageManager.getInstance().setMessageChange(true);
                         MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
                     }
                 }
-
                 cb.onResponse(call, response);
 
             }
@@ -423,6 +426,22 @@ public class MsgAction {
                 }
                 response.body().setData(groupList);
                 callback.onResponse(call, response);
+            }
+        });
+    }
+
+    public void getMySavedGroup(final Callback<ReturnBean<List<Group>>> callback) {
+
+        NetUtil.getNet().exec(server.getMySaved(), new CallBack<ReturnBean<List<Group>>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<List<Group>>> call, Response<ReturnBean<List<Group>>> response) {
+                if (response.body() == null || response.body().getData() == null)
+                    return;
+                if (response.body().isOk()) {
+                    callback.onResponse(call, response);
+                } else {
+                    callback.onFailure(call, new Throwable());
+                }
             }
         });
     }

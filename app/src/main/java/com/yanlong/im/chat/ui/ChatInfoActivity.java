@@ -420,6 +420,7 @@ public class ChatInfoActivity extends AppActivity {
     private void taskDelMsg() {
         msgDao.msgDel(fuid, null);
         EventBus.getDefault().post(new EventRefreshChat());
+        ToastUtil.show(ChatInfoActivity.this, "删除成功");
     }
 
     /*
@@ -436,14 +437,12 @@ public class ChatInfoActivity extends AppActivity {
                     if (isMute == null && istop != null) {
                         session = msgDao.updateUserSessionTop(fuid, istop);
                         msgDao.updateUserTop(fuid, istop.intValue());
-                        session.setHasInitTop(true);
                     } else if (isMute != null && istop == null) {
                         session = msgDao.updateUserSessionDisturb(fuid, isMute);
                         msgDao.updateUserDisturb(fuid, isMute.intValue());
-                        session.setHasInitDisturb(true);
                     }
                     MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session,true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session, true);
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
 

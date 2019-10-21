@@ -76,9 +76,16 @@ public class MessageManager {
 
     private static List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
     private static List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
+
+    //缓存
     private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
     private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
-    private static List<Session> cacheSessions = new ArrayList<>();//Session缓存
+    private static List<Session> cacheSessions = new ArrayList<>();//Session缓存，
+    private static Map<Long, List<MsgAllBean>> cacheMessagePrivate = new HashMap();//私聊消息缓存，以用户id为key
+    private static Map<String, List<MsgAllBean>> cacheMessageGroup = new HashMap();//群聊消息缓存，以群id为key
+    private static Map<String, MsgAllBean> saveMessages = new HashMap<>();//接收到的消息，待保存到数据库
+    private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
+
 
     private long playTimeOld = 0;//当前声音播放时间
     private long playVBTimeOld = 0; //当前震动时间
@@ -120,15 +127,18 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
         boolean result = false;
-        if (oldMsgId.contains(wrapMessage.getMsgId())) {
-            LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
-            return false;
-        } else {
-            if (oldMsgId.size() >= 500) {
-                oldMsgId.remove(0);
+        if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
+            if (oldMsgId.contains(wrapMessage.getMsgId())) {
+                LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
+                return false;
+            } else {
+                if (oldMsgId.size() >= 500) {
+                    oldMsgId.remove(0);
+                }
+                oldMsgId.add(wrapMessage.getMsgId());
             }
-            oldMsgId.add(wrapMessage.getMsgId());
         }
+
         updateUserAvatarAndNick(wrapMessage);
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         switch (wrapMessage.getMsgType()) {
@@ -309,24 +319,52 @@ public class MessageManager {
         boolean result = false;
         //收到直接存表
         DaoUtil.update(msgAllBean);
-        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid()) && !loadGids.contains(msgAllBean.getGid())) {
-            loadGids.add(msgAllBean.getGid());
-            loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
-        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
-            loadUids.add(msgAllBean.getFrom_uid());
-            loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
+            if (!loadGids.contains(msgAllBean.getGid())) {
+                loadGids.add(msgAllBean.getGid());
+                loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+            } else {
+                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                if (isList) {
+                    setMessageChange(true);
+                }
+                result = true;
+            }
+        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
+            if (!loadUids.contains(msgAllBean.getFrom_uid())) {
+                loadUids.add(msgAllBean.getFrom_uid());
+                loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                System.out.println(TAG + "--需要加载用户信息");
+
+            } else {
+                System.out.println(TAG + "--异步加载用户信息更新未读数");
+                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                if (isList) {
+                    setMessageChange(true);
+                }
+                result = true;
+            }
         } else {
-            MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+            updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
             if (isList) {
-                MessageManager.getInstance().setMessageChange(true);
+                setMessageChange(true);
             }
             result = true;
         }
         return result;
     }
+<<<<<<< HEAD
+=======
+
+    /*
+     * 网络加载用户信息,只能接受来自好友的信息
+     * */
+>>>>>>> b445d342be292ba528cef25ca94fe3eb9e08ef08
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
-//        System.out.println("加载数据--loadUserInfo" + "--gid =" + gid + "--uid =" + uid);
-        new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.STRANGE, new CallBack<ReturnBean<UserInfo>>() {
+        if (UserAction.getMyId() != null && uid.equals(UserAction.getMyId())) {
+            return;
+        }
+        new UserAction().getUserInfoAndSave(uid, ChatEnum.EUserType.FRIEND, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 updateSessionUnread(gid, uid, false);
@@ -337,7 +375,6 @@ public class MessageManager {
                 } else {
                     setMessageChange(true);
                     notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, bean);
-
                 }
             }
         });
@@ -347,12 +384,12 @@ public class MessageManager {
      * 网络加载群信息
      * */
     private synchronized void loadGroupInfo(final String gid, final long uid, boolean isList, MsgAllBean bean) {
-//        System.out.println("加载数据--loadGroupInfo" + "--gid =" + gid + "--uid =" + uid);
         new MsgAction().groupInfo(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
                 updateSessionUnread(gid, uid, false);
+                System.out.println(TAG + "--加载群信息后的更新");
                 if (isList) {
                     if (taskMsgList != null) {
                         taskMsgList.updateTaskCount();
@@ -743,24 +780,21 @@ public class MessageManager {
     }
 
     public void updateCacheGroup(Group group) {
-        if (cacheGroups != null) {
+        if (cacheGroups != null && group != null) {
             if (cacheGroups.containsValue(group)) {
                 cacheGroups.remove(group.getGid());
-                cacheGroups.put(group.getGid(), group);
-            } else {
-                cacheGroups.put(group.getGid(), group);
             }
+            cacheGroups.put(group.getGid(), group);
         }
     }
 
-    public void updateCacheUser(Group group) {
-        if (cacheGroups != null) {
-            if (cacheGroups.containsValue(group)) {
-                cacheGroups.remove(group.getGid());
-                cacheGroups.put(group.getGid(), group);
-            } else {
-                cacheGroups.put(group.getGid(), group);
+    public void updateCacheUser(UserInfo user) {
+        if (cacheUsers != null && user != null) {
+            if (cacheUsers.containsValue(user)) {
+                cacheUsers.remove(user.getUid());
             }
+            cacheUsers.put(user.getUid(), user);
+
         }
     }
 
@@ -769,5 +803,27 @@ public class MessageManager {
      * */
     public void updateSessionTopAndDisturb(String gid, Long uid, int top, int disturb) {
         msgDao.updateSessionTopAndDisturb(gid, uid, top, disturb);
+    }
+
+    public void removeLoadGids(String gid) {
+        if (loadGids != null && !TextUtils.isEmpty(gid)) {
+            loadGids.remove(gid);
+        }
+    }
+
+    public void removeLoadUids(Long uid) {
+        if (loadUids != null && uid != null) {
+            loadUids.remove(uid);
+        }
+    }
+
+    public void addSavedGroup(List<Group> list) {
+        if (list != null && list.size() > 0) {
+            saveGroups.addAll(list);
+        }
+    }
+
+    public List<Group> getSavedGroups() {
+        return saveGroups;
     }
 }

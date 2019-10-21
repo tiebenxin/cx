@@ -11,6 +11,8 @@ import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yanlong.im.utils.LogcatHelper;
+import com.yanlong.im.utils.MyDiskCacheController;
+import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
 
 import net.cb.cb.library.AppConfig;
@@ -73,7 +75,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.UP_PATH = "development";
                 break;
             case "release"://正式服
-                AppConfig.DEBUG = false;
+                AppConfig.DEBUG = true;
                 //---------------------------
                 AppConfig.SOCKET_IP = "im-app.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
@@ -96,6 +98,11 @@ public class MyAppLication extends MainApplication {
 //        initException();
         initUploadUtils();
         initBugly();
+        initCache();
+    }
+
+    private void initCache() {
+        MyDiskCacheUtils.getInstance().setDiskController(new MyDiskCacheController()).setContext(this);
     }
 
     private void initBugly() {

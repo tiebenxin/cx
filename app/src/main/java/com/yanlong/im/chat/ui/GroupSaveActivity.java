@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -27,6 +29,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -79,6 +86,7 @@ public class GroupSaveActivity extends AppActivity {
         groupInfoBeans = new ArrayList<>();
         mtListView.init(new RecyclerViewAdapter());
         taskMySaved();
+//        loadSavedGroup();
     }
 
 
@@ -97,6 +105,33 @@ public class GroupSaveActivity extends AppActivity {
         });
     }
 
+    @SuppressLint("CheckResult")
+    private void loadSavedGroup() {
+        Observable.just(0)
+                .map(new Function<Integer, List<Group>>() {
+                    @Override
+                    public List<Group> apply(Integer integer) throws Exception {
+                        return msgDao.getMySavedGroup();
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<Group>>empty())
+                .subscribe(new Consumer<List<Group>>() {
+                    @Override
+                    public void accept(List<Group> list) throws Exception {
+                        if (list == null || list.size() <= 0) {
+                            mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
+                            return;
+                        }
+                        if (groupInfoBeans != null && groupInfoBeans.size() > 0) {
+                            groupInfoBeans.clear();
+                        }
+                        groupInfoBeans.addAll(list);
+                        mtListView.notifyDataSetChange();
+                    }
+                });
+    }
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -109,36 +144,36 @@ public class GroupSaveActivity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
-            MsgDao msgDao=new MsgDao();
+            MsgDao msgDao = new MsgDao();
             final Group groupInfoBean = groupInfoBeans.get(position);
             //holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
-            if (StringUtil.isNotNull(groupInfoBean.getName())){
+            if (StringUtil.isNotNull(groupInfoBean.getName())) {
                 holder.txtName.setText(groupInfoBean.getName());
-            }else{
+            } else {
                 holder.txtName.setText(msgDao.getGroupName(groupInfoBean));
             }
 //            msgDao.getGroupName(groupInfoBean.getGid()));
-           // holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
-            String imageHead= groupInfoBean.getAvatar();
+            // holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
+            String imageHead = groupInfoBean.getAvatar();
 //            ImageUtils.showImg(context,imageHead,holder.imgHead,groupInfoBean.getGid());
 
-            if (imageHead!=null&&!imageHead.isEmpty()&& StringUtil.isNotNull(imageHead)){
+            if (imageHead != null && !imageHead.isEmpty() && StringUtil.isNotNull(imageHead)) {
                 Glide.with(context).load(imageHead)
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-            }else{
+            } else {
 
-                String url= msgDao.groupHeadImgGet(groupInfoBean.getGid());
-                if (StringUtil.isNotNull(url)){
+                String url = msgDao.groupHeadImgGet(groupInfoBean.getGid());
+                if (StringUtil.isNotNull(url)) {
                     Glide.with(context).load(url)
                             .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                }else{
-                    creatAndSaveImg(groupInfoBean,holder.imgHead);
+                } else {
+                    creatAndSaveImg(groupInfoBean, holder.imgHead);
                 }
 
             }
 
 
-           // holder.txtName.setText(groupInfoBean.getName());
+            // holder.txtName.setText(groupInfoBean.getName());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -167,7 +202,7 @@ public class GroupSaveActivity extends AppActivity {
         }
 
         private void creatAndSaveImg(Group bean, ImageView imgHead) {
-            Group gginfo =bean;
+            Group gginfo = bean;
             int i = gginfo.getUsers().size();
             i = i > 9 ? 9 : i;
             //头像地址

@@ -89,6 +89,7 @@ public class DownloadUtil {
                     //下载完成
                     listener.onDownloadSuccess(file);
                     Log.v("DownloadUtil", file.getAbsolutePath() + "--下载完成");
+
                 } catch (Exception e) {
                     listener.onDownloadFailed(e);
                 } finally {

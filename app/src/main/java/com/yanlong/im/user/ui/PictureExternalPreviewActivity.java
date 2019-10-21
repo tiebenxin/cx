@@ -77,6 +77,7 @@ import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.utils.DownloadUtil;
@@ -193,7 +194,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             //TODO 文件下载重新构建
 
 
-            final String filePath = getExternalCacheDir().getAbsolutePath() + "/";
+            final String filePath = getExternalCacheDir().getAbsolutePath() + "/Image/";
             final String fileName = path.substring(path.lastIndexOf("/") + 1);
             File fileSave = new File(filePath + "/" + fileName);
 
@@ -254,6 +255,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                                         int y=imageView.getIndex_y();
                                         imgLarge.smoothScale(scale,x,y);
 */
+                                        MyDiskCacheUtils.getInstance().putFileNmae(filePath);
                                         //这边要改成已读
                                         msgDao.ImgReadStatSet(path, true);
                                     }

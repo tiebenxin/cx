@@ -1,5 +1,7 @@
 package com.yanlong.im.user.dao;
 
+import android.util.Log;
+
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -443,5 +445,26 @@ public class UserDao {
         }
     }
 
+<<<<<<< HEAD
+=======
+    /*
+    *
+    * */
+    public boolean isUserExist(Long uid) {
+        boolean result = false;
+        Realm realm = DaoUtil.open();
+        try {
+            UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+            if (user != null) {
+                result = true;
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+        return result;
+    }
+>>>>>>> b445d342be292ba528cef25ca94fe3eb9e08ef08
 
 }

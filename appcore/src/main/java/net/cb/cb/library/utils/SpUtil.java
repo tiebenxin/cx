@@ -1,4 +1,4 @@
-package com.yanlong.im.utils;
+package net.cb.cb.library.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

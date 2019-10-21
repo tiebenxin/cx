@@ -315,7 +315,7 @@
         <!--登录-->
         <activity
             android:name=".user.ui.LoginActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <!--关于-->
         <activity

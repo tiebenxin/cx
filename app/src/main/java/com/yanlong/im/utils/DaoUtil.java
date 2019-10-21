@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import com.yanlong.im.user.action.UserAction;
+
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.utils.LogUtil;
 
@@ -9,6 +11,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmModel;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 
@@ -18,13 +21,13 @@ public class DaoUtil {
     private static RealmConfiguration config;
 
     //放在初始化中
-    public void initConfig(String dbName) {
+    public static void initConfig(String dbName) {
         //---------------重要-------------------------
         //数据库版本,数据库如果有变动,需要修改2个地方
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer = 4;
+        long dbVer = 5;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
 //            config = new RealmConfiguration.Builder()
 //                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
@@ -64,8 +67,11 @@ public class DaoUtil {
      * @return
      */
     public static Realm open() {
-        //  return Realm.getDefaultInstance();
-//        LogUtil.getLog().i(TAG, "---->数据库:" + config.getRealmFileName());
+//        if (config == null) {
+//            if (UserAction.getMyId() != null) {
+//                initConfig(UserAction.getMyId() + "");
+//            }
+//        }
         return Realm.getInstance(config);
     }
 
@@ -224,9 +230,49 @@ public class DaoUtil {
     public static void close(Realm realm) {
         if (realm != null) {
             if (realm.isInTransaction()) {
-                realm.commitTransaction();
+                realm.cancelTransaction();
             }
             realm.close();
         }
     }
+
+    /**
+     * 添加或者修改(性能优于下面的saveOrUpdate（）方法)
+     *
+     * @param object
+     * @return 保存或者修改是否成功
+     */
+    public boolean insertOrUpdate(RealmObject object) {
+        Realm realm = open();
+
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(object);
+            realm.commitTransaction();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            close(realm);
+            return false;
+        }
+    }
+
+    /**
+     * @param list
+     * @return 保存或者修改是否成功
+     */
+    public boolean insertOrUpdateBatch(List<? extends RealmObject> list) {
+        Realm realm = open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(list);
+            realm.commitTransaction();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            close(realm);
+            return false;
+        }
+    }
+
 }

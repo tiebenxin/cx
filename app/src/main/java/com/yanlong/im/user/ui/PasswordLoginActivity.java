@@ -98,6 +98,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
             case R.id.tv_identifying_code:
                 Intent intent = new Intent(this, IdentifyingCodeActivity.class);
                 startActivity(intent);
+                finish();
                 break;
         }
 

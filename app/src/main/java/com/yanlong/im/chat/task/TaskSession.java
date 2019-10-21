@@ -50,7 +50,6 @@ public class TaskSession extends AsyncTask<Void, Integer, Boolean> {
             if (group != null) {
                 session.setName(msgDao.getGroupName(group));
                 session.setIsMute(group.getNotNotify());
-                session.setHasInitDisturb(true);
                 session.setAvatar(group.getAvatar());
             } else {
                 session.setName(msgDao.getGroupName(session.getGid()));
@@ -73,7 +72,6 @@ public class TaskSession extends AsyncTask<Void, Integer, Boolean> {
             if (info != null) {
                 session.setName(info.getName4Show());
                 session.setIsMute(info.getDisturb());
-                session.setHasInitDisturb(true);
                 session.setAvatar(info.getHead());
             }
             MsgAllBean msg = msgDao.msgGetLast4FUid(session.getFrom_uid());

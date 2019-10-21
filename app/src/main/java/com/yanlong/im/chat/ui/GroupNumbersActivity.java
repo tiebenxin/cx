@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -65,6 +66,7 @@ public class GroupNumbersActivity extends AppActivity {
     private RecyclerView topListView;
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
+    private int isClickble = 0;
 
     //自动寻找控件
     private void findViews() {
@@ -85,7 +87,6 @@ public class GroupNumbersActivity extends AppActivity {
         type = getIntent().getIntExtra(AGM_TYPE, TYPE_ADD);
         gid = getIntent().getStringExtra(AGM_GID);
 
-
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -94,7 +95,9 @@ public class GroupNumbersActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                taskOption();
+                if(isClickble == 0){
+                    taskOption();
+                }
             }
         });
         actionbar.setTxtRight("确定");
@@ -274,11 +277,15 @@ public class GroupNumbersActivity extends AppActivity {
             ToastUtil.show(getContext(), "请至少选择一个用户");
             return;
         }
+        isClickble = 1;
+        Log.v("GroupNumbersActivity","taskOption");
         CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null)
+                if (response.body() == null){
+                    isClickble = 0;
                     return;
+                }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     if(type != TYPE_ADD){

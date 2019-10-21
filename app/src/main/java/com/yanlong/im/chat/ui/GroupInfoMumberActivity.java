@@ -56,10 +56,10 @@ public class GroupInfoMumberActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView =  findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        edtSearch =  findViewById(R.id.edt_search);
-        mtListView =  findViewById(R.id.mtListView);
+        edtSearch = findViewById(R.id.edt_search);
+        mtListView = findViewById(R.id.mtListView);
     }
 
 
@@ -184,7 +184,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                 }
             } else {
                 if (isAdmin() && position == ginfo.getUsers().size() - 1) {
-                  //  holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
+                    //  holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_c)).build());
                     holder.imgHead.setImageResource(R.mipmap.ic_group_c);
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -195,7 +195,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                     });
 
                 } else {
-                   // holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
+                    // holder.imgHead.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.mipmap.ic_group_a)).build());
                     holder.imgHead.setImageResource(R.mipmap.ic_group_a);
                     holder.txtName.setText("");
                     holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -280,7 +280,7 @@ public class GroupInfoMumberActivity extends AppActivity {
     }
 
     private void taskGetInfo() {
-        CallBack callBack=   new CallBack<ReturnBean<Group>>() {
+        CallBack callBack = new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
@@ -288,8 +288,8 @@ public class GroupInfoMumberActivity extends AppActivity {
 
 
                     //8.8 如果是有群昵称显示自己群昵称
-                    for (UserInfo number:ginfo.getUsers()){
-                        if(StringUtil.isNotNull(number.getMembername())){
+                    for (UserInfo number : ginfo.getUsers()) {
+                        if (StringUtil.isNotNull(number.getMembername())) {
                             number.setName(number.getMembername());
                         }
                     }
@@ -315,8 +315,8 @@ public class GroupInfoMumberActivity extends AppActivity {
             }
         };
 
-        msgAction.groupInfo4Db(gid,callBack);
-        msgAction.groupInfo(gid,callBack);
+        msgAction.groupInfo4Db(gid, callBack);
+        msgAction.groupInfo(gid, callBack);
     }
 
 

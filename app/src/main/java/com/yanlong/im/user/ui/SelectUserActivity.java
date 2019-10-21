@@ -1,6 +1,7 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
@@ -42,15 +44,16 @@ public class SelectUserActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        mtListView = (net.cb.cb.library.view.MultiListView) findViewById(R.id.mtListView);
+        mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
     }
 
 
     //自动生成的控件事件
     private void initEvent() {
+        actionbar.setTxtRight("确定");
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -59,7 +62,11 @@ public class SelectUserActivity extends AppActivity {
 
             @Override
             public void onRight() {
-
+                if(getSelectItem() != null){
+                    String json = new Gson().toJson(getSelectItem());
+                    setResult(RET_CODE_SELECTUSR, new Intent().putExtra(RET_JSON, json));
+                }
+                finish();
             }
         });
 
@@ -67,8 +74,6 @@ public class SelectUserActivity extends AppActivity {
         mtListView.getLoadView().setStateNormal();
         //联动
         viewType.setListView(mtListView.getListView());
-
-
     }
 
     @Override
@@ -82,9 +87,19 @@ public class SelectUserActivity extends AppActivity {
 
     private void initData() {
         taskListData();
-
-
     }
+
+    private UserInfo getSelectItem() {
+        if (listData != null) {
+            for (int i = 0; i < listData.size(); i++) {
+                if (listData.get(i).isChecked()) {
+                    return listData.get(i);
+                }
+            }
+        }
+        return null;
+    }
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
@@ -104,7 +119,7 @@ public class SelectUserActivity extends AppActivity {
             hd.txtType.setText(bean.getTag());
             //hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
             Glide.with(context).load(bean.getHead())
-                    .apply(GlideOptionsUtil.headImageOptions()).into( hd.imgHead);
+                    .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
 
             hd.txtName.setText(bean.getName4Show());
 
@@ -116,23 +131,38 @@ public class SelectUserActivity extends AppActivity {
                 }
             }
 
+            if (listData.get(position).isChecked()) {
+                hd.imSelect.setImageResource(R.drawable.bg_cheack_green_s);
+            } else {
+                hd.imSelect.setImageResource(R.drawable.bg_cheack_green_e);
+            }
 
-            hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            hd.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    String json = new Gson().toJson(bean);
-                    setResult(RET_CODE_SELECTUSR, new Intent().putExtra(RET_JSON, json));
-                    finish();
-
+                public void onClick(View v) {
+                    selectItem(position);
+                    mtListView.notifyDataSetChange();
                 }
             });
+
+        }
+
+        private void selectItem(int postion) {
+            for (int i = 0; i < listData.size(); i++) {
+                if (i == postion) {
+                    listData.get(i).setChecked(true);
+                } else {
+                    listData.get(i).setChecked(false);
+                }
+            }
         }
 
 
         //自动寻找ViewHold
         @Override
         public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_group_create, view, false));
+            RCViewHolder holder = new RCViewHolder(inflater.inflate(R.layout.item_group_create1, view, false));
             return holder;
         }
 
@@ -143,7 +173,7 @@ public class SelectUserActivity extends AppActivity {
             private TextView txtType;
             private ImageView imgHead;
             private TextView txtName;
-            private CheckBox ckSelect;
+            private ImageView imSelect;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -152,62 +182,16 @@ public class SelectUserActivity extends AppActivity {
                 txtType = convertView.findViewById(R.id.txt_type);
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
-                ckSelect = convertView.findViewById(R.id.ck_select);
+                imSelect = convertView.findViewById(R.id.im_select);
             }
 
         }
     }
 
-    private List<UserInfo> listDataTop = new ArrayList<>();
-
-    //自动生成RecyclerViewAdapter
-    class RecyclerViewTopAdapter extends RecyclerView.Adapter<RecyclerViewTopAdapter.RCViewTopHolder> {
-
-        @Override
-        public int getItemCount() {
-            return listDataTop == null ? 0 : listDataTop.size();
-        }
-
-        //自动生成控件事件
-        @Override
-        public void onBindViewHolder(RCViewTopHolder holder, int position) {
-           // holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
-            Glide.with(context).load(listDataTop.get(position).getHead())
-                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-        }
-
-
-        //自动寻找ViewHold
-        @Override
-        public RCViewTopHolder onCreateViewHolder(ViewGroup view, int i) {
-            RCViewTopHolder holder = new RCViewTopHolder(inflater.inflate(R.layout.item_group_create_top, view, false));
-            return holder;
-        }
-
-
-        //自动生成ViewHold
-        public class RCViewTopHolder extends RecyclerView.ViewHolder {
-            private ImageView imgHead;
-
-            //自动寻找ViewHold
-            public RCViewTopHolder(View convertView) {
-                super(convertView);
-                imgHead = convertView.findViewById(R.id.img_head);
-            }
-
-        }
-    }
-
-
-    private MsgAction msgACtion = new MsgAction();
     private UserDao userDao = new UserDao();
-
-
     private List<UserInfo> listData = new ArrayList<>();
 
     private void taskListData() {
-
-
         listData = userDao.friendGetAll();
         Collections.sort(listData);
 
@@ -218,8 +202,6 @@ public class SelectUserActivity extends AppActivity {
         // 添加存在用户的首字母列表
         viewType.addItemView(UserUtil.userParseString(listData));
         mtListView.notifyDataSetChange();
-
-
     }
 
 

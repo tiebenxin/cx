@@ -72,7 +72,6 @@ public class UserAction {
      * @return
      */
     public static UserInfo getMyInfo() {
-        // Log.v("ssss","getMyInfo");
         if (myInfo == null) {
             myInfo = new UserDao().myInfo();
         }
@@ -191,6 +190,7 @@ public class UserAction {
     }
 
 
+
     /***
      * 拉取服务器的自己的信息到数据库
      */
@@ -259,7 +259,10 @@ public class UserAction {
                     }
                     dao.updateUserinfo(userInfo);
                     MessageManager.getInstance().updateSessionTopAndDisturb("", usrid, userInfo.getIstop(), userInfo.getDisturb());
+                    MessageManager.getInstance().updateCacheUser(userInfo);
                     cb.onResponse(call, response);
+                } else {
+                    MessageManager.getInstance().removeLoadUids(usrid);
                 }
             }
         });
