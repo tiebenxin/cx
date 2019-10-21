@@ -11,7 +11,7 @@ import io.realm.annotations.Ignore;
 /*
 * 群成员，用户表
 * */
-public class MemberUser extends RealmObject /*implements Comparable<MemberUser>*/ {
+public class MemberUser /*extends RealmObject *//*implements Comparable<MemberUser>*/ {
     private Long uid;
     private String gid;
     @SerializedName("nickname")
