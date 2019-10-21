@@ -2611,7 +2611,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
                         startActivity(intent);
-                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath());
+                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(),fileVideo.getAbsolutePath());
                     }
 
                     @Override

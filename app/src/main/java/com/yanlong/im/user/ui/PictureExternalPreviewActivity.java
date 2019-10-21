@@ -255,7 +255,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                                         int y=imageView.getIndex_y();
                                         imgLarge.smoothScale(scale,x,y);
 */
-                                        MyDiskCacheUtils.getInstance().putFileNmae(filePath);
+                                        MyDiskCacheUtils.getInstance().putFileNmae(filePath,fileSave.getAbsolutePath());
                                         //这边要改成已读
                                         msgDao.ImgReadStatSet(path, true);
                                     }
