@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
@@ -54,6 +53,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.view.PopupSelectView;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.EmojiAdapter;
@@ -110,6 +110,7 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.CoreEnum;
+import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -124,7 +125,6 @@ import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.InputUtil;
-import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
@@ -538,6 +538,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
@@ -762,6 +763,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
         viewCamera.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
 
@@ -773,8 +775,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                                .compress(true)
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
 
-                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-                        startActivityForResult(intent, VIDEO_RP);
+//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                        startActivityForResult(intent, VIDEO_RP);
+
+                        showDownLoadDialog();
                     }
 
                     @Override
@@ -944,8 +948,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
-                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-                        startActivityForResult(intent, VIDEO_RP);
+//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                        startActivityForResult(intent, VIDEO_RP);
+
+
 //                        PictureSelector.create(ChatActivity.this)
 //                                .openCamera(PictureMimeType.ofVideo())
 //                                .compress(true)
@@ -1245,9 +1251,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showVoice(boolean show) {
         if (show) {//开启语音
             txtVoice.setVisibility(View.VISIBLE);
+            btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_kb));
             edtChat.setVisibility(View.GONE);
         } else {//关闭语音
             txtVoice.setVisibility(View.GONE);
+            btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_vio));
             edtChat.setVisibility(View.VISIBLE);
         }
     }
@@ -1393,6 +1401,40 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public void eventCheckVoice(EventVoicePlay event) {
         checkMoreVoice(event.getPosition(), (MsgAllBean) event.getBean());
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventCheckVoice(ActivityForwordEvent event) {
+        PictureSelector.create(ChatActivity.this)
+                .openCamera(PictureMimeType.ofImage())
+                .compress(true)
+                .forResult(PictureConfig.REQUEST_CAMERA);
+    }
+
+    private String[] strings=new String[]{"拍照","录制视频"};
+    private void showDownLoadDialog() {
+        final PopupSelectView popupSelectView = new PopupSelectView(this, strings);
+        popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
+            @Override
+            public void onItem(String string, int postsion) {
+                if (postsion == 0) {
+                    PictureSelector.create(ChatActivity.this)
+                            .openCamera(PictureMimeType.ofImage())
+                            .compress(true)
+                            .forResult(PictureConfig.REQUEST_CAMERA);
+                } else if (postsion == 1) {
+                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                    startActivityForResult(intent, VIDEO_RP);
+                }else{
+
+                }
+                popupSelectView.dismiss();
+
+            }
+        });
+        popupSelectView.showAtLocation(findViewById(R.id.ll_big_bg), Gravity.BOTTOM, 0, 0);
+
+    }
+
 
     @Override
     protected void onStop() {
@@ -2568,7 +2610,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
                         startActivity(intent);
-                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath());
+                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(),fileVideo.getAbsolutePath());
                     }
 
                     @Override
