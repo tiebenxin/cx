@@ -194,8 +194,8 @@ public class MyAppLication extends MainApplication {
      * 初始化红包
      */
     private void initRedPacket() {
-        //设置为测试环境
-        JrmfClient.isDebug(AppConfig.DEBUG);
+        //改为正式环境
+        JrmfClient.isDebug(!AppConfig.DEBUG);
         /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
         JrmfClient.init(this);
         com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);

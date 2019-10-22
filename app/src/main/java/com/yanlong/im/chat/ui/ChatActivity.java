@@ -1044,12 +1044,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.removeView(viewAction);
             //viewFunc.removeView(viewTransfer);
             viewChatRobot.setVisibility(View.INVISIBLE);
-
-
+            viewFunc.removeView(llChatVideoCall);
         } else {
-
             viewFunc.removeView(viewChatRobot);
         }
+        viewFunc.removeView(ll_part_chat_video);
         viewFunc.removeView(viewRb);
         //test 6.26
         viewFunc.removeView(viewTransfer);
