@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.Required;
 
 /*
  * 群成员，用户表
@@ -26,28 +25,28 @@ public class MemberUser extends RealmObject implements Comparable<MemberUser> {
     @PrimaryKey
     private String memberId;//群成员id=gid+uid;
     private long uid;
-    @Required
+    //    @Required
     private String gid;
     @SerializedName("nickname")
-    @Required
+//    @Required
     private String name;//昵称
     @SerializedName("gender")
     private int sex;
-    @Required
+    //    @Required
     private String imid;//产品号
     @SerializedName("avatar")
-    @Required
+//    @Required
     private String head;//头像
-    @Required
+    //    @Required
     private String membername;//群的昵称
     private int joinType;
-    @Required
+    //    @Required
     private String joinTime;
-    @Required
+    //    @Required
     private String inviter;
-    @Required
+    //    @Required
     private String inviterName;
-    @Required
+    //    @Required
     private String tag;
     @Ignore
     private boolean isChecked = false;
