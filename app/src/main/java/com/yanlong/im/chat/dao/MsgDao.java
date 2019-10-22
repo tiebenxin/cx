@@ -103,10 +103,6 @@ public class MsgDao {
             if (len > 0) {
                 for (int i = 0; i < len; i++) {
                     Group group = groups.get(i);
-//                    Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
-//                    if (g != null) {
-//                        g.deleteFromRealm();
-//                    }
                     List<MemberUser> memberUsers = group.getUsers();
                     if (memberUsers != null) {
                         int size = memberUsers.size();
@@ -115,8 +111,12 @@ public class MsgDao {
                             memberUser.init(group.getGid());
                         }
                     }
+                    System.out.println("MsgDao--gid=" + group.getGid());
+//                    Group realmGroup = realm.copyToRealmOrUpdate(group);
+//                    realm.insertOrUpdate(group);
                 }
-                realm.insertOrUpdate(groups);
+//                realm.insertOrUpdate(groups);
+                realm.copyToRealmOrUpdate(groups);
             }
             realm.commitTransaction();
             realm.close();
@@ -437,6 +437,7 @@ public class MsgDao {
             RealmList<MemberUser> nums = new RealmList<>();
             //更新信息到用户表
             for (MemberUser sv : ginfo.getUsers()) {
+                sv.init(ginfo.getGid());
                 MemberUser ui = realm.where(MemberUser.class)
                         .beginGroup().equalTo("uid", sv.getUid()).endGroup()
                         .and()
@@ -445,7 +446,7 @@ public class MsgDao {
                 if (ui == null) {
 //                    sv.toTag();
 //                    sv.setuType(0);
-                    sv.init(ginfo.getGid());
+//                    sv.init(ginfo.getGid());
 //                    sv = realm.copyToRealmOrUpdate(sv);
                     nums.add(sv);
                 } else {

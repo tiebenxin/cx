@@ -4,7 +4,6 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.utils.StringUtil;
 
