@@ -65,5 +65,14 @@ public class CoreEnum {
         int ALL = 1; //全刷
     }
 
-
+    /*
+     *语音通话类型
+     * */
+    @IntDef({VoiceType.WAIT, VoiceType.RECEIVE, VoiceType.CALLING})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface VoiceType {
+        int WAIT = 0; // 呼叫
+        int RECEIVE = 1; // 接收
+        int CALLING = 2; // 通话
+    }
 }

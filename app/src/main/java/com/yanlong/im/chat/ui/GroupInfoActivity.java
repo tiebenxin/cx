@@ -153,7 +153,7 @@ public class GroupInfoActivity extends AppActivity {
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(GroupInfoActivity.this, "退出群聊", "确定退出群聊?", "确定", "取消",
+                alertYesNo.init(GroupInfoActivity.this, "提示", "删除群后会删除群会话与群聊数据", "确定", "取消",
                         new AlertYesNo.Event() {
                             @Override
                             public void onON() {
@@ -283,7 +283,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(GroupInfoActivity.this, "清理消息记录", "确定要清楚消息记录吗?", "确定", "取消", new AlertYesNo.Event() {
+                alertYesNo.init(GroupInfoActivity.this, "提示", "确定清空聊天记录？清空后不可找回！", "确定", "取消", new AlertYesNo.Event() {
                     @Override
                     public void onON() {
 

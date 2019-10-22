@@ -3,7 +3,6 @@ package com.yanlong.im.utils;
 import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.AppConfig;
-import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;

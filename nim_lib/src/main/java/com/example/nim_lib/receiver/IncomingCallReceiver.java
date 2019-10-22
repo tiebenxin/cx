@@ -6,9 +6,13 @@ import android.content.Intent;
 import android.telephony.TelephonyManager;
 
 /**
- * 来电状态监听
- * <p/>
- * Created by huangjun on 2015/5/13.
+ * @version V1.0
+ * @createAuthor （Geoff）
+ * @createDate 2019-10-17
+ * @updateAuthor
+ * @updateDate
+ * @description 来电状态监听
+ * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
 public class IncomingCallReceiver extends BroadcastReceiver {
 

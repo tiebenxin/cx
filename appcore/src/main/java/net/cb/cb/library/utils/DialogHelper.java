@@ -56,7 +56,7 @@ public class DialogHelper {
 //        window.setBackgroundDrawableResource(android.R.color.transparent);
         window.setAttributes(dialogParams);
         // 视频通话
-        dialogview.findViewById(R.id.txt_video).setOnClickListener(new View.OnClickListener() {
+        dialogview.findViewById(R.id.layout_video).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -69,7 +69,7 @@ public class DialogHelper {
             }
         });
         // 语音通话
-        dialogview.findViewById(R.id.txt_voice).setOnClickListener(new View.OnClickListener() {
+        dialogview.findViewById(R.id.layout_voice).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (selectDialog != null) {

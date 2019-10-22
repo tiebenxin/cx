@@ -4,7 +4,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.example.nim_lib.avchat.log.LogUtil;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
@@ -13,7 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by huangjun on 2015/5/13.
+ * @version V1.0
+ * @createAuthor （Geoff）
+ * @createDate 2019-10-17
+ * @updateAuthor
+ * @updateDate
+ * @description
+ * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
 public class PhoneCallStateObserver {
 
@@ -27,7 +32,7 @@ public class PhoneCallStateObserver {
     private final String TAG = "PhoneCallStateObserver";
 
     private int phoneState = TelephonyManager.CALL_STATE_IDLE;
-    private PhoneCallStateEnum stateEnum = PhoneCallStateObserver.PhoneCallStateEnum.IDLE;
+    private PhoneCallStateEnum stateEnum = PhoneCallStateEnum.IDLE;
 
     private List<Observer<Integer>> autoHangUpObservers = new ArrayList<>(1); // 与本地电话互斥的挂断监听
 
@@ -70,8 +75,6 @@ public class PhoneCallStateObserver {
      * 处理本地电话与网络通话的互斥
      */
     public void handleLocalCall() {
-        LogUtil.i(TAG, "notify phone state changed, state=" + stateEnum.name());
-
         if (stateEnum != PhoneCallStateEnum.IDLE) {
             AVChatManager.getInstance().hangUp2(AVChatManager.getInstance().getCurrentChatId(), new HandleLocalCallCallback(1));
         }
@@ -105,7 +108,7 @@ public class PhoneCallStateObserver {
             notifyObservers(autoHangUpObservers, 0);
 
             if (!TextUtils.isEmpty(log)) {
-                LogUtil.i(TAG, log + " throws exception, e=" + exception.getMessage());
+                Log.i(TAG, log + " throws exception, e=" + exception.getMessage());
             }
         }
     }
@@ -142,7 +145,7 @@ public class PhoneCallStateObserver {
      * 若有本地来电，目前Demo中示例代码的处理是网络通话自动拒绝或者挂断，开发者可以自行灵活处理。
      */
     public void observeAutoHangUpForLocalPhone(Observer<Integer> observer, boolean register) {
-        LogUtil.i(TAG, "observeAutoHangUpForLocalPhone->" + observer + "#" + register);
+        Log.i(TAG, "observeAutoHangUpForLocalPhone->" + observer + "#" + register);
         registerObservers(this.autoHangUpObservers, observer, register);
     }
 }
