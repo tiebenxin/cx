@@ -27,8 +27,8 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/basic_activity_margin2"
         android:paddingRight="@dimen/basic_activity_margin2"
-        android:layout_marginBottom="64dp"
-        android:layout_alignParentBottom="true">
+        android:layout_marginTop="34dp"
+        >
         <ImageView
             android:id="@+id/iv_flash_video"
             android:layout_width="39dp"
@@ -60,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="130dp">
+        android:layout_marginBottom="50dp">
         <com.zhaoss.weixinrecorded.view.RecordView
             android:id="@+id/recordView"
             android:layout_width="160dp"

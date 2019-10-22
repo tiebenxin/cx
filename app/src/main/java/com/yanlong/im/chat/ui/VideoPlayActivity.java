@@ -66,6 +66,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     }
 
     private void initEvent() {
+        findViewById(R.id.rl_video_play_con).setOnClickListener(this);
         textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
@@ -155,8 +156,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
                 //获取歌曲的进度
                 if (null!=mMediaPlayer){
-                    currentTime = mMediaPlayer.getCurrentPosition();
-                    handler.sendEmptyMessage(419);
+                    try {
+                        currentTime = mMediaPlayer.getCurrentPosition();
+                        handler.sendEmptyMessage(419);
+                    }catch (Exception e){
+                        if (null!=timer)
+                        timer.cancel();
+                    }
                 }
                 //将获取歌曲的进度赋值给seekbar
 //                activity_video_seek.setProgress(p);
@@ -251,6 +257,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            case R.id.rl_video_play_con:
+                activity_video_rel_con.setVisibility(View.VISIBLE);
+                break;
             case R.id.textureView:
                 if (activity_video_rel_con.getVisibility()==View.VISIBLE){
                     activity_video_rel_con.setVisibility(View.INVISIBLE);

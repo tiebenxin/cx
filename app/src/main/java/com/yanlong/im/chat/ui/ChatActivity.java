@@ -775,17 +775,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                                .compress(true)
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
 
-//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-//                        startActivityForResult(intent, VIDEO_RP);
+                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                        startActivityForResult(intent, VIDEO_RP);
 
-                        showDownLoadDialog();
+//                        showDownLoadDialog();
                     }
 
                     @Override
                     public void onFail() {
 
                     }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA});
 
 
             }
@@ -1674,7 +1674,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgDao dao =new MsgDao();
 //                        dao.fixVideoLocalUrl(imgMsgId,file);
 
-                        notifyData2Bottom(true);
+
 
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
@@ -1698,6 +1698,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                         startService(new Intent(getContext(), UpLoadService.class));
                     }
+                    notifyData2Bottom(true);
                     break;
                 case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
@@ -1743,7 +1744,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
                         showSendObj(msgAllbean);
-
 
                     }
                     break;
