@@ -83,8 +83,15 @@ public class MessageManager {
     private static List<Session> cacheSessions = new ArrayList<>();//Session缓存，
     private static Map<Long, List<MsgAllBean>> cacheMessagePrivate = new HashMap();//私聊消息缓存，以用户id为key
     private static Map<String, List<MsgAllBean>> cacheMessageGroup = new HashMap();//群聊消息缓存，以群id为key
-    private static Map<String, MsgAllBean> saveMessages = new HashMap<>();//接收到的消息，待保存到数据库
     private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
+
+
+    //批量消息待处理
+    private static Map<String, MsgAllBean> pendingMessages = new HashMap<>();//批量接收到的消息，待保存到数据库
+    private static Map<Long, UserInfo> pendingUsers = new HashMap<>();//批量用户信息（头像和昵称），待保存到数据库
+    private static Map<String, Group> pendingGroups = new HashMap<>();//批量群信息（头像和群名），待保存到数据库
+    private static Map<String, Integer> pendingGroupUnread = new HashMap<>();//批量群session未读数，待保存到数据库
+    private static Map<Long, Integer> pendingUserUnread = new HashMap<>();//批量私聊session未读数，待保存到数据库
 
 
     private long playTimeOld = 0;//当前声音播放时间
@@ -339,6 +346,56 @@ public class MessageManager {
     }
 
     /*
+     * 保存消息
+     * @param msgAllBean 消息
+     * @isList 是否是批量消息
+     * */
+    private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
+        msgAllBean.setRead(false);//设置未读
+        msgAllBean.setTo_uid(msgAllBean.getTo_uid());
+        boolean result = false;
+        //收到直接存表
+        if (isList) {
+            pendingMessages.put(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
+        } else {
+            DaoUtil.update(msgAllBean);
+        }
+        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
+            if (!loadGids.contains(msgAllBean.getGid())) {
+                loadGids.add(msgAllBean.getGid());
+                loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+            } else {
+                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                if (isList) {
+                    setMessageChange(true);
+                }
+                result = true;
+            }
+        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
+            if (!loadUids.contains(msgAllBean.getFrom_uid())) {
+                loadUids.add(msgAllBean.getFrom_uid());
+                loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                System.out.println(TAG + "--需要加载用户信息");
+
+            } else {
+                System.out.println(TAG + "--异步加载用户信息更新未读数");
+                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                if (isList) {
+                    setMessageChange(true);
+                }
+                result = true;
+            }
+        } else {
+            updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+            if (isList) {
+                setMessageChange(true);
+            }
+            result = true;
+        }
+        return result;
+    }
+
+    /*
      * 网络加载用户信息,只能接受来自好友的信息
      * */
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
@@ -401,6 +458,10 @@ public class MessageManager {
     public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
         System.out.println(TAG + "--更新Session--updateSessionUnread");
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
+    }
+
+    public void saveSessionUnreadCount(String gid, Long uid, boolean isChange) {
+
     }
 
     /*
