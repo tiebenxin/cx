@@ -5,6 +5,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,13 +21,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.R;
 import com.example.nim_lib.config.AVChatConfigs;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.constant.AVChatExitCode;
+import com.example.nim_lib.constant.CoreEnum;
 import com.example.nim_lib.controll.AVChatController;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.module.AVChatTimeoutObserver;
@@ -35,6 +35,7 @@ import com.example.nim_lib.permission.BaseMPermission;
 import com.example.nim_lib.receiver.PhoneCallStateObserver;
 import com.example.nim_lib.util.GlideUtil;
 import com.example.nim_lib.util.ScreenUtil;
+import com.example.nim_lib.util.ViewUtils;
 import com.example.nim_lib.widgets.ToggleListener;
 import com.example.nim_lib.widgets.ToggleState;
 import com.example.nim_lib.widgets.ToggleView;
@@ -56,9 +57,6 @@ import com.netease.nimlib.sdk.avchat.video.AVChatCameraCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturerFactory;
 import com.netease.nrtc.video.render.IVideoRender;
-
-import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.utils.ViewUtils;
 
 import java.util.List;
 import java.util.Locale;
@@ -323,7 +321,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         AVChatManager.getInstance().observeHangUpNotification(callHangupObserver, register);
         AVChatManager.getInstance().observeControlNotification(callControlObserver, register);
         AVChatManager.getInstance().observeCalleeAckNotification(callAckObserver, register);
-        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, register);
+        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, register,this);
         PhoneCallStateObserver.getInstance().observeAutoHangUpForLocalPhone(autoHangUpForLocalPhoneObserver, register);
     }
 
@@ -449,7 +447,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         public void onCallEstablished() {
             Log.d(TAG, "onCallEstablished");
 //            //移除超时监听
-            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall);
+            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall,VideoActivity.this);
 //            if (avChatController.getTimeBase() == 0)
 //                avChatController.setTimeBase(SystemClock.elapsedRealtime());
 

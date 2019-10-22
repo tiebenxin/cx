@@ -4,17 +4,17 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.inputmethod.InputMethodManager;
 
 import com.example.nim_lib.R;
-
-import net.cb.cb.library.utils.ViewUtils;
-import net.cb.cb.library.utils.flyn.Eyes;
-import net.cb.cb.library.view.AppActivity;
+import com.example.nim_lib.util.ViewUtils;
+import com.example.nim_lib.util.flyn.Eyes;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
 
 /**
  * @version V1.0
@@ -25,7 +25,7 @@ import org.greenrobot.eventbus.ThreadMode;
  * @description Activity基类
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public abstract class BaseBindActivity<SV extends ViewDataBinding> extends AppActivity {
+public abstract class BaseBindActivity<SV extends ViewDataBinding> extends AppCompatActivity {
 
     /**
      * 是否需要基类帮你注册EventBus

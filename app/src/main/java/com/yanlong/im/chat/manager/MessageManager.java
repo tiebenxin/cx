@@ -175,7 +175,7 @@ public class MessageManager {
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
                 break;
             case REMOVE_FRIEND:
-                notifyRefreshFriend(false, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
+                notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
                 msgDao.remidCount("friend_apply");
@@ -410,6 +410,7 @@ public class MessageManager {
         EventBus.getDefault().post(new EventRefreshMainMsg());
     }
 
+
     /*
      * 通知刷新消息列表，及未读数
      * @param chatType 单聊群聊
@@ -458,6 +459,15 @@ public class MessageManager {
         }
         EventBus.getDefault().post(eventRefreshMainMsg);
     }
+
+    /*
+     * 通知刷新聊天界面
+     * */
+    public void notifyRefreshChat() {
+        EventRefreshChat event = new EventRefreshChat();
+        EventBus.getDefault().post(event);
+    }
+
 
     public void deleteSessionAndMsg(Long uid, String gid) {
         msgDao.sessionDel(uid, gid);

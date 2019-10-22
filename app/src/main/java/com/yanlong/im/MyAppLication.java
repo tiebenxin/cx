@@ -6,6 +6,8 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.jrmf360.tools.JrmfClient;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.commonsdk.UMConfigure;
@@ -18,11 +20,11 @@ import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
 
 import net.cb.cb.library.AppConfig;
-import net.cb.cb.library.BuildConfig;
 import net.cb.cb.library.MainApplication;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.utils.AppFrontBackHelper;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.UpLoadUtils;
 import net.cb.cb.library.utils.VersionUtil;
@@ -45,6 +47,7 @@ public class MyAppLication extends MainApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        initNim();
         AppConfig.setContext(getApplicationContext());
         ///推送处理
         initUPushPre();
@@ -101,13 +104,15 @@ public class MyAppLication extends MainApplication {
         initUploadUtils();
         initBugly();
         initCache();
-        initNim();
     }
 
     /**
      * 初始化网易云信
      */
     private void initNim(){
+        // SDK初始化（启动后台服务，若已经存在用户登录信息， SDK 将完成自动登录） 必须放到主Application中
+        NIMClient.init(this, getLoginInfo(), null);
+        LogUtil.getLog().d(TAG,"NIMClient.init()");
         // 以下逻辑只在主进程初始化时执行
         if (NIMUtil.isMainProcess(this)) {
             AVChatKit.getInstance().init(this);
@@ -130,6 +135,21 @@ public class MyAppLication extends MainApplication {
         strategy.setUploadProcess(processName == null || processName.equals(packageName));
         CrashReport.initCrashReport(this, "7780d7e928", false, strategy);
 
+    }
+
+    /**
+     * 获取网易云账号跟Toekn
+     * @return
+     */
+    private LoginInfo getLoginInfo() {
+        SpUtil spUtil = SpUtil.getSpUtil();
+        String account = spUtil.getSPValue("account","");
+        String token = spUtil.getSPValue("token","");
+        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
+            return new LoginInfo(account, token);
+        } else {
+            return null;
+        }
     }
 
     /**

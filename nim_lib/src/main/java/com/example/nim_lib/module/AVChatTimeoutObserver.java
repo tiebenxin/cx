@@ -1,11 +1,10 @@
 package com.example.nim_lib.module;
 
 
+import android.content.Context;
 import android.os.Handler;
 
 import com.netease.nimlib.sdk.Observer;
-
-import net.cb.cb.library.MainApplication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +31,8 @@ public class AVChatTimeoutObserver {
     }
 
     private AVChatTimeoutObserver() {
-        uiHandler = new Handler(MainApplication.getInstance().getApplicationContext().getMainLooper());
-    }
 
+    }
 
     // 通知APP观察者
     private <T> void notifyObservers(List<Observer<T>> observers, T result) {
@@ -64,8 +62,9 @@ public class AVChatTimeoutObserver {
         }
     }
 
-    public void observeTimeoutNotification(Observer<Integer> observer, boolean register, boolean isIncoming) {
+    public void observeTimeoutNotification(Observer<Integer> observer, boolean register, boolean isIncoming, Context context) {
 //        LogUtil.i(TAG, "observeTimeoutNotification->" + observer + "#" + register);
+        uiHandler = new Handler(context.getMainLooper());
         registerObservers(timeoutObserverLocal, observer, register);
         if (register) {
             if (isIncoming) {

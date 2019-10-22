@@ -373,11 +373,23 @@ public class FriendMainFragment extends Fragment {
     public void eventRefreshFriend(EventRefreshFriend event) {
         if (event.isLocal()) {
             long uid = event.getUid();
-            if (uid > 0) {
-                refreshPosition(uid);
-            } else {
-                taskListData();
+            @CoreEnum.ERosterAction int action = event.getRosterAction();
+            switch (action) {
+                case CoreEnum.ERosterAction.REMOVE_FRIEND:
+                    taskRemoveUser(uid);
+                    break;
+                case CoreEnum.ERosterAction.BLACK://添加或者解除黑名单
+                    taskListData();
+                    break;
+                default:
+                    if (uid > 0) {
+                        refreshPosition(uid);
+                    } else {
+                        taskListData();
+                    }
+                    break;
             }
+
         } else {
             long uid = event.getUid();
             if (uid > 0) {
@@ -389,9 +401,9 @@ public class FriendMainFragment extends Fragment {
                     case CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS:
                         taskRefreshUser(uid, action);
                         break;
-                    case CoreEnum.ERosterAction.REMOVE_FRIEND:
-                        taskRemoveUser(uid);
-                        break;
+//                    case CoreEnum.ERosterAction.REMOVE_FRIEND:
+//                        taskRemoveUser(uid);
+//                        break;
                     default:
                         taskListData();
                         break;

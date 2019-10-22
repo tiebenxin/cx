@@ -304,13 +304,13 @@ public class MainActivity extends AppActivity {
         userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.LOAD_ALL_SUCESS);
+                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.LOAD_ALL_SUCCESS);
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
                 super.onFailure(call, t);
-                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.LOAD_ALL_SUCESS);
+                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.LOAD_ALL_SUCCESS);
             }
         });
     }
@@ -410,7 +410,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefreshFriend(EventRefreshFriend event) {
-        if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCESS) {
+        if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
             taskLoadSavedGroups();
         }
     }

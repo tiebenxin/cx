@@ -568,7 +568,7 @@ public class UserInfoActivity extends AppActivity {
                 userDao.updateUserUtype(id, 3);
                 new MsgDao().sessionDel(id, "");
                 ToastUtil.show(context, response.body().getMsg());
-                notifyRefreshRoster(id);
+                notifyRefreshRoster(id, CoreEnum.ERosterAction.BLACK);
                 MessageManager.getInstance().notifyRefreshMsg();
             }
         });
@@ -586,15 +586,16 @@ public class UserInfoActivity extends AppActivity {
                 tvBlack.setText("加入黑名单");
                 userDao.updateUserUtype(id, 2);
                 ToastUtil.show(context, response.body().getMsg());
-                notifyRefreshRoster(uid);
+                notifyRefreshRoster(uid, CoreEnum.ERosterAction.BLACK);
             }
         });
     }
 
-    private void notifyRefreshRoster(long uid) {
+    private void notifyRefreshRoster(long uid, @CoreEnum.ERosterAction int action) {
         EventRefreshFriend eventRefreshFriend = new EventRefreshFriend();
         eventRefreshFriend.setLocal(true);
         eventRefreshFriend.setUid(uid);
+        eventRefreshFriend.setRosterAction(action);
         EventBus.getDefault().post(eventRefreshFriend);
     }
 
@@ -609,9 +610,11 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 //刷新好友和退出
                 if (response.body().isOk()) {
-                    userDao.updateUserUtype(id, 0);
-                    MessageManager.getInstance().deleteSessionAndMsg(id, "");
-                    notifyRefreshRoster(id);
+//                    userDao.updateUserUtype(id, 0);
+//                    MessageManager.getInstance().deleteSessionAndMsg(id, "");
+                    MessageManager.getInstance().setMessageChange(true);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.DELETE, null);
+                    notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
                     finish();
                 }
             }
@@ -628,7 +631,7 @@ public class UserInfoActivity extends AppActivity {
                 //6.3
                 if (response.body().isOk()) {
                     updateUserInfo(mark);
-                    notifyRefreshRoster(id);
+                    notifyRefreshRoster(id, CoreEnum.ERosterAction.UPDATE_INFO);
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
@@ -656,7 +659,7 @@ public class UserInfoActivity extends AppActivity {
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    notifyRefreshRoster(uid);
+                    notifyRefreshRoster(uid, CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
                     finish();
                 }
             }

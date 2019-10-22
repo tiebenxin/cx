@@ -70,11 +70,21 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     private AssistantMessage assistantMessage;
 
+    private P2PAuVideoMessage p2PAuVideoMessage;
+
     //private RequestFriendMessage request_friend;
 
     // private AcceptBeFriendsMessage accept_be_friends;
 
     //private AckMessage ack;
+
+    public P2PAuVideoMessage getP2PAuVideoMessage() {
+        return p2PAuVideoMessage;
+    }
+
+    public void setP2PAuVideoMessage(P2PAuVideoMessage p2PAuVideoMessage) {
+        this.p2PAuVideoMessage = p2PAuVideoMessage;
+    }
 
     public boolean isRead() {
         return isRead;

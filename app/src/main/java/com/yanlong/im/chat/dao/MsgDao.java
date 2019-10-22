@@ -2571,4 +2571,21 @@ public class MsgDao {
     }
 
 
+    /***
+     * 保存批量消息
+     */
+    public void insertOrUpdateMsgList(List<MsgAllBean> list) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(list);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+
 }
