@@ -68,9 +68,11 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 } else {
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
+                MessageManager.getInstance().notifyRefreshChat();
             } else {
 //                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面,整体刷新");
                 MessageManager.getInstance().notifyRefreshMsg();
+                MessageManager.getInstance().notifyRefreshChat();
             }
             clearIds();
         }
@@ -95,6 +97,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             } else {
                 MessageManager.getInstance().notifyRefreshMsg();
             }
+            MessageManager.getInstance().notifyRefreshChat();
             clearIds();
 //            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面");
         }

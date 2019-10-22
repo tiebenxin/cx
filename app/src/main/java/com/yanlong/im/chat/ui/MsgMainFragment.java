@@ -419,13 +419,16 @@ public class MsgMainFragment extends Fragment {
     public void eventRefresh(EventRefreshMainMsg event) {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
-            if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
+            int refreshTag = event.getRefreshTag();
+            if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
-            } else {
+            } else if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE){
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
-
+            }else if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE){
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-DELETE");
+                taskDelSession(event.getUid(), event.getGid());
             }
         }
     }
