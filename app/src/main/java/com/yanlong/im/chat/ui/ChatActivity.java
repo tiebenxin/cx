@@ -761,9 +761,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             edtChat.onKeyUp(keyCode, keyEventUp);
                         }
                     });
-
                 }
-
             }
         }
 

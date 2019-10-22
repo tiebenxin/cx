@@ -268,7 +268,7 @@ public class RecordedActivity extends BaseActivity {
             public void onClick() {
                 if(segmentList.size() == 0){
                     isShotPhoto.set(true);
-                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
                 }
             }
         });
