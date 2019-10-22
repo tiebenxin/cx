@@ -3,13 +3,16 @@ package com.yanlong.im.chat.task;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.CoreEnum;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @anthor Liszt
@@ -23,6 +26,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     List<String> gids = new ArrayList<>();//批量消息接受到群聊id
     List<Long> uids = new ArrayList<>();//批量消息接收到单聊uid
     private int taskCount = 0;//任务总数
+    Map<String, MsgAllBean> totalMsgList = new HashMap<>();
 
     public TaskDealWithMsgList(List<MsgBean.UniversalMessage.WrapMessage> wrapMessageList) {
         messages = wrapMessageList;
@@ -129,5 +133,19 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     private void clearIds() {
         uids.clear();
         gids.clear();
+    }
+
+    private void addMsg(MsgAllBean bean) {
+        totalMsgList.put(bean.getMsg_id(), bean);
+    }
+
+    private void cancelMsg(String msgId) {
+//        totalMsgList.put(bean.getMsg_id(), bean);
+        MsgAllBean bean = totalMsgList.get(msgId);
+
+    }
+
+    private void clearMsgList() {
+        totalMsgList.clear();
     }
 }
