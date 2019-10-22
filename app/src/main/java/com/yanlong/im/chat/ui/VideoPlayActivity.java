@@ -154,8 +154,10 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             public void run() {
 
                 //获取歌曲的进度
-                currentTime = mMediaPlayer.getCurrentPosition();
-                handler.sendEmptyMessage(419);
+                if (null!=mMediaPlayer){
+                    currentTime = mMediaPlayer.getCurrentPosition();
+                    handler.sendEmptyMessage(419);
+                }
                 //将获取歌曲的进度赋值给seekbar
 //                activity_video_seek.setProgress(p);
             }
