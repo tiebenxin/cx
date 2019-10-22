@@ -4,7 +4,13 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.multidex.MultiDexApplication;
+import android.text.TextUtils;
 
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.auth.LoginInfo;
+
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SpUtil;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,8 +29,10 @@ public class MainApplication extends MultiDexApplication {
         instance = this;
         AppConfig.APP_CONTEXT = context;
         initOther();
-       // initFont();
-
+        // SDK初始化（启动后台服务，若已经存在用户登录信息， SDK 将完成自动登录） 必须放到主Application中
+        NIMClient.init(this, getLoginInfo(), null);
+        LogUtil.getLog().d(TAG,"NIMClient.init()");
+        // initFont();
     }
 
     public static MainApplication getInstance() {
@@ -72,6 +80,21 @@ public class MainApplication extends MultiDexApplication {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 获取网易云账号跟Toekn
+     * @return
+     */
+    private LoginInfo getLoginInfo() {
+        SpUtil spUtil = SpUtil.getSpUtil();
+        String account = spUtil.getSPValue("account","");
+        String token = spUtil.getSPValue("token","");
+        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
+            return new LoginInfo(account, token);
+        } else {
+            return null;
+        }
     }
 
 

@@ -38,6 +38,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupImageHead;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -774,7 +775,7 @@ public class MsgMainFragment extends Fragment {
                             creatAndSaveImg(bean, holder.imgHead);
                         }
 
-                        Log.e("TAG", "----------" + imgUrl.toString());
+//                        Log.e("TAG", "----------" + imgUrl.toString());
                         if (StringUtil.isNotNull(imgUrl)) {
                             Glide.with(getActivity()).load(imgUrl)
                                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -844,7 +845,7 @@ public class MsgMainFragment extends Fragment {
                 //头像地址
                 String url[] = new String[i];
                 for (int j = 0; j < i; j++) {
-                    UserInfo userInfo = gginfo.getUsers().get(j);
+                    MemberUser userInfo = gginfo.getUsers().get(j);
                     url[j] = userInfo.getHead();
                 }
                 File file = GroupHeadImageUtil.synthesis(getContext(), url);

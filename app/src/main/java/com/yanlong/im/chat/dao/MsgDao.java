@@ -1,21 +1,19 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
-import android.widget.TextView;
 
-import com.umeng.commonsdk.debug.E;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.ContactNameBean;
-import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupAccept;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgCancel;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -30,7 +28,6 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -66,7 +63,7 @@ public class MsgDao {
             Group g = realm.where(Group.class).equalTo("gid", group.getGid()).findFirst();
             if (null != g) {//已经存在
                 try {
-                    List<UserInfo> objects = g.getUsers();
+                    List<MemberUser> objects = g.getUsers();
                     if (null != objects && objects.size() > 0) {
                         g.setName(group.getName());
                         g.setAvatar(group.getAvatar());
@@ -94,7 +91,6 @@ public class MsgDao {
     /***
      * 保存群
      * @param groups 群列表
-     * @param isSave 是否是保存的群
      */
     public void saveGroups(List<Group> groups) {
         if (groups == null || groups.size() <= 0) {
@@ -105,7 +101,22 @@ public class MsgDao {
             realm.beginTransaction();
             int len = groups.size();
             if (len > 0) {
-                realm.insertOrUpdate(groups);
+                for (int i = 0; i < len; i++) {
+                    Group group = groups.get(i);
+                    List<MemberUser> memberUsers = group.getUsers();
+                    if (memberUsers != null) {
+                        int size = memberUsers.size();
+                        for (int j = 0; j < size; j++) {
+                            MemberUser memberUser = memberUsers.get(j);
+                            memberUser.init(group.getGid());
+                        }
+                    }
+                    System.out.println("MsgDao--gid=" + group.getGid());
+//                    Group realmGroup = realm.copyToRealmOrUpdate(group);
+//                    realm.insertOrUpdate(group);
+                }
+//                realm.insertOrUpdate(groups);
+                realm.copyToRealmOrUpdate(groups);
             }
             realm.commitTransaction();
             realm.close();
@@ -423,30 +434,38 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             //更新信息到群成员列表
-            RealmList<UserInfo> nums = new RealmList<>();
+            RealmList<MemberUser> nums = new RealmList<>();
             //更新信息到用户表
-            for (UserInfo sv : ginfo.getUsers()) {
-                UserInfo ui = realm.where(UserInfo.class).equalTo("uid", sv.getUid()).findFirst();
+            for (MemberUser sv : ginfo.getUsers()) {
+                sv.init(ginfo.getGid());
+                MemberUser ui = realm.where(MemberUser.class)
+                        .beginGroup().equalTo("uid", sv.getUid()).endGroup()
+                        .and()
+                        .beginGroup().equalTo("gid", sv.getGid()).endGroup()
+                        .findFirst();
                 if (ui == null) {
-                    sv.toTag();
-                    sv.setuType(0);
-                    sv = realm.copyToRealmOrUpdate(sv);
+//                    sv.toTag();
+//                    sv.setuType(0);
+//                    sv.init(ginfo.getGid());
+//                    sv = realm.copyToRealmOrUpdate(sv);
                     nums.add(sv);
                 } else {
+                    ui.init(ginfo.getGid());
                     nums.add(ui);
+
                 }
                 //8.8把群的成员信息存链接表
-                GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", ginfo.getGid()).equalTo("uid", sv.getUid()).findFirst();
-                if (gropLinkInfo == null) {
-                    gropLinkInfo = new GropLinkInfo();
-                    gropLinkInfo.setLid(UUID.randomUUID().toString());
-                    gropLinkInfo.setGid(ginfo.getGid());
-                    gropLinkInfo.setUid(sv.getUid());
-                    gropLinkInfo.setMembername(sv.getMembername());
-                } else {
-                    gropLinkInfo.setMembername(sv.getMembername());
-                }
-                realm.insertOrUpdate(gropLinkInfo);
+//                GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", ginfo.getGid()).equalTo("uid", sv.getUid()).findFirst();
+//                if (gropLinkInfo == null) {
+//                    gropLinkInfo = new GropLinkInfo();
+//                    gropLinkInfo.setLid(UUID.randomUUID().toString());
+//                    gropLinkInfo.setGid(ginfo.getGid());
+//                    gropLinkInfo.setUid(sv.getUid());
+//                    gropLinkInfo.setMembername(sv.getMembername());
+//                } else {
+//                    gropLinkInfo.setMembername(sv.getMembername());
+//                }
+//                realm.insertOrUpdate(gropLinkInfo);
 
             }
             //更新自己的群昵称
@@ -465,24 +484,21 @@ public class MsgDao {
      * 获取群和用户的连接信息
      * @return
      */
-    public GropLinkInfo getGropLinkInfo(String gid, Long uid) {
-        GropLinkInfo gropLinkInfo = null;
-        Realm realm = DaoUtil.open();
-        try {
-//            realm.beginTransaction();
-
-            GropLinkInfo info = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
-            if (info != null) {
-                gropLinkInfo = realm.copyFromRealm(info);
-            }
-//            realm.commitTransaction();
-            realm.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            DaoUtil.close(realm);
-        }
-        return gropLinkInfo;
-    }
+//    public GropLinkInfo getGropLinkInfo(String gid, Long uid) {
+//        GropLinkInfo gropLinkInfo = null;
+//        Realm realm = DaoUtil.open();
+//        try {
+//            GropLinkInfo info = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
+//            if (info != null) {
+//                gropLinkInfo = realm.copyFromRealm(info);
+//            }
+//            realm.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            DaoUtil.close(realm);
+//        }
+//        return gropLinkInfo;
+//    }
 
 
     /***
@@ -742,13 +758,13 @@ public class MsgDao {
      * @param name
      * @param listDataTop
      */
-    public void groupCreate(String id, String avatar, String name, List<UserInfo> listDataTop) {
+    public void groupCreate(String id, String avatar, String name, List<MemberUser> listDataTop) {
         if (!TextUtils.isEmpty(id)) {
             Group group = new Group();
             group.setAvatar(avatar == null ? "" : avatar);
             group.setGid(id);
             group.setName(name == null ? "" : name);
-            RealmList<UserInfo> users = new RealmList();
+            RealmList<MemberUser> users = new RealmList();
             users.addAll(listDataTop);
             group.setUsers(users);
             DaoUtil.update(group);
@@ -1295,7 +1311,7 @@ public class MsgDao {
                             Group group = realm.where(Group.class).equalTo("gid", l.getGid()).findFirst();
                             if (group != null) {
                                 top = group.getIsTop();
-                                List<UserInfo> users = realm.copyFromRealm(group.getUsers());
+                                List<MemberUser> users = realm.copyFromRealm(group.getUsers());
                                 if (users != null && !users.contains(UserAction.getMyInfo())) {
                                     session = realm.copyFromRealm(l);
                                     removes.add(session);
@@ -1904,6 +1920,7 @@ public class MsgDao {
         String name = "";
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
+
         UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
         if (userInfo != null) {
             //1.获取本地用户昵称
@@ -1915,22 +1932,27 @@ public class MsgDao {
             if (StringUtil.isNotNull(groupName)) {
                 name = groupName;
             } else {
-                GropLinkInfo gropLinkInfo = null;
-                if (StringUtil.isNotNull(gid)) {
-                    gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
+                MemberUser memberUser = realm.where(MemberUser.class)
+                        .beginGroup().equalTo("uid", uid).endGroup()
+                        .beginGroup().equalTo("gid", gid).endGroup()
+                        .findFirst();
+                if (memberUser != null) {
+                    name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : name;
                 }
 
-                if (gropLinkInfo != null) {
-                    //2.获取群成员昵称
-                    name = StringUtil.isNotNull(gropLinkInfo.getMembername()) ? gropLinkInfo.getMembername() : name;
-                }
+//                GropLinkInfo gropLinkInfo = null;
+//                if (StringUtil.isNotNull(gid)) {
+//                    gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
+//                }
+//                if (gropLinkInfo != null) {
+//                    //2.获取群成员昵称
+//                    name = StringUtil.isNotNull(gropLinkInfo.getMembername()) ? gropLinkInfo.getMembername() : name;
+//                }
             }
 
 
             //3.获取用户备注名
             name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
-
-
         } else {
             name = StringUtil.isNotNull(uname) ? uname : name;
             name = StringUtil.isNotNull(groupName) ? groupName : name;
@@ -2066,18 +2088,18 @@ public class MsgDao {
             if (ret.contains(g)) {
                 continue;
             } else {
-                RealmList<UserInfo> userInfos = g.getUsers();
-                UserInfo userInfo = userInfos.where()
+                RealmList<MemberUser> userInfos = g.getUsers();
+                MemberUser userInfo = userInfos.where()
                         .beginGroup().contains("name", key).endGroup()
                         .or()
-                        .beginGroup().contains("mkName", key).endGroup()
+                        .beginGroup().contains("membername", key).endGroup()
                         .findFirst();
                 if (userInfo != null) {
                     Group group = realm.copyFromRealm(g);
-                    UserInfo info = realm.copyFromRealm(userInfo);
+                    MemberUser info = realm.copyFromRealm(userInfo);
                     group.setKeyUser(info);
                     ret.add(group);
-                } else {
+                } /*else {
                     GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class)
                             .beginGroup().equalTo("gid", g.getGid()).endGroup()
                             .and()
@@ -2095,7 +2117,7 @@ public class MsgDao {
                             ret.add(group);
                         }
                     }
-                }
+                }*/
             }
         }
         realm.commitTransaction();
@@ -2213,20 +2235,20 @@ public class MsgDao {
         String result = group.getName();
 //        String result = "";
         if (TextUtils.isEmpty(result)) {
-            List<UserInfo> users = group.getUsers();
+            List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
-                    UserInfo info = users.get(i);
-                    GropLinkInfo linkInfo = getGropLinkInfo(gid, info.getUid());
-                    String memberName = "";
-                    if (linkInfo != null) {
-                        memberName = linkInfo.getMembername();
-                    }
+                    MemberUser info = users.get(i);
+//                    GropLinkInfo linkInfo = getGropLinkInfo(gid, info.getUid());
+//                    String memberName = "";
+//                    if (info != null) {
+//                        memberName = info.getMembername();
+//                    }
                     if (i == len - 1) {
-                        result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid());
+                        result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
                     } else {
-                        result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid()) + "、";
+                        result += StringUtil.getUserName(/*info.getMkName()*/"", info.getMembername(), info.getName(), info.getUid()) + "、";
                     }
                 }
                 result = result.length() > 14 ? StringUtil.splitEmojiString(result, 0, 14) : result;
@@ -2246,20 +2268,20 @@ public class MsgDao {
         String result = group.getName();
 //        String result = "";
         if (TextUtils.isEmpty(result)) {
-            List<UserInfo> users = group.getUsers();
+            List<MemberUser> users = group.getUsers();
             if (users != null && users.size() > 0) {
                 int len = users.size();
                 for (int i = 0; i < len; i++) {
-                    UserInfo info = users.get(i);
-                    GropLinkInfo linkInfo = getGropLinkInfo(group.getGid(), info.getUid());
-                    String memberName = "";
-                    if (linkInfo != null && !TextUtils.isEmpty(linkInfo.getMembername())) {
-                        memberName = linkInfo.getMembername();
-                    }
+                    MemberUser info = users.get(i);
+//                    GropLinkInfo linkInfo = getGropLinkInfo(group.getGid(), info.getUid());
+//                    String memberName = "";
+//                    if (linkInfo != null && !TextUtils.isEmpty(linkInfo.getMembername())) {
+//                        memberName = linkInfo.getMembername();
+//                    }
                     if (i == len - 1) {
-                        result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid());
+                        result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid());
                     } else {
-                        result += StringUtil.getUserName(info.getMkName(), memberName, info.getName(), info.getUid()) + "、";
+                        result += StringUtil.getUserName("", info.getMembername(), info.getName(), info.getUid()) + "、";
                     }
 
                 }
@@ -2466,8 +2488,7 @@ public class MsgDao {
 
     /***
      * 更新非保存群
-     * @param groups 群列表
-     * @param isSave 是否是保存的群
+     * @param groupList 群列表
      */
     public void updateNoSaveGroup(List<Group> groupList) {
         Realm realm = DaoUtil.open();
@@ -2511,8 +2532,6 @@ public class MsgDao {
 
     /***
      * 获取保存群
-     * @param groups 群列表
-     * @param isSave 是否是保存的群
      */
     public List<Group> getMySavedGroup() {
         List<Group> results = null;
@@ -2533,14 +2552,13 @@ public class MsgDao {
 
     /**
      * 保存群聊
-     * */
-    public void setSavedGroup(String gid,int saved){
+     */
+    public void setSavedGroup(String gid, int saved) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-
-            if(group != null){
+            if (group != null) {
                 group.setSaved(saved);
                 realm.insertOrUpdate(group);
             }

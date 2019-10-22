@@ -17,6 +17,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -89,8 +90,8 @@ public class UserInfoActivity extends AppActivity {
     private int joinType;
     private String gid;
     private String inviterName;
-    private Long inviter;
-    private Long id;
+    private long inviter;
+    private long id;
     private String sayHi;
     private UserAction userAction;
     private String mkName;
@@ -200,8 +201,8 @@ public class UserInfoActivity extends AppActivity {
             public void onClick(View v) {
                 if (type == 0) {
                     final AlertYesNo alertYesNo = new AlertYesNo();
-                    alertYesNo.init(UserInfoActivity.this, "拉入黑名单",
-                            "确定将此好友拉入黑名单吗?", "确定", "取消", new AlertYesNo.Event() {
+                    alertYesNo.init(UserInfoActivity.this, "提示",
+                            "加入黑名单，你将不再收到对方的消息", "确定", "取消", new AlertYesNo.Event() {
                                 @Override
                                 public void onON() {
 
@@ -223,7 +224,7 @@ public class UserInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(UserInfoActivity.this, ComplaintActivity.class);
-                intent.putExtra(ComplaintActivity.UID, id.toString());
+                intent.putExtra(ComplaintActivity.UID, id + "");
                 startActivity(intent);
             }
         });
@@ -232,7 +233,7 @@ public class UserInfoActivity extends AppActivity {
             public void onClick(View v) {
                 final AlertYesNo alertYesNo = new AlertYesNo();
                 alertYesNo.init(UserInfoActivity.this, "删除好友",
-                        "确定删除此好友吗?", "确定", "取消", new AlertYesNo.Event() {
+                        "删除联系人，将在双方好友列表里同时删除，并删除与该联系人的聊天记录", "确定", "取消", new AlertYesNo.Event() {
                             @Override
                             public void onON() {
 
@@ -495,12 +496,12 @@ public class UserInfoActivity extends AppActivity {
     private void setGroupData(Group group) {
         //9.2 开启保护就隐藏加好友
         if (group.getContactIntimately() != null) {
-            if (group.getContactIntimately() == 1 && !group.getMaster().equals(id.toString())) {
+            if (group.getContactIntimately() == 1 && !group.getMaster().equals(id + "")) {
                 mBtnAdd.setVisibility(View.GONE);
             }
         }
-        for (UserInfo bean : group.getUsers()) {
-            if (bean.getUid().equals(id)) {
+        for (MemberUser bean : group.getUsers()) {
+            if (bean.getUid() == id) {
                 viewJoinGroupType.setVisibility(View.VISIBLE);
                 inviterName = bean.getInviterName();
                 joinType = bean.getJoinType();
@@ -520,7 +521,7 @@ public class UserInfoActivity extends AppActivity {
                 tvJoinGroupName.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (inviter.equals(UserAction.getMyId())) {
+                        if (inviter == (UserAction.getMyId())) {
                             Intent intent = new Intent(UserInfoActivity.this, MyselfInfoActivity.class);
                             startActivity(intent);
                         } else {
@@ -669,7 +670,7 @@ public class UserInfoActivity extends AppActivity {
      * 判断用户是否在好友里面
      */
     private void taskFindExist() {
-        if (id.equals(UserAction.getMyId())) {
+        if (id == UserAction.getMyId()) {
             type = 3;
             return;
         }

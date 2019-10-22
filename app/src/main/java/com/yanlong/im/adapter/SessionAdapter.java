@@ -21,6 +21,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupImageHead;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -272,7 +273,7 @@ public class SessionAdapter extends AbstractRecyclerAdapter<Session> {
             //头像地址
             String url[] = new String[i];
             for (int j = 0; j < i; j++) {
-                UserInfo userInfo = gInfo.getUsers().get(j);
+                MemberUser userInfo = gInfo.getUsers().get(j);
 //            if (j == i - 1) {
 //                name += userInfo.getName();
 //            } else {

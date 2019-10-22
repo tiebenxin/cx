@@ -200,6 +200,7 @@ dependencies {
 
     implementation  'com.tencent.bugly:crashreport:latest.release'
     implementation  'com.tencent.bugly:nativecrashreport:latest.release'
-//    api project(':nim_lib')
+    // 网易云信音视频通话
+    implementation project(path: ':nim_lib')
 
 }

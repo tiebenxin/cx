@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -337,14 +338,14 @@ public class SearchFriendGroupActivity extends AppActivity {
 //                String groupName = group.getName();//群名
                 MsgDao dao = new MsgDao();
                 String groupName = dao.getGroupName(group.getGid());//群名
-                UserInfo userInfo = group.getKeyUser();
+                MemberUser userInfo = group.getKeyUser();
                 String userMucName = "";//用户群昵称
                 String userNickName = "";//用户昵称
                 String userMkName = "";//好友备注名
                 if (userInfo != null) {
                     userMucName = userInfo.getMembername();//用户群昵称
                     userNickName = userInfo.getName();//用户昵称
-                    userMkName = userInfo.getMkName();//好友备注名
+//                    userMkName = userInfo.getMkName();//好友备注名
                 }
                 if (!TextUtils.isEmpty(groupName)) {
                     if (group.getName().contains(key)) {
