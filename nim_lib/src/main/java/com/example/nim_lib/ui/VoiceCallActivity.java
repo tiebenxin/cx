@@ -19,14 +19,19 @@ import com.example.nim_lib.R;
 import com.example.nim_lib.config.AVChatConfigs;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.constant.AVChatExitCode;
+import com.example.nim_lib.constant.CoreEnum;
 import com.example.nim_lib.controll.AVChatController;
 import com.example.nim_lib.databinding.ActivityVoiceCallBinding;
+import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.module.AVChatTimeoutObserver;
 import com.example.nim_lib.module.SimpleAVChatStateObserver;
 import com.example.nim_lib.permission.BaseMPermission;
 import com.example.nim_lib.receiver.PhoneCallStateObserver;
 import com.example.nim_lib.util.GlideUtil;
+import com.example.nim_lib.util.LogUtil;
 import com.example.nim_lib.util.ScreenUtil;
+import com.example.nim_lib.util.ToastUtil;
+import com.example.nim_lib.util.ViewUtils;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
@@ -42,12 +47,6 @@ import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.netease.nimlib.sdk.avchat.model.AVChatVideoFrame;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nrtc.video.render.IVideoRender;
-
-import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.event.EventFactory;
-import net.cb.cb.library.utils.LogUtil;
-import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.utils.ViewUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -273,7 +272,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
         AVChatManager.getInstance().observeHangUpNotification(callHangupObserver, register);
         AVChatManager.getInstance().observeControlNotification(callControlObserver, register);
         AVChatManager.getInstance().observeCalleeAckNotification(callAckObserver, register);
-        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, register);
+        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, register,this);
         PhoneCallStateObserver.getInstance().observeAutoHangUpForLocalPhone(autoHangUpForLocalPhoneObserver, register);
     }
 
@@ -354,7 +353,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
         public void onCallEstablished() {
             Log.d(TAG, "onCallEstablished");
 //            //移除超时监听
-            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall);
+            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall,VoiceCallActivity.this);
 //            if (avChatController.getTimeBase() == 0)
 //                avChatController.setTimeBase(SystemClock.elapsedRealtime());
 

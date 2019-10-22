@@ -5,8 +5,6 @@ import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import net.cb.cb.library.MainApplication;
-
 import java.lang.reflect.Field;
 
 public class ScreenUtil {
@@ -30,7 +28,7 @@ public class ScreenUtil {
     public static int navbarheight;
 
     static {
-        init(MainApplication.getInstance().getApplicationContext());
+//        init(MainApplication.getInstance().getApplicationContext()); TODO
     }
 
     public static int dip2px(float dipValue) {
@@ -67,16 +65,16 @@ public class ScreenUtil {
         Log.d(TAG, "screenWidth=" + screenWidth + " screenHeight=" + screenHeight + " density=" + density);
     }
 
-    public static int getDisplayWidth() {
+    public static int getDisplayWidth(Context context) {
         if (screenWidth == 0) {
-            GetInfo(MainApplication.getInstance().getApplicationContext());
+            GetInfo(context);
         }
         return screenWidth;
     }
 
-    public static int getDisplayHeight() {
+    public static int getDisplayHeight(Context context) {
         if (screenHeight == 0) {
-            GetInfo(MainApplication.getInstance().getApplicationContext());
+            GetInfo(context);
         }
         return screenHeight;
     }

@@ -1,4 +1,4 @@
-package net.cb.cb.library.utils.flyn;
+package com.example.nim_lib.util.flyn;
 
 
 import android.app.Activity;

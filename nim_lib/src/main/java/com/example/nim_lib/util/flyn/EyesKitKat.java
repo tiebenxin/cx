@@ -1,4 +1,4 @@
-package net.cb.cb.library.utils.flyn;
+package com.example.nim_lib.util.flyn;
 
 
 import android.annotation.TargetApi;
@@ -18,7 +18,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import net.cb.cb.library.R;
+import com.example.nim_lib.R;
 
 import java.lang.reflect.Field;
 

@@ -123,6 +123,8 @@ public class DaoMigration implements RealmMigration {
 
         schema.get("UserInfo")
                 .addField("neteaseAccid", String.class);
+        schema.get("MsgAllBean")
+                .addRealmObjectField("p2PAuVideoMessage", schema.get("P2PAuVideoMessage"));
     }
 
 //    @Override

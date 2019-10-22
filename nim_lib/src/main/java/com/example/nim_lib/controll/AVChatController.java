@@ -2,6 +2,7 @@ package com.example.nim_lib.controll;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import com.example.nim_lib.config.AVChatConfigs;
 import com.example.nim_lib.constant.AVChatExitCode;
@@ -14,8 +15,6 @@ import com.netease.nimlib.sdk.avchat.model.AVChatNotifyOption;
 import com.netease.nimlib.sdk.avchat.video.AVChatCameraCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturerFactory;
-
-import net.cb.cb.library.utils.LogUtil;
 
 /**
  * @version V1.0
@@ -52,17 +51,17 @@ public class AVChatController {
                     if (context != null && !((Activity) context).isFinishing()) {
                         ((Activity) context).finish();
                     }
-                    LogUtil.getLog().d(TAG, "onSuccess");
+                    Log.d(TAG, "onSuccess");
                 }
 
                 @Override
                 public void onFailed(int i) {
-                    LogUtil.getLog().d(TAG, "onSuccess");
+                    Log.d(TAG, "onSuccess");
                 }
 
                 @Override
                 public void onException(Throwable throwable) {
-                    LogUtil.getLog().d(TAG, "throwable");
+                    Log.d(TAG, "throwable");
                 }
             });
         }
