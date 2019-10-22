@@ -99,17 +99,17 @@ public class DaoMigration implements RealmMigration {
         schema.create("MemberUser")
                 .addField("memberId", String.class, FieldAttribute.PRIMARY_KEY)
                 .addField("uid", long.class)
-                .addField("gid", String.class).setNullable("gid", true)
-                .addField("name", String.class).setNullable("name", true)
-                .addField("sex", int.class).setNullable("sex", true)
-                .addField("imid", String.class).setNullable("imid", true)
-                .addField("head", String.class).setNullable("head", true)
-                .addField("membername", String.class).setNullable("membername", true)
+                .addField("gid", String.class)/*.setNullable("gid", true)*/
+                .addField("name", String.class)/*.setNullable("name", true)*/
+                .addField("sex", int.class)/*.setNullable("sex", true)*/
+                .addField("imid", String.class)/*.setNullable("imid", true)*/
+                .addField("head", String.class)/*.setNullable("head", true)*/
+                .addField("membername", String.class)/*.setNullable("membername", true)*/
                 .addField("joinType", int.class)
-                .addField("joinTime", long.class)
-                .addField("inviter", String.class).setNullable("inviter", true)
-                .addField("inviterName", String.class).setNullable("inviterName", true)
-                .addField("tag", String.class).setNullable("tag", true);
+                .addField("joinTime", String.class)
+                .addField("inviter", String.class)/*.setNullable("inviter", true)*/
+                .addField("inviterName", String.class)/*.setNullable("inviterName", true)*/
+                .addField("tag", String.class)/*.setNullable("tag", true)*/;
         schema.get("Group")
                 .removeField("users")
                 .addRealmListField("members", schema.get("MemberUser"));
