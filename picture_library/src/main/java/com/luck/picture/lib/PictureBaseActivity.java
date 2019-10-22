@@ -152,8 +152,9 @@ public class PictureBaseActivity extends FragmentActivity {
         }
     }
 
-    private int time_dialog=200;
-    private long time_dialog_hide=0;
+    private int time_dialog = 200;
+    private long time_dialog_hide = 0;
+
     /**
      * loading dialog
      */
@@ -161,8 +162,8 @@ public class PictureBaseActivity extends FragmentActivity {
         if (!isFinishing()) {
             dismissDialog();
             dialog = new PictureDialog(this);
-            time_dialog_hide=System.currentTimeMillis();
-            Log.i("Dialog", "show: "+System.currentTimeMillis());
+            time_dialog_hide = System.currentTimeMillis();
+            Log.i("Dialog", "show: " + System.currentTimeMillis());
             dialog.show();
 
             /*this.getWindow().getDecorView().postDelayed(new Runnable() {
@@ -179,35 +180,37 @@ public class PictureBaseActivity extends FragmentActivity {
         }
     }
 
-    private HashMap<String,Boolean> dialogState=new HashMap<>();
+    private HashMap<String, Boolean> dialogState = new HashMap<>();
+
     protected void showPleaseDialog(final String key) {
         if (!isFinishing()) {
             dismissDialog();
             dialog = new PictureDialog(this);
-            dialogState.put(key,true);
-            Log.i("showPleaseDialog", "showPleaseDialog: ------------"+key);
+            dialogState.put(key, true);
+            Log.i("showPleaseDialog", "showPleaseDialog: ------------" + key);
 
             this.getWindow().getDecorView().postDelayed(new Runnable() {
                 @Override
                 public void run() {
 
-                    if(dialogState.get(key)){
+                    if (dialogState.get(key)) {
                         dialog.show();
-                    }else{
-                        Log.e("showPleaseDialog", "showPleaseDialog被销毁: ------------"+key);
+                    } else {
+                        Log.e("showPleaseDialog", "showPleaseDialog被销毁: ------------" + key);
                     }
 
                 }
-            },200);
+            }, 200);
 
         }
     }
+
     protected void dismissDialog(final String key) {
         try {
 
-            dialogState.put(key,false);
-            time_dialog_hide=System.currentTimeMillis();
-            Log.i("showPleaseDialog", "dismissDialog: ------------"+key);
+            dialogState.put(key, false);
+            time_dialog_hide = System.currentTimeMillis();
+            Log.i("showPleaseDialog", "dismissDialog: ------------" + key);
             if (dialog != null && dialog.isShowing()) {
 
 
@@ -225,8 +228,8 @@ public class PictureBaseActivity extends FragmentActivity {
     protected void dismissDialog() {
         try {
 
-            time_dialog_hide=System.currentTimeMillis();
-            Log.i("Dialog", "dismissDialog: "+time_dialog_hide);
+            time_dialog_hide = System.currentTimeMillis();
+            Log.i("Dialog", "dismissDialog: " + time_dialog_hide);
             if (dialog != null && dialog.isShowing()) {
 
 
@@ -276,14 +279,18 @@ public class PictureBaseActivity extends FragmentActivity {
                     .map(new Function<List<LocalMedia>, List<File>>() {
                         @Override
                         public List<File> apply(@NonNull List<LocalMedia> list) throws Exception {
-                            List<File> files = Luban.with(mContext)
-                                    .setTargetDir(config.compressSavePath)
-                                    .ignoreBy(config.minimumCompressSize)
-                                    .loadLocalMedia(list).get();
-                            if (files == null) {
-                                files = new ArrayList<>();
+                            try {
+                                List<File> files = Luban.with(mContext)
+                                        .setTargetDir(config.compressSavePath)
+                                        .ignoreBy(config.minimumCompressSize)
+                                        .loadLocalMedia(list).get();
+                                if (files == null) {
+                                    files = new ArrayList<>();
+                                }
+                                return files;
+                            } catch (Exception e) {
+                                return new ArrayList<>();
                             }
-                            return files;
                         }
                     })
                     .observeOn(AndroidSchedulers.mainThread())
@@ -341,7 +348,7 @@ public class PictureBaseActivity extends FragmentActivity {
                     .subscribe(new Consumer<List<File>>() {
                         @Override
                         public void accept(@NonNull List<File> files) throws Exception {
-                            handleCompressCallBack(result, files,isArtworkMaster);
+                            handleCompressCallBack(result, files, isArtworkMaster);
                         }
                     });
         } else {
@@ -394,7 +401,7 @@ public class PictureBaseActivity extends FragmentActivity {
     }
 
 
-    private void handleCompressCallBack(List<LocalMedia> images, List<File> files,boolean isArtworkMaster) {
+    private void handleCompressCallBack(List<LocalMedia> images, List<File> files, boolean isArtworkMaster) {
         if (files.size() == images.size()) {
             for (int i = 0, j = images.size(); i < j; i++) {
                 // 压缩成功后的地址
@@ -408,7 +415,7 @@ public class PictureBaseActivity extends FragmentActivity {
             }
         }
         RxBus.getDefault().post(new EventEntity(PictureConfig.CLOSE_PREVIEW_FLAG));
-        onResult(images,isArtworkMaster);
+        onResult(images, isArtworkMaster);
     }
 
 
@@ -576,7 +583,7 @@ public class PictureBaseActivity extends FragmentActivity {
         closeActivity();
     }
 
-    protected void onResult(List<LocalMedia> images,boolean isArtworkMaster) {
+    protected void onResult(List<LocalMedia> images, boolean isArtworkMaster) {
         dismissCompressDialog();
         if (config.camera
                 && config.selectionMode == PictureConfig.MULTIPLE
@@ -584,7 +591,7 @@ public class PictureBaseActivity extends FragmentActivity {
             images.addAll(images.size() > 0 ? images.size() - 1 : 0, selectionMedias);
         }
         Intent intent = PictureSelector.putIntentResult(images);
-        intent.putExtra(IS_ARTWORK_MASTER,isArtworkMaster);
+        intent.putExtra(IS_ARTWORK_MASTER, isArtworkMaster);
         setResult(RESULT_OK, intent);
         closeActivity();
     }

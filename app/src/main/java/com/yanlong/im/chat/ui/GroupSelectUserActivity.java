@@ -307,7 +307,7 @@ public class GroupSelectUserActivity extends AppActivity {
 
                     if (type == 0) {
                         alertYesNo = new AlertYesNo();
-                        alertYesNo.init(GroupSelectUserActivity.this, "转让群", "确认转让群主吗?", "确定", "取消", new AlertYesNo.Event() {
+                        alertYesNo.init(GroupSelectUserActivity.this, "转让群", bean.getName()+"将成为该群群主，确定后你将立刻失去群主身份", "确定", "取消", new AlertYesNo.Event() {
                             @Override
                             public void onON() {
 

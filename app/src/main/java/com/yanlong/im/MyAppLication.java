@@ -6,10 +6,12 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.jrmf360.tools.JrmfClient;
+import com.netease.nimlib.sdk.util.NIMUtil;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.xiaomi.mipush.sdk.MiPushClient;
+import com.yanlong.im.controll.AVChatKit;
 import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyDiskCacheController;
 import com.yanlong.im.utils.MyDiskCacheUtils;
@@ -99,6 +101,17 @@ public class MyAppLication extends MainApplication {
         initUploadUtils();
         initBugly();
         initCache();
+        initNim();
+    }
+
+    /**
+     * 初始化网易云信
+     */
+    private void initNim(){
+        // 以下逻辑只在主进程初始化时执行
+        if (NIMUtil.isMainProcess(this)) {
+            AVChatKit.getInstance().init(this);
+        }
     }
 
     private void initCache() {

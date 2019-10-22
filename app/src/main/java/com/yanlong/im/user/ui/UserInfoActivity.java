@@ -201,8 +201,8 @@ public class UserInfoActivity extends AppActivity {
             public void onClick(View v) {
                 if (type == 0) {
                     final AlertYesNo alertYesNo = new AlertYesNo();
-                    alertYesNo.init(UserInfoActivity.this, "拉入黑名单",
-                            "确定将此好友拉入黑名单吗?", "确定", "取消", new AlertYesNo.Event() {
+                    alertYesNo.init(UserInfoActivity.this, "提示",
+                            "加入黑名单，你将不再收到对方的消息", "确定", "取消", new AlertYesNo.Event() {
                                 @Override
                                 public void onON() {
 
@@ -233,7 +233,7 @@ public class UserInfoActivity extends AppActivity {
             public void onClick(View v) {
                 final AlertYesNo alertYesNo = new AlertYesNo();
                 alertYesNo.init(UserInfoActivity.this, "删除好友",
-                        "确定删除此好友吗?", "确定", "取消", new AlertYesNo.Event() {
+                        "删除联系人，将在双方好友列表里同时删除，并删除与该联系人的聊天记录", "确定", "取消", new AlertYesNo.Event() {
                             @Override
                             public void onON() {
 

@@ -1,4 +1,4 @@
-<resources>
+<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">nim_lib</string>
 
     <string name="cancel">取消</string>
@@ -22,9 +22,12 @@
     <string name="avchat_network_grade_1">网络正常：</string>
     <string name="avchat_network_grade_2">网络一般：</string>
     <string name="avchat_network_grade_3">网络较差：</string>
-    <string name="avchat_refuse">拒绝</string>
+    <string name="avchat_refuse">挂断</string>
     <string name="avchat_receive">开启</string>
     <string name="avchat_pickup">接听</string>
+    <string name="avchat_mute">静音</string>
+    <string name="avchat_handsfree">免提</string>
+    <string name="avchat_switch_cameras">转换摄像头</string>
     <string name="avchat_net_error_then_quit">网络异常，通话结束</string>
     <string name="avchat_call_finish">通话结束</string>
     <string name="avchat_call_reject">被对方拒绝</string>
@@ -33,10 +36,11 @@
     <string name="avchat_invalid_channel_id">对方已挂断</string>
     <string name="avchat_local_call_busy">本地通话中，无法使用易信进行通话。</string>
     <string name="avchat_peer_busy">对方正在通话中，请稍后再拨。</string>
-    <string name="avchat_wait_recieve">等待对方接听…</string>
+    <string name="avchat_wait_recieve1">正在等待对方接受邀请</string>
     <string name="avchat_audio_call_request">请求通话</string>
     <string name="avchat_connecting">连接中…</string>
-    <string name="avchat_audio_to_video_invitation">对方邀请你开启视频聊天…</string>
+    <string name="avchat_audio_to_video_invitation">邀请你进行视频通话</string>
+    <string name="avchat_audio_invitation">邀请你进行语音通话</string>
     <string name="avchat_network_unstable_notificaton">当前网络不稳定</string>
     <string name="avchat_peer_close_camera">对方关闭了摄像头</string>
     <string name="avchat_local_close_camera">你关闭了摄像头</string>

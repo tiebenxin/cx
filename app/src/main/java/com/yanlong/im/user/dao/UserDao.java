@@ -102,6 +102,15 @@ public class UserDao {
     }
 
     /***
+     * 根据网易id获取用户的信息
+     * @param neteaseAccid
+     * @return
+     */
+    public UserInfo findUserInfo(String neteaseAccid) {
+        return DaoUtil.findOne(UserInfo.class, "neteaseAccid", neteaseAccid);
+    }
+
+    /***
      * 所有好友
      * @return
      */

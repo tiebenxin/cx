@@ -93,6 +93,7 @@ public class DaoMigration implements RealmMigration {
     /*
      * 1. 新建群成员表，与通讯录分离
      * 2. 更改Group中群成员存储字段名字
+     * 3. 新建音视频通话表
      * setNullable，设置不能为null，也可以通过注解@Required 来实现
      * */
     private void updateV6(RealmSchema schema) {
@@ -110,11 +111,18 @@ public class DaoMigration implements RealmMigration {
                 .addField("inviter", String.class).setNullable("inviter", true)
                 .addField("inviterName", String.class).setNullable("inviterName", true)
                 .addField("tag", String.class).setNullable("tag", true);
+        schema.create("P2PAuVideoMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("av_type", int.class)
+                .addField("operation", String.class)
+                .addField("desc", String.class);
+
         schema.get("Group")
                 .removeField("users")
                 .addRealmListField("members", schema.get("MemberUser"));
+        schema.get("UserInfo")
+                .addField("neteaseAccid", String.class);
     }
-
 
 //    @Override
 //    public boolean equals(@Nullable Object obj) {

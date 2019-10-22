@@ -69,5 +69,10 @@
 
     </LinearLayout>
 
-
+    <!--可移动的语音按钮-->
+    <net.cb.cb.library.view.ImageMoveView
+        android:id="@+id/btn_minimize_voice"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent"/>
 </android.support.design.widget.CoordinatorLayout>

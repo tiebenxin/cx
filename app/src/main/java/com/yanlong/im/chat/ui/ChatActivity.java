@@ -42,6 +42,9 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.ui.VideoActivity;
+import com.example.nim_lib.ui.VoiceCallActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -54,6 +57,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.view.PopupSelectView;
+import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.EmojiAdapter;
@@ -109,9 +113,9 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
+import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.CoreEnum;
-import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -126,6 +130,7 @@ import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.DialogHelper;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
@@ -687,7 +692,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
                     }
                 }
-
+                isFirst++;
             }
 
             @Override
@@ -972,15 +977,58 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         llChatVideoCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideBt();
                 DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
                     @Override
-                    public void onClickItemVideo() {
+                    public void onClickItemVideo() {// 视频
+                        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+                            @Override
+                            public void onSuccess() {
+                                if (userDao != null) {
+                                    UserInfo userInfo = userDao.findUserInfo(toUId);
+                                    if (userInfo != null) {
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
+                                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
+                                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
+                                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class,bundle);// TODO bundle
+                                    }
+                                }
+                            }
 
+                            @Override
+                            public void onFail() {
+
+                            }
+                        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
                     }
 
                     @Override
-                    public void onClickItemVoice() {
-//                        IntentUtil.gotoActivity(ChatActivity.this, CallWaitActivity.class);
+                    public void onClickItemVoice() {// 语音
+                        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+                            @Override
+                            public void onSuccess() {
+                                if (userDao != null) {
+                                    UserInfo userInfo = userDao.findUserInfo(toUId);
+                                    if (userInfo != null) {
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
+                                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
+                                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
+                                        IntentUtil.gotoActivity(ChatActivity.this, VoiceCallActivity.class, bundle);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFail() {
+
+                            }
+                        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
                     }
 
                     @Override
@@ -1508,8 +1556,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onMain() {
-                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
-
+                if (s.contains("+")) {
+                    actionbar.setTxtLeft(s, R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+                } else {
+                    actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+                }
             }
         }).run();
 
@@ -1706,24 +1757,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
                     for (LocalMedia localMedia : obt) {
                         String file = localMedia.getCompressPath();
+                        if (StringUtil.isNotNull(file)) {
+                            final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                            boolean isGif = FileUtils.isGif(file);
+                            if (isArtworkMaster || isGif) {
+                                //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
+                                file = localMedia.getPath();
+                            }
+                            //1.上传图片
+                            // alert.show();
+                            final String imgMsgId = SocketData.getUUID();
+                            // 记录本次上传图片的ID跟本地路径
+                            mTempImgPath.put(imgMsgId, "file://" + file);
+                            ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
+                            MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
 
-                        final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                        boolean isGif = FileUtils.isGif(file);
-                        if (isArtworkMaster || isGif) {
-                            //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
-                            file = localMedia.getPath();
+                            msgListData.add(imgMsgBean);
+                            UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+                            startService(new Intent(getContext(), UpLoadService.class));
+                        } else {
+                            ToastUtil.show(this,"图片已损坏，请重新选择");
                         }
-                        //1.上传图片
-                        // alert.show();
-                        final String imgMsgId = SocketData.getUUID();
-                        // 记录本次上传图片的ID跟本地路径
-                        mTempImgPath.put(imgMsgId, "file://" + file);
-                        ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-
-                        msgListData.add(imgMsgBean);
-                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
-                        startService(new Intent(getContext(), UpLoadService.class));
                     }
                     notifyData2Bottom(true);
 
