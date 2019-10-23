@@ -229,11 +229,14 @@ public class RecordedActivity extends BaseActivity {
             public void onFinish(String result) {
                 closeProgressDialog();
 
-                Intent intent = new Intent();
-                intent.putExtra(INTENT_PATH, result);
-                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
-                setResult(RESULT_OK, intent);
-                finish();
+//                Intent intent = new Intent();
+//                intent.putExtra(INTENT_PATH, result);
+//                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
+//                setResult(RESULT_OK, intent);
+//                finish();
+                Intent intent =new Intent(RecordedActivity.this,ImageShowActivity.class);
+                intent.putExtra("imgpath",result);
+                startActivityForResult(intent,90);
             }
             @Override
             public void onError(Throwable e) {
@@ -264,8 +267,8 @@ public class RecordedActivity extends BaseActivity {
             @Override
             public void onClick() {
                 if(segmentList.size() == 0){
-//                    isShotPhoto.set(true);
-                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
+                    isShotPhoto.set(true);
+//                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -306,7 +309,7 @@ public class RecordedActivity extends BaseActivity {
                 }else{
                     mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
                 }
-                iv_flash_video.setImageResource(R.mipmap.video_flash_close);
+//                iv_flash_video.setImageResource(R.mipmap.video_flash_close);
             }
         });
     }
@@ -466,21 +469,22 @@ public class RecordedActivity extends BaseActivity {
     }
 
     private void deleteSegment(){
-
-        showConfirm("确认删除上一段视频?", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeProgressDialog();
-
-                if(segmentList.size()>0 && timeList.size()>0) {
-                    segmentList.remove(segmentList.size() - 1);
-                    aacList.remove(aacList.size() - 1);
-                    timeList.remove(timeList.size() - 1);
-                    lineProgressView.removeSplit();
-                }
-                initRecorderState();
-            }
-        });
+        finish();
+//        showConfirm("确认删除上一段视频?", new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+////                closeProgressDialog();
+////
+////                if(segmentList.size()>0 && timeList.size()>0) {
+////                    segmentList.remove(segmentList.size() - 1);
+////                    aacList.remove(aacList.size() - 1);
+////                    timeList.remove(timeList.size() - 1);
+////                    lineProgressView.removeSplit();
+////                }
+////                initRecorderState();
+//            }
+//        });
     }
 
     /**
@@ -553,6 +557,15 @@ public class RecordedActivity extends BaseActivity {
                 intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intent);
                 finish();
+            }else if(requestCode==90){
+                boolean result=data.getBooleanExtra("showResult",false);
+                if (result){
+                    Intent intent = new Intent();
+                intent.putExtra(INTENT_PATH, data.getStringExtra("showPath"));
+                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
+                setResult(RESULT_OK, intent);
+                finish();
+                }
             }
         }else{
             cleanRecord();
