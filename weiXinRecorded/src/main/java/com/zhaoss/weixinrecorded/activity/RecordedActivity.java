@@ -343,7 +343,11 @@ public class RecordedActivity extends BaseActivity {
                 Intent intent = new Intent(mContext, EditVideoActivity.class);
                 intent.putExtra(INTENT_PATH, result);
                 startActivityForResult(intent, REQUEST_CODE_KEY);
+                clearProgress();
             }
+
+
+
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
@@ -351,6 +355,10 @@ public class RecordedActivity extends BaseActivity {
                 Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void clearProgress() {
+        recordView.updateProgress(0);
     }
 
     private String syntPcm() throws Exception{
