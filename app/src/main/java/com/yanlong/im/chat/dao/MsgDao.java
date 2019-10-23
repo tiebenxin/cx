@@ -434,26 +434,23 @@ public class MsgDao {
         try {
             realm.beginTransaction();
             //更新信息到群成员列表
-            RealmList<MemberUser> nums = new RealmList<>();
+//            RealmList<MemberUser> nums = new RealmList<>();
             //更新信息到用户表
             for (MemberUser sv : ginfo.getUsers()) {
                 sv.init(ginfo.getGid());
-                MemberUser ui = realm.where(MemberUser.class)
-                        .beginGroup().equalTo("uid", sv.getUid()).endGroup()
-                        .and()
-                        .beginGroup().equalTo("gid", sv.getGid()).endGroup()
-                        .findFirst();
-                if (ui == null) {
+//                MemberUser ui = realm.where(MemberUser.class)
+//                        .beginGroup().equalTo("uid", sv.getUid()).endGroup()
+//                        .and()
+//                        .beginGroup().equalTo("gid", sv.getGid()).endGroup()
+//                        .findFirst();
+//                if (ui == null) {
 //                    sv.toTag();
 //                    sv.setuType(0);
-//                    sv.init(ginfo.getGid());
-//                    sv = realm.copyToRealmOrUpdate(sv);
-                    nums.add(sv);
-                } else {
-                    ui.init(ginfo.getGid());
-                    nums.add(ui);
-
-                }
+//                    nums.add(sv);
+//                } else {
+//                    nums.add(ui);
+//
+//                }
                 //8.8把群的成员信息存链接表
 //                GropLinkInfo gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", ginfo.getGid()).equalTo("uid", sv.getUid()).findFirst();
 //                if (gropLinkInfo == null) {
@@ -470,7 +467,7 @@ public class MsgDao {
             }
             //更新自己的群昵称
             ginfo.getMygroupName();
-            ginfo.setUsers(nums);
+//            ginfo.setUsers(nums);
             realm.insertOrUpdate(ginfo);
             realm.commitTransaction();
             realm.close();
@@ -1042,8 +1039,7 @@ public class MsgDao {
 
     /***
      * 清理单个会话阅读数量
-     * @param gid
-     * @param from_uid
+     * @param session
      */
     public void sessionReadClean(Session session) {
         if (session != null) {
@@ -2581,6 +2577,44 @@ public class MsgDao {
             realm.insertOrUpdate(list);
             realm.commitTransaction();
             realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+    //添加群成员
+    public void removeGroupMember(String gid, List<MemberUser> memberUsers) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                RealmList<MemberUser> list = group.getUsers();
+                if (list != null) {
+                    list.removeAll(memberUsers);
+                }
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+    //移出群成员
+    public void addGroupMember(String gid, List<MemberUser> memberUsers) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                RealmList<MemberUser> list = group.getUsers();
+                if (list != null) {
+                    list.addAll(memberUsers);
+                }
+            }
+            realm.commitTransaction();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);

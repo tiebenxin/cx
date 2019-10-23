@@ -30,6 +30,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
@@ -510,7 +511,10 @@ public class MainActivity extends AppActivity {
                         //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     } else {
-
+                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                        VersionBean versionBean = new VersionBean();
+                        versionBean.setVersion(bean.getVersion());
+                        preferencesUtil.save2Json(versionBean);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
 //                        if (updateManage.isToDayFirst(bean)) {
 //                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
