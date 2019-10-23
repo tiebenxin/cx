@@ -26,6 +26,7 @@ import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -1308,7 +1309,8 @@ public class MsgDao {
                             if (group != null) {
                                 top = group.getIsTop();
                                 List<MemberUser> users = realm.copyFromRealm(group.getUsers());
-                                if (users != null && !users.contains(UserAction.getMyInfo())) {
+                                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                                if (users != null && member != null && !users.contains(member)) {
                                     session = realm.copyFromRealm(l);
                                     removes.add(session);
                                 }
