@@ -145,8 +145,7 @@ public class MessageManager {
                 oldMsgId.add(wrapMessage.getMsgId());
             }
         }
-
-        updateUserAvatarAndNick(wrapMessage);
+        updateUserAvatarAndNick(wrapMessage, isList);
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
@@ -731,10 +730,17 @@ public class MessageManager {
      * 根据接收到的消息内容，更新用户头像昵称等资料
      * @param msg
      */
-    private void updateUserAvatarAndNick(MsgBean.UniversalMessage.WrapMessage msg) {
+    private void updateUserAvatarAndNick(MsgBean.UniversalMessage.WrapMessage msg, boolean isList) {
         if (msg.getMsgType().getNumber() > 100) {//通知类消息
             return;
         }
+//        if (isList) {
+//            UserInfo info = new UserInfo();
+//            info.setUid(msg.getFromUid());\
+//            info.setHead(msg.getAvatar());
+//            info.setName(msg.getNickname());
+//            pendingUsers.put(msg.getFromUid(), info);
+//        } else {
         boolean hasChange = updateUserAvatarAndNick(msg.getFromUid(), msg.getAvatar(), msg.getNickname());
         //避免重复刷新通讯录
         if (msg.getMsgType() == REQUEST_FRIEND || msg.getMsgType() == ACCEPT_BE_FRIENDS
@@ -745,6 +751,7 @@ public class MessageManager {
         if (hasChange) {
             notifyRefreshFriend(true, msg.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
         }
+//        }
     }
 
     /*
