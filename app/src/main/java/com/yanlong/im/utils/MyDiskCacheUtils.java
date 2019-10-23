@@ -61,7 +61,7 @@ public class MyDiskCacheUtils {
         }else if(url.endsWith("png")||url.endsWith("jpg")||url.endsWith("gif")){
             path= mContext.getExternalCacheDir().getAbsolutePath()+"/Image/"+safeKey+"."+urls[1];
         }else if(url.endsWith("caf")){
-            path= mContext.getExternalCacheDir().getAbsolutePath()+"/Audio/"+safeKey+"."+urls[1];
+            path= mContext.getExternalCacheDir().getAbsolutePath()+safeKey+"."+urls[1];
         }
 //        DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, DiskCache.Factory.DEFAULT_DISK_CACHE_SIZE);
 //        DiskLruCache.Value value = diskLruCache.get(safeKey);
