@@ -286,6 +286,7 @@ public class ChatInfoActivity extends AppActivity {
     private void taskDelMsg() {
         msgDao.msgDel(fuid, null);
         EventBus.getDefault().post(new EventRefreshChat());
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
         ToastUtil.show(ChatInfoActivity.this, "删除成功");
     }
 

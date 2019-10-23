@@ -15,9 +15,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.nim_lib.event.EventFactory;
+import com.example.nim_lib.ui.VoiceCallActivity;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.example.nim_lib.ui.VoiceCallActivity;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
@@ -42,11 +43,9 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventNetStatus;
-
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
@@ -416,14 +415,17 @@ public class MainActivity extends AppActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void voiceMinimizeEvent(EventFactory.VoiceMinimizeEvent event) {
         mBtnMinimizeVoice.setVisibility(View.VISIBLE);
-
         mPassedTime = event.passedTime;
-        mBtnMinimizeVoice.updateCallTime(event.showTime);
-
-        if (!isFinishing()) {
-            mHandler.postDelayed(runnable, TIME);
+        if(event.isCallEstablished){// 是否接听
+            mBtnMinimizeVoice.updateCallTime(event.showTime);
+            if (!isFinishing()) {
+                mHandler.postDelayed(runnable, TIME);
+            }
+        }else{
+            mBtnMinimizeVoice.updateCallTime("等待接听");
         }
     }
 

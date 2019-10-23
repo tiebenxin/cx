@@ -43,6 +43,7 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.example.nim_lib.ui.VoiceCallActivity;
 import com.google.gson.Gson;
@@ -502,23 +503,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void addViewPagerEvent() {
         emojiLayout = new ArrayList<>();
-//                View view1 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji, null);
-//                View view2 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji2, null);
-//                View view3 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji3, null);
-//                View view4 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji4, null);
-//                View view5 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji5, null);
         View view6 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji6, null);
         View view7 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji7, null);
         View view8 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji8, null);
         View view9 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji9, null);
         View view10 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji10, null);
         View view11 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji11, null);
-//        emojiLayout.add(view1);
-//        emojiLayout.add(view2);
-//        emojiLayout.add(view3);
-//        emojiLayout.add(view4);
-//        emojiLayout.add(view5);
-//        emojiLayout.add(view5);
         emojiLayout.add(view6);
         emojiLayout.add(view7);
         emojiLayout.add(view8);
@@ -789,7 +779,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onFail() {
 
                     }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA});
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA});
 
 
             }
@@ -991,7 +981,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                         bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
                                         bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
                                         bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
-                                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class,bundle);// TODO bundle
+                                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
                                     }
                                 }
                             }
@@ -1456,7 +1446,26 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 .forResult(PictureConfig.REQUEST_CAMERA);
     }
 
-    private String[] strings=new String[]{"拍照","录制视频"};
+    /**
+     * 收到音视频操作后向数据库插入一条音视频记录
+     *
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void closevoiceMinimizeEvent(EventFactory.CloseVoiceMinimizeEvent event) {
+//        if (event != null) {
+//            MsgAllBean msgAllbean = null;
+//            if (event.avChatType == AVChatType.AUDIO.getValue()) {
+//                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
+//            } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
+//                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
+//            }
+//            showSendObj(msgAllbean);
+//        }
+    }
+
+    private String[] strings = new String[]{"拍照", "录制视频"};
+
     private void showDownLoadDialog() {
         final PopupSelectView popupSelectView = new PopupSelectView(this, strings);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
@@ -1470,7 +1479,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 } else if (postsion == 1) {
                     Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                     startActivityForResult(intent, VIDEO_RP);
-                }else{
+                } else {
 
                 }
                 popupSelectView.dismiss();
@@ -1724,7 +1733,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        dao.fixVideoLocalUrl(imgMsgId,file);
 
 
-
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
                         String file = photoPath;
@@ -1774,7 +1782,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                             startService(new Intent(getContext(), UpLoadService.class));
                         } else {
-                            ToastUtil.show(this,"图片已损坏，请重新选择");
+                            ToastUtil.show(this, "图片已损坏，请重新选择");
                         }
                     }
                     notifyData2Bottom(true);
@@ -2662,7 +2670,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
                         startActivity(intent);
-                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(),fileVideo.getAbsolutePath());
+                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
                     }
 
                     @Override
