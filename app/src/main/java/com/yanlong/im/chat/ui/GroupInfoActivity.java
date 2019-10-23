@@ -294,6 +294,7 @@ public class GroupInfoActivity extends AppActivity {
                         MsgDao msgDao = new MsgDao();
                         msgDao.msgDel(null, gid);
                         EventBus.getDefault().post(new EventRefreshChat());
+                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                         ToastUtil.show(GroupInfoActivity.this, "删除成功");
                     }
                 });
