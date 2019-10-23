@@ -35,6 +35,10 @@ public class DaoMigration implements RealmMigration {
                 updateV6(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 6) {
+                updateV7(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -138,7 +142,6 @@ public class DaoMigration implements RealmMigration {
         schema.get("MsgAllBean")
                 .addField("survival_time",int.class)
                 .addField("endTime",long.class) ;
-
     }
 
 //    @Override

@@ -55,7 +55,9 @@ import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.view.LoadView;
 import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.regex.Matcher;
@@ -89,12 +91,12 @@ public class ChatItemView extends LinearLayout {
     private ImageView imgMeRbState;
     private TextView txtMeRbTitle;
     private TextView txtMeRbInfo;
-//    private TextView txtMeRpBt;
-    private TextView txtMeRpBt,img_me_4_time,img_ot_4_time;
+    //    private TextView txtMeRpBt;
+    private TextView txtMeRpBt, img_me_4_time, img_ot_4_time;
     private ImageView imgMeRbIcon;
     private ImageView imgMeErr;
-//    private ImageView imgMeHead,img_ot_4_play;
-    private ImageView imgMeHead,img_me_4_play,img_ot_4_play;
+    //    private ImageView imgMeHead,img_ot_4_play;
+    private ImageView imgMeHead, img_me_4_play, img_ot_4_play;
 
     private LinearLayout viewMe4;
     private ProgressBar imgMeUp;
@@ -148,6 +150,7 @@ public class ChatItemView extends LinearLayout {
     private TextView txtReadDestroy;
     private ImageView imgReadDestroy;
     private TextView tvChangeTime;
+    private ImageView imgMeErrOt;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -245,6 +248,7 @@ public class ChatItemView extends LinearLayout {
         imgReadDestroy = rootView.findViewById(R.id.img_read_destroy);
         tvChangeTime = rootView.findViewById(R.id.tv_change_time);
 
+        imgMeErrOt = rootView.findViewById(R.id.img_me_err_ot);
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -673,29 +677,29 @@ public class ChatItemView extends LinearLayout {
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
                 imgOt4.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
 
-                RelativeLayout.LayoutParams layoutParams=( RelativeLayout.LayoutParams)img_me_4_time.getLayoutParams();
-                layoutParams.setMargins(w-110,h-60,0,0);
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) img_me_4_time.getLayoutParams();
+                layoutParams.setMargins(w - 110, h - 60, 0, 0);
                 img_me_4_time.setLayoutParams(layoutParams);
 
-                RelativeLayout.LayoutParams layoutParamsOT=( RelativeLayout.LayoutParams)img_ot_4_time.getLayoutParams();
-                layoutParamsOT.setMargins(w-110,h-60,0,0);
+                RelativeLayout.LayoutParams layoutParamsOT = (RelativeLayout.LayoutParams) img_ot_4_time.getLayoutParams();
+                layoutParamsOT.setMargins(w - 110, h - 60, 0, 0);
                 img_ot_4_time.setLayoutParams(layoutParamsOT);
-                long currentTime= videoMessage.getDuration();
-                if (currentTime<10){
-                    img_me_4_time.setText("00:0"+currentTime);
-                    img_ot_4_time.setText("00:0"+currentTime);
+                long currentTime = videoMessage.getDuration();
+                if (currentTime < 10) {
+                    img_me_4_time.setText("00:0" + currentTime);
+                    img_ot_4_time.setText("00:0" + currentTime);
 
-                }else{
-                    img_me_4_time.setText("00:"+currentTime);
-                    img_ot_4_time.setText("00:"+currentTime);
+                } else {
+                    img_me_4_time.setText("00:" + currentTime);
+                    img_ot_4_time.setText("00:" + currentTime);
                 }
-                if (currentTime*1000> RecordedActivity.MAX_VIDEO_TIME){
-                    if (currentTime/1000<10){
-                        img_me_4_time.setText("00:0"+currentTime/1000);
-                        img_ot_4_time.setText("00:0"+currentTime/1000);
-                    }else{
-                        img_me_4_time.setText("00:"+currentTime/1000);
-                        img_ot_4_time.setText("00:"+currentTime/1000);
+                if (currentTime * 1000 > RecordedActivity.MAX_VIDEO_TIME) {
+                    if (currentTime / 1000 < 10) {
+                        img_me_4_time.setText("00:0" + currentTime / 1000);
+                        img_ot_4_time.setText("00:0" + currentTime / 1000);
+                    } else {
+                        img_me_4_time.setText("00:" + currentTime / 1000);
+                        img_ot_4_time.setText("00:" + currentTime / 1000);
                     }
                 }
                 lp.width = w;
@@ -903,7 +907,7 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
     }
 
-    public void setReadDestroy(String gid,long uid, int type, String info,Context context) {
+    public void setReadDestroy(String gid, long uid, int type, String info, Context context) {
         txtReadDestroy.setText(info);
         if (type == 0) {
             imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
@@ -915,6 +919,7 @@ public class ChatItemView extends LinearLayout {
             public void onClick(View v) {
                 Intent intent = new Intent();
                 if (!TextUtils.isEmpty(gid)) {
+                    intent.putExtra(GroupInfoActivity.AGM_GID, gid);
                     intent.setClass(context, GroupInfoActivity.class);
                 } else {
                     intent.putExtra(ChatInfoActivity.AGM_FUID, uid);
@@ -944,6 +949,7 @@ public class ChatItemView extends LinearLayout {
             case 0://正常
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(INVISIBLE);
+                imgMeErrOt.setVisibility(INVISIBLE);
                 break;
             case 1://失败
                 imgMeErr.clearAnimation();
@@ -955,17 +961,21 @@ public class ChatItemView extends LinearLayout {
                 Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
                 imgMeErr.startAnimation(rotateAnimation);
                 imgMeErr.setVisibility(VISIBLE);
-
-
                 break;
             case -1://图片待发送
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(INVISIBLE);
                 break;
             case 3: //阅后即焚
-                imgMeErr.clearAnimation();
-                imgMeErr.setVisibility(VISIBLE);
-                imgMeErr.setImageResource(R.mipmap.icon_read_destroy_seting);
+                LogUtil.getLog().d("setErr","设置阅后即焚消息");
+                if(isMe){
+                    imgMeErr.clearAnimation();
+                    imgMeErr.setVisibility(VISIBLE);
+                    imgMeErr.setImageResource(R.mipmap.icon_read_destroy_seting);
+                }else{
+                    imgMeErrOt.setVisibility(VISIBLE);
+                    imgMeErrOt.setImageResource(R.mipmap.icon_read_destroy_seting);
+                }
                 break;
             default: // 其他状态如-1:待发送
 

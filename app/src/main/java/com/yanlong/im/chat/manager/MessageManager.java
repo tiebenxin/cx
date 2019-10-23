@@ -52,6 +52,7 @@ import retrofit2.Response;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.CHAT;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_GROUP;

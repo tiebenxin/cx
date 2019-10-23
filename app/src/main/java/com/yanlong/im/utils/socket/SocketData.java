@@ -253,15 +253,20 @@ public class SocketData {
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
 
+
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
-            /*if(wmsg.getTimestamp()!=0){
-                msgAllBean.setTimestamp(wmsg.getTimestamp());
-            }else{*/
+//            if(wmsg.getTimestamp()!=0){
+//                msgAllBean.setTimestamp(wmsg.getTimestamp());
+//            }else{
             msgAllBean.setTimestamp(bean.getTimestamp());
             /*}*/
 
-            msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
+            if(wmsg.getSurvivalTime() == 0){
+                msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
+            }else{
+                msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
+            }
             //7.16 如果是收到先自己发图图片的消息
 
             //移除旧消息
@@ -302,8 +307,13 @@ public class SocketData {
             if (isNoAssistant(msgAllBean.getTo_uid(), msgAllBean.getGid())) {
                 msgAllBean.setSend_state(state);
             } else {
-                msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
+                if(msgAllBean.getSurvival_time() == 0){
+                    msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
+                }else{
+                    msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
+                }
             }
+
             msgAllBean.setSend_data(msg.build().toByteArray());
 
             //移除旧消息// 7.16 通过msgid 判断唯一

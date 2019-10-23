@@ -186,15 +186,16 @@ public class ChatEnum {
 
     /*
      * 发送状态
-     * 0:正常,1:错误,2:发送中 -1 预发送
+     * 0:正常,1:错误,2:发送中 -1 预发送 3阅读即焚
      * */
-    @IntDef({PRE_SEND, NORMAL, ERROR, SENDING})
+    @IntDef({PRE_SEND, NORMAL, ERROR, SENDING, ESendStatus.SURVIVAL_TIME})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESendStatus {
         int PRE_SEND = -1; //预发送
         int NORMAL = 0; //正常
         int ERROR = 1;//错误
         int SENDING = 2;//发送中
+        int SURVIVAL_TIME = 3;
     }
 
     /*

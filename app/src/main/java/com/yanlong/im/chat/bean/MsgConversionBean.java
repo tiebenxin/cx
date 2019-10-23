@@ -59,6 +59,11 @@ public class MsgConversionBean {
         msgAllBean.setFrom_group_nickname(bean.getMembername());
         msgAllBean.setGid(bean.getGid());
         msgAllBean.setSurvival_time(bean.getSurvivalTime());
+        if(bean.getSurvivalTime() != 0){
+            msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
+        }
+
+
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());

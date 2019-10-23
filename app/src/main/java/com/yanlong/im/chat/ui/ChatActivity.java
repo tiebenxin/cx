@@ -42,6 +42,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -144,6 +145,12 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
+
+import com.yanlong.im.utils.socket.MsgBean;
+import com.example.nim_lib.config.Preferences;
+import com.zhaoss.weixinrecorded.activity.RecordedActivity;
+import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.example.nim_lib.ui.VoiceCallActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -792,7 +799,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onFail() {
 
                     }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA});
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA});
 
 
             }
@@ -994,7 +1001,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                         bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
                                         bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
                                         bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
-                                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class,bundle);// TODO bundle
+                                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
                                     }
                                 }
                             }
@@ -1459,7 +1466,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 .forResult(PictureConfig.REQUEST_CAMERA);
     }
 
-    private String[] strings=new String[]{"拍照","录制视频"};
+    private String[] strings = new String[]{"拍照", "录制视频"};
+
     private void showDownLoadDialog() {
         final PopupSelectView popupSelectView = new PopupSelectView(this, strings);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
@@ -1473,7 +1481,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 } else if (postsion == 1) {
                     Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                     startActivityForResult(intent, VIDEO_RP);
-                }else{
+                } else {
 
                 }
                 popupSelectView.dismiss();
@@ -1727,7 +1735,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        dao.fixVideoLocalUrl(imgMsgId,file);
 
 
-
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
                         String file = photoPath;
@@ -1777,7 +1784,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                             startService(new Intent(getContext(), UpLoadService.class));
                         } else {
-                            ToastUtil.show(this,"图片已损坏，请重新选择");
+                            ToastUtil.show(this, "图片已损坏，请重新选择");
                         }
                     }
                     notifyData2Bottom(true);
@@ -2141,6 +2148,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pg);
 
                         holder.viewChatItem.setErr(msgbean.getSend_state());
+
                         holder.viewChatItem.setImgageProg(pg);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
@@ -2164,6 +2172,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
                         holder.viewChatItem.setErr(msgbean.getSend_state());
+
                         holder.viewChatItem.setImgageProg(pgVideo);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
@@ -2200,6 +2209,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
                 EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean));
                 LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+            } else if (msgbean.getSurvival_time() == -1) {
+
             }
 
             //时间戳合并
@@ -2272,7 +2283,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             //发送状态处理
-            holder.viewChatItem.setErr(msgbean.getSend_state());//
+            holder.viewChatItem.setErr(msgbean.getSend_state());
+            LogUtil.getLog().d("getSend_state",msgbean.getSend_state()+"----"+msgbean.getMsg_id());
 
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();
@@ -2457,8 +2469,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.TRANSFER:
                     menus.add(new OptionMenu("删除"));
                     TransferMessage ts = msgbean.getTransfer();
-
-
                     Boolean isInvalidTs = false;
                     String infoTs = ts.getComment();
                     String titleTs = ts.getTransaction_amount() + "元";
@@ -2685,7 +2695,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
                         startActivity(intent);
-                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(),fileVideo.getAbsolutePath());
+                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
                     }
 
                     @Override

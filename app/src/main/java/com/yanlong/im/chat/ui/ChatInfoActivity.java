@@ -4,14 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -44,9 +42,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -66,15 +61,14 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewFeedback;
     //  private Session session;
     private UserInfo fUserInfo;
-    private CheckBox ckRedDestroy;
-    private LinearLayout viewExitDestroy;
-    private CheckBox ckExitDestroy;
-    private LinearLayout viewDestroyTime;
-    private TextView tvDestroyTime;
-    private SeekBar sbDestroyTime;
+
+
     private int oldDestroyTime;
     private int destroyTime;
+
     private ReadDestroyUtil readDestroyUtil;
+    private LinearLayout viewDestroyTime;
+    private TextView tvDestroyTime;
 
 
     @Override
@@ -93,7 +87,7 @@ public class ChatInfoActivity extends AppActivity {
     protected void onPause() {
         super.onPause();
         //初始时间跟返回时间一致就不调用接口设置
-        if(oldDestroyTime != destroyTime){
+        if (oldDestroyTime != destroyTime) {
             taskSurvivalTime(fuid, destroyTime);
         }
     }
@@ -108,24 +102,7 @@ public class ChatInfoActivity extends AppActivity {
     public void setingReadDestroy(ReadDestroyBean bean) {
         if (bean.uid == fuid) {
             destroyTime = bean.survivaltime;
-            if (destroyTime == -1) {
-                ckRedDestroy.setChecked(true);
-                ckExitDestroy.setChecked(true);
-                viewExitDestroy.setVisibility(View.VISIBLE);
-                viewDestroyTime.setVisibility(View.GONE);
-            } else if (destroyTime == 0) {
-                ckRedDestroy.setChecked(false);
-                ckExitDestroy.setChecked(false);
-                viewExitDestroy.setVisibility(View.GONE);
-                viewDestroyTime.setVisibility(View.GONE);
-            } else {
-                ckRedDestroy.setChecked(true);
-                ckExitDestroy.setChecked(false);
-                viewExitDestroy.setVisibility(View.VISIBLE);
-                viewDestroyTime.setVisibility(View.VISIBLE);
-                readDestroyUtil.initSeekBarnProgress(sbDestroyTime, destroyTime);
-                tvDestroyTime.setText(readDestroyUtil.formatDateTime(destroyTime));
-            }
+
         }
     }
 
@@ -142,14 +119,8 @@ public class ChatInfoActivity extends AppActivity {
         ckDisturb = findViewById(R.id.ck_disturb);
         viewLogClean = findViewById(R.id.view_log_clean);
         viewFeedback = findViewById(R.id.view_feedback);
-        ckRedDestroy = findViewById(R.id.ck_red_destroy);
-        viewExitDestroy = findViewById(R.id.view_exit_destroy);
-        ckExitDestroy = findViewById(R.id.ck_exit_destroy);
         viewDestroyTime = findViewById(R.id.view_destroy_time);
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
-        sbDestroyTime = findViewById(R.id.sb_destroy_time);
-
-
     }
 
 
@@ -233,6 +204,13 @@ public class ChatInfoActivity extends AppActivity {
                 startActivity(intent);
             }
         });
+
+        viewDestroyTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     @Override
@@ -247,72 +225,14 @@ public class ChatInfoActivity extends AppActivity {
         UserInfo userInfo = userDao.findUserInfo(fuid);
         destroyTime = userInfo.getDestroy();
         oldDestroyTime = userInfo.getDestroy();
-        if (destroyTime == -1) {
-            ckRedDestroy.setChecked(true);
-            ckExitDestroy.setChecked(true);
-            viewExitDestroy.setVisibility(View.VISIBLE);
-            viewDestroyTime.setVisibility(View.GONE);
-        } else if (destroyTime == 0) {
-            ckRedDestroy.setChecked(false);
-            ckExitDestroy.setChecked(false);
-            viewExitDestroy.setVisibility(View.GONE);
-            viewDestroyTime.setVisibility(View.GONE);
-        } else {
-            ckRedDestroy.setChecked(true);
-            ckExitDestroy.setChecked(false);
-            viewExitDestroy.setVisibility(View.VISIBLE);
-            viewDestroyTime.setVisibility(View.VISIBLE);
-            readDestroyUtil.initSeekBarnProgress(sbDestroyTime, destroyTime);
-            tvDestroyTime.setText(readDestroyUtil.formatDateTime(destroyTime));
-        }
+
+
     }
 
 
     private void controlDestroyView() {
-        ckRedDestroy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    viewExitDestroy.setVisibility(View.VISIBLE);
-                    viewDestroyTime.setVisibility(View.VISIBLE);
-                    sbDestroyTime.setProgress(60);
-                } else {
-                    viewExitDestroy.setVisibility(View.GONE);
-                    viewDestroyTime.setVisibility(View.GONE);
-                    destroyTime = 0;
-                }
-            }
-        });
 
-        ckExitDestroy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    viewDestroyTime.setVisibility(View.GONE);
-                    destroyTime = -1;
-                } else {
-                    viewDestroyTime.setVisibility(View.VISIBLE);
-                    sbDestroyTime.setProgress(60);
-                }
-            }
-        });
 
-        sbDestroyTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                destroyTime = readDestroyUtil.setSeekBarnProgress(seekBar, progress, tvDestroyTime);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
     }
 
 

@@ -44,6 +44,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RecordedActivity extends BaseActivity {
 
     public static final String INTENT_PATH = "intent_path";
+    public static final String INTENT_VIDEO_WIDTH= "intent_width";
+    public static final String INTENT_PATH_HEIGHT = "intent_height";
+    public static final String INTENT_PATH_TIME = "intent_time";
     public static final String INTENT_DATA_TYPE = "result_data_type";
 
     public static final int RESULT_TYPE_VIDEO = 1;
@@ -265,6 +268,7 @@ public class RecordedActivity extends BaseActivity {
             public void onClick() {
                 if(segmentList.size() == 0){
                     isShotPhoto.set(true);
+                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
 //                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
                 }
             }
@@ -332,10 +336,10 @@ public class RecordedActivity extends BaseActivity {
                 closeProgressDialog();
                 //todo 删除合成钱原始音视频文件
                 if (null!=aacPath){
-                   File file=new File(aacPath);
-                   if (file.exists()){
-                       file.delete();
-                   }
+                    File file=new File(aacPath);
+                    if (file.exists()){
+                        file.delete();
+                    }
                 }
                 Intent intent = new Intent(mContext, EditVideoActivity.class);
                 intent.putExtra(INTENT_PATH, result);
@@ -372,7 +376,7 @@ public class RecordedActivity extends BaseActivity {
 
     private void goneRecordLayout(){
 
-        tv_hint.setVisibility(View.GONE);
+//        tv_hint.setVisibility(View.GONE);
         iv_delete.setVisibility(View.GONE);
         iv_next.setVisibility(View.GONE);
     }
@@ -436,6 +440,7 @@ public class RecordedActivity extends BaseActivity {
                 if (countTime <= MAX_VIDEO_TIME) {
                     lineProgressView.setProgress(countTime/ MAX_VIDEO_TIME);
                     recordView.updateProgress(countTime/MAX_VIDEO_TIME*360);
+                    tv_hint.setText(countTime/1000+"秒");
                 }else{
                     upEvent();
                     iv_next.callOnClick();
@@ -493,6 +498,7 @@ public class RecordedActivity extends BaseActivity {
         }else{
 //            tv_hint.setText("长按录像 点击拍照");
         }
+        tv_hint.setText("长按继续录制");
         tv_hint.setVisibility(View.VISIBLE);
 
         if (lineProgressView.getSplitCount() > 0) {
@@ -546,6 +552,9 @@ public class RecordedActivity extends BaseActivity {
             if(requestCode == REQUEST_CODE_KEY){
                 Intent intent = new Intent();
                 intent.putExtra(INTENT_PATH, data.getStringExtra(INTENT_PATH));
+                intent.putExtra(INTENT_VIDEO_WIDTH, data.getIntExtra(INTENT_VIDEO_WIDTH,720));
+                intent.putExtra(INTENT_PATH_HEIGHT, data.getIntExtra(INTENT_PATH_HEIGHT,1080));
+                intent.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME,10));
                 intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intent);
                 finish();
@@ -553,10 +562,10 @@ public class RecordedActivity extends BaseActivity {
                 boolean result=data.getBooleanExtra("showResult",false);
                 if (result){
                     Intent intent = new Intent();
-                intent.putExtra(INTENT_PATH, data.getStringExtra("showPath"));
-                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
-                setResult(RESULT_OK, intent);
-                finish();
+                    intent.putExtra(INTENT_PATH, data.getStringExtra("showPath"));
+                    intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
+                    setResult(RESULT_OK, intent);
+                    finish();
                 }
             }
         }else{
@@ -565,3 +574,4 @@ public class RecordedActivity extends BaseActivity {
         }
     }
 }
+

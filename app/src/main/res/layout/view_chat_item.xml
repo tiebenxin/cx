@@ -153,8 +153,9 @@
             android:layout_height="35dp"
             android:layout_marginRight="10dp" />
 
+
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
@@ -527,6 +528,15 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+
+
+        <ImageView
+            android:id="@+id/img_me_err_ot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:src="@mipmap/ic_net_err" />
 
     </LinearLayout>
 
