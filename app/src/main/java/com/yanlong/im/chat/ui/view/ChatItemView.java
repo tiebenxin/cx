@@ -48,6 +48,7 @@ import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
@@ -704,8 +705,9 @@ public class ChatItemView extends LinearLayout {
         }
 //        Glide.with(this).load(imageHead)
 //                .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
-        Glide.with(this).load(videoMessage.getBg_url()).apply(GlideOptionsUtil.imageOptions()).into(imgOt4);
-        Glide.with(this).load(videoMessage.getBg_url()).apply(GlideOptionsUtil.imageOptions()).into(imgMe4);
+
+        Glide.with(this).load(videoMessage.getBg_url()).apply(options).into(imgOt4);
+        Glide.with(this).load(videoMessage.getBg_url()).apply(options).into(imgMe4);
 
         if (pg != null) {
             setImgageProg(pg);
@@ -726,7 +728,7 @@ public class ChatItemView extends LinearLayout {
         }
 
     }
-
+    private   RequestOptions options =null;
     public void setData4(final ImageMessage image, final Uri uri, final EventPic eventPic, Integer pg) {
         if (uri != null) {
 
@@ -778,8 +780,10 @@ public class ChatItemView extends LinearLayout {
                     imgOt4.post(new Runnable() {
                         @Override
                         public void run() {
-                            Glide.with(getContext()).asBitmap().load(model).into(imgOt4);
-                            Glide.with(getContext()).asBitmap().load(model).into(imgMe4);
+//                            Glide.with(getContext()).asBitmap().load(model).into(imgOt4);
+//                            Glide.with(getContext()).asBitmap().load(model).into(imgMe4);
+                            Glide.with(getContext()).asBitmap().load(options).into(imgOt4);
+                            Glide.with(getContext()).asBitmap().load(options).into(imgMe4);
                         }
                     });
 
@@ -811,7 +815,9 @@ public class ChatItemView extends LinearLayout {
                 rOptions.override(width, height)
                         .priority(Priority.HIGH).diskCacheStrategy(DiskCacheStrategy.ALL);
             }
-            rb.apply(rOptions).listener(requestListener).load(uri);
+
+//            rb.apply(rOptions).listener(requestListener).load(uri);
+            rb.apply(options).listener(requestListener).load(uri);
             rb.into(imgMe4);
             rb.into(imgOt4);
             if (pg != null) {
@@ -885,9 +891,11 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
     }
 
-
+    private Context mContext;
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext=context;
+        options=new RequestOptions().centerCrop() .transform(new RoundTransform(mContext,10));
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View viewRoot = inflater.inflate(R.layout.view_chat_item, this);
