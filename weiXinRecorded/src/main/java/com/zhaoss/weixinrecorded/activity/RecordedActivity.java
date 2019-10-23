@@ -340,20 +340,20 @@ public class RecordedActivity extends BaseActivity {
                        file.delete();
                    }
                 }
-                Intent intent = new Intent(mContext, EditVideoActivity.class);
-                intent.putExtra(INTENT_PATH, result);
-                startActivityForResult(intent, REQUEST_CODE_KEY);
+//                Intent intent = new Intent(mContext, EditVideoActivity.class);
+//                intent.putExtra(INTENT_PATH, result);
+//                startActivityForResult(intent, REQUEST_CODE_KEY);
                 clearProgress();
 
 
-//                Intent intent = new Intent();
-//                intent.putExtra(INTENT_PATH, data.getStringExtra(INTENT_PATH));
-//                intent.putExtra(INTENT_VIDEO_WIDTH, data.getIntExtra(INTENT_VIDEO_WIDTH,720));
-//                intent.putExtra(INTENT_PATH_HEIGHT, data.getIntExtra(INTENT_PATH_HEIGHT,1080));
-//                intent.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME,10));
-//                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
-//                setResult(RESULT_OK, intent);
-//                finish();
+                Intent intentMas = new Intent();
+                intentMas.putExtra(INTENT_PATH, result);
+                intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraHelp.getWidth());
+                intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraHelp.getHeight());
+                intentMas.putExtra(INTENT_PATH_TIME,(int)countTime);
+                intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
+                setResult(RESULT_OK, intentMas);
+                finish();
 
 
 
@@ -442,7 +442,7 @@ public class RecordedActivity extends BaseActivity {
             }
         });
     }
-
+    private long countTime;
     private void runLoopPro(){
 
         RxJavaUtil.loop(20, new RxJavaUtil.OnRxLoopListener() {
@@ -455,7 +455,7 @@ public class RecordedActivity extends BaseActivity {
                 long currentTime = System.currentTimeMillis();
                 videoDuration += currentTime - recordTime;
                 recordTime = currentTime;
-                long countTime = videoDuration;
+                countTime= videoDuration;
                 for (long time : timeList) {
                     countTime += time;
                 }
