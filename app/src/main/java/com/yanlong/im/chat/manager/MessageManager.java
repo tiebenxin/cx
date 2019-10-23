@@ -399,7 +399,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
-        System.out.println(TAG + "--更新Session--updateSessionUnread");
+//        System.out.println(TAG + "--更新Session--updateSessionUnread");
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
     }
 
@@ -419,6 +419,7 @@ public class MessageManager {
      * @param msg,最后一条消息，也要刷新时间
      * */
     public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, Long uid, String gid, @CoreEnum.ESessionRefreshTag int refreshTag, Object object) {
+        setMessageChange(true);
         EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
         eventRefreshMainMsg.setType(chatType);
         eventRefreshMainMsg.setUid(uid);

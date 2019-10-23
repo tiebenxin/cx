@@ -12,35 +12,186 @@
         android:scaleType="fitXY"/>
 
     <com.zhaoss.weixinrecorded.view.MyPaintView
+        android:id="@+id/activity_show_mypaintview"
         android:layout_width="match_parent"
+        android:visibility="gone"
         android:layout_height="match_parent"/>
     </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/rl_record_button"
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/rl_record_button"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_marginBottom="50dp">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/iv_show_delete"-->
+<!--            android:layout_width="29dp"-->
+<!--            android:layout_height="23dp"-->
+<!--            android:layout_marginLeft="61dp"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:scaleType="fitXY"-->
+<!--            android:clickable="true"-->
+<!--            android:background="@mipmap/video_cancle"/>-->
+<!--        <ImageView-->
+<!--            android:id="@+id/iv_show_next"-->
+<!--            android:layout_width="33dp"-->
+<!--            android:layout_height="24dp"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_marginRight="65dp"-->
+<!--            android:layout_alignParentRight="true"-->
+<!--            android:clickable="true"-->
+<!--            android:background="@mipmap/video_sure"/>-->
+<!--    </RelativeLayout>-->
+
+
+
+    <LinearLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#dd2B2B2B"
+        android:layout_alignParentBottom="true">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            >
+        <RelativeLayout
+            android:id="@+id/rl_pen"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp">
+            <ImageView
+                android:id="@+id/iv_pen"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/pen" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_icon"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp">
+            <ImageView
+                android:id="@+id/iv_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/icon" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/text_click" />
+        </RelativeLayout>
+
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1">
+
+            <RelativeLayout
+                android:id="@+id/rl_record_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+              >
+
+                <ImageView
+                    android:id="@+id/iv_show_delete"
+                    android:layout_width="29dp"
+                    android:layout_height="23dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_centerVertical="true"
+                    android:scaleType="fitXY"
+                    android:clickable="true"
+                    android:background="@mipmap/video_cancle"/>
+                <ImageView
+                    android:id="@+id/iv_show_next"
+                    android:layout_width="33dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="30dp"
+                    android:layout_alignParentRight="true"
+                    android:clickable="true"
+                    android:background="@mipmap/video_sure"/>
+            </RelativeLayout>
+
+
+<!--            <RelativeLayout-->
+<!--                android:id="@+id/rl_speed"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:visibility="invisible"-->
+<!--                android:layout_height="50dp">-->
+<!--                <ImageView-->
+<!--                    android:id="@+id/iv_speed"-->
+<!--                    android:layout_width="20dp"-->
+<!--                    android:layout_height="20dp"-->
+<!--                    android:layout_centerInParent="true"-->
+<!--                    android:src="@mipmap/speed" />-->
+<!--            </RelativeLayout>-->
+<!--            <RelativeLayout-->
+<!--                android:id="@+id/rl_cut_size"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:visibility="invisible"-->
+<!--                android:layout_height="50dp">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="20dp"-->
+<!--                    android:layout_height="20dp"-->
+<!--                    android:layout_centerInParent="true"-->
+<!--                    android:src="@mipmap/cut_size" />-->
+<!--            </RelativeLayout>-->
+<!--            <RelativeLayout-->
+<!--                android:id="@+id/rl_cut_time"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:visibility="invisible"-->
+<!--                android:layout_height="50dp">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="20dp"-->
+<!--                    android:layout_height="20dp"-->
+<!--                    android:layout_centerInParent="true"-->
+<!--                    android:src="@mipmap/cut_time" />-->
+<!--            </RelativeLayout>-->
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_color"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp">
-
-        <ImageView
-            android:id="@+id/iv_show_delete"
-            android:layout_width="29dp"
-            android:layout_height="23dp"
-            android:layout_marginLeft="61dp"
-            android:layout_centerVertical="true"
-            android:scaleType="fitXY"
-            android:clickable="true"
-            android:background="@mipmap/video_cancle"/>
-        <ImageView
-            android:id="@+id/iv_show_next"
-            android:layout_width="33dp"
-            android:layout_height="24dp"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="65dp"
-            android:layout_alignParentRight="true"
-            android:clickable="true"
-            android:background="@mipmap/video_sure"/>
-    </RelativeLayout>
-
+        android:visibility="gone"
+        android:background="#dd2B2B2B"
+        android:layout_above="@id/ll_bottom"
+        android:orientation="horizontal">
+        <View
+            android:layout_width="1px"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:background="#3C3E40"/>
+        <RelativeLayout
+            android:id="@+id/rl_back"
+            android:layout_width="80dp"
+            android:layout_height="60dp">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/edit_delete"/>
+        </RelativeLayout>
+    </LinearLayout>
 
 </RelativeLayout>
