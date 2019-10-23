@@ -1,21 +1,34 @@
 package com.zhaoss.weixinrecorded.activity;
 
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zhaoss.weixinrecorded.R;
+import com.zhaoss.weixinrecorded.util.Utils;
+import com.zhaoss.weixinrecorded.view.TouchView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,14 +40,21 @@ import static java.security.AccessController.getContext;
 public class ImageShowActivity  extends BaseActivity {
     private ImageView activity_img_show_img,iv_show_next,iv_show_delete;
     private String path;
-    private RelativeLayout activity_show_rl_big,rl_pen,rl_back;
+    private RelativeLayout activity_show_rl_big,rl_pen,rl_back,rl_edit_text,rl_text;
     private LinearLayout ll_color;
+    private TextView tv_finish_video,tv_finish,tv_close,tv_tag,tv_hint_delete;
     private com.zhaoss.weixinrecorded.view.MyPaintView mypaintview;
+    private EditText et_tag;
+
+    private int windowWidth;
+    private int windowHeight;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_img_show);
         path=(String) getIntent().getExtras().get("imgpath");
+        windowWidth = Utils.getWindowWidth(mContext);
+        windowHeight = Utils.getWindowHeight(mContext);
         initView();
         initEvent();
         activity_img_show_img.setImageURI(Uri.parse(path));
@@ -42,7 +62,50 @@ public class ImageShowActivity  extends BaseActivity {
 
     private void initEvent() {
         initColors();
-        findViewById(R.id.iv_show_next).setOnClickListener(new View.OnClickListener() {
+//        findViewById(R.id.iv_show_next).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent();
+//                Bitmap bitmap= loadBitmapFromView(activity_show_rl_big);
+//                String savePath= saveImage(bitmap,100);
+//                intent.putExtra("showResult", true);
+//                intent.putExtra("showPath", savePath);
+//                setResult(RESULT_OK, intent);
+//                finish();
+//            }
+//        });
+        et_tag.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                tv_tag.setText(s.toString());
+            }
+        });
+        tv_finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null!=et_tag.getText()&&et_tag.getText().toString().length()>0){
+                    addTextToWindow();
+                }
+                rl_edit_text.setVisibility(View.GONE);
+                hiddenPopSoft();
+            }
+        });
+        tv_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rl_edit_text.setVisibility(View.GONE);
+                hiddenPopSoft();
+            }
+        });
+        tv_finish_video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -54,6 +117,7 @@ public class ImageShowActivity  extends BaseActivity {
                 finish();
             }
         });
+
         findViewById(R.id.iv_show_delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,6 +135,8 @@ public class ImageShowActivity  extends BaseActivity {
                     ll_color.setVisibility(View.INVISIBLE);
                 }else{
                     ll_color.setVisibility(View.VISIBLE);
+                    mypaintview.setPenColor(getResources().getColor(colors[0]));
+                    mypaintview.setVisibility(View.VISIBLE);
                 }
 
             }
@@ -85,17 +151,159 @@ public class ImageShowActivity  extends BaseActivity {
                 }
             }
         });
+        rl_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rl_edit_text.setVisibility(View.VISIBLE);
+                startAnim(rl_edit_text.getY(), 0, null);
+//                popupEditText();
+            }
+        });
     }
 
+
+    private InputMethodManager manager;
+    boolean isFirstShowEditText;
+    /**
+     * 弹出键盘
+     */
+    public void popupEditText() {
+//
+//        isFirstShowEditText = true;
+//        et_tag.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                if (isFirstShowEditText) {
+//                    isFirstShowEditText = false;
+//                    et_tag.setFocusable(true);
+//                    et_tag.setFocusableInTouchMode(true);
+//                    et_tag.requestFocus();
+//                    isFirstShowEditText = !manager.showSoftInput(et_tag, 0);
+//                }
+//            }
+//        });
+        manager.showSoftInput(et_tag, 0);
+    }
+
+    /**
+     * 收起键盘
+     */
+    public void hiddenPopSoft(){
+        manager.hideSoftInputFromWindow(et_tag.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+
+    private int dp100;
+    private void addTextToWindow() {
+        dp100 = (int) getResources().getDimension(R.dimen.dp100);
+        TouchView touchView = new TouchView(getApplicationContext());
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(tv_tag.getWidth(), tv_tag.getHeight());
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        touchView.setLayoutParams(layoutParams);
+        Bitmap bitmap = Bitmap.createBitmap(tv_tag.getWidth(), tv_tag.getHeight(), Bitmap.Config.ARGB_8888);
+        tv_tag.draw(new Canvas(bitmap));
+        touchView.setBackground(new BitmapDrawable(bitmap));
+
+        touchView.setLimitsX(0, windowWidth);
+        touchView.setLimitsY(0, windowHeight - dp100 / 2);
+        touchView.setOnLimitsListener(new TouchView.OnLimitsListener() {
+            @Override
+            public void OnOutLimits(float x, float y) {
+                tv_hint_delete.setTextColor(Color.RED);
+            }
+
+            @Override
+            public void OnInnerLimits(float x, float y) {
+                tv_hint_delete.setTextColor(Color.WHITE);
+            }
+        });
+        touchView.setOnTouchListener(new TouchView.OnTouchListener() {
+            @Override
+            public void onDown(TouchView view, MotionEvent event) {
+                tv_hint_delete.setVisibility(View.VISIBLE);
+//                changeMode(false);
+            }
+
+            @Override
+            public void onMove(TouchView view, MotionEvent event) {
+
+            }
+
+            @Override
+            public void onUp(TouchView view, MotionEvent event) {
+                tv_hint_delete.setVisibility(View.GONE);
+//                changeMode(true);
+                if (view.isOutLimits()) {
+                    activity_show_rl_big.removeView(view);
+                }
+            }
+        });
+
+        activity_show_rl_big.addView(touchView);
+
+        et_tag.setText("");
+        tv_tag.setText("");
+    }
+
+//    /**
+//     * 弹出键盘
+//     */
+//    public void popupEditText() {
+//
+//        isFirstShowEditText = true;
+//        et_tag.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                if (isFirstShowEditText) {
+//                    isFirstShowEditText = false;
+//                    et_tag.setFocusable(true);
+//                    et_tag.setFocusableInTouchMode(true);
+//                    et_tag.requestFocus();
+//                    isFirstShowEditText = !manager.showSoftInput(et_tag, 0);
+//                }
+//            }
+//        });
+//    }
+
+    /**
+     * 执行文字编辑区域动画
+     */
+    private void startAnim(float start, float end, AnimatorListenerAdapter listenerAdapter) {
+
+        ValueAnimator va = ValueAnimator.ofFloat(start, end).setDuration(200);
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                rl_edit_text.setY(value);
+            }
+        });
+        if (listenerAdapter != null) va.addListener(listenerAdapter);
+        va.start();
+    }
+
+
+
     private void initView() {
+        manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+
         activity_img_show_img=findViewById(R.id.activity_img_show_img);
-        iv_show_next=findViewById(R.id.iv_show_next);
+//        iv_show_next=findViewById(R.id.iv_show_next);
         iv_show_delete=findViewById(R.id.iv_show_delete);
         activity_show_rl_big=findViewById(R.id.activity_show_rl_big);
         rl_pen=findViewById(R.id.rl_pen);
         ll_color=findViewById(R.id.ll_color);
         mypaintview=findViewById(R.id.activity_show_mypaintview);
         rl_back = findViewById(R.id.rl_back);
+        tv_finish_video = findViewById(R.id.tv_finish_video);
+        rl_edit_text = findViewById(R.id.rl_edit_text);
+        rl_text = findViewById(R.id.rl_text);
+        tv_finish = findViewById(R.id.tv_finish);
+        tv_close = findViewById(R.id.tv_close);
+        et_tag = findViewById(R.id.et_tag);
+        tv_tag = findViewById(R.id.tv_tag);
+        tv_hint_delete = findViewById(R.id.tv_hint_delete);
     }
     private Bitmap loadBitmapFromView(View v) {
         int w = v.getWidth();
@@ -144,7 +352,7 @@ public class ImageShowActivity  extends BaseActivity {
     }
     private int[] drawableBg = new int[]{R.drawable.color1, R.drawable.color2, R.drawable.color3, R.drawable.color4, R.drawable.color5};
     private int[] colors = new int[]{R.color.color1, R.color.color2, R.color.color3, R.color.color4, R.color.color5};
-    private int currentColorPosition;
+    private int currentColorPosition=0;
     private void initColors() {
 
         int dp20 = (int) getResources().getDimension(R.dimen.dp20);
@@ -186,7 +394,7 @@ public class ImageShowActivity  extends BaseActivity {
                         mypaintview.setPenColor(getResources().getColor(colors[position]));
                         currentColorPosition = position;
                     }
-                    mypaintview.setVisibility(View.VISIBLE);
+//                    mypaintview.setVisibility(View.VISIBLE);
                 }
             });
 
