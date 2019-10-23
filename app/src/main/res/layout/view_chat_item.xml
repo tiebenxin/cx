@@ -687,9 +687,7 @@
                                     android:layout_width="30dp"
                                     android:layout_height="30dp"
                                     android:indeterminateBehavior="repeat"
-                                    android:indeterminateDrawable="@+id/txt_me_up"
-                                    style="@style/app_txt_title_2"
-                                    android:textColor="@color/white" />
+                                    android:indeterminateDrawable="@drawable/anim_load" />
                             </LinearLayout>
 
                         </FrameLayout>
