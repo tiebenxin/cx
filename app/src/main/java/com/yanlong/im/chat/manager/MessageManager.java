@@ -459,7 +459,8 @@ public class MessageManager {
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
     }
 
-    public void saveSessionUnreadCount(String gid, Long uid, boolean isChange) {
+    public synchronized void updateSessionUnreadCount(String gid, Long uid, boolean isCancel) {
+
 
     }
 

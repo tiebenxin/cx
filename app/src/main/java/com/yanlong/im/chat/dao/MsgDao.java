@@ -955,6 +955,8 @@ public class MsgDao {
                     int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
                     num = num < 0 ? 0 : num;
                     session.setUnread_count(num);
+                } else {
+                    session.setUnread_count(0);
                 }
             }
             session.setUp_time(System.currentTimeMillis());
@@ -978,10 +980,12 @@ public class MsgDao {
                 }
 
             } else {
-                if (session.getIsMute() != 1) {//免打扰
+                if (session.getIsMute() != 1) {//非免打扰
                     int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
                     num = num < 0 ? 0 : num;
                     session.setUnread_count(num);
+                }else {
+                    session.setUnread_count(0);
                 }
             }
             session.setUp_time(System.currentTimeMillis());
