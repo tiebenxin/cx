@@ -24,6 +24,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -175,7 +176,7 @@ public class GroupInfoActivity extends AppActivity {
         btnDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(GroupInfoActivity.this, "退出群聊", "确定退出群聊?", "确定", "取消",
+                alertYesNo.init(GroupInfoActivity.this, "提示", "删除群后会删除群会话与群聊数据", "确定", "取消",
                         new AlertYesNo.Event() {
                             @Override
                             public void onON() {
@@ -274,7 +275,7 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
-        final RealmList<UserInfo> list = ginfo.getUsers();
+        final RealmList<MemberUser> list = ginfo.getUsers();
         if (list.size() < 400) {
             isPercentage = false;
         }
@@ -305,7 +306,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(GroupInfoActivity.this, "清理消息记录", "确定要清楚消息记录吗?", "确定", "取消", new AlertYesNo.Event() {
+                alertYesNo.init(GroupInfoActivity.this, "提示", "确定清空聊天记录？清空后不可找回！", "确定", "取消", new AlertYesNo.Event() {
                     @Override
                     public void onON() {
 
@@ -316,7 +317,7 @@ public class GroupInfoActivity extends AppActivity {
                         MsgDao msgDao = new MsgDao();
                         msgDao.msgDel(null, gid);
                         EventBus.getDefault().post(new EventRefreshChat());
-                        ToastUtil.show(GroupInfoActivity.this,"删除成功");
+                        ToastUtil.show(GroupInfoActivity.this, "删除成功");
                     }
                 });
                 alertYesNo.show();
@@ -531,7 +532,7 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-    private List<UserInfo> listDataTop = new ArrayList<>();
+    private List<MemberUser> listDataTop = new ArrayList<>();
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewTopAdapter extends RecyclerView.Adapter<RecyclerViewTopAdapter.RCViewTopHolder> {
@@ -547,28 +548,28 @@ public class GroupInfoActivity extends AppActivity {
         public void onBindViewHolder(final RCViewTopHolder holder, int position) {
 
             //6.15加标识
-            final UserInfo number = listDataTop.get(position);
+            final MemberUser number = listDataTop.get(position);
             if (number != null) {
                 //holder.imgHead.setImageURI(Uri.parse("" + number.getHead()));
                 Glide.with(context).load(number.getHead())
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
-                holder.txtName.setText("" + number.getName4Show());
+                holder.txtName.setText("" + number.getShowName());
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (number.getUid().longValue() == UserAction.getMyId().longValue()) {
+                        if (number.getUid() == UserAction.getMyId().longValue()) {
                             return;
                         }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, gid)
-                                .putExtra(UserInfoActivity.MUC_NICK, number.getName4Show()));
+                                .putExtra(UserInfoActivity.MUC_NICK, number.getShowName()));
 
                     }
                 });
-                if (ginfo.getMaster().equals("" + number.getUid().longValue())) {
+                if (ginfo.getMaster().equals("" + number.getUid())) {
                     holder.imgGroup.setVisibility(View.VISIBLE);
 
                 } else {
@@ -665,9 +666,9 @@ public class GroupInfoActivity extends AppActivity {
      * 获取群成员
      * @return
      */
-    private List<UserInfo> taskGetNumbers() {
+    private List<MemberUser> taskGetNumbers() {
         //进入这个信息的时候会统一给的
-        List<UserInfo> userInfos = ginfo.getUsers();
+        List<MemberUser> userInfos = ginfo.getUsers();
         userInfos = userInfos == null ? new ArrayList() : userInfos;
         return userInfos;
     }
@@ -718,7 +719,7 @@ public class GroupInfoActivity extends AppActivity {
                         doImgHeadChange(gid, ginfo);
                     }
                     //8.8 如果是有群昵称显示自己群昵称
-                    for (UserInfo number : ginfo.getUsers()) {
+                    for (MemberUser number : ginfo.getUsers()) {
                         if (StringUtil.isNotNull(number.getMembername())) {
                             number.setName(number.getMembername());
                         }
@@ -783,7 +784,7 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
                     //8.8 如果是有群昵称显示自己群昵称
-                    for (UserInfo number : ginfo.getUsers()) {
+                    for (MemberUser number : ginfo.getUsers()) {
                         if (StringUtil.isNotNull(number.getMembername())) {
                             number.setName(number.getMembername());
                         }
@@ -875,8 +876,8 @@ public class GroupInfoActivity extends AppActivity {
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    msgDao.setSavedGroup(gid,saved);
-                  //  taskGetInfoNetwork();
+                    msgDao.setSavedGroup(gid, saved);
+                    //  taskGetInfoNetwork();
                 }
             }
         });
@@ -900,13 +901,13 @@ public class GroupInfoActivity extends AppActivity {
 
 
     private void taskAdd() {
-        List<UserInfo> userInfos = taskGetNumbers();
+        List<MemberUser> userInfos = taskGetNumbers();
         List<UserInfo> friendsUser = taskGetFriends();
         List<UserInfo> temp = new ArrayList<>();
         for (UserInfo a : friendsUser) {
             boolean isEx = false;
-            for (UserInfo u : userInfos) {
-                if (u.getUid().longValue() == a.getUid().longValue()) {
+            for (MemberUser u : userInfos) {
+                if (u.getUid() == a.getUid().longValue()) {
                     isEx = true;
                 }
             }
@@ -924,9 +925,9 @@ public class GroupInfoActivity extends AppActivity {
     }
 
     private void taskDel() {
-        List<UserInfo> userInfos = taskGetNumbers();
-        for (UserInfo u : userInfos) {
-            if (u.getUid().longValue() == UserAction.getMyId().longValue()) {
+        List<MemberUser> userInfos = taskGetNumbers();
+        for (MemberUser u : userInfos) {
+            if (u.getUid() == UserAction.getMyId().longValue()) {
                 userInfos.remove(u);
                 break;
             }
@@ -1020,7 +1021,10 @@ public class GroupInfoActivity extends AppActivity {
 
     private boolean isChange(Group goldinfo, Group ginfo) {
         int a = ginfo.getUsers().size();
-        int b = ginfo.getUsers().size();
+        if (goldinfo == null || goldinfo.getUsers() == null) {
+            return true;
+        }
+        int b = goldinfo.getUsers().size();
         if (a != b) {
             return true;
         }
@@ -1043,7 +1047,7 @@ public class GroupInfoActivity extends AppActivity {
         //头像地址
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
-            UserInfo userInfo = ginfo.getUsers().get(j);
+            MemberUser userInfo = ginfo.getUsers().get(j);
             url[j] = userInfo.getHead();
         }
         File file = GroupHeadImageUtil.synthesis(getContext(), url);

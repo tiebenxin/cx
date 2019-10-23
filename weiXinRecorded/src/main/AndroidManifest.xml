@@ -14,6 +14,7 @@
             android:windowSoftInputMode="adjustResize|adjustPan"/>
         <activity android:name=".activity.CutSizeActivity"/>
         <activity android:name=".activity.CutTimeActivity"/>
+        <activity android:name=".activity.ImageShowActivity"/>
 
 
     </application>

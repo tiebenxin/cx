@@ -374,7 +374,7 @@ public class AudioPlayManager implements SensorEventListener {
                         currentDownBean = null;
                         LogUtil.getLog().i(TAG, "语音下载成功");
 
-                        MyDiskCacheUtils.getInstance().putFileNmae(path);
+                        MyDiskCacheUtils.getInstance().putFileNmae(path,url);
                     }
 
                     @Override

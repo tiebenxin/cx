@@ -8,6 +8,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.ReadDestroyBean;
@@ -175,7 +176,7 @@ public class MessageManager {
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
                 break;
             case REMOVE_FRIEND:
-                notifyRefreshFriend(false, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
+                notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
                 msgDao.remidCount("friend_apply");
@@ -426,6 +427,7 @@ public class MessageManager {
         EventBus.getDefault().post(new EventRefreshMainMsg());
     }
 
+
     /*
      * 通知刷新消息列表，及未读数
      * @param chatType 单聊群聊
@@ -474,6 +476,15 @@ public class MessageManager {
         }
         EventBus.getDefault().post(eventRefreshMainMsg);
     }
+
+    /*
+     * 通知刷新聊天界面
+     * */
+    public void notifyRefreshChat() {
+        EventRefreshChat event = new EventRefreshChat();
+        EventBus.getDefault().post(event);
+    }
+
 
     public void deleteSessionAndMsg(Long uid, String gid) {
         msgDao.sessionDel(uid, gid);
@@ -822,5 +833,71 @@ public class MessageManager {
 
     public List<Group> getSavedGroups() {
         return saveGroups;
+    }
+
+    /*
+     * 群成员数据转变为UserInfo
+     * */
+    public UserInfo memberToUser(MemberUser user) {
+        UserInfo info = null;
+        if (user != null) {
+            info = new UserInfo();
+            info.setUid(user.getUid());
+            info.setName(user.getName());
+            info.setHead(user.getHead());
+            info.setMembername(user.getMembername());
+            info.setInviter(user.getInviter());
+            info.setInviterName(user.getInviterName());
+            info.setJoinTime(user.getJoinTime());
+            info.setJoinType(user.getJoinType());
+            info.setImid(user.getImid());
+            info.setSex(user.getSex());
+            info.setTag(user.getTag());
+        }
+        return info;
+    }
+
+    /*
+     * UserInfo 转变为 MemberUser
+     * */
+    public MemberUser userToMember(UserInfo user, String gid) {
+        MemberUser info = null;
+        if (user != null) {
+            info = new MemberUser();
+            info.setUid(user.getUid());
+            info.setName(user.getName());
+            info.setHead(user.getHead());
+            info.setMembername(user.getMembername());
+            info.setInviter(user.getInviter());
+            info.setInviterName(user.getInviterName());
+            info.setJoinTime(user.getJoinTime());
+            info.setJoinType(user.getJoinType());
+            info.setImid(user.getImid());
+            info.setSex(user.getSex());
+//            info.setTag(user.getTag());//tag不能直接用userInfo的
+            info.init(gid);
+        }
+        return info;
+    }
+
+    /*
+     * UserInfo 转变为 MemberUser
+     * */
+    public List<MemberUser> getMemberList(List<UserInfo> list, String gid) {
+        List<MemberUser> memberUsers = null;
+        if (list == null) {
+            return memberUsers;
+        }
+        int len = list.size();
+        if (len > 0) {
+            memberUsers = new ArrayList<>();
+        }
+        for (int i = 0; i < len; i++) {
+            UserInfo user = list.get(i);
+            if (user != null) {
+                memberUsers.add(userToMember(user, gid));
+            }
+        }
+        return memberUsers;
     }
 }

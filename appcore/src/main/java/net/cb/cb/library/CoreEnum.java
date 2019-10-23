@@ -24,7 +24,8 @@ public class CoreEnum {
      *花名册指令
      *
      * */
-    @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND, ERosterAction.UPDATE_INFO})
+    @IntDef({ERosterAction.DEFAULT, ERosterAction.REQUEST_FRIEND, ERosterAction.ACCEPT_BE_FRIENDS, ERosterAction.REMOVE_FRIEND, ERosterAction.UPDATE_INFO,
+            ERosterAction.LOAD_ALL_SUCCESS, ERosterAction.BLACK})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ERosterAction {
         int DEFAULT = 0; // 默认，无指令
@@ -32,6 +33,8 @@ public class CoreEnum {
         int ACCEPT_BE_FRIENDS = 2; // 接收请求添加为好友
         int REMOVE_FRIEND = 3; // 删除好友
         int UPDATE_INFO = 4; // 信息更新
+        int LOAD_ALL_SUCCESS = 5; // 所有数据加载完毕
+        int BLACK = 6; // 加入黑名单
     }
 
 
@@ -57,12 +60,22 @@ public class CoreEnum {
     /*
      *session刷新类型
      * */
-    @IntDef({ESessionRefreshTag.SINGLE, ESessionRefreshTag.ALL})
+    @IntDef({ESessionRefreshTag.SINGLE, ESessionRefreshTag.ALL, ESessionRefreshTag.DELETE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ESessionRefreshTag {
         int SINGLE = 0; // 单刷
         int ALL = 1; //全刷
+        int DELETE = 2; //删除
     }
 
-
+    /*
+     *语音通话类型
+     * */
+    @IntDef({VoiceType.WAIT, VoiceType.RECEIVE, VoiceType.CALLING})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface VoiceType {
+        int WAIT = 0; // 呼叫
+        int RECEIVE = 1; // 接收
+        int CALLING = 2; // 通话
+    }
 }

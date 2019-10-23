@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.multidex.MultiDexApplication;
 
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
@@ -23,8 +22,7 @@ public class MainApplication extends MultiDexApplication {
         instance = this;
         AppConfig.APP_CONTEXT = context;
         initOther();
-       // initFont();
-
+        // initFont();
     }
 
     public static MainApplication getInstance() {
@@ -73,7 +71,6 @@ public class MainApplication extends MultiDexApplication {
         }
         return null;
     }
-
 
 /*    private void initUmeng() {
         UMConfigure.init(context, UMConfigure.DEVICE_TYPE_PHONE, ManifestUtil.getXmlValue(context, "UMENG_SECERT"));

@@ -38,7 +38,7 @@
 
 
             <RelativeLayout
-
+                android:id="@+id/rl_video_play_con"
                 android:layout_width="343dp"
                 android:layout_height="35dp"
                 android:layout_centerHorizontal="true"

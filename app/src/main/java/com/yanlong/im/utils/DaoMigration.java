@@ -23,12 +23,16 @@ public class DaoMigration implements RealmMigration {
                 updateV3(schema);
                 oldVersion++;
             }
-            if (newVersion > oldVersion && oldVersion == 3) {//从1升到2
+            if (newVersion > oldVersion && oldVersion == 3) {
                 updateV4(schema);
                 oldVersion++;
             }
             if (newVersion > oldVersion && oldVersion == 4) {
                 updateV5(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 5) {
+                updateV6(schema);
                 oldVersion++;
             }
         }
@@ -82,17 +86,53 @@ public class DaoMigration implements RealmMigration {
 
 
 
-    private void updateV5(RealmSchema schema){
+    private void updateV5(RealmSchema schema) {
         schema.get("UserInfo")
                 .addField("joinType", int.class)
                 .addField("joinTime", String.class)
                 .addField("inviter", String.class)
-                .addField("inviterName",String.class);
+                .addField("inviterName", String.class);
     }
 
+    /*
+     * 1. 新建群成员表，与通讯录分离
+     * 2. 更改Group中群成员存储字段名字
+     * 3. 新建音视频通话表
+     * setNullable，设置不能为null，也可以通过注解@Required 来实现
+     * */
+    private void updateV6(RealmSchema schema) {
+        schema.create("MemberUser")
+                .addField("memberId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("uid", long.class)
+                .addField("gid", String.class)/*.setNullable("gid", true)*/
+                .addField("name", String.class)/*.setNullable("name", true)*/
+                .addField("sex", int.class)/*.setNullable("sex", true)*/
+                .addField("imid", String.class)/*.setNullable("imid", true)*/
+                .addField("head", String.class)/*.setNullable("head", true)*/
+                .addField("membername", String.class)/*.setNullable("membername", true)*/
+                .addField("joinType", int.class)
+                .addField("joinTime", String.class)
+                .addField("inviter", String.class)/*.setNullable("inviter", true)*/
+                .addField("inviterName", String.class)/*.setNullable("inviterName", true)*/
+                .addField("tag", String.class)/*.setNullable("tag", true)*/;
+        schema.get("Group")
+                .removeField("users")
+                .addRealmListField("members", schema.get("MemberUser"));
+
+        schema.create("P2PAuVideoMessage")
+                .addField("msgId", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("av_type", int.class)
+                .addField("operation", String.class)
+                .addField("desc", String.class);
+
+        schema.get("UserInfo")
+                .addField("neteaseAccid", String.class);
+        schema.get("MsgAllBean")
+                .addRealmObjectField("p2PAuVideoMessage", schema.get("P2PAuVideoMessage"));
+    }
 
     //新增群阅后即焚
-    private void updateV6(RealmSchema schema) {
+    private void updateV7(RealmSchema schema) {
         schema.get("Group")
                 .addField("survivaltime", int.class);
         schema.get("MsgAllBean")

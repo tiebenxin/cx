@@ -20,6 +20,7 @@ import com.luck.picture.lib.glide.CustomGlideModule;
 import com.luck.picture.lib.glide.OriginalKey;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.bean.UserInfo;
@@ -94,28 +95,6 @@ public class GroupHeadImageUtil {
     }
 
 
-    public static void creatAndShowGroupHeadImg(Context mContext, Session bean, ImageView imgHead) {
-        MsgDao msgDao = new MsgDao();
-        Group gginfo = msgDao.getGroup4Id(bean.getGid());
-        int i = gginfo.getUsers().size();
-        i = i > 9 ? 9 : i;
-        //头像地址
-        String url[] = new String[i];
-        for (int j = 0; j < i; j++) {
-            UserInfo userInfo = gginfo.getUsers().get(j);
-//            if (j == i - 1) {
-//                name += userInfo.getName();
-//            } else {
-//                name += userInfo.getName() + "、";
-//            }
-            url[j] = userInfo.getHead();
-        }
-        File file = GroupHeadImageUtil.synthesis(mContext, url);
-        Glide.with(mContext).load(file)
-                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-    }
-
     public static void creatAndSaveImg(Context mContext, String gid) {
         MsgDao msgDao = new MsgDao();
         Group gginfo = msgDao.getGroup4Id(gid);
@@ -125,7 +104,7 @@ public class GroupHeadImageUtil {
             //头像地址
             String url[] = new String[i];
             for (int j = 0; j < i; j++) {
-                UserInfo userInfo = gginfo.getUsers().get(j);
+                MemberUser userInfo = gginfo.getUsers().get(j);
 //            if (j == i - 1) {
 //                name += userInfo.getName();
 //            } else {

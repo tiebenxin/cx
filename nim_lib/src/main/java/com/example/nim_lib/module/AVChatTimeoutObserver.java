@@ -1,11 +1,9 @@
 package com.example.nim_lib.module;
 
 
+import android.content.Context;
 import android.os.Handler;
 
-
-import com.example.nim_lib.avchat.AVChatKit;
-import com.example.nim_lib.avchat.log.LogUtil;
 import com.netease.nimlib.sdk.Observer;
 
 import java.util.ArrayList;
@@ -33,9 +31,8 @@ public class AVChatTimeoutObserver {
     }
 
     private AVChatTimeoutObserver() {
-        uiHandler = new Handler(AVChatKit.getContext().getMainLooper());
-    }
 
+    }
 
     // 通知APP观察者
     private <T> void notifyObservers(List<Observer<T>> observers, T result) {
@@ -65,8 +62,9 @@ public class AVChatTimeoutObserver {
         }
     }
 
-    public void observeTimeoutNotification(Observer<Integer> observer, boolean register, boolean isIncoming) {
-        LogUtil.i(TAG, "observeTimeoutNotification->" + observer + "#" + register);
+    public void observeTimeoutNotification(Observer<Integer> observer, boolean register, boolean isIncoming, Context context) {
+//        LogUtil.i(TAG, "observeTimeoutNotification->" + observer + "#" + register);
+        uiHandler = new Handler(context.getMainLooper());
         registerObservers(timeoutObserverLocal, observer, register);
         if (register) {
             if (isIncoming) {
@@ -87,7 +85,7 @@ public class AVChatTimeoutObserver {
 
         @Override
         public void run() {
-            LogUtil.i(TAG, "notify timeout ");
+//            LogUtil.i(TAG, "notify timeout ");
 
             notifyObservers(timeoutObserverLocal, 0);
         }
@@ -105,7 +103,7 @@ public class AVChatTimeoutObserver {
 
     private void removeAllTimeout() {
 
-        LogUtil.i(TAG, "remove all timeout");
+//        LogUtil.i(TAG, "remove all timeout");
 
         for (TimeoutObserver observer : timeoutObservers) {
             uiHandler.removeCallbacks(observer);

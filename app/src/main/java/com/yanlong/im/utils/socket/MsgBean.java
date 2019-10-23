@@ -15,6 +15,10 @@ public final class MsgBean {
                 (com.google.protobuf.ExtensionRegistryLite) registry);
     }
     /**
+     * <pre>
+     * 消息类型
+     * </pre>
+     *
      * Protobuf enum {@code MessageType}
      */
     public enum MessageType
@@ -217,6 +221,22 @@ public final class MsgBean {
          * AU_VIDEO_HANG_UP = 115; //音视频取消或挂断消息
          * AU_VIDEO_REFUSE = 116; //音视频拒绝消息
          * AU_VIDEO_ACCEPT = 117; //音视频接受消息
+         * </pre>
+         *
+         * <code>P2P_AU_VIDEO = 118;</code>
+         */
+        P2P_AU_VIDEO(118),
+        /**
+         * <pre>
+         *点对点音视频发起消息
+         * </pre>
+         *
+         * <code>P2P_AU_VIDEO_DIAL = 119;</code>
+         */
+        P2P_AU_VIDEO_DIAL(119),
+        /**
+         * <pre>
+         * 强制下线
          * </pre>
          *
          * <code>FORCE_OFFLINE = 200;</code>
@@ -441,6 +461,22 @@ public final class MsgBean {
          * AU_VIDEO_ACCEPT = 117; //音视频接受消息
          * </pre>
          *
+         * <code>P2P_AU_VIDEO = 118;</code>
+         */
+        public static final int P2P_AU_VIDEO_VALUE = 118;
+        /**
+         * <pre>
+         *点对点音视频发起消息
+         * </pre>
+         *
+         * <code>P2P_AU_VIDEO_DIAL = 119;</code>
+         */
+        public static final int P2P_AU_VIDEO_DIAL_VALUE = 119;
+        /**
+         * <pre>
+         * 强制下线
+         * </pre>
+         *
          * <code>FORCE_OFFLINE = 200;</code>
          */
         public static final int FORCE_OFFLINE_VALUE = 200;
@@ -504,6 +540,8 @@ public final class MsgBean {
                 case 110: return OUT_GROUP;
                 case 112: return CHANGE_GROUP_META;
                 case 113: return CHANGE_SURVIVAL_TIME;
+                case 118: return P2P_AU_VIDEO;
+                case 119: return P2P_AU_VIDEO_DIAL;
                 case 200: return FORCE_OFFLINE;
                 case 201: return ACTIVE_STAT_CHANGE;
                 case 202: return RESOURCE_LOCK;
@@ -962,6 +1000,124 @@ public final class MsgBean {
         }
 
         // @@protoc_insertion_point(enum_scope:JoinGroupType)
+    }
+
+    /**
+     * <pre>
+     * 通话类型
+     * </pre>
+     *
+     * Protobuf enum {@code AuVideoType}
+     */
+    public enum AuVideoType
+            implements com.google.protobuf.ProtocolMessageEnum {
+        /**
+         * <pre>
+         * 语音
+         * </pre>
+         *
+         * <code>Audio = 0;</code>
+         */
+        Audio(0),
+        /**
+         * <pre>
+         * 视频
+         * </pre>
+         *
+         * <code>Vedio = 1;</code>
+         */
+        Vedio(1),
+        UNRECOGNIZED(-1),
+        ;
+
+        /**
+         * <pre>
+         * 语音
+         * </pre>
+         *
+         * <code>Audio = 0;</code>
+         */
+        public static final int Audio_VALUE = 0;
+        /**
+         * <pre>
+         * 视频
+         * </pre>
+         *
+         * <code>Vedio = 1;</code>
+         */
+        public static final int Vedio_VALUE = 1;
+
+
+        public final int getNumber() {
+            if (this == UNRECOGNIZED) {
+                throw new java.lang.IllegalArgumentException(
+                        "Can't get the number of an unknown enum value.");
+            }
+            return value;
+        }
+
+        /**
+         * @deprecated Use {@link #forNumber(int)} instead.
+         */
+        @java.lang.Deprecated
+        public static AuVideoType valueOf(int value) {
+            return forNumber(value);
+        }
+
+        public static AuVideoType forNumber(int value) {
+            switch (value) {
+                case 0: return Audio;
+                case 1: return Vedio;
+                default: return null;
+            }
+        }
+
+        public static com.google.protobuf.Internal.EnumLiteMap<AuVideoType>
+        internalGetValueMap() {
+            return internalValueMap;
+        }
+        private static final com.google.protobuf.Internal.EnumLiteMap<
+                AuVideoType> internalValueMap =
+                new com.google.protobuf.Internal.EnumLiteMap<AuVideoType>() {
+                    public AuVideoType findValueByNumber(int number) {
+                        return AuVideoType.forNumber(number);
+                    }
+                };
+
+        public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+            return getDescriptor().getValues().get(ordinal());
+        }
+        public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+            return getDescriptor();
+        }
+        public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+            return com.yanlong.im.utils.socket.MsgBean.getDescriptor().getEnumTypes().get(4);
+        }
+
+        private static final AuVideoType[] VALUES = values();
+
+        public static AuVideoType valueOf(
+                com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+            if (desc.getType() != getDescriptor()) {
+                throw new java.lang.IllegalArgumentException(
+                        "EnumValueDescriptor is not for this type.");
+            }
+            if (desc.getIndex() == -1) {
+                return UNRECOGNIZED;
+            }
+            return VALUES[desc.getIndex()];
+        }
+
+        private final int value;
+
+        private AuVideoType(int value) {
+            this.value = value;
+        }
+
+        // @@protoc_insertion_point(enum_scope:AuVideoType)
     }
 
     public interface ChatMessageOrBuilder extends
@@ -20431,6 +20587,1400 @@ public final class MsgBean {
 
     }
 
+    public interface P2PAuVideoMessageOrBuilder extends
+            // @@protoc_insertion_point(interface_extends:P2PAuVideoMessage)
+            com.google.protobuf.MessageOrBuilder {
+
+        /**
+         * <pre>
+         * 语音视频
+         * </pre>
+         *
+         * <code>.AuVideoType av_type = 1;</code>
+         */
+        int getAvTypeValue();
+        /**
+         * <pre>
+         * 语音视频
+         * </pre>
+         *
+         * <code>.AuVideoType av_type = 1;</code>
+         */
+        com.yanlong.im.utils.socket.MsgBean.AuVideoType getAvType();
+
+        /**
+         * <pre>
+         *操作(cancel|hangup|reject)
+         * </pre>
+         *
+         * <code>string operation = 2;</code>
+         */
+        java.lang.String getOperation();
+        /**
+         * <pre>
+         *操作(cancel|hangup|reject)
+         * </pre>
+         *
+         * <code>string operation = 2;</code>
+         */
+        com.google.protobuf.ByteString
+        getOperationBytes();
+
+        /**
+         * <pre>
+         *操作描述
+         * </pre>
+         *
+         * <code>string desc = 3;</code>
+         */
+        java.lang.String getDesc();
+        /**
+         * <pre>
+         *操作描述
+         * </pre>
+         *
+         * <code>string desc = 3;</code>
+         */
+        com.google.protobuf.ByteString
+        getDescBytes();
+    }
+    /**
+     * <pre>
+     * 点对点音视频通知
+     * </pre>
+     *
+     * Protobuf type {@code P2PAuVideoMessage}
+     */
+    public  static final class P2PAuVideoMessage extends
+            com.google.protobuf.GeneratedMessageV3 implements
+            // @@protoc_insertion_point(message_implements:P2PAuVideoMessage)
+            P2PAuVideoMessageOrBuilder {
+        private static final long serialVersionUID = 0L;
+        // Use P2PAuVideoMessage.newBuilder() to construct.
+        private P2PAuVideoMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+        private P2PAuVideoMessage() {
+            avType_ = 0;
+            operation_ = "";
+            desc_ = "";
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+        private P2PAuVideoMessage(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            if (extensionRegistry == null) {
+                throw new java.lang.NullPointerException();
+            }
+            int mutable_bitField0_ = 0;
+            com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+                    com.google.protobuf.UnknownFieldSet.newBuilder();
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!parseUnknownFieldProto3(
+                                    input, unknownFields, extensionRegistry, tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 8: {
+                            int rawValue = input.readEnum();
+
+                            avType_ = rawValue;
+                            break;
+                        }
+                        case 18: {
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            operation_ = s;
+                            break;
+                        }
+                        case 26: {
+                            java.lang.String s = input.readStringRequireUtf8();
+
+                            desc_ = s;
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(
+                        e).setUnfinishedMessage(this);
+            } finally {
+                this.unknownFields = unknownFields.build();
+                makeExtensionsImmutable();
+            }
+        }
+        public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+            return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoMessage_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoMessage_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.class, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.Builder.class);
+        }
+
+        public static final int AV_TYPE_FIELD_NUMBER = 1;
+        private int avType_;
+        /**
+         * <pre>
+         * 语音视频
+         * </pre>
+         *
+         * <code>.AuVideoType av_type = 1;</code>
+         */
+        public int getAvTypeValue() {
+            return avType_;
+        }
+        /**
+         * <pre>
+         * 语音视频
+         * </pre>
+         *
+         * <code>.AuVideoType av_type = 1;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.AuVideoType getAvType() {
+            com.yanlong.im.utils.socket.MsgBean.AuVideoType result = com.yanlong.im.utils.socket.MsgBean.AuVideoType.valueOf(avType_);
+            return result == null ? com.yanlong.im.utils.socket.MsgBean.AuVideoType.UNRECOGNIZED : result;
+        }
+
+        public static final int OPERATION_FIELD_NUMBER = 2;
+        private volatile java.lang.Object operation_;
+        /**
+         * <pre>
+         *操作(cancel|hangup|reject)
+         * </pre>
+         *
+         * <code>string operation = 2;</code>
+         */
+        public java.lang.String getOperation() {
+            java.lang.Object ref = operation_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                operation_ = s;
+                return s;
+            }
+        }
+        /**
+         * <pre>
+         *操作(cancel|hangup|reject)
+         * </pre>
+         *
+         * <code>string operation = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+        getOperationBytes() {
+            java.lang.Object ref = operation_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                operation_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        public static final int DESC_FIELD_NUMBER = 3;
+        private volatile java.lang.Object desc_;
+        /**
+         * <pre>
+         *操作描述
+         * </pre>
+         *
+         * <code>string desc = 3;</code>
+         */
+        public java.lang.String getDesc() {
+            java.lang.Object ref = desc_;
+            if (ref instanceof java.lang.String) {
+                return (java.lang.String) ref;
+            } else {
+                com.google.protobuf.ByteString bs =
+                        (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                desc_ = s;
+                return s;
+            }
+        }
+        /**
+         * <pre>
+         *操作描述
+         * </pre>
+         *
+         * <code>string desc = 3;</code>
+         */
+        public com.google.protobuf.ByteString
+        getDescBytes() {
+            java.lang.Object ref = desc_;
+            if (ref instanceof java.lang.String) {
+                com.google.protobuf.ByteString b =
+                        com.google.protobuf.ByteString.copyFromUtf8(
+                                (java.lang.String) ref);
+                desc_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        private byte memoizedIsInitialized = -1;
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1) return true;
+            if (isInitialized == 0) return false;
+
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            if (avType_ != com.yanlong.im.utils.socket.MsgBean.AuVideoType.Audio.getNumber()) {
+                output.writeEnum(1, avType_);
+            }
+            if (!getOperationBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 2, operation_);
+            }
+            if (!getDescBytes().isEmpty()) {
+                com.google.protobuf.GeneratedMessageV3.writeString(output, 3, desc_);
+            }
+            unknownFields.writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (avType_ != com.yanlong.im.utils.socket.MsgBean.AuVideoType.Audio.getNumber()) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeEnumSize(1, avType_);
+            }
+            if (!getOperationBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, operation_);
+            }
+            if (!getDescBytes().isEmpty()) {
+                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, desc_);
+            }
+            size += unknownFields.getSerializedSize();
+            memoizedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage)) {
+                return super.equals(obj);
+            }
+            com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage other = (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) obj;
+
+            boolean result = true;
+            result = result && avType_ == other.avType_;
+            result = result && getOperation()
+                    .equals(other.getOperation());
+            result = result && getDesc()
+                    .equals(other.getDesc());
+            result = result && unknownFields.equals(other.unknownFields);
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptor().hashCode();
+            hash = (37 * hash) + AV_TYPE_FIELD_NUMBER;
+            hash = (53 * hash) + avType_;
+            hash = (37 * hash) + OPERATION_FIELD_NUMBER;
+            hash = (53 * hash) + getOperation().hashCode();
+            hash = (37 * hash) + DESC_FIELD_NUMBER;
+            hash = (53 * hash) + getDesc().hashCode();
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(
+                java.nio.ByteBuffer data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(
+                java.nio.ByteBuffer data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(
+                com.google.protobuf.ByteString data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(
+                com.google.protobuf.ByteString data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(byte[] data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(
+                byte[] data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseDelimitedFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseDelimitedFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(
+                com.google.protobuf.CodedInputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parseFrom(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+        public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage prototype) {
+            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        }
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE
+                    ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(
+                com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+        /**
+         * <pre>
+         * 点对点音视频通知
+         * </pre>
+         *
+         * Protobuf type {@code P2PAuVideoMessage}
+         */
+        public static final class Builder extends
+                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+                // @@protoc_insertion_point(builder_implements:P2PAuVideoMessage)
+                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessageOrBuilder {
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoMessage_descriptor;
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoMessage_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.class, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.Builder.class);
+            }
+
+            // Construct using com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.newBuilder()
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
+
+            private Builder(
+                    com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3
+                        .alwaysUseFieldBuilders) {
+                }
+            }
+            public Builder clear() {
+                super.clear();
+                avType_ = 0;
+
+                operation_ = "";
+
+                desc_ = "";
+
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoMessage_descriptor;
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage getDefaultInstanceForType() {
+                return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance();
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage build() {
+                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage result = buildPartial();
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage buildPartial() {
+                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage result = new com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage(this);
+                result.avType_ = avType_;
+                result.operation_ = operation_;
+                result.desc_ = desc_;
+                onBuilt();
+                return result;
+            }
+
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+            public Builder setField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    java.lang.Object value) {
+                return (Builder) super.setField(field, value);
+            }
+            public Builder clearField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+            public Builder clearOneof(
+                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+            public Builder setRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    int index, java.lang.Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+            public Builder addRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    java.lang.Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+            public Builder mergeFrom(com.google.protobuf.Message other) {
+                if (other instanceof com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) {
+                    return mergeFrom((com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage)other);
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
+
+            public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage other) {
+                if (other == com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance()) return this;
+                if (other.avType_ != 0) {
+                    setAvTypeValue(other.getAvTypeValue());
+                }
+                if (!other.getOperation().isEmpty()) {
+                    operation_ = other.operation_;
+                    onChanged();
+                }
+                if (!other.getDesc().isEmpty()) {
+                    desc_ = other.desc_;
+                    onChanged();
+                }
+                this.mergeUnknownFields(other.unknownFields);
+                onChanged();
+                return this;
+            }
+
+            public final boolean isInitialized() {
+                return true;
+            }
+
+            public Builder mergeFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws java.io.IOException {
+                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage parsedMessage = null;
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                    parsedMessage = (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) e.getUnfinishedMessage();
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            private int avType_ = 0;
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public int getAvTypeValue() {
+                return avType_;
+            }
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public Builder setAvTypeValue(int value) {
+                avType_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.AuVideoType getAvType() {
+                com.yanlong.im.utils.socket.MsgBean.AuVideoType result = com.yanlong.im.utils.socket.MsgBean.AuVideoType.valueOf(avType_);
+                return result == null ? com.yanlong.im.utils.socket.MsgBean.AuVideoType.UNRECOGNIZED : result;
+            }
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public Builder setAvType(com.yanlong.im.utils.socket.MsgBean.AuVideoType value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                avType_ = value.getNumber();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public Builder clearAvType() {
+
+                avType_ = 0;
+                onChanged();
+                return this;
+            }
+
+            private java.lang.Object operation_ = "";
+            /**
+             * <pre>
+             *操作(cancel|hangup|reject)
+             * </pre>
+             *
+             * <code>string operation = 2;</code>
+             */
+            public java.lang.String getOperation() {
+                java.lang.Object ref = operation_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    operation_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+            /**
+             * <pre>
+             *操作(cancel|hangup|reject)
+             * </pre>
+             *
+             * <code>string operation = 2;</code>
+             */
+            public com.google.protobuf.ByteString
+            getOperationBytes() {
+                java.lang.Object ref = operation_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    operation_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <pre>
+             *操作(cancel|hangup|reject)
+             * </pre>
+             *
+             * <code>string operation = 2;</code>
+             */
+            public Builder setOperation(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                operation_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             *操作(cancel|hangup|reject)
+             * </pre>
+             *
+             * <code>string operation = 2;</code>
+             */
+            public Builder clearOperation() {
+
+                operation_ = getDefaultInstance().getOperation();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             *操作(cancel|hangup|reject)
+             * </pre>
+             *
+             * <code>string operation = 2;</code>
+             */
+            public Builder setOperationBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                operation_ = value;
+                onChanged();
+                return this;
+            }
+
+            private java.lang.Object desc_ = "";
+            /**
+             * <pre>
+             *操作描述
+             * </pre>
+             *
+             * <code>string desc = 3;</code>
+             */
+            public java.lang.String getDesc() {
+                java.lang.Object ref = desc_;
+                if (!(ref instanceof java.lang.String)) {
+                    com.google.protobuf.ByteString bs =
+                            (com.google.protobuf.ByteString) ref;
+                    java.lang.String s = bs.toStringUtf8();
+                    desc_ = s;
+                    return s;
+                } else {
+                    return (java.lang.String) ref;
+                }
+            }
+            /**
+             * <pre>
+             *操作描述
+             * </pre>
+             *
+             * <code>string desc = 3;</code>
+             */
+            public com.google.protobuf.ByteString
+            getDescBytes() {
+                java.lang.Object ref = desc_;
+                if (ref instanceof String) {
+                    com.google.protobuf.ByteString b =
+                            com.google.protobuf.ByteString.copyFromUtf8(
+                                    (java.lang.String) ref);
+                    desc_ = b;
+                    return b;
+                } else {
+                    return (com.google.protobuf.ByteString) ref;
+                }
+            }
+            /**
+             * <pre>
+             *操作描述
+             * </pre>
+             *
+             * <code>string desc = 3;</code>
+             */
+            public Builder setDesc(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                desc_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             *操作描述
+             * </pre>
+             *
+             * <code>string desc = 3;</code>
+             */
+            public Builder clearDesc() {
+
+                desc_ = getDefaultInstance().getDesc();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             *操作描述
+             * </pre>
+             *
+             * <code>string desc = 3;</code>
+             */
+            public Builder setDescBytes(
+                    com.google.protobuf.ByteString value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                checkByteStringIsUtf8(value);
+
+                desc_ = value;
+                onChanged();
+                return this;
+            }
+            public final Builder setUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.setUnknownFieldsProto3(unknownFields);
+            }
+
+            public final Builder mergeUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.mergeUnknownFields(unknownFields);
+            }
+
+
+            // @@protoc_insertion_point(builder_scope:P2PAuVideoMessage)
+        }
+
+        // @@protoc_insertion_point(class_scope:P2PAuVideoMessage)
+        private static final com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage DEFAULT_INSTANCE;
+        static {
+            DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage();
+        }
+
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        private static final com.google.protobuf.Parser<P2PAuVideoMessage>
+                PARSER = new com.google.protobuf.AbstractParser<P2PAuVideoMessage>() {
+            public P2PAuVideoMessage parsePartialFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws com.google.protobuf.InvalidProtocolBufferException {
+                return new P2PAuVideoMessage(input, extensionRegistry);
+            }
+        };
+
+        public static com.google.protobuf.Parser<P2PAuVideoMessage> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<P2PAuVideoMessage> getParserForType() {
+            return PARSER;
+        }
+
+        public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+    }
+
+    public interface P2PAuVideoDialMessageOrBuilder extends
+            // @@protoc_insertion_point(interface_extends:P2PAuVideoDialMessage)
+            com.google.protobuf.MessageOrBuilder {
+
+        /**
+         * <pre>
+         * 语音视频
+         * </pre>
+         *
+         * <code>.AuVideoType av_type = 1;</code>
+         */
+        int getAvTypeValue();
+        /**
+         * <pre>
+         * 语音视频
+         * </pre>
+         *
+         * <code>.AuVideoType av_type = 1;</code>
+         */
+        com.yanlong.im.utils.socket.MsgBean.AuVideoType getAvType();
+    }
+    /**
+     * <pre>
+     * 点对点音视频发起通知
+     * </pre>
+     *
+     * Protobuf type {@code P2PAuVideoDialMessage}
+     */
+    public  static final class P2PAuVideoDialMessage extends
+            com.google.protobuf.GeneratedMessageV3 implements
+            // @@protoc_insertion_point(message_implements:P2PAuVideoDialMessage)
+            P2PAuVideoDialMessageOrBuilder {
+        private static final long serialVersionUID = 0L;
+        // Use P2PAuVideoDialMessage.newBuilder() to construct.
+        private P2PAuVideoDialMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+        private P2PAuVideoDialMessage() {
+            avType_ = 0;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+        private P2PAuVideoDialMessage(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            if (extensionRegistry == null) {
+                throw new java.lang.NullPointerException();
+            }
+            int mutable_bitField0_ = 0;
+            com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+                    com.google.protobuf.UnknownFieldSet.newBuilder();
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!parseUnknownFieldProto3(
+                                    input, unknownFields, extensionRegistry, tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 8: {
+                            int rawValue = input.readEnum();
+
+                            avType_ = rawValue;
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(
+                        e).setUnfinishedMessage(this);
+            } finally {
+                this.unknownFields = unknownFields.build();
+                makeExtensionsImmutable();
+            }
+        }
+        public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+            return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoDialMessage_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoDialMessage_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.class, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.Builder.class);
+        }
+
+        public static final int AV_TYPE_FIELD_NUMBER = 1;
+        private int avType_;
+        /**
+         * <pre>
+         * 语音视频
+         * </pre>
+         *
+         * <code>.AuVideoType av_type = 1;</code>
+         */
+        public int getAvTypeValue() {
+            return avType_;
+        }
+        /**
+         * <pre>
+         * 语音视频
+         * </pre>
+         *
+         * <code>.AuVideoType av_type = 1;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.AuVideoType getAvType() {
+            com.yanlong.im.utils.socket.MsgBean.AuVideoType result = com.yanlong.im.utils.socket.MsgBean.AuVideoType.valueOf(avType_);
+            return result == null ? com.yanlong.im.utils.socket.MsgBean.AuVideoType.UNRECOGNIZED : result;
+        }
+
+        private byte memoizedIsInitialized = -1;
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1) return true;
+            if (isInitialized == 0) return false;
+
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            if (avType_ != com.yanlong.im.utils.socket.MsgBean.AuVideoType.Audio.getNumber()) {
+                output.writeEnum(1, avType_);
+            }
+            unknownFields.writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (avType_ != com.yanlong.im.utils.socket.MsgBean.AuVideoType.Audio.getNumber()) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeEnumSize(1, avType_);
+            }
+            size += unknownFields.getSerializedSize();
+            memoizedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage)) {
+                return super.equals(obj);
+            }
+            com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage other = (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) obj;
+
+            boolean result = true;
+            result = result && avType_ == other.avType_;
+            result = result && unknownFields.equals(other.unknownFields);
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptor().hashCode();
+            hash = (37 * hash) + AV_TYPE_FIELD_NUMBER;
+            hash = (53 * hash) + avType_;
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(
+                java.nio.ByteBuffer data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(
+                java.nio.ByteBuffer data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(
+                com.google.protobuf.ByteString data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(
+                com.google.protobuf.ByteString data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(byte[] data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(
+                byte[] data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseDelimitedFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseDelimitedFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(
+                com.google.protobuf.CodedInputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parseFrom(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+        public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage prototype) {
+            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        }
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE
+                    ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(
+                com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+        /**
+         * <pre>
+         * 点对点音视频发起通知
+         * </pre>
+         *
+         * Protobuf type {@code P2PAuVideoDialMessage}
+         */
+        public static final class Builder extends
+                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+                // @@protoc_insertion_point(builder_implements:P2PAuVideoDialMessage)
+                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessageOrBuilder {
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoDialMessage_descriptor;
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoDialMessage_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.class, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.Builder.class);
+            }
+
+            // Construct using com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.newBuilder()
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
+
+            private Builder(
+                    com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3
+                        .alwaysUseFieldBuilders) {
+                }
+            }
+            public Builder clear() {
+                super.clear();
+                avType_ = 0;
+
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_P2PAuVideoDialMessage_descriptor;
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage getDefaultInstanceForType() {
+                return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance();
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage build() {
+                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage result = buildPartial();
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage buildPartial() {
+                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage result = new com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage(this);
+                result.avType_ = avType_;
+                onBuilt();
+                return result;
+            }
+
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+            public Builder setField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    java.lang.Object value) {
+                return (Builder) super.setField(field, value);
+            }
+            public Builder clearField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+            public Builder clearOneof(
+                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+            public Builder setRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    int index, java.lang.Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+            public Builder addRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    java.lang.Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+            public Builder mergeFrom(com.google.protobuf.Message other) {
+                if (other instanceof com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) {
+                    return mergeFrom((com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage)other);
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
+
+            public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage other) {
+                if (other == com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance()) return this;
+                if (other.avType_ != 0) {
+                    setAvTypeValue(other.getAvTypeValue());
+                }
+                this.mergeUnknownFields(other.unknownFields);
+                onChanged();
+                return this;
+            }
+
+            public final boolean isInitialized() {
+                return true;
+            }
+
+            public Builder mergeFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws java.io.IOException {
+                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage parsedMessage = null;
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                    parsedMessage = (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) e.getUnfinishedMessage();
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            private int avType_ = 0;
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public int getAvTypeValue() {
+                return avType_;
+            }
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public Builder setAvTypeValue(int value) {
+                avType_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.AuVideoType getAvType() {
+                com.yanlong.im.utils.socket.MsgBean.AuVideoType result = com.yanlong.im.utils.socket.MsgBean.AuVideoType.valueOf(avType_);
+                return result == null ? com.yanlong.im.utils.socket.MsgBean.AuVideoType.UNRECOGNIZED : result;
+            }
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public Builder setAvType(com.yanlong.im.utils.socket.MsgBean.AuVideoType value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                avType_ = value.getNumber();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 语音视频
+             * </pre>
+             *
+             * <code>.AuVideoType av_type = 1;</code>
+             */
+            public Builder clearAvType() {
+
+                avType_ = 0;
+                onChanged();
+                return this;
+            }
+            public final Builder setUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.setUnknownFieldsProto3(unknownFields);
+            }
+
+            public final Builder mergeUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.mergeUnknownFields(unknownFields);
+            }
+
+
+            // @@protoc_insertion_point(builder_scope:P2PAuVideoDialMessage)
+        }
+
+        // @@protoc_insertion_point(class_scope:P2PAuVideoDialMessage)
+        private static final com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage DEFAULT_INSTANCE;
+        static {
+            DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage();
+        }
+
+        public static com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        private static final com.google.protobuf.Parser<P2PAuVideoDialMessage>
+                PARSER = new com.google.protobuf.AbstractParser<P2PAuVideoDialMessage>() {
+            public P2PAuVideoDialMessage parsePartialFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws com.google.protobuf.InvalidProtocolBufferException {
+                return new P2PAuVideoDialMessage(input, extensionRegistry);
+            }
+        };
+
+        public static com.google.protobuf.Parser<P2PAuVideoDialMessage> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<P2PAuVideoDialMessage> getParserForType() {
+            return PARSER;
+        }
+
+        public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+    }
+
     public interface ForceOfflineMessageOrBuilder extends
             // @@protoc_insertion_point(interface_extends:ForceOfflineMessage)
             com.google.protobuf.MessageOrBuilder {
@@ -25534,28 +27084,54 @@ public final class MsgBean {
              * AuVideoAcceptMessage au_video_accept = 10217;
              * </pre>
              *
+             * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+             */
+            boolean hasP2PAuVideo();
+            /**
+             * <pre>
+             * AuVideoDialMessage au_video_dial = 10214;
+             * AuVideoHangUpMessage au_video_hang_up = 10215;
+             * AuVideoRefuseMessage au_video_refuse = 10216;
+             * AuVideoAcceptMessage au_video_accept = 10217;
+             * </pre>
+             *
+             * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+             */
+            com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage getP2PAuVideo();
+            /**
+             * <pre>
+             * AuVideoDialMessage au_video_dial = 10214;
+             * AuVideoHangUpMessage au_video_hang_up = 10215;
+             * AuVideoRefuseMessage au_video_refuse = 10216;
+             * AuVideoAcceptMessage au_video_accept = 10217;
+             * </pre>
+             *
+             * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+             */
+            com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessageOrBuilder getP2PAuVideoOrBuilder();
+
+            /**
+             * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+             */
+            boolean hasP2PAuVideoDial();
+            /**
+             * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+             */
+            com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage getP2PAuVideoDial();
+            /**
+             * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+             */
+            com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessageOrBuilder getP2PAuVideoDialOrBuilder();
+
+            /**
              * <code>.ForceOfflineMessage force_offline = 10300;</code>
              */
             boolean hasForceOffline();
             /**
-             * <pre>
-             * AuVideoDialMessage au_video_dial = 10214;
-             * AuVideoHangUpMessage au_video_hang_up = 10215;
-             * AuVideoRefuseMessage au_video_refuse = 10216;
-             * AuVideoAcceptMessage au_video_accept = 10217;
-             * </pre>
-             *
              * <code>.ForceOfflineMessage force_offline = 10300;</code>
              */
             com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage getForceOffline();
             /**
-             * <pre>
-             * AuVideoDialMessage au_video_dial = 10214;
-             * AuVideoHangUpMessage au_video_hang_up = 10215;
-             * AuVideoRefuseMessage au_video_refuse = 10216;
-             * AuVideoAcceptMessage au_video_accept = 10217;
-             * </pre>
-             *
              * <code>.ForceOfflineMessage force_offline = 10300;</code>
              */
             com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder getForceOfflineOrBuilder();
@@ -26031,6 +27607,34 @@ public final class MsgBean {
                                 realMsgCase_ = 10213;
                                 break;
                             }
+                            case 81746: {
+                                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.Builder subBuilder = null;
+                                if (realMsgCase_ == 10218) {
+                                    subBuilder = ((com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_).toBuilder();
+                                }
+                                realMsg_ =
+                                        input.readMessage(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.parser(), extensionRegistry);
+                                if (subBuilder != null) {
+                                    subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_);
+                                    realMsg_ = subBuilder.buildPartial();
+                                }
+                                realMsgCase_ = 10218;
+                                break;
+                            }
+                            case 81754: {
+                                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.Builder subBuilder = null;
+                                if (realMsgCase_ == 10219) {
+                                    subBuilder = ((com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_).toBuilder();
+                                }
+                                realMsg_ =
+                                        input.readMessage(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.parser(), extensionRegistry);
+                                if (subBuilder != null) {
+                                    subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_);
+                                    realMsg_ = subBuilder.buildPartial();
+                                }
+                                realMsgCase_ = 10219;
+                                break;
+                            }
                             case 82402: {
                                 com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder subBuilder = null;
                                 if (realMsgCase_ == 10300) {
@@ -26125,6 +27729,8 @@ public final class MsgBean {
                 OUT_GROUP(10210),
                 CHANGE_GROUP_META(10212),
                 CHANGE_SURVIVAL_TIME(10213),
+                P2P_AU_VIDEO(10218),
+                P2P_AU_VIDEO_DIAL(10219),
                 FORCE_OFFLINE(10300),
                 ACTIVE_STAT_CHANGE(10301),
                 RESOURCE_LOCK(10302),
@@ -26167,6 +27773,8 @@ public final class MsgBean {
                         case 10210: return OUT_GROUP;
                         case 10212: return CHANGE_GROUP_META;
                         case 10213: return CHANGE_SURVIVAL_TIME;
+                        case 10218: return P2P_AU_VIDEO;
+                        case 10219: return P2P_AU_VIDEO_DIAL;
                         case 10300: return FORCE_OFFLINE;
                         case 10301: return ACTIVE_STAT_CHANGE;
                         case 10302: return RESOURCE_LOCK;
@@ -27074,7 +28682,7 @@ public final class MsgBean {
                 return com.yanlong.im.utils.socket.MsgBean.ChangeSurvivalTimeMessage.getDefaultInstance();
             }
 
-            public static final int FORCE_OFFLINE_FIELD_NUMBER = 10300;
+            public static final int P2P_AU_VIDEO_FIELD_NUMBER = 10218;
             /**
              * <pre>
              * AuVideoDialMessage au_video_dial = 10214;
@@ -27083,10 +28691,10 @@ public final class MsgBean {
              * AuVideoAcceptMessage au_video_accept = 10217;
              * </pre>
              *
-             * <code>.ForceOfflineMessage force_offline = 10300;</code>
+             * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
              */
-            public boolean hasForceOffline() {
-                return realMsgCase_ == 10300;
+            public boolean hasP2PAuVideo() {
+                return realMsgCase_ == 10218;
             }
             /**
              * <pre>
@@ -27096,6 +28704,65 @@ public final class MsgBean {
              * AuVideoAcceptMessage au_video_accept = 10217;
              * </pre>
              *
+             * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage getP2PAuVideo() {
+                if (realMsgCase_ == 10218) {
+                    return (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_;
+                }
+                return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance();
+            }
+            /**
+             * <pre>
+             * AuVideoDialMessage au_video_dial = 10214;
+             * AuVideoHangUpMessage au_video_hang_up = 10215;
+             * AuVideoRefuseMessage au_video_refuse = 10216;
+             * AuVideoAcceptMessage au_video_accept = 10217;
+             * </pre>
+             *
+             * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessageOrBuilder getP2PAuVideoOrBuilder() {
+                if (realMsgCase_ == 10218) {
+                    return (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_;
+                }
+                return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance();
+            }
+
+            public static final int P2P_AU_VIDEO_DIAL_FIELD_NUMBER = 10219;
+            /**
+             * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+             */
+            public boolean hasP2PAuVideoDial() {
+                return realMsgCase_ == 10219;
+            }
+            /**
+             * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage getP2PAuVideoDial() {
+                if (realMsgCase_ == 10219) {
+                    return (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_;
+                }
+                return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance();
+            }
+            /**
+             * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessageOrBuilder getP2PAuVideoDialOrBuilder() {
+                if (realMsgCase_ == 10219) {
+                    return (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_;
+                }
+                return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance();
+            }
+
+            public static final int FORCE_OFFLINE_FIELD_NUMBER = 10300;
+            /**
+             * <code>.ForceOfflineMessage force_offline = 10300;</code>
+             */
+            public boolean hasForceOffline() {
+                return realMsgCase_ == 10300;
+            }
+            /**
              * <code>.ForceOfflineMessage force_offline = 10300;</code>
              */
             public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage getForceOffline() {
@@ -27105,13 +28772,6 @@ public final class MsgBean {
                 return com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.getDefaultInstance();
             }
             /**
-             * <pre>
-             * AuVideoDialMessage au_video_dial = 10214;
-             * AuVideoHangUpMessage au_video_hang_up = 10215;
-             * AuVideoRefuseMessage au_video_refuse = 10216;
-             * AuVideoAcceptMessage au_video_accept = 10217;
-             * </pre>
-             *
              * <code>.ForceOfflineMessage force_offline = 10300;</code>
              */
             public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder getForceOfflineOrBuilder() {
@@ -27284,6 +28944,12 @@ public final class MsgBean {
                 if (realMsgCase_ == 10213) {
                     output.writeMessage(10213, (com.yanlong.im.utils.socket.MsgBean.ChangeSurvivalTimeMessage) realMsg_);
                 }
+                if (realMsgCase_ == 10218) {
+                    output.writeMessage(10218, (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_);
+                }
+                if (realMsgCase_ == 10219) {
+                    output.writeMessage(10219, (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_);
+                }
                 if (realMsgCase_ == 10300) {
                     output.writeMessage(10300, (com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage) realMsg_);
                 }
@@ -27427,6 +29093,14 @@ public final class MsgBean {
                 if (realMsgCase_ == 10213) {
                     size += com.google.protobuf.CodedOutputStream
                             .computeMessageSize(10213, (com.yanlong.im.utils.socket.MsgBean.ChangeSurvivalTimeMessage) realMsg_);
+                }
+                if (realMsgCase_ == 10218) {
+                    size += com.google.protobuf.CodedOutputStream
+                            .computeMessageSize(10218, (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_);
+                }
+                if (realMsgCase_ == 10219) {
+                    size += com.google.protobuf.CodedOutputStream
+                            .computeMessageSize(10219, (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_);
                 }
                 if (realMsgCase_ == 10300) {
                     size += com.google.protobuf.CodedOutputStream
@@ -27573,6 +29247,14 @@ public final class MsgBean {
                         result = result && getChangeSurvivalTime()
                                 .equals(other.getChangeSurvivalTime());
                         break;
+                    case 10218:
+                        result = result && getP2PAuVideo()
+                                .equals(other.getP2PAuVideo());
+                        break;
+                    case 10219:
+                        result = result && getP2PAuVideoDial()
+                                .equals(other.getP2PAuVideoDial());
+                        break;
                     case 10300:
                         result = result && getForceOffline()
                                 .equals(other.getForceOffline());
@@ -27715,6 +29397,14 @@ public final class MsgBean {
                     case 10213:
                         hash = (37 * hash) + CHANGE_SURVIVAL_TIME_FIELD_NUMBER;
                         hash = (53 * hash) + getChangeSurvivalTime().hashCode();
+                        break;
+                    case 10218:
+                        hash = (37 * hash) + P2P_AU_VIDEO_FIELD_NUMBER;
+                        hash = (53 * hash) + getP2PAuVideo().hashCode();
+                        break;
+                    case 10219:
+                        hash = (37 * hash) + P2P_AU_VIDEO_DIAL_FIELD_NUMBER;
+                        hash = (53 * hash) + getP2PAuVideoDial().hashCode();
                         break;
                     case 10300:
                         hash = (37 * hash) + FORCE_OFFLINE_FIELD_NUMBER;
@@ -28079,6 +29769,20 @@ public final class MsgBean {
                             result.realMsg_ = changeSurvivalTimeBuilder_.build();
                         }
                     }
+                    if (realMsgCase_ == 10218) {
+                        if (p2PAuVideoBuilder_ == null) {
+                            result.realMsg_ = realMsg_;
+                        } else {
+                            result.realMsg_ = p2PAuVideoBuilder_.build();
+                        }
+                    }
+                    if (realMsgCase_ == 10219) {
+                        if (p2PAuVideoDialBuilder_ == null) {
+                            result.realMsg_ = realMsg_;
+                        } else {
+                            result.realMsg_ = p2PAuVideoDialBuilder_.build();
+                        }
+                    }
                     if (realMsgCase_ == 10300) {
                         if (forceOfflineBuilder_ == null) {
                             result.realMsg_ = realMsg_;
@@ -28269,6 +29973,14 @@ public final class MsgBean {
                         }
                         case CHANGE_SURVIVAL_TIME: {
                             mergeChangeSurvivalTime(other.getChangeSurvivalTime());
+                            break;
+                        }
+                        case P2P_AU_VIDEO: {
+                            mergeP2PAuVideo(other.getP2PAuVideo());
+                            break;
+                        }
+                        case P2P_AU_VIDEO_DIAL: {
+                            mergeP2PAuVideoDial(other.getP2PAuVideoDial());
                             break;
                         }
                         case FORCE_OFFLINE: {
@@ -32197,7 +33909,7 @@ public final class MsgBean {
                 }
 
                 private com.google.protobuf.SingleFieldBuilderV3<
-                        com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder> forceOfflineBuilder_;
+                        com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.Builder, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessageOrBuilder> p2PAuVideoBuilder_;
                 /**
                  * <pre>
                  * AuVideoDialMessage au_video_dial = 10214;
@@ -32206,10 +33918,10 @@ public final class MsgBean {
                  * AuVideoAcceptMessage au_video_accept = 10217;
                  * </pre>
                  *
-                 * <code>.ForceOfflineMessage force_offline = 10300;</code>
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
                  */
-                public boolean hasForceOffline() {
-                    return realMsgCase_ == 10300;
+                public boolean hasP2PAuVideo() {
+                    return realMsgCase_ == 10218;
                 }
                 /**
                  * <pre>
@@ -32219,6 +33931,327 @@ public final class MsgBean {
                  * AuVideoAcceptMessage au_video_accept = 10217;
                  * </pre>
                  *
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage getP2PAuVideo() {
+                    if (p2PAuVideoBuilder_ == null) {
+                        if (realMsgCase_ == 10218) {
+                            return (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_;
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance();
+                    } else {
+                        if (realMsgCase_ == 10218) {
+                            return p2PAuVideoBuilder_.getMessage();
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <pre>
+                 * AuVideoDialMessage au_video_dial = 10214;
+                 * AuVideoHangUpMessage au_video_hang_up = 10215;
+                 * AuVideoRefuseMessage au_video_refuse = 10216;
+                 * AuVideoAcceptMessage au_video_accept = 10217;
+                 * </pre>
+                 *
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+                 */
+                public Builder setP2PAuVideo(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage value) {
+                    if (p2PAuVideoBuilder_ == null) {
+                        if (value == null) {
+                            throw new NullPointerException();
+                        }
+                        realMsg_ = value;
+                        onChanged();
+                    } else {
+                        p2PAuVideoBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10218;
+                    return this;
+                }
+                /**
+                 * <pre>
+                 * AuVideoDialMessage au_video_dial = 10214;
+                 * AuVideoHangUpMessage au_video_hang_up = 10215;
+                 * AuVideoRefuseMessage au_video_refuse = 10216;
+                 * AuVideoAcceptMessage au_video_accept = 10217;
+                 * </pre>
+                 *
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+                 */
+                public Builder setP2PAuVideo(
+                        com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.Builder builderForValue) {
+                    if (p2PAuVideoBuilder_ == null) {
+                        realMsg_ = builderForValue.build();
+                        onChanged();
+                    } else {
+                        p2PAuVideoBuilder_.setMessage(builderForValue.build());
+                    }
+                    realMsgCase_ = 10218;
+                    return this;
+                }
+                /**
+                 * <pre>
+                 * AuVideoDialMessage au_video_dial = 10214;
+                 * AuVideoHangUpMessage au_video_hang_up = 10215;
+                 * AuVideoRefuseMessage au_video_refuse = 10216;
+                 * AuVideoAcceptMessage au_video_accept = 10217;
+                 * </pre>
+                 *
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+                 */
+                public Builder mergeP2PAuVideo(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage value) {
+                    if (p2PAuVideoBuilder_ == null) {
+                        if (realMsgCase_ == 10218 &&
+                                realMsg_ != com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance()) {
+                            realMsg_ = com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.newBuilder((com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_)
+                                    .mergeFrom(value).buildPartial();
+                        } else {
+                            realMsg_ = value;
+                        }
+                        onChanged();
+                    } else {
+                        if (realMsgCase_ == 10218) {
+                            p2PAuVideoBuilder_.mergeFrom(value);
+                        }
+                        p2PAuVideoBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10218;
+                    return this;
+                }
+                /**
+                 * <pre>
+                 * AuVideoDialMessage au_video_dial = 10214;
+                 * AuVideoHangUpMessage au_video_hang_up = 10215;
+                 * AuVideoRefuseMessage au_video_refuse = 10216;
+                 * AuVideoAcceptMessage au_video_accept = 10217;
+                 * </pre>
+                 *
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+                 */
+                public Builder clearP2PAuVideo() {
+                    if (p2PAuVideoBuilder_ == null) {
+                        if (realMsgCase_ == 10218) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                            onChanged();
+                        }
+                    } else {
+                        if (realMsgCase_ == 10218) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                        }
+                        p2PAuVideoBuilder_.clear();
+                    }
+                    return this;
+                }
+                /**
+                 * <pre>
+                 * AuVideoDialMessage au_video_dial = 10214;
+                 * AuVideoHangUpMessage au_video_hang_up = 10215;
+                 * AuVideoRefuseMessage au_video_refuse = 10216;
+                 * AuVideoAcceptMessage au_video_accept = 10217;
+                 * </pre>
+                 *
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.Builder getP2PAuVideoBuilder() {
+                    return getP2PAuVideoFieldBuilder().getBuilder();
+                }
+                /**
+                 * <pre>
+                 * AuVideoDialMessage au_video_dial = 10214;
+                 * AuVideoHangUpMessage au_video_hang_up = 10215;
+                 * AuVideoRefuseMessage au_video_refuse = 10216;
+                 * AuVideoAcceptMessage au_video_accept = 10217;
+                 * </pre>
+                 *
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessageOrBuilder getP2PAuVideoOrBuilder() {
+                    if ((realMsgCase_ == 10218) && (p2PAuVideoBuilder_ != null)) {
+                        return p2PAuVideoBuilder_.getMessageOrBuilder();
+                    } else {
+                        if (realMsgCase_ == 10218) {
+                            return (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_;
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <pre>
+                 * AuVideoDialMessage au_video_dial = 10214;
+                 * AuVideoHangUpMessage au_video_hang_up = 10215;
+                 * AuVideoRefuseMessage au_video_refuse = 10216;
+                 * AuVideoAcceptMessage au_video_accept = 10217;
+                 * </pre>
+                 *
+                 * <code>.P2PAuVideoMessage p2p_au_video = 10218;</code>
+                 */
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.Builder, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessageOrBuilder>
+                getP2PAuVideoFieldBuilder() {
+                    if (p2PAuVideoBuilder_ == null) {
+                        if (!(realMsgCase_ == 10218)) {
+                            realMsg_ = com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.getDefaultInstance();
+                        }
+                        p2PAuVideoBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage.Builder, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessageOrBuilder>(
+                                (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoMessage) realMsg_,
+                                getParentForChildren(),
+                                isClean());
+                        realMsg_ = null;
+                    }
+                    realMsgCase_ = 10218;
+                    onChanged();;
+                    return p2PAuVideoBuilder_;
+                }
+
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.Builder, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessageOrBuilder> p2PAuVideoDialBuilder_;
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                public boolean hasP2PAuVideoDial() {
+                    return realMsgCase_ == 10219;
+                }
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage getP2PAuVideoDial() {
+                    if (p2PAuVideoDialBuilder_ == null) {
+                        if (realMsgCase_ == 10219) {
+                            return (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_;
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance();
+                    } else {
+                        if (realMsgCase_ == 10219) {
+                            return p2PAuVideoDialBuilder_.getMessage();
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                public Builder setP2PAuVideoDial(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage value) {
+                    if (p2PAuVideoDialBuilder_ == null) {
+                        if (value == null) {
+                            throw new NullPointerException();
+                        }
+                        realMsg_ = value;
+                        onChanged();
+                    } else {
+                        p2PAuVideoDialBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10219;
+                    return this;
+                }
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                public Builder setP2PAuVideoDial(
+                        com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.Builder builderForValue) {
+                    if (p2PAuVideoDialBuilder_ == null) {
+                        realMsg_ = builderForValue.build();
+                        onChanged();
+                    } else {
+                        p2PAuVideoDialBuilder_.setMessage(builderForValue.build());
+                    }
+                    realMsgCase_ = 10219;
+                    return this;
+                }
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                public Builder mergeP2PAuVideoDial(com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage value) {
+                    if (p2PAuVideoDialBuilder_ == null) {
+                        if (realMsgCase_ == 10219 &&
+                                realMsg_ != com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance()) {
+                            realMsg_ = com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.newBuilder((com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_)
+                                    .mergeFrom(value).buildPartial();
+                        } else {
+                            realMsg_ = value;
+                        }
+                        onChanged();
+                    } else {
+                        if (realMsgCase_ == 10219) {
+                            p2PAuVideoDialBuilder_.mergeFrom(value);
+                        }
+                        p2PAuVideoDialBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10219;
+                    return this;
+                }
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                public Builder clearP2PAuVideoDial() {
+                    if (p2PAuVideoDialBuilder_ == null) {
+                        if (realMsgCase_ == 10219) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                            onChanged();
+                        }
+                    } else {
+                        if (realMsgCase_ == 10219) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                        }
+                        p2PAuVideoDialBuilder_.clear();
+                    }
+                    return this;
+                }
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.Builder getP2PAuVideoDialBuilder() {
+                    return getP2PAuVideoDialFieldBuilder().getBuilder();
+                }
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessageOrBuilder getP2PAuVideoDialOrBuilder() {
+                    if ((realMsgCase_ == 10219) && (p2PAuVideoDialBuilder_ != null)) {
+                        return p2PAuVideoDialBuilder_.getMessageOrBuilder();
+                    } else {
+                        if (realMsgCase_ == 10219) {
+                            return (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_;
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <code>.P2PAuVideoDialMessage p2p_au_video_dial = 10219;</code>
+                 */
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.Builder, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessageOrBuilder>
+                getP2PAuVideoDialFieldBuilder() {
+                    if (p2PAuVideoDialBuilder_ == null) {
+                        if (!(realMsgCase_ == 10219)) {
+                            realMsg_ = com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance();
+                        }
+                        p2PAuVideoDialBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                                com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.Builder, com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessageOrBuilder>(
+                                (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_,
+                                getParentForChildren(),
+                                isClean());
+                        realMsg_ = null;
+                    }
+                    realMsgCase_ = 10219;
+                    onChanged();;
+                    return p2PAuVideoDialBuilder_;
+                }
+
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder> forceOfflineBuilder_;
+                /**
+                 * <code>.ForceOfflineMessage force_offline = 10300;</code>
+                 */
+                public boolean hasForceOffline() {
+                    return realMsgCase_ == 10300;
+                }
+                /**
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
                  */
                 public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage getForceOffline() {
@@ -32235,13 +34268,6 @@ public final class MsgBean {
                     }
                 }
                 /**
-                 * <pre>
-                 * AuVideoDialMessage au_video_dial = 10214;
-                 * AuVideoHangUpMessage au_video_hang_up = 10215;
-                 * AuVideoRefuseMessage au_video_refuse = 10216;
-                 * AuVideoAcceptMessage au_video_accept = 10217;
-                 * </pre>
-                 *
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
                  */
                 public Builder setForceOffline(com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage value) {
@@ -32258,13 +34284,6 @@ public final class MsgBean {
                     return this;
                 }
                 /**
-                 * <pre>
-                 * AuVideoDialMessage au_video_dial = 10214;
-                 * AuVideoHangUpMessage au_video_hang_up = 10215;
-                 * AuVideoRefuseMessage au_video_refuse = 10216;
-                 * AuVideoAcceptMessage au_video_accept = 10217;
-                 * </pre>
-                 *
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
                  */
                 public Builder setForceOffline(
@@ -32279,13 +34298,6 @@ public final class MsgBean {
                     return this;
                 }
                 /**
-                 * <pre>
-                 * AuVideoDialMessage au_video_dial = 10214;
-                 * AuVideoHangUpMessage au_video_hang_up = 10215;
-                 * AuVideoRefuseMessage au_video_refuse = 10216;
-                 * AuVideoAcceptMessage au_video_accept = 10217;
-                 * </pre>
-                 *
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
                  */
                 public Builder mergeForceOffline(com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage value) {
@@ -32308,13 +34320,6 @@ public final class MsgBean {
                     return this;
                 }
                 /**
-                 * <pre>
-                 * AuVideoDialMessage au_video_dial = 10214;
-                 * AuVideoHangUpMessage au_video_hang_up = 10215;
-                 * AuVideoRefuseMessage au_video_refuse = 10216;
-                 * AuVideoAcceptMessage au_video_accept = 10217;
-                 * </pre>
-                 *
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
                  */
                 public Builder clearForceOffline() {
@@ -32334,26 +34339,12 @@ public final class MsgBean {
                     return this;
                 }
                 /**
-                 * <pre>
-                 * AuVideoDialMessage au_video_dial = 10214;
-                 * AuVideoHangUpMessage au_video_hang_up = 10215;
-                 * AuVideoRefuseMessage au_video_refuse = 10216;
-                 * AuVideoAcceptMessage au_video_accept = 10217;
-                 * </pre>
-                 *
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
                  */
                 public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder getForceOfflineBuilder() {
                     return getForceOfflineFieldBuilder().getBuilder();
                 }
                 /**
-                 * <pre>
-                 * AuVideoDialMessage au_video_dial = 10214;
-                 * AuVideoHangUpMessage au_video_hang_up = 10215;
-                 * AuVideoRefuseMessage au_video_refuse = 10216;
-                 * AuVideoAcceptMessage au_video_accept = 10217;
-                 * </pre>
-                 *
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
                  */
                 public com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder getForceOfflineOrBuilder() {
@@ -32367,13 +34358,6 @@ public final class MsgBean {
                     }
                 }
                 /**
-                 * <pre>
-                 * AuVideoDialMessage au_video_dial = 10214;
-                 * AuVideoHangUpMessage au_video_hang_up = 10215;
-                 * AuVideoRefuseMessage au_video_refuse = 10216;
-                 * AuVideoAcceptMessage au_video_accept = 10217;
-                 * </pre>
-                 *
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
                  */
                 private com.google.protobuf.SingleFieldBuilderV3<
@@ -33695,6 +35679,16 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internal_static_ChangeSurvivalTimeMessage_fieldAccessorTable;
     private static final com.google.protobuf.Descriptors.Descriptor
+            internal_static_P2PAuVideoMessage_descriptor;
+    private static final
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internal_static_P2PAuVideoMessage_fieldAccessorTable;
+    private static final com.google.protobuf.Descriptors.Descriptor
+            internal_static_P2PAuVideoDialMessage_descriptor;
+    private static final
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internal_static_P2PAuVideoDialMessage_fieldAccessorTable;
+    private static final com.google.protobuf.Descriptors.Descriptor
             internal_static_ForceOfflineMessage_descriptor;
     private static final
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -33795,61 +35789,67 @@ public final class MsgBean {
                         "\n\010real_msg\"@\n\023DestroyGroupMessage\022\013\n\003uid" +
                         "\030\001 \003(\004\022\016\n\006avatar\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\"2\n\031" +
                         "ChangeSurvivalTimeMessage\022\025\n\rsurvival_ti" +
-                        "me\030\001 \001(\021\"H\n\023ForceOfflineMessage\0221\n\024force" +
-                        "_offline_reason\030\001 \001(\0162\023.ForceOfflineReas" +
-                        "on\"\036\n\017OutGroupMessage\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027A" +
-                        "ctiveStatChangeMessage\0228\n\013active_type\030\001 " +
-                        "\001(\0162#.ActiveStatChangeMessage.ActiveType" +
-                        "\022\021\n\ttimestamp\030\002 \001(\004\"%\n\nActiveType\022\013\n\007OFF" +
-                        "LINE\020\000\022\n\n\006ONLINE\020\001\"\220\001\n\023ResourceLockMessa" +
-                        "ge\022A\n\022resource_lock_type\030\001 \001(\0162%.Resourc" +
-                        "eLockMessage.ResourceLockType\022\014\n\004lock\030\002 " +
-                        "\001(\r\"(\n\020ResourceLockType\022\024\n\020CLOUDREDENVEL" +
-                        "OPE\020\000\"e\n\nAckMessage\022 \n\013reject_type\030\001 \001(\016" +
-                        "2\013.RejectType\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg" +
-                        "_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022AuthRequ" +
-                        "estMessage\022\024\n\014access_token\030\001 \001(\t\"\'\n\023Auth" +
-                        "ResponseMessage\022\020\n\010accepted\030\001 \001(\021\"\235\014\n\020Un" +
-                        "iversalMessage\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to" +
-                        "_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Universal" +
-                        "Message.WrapMessage\032\263\013\n\013WrapMessage\022\021\n\tt" +
-                        "imestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014.Messa" +
-                        "geType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004" +
-                        "\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avata" +
-                        "r\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\025\n\rsurvival_" +
-                        "time\030\t \001(\021\022\035\n\004chat\030\220N \001(\0132\014.ChatMessageH" +
-                        "\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014re" +
-                        "d_envelope\030\222N \001(\0132\023.RedEnvelopeMessageH\000" +
-                        "\022;\n\024receive_red_envelope\030\223N \001(\0132\032.Receiv" +
-                        "eRedEnvelopeMessageH\000\022%\n\010transfer\030\224N \001(\013" +
-                        "2\020.TransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r.S" +
-                        "tampMessageH\000\022.\n\rbusiness_card\030\226N \001(\0132\024." +
-                        "BusinessCardMessageH\000\022\037\n\005voice\030\227N \001(\0132\r." +
-                        "VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH" +
-                        "\000\022\'\n\tassistant\030\231N \001(\0132\021.AssistantMessage" +
-                        "H\000\022!\n\006cancel\030\232N \001(\0132\016.CancelMessageH\000\022*\n" +
-                        "\013short_video\030\233N \001(\0132\022.ShortVideoMessageH" +
-                        "\000\0220\n\016request_friend\030\364N \001(\0132\025.RequestFrie" +
-                        "ndMessageH\000\0225\n\021accept_be_friends\030\365N \001(\0132" +
-                        "\027.AcceptBeFriendsMessageH\000\022.\n\rremove_fri" +
-                        "end\030\366N \001(\0132\024.RemoveFriendMessageH\000\022.\n\rre" +
-                        "quest_group\030\330O \001(\0132\024.RequestGroupMessage" +
-                        "H\000\0221\n\017accept_be_group\030\331O \001(\0132\025.AcceptBeG" +
-                        "roupMessageH\000\0229\n\023remove_group_member\030\332O " +
-                        "\001(\0132\031.RemoveGroupMemberMessageH\000\0229\n\023chan" +
-                        "ge_group_master\030\333O \001(\0132\031.ChangeGroupMast" +
-                        "erMessageH\000\022.\n\rdestroy_group\030\336O \001(\0132\024.De" +
-                        "stroyGroupMessageH\000\022;\n\024remove_group_memb" +
-                        "er2\030\337O \001(\0132\032.RemoveGroupMember2MessageH\000" +
-                        "\022&\n\tout_group\030\342O \001(\0132\020.OutGroupMessageH\000" +
-                        "\0225\n\021change_group_meta\030\344O \001(\0132\027.ChangeGro" +
-                        "upMetaMessageH\000\022;\n\024change_survival_time\030" +
-                        "\345O \001(\0132\032.ChangeSurvivalTimeMessageH\000\022.\n\r" +
+                        "me\030\001 \001(\021\"S\n\021P2PAuVideoMessage\022\035\n\007av_type" +
+                        "\030\001 \001(\0162\014.AuVideoType\022\021\n\toperation\030\002 \001(\t\022" +
+                        "\014\n\004desc\030\003 \001(\t\"6\n\025P2PAuVideoDialMessage\022\035" +
+                        "\n\007av_type\030\001 \001(\0162\014.AuVideoType\"H\n\023ForceOf" +
+                        "flineMessage\0221\n\024force_offline_reason\030\001 \001" +
+                        "(\0162\023.ForceOfflineReason\"\036\n\017OutGroupMessa" +
+                        "ge\022\013\n\003gid\030\001 \001(\t\"\215\001\n\027ActiveStatChangeMess" +
+                        "age\0228\n\013active_type\030\001 \001(\0162#.ActiveStatCha" +
+                        "ngeMessage.ActiveType\022\021\n\ttimestamp\030\002 \001(\004" +
+                        "\"%\n\nActiveType\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\"" +
+                        "\220\001\n\023ResourceLockMessage\022A\n\022resource_lock" +
+                        "_type\030\001 \001(\0162%.ResourceLockMessage.Resour" +
+                        "ceLockType\022\014\n\004lock\030\002 \001(\r\"(\n\020ResourceLock" +
+                        "Type\022\024\n\020CLOUDREDENVELOPE\020\000\"e\n\nAckMessage" +
+                        "\022 \n\013reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nre" +
+                        "quest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimest" +
+                        "amp\030\004 \001(\004\"*\n\022AuthRequestMessage\022\024\n\014acces" +
+                        "s_token\030\001 \001(\t\"\'\n\023AuthResponseMessage\022\020\n\010" +
+                        "accepted\030\001 \001(\021\"\200\r\n\020UniversalMessage\022\022\n\nr" +
+                        "equest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapM" +
+                        "sg\030\221N \003(\0132\035.UniversalMessage.WrapMessage" +
+                        "\032\226\014\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010m" +
+                        "sg_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 " +
+                        "\001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010ni" +
+                        "ckname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmemberna" +
+                        "me\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021\022\035\n\004chat\030" +
+                        "\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\0132\r" +
+                        ".ImageMessageH\000\022,\n\014red_envelope\030\222N \001(\0132\023" +
+                        ".RedEnvelopeMessageH\000\022;\n\024receive_red_env" +
+                        "elope\030\223N \001(\0132\032.ReceiveRedEnvelopeMessage" +
+                        "H\000\022%\n\010transfer\030\224N \001(\0132\020.TransferMessageH" +
+                        "\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\rbu" +
+                        "siness_card\030\226N \001(\0132\024.BusinessCardMessage" +
+                        "H\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002a" +
+                        "t\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassistant\030\231N \001" +
+                        "(\0132\021.AssistantMessageH\000\022!\n\006cancel\030\232N \001(\013" +
+                        "2\016.CancelMessageH\000\022*\n\013short_video\030\233N \001(\013" +
+                        "2\022.ShortVideoMessageH\000\0220\n\016request_friend" +
+                        "\030\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021acce" +
+                        "pt_be_friends\030\365N \001(\0132\027.AcceptBeFriendsMe" +
+                        "ssageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.Remove" +
+                        "FriendMessageH\000\022.\n\rrequest_group\030\330O \001(\0132" +
+                        "\024.RequestGroupMessageH\000\0221\n\017accept_be_gro" +
+                        "up\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023re" +
+                        "move_group_member\030\332O \001(\0132\031.RemoveGroupMe" +
+                        "mberMessageH\000\0229\n\023change_group_master\030\333O " +
+                        "\001(\0132\031.ChangeGroupMasterMessageH\000\022.\n\rdest" +
+                        "roy_group\030\336O \001(\0132\024.DestroyGroupMessageH\000" +
+                        "\022;\n\024remove_group_member2\030\337O \001(\0132\032.Remove" +
+                        "GroupMember2MessageH\000\022&\n\tout_group\030\342O \001(" +
+                        "\0132\020.OutGroupMessageH\000\0225\n\021change_group_me" +
+                        "ta\030\344O \001(\0132\027.ChangeGroupMetaMessageH\000\022;\n\024" +
+                        "change_survival_time\030\345O \001(\0132\032.ChangeSurv" +
+                        "ivalTimeMessageH\000\022+\n\014p2p_au_video\030\352O \001(\013" +
+                        "2\022.P2PAuVideoMessageH\000\0224\n\021p2p_au_video_d" +
+                        "ial\030\353O \001(\0132\026.P2PAuVideoDialMessageH\000\022.\n\r" +
                         "force_offline\030\274P \001(\0132\024.ForceOfflineMessa" +
                         "geH\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Acti" +
                         "veStatChangeMessageH\000\022.\n\rresource_lock\030\276" +
                         "P \001(\0132\024.ResourceLockMessageH\000B\n\n\010real_ms" +
-                        "g*\201\004\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021" +
+                        "g*\252\004\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021" +
                         "\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOP" +
                         "ER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINES" +
                         "S_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT" +
@@ -33860,15 +35860,17 @@ public final class MsgBean {
                         "\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024REMOVE_GROUP_" +
                         "MEMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROU" +
                         "P\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CHANGE_SUR" +
-                        "VIVAL_TIME\020q\022\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTI" +
-                        "VE_STAT_CHANGE\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001*.\n" +
-                        "\022ForceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOC" +
-                        "KED\020\001*v\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT" +
-                        "_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLI" +
-                        "ST\020\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAILA" +
-                        "BLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007PA" +
-                        "SSIVE\020\001B&\n\033com.yanlong.im.utils.socketB\007" +
-                        "MsgBeanb\006proto3"
+                        "VIVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU" +
+                        "_VIDEO_DIAL\020w\022\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACT" +
+                        "IVE_STAT_CHANGE\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001*." +
+                        "\n\022ForceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LO" +
+                        "CKED\020\001*v\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NO" +
+                        "T_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKL" +
+                        "IST\020\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAIL" +
+                        "ABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007P" +
+                        "ASSIVE\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Ve" +
+                        "dio\020\001B&\n\033com.yanlong.im.utils.socketB\007Ms" +
+                        "gBeanb\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -34032,50 +36034,62 @@ public final class MsgBean {
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_ChangeSurvivalTimeMessage_descriptor,
                 new java.lang.String[] { "SurvivalTime", });
-        internal_static_ForceOfflineMessage_descriptor =
+        internal_static_P2PAuVideoMessage_descriptor =
                 getDescriptor().getMessageTypes().get(25);
+        internal_static_P2PAuVideoMessage_fieldAccessorTable = new
+                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_P2PAuVideoMessage_descriptor,
+                new java.lang.String[] { "AvType", "Operation", "Desc", });
+        internal_static_P2PAuVideoDialMessage_descriptor =
+                getDescriptor().getMessageTypes().get(26);
+        internal_static_P2PAuVideoDialMessage_fieldAccessorTable = new
+                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_P2PAuVideoDialMessage_descriptor,
+                new java.lang.String[] { "AvType", });
+        internal_static_ForceOfflineMessage_descriptor =
+                getDescriptor().getMessageTypes().get(27);
         internal_static_ForceOfflineMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_ForceOfflineMessage_descriptor,
                 new java.lang.String[] { "ForceOfflineReason", });
         internal_static_OutGroupMessage_descriptor =
-                getDescriptor().getMessageTypes().get(26);
+                getDescriptor().getMessageTypes().get(28);
         internal_static_OutGroupMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_OutGroupMessage_descriptor,
                 new java.lang.String[] { "Gid", });
         internal_static_ActiveStatChangeMessage_descriptor =
-                getDescriptor().getMessageTypes().get(27);
+                getDescriptor().getMessageTypes().get(29);
         internal_static_ActiveStatChangeMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_ActiveStatChangeMessage_descriptor,
                 new java.lang.String[] { "ActiveType", "Timestamp", });
         internal_static_ResourceLockMessage_descriptor =
-                getDescriptor().getMessageTypes().get(28);
+                getDescriptor().getMessageTypes().get(30);
         internal_static_ResourceLockMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_ResourceLockMessage_descriptor,
                 new java.lang.String[] { "ResourceLockType", "Lock", });
         internal_static_AckMessage_descriptor =
-                getDescriptor().getMessageTypes().get(29);
+                getDescriptor().getMessageTypes().get(31);
         internal_static_AckMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AckMessage_descriptor,
                 new java.lang.String[] { "RejectType", "RequestId", "MsgId", "Timestamp", });
         internal_static_AuthRequestMessage_descriptor =
-                getDescriptor().getMessageTypes().get(30);
+                getDescriptor().getMessageTypes().get(32);
         internal_static_AuthRequestMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AuthRequestMessage_descriptor,
                 new java.lang.String[] { "AccessToken", });
         internal_static_AuthResponseMessage_descriptor =
-                getDescriptor().getMessageTypes().get(31);
+                getDescriptor().getMessageTypes().get(33);
         internal_static_AuthResponseMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AuthResponseMessage_descriptor,
                 new java.lang.String[] { "Accepted", });
         internal_static_UniversalMessage_descriptor =
-                getDescriptor().getMessageTypes().get(32);
+                getDescriptor().getMessageTypes().get(34);
         internal_static_UniversalMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_descriptor,
@@ -34085,7 +36099,7 @@ public final class MsgBean {
         internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_WrapMessage_descriptor,
-                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "ForceOffline", "ActiveStatChange", "ResourceLock", "RealMsg", });
+                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "ForceOffline", "ActiveStatChange", "ResourceLock", "RealMsg", });
     }
 
     // @@protoc_insertion_point(outer_class_scope)

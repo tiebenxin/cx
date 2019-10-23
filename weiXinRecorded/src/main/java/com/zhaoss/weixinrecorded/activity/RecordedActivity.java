@@ -19,6 +19,7 @@ import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.libyuv.LibyuvUtil;
 import com.zhaoss.weixinrecorded.R;
+import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
 import com.zhaoss.weixinrecorded.util.RecordUtil;
@@ -26,6 +27,8 @@ import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -132,6 +135,13 @@ public class RecordedActivity extends BaseActivity {
                 if(isShotPhoto.get()){
                     isShotPhoto.set(false);
                     shotPhoto(data);
+//                        PictureSelector.create(ChatActivity.this)
+//                                .openCamera(PictureMimeType.ofImage())
+//                                .compress(true)
+//                                .forResult(PictureConfig.REQUEST_CAMERA);
+
+//                    EventBus.getDefault().post(new ActivityForwordEvent());
+//                    finish();
                 }else{
                     if(isRecordVideo.get() && mOnPreviewFrameListener!=null){
                         mOnPreviewFrameListener.onPreviewFrame(data);
@@ -216,11 +226,14 @@ public class RecordedActivity extends BaseActivity {
             public void onFinish(String result) {
                 closeProgressDialog();
 
-                Intent intent = new Intent();
-                intent.putExtra(INTENT_PATH, result);
-                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
-                setResult(RESULT_OK, intent);
-                finish();
+//                Intent intent = new Intent();
+//                intent.putExtra(INTENT_PATH, result);
+//                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
+//                setResult(RESULT_OK, intent);
+//                finish();
+                Intent intent =new Intent(RecordedActivity.this,ImageShowActivity.class);
+                intent.putExtra("imgpath",result);
+                startActivityForResult(intent,90);
             }
             @Override
             public void onError(Throwable e) {
@@ -252,6 +265,7 @@ public class RecordedActivity extends BaseActivity {
             public void onClick() {
                 if(segmentList.size() == 0){
                     isShotPhoto.set(true);
+//                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -292,7 +306,7 @@ public class RecordedActivity extends BaseActivity {
                 }else{
                     mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
                 }
-                iv_flash_video.setImageResource(R.mipmap.video_flash_close);
+//                iv_flash_video.setImageResource(R.mipmap.video_flash_close);
             }
         });
     }
@@ -451,21 +465,22 @@ public class RecordedActivity extends BaseActivity {
     }
 
     private void deleteSegment(){
-
-        showConfirm("确认删除上一段视频?", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeProgressDialog();
-
-                if(segmentList.size()>0 && timeList.size()>0) {
-                    segmentList.remove(segmentList.size() - 1);
-                    aacList.remove(aacList.size() - 1);
-                    timeList.remove(timeList.size() - 1);
-                    lineProgressView.removeSplit();
-                }
-                initRecorderState();
-            }
-        });
+        finish();
+//        showConfirm("确认删除上一段视频?", new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+////                closeProgressDialog();
+////
+////                if(segmentList.size()>0 && timeList.size()>0) {
+////                    segmentList.remove(segmentList.size() - 1);
+////                    aacList.remove(aacList.size() - 1);
+////                    timeList.remove(timeList.size() - 1);
+////                    lineProgressView.removeSplit();
+////                }
+////                initRecorderState();
+//            }
+//        });
     }
 
     /**
@@ -534,6 +549,15 @@ public class RecordedActivity extends BaseActivity {
                 intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intent);
                 finish();
+            }else if(requestCode==90){
+                boolean result=data.getBooleanExtra("showResult",false);
+                if (result){
+                    Intent intent = new Intent();
+                intent.putExtra(INTENT_PATH, data.getStringExtra("showPath"));
+                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
+                setResult(RESULT_OK, intent);
+                finish();
+                }
             }
         }else{
             cleanRecord();

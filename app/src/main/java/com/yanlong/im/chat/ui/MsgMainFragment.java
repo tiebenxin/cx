@@ -38,6 +38,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupImageHead;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -418,13 +419,16 @@ public class MsgMainFragment extends Fragment {
     public void eventRefresh(EventRefreshMainMsg event) {
         if (MessageManager.getInstance().isMessageChange()) {
             MessageManager.getInstance().setMessageChange(false);
-            if (event.getRefreshTag() == CoreEnum.ESessionRefreshTag.ALL) {
+            int refreshTag = event.getRefreshTag();
+            if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
-            } else {
+            } else if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE){
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
-
+            }else if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE){
+                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-DELETE");
+                taskDelSession(event.getUid(), event.getGid());
             }
         }
     }
@@ -774,7 +778,7 @@ public class MsgMainFragment extends Fragment {
                             creatAndSaveImg(bean, holder.imgHead);
                         }
 
-                        Log.e("TAG", "----------" + imgUrl.toString());
+//                        Log.e("TAG", "----------" + imgUrl.toString());
                         if (StringUtil.isNotNull(imgUrl)) {
                             Glide.with(getActivity()).load(imgUrl)
                                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -844,7 +848,7 @@ public class MsgMainFragment extends Fragment {
                 //头像地址
                 String url[] = new String[i];
                 for (int j = 0; j < i; j++) {
-                    UserInfo userInfo = gginfo.getUsers().get(j);
+                    MemberUser userInfo = gginfo.getUsers().get(j);
                     url[j] = userInfo.getHead();
                 }
                 File file = GroupHeadImageUtil.synthesis(getContext(), url);

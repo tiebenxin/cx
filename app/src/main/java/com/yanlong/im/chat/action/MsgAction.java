@@ -1,15 +1,12 @@
 package com.yanlong.im.chat.action;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.yanlong.im.chat.bean.GropLinkInfo;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -50,12 +47,16 @@ public class MsgAction {
 
     public void groupCreate(final String nickname, final String name, final String avatar, final List<UserInfo> listDataTop, final CallBack<ReturnBean<Group>> callback) {
         List<GroupUserInfo> listDataTop2 = new ArrayList<>();
+//        List<MemberUser> memberUsers = new ArrayList<>();
         for (int i = 0; i < listDataTop.size(); i++) {
+            UserInfo info = listDataTop.get(i);
             GroupUserInfo userInfo = new GroupUserInfo();
-            userInfo.setUid(listDataTop.get(i).getUid() + "");
-            userInfo.setNickname(listDataTop.get(i).getName());
-            userInfo.setAvatar(listDataTop.get(i).getHead());
+            userInfo.setUid(info.getUid() + "");
+            userInfo.setNickname(info.getName());
+            userInfo.setAvatar(info.getHead());
             listDataTop2.add(userInfo);
+//            MemberUser memberUser = MessageManager.getInstance().memberToUser(info);
+//            memberUsers.add(memberUser);
 
         }
         NetUtil.getNet().exec(server.groupCreate(nickname, name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<Group>>() {
@@ -65,7 +66,7 @@ public class MsgAction {
                     return;
                 if (response.body().isOk()) {//存库
                     String id = response.body().getData().getGid();
-                    dao.groupCreate(id, avatar, name, listDataTop);
+                    dao.groupCreate(id, avatar, name, MessageManager.getInstance().getMemberList(listDataTop, id));
                     dao.sessionCreate(id, null);
                     MessageManager.getInstance().setMessageChange(true);
                 }
@@ -217,12 +218,12 @@ public class MsgAction {
                         Group group = DaoUtil.findOne(Group.class, "gid", gid);
                         if (group != null && group.getUsers() != null) {
                             response.body().getData().setUsers(group.getUsers());
-                            for (UserInfo userInfo : response.body().getData().getUsers()) {
-                                GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-                                if (link != null) {
-                                    userInfo.setMembername(link.getMembername());
-                                }
-                            }
+//                            for (MemberUser userInfo : response.body().getData().getUsers()) {
+//                                GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+//                                if (link != null) {
+//                                    userInfo.setMembername(link.getMembername());
+//                                }
+//                            }
                             MessageManager.getInstance().updateCacheGroup(group);
                             MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
                         }
@@ -253,15 +254,15 @@ public class MsgAction {
         body.setData(rdata);
         Response<ReturnBean<Group>> response = Response.success(body);
         //8.8 取消从数据库里读取群成员信息
-        for (UserInfo userInfo : response.body().getData().getUsers()) {
-            GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-            if (link != null && !TextUtils.isEmpty(link.getMembername())) {
-                userInfo.setMembername(link.getMembername());
-                if (userInfo.getUid().equals(UserAction.getMyId())) {
-                    response.body().getData().setMygroupName(link.getMembername());
-                }
-            }
-        }
+//        for (MemberUser userInfo : response.body().getData().getUsers()) {
+//            GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
+//            if (link != null && !TextUtils.isEmpty(link.getMembername())) {
+//                userInfo.setMembername(link.getMembername());
+//                if (userInfo.getUid().equals(UserAction.getMyId())) {
+//                    response.body().getData().setMygroupName(link.getMembername());
+//                }
+//            }
+//        }
         callback.onResponse(null, response);
     }
 

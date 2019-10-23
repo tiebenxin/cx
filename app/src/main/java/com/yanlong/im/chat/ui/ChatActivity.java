@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
@@ -43,7 +42,6 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -56,6 +54,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DateUtils;
+import com.luck.picture.lib.view.PopupSelectView;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.EmojiAdapter;
@@ -67,6 +66,7 @@ import com.yanlong.im.chat.bean.BusinessCardMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -106,11 +106,11 @@ import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
-import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
+import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
@@ -541,6 +541,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initEvent() {
@@ -694,7 +695,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
                     }
                 }
-
+                isFirst++;
             }
 
             @Override
@@ -763,14 +764,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             edtChat.onKeyUp(keyCode, keyEventUp);
                         }
                     });
-
                 }
-
             }
         }
 
 
         viewCamera.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
 
@@ -784,13 +784,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                         startActivityForResult(intent, VIDEO_RP);
+
+//                        showDownLoadDialog();
                     }
 
                     @Override
                     public void onFail() {
 
                     }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA});
 
 
             }
@@ -953,8 +955,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
-                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-                        startActivityForResult(intent, VIDEO_RP);
+//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                        startActivityForResult(intent, VIDEO_RP);
+
+
 //                        PictureSelector.create(ChatActivity.this)
 //                                .openCamera(PictureMimeType.ofVideo())
 //                                .compress(true)
@@ -974,15 +978,58 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         llChatVideoCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideBt();
                 DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
                     @Override
-                    public void onClickItemVideo() {
+                    public void onClickItemVideo() {// 视频
+                        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+                            @Override
+                            public void onSuccess() {
+                                if (userDao != null) {
+                                    UserInfo userInfo = userDao.findUserInfo(toUId);
+                                    if (userInfo != null) {
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
+                                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
+                                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
+                                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class,bundle);// TODO bundle
+                                    }
+                                }
+                            }
 
+                            @Override
+                            public void onFail() {
+
+                            }
+                        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
                     }
 
                     @Override
-                    public void onClickItemVoice() {
-//                        IntentUtil.gotoActivity(ChatActivity.this, CallWaitActivity.class);
+                    public void onClickItemVoice() {// 语音
+                        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+                            @Override
+                            public void onSuccess() {
+                                if (userDao != null) {
+                                    UserInfo userInfo = userDao.findUserInfo(toUId);
+                                    if (userInfo != null) {
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
+                                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
+                                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
+                                        IntentUtil.gotoActivity(ChatActivity.this, VoiceCallActivity.class, bundle);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFail() {
+
+                            }
+                        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
                     }
 
                     @Override
@@ -998,12 +1045,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.removeView(viewAction);
             //viewFunc.removeView(viewTransfer);
             viewChatRobot.setVisibility(View.INVISIBLE);
-
-
+            viewFunc.removeView(llChatVideoCall);
         } else {
-
             viewFunc.removeView(viewChatRobot);
         }
+        viewFunc.removeView(ll_part_chat_video);
         viewFunc.removeView(viewRb);
         //test 6.26
         viewFunc.removeView(viewTransfer);
@@ -1254,9 +1300,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showVoice(boolean show) {
         if (show) {//开启语音
             txtVoice.setVisibility(View.VISIBLE);
+            btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_kb));
             edtChat.setVisibility(View.GONE);
         } else {//关闭语音
             txtVoice.setVisibility(View.GONE);
+            btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_vio));
             edtChat.setVisibility(View.VISIBLE);
         }
     }
@@ -1403,6 +1451,40 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         checkMoreVoice(event.getPosition(), (MsgAllBean) event.getBean());
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventCheckVoice(ActivityForwordEvent event) {
+        PictureSelector.create(ChatActivity.this)
+                .openCamera(PictureMimeType.ofImage())
+                .compress(true)
+                .forResult(PictureConfig.REQUEST_CAMERA);
+    }
+
+    private String[] strings=new String[]{"拍照","录制视频"};
+    private void showDownLoadDialog() {
+        final PopupSelectView popupSelectView = new PopupSelectView(this, strings);
+        popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
+            @Override
+            public void onItem(String string, int postsion) {
+                if (postsion == 0) {
+                    PictureSelector.create(ChatActivity.this)
+                            .openCamera(PictureMimeType.ofImage())
+                            .compress(true)
+                            .forResult(PictureConfig.REQUEST_CAMERA);
+                } else if (postsion == 1) {
+                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                    startActivityForResult(intent, VIDEO_RP);
+                }else{
+
+                }
+                popupSelectView.dismiss();
+
+            }
+        });
+        popupSelectView.showAtLocation(findViewById(R.id.ll_big_bg), Gravity.BOTTOM, 0, 0);
+
+    }
+
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -1474,8 +1556,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             @Override
             public void onMain() {
-                actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
-
+                if (s.contains("+")) {
+                    actionbar.setTxtLeft(s, R.drawable.shape_unread_oval_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+                } else {
+                    actionbar.setTxtLeft(s, R.drawable.shape_unread_bg, DensityUtil.sp2px(ChatActivity.this, 5));
+                }
             }
         }).run();
 
@@ -1641,7 +1726,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgDao dao =new MsgDao();
 //                        dao.fixVideoLocalUrl(imgMsgId,file);
 
-                        notifyData2Bottom(true);
+
 
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
@@ -1665,6 +1750,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                         startService(new Intent(getContext(), UpLoadService.class));
                     }
+                    notifyData2Bottom(true);
                     break;
                 case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
@@ -1672,24 +1758,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
                     for (LocalMedia localMedia : obt) {
                         String file = localMedia.getCompressPath();
+                        if (StringUtil.isNotNull(file)) {
+                            final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                            boolean isGif = FileUtils.isGif(file);
+                            if (isArtworkMaster || isGif) {
+                                //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
+                                file = localMedia.getPath();
+                            }
+                            //1.上传图片
+                            // alert.show();
+                            final String imgMsgId = SocketData.getUUID();
+                            // 记录本次上传图片的ID跟本地路径
+                            mTempImgPath.put(imgMsgId, "file://" + file);
+                            ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
+                            MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
 
-                        final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
-                        boolean isGif = FileUtils.isGif(file);
-                        if (isArtworkMaster || isGif) {
-                            //  Toast.makeText(this,"原图",Toast.LENGTH_LONG).show();
-                            file = localMedia.getPath();
+                            msgListData.add(imgMsgBean);
+                            UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
+                            startService(new Intent(getContext(), UpLoadService.class));
+                        } else {
+                            ToastUtil.show(this,"图片已损坏，请重新选择");
                         }
-                        //1.上传图片
-                        // alert.show();
-                        final String imgMsgId = SocketData.getUUID();
-                        // 记录本次上传图片的ID跟本地路径
-                        mTempImgPath.put(imgMsgId, "file://" + file);
-                        ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-
-                        msgListData.add(imgMsgBean);
-                        UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
-                        startService(new Intent(getContext(), UpLoadService.class));
                     }
                     notifyData2Bottom(true);
 
@@ -1710,7 +1799,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
                         showSendObj(msgAllbean);
-
 
                     }
                     break;
@@ -2597,7 +2685,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
                         startActivity(intent);
-                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath());
+                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(),fileVideo.getAbsolutePath());
                     }
 
                     @Override
@@ -3724,12 +3812,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private Group groupInfo;
 
     //获取群资料
-    private UserInfo getGroupInfo(long uid) {
+    private MemberUser getGroupInfo(long uid) {
         if (groupInfo == null)
             return null;
-        List<UserInfo> users = groupInfo.getUsers();
-        for (UserInfo uinfo : users) {
-            if (uinfo.getUid().longValue() == uid) {
+        List<MemberUser> users = groupInfo.getUsers();
+        for (MemberUser uinfo : users) {
+            if (uinfo.getUid() == uid) {
                 return uinfo;
             }
         }
@@ -3755,7 +3843,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();
                     groupInfo.setMaster("");
-                    groupInfo.setUsers(new RealmList<UserInfo>());
+                    groupInfo.setUsers(new RealmList<MemberUser>());
                 }
 
                 if (groupInfo.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
@@ -3766,8 +3854,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 //如果自己不在群里面
                 boolean isExit = false;
-                for (UserInfo uifo : groupInfo.getUsers()) {
-                    if (uifo.getUid().longValue() == UserAction.getMyId().longValue()) {
+                for (MemberUser uifo : groupInfo.getUsers()) {
+                    if (uifo.getUid() == UserAction.getMyId().longValue()) {
                         isExit = true;
                     }
 

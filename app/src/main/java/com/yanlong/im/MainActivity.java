@@ -19,8 +19,10 @@ import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.example.nim_lib.ui.VoiceCallActivity;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
@@ -30,6 +32,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
@@ -43,13 +46,14 @@ import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventNetStatus;
 
-import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
-
+import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.NotificationsUtils;
@@ -59,6 +63,7 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.ImageMoveView;
 import net.cb.cb.library.view.StrikeButton;
 import net.cb.cb.library.view.ViewPagerSlide;
 
@@ -67,6 +72,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
+import java.util.Locale;
 
 import cn.jpush.android.api.JPluginPlatformInterface;
 import retrofit2.Call;
@@ -89,6 +95,11 @@ public class MainActivity extends AppActivity {
     private NotifySettingDialog notifyDialog;
     private NetworkReceiver mNetworkReceiver;
     private MsgMainFragment mMsgMainFragment;
+    private ImageMoveView mBtnMinimizeVoice;
+    Handler mHandler = new Handler();
+    // 通话时间
+    private int mPassedTime = 0;
+    private final int TIME = 1000;
     private TimeUtils timeUtils = new TimeUtils();
 
     //自动寻找控件
@@ -96,6 +107,7 @@ public class MainActivity extends AppActivity {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
         timeUtils.RunTimer();
+        mBtnMinimizeVoice = findViewById(R.id.btn_minimize_voice);
     }
 
 
@@ -220,7 +232,14 @@ public class MainActivity extends AppActivity {
 
             }
         });*/
-
+        mBtnMinimizeVoice.setOnClickListener(new ImageMoveView.OnSingleTapListener() {
+            @Override
+            public void onClick() {
+                mBtnMinimizeVoice.setVisibility(View.GONE);
+                mHandler.removeCallbacks(runnable);
+                IntentUtil.gotoActivity(MainActivity.this, VoiceCallActivity.class);
+            }
+        });
 
     }
 
@@ -292,13 +311,13 @@ public class MainActivity extends AppActivity {
         userAction.friendGet4Me(new CallBack<ReturnBean<List<UserInfo>>>() {
             @Override
             public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-//                EventBus.getDefault().post(new EventRefreshFriend());
-                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.DEFAULT);
+                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.LOAD_ALL_SUCCESS);
             }
 
             @Override
             public void onFailure(Call<ReturnBean<List<UserInfo>>> call, Throwable t) {
                 super.onFailure(call, t);
+                MessageManager.getInstance().notifyRefreshFriend(true, -1, CoreEnum.ERosterAction.LOAD_ALL_SUCCESS);
             }
         });
     }
@@ -397,6 +416,51 @@ public class MainActivity extends AppActivity {
 
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshFriend(EventRefreshFriend event) {
+        if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
+            taskLoadSavedGroups();
+        }
+    }
+
+    public void voiceMinimizeEvent(EventFactory.VoiceMinimizeEvent event) {
+        mBtnMinimizeVoice.setVisibility(View.VISIBLE);
+
+        mPassedTime = event.passedTime;
+        mBtnMinimizeVoice.updateCallTime(event.showTime);
+
+        if (!isFinishing()) {
+            mHandler.postDelayed(runnable, TIME);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void closevoiceMinimizeEvent(EventFactory.CloseVoiceMinimizeEvent event) {
+        mBtnMinimizeVoice.setVisibility(View.GONE);
+        if (!isFinishing()) {
+            mHandler.removeCallbacks(runnable);
+        }
+    }
+
+    /**
+     * 通话计时
+     */
+    Runnable runnable = new Runnable() {
+
+        @Override
+        public void run() {
+            mPassedTime++;
+            int hour = mPassedTime / 3600;
+            int min = mPassedTime % 3600 / 60;
+            int second = mPassedTime % 60;
+
+            if (!isFinishing()) {
+                mHandler.postDelayed(this, TIME);
+                mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+            }
+        }
+    };
+
     private void loginoutComment() {
         UserInfo userInfo = UserAction.getMyInfo();
         if (userInfo != null) {
@@ -454,7 +518,10 @@ public class MainActivity extends AppActivity {
                         //updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), true);
                     } else {
-
+                        SharedPreferencesUtil preferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+                        VersionBean versionBean = new VersionBean();
+                        versionBean.setVersion(bean.getVersion());
+                        preferencesUtil.save2Json(versionBean);
                         updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);
 //                        if (updateManage.isToDayFirst(bean)) {
 //                        updateManage.uploadApp(bean.getVersion(), bean.getContent(), bean.getUrl(), false);

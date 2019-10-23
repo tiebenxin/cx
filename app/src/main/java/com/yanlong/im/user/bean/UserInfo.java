@@ -34,6 +34,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer uType;
     private String phone;
     private String oldimid;
+    private String neteaseAccid;// 网易id
 
     private Integer disturb;///消息免打扰(0:关闭|1:打开)
     private Integer istop;//聊天置顶(0:关闭|1:打开)
@@ -146,6 +147,14 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
             lastonline = 0L;
         }
         return lastonline;
+    }
+
+    public String getNeteaseAccid() {
+        return neteaseAccid;
+    }
+
+    public void setNeteaseAccid(String neteaseAccid) {
+        this.neteaseAccid = neteaseAccid;
     }
 
     public void setLastonline(Long lastonline) {

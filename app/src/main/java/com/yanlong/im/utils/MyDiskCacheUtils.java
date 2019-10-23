@@ -50,7 +50,7 @@ public class MyDiskCacheUtils {
     }
 
 
-    public String getFileNmae(String url){
+    public  String getFileNmae(String url){
         OriginalKey originalKey = new OriginalKey(url, EmptySignature.obtain());
         SafeKeyGenerator safeKeyGenerator = new SafeKeyGenerator();
         String safeKey =  safeKeyGenerator.getSafeKey(originalKey);
@@ -69,14 +69,14 @@ public class MyDiskCacheUtils {
         return safeKey;
     }
 
-    public boolean putFileNmae(String path){
+    public boolean putFileNmae(String path,String filePath){
         if (null==diskCacheController){
            throw new IllegalStateException("先初始化控制类设置基础属性");
         }
         File file =new File(path);
         if (file.isDirectory()){
            long totalSpace= file.length();
-           if (totalSpace>diskCacheController.USABLE_IMAGE_SIZE){
+           if (totalSpace>MyDiskCache.getFileVailable(MyDiskCache.getFileType(filePath))){
                clearFile(file);
            }
 //           file.getUsableSpace();

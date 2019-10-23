@@ -10,6 +10,8 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.auth.AuthService;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.UserSeting;
@@ -167,7 +169,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private void loginOut(boolean emptyPassword) {
         if (!emptyPassword) {
             AlertYesNo alertYesNo = new AlertYesNo();
-            alertYesNo.init(this, "退出", "确定退出吗?", "确定", "取消", new AlertYesNo.Event() {
+            alertYesNo.init(this, "退出", "确定要退出登录吗?", "确定", "取消", new AlertYesNo.Event() {
                 @Override
                 public void onON() {
 
@@ -190,6 +192,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
      */
     private void taskExit() {
         finish();
+        NIMClient.getService(AuthService.class).logout();// 登录网易登录
         userAction.loginOut();
         EventBus.getDefault().post(new EventLoginOut(1));
 

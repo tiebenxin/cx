@@ -3,15 +3,19 @@ package com.yanlong.im.user.action;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.controll.AVChatProfile;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.http.model.BaseModel;
 import com.jrmf360.tools.http.OkHttpModelCallBack;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.auth.AuthService;
+import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
-
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.NewVersionBean;
@@ -31,6 +35,7 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetIntrtceptor;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
@@ -38,9 +43,6 @@ import net.cb.cb.library.utils.encrypt.MD5;
 import java.util.List;
 
 import cn.jpush.android.api.JPushInterface;
-import io.realm.Case;
-import io.realm.Realm;
-import io.realm.RealmResults;
 import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -146,6 +148,10 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    if (response.body().getData() != null) {
+                        doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
+                        saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
+                    }
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid());
@@ -770,5 +776,48 @@ public class UserAction {
         NetUtil.getNet().exec(server.userOpinion(opinionDescription, opinionImage), callback);
     }
 
+    /**
+     * 保存网易云登录账号与Token，用于在网易初始化的时候自动登录
+     *
+     * @param neteaseAccid
+     * @param neteaseToken
+     */
+    private void saveNeteaseAccid(String neteaseAccid, String neteaseToken) {
+        SpUtil spUtil = SpUtil.getSpUtil();
+        spUtil.putSPValue(Preferences.KEY_USER_ACCOUNT, neteaseAccid);
+        spUtil.putSPValue(Preferences.KEY_USER_TOKEN, neteaseToken);
+    }
 
+    /**
+     * 网易云登录
+     *
+     * @param neteaseAccid 账号
+     * @param neteaseToken Token
+     */
+    public void doNeteaseLogin(String neteaseAccid, String neteaseToken) {
+        LoginInfo info = new LoginInfo(neteaseAccid, neteaseToken);
+        RequestCallback<LoginInfo> callback =
+                new RequestCallback<LoginInfo>() {
+                    @Override
+                    public void onSuccess(LoginInfo param) {
+                        if(param!=null){
+                            AVChatProfile.setAccount(param.getAccount());
+                        }
+                        LogUtil.getLog().d("UserAction", "onSuccess");
+                    }
+
+                    @Override
+                    public void onFailed(int code) {
+                        LogUtil.getLog().d("UserAction", "onFailed:" + code);
+                    }
+
+                    @Override
+                    public void onException(Throwable exception) {
+                        LogUtil.getLog().d("UserAction", "exception:" + exception.getMessage());
+                    }
+                    // 可以在此保存LoginInfo到本地，下次启动APP做自动登录用
+                };
+        NIMClient.getService(AuthService.class).login(info)
+                .setCallback(callback);
+    }
 }

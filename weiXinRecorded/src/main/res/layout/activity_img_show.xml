@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/activity_show_rl_big"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/activity_img_show_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"/>
+
+    <com.zhaoss.weixinrecorded.view.MyPaintView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_record_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp">
+
+        <ImageView
+            android:id="@+id/iv_show_delete"
+            android:layout_width="29dp"
+            android:layout_height="23dp"
+            android:layout_marginLeft="61dp"
+            android:layout_centerVertical="true"
+            android:scaleType="fitXY"
+            android:clickable="true"
+            android:background="@mipmap/video_cancle"/>
+        <ImageView
+            android:id="@+id/iv_show_next"
+            android:layout_width="33dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="65dp"
+            android:layout_alignParentRight="true"
+            android:clickable="true"
+            android:background="@mipmap/video_sure"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>

@@ -12,6 +12,7 @@
         android:columnCount="4"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
+
         android:visibility="gone">
 
         <LinearLayout
@@ -183,6 +184,28 @@
                 android:text="群助手" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/ll_chat_video_call"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:visibility="visible"
+            android:orientation="vertical">
+
+            <ImageView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_chat_video" />
+
+            <TextView
+                style="@style/app_txt_content_1"
+                android:layout_marginTop="2dp"
+                android:text="视频通话" />
+        </LinearLayout>
+
         <!--test加工能前记得删掉-->
 
         <LinearLayout
@@ -193,6 +216,7 @@
             android:layout_columnWeight="1"
             android:gravity="center"
             android:orientation="vertical"
+            android:visibility="gone"
             >
 
             <ImageView
@@ -205,28 +229,6 @@
                 style="@style/app_txt_content_1"
                 android:layout_marginTop="2dp"
                 android:text="短视频" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_chat_video_call"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:gravity="center"
-            android:visibility="gone"
-            android:orientation="vertical">
-
-            <ImageView
-
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_chat_robot" />
-
-            <TextView
-                style="@style/app_txt_content_1"
-                android:layout_marginTop="2dp"
-                android:text="视频通话" />
         </LinearLayout>
 
     </GridLayout>
