@@ -344,6 +344,19 @@ public class RecordedActivity extends BaseActivity {
                 intent.putExtra(INTENT_PATH, result);
                 startActivityForResult(intent, REQUEST_CODE_KEY);
                 clearProgress();
+
+
+//                Intent intent = new Intent();
+//                intent.putExtra(INTENT_PATH, data.getStringExtra(INTENT_PATH));
+//                intent.putExtra(INTENT_VIDEO_WIDTH, data.getIntExtra(INTENT_VIDEO_WIDTH,720));
+//                intent.putExtra(INTENT_PATH_HEIGHT, data.getIntExtra(INTENT_PATH_HEIGHT,1080));
+//                intent.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME,10));
+//                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
+//                setResult(RESULT_OK, intent);
+//                finish();
+
+
+
             }
 
 
@@ -356,6 +369,8 @@ public class RecordedActivity extends BaseActivity {
             }
         });
     }
+
+    MyVideoEditor myVideoEditor = new MyVideoEditor();
 
     private void clearProgress() {
         recordView.updateProgress(0);

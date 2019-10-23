@@ -788,7 +788,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public void onClick(View v) {
 
                 PictureSelector.create(ChatActivity.this)
-                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+//                        .openGallery(PictureMimeType.ofImage())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
+                        .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()
                         .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .previewImage(false)// 是否可预览图片 true or false
                         .isCamera(false)// 是否显示拍照按钮 ture or false
@@ -1763,7 +1764,29 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                             startService(new Intent(getContext(), UpLoadService.class));
                         } else {
-                            ToastUtil.show(this,"图片已损坏，请重新选择");
+
+
+
+                            String videofile = localMedia.getPath();
+//                            int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
+//                            int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
+//                            int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
+                            final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
+                            final String imgMsgId = SocketData.getUUID();
+                            VideoMessage videoMessage = new VideoMessage();
+                            videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
+                            videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
+                            videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
+                            videoMessage.setBg_url(getVideoAttBitmap(videofile));
+                            videoMessage.setLocalUrl(videofile);
+                            Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
+                            VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + videofile, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), videofile);
+                            MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
+                            msgListData.add(imgMsgBean);
+                            UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
+                            startService(new Intent(getContext(), UpLoadService.class));
+
+//                            ToastUtil.show(this,"图片已损坏，请重新选择");
                         }
                     }
                     notifyData2Bottom(true);
