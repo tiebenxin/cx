@@ -78,11 +78,7 @@ public class DaoMigration implements RealmMigration {
 //                .addField("localUrl", String.class);
     }
 
-    //新增群阅后即焚
-    private void updateV6(RealmSchema schema) {
-        schema.get("Group")
-                .addField("survivaltime", int.class);
-    }
+
 
 
 
@@ -94,6 +90,16 @@ public class DaoMigration implements RealmMigration {
                 .addField("inviterName",String.class);
     }
 
+
+    //新增群阅后即焚
+    private void updateV6(RealmSchema schema) {
+        schema.get("Group")
+                .addField("survivaltime", int.class);
+        schema.get("MsgAllBean")
+                .addField("survival_time",int.class)
+                .addField("endTime",long.class) ;
+
+    }
 
 //    @Override
 //    public boolean equals(@Nullable Object obj) {

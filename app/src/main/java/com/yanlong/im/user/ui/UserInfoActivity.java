@@ -167,7 +167,6 @@ public class UserInfoActivity extends AppActivity {
             btnMsg.setVisibility(View.VISIBLE);
             viewIntroduce.setVisibility(View.GONE);
             viewComplaint.setVisibility(View.VISIBLE);
-            // mBtnAdd.setVisibility(View.VISIBLE);
         }
     }
 
@@ -269,32 +268,6 @@ public class UserInfoActivity extends AppActivity {
                 @Override
                 public void onClick(View v) {
                     toSendVerifyActivity();
-//                    AlertTouch alertTouch = new AlertTouch();
-//                    alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
-//                        @Override
-//                        public void onON() {
-//
-//                        }
-//
-//                        @Override
-//                        public void onYes(String content) {
-//                            taskAddFriend(id, content);
-//                        }
-//                    });
-//                    alertTouch.show();
-//                    if (group != null) {
-//                        String name = group.getName();
-//                        if (!TextUtils.isEmpty(name)) {
-//                            String userName = group.getMygroupName();
-//                            if (TextUtils.isEmpty(userName)) {
-//                                userName = UserAction.getMyInfo().getName();
-//                            }
-//                            alertTouch.setContent("我是" + "\"" + name + "\"" + "的" + userName);
-//                        }
-//                    } else {
-//                        alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
-//                    }
-//                    alertTouch.setEdHintOrSize(null, 60);
                 }
             });
         } else {

@@ -423,7 +423,7 @@ public class SocketData {
 
     //不是常聊聊小助手id
     public static boolean isNoAssistant(Long uid, String gid) {
-        if (TextUtils.isEmpty(gid) && (uid != null && uid == CLL_ASSITANCE_ID)){
+        if (TextUtils.isEmpty(gid) && (uid != null && uid == CLL_ASSITANCE_ID)) {
             return false;
         }
         return true;
@@ -444,26 +444,24 @@ public class SocketData {
      */
     private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
-        if (toId != null && toId > 0) {//给个人发
-            msg.setToUid(toId);
-        }
-
-
         MsgBean.UniversalMessage.WrapMessage.Builder wmsg = msg.getWrapMsgBuilder(0);
         UserInfo userInfo = UserAction.getMyInfo();
         wmsg.setFromUid(userInfo.getUid());
         wmsg.setAvatar(userInfo.getHead());
-
-
         wmsg.setNickname(userInfo.getName());
-
         //自动生成uuid
-
         wmsg.setMsgId(msgid == null ? getUUID() : msgid);
 
+        if(value instanceof MsgBean.UniversalMessage.WrapMessage){
+            MsgBean.UniversalMessage.WrapMessage wrapMessage = (MsgBean.UniversalMessage.WrapMessage)value;
+            wmsg.setSurvivalTime(wrapMessage.getSurvivalTime());
+        }
 
-//        wmsg.setTimestamp(getSysTime());
         wmsg.setTimestamp(time);
+        if (toId != null && toId > 0) {//给个人发
+            msg.setToUid(toId);
+
+        }
 
         if (toGid != null && toGid.length() > 0) {//给群发
             wmsg.setGid(toGid);
@@ -480,7 +478,11 @@ public class SocketData {
         wmsg.setMsgType(type);
         switch (type) {
             case CHAT:
-                wmsg.setChat((MsgBean.ChatMessage) value);
+                if(value instanceof MsgBean.ChatMessage){
+                    wmsg.setChat((MsgBean.ChatMessage) value);
+                }else if(value instanceof MsgBean.UniversalMessage.WrapMessage){
+                    wmsg.setChat(((MsgBean.UniversalMessage.WrapMessage)value).getChat());
+                }
                 break;
             case IMAGE:
                 wmsg.setImage((MsgBean.ImageMessage) value);
@@ -550,13 +552,25 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4Chat(Long toId, String toGid, String txt) {
-
-
         MsgBean.ChatMessage chat = MsgBean.ChatMessage.newBuilder()
                 .setMsg(txt)
                 .build();
-
         return send4Base(toId, toGid, MsgBean.MessageType.CHAT, chat);
+
+    }
+
+    /**
+     * 阅后即焚消息
+     */
+    public static MsgAllBean send4ChatSurvivalTime(Long toId, String toGid, String txt, int survivalTime) {
+        MsgBean.ChatMessage chat = MsgBean.ChatMessage.newBuilder()
+                .setMsg(txt)
+                .build();
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setChat(chat)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.CHAT, wrapMessage);
 
     }
 
@@ -1382,7 +1396,6 @@ public class SocketData {
         msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
         MessageManager.getInstance().setMessageChange(true);
     }
-
 
 
     public static MsgAllBean createMessageLock(String gid, Long uid) {

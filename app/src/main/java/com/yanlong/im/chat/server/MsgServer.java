@@ -19,12 +19,12 @@ import retrofit2.http.POST;
 public interface MsgServer {
     @POST("/group/create")
     @FormUrlEncoded
-    Call<ReturnBean<Group>> groupCreate(@Field("nickname") String nickname,@Field("groupName") String groupName,
+    Call<ReturnBean<Group>> groupCreate(@Field("nickname") String nickname, @Field("groupName") String groupName,
                                         @Field("avatar") String avatar, @Field("@members") String membersJson);
 
     @POST("/group/quit")
     @FormUrlEncoded
-    Call<ReturnBean> groupQuit(@Field("gid") String gid,@Field("nickname") String nickname);
+    Call<ReturnBean> groupQuit(@Field("gid") String gid, @Field("nickname") String nickname);
 
     @POST("/group/remove-members")
     @FormUrlEncoded
@@ -32,7 +32,7 @@ public interface MsgServer {
 
     @POST("/group/append-members")
     @FormUrlEncoded
-    Call<ReturnBean> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson,@Field("nickname") String nickname);
+    Call<ReturnBean> groupAdd(@Field("gid") String gid, @Field("@members") String membersJson, @Field("nickname") String nickname);
 
     @POST("/group/quit")
     @FormUrlEncoded
@@ -69,8 +69,8 @@ public interface MsgServer {
     @POST("/group/request-join")
     @FormUrlEncoded
     Call<ReturnBean<GroupJoinBean>> joinGroup(@Field("gid") String gid, @Field("uid") Long uid,
-                                              @Field("nickname") String nickname,@Field("avatar") String avatar,
-                                              @Field("inviter") String inviter,@Field("inviterName") String inviterName);
+                                              @Field("nickname") String nickname, @Field("avatar") String avatar,
+                                              @Field("inviter") String inviter, @Field("inviterName") String inviterName);
 
     @POST("/group/change-group-name")
     @FormUrlEncoded
@@ -91,13 +91,13 @@ public interface MsgServer {
     @POST("/group/accept-request")
     @FormUrlEncoded
     Call<ReturnBean> groupRequest(@Field("gid") String gid, @Field("newMember") String newMember,
-                                  @Field("newMemberName") String newMemberName,@Field("newMemberAvatar") String newMemberAvatar,
-                                  @Field("joinType") Integer joinType,@Field("inviter") String inviter,
+                                  @Field("newMemberName") String newMemberName, @Field("newMemberAvatar") String newMemberAvatar,
+                                  @Field("joinType") Integer joinType, @Field("inviter") String inviter,
                                   @Field("inviterName") String inviterName);
 
     @POST("/group/edit-announcement")
     @FormUrlEncoded
-    Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid,@Field("announcement") String announcement,@Field("masterName") String masterName);
+    Call<ReturnBean> changeGroupAnnouncement(@Field("gid") String gid, @Field("announcement") String announcement, @Field("masterName") String masterName);
 
     @POST("/group/search-for-robots")
     @FormUrlEncoded
@@ -105,27 +105,25 @@ public interface MsgServer {
 
     @POST("/group/change-robot")
     @FormUrlEncoded
-    Call<ReturnBean> robotChange(@Field("gid") String gid,@Field("robotid")String robotid);
+    Call<ReturnBean> robotChange(@Field("gid") String gid, @Field("robotid") String robotid);
 
     @POST("/group/get-robot-detail")
     @FormUrlEncoded
-    Call<ReturnBean<RobotInfoBean>> robotInfo(@Field("robotid") String robotid,@Field("gid") String gid);
+    Call<ReturnBean<RobotInfoBean>> robotInfo(@Field("robotid") String robotid, @Field("gid") String gid);
 
     @POST("/group/change-master")
     @FormUrlEncoded
-    Call<ReturnBean> changeMaster(@Field("gid") String gid,@Field("uid") String uid,@Field("membername") String membername);
+    Call<ReturnBean> changeMaster(@Field("gid") String gid, @Field("uid") String uid, @Field("membername") String membername);
 
-<<<<<<< HEAD
     @POST("/friends/set-survival-time")
     @FormUrlEncoded
-    Call<ReturnBean> setSurvivalTime(@Field("friend") long friend,@Field("survivalTime") int survivalTime);
+    Call<ReturnBean> setSurvivalTime(@Field("friend") long friend, @Field("survivalTime") int survivalTime);
 
     @POST("/group/change-survival-time")
     @FormUrlEncoded
-    Call<ReturnBean> changeSurvivalTime(@Field("gid") String gid,@Field("survivalTime") int survivalTime);
-=======
+    Call<ReturnBean> changeSurvivalTime(@Field("gid") String gid, @Field("survivalTime") int survivalTime);
+
     @POST("/group/get-batch-group")
     @FormUrlEncoded
     Call<ReturnBean<List<Group>>> getGroupsByIds(@Field("@gids") String json);
->>>>>>> b445d342be292ba528cef25ca94fe3eb9e08ef08
 }

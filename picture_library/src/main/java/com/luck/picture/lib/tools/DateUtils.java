@@ -95,7 +95,7 @@ public class DateUtils {
         Date date = new Date(System.currentTimeMillis());
         SimpleDateFormat dft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String today = dft.format(date);
-        long todayTime = Long.valueOf( date2TimeStamp(today,"yyyy-MM-dd HH:mm:ss"));
+        long todayTime = Long.valueOf(date2TimeStamp(today, "yyyy-MM-dd HH:mm:ss"));
         if ((todayTime / 1000) > (time / 1000)) {
             return true;
         }
@@ -152,5 +152,19 @@ public class DateUtils {
         return sdf.format(new Date(time));
     }
 
+    /**
+     * 获取系统时间戳
+     */
+    public static long getSystemTime() {
+        //获取当前时间
+        return System.currentTimeMillis();
+    }
+
+    /**
+     * 获取阅后即焚时间戳
+     */
+    public static long getSurvivalTime(long survivalTime) {
+        return System.currentTimeMillis() + survivalTime;
+    }
 
 }

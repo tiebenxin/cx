@@ -519,8 +519,8 @@ public class MsgAction {
     /**
      * 修改群公告
      */
-    public void changeGroupAnnouncement(String gid, String announcement, Callback<ReturnBean> callback) {
-        NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement), callback);
+    public void changeGroupAnnouncement(String gid, String announcement, String masterName, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.changeGroupAnnouncement(gid, announcement, masterName), callback);
     }
 
 
@@ -574,6 +574,12 @@ public class MsgAction {
         NetUtil.getNet().exec(server.changeMaster(gid, uid, membername), callback);
     }
 
+    /**
+     * 通过群id批量获取群信息
+     */
+    public void getGroupsByIds(String gids, Callback<ReturnBean<List<Group>>> callback) {
+        NetUtil.getNet().exec(server.getGroupsByIds(gids), callback);
+    }
 
     /**
      * 设置单聊阅后即焚

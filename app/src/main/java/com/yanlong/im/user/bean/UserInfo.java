@@ -60,7 +60,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String describe; //用户描述
     private int lockCloudRedEnvelope; //1锁定红包，0不锁定
     @SerializedName("survivaltime")
-    private int destroy; //销毁开关
+    private int destroy = 0; //销毁开关
     private long destroyTime; //销毁时间
     private int joinType;
     private String joinTime;

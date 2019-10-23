@@ -58,6 +58,7 @@ public class MsgConversionBean {
         msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setFrom_group_nickname(bean.getMembername());
         msgAllBean.setGid(bean.getGid());
+        msgAllBean.setSurvival_time(bean.getSurvivalTime());
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());

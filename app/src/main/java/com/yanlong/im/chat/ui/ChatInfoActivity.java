@@ -72,6 +72,7 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewDestroyTime;
     private TextView tvDestroyTime;
     private SeekBar sbDestroyTime;
+    private int oldDestroyTime;
     private int destroyTime;
     private ReadDestroyUtil readDestroyUtil;
 
@@ -91,8 +92,10 @@ public class ChatInfoActivity extends AppActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        ToastUtil.show(context, destroyTime + "---" + fuid);
-        taskSurvivalTime(fuid, destroyTime);
+        //初始时间跟返回时间一致就不调用接口设置
+        if(oldDestroyTime != destroyTime){
+            taskSurvivalTime(fuid, destroyTime);
+        }
     }
 
     @Override
@@ -103,7 +106,6 @@ public class ChatInfoActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void setingReadDestroy(ReadDestroyBean bean) {
-
         if (bean.uid == fuid) {
             destroyTime = bean.survivaltime;
             if (destroyTime == -1) {
@@ -146,6 +148,8 @@ public class ChatInfoActivity extends AppActivity {
         viewDestroyTime = findViewById(R.id.view_destroy_time);
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
         sbDestroyTime = findViewById(R.id.sb_destroy_time);
+
+
     }
 
 
@@ -242,6 +246,7 @@ public class ChatInfoActivity extends AppActivity {
         readDestroyUtil = new ReadDestroyUtil();
         UserInfo userInfo = userDao.findUserInfo(fuid);
         destroyTime = userInfo.getDestroy();
+        oldDestroyTime = userInfo.getDestroy();
         if (destroyTime == -1) {
             ckRedDestroy.setChecked(true);
             ckExitDestroy.setChecked(true);

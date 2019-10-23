@@ -37,6 +37,25 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     @ChatEnum.EMessageType
     private Integer msg_type;
 
+    private int survival_time;
+    //阅后即焚结束时间
+    private long endTime = 0;
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getSurvival_time() {
+        return survival_time;
+    }
+
+    public void setSurvival_time(int survival_time) {
+        this.survival_time = survival_time;
+    }
 
     private ChatMessage chat;
 

@@ -248,12 +248,12 @@ public class MessageManager {
                     result = saveMessage(bean, isList);
                 }
                 int survivalTime = wrapMessage.getChangeSurvivalTime().getSurvivalTime();
-                if(!TextUtils.isEmpty(wrapMessage.getGid())){
+                if (!TextUtils.isEmpty(wrapMessage.getGid())) {
                     wrapMessage.getMsgId();
-                }else{
-                    userDao.updateReadDestroy(wrapMessage.getFromUid(),survivalTime);
+                } else {
+                    userDao.updateReadDestroy(wrapMessage.getFromUid(), survivalTime);
                 }
-                EventBus.getDefault().post(new ReadDestroyBean(survivalTime,wrapMessage.getGid(),wrapMessage.getFromUid()));
+                EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
                 break;
         }
         //刷新单个
@@ -353,13 +353,10 @@ public class MessageManager {
         }
         return result;
     }
-<<<<<<< HEAD
-=======
 
-    /*
+    /**
      * 网络加载用户信息,只能接受来自好友的信息
-     * */
->>>>>>> b445d342be292ba528cef25ca94fe3eb9e08ef08
+     */
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
         if (UserAction.getMyId() != null && uid.equals(UserAction.getMyId())) {
             return;

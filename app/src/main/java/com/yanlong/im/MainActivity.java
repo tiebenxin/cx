@@ -15,8 +15,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
@@ -32,6 +34,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
+import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.AppConfig;
@@ -86,11 +89,13 @@ public class MainActivity extends AppActivity {
     private NotifySettingDialog notifyDialog;
     private NetworkReceiver mNetworkReceiver;
     private MsgMainFragment mMsgMainFragment;
+    private TimeUtils timeUtils = new TimeUtils();
 
     //自动寻找控件
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
+        timeUtils.RunTimer();
     }
 
 
@@ -232,6 +237,7 @@ public class MainActivity extends AppActivity {
         findViews();
         initEvent();
         uploadApp();
+        getSurvivalTimeData();
         checkRosters();
         doRegisterNetReceiver();
     }
@@ -325,6 +331,7 @@ public class MainActivity extends AppActivity {
             unregisterReceiver(mNetworkReceiver);
         }
         EventBus.getDefault().unregister(this);
+        timeUtils.cancle();
         super.onDestroy();
     }
 
@@ -546,6 +553,25 @@ public class MainActivity extends AppActivity {
         LogUtil.getLog().i(MainActivity.class.getSimpleName(), VersionUtil.getVerName(this));
         SharedPreferencesUtil sp = new SharedPreferencesUtil(NOTIFICATION);
         sp.save2Json(config, "notify_config");
+    }
+
+
+    private void getSurvivalTimeData(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
+                if(list != null){
+                    timeUtils.addMsgAllBeans(list);
+                }
+            }
+        }).start();
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd){
+        LogUtil.getLog().d("SurvivalTime",""+survivalTimeAdd.msgAllBean.getMsg_id());
+        timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
     }
 
 

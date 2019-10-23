@@ -43,6 +43,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -54,10 +55,12 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.tools.DateUtils;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.EmojiAdapter;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -636,8 +639,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                         if (totalSize <= MIN_TEXT) {//非长文本
                             isSendingHypertext = false;
-                            MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
-                            showSendObj(msgAllbean);
+                            int survivalTime = userDao.getReadDestroy(toUId, toGid);
+                            if (userDao.getReadDestroy(toUId, toGid) == 0) {
+                                MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
+                                showSendObj(msgAllbean);
+                            } else {
+                                MsgAllBean msgAllbean = SocketData.send4ChatSurvivalTime(toUId, toGid, text, survivalTime);
+                                showSendObj(msgAllbean);
+                            }
                             edtChat.getText().clear();
                         } else {
                             isSendingHypertext = true;//正在分段发送长文本
@@ -2097,6 +2106,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
 
+            if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
+                long date = DateUtils.getSystemTime();
+                msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), msgbean.getMsg_id());
+                msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
+                EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean));
+                LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+            }
+
             //时间戳合并
             String time = null;
             if (position > 0 && (msgbean.getTimestamp() - msgListData.get(position - 1).getTimestamp()) < (60 * 1000)) { //小于60秒隐藏时间
@@ -2398,10 +2415,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     holder.viewChatItem.setLock(new HtmlTransitonUtils().getSpannableString(ChatActivity.this, msgbean.getChat().getMsg(), ChatEnum.ENoticeType.LOCK));
                     break;
                 case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
-                    Log.d("CHANGE_SURVIVAL_TIME",msgbean.getMsg_id());
-                    holder.viewChatItem.setReadDestroy(toGid,msgbean.getFrom_uid(),
+                    Log.d("CHANGE_SURVIVAL_TIME", msgbean.getMsg_id());
+                    holder.viewChatItem.setReadDestroy(toGid, msgbean.getFrom_uid(),
                             msgbean.getChangeSurvivalTimeMessage().getSurvival_time()
-                            , msgbean.getMsgCancel().getNote(),ChatActivity.this);
+                            , msgbean.getMsgCancel().getNote(), ChatActivity.this);
 
                     break;
             }
@@ -3849,8 +3866,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             isSendingHypertext = false;
         }
         textPosition = position;
-        MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
-        showSendObj(msgAllbean);
+        int survivalTime = userDao.getReadDestroy(toUId, toGid);
+        if (userDao.getReadDestroy(toUId, toGid) == 0) {
+            MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
+            showSendObj(msgAllbean);
+        } else {
+            MsgAllBean msgAllbean = SocketData.send4ChatSurvivalTime(toUId, toGid, list.get(position), survivalTime);
+            showSendObj(msgAllbean);
+        }
     }
 
     private void fixSendTime(String msgId) {

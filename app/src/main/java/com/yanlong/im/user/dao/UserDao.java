@@ -1,8 +1,10 @@
 package com.yanlong.im.user.dao;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
 
@@ -88,6 +90,26 @@ public class UserDao {
             DaoUtil.close(realm);
         }
     }
+
+    public int getReadDestroy(Long uid, String gid) {
+        Realm realm = DaoUtil.open();
+        try {
+            if (TextUtils.isEmpty(gid)) {
+                UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
+
+                return userInfo.getDestroy();
+            } else {
+                Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+                realm.close();
+                return group.getSurvivaltime();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }finally {
+            realm.close();
+        }
+     }
 
 
     /***
@@ -445,11 +467,9 @@ public class UserDao {
         }
     }
 
-<<<<<<< HEAD
-=======
-    /*
-    *
-    * */
+    /**
+     *
+     */
     public boolean isUserExist(Long uid) {
         boolean result = false;
         Realm realm = DaoUtil.open();
@@ -465,6 +485,5 @@ public class UserDao {
         }
         return result;
     }
->>>>>>> b445d342be292ba528cef25ca94fe3eb9e08ef08
 
 }

@@ -169,6 +169,37 @@ public class MsgDao {
         return beans;
     }
 
+
+    /**
+     * 查询所有查看过的阅后即焚消息
+     */
+    public List<MsgAllBean> getMsg4SurvivalTime() {
+        List<MsgAllBean> beans = new ArrayList<>();
+        Realm realm = DaoUtil.open();
+        RealmResults list = realm.where(MsgAllBean.class)
+                .greaterThan("endTime", 0)
+                .findAll();
+        beans = realm.copyFromRealm(list);
+        realm.close();
+        return beans;
+    }
+
+
+    /**
+     * 设置阅后即焚销毁时间
+     * */
+    public void setMsgEndTime(long time, String msgid) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        MsgAllBean msgAllBean = realm.where(MsgAllBean.class)
+                .equalTo("msg_id", msgid).findFirst();
+        msgAllBean.setEndTime(time);
+        realm.insertOrUpdate(msgAllBean);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+
     public List<MsgAllBean> getMsg4User(Long userid, Long time) {
         if (time == null) {
             time = 99999999999999l;
@@ -702,7 +733,7 @@ public class MsgDao {
     /**
      * 阅后即焚消息
      */
-    public void msgSurvivalTime(String msgid,String gid, long uid, String nickname, String avatar, int survivalTime) {
+    public void msgSurvivalTime(String msgid, String gid, long uid, String nickname, String avatar, int survivalTime) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -720,12 +751,12 @@ public class MsgDao {
 
             }
             MsgNotice notice = new MsgNotice();
-            if(survivalTime == -1 ){
-                notice.setNote(nickname+"设置了退出即焚");
-            }else if(survivalTime == 0){
-                notice.setNote(nickname+"取消了阅后即焚");
-            }else{
-                notice.setNote(nickname+"设置了消息10s后消失");
+            if (survivalTime == -1) {
+                notice.setNote(nickname + "设置了退出即焚");
+            } else if (survivalTime == 0) {
+                notice.setNote(nickname + "取消了阅后即焚");
+            } else {
+                notice.setNote(nickname + "设置了消息10s后消失");
             }
             msgAllBean.setMsgNotice(notice);
             ChangeSurvivalTimeMessage message = new ChangeSurvivalTimeMessage();
@@ -2577,14 +2608,14 @@ public class MsgDao {
 
     /**
      * 保存群聊
-     * */
-    public void setSavedGroup(String gid,int saved){
+     */
+    public void setSavedGroup(String gid, int saved) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
             Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
 
-            if(group != null){
+            if (group != null) {
                 group.setSaved(saved);
                 realm.insertOrUpdate(group);
             }

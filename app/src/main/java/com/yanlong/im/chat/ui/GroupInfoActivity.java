@@ -147,6 +147,7 @@ public class GroupInfoActivity extends AppActivity {
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
         sbDestroyTime = findViewById(R.id.sb_destroy_time);
         readDestroyUtil = new ReadDestroyUtil();
+
     }
 
     @Override
@@ -332,6 +333,12 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
+        if (!isAdmin()) {
+            ckRedDestroy.setClickable(false);
+            ckExitDestroy.setClickable(false);
+            sbDestroyTime.setClickable(false);
+        }
+
     }
 
 
@@ -380,6 +387,7 @@ public class GroupInfoActivity extends AppActivity {
 
             }
         });
+
     }
 
 
@@ -615,7 +623,10 @@ public class GroupInfoActivity extends AppActivity {
 
             }
 
+
         }
+
+
     }
 
 
