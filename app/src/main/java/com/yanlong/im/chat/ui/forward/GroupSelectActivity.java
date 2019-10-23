@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui.forward;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,15 +16,18 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityGroupSaveBinding;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
@@ -179,25 +183,64 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 }
             });
         }
+//        else if(msgAllBean.getVideoMessage() != null){
+//            alertForward.init(GroupSelectActivity.this, avatar, nick, msgAllBean.getAtMessage().getMsg(), null, "发送", new AlertForward.Event() {
+//                @Override
+//                public void onON() {
+//
+//                }
+//
+//                @Override
+//                public void onYes(String content) {
+//
+//
+//                    sendMessage(uid, gid, msgAllBean.getVideoMessage().getMsg(), content);
+//                }
+//            });
+//        }
+        else if (msgAllBean.getVideoMessage() != null) {
+            alertForward.init(GroupSelectActivity.this, avatar, nick, null, msgAllBean.getVideoMessage().getBg_url(), "发送", new AlertForward.Event() {
+                @Override
+                public void onON() {
 
+                }
 
-        alertForward.show();
+                @Override
+                public void onYes(String content) {
 
-    }
+                    MsgAllBean  sendMesage = SocketData.转发送视频整体信息(uid, gid, msgAllBean.getVideoMessage());
+
+                    if (StringUtil.isNotNull(content)) {
+                        sendMesage = SocketData.send4Chat(uid, gid, content);
+                    }
+                    ToastUtil.show(GroupSelectActivity.this,"转发成功");
+                    finish();
+//                    doSendSuccess();
+                    notifyRefreshMsg( gid,uid,content);
+                }
+            });
+
+        }
+            alertForward.show();
+
+        }
 
     /*
      * msg 转发消息内容
      * comments 转发留言
      * */
-    private void sendMessage(long uid, String gid, String msg, String comments) {
-        SocketData.send4Chat(uid, gid, msg);
+    private void sendMessage(long msgUid, String msgGid, String msgMsg, String comments) {
+        SocketData.send4Chat(msgUid, msgGid, msgMsg);
         if (StringUtil.isNotNull(comments)) {
-            SocketData.send4Chat(uid, gid, comments);
+            SocketData.send4Chat(msgUid, msgGid, comments);
         }
         setResult(RESULT_OK);
         finish();
     }
-
+    private void notifyRefreshMsg(String toGid, long toUid,String content) {
+        MessageManager.getInstance().setMessageChange(true);
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, content);
+    }
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
