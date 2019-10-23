@@ -464,9 +464,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void uploadApp() {
-        if (!AppConfig.DEBUG) {
-            taskNewVersion();
-        }
+        taskNewVersion();
     }
 
 
