@@ -271,8 +271,8 @@
 
                         <ImageView
                             android:id="@+id/img_ot_4_play"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
                             android:background="@mipmap/video_msg_play_show"
                             android:layout_centerInParent="true"
                             android:visibility="gone"
@@ -701,8 +701,8 @@
 
                             <ImageView
                                 android:id="@+id/img_me_4_play"
-                                android:layout_width="30dp"
-                                android:layout_height="30dp"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
                                 android:background="@mipmap/video_msg_play_show"
                                 android:layout_centerInParent="true"
                                 android:visibility="gone"
