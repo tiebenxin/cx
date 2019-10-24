@@ -119,6 +119,7 @@ import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventFindHistory;
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
 import net.cb.cb.library.bean.EventUserOnlineChange;
@@ -397,21 +398,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             case DESTROY_GROUP:
                 // ToastUtil.show(getApplicationContext(), "销毁群");
-                taskGroupConf();
+//                taskGroupConf();
+                taskSessionInfo();
+                break;
             case REMOVE_GROUP_MEMBER://退出群
-                taskGroupConf();
+//                taskGroupConf();
+                taskSessionInfo();
                 break;
             case ACCEPT_BE_GROUP://邀请进群刷新
                 if (groupInfo != null) {
+                    taskSessionInfo();
                     if (StringUtil.isNotNull(groupInfo.getAvatar())) {
-                        taskGroupConf();
+//                        taskGroupConf();
                     } else {
                         if (groupInfo.getUsers().size() >= 9) {
-                            taskGroupConf();
+//                            taskGroupConf();
                         } else {
-                            taskGroupConf();
+//                            taskGroupConf();
                             GroupHeadImageUtil.creatAndSaveImg(this, groupInfo.getGid());
-//                        creatAndSaveImg(groupInfo.getGid());
                         }
                     }
                 }
@@ -542,6 +546,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
+        if (!TextUtils.isEmpty(toGid)) {
+            taskGroupInfo();
+        }
         actionbar.getBtnRight().setImageResource(R.mipmap.ic_chat_more);
         if (isGroup()) {
             actionbar.getBtnRight().setVisibility(View.GONE);
@@ -1138,7 +1145,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     /**
      * 进入视频通话
      */
-    private void gotoVideoActivity(){
+    private void gotoVideoActivity() {
         permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
@@ -1166,7 +1173,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     /**
      * 进入语音通话
      */
-    private void gotoVoiceActivity(){
+    private void gotoVoiceActivity() {
         permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
@@ -1800,7 +1807,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             ToastUtil.show(this, "图片已损坏，请重新选择");
 
 
-
                             String videofile = localMedia.getPath();
 //                            int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
 //                            int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
@@ -1866,6 +1872,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }*/
     }
 
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventGroupChange event) {
+        if (event.isNeedLoad()) {
+            taskGroupInfo();
+        } else {
+            taskSessionInfo();
+        }
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskRefreshMessageEvent(EventRefreshChat event) {
@@ -2271,7 +2286,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         if (!TextUtils.isEmpty(name)) {
                             edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
                         } else {
-                            edtChat.addAtSpan("@", msgbean.getFrom_user().getName(), msgbean.getFrom_uid());
+                            name = TextUtils.isEmpty(msgbean.getFrom_group_nickname()) ? msgbean.getFrom_nickname() : msgbean.getFrom_group_nickname();
+                            edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
 
                         }
                         return true;
@@ -2528,13 +2544,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
                     menus.add(new OptionMenu("删除"));
-                    holder.viewChatItem.setDataVoiceOrVideo(msgbean.getP2PAuVideoMessage().getDesc(),msgbean.getP2PAuVideoMessage().getAv_type(),new View.OnClickListener(){
+                    holder.viewChatItem.setDataVoiceOrVideo(msgbean.getP2PAuVideoMessage().getDesc(), msgbean.getP2PAuVideoMessage().getAv_type(), new View.OnClickListener() {
 
                         @Override
                         public void onClick(View v) {
-                            if((int)v.getTag() == MsgBean.AuVideoType.Audio.getNumber()){
+                            if ((int) v.getTag() == MsgBean.AuVideoType.Audio.getNumber()) {
                                 gotoVoiceActivity();
-                            }else{
+                            } else {
                                 gotoVideoActivity();
                             }
                         }
@@ -3321,22 +3337,30 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void taskSessionInfo() {
         String title = "";
         if (isGroup()) {
-            Group ginfo = msgDao.getGroup4Id(toGid);
-            if (ginfo != null) {
-                if (!TextUtils.isEmpty(ginfo.getName())) {
-                    title = ginfo.getName();
+            groupInfo = msgDao.getGroup4Id(toGid);
+            if (groupInfo != null) {
+                if (!TextUtils.isEmpty(groupInfo.getName())) {
+                    title = groupInfo.getName();
                 } else {
                     title = "群聊";
                 }
                 int memberCount = 0;
-                if (ginfo.getUsers() != null) {
-                    memberCount = ginfo.getUsers().size();
+                if (groupInfo.getUsers() != null) {
+                    memberCount = groupInfo.getUsers().size();
                 }
                 if (memberCount > 0) {
                     title = title + "(" + memberCount + ")";
                 }
+
+                //如果自己不在群里面
+                boolean isExit = false;
+                for (MemberUser uifo : groupInfo.getUsers()) {
+                    if (uifo.getUid() == UserAction.getMyId().longValue()) {
+                        isExit = true;
+                    }
+                }
+                setBanView(!isExit);
             }
-//            title = msgDao.getGroupName(toGid);
             //6.15 设置右上角点击
             taskGroupConf();
 
@@ -3634,7 +3658,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             setBanView(isExited);
         }
-        taskGroupInfo();
     }
 
     /*
@@ -3867,7 +3890,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (response.body() == null)
                     return;
 
-                groupInfo = response.body().getData();
+//                groupInfo = response.body().getData();
+                groupInfo = msgDao.getGroup4Id(toGid);
                 if (groupInfo != null) {
                     contactIntimately = groupInfo.getContactIntimately();
                     master = groupInfo.getMaster();
@@ -3884,23 +3908,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 } else {
                     viewFunc.removeView(viewChatRobot);
                 }
-
-                //如果自己不在群里面
-                boolean isExit = false;
-                for (MemberUser uifo : groupInfo.getUsers()) {
-                    if (uifo.getUid() == UserAction.getMyId().longValue()) {
-                        isExit = true;
-                    }
-
-                }
-//                if (!isExit) {
-//                    actionbar.getBtnRight().setVisibility(View.GONE);
-//                } else {
-//                    actionbar.getBtnRight().setVisibility(View.VISIBLE);
-//                }
-                setBanView(!isExit);
-
-
+                taskSessionInfo();
             }
         });
     }
@@ -4008,4 +4016,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
     }
+
+
 }

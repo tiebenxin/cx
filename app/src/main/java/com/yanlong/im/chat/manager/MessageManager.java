@@ -8,6 +8,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
@@ -26,6 +27,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -155,8 +157,6 @@ public class MessageManager {
             case BUSINESS_CARD://名片
             case RED_ENVELOPER://红包
             case RECEIVE_RED_ENVELOPER://领取红包
-            case ACCEPT_BE_GROUP://接受入群
-            case REMOVE_GROUP_MEMBER://被移除群聊
             case CHANGE_GROUP_MASTER://转让群主
             case OUT_GROUP://退出群聊
             case ASSISTANT://小消息
@@ -181,6 +181,24 @@ public class MessageManager {
                 break;
             case REMOVE_FRIEND:
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
+                break;
+            case REMOVE_GROUP_MEMBER://自己被移除群聊
+                if (bean != null) {
+                    result = saveMessage(bean, isList);
+                    MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());
+                    msgDao.removeGroupMember(bean.getGid(), memberUser);
+                    notifyGroupChange(false);
+                }
+                break;
+            case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊
+                removeGroupMember(wrapMessage);
+                notifyGroupChange(false);
+                break;
+            case ACCEPT_BE_GROUP://接受入群，
+                if (bean != null) {
+                    result = saveMessage(bean, isList);
+                }
+                notifyGroupChange(true);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
                 msgDao.remidCount("friend_apply");
@@ -268,6 +286,11 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        MsgBean.RemoveGroupMember2Message removeGroupMember2 = wrapMessage.getRemoveGroupMember2();
+        msgDao.removeGroupMember(wrapMessage.getGid(), removeGroupMember2.getUidList());
     }
 
     private boolean isGroup(Long uid, String gid) {
@@ -951,5 +974,48 @@ public class MessageManager {
             }
         }
         return memberUsers;
+    }
+
+    /*
+     * 检测该群是否还有效，即自己是否还在该群中
+     * */
+    public boolean isGroupValid(Group group) {
+        if (group != null) {
+            List<MemberUser> users = group.getUsers();
+            if (users != null) {
+                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                if (member != null && !users.contains(member)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * 检测该群是否还有效，即自己是否还在该群中
+     * */
+    public boolean isGroupValid(String gid) {
+        Group group = msgDao.groupNumberGet(gid);
+//        Group group = msgDao.getGroup4Id(gid);
+        if (group != null) {
+            List<MemberUser> users = group.getUsers();
+            if (users != null) {
+                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                if (member != null && !users.contains(member)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * 通知群变化
+     * */
+    public void notifyGroupChange(boolean isNeedLoad) {
+        EventGroupChange event = new EventGroupChange();
+        event.setNeedLoad(isNeedLoad);
+        EventBus.getDefault().post(event);
     }
 }
