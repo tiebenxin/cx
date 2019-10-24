@@ -368,8 +368,8 @@ public class ChatItemView extends LinearLayout {
             case ChatEnum.EMessageType.MSG_VIDEO:
                 viewMe4.setVisibility(VISIBLE);
                 viewOt4.setVisibility(VISIBLE);
-                img_me_4_time.setVisibility(View.VISIBLE);
-                img_me_4_play.setVisibility(View.VISIBLE);
+//                img_me_4_time.setVisibility(View.VISIBLE);
+//                img_me_4_play.setVisibility(View.VISIBLE);
                 img_ot_4_time.setVisibility(View.VISIBLE);
                 img_ot_4_play.setVisibility(View.VISIBLE);
                 break;
@@ -526,7 +526,6 @@ public class ChatItemView extends LinearLayout {
             imgOtRbIcon.setImageResource(typeIconRes);
         }
 
-
     }
 
 
@@ -579,8 +578,6 @@ public class ChatItemView extends LinearLayout {
         viewMe7.init(isMe, second, isRead, isPlay, playStatus);
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
-
-
     }
 
     public void updateVoice(MsgAllBean bean) {
@@ -908,6 +905,17 @@ public class ChatItemView extends LinearLayout {
 
 
         }
+    }
+
+    public void setVideoIMGShow(boolean show){
+        if (show){
+            img_me_4_play.setVisibility(View.VISIBLE);
+            img_me_4_time.setVisibility(View.VISIBLE);
+        }else{
+            img_me_4_play.setVisibility(View.INVISIBLE);
+            img_me_4_time.setVisibility(View.INVISIBLE);
+        }
+
     }
 
     public interface EventPic {
