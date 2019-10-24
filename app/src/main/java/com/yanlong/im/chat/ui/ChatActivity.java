@@ -3684,17 +3684,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     GrabRpCallBack callBack = new GrabRpCallBack() {
                         @Override
                         public void grabRpResult(GrabRpBean grabRpBean) {
-                            taskPayRbCheck(msgbean, rbid);
-                            if (grabRpBean.getEnvelopeStatus() == 0 && grabRpBean.isHadGrabRp()) {
-                                // ToastUtil.show(getContext(), "抢到了红包" + grabRpBean.toString());
-                                //taskPayRbCheck(msgbean, rbid);
+                            //0 正常状态未领取，1 红包已经被领取，2 红包失效不能领取，3 红包未失效但已经被领完，4 普通红包并且用户点击自己红包
+                            int envelopeStatus = grabRpBean.getEnvelopeStatus();
+                            if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
                                 MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
                                 showSendObj(msgAllbean);
-
-
+                                taskPayRbCheck(msgbean, rbid);
                             }
-                            if (grabRpBean.getEnvelopeStatus() == 3 && !grabRpBean.isHadGrabRp()) {//红包抢完了
-
+                            if (envelopeStatus == 2 || envelopeStatus == 3) {
+                                taskPayRbCheck(msgbean, rbid);
                             }
                         }
                     };
@@ -3783,12 +3781,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     /***
-     * 红包是否已经被抢
+     * 红包是否已经被抢,红包改为失效
      * @param rid
      */
     private void taskPayRbCheck(MsgAllBean msgAllBean, final String rid) {
-
-
         msgAllBean.getRed_envelope().setIsInvalid(1);
         msgDao.redEnvelopeOpen(rid, true);
         replaceListDataAndNotify(msgAllBean);
