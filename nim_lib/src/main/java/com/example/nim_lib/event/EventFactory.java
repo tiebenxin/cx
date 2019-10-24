@@ -26,5 +26,7 @@ public class EventFactory {
         public String operation;// 操作(cancel|hangup|reject)
         public String txt;// 操作加时长
         public int avChatType;// 语音、视频
+        public Long toUId;
+        public String toGid;
     }
 }
