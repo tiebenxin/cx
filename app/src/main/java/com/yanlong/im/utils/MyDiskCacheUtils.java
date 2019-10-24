@@ -73,16 +73,20 @@ public class MyDiskCacheUtils {
         if (null==diskCacheController){
            throw new IllegalStateException("先初始化控制类设置基础属性");
         }
-        File file =new File(path);
-        if (file.isDirectory()){
-           long totalSpace= file.length();
-           if (totalSpace>MyDiskCache.getFileVailable(MyDiskCache.getFileType(filePath))){
-               clearFile(file);
-           }
+        if (null!=path&&null!=filePath){
+            File file =new File(path);
+            if (file.isDirectory()){
+                long totalSpace= file.length();
+                if (totalSpace>MyDiskCache.getFileVailable(MyDiskCache.getFileType(filePath))){
+                    clearFile(file);
+                    return false;
+                }
 //           file.getUsableSpace();
 //           file.getFreeSpace();
+            }
+
         }
-        return false;
+        return true;
     }
 
     private void clearFile(File path) {

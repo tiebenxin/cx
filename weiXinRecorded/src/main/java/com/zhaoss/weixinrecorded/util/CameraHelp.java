@@ -19,7 +19,8 @@ public class CameraHelp {
 
     //默认录制大小
     private int[] previewSize = new int[2];
-    private final static int defaultSize = 1280*720;
+//    private final static int defaultSize = 1280*720;
+    private final static int defaultSize = 1920*1080;
     private final static float defaultRatio = 9f/16f;
 
     private Camera mCamera;

@@ -212,6 +212,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             public void onCompletion(MediaPlayer mp) {
                 mMediaPlayer.pause();
                 activity_video_big_con.setVisibility(View.VISIBLE);
+                activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
             }
         });
     }

@@ -11,6 +11,8 @@ public class MyDiskCacheController {
     public  static long MAX_VOICE_SIZE = 1024 * 1024 * 1024;
     public  static long USABLE_VOICE_SIZE = 1024 * 1024 * 1024;
 
+    public  static long USABLE_DEFALUT_SIZE = 1024 * 1024 * 1024;
+
     public  void setMaxImageSize(long maxImageSize) {
         MAX_IMAGE_SIZE = maxImageSize;
     }
