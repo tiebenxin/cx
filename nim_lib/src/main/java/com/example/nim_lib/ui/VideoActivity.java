@@ -90,6 +90,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private boolean mIsInComingCall = false;// is incoming call or outgoing call
     // 电话是否接通
     private boolean isCallEstablished = false;
+    private Long toUId = null;
+    private String toGid = null;
 
     // data
     private TouchZoneCallback touchZoneCallback;
@@ -265,6 +267,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             mUserHeadSculpture = bundle.getString(Preferences.USER_HEAD_SCULPTURE);
             mVoiceType = bundle.getInt(Preferences.VOICE_TYPE);
             mAVChatType = bundle.getInt(Preferences.AVCHA_TTYPE);
+            toUId =  bundle.getLong(Preferences.TOUID);
+            toGid =  bundle.getString(Preferences.TOGID);
 
             if (avChatData != null) {
                 mIsInComingCall = true;
@@ -367,10 +371,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             int hour = mPassedTime / 3600;
             int min = mPassedTime % 3600 / 60;
             int second = mPassedTime % 60;
-
-            if (!isFinishing()) {
-                mHandler.postDelayed(this, TIME);
+            if (hour > 0) {
                 txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+            } else {
+                txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d", min, second));
             }
         }
     };
@@ -499,6 +503,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 event.avChatType = mAVChatType;
                 event.operation="hangup";
                 event.txt="通话时长 "+txtLifeTime.getText().toString();
+                event.toGid = toGid;
+                event.toUId = toUId;
                 EventBus.getDefault().post(event);
                 if (!isFinishing()) {
                     mHandler.removeCallbacks(runnable);

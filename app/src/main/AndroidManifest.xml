@@ -528,8 +528,10 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-        <activity android:name=".chat.ui.forward.GroupSelectActivity" />
-        <activity android:name=".chat.ui.GroupNoteDetailActivity" />
+        <activity android:name=".chat.ui.forward.GroupSelectActivity"
+                  android:screenOrientation="portrait"/>
+        <activity android:name=".chat.ui.GroupNoteDetailActivity"
+                  android:screenOrientation="portrait"/>
         <activity android:name=".test.TestRecyclerActivity">
             <intent-filter android:priority="1">
                 <data

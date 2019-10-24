@@ -1151,6 +1151,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
                         bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
                         bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
+                        bundle.putString(Preferences.TOGID, toGid);
+                        bundle.putLong(Preferences.TOUID, toUId);
                         IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
                     }
                 }
@@ -1179,6 +1181,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
                         bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
                         bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
+                        bundle.putString(Preferences.TOGID, toGid);
+                        bundle.putLong(Preferences.TOUID, toUId);
                         IntentUtil.gotoActivity(ChatActivity.this, VoiceCallActivity.class, bundle);
                     }
                 }

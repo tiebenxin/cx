@@ -419,12 +419,12 @@ public class MainActivity extends AppActivity {
     public void voiceMinimizeEvent(EventFactory.VoiceMinimizeEvent event) {
         mBtnMinimizeVoice.setVisibility(View.VISIBLE);
         mPassedTime = event.passedTime;
-        if(event.isCallEstablished){// 是否接听
+        if (event.isCallEstablished) {// 是否接听
             mBtnMinimizeVoice.updateCallTime(event.showTime);
             if (!isFinishing()) {
                 mHandler.postDelayed(runnable, TIME);
             }
-        }else{
+        } else {
             mBtnMinimizeVoice.updateCallTime("等待接听");
         }
     }
@@ -434,6 +434,18 @@ public class MainActivity extends AppActivity {
         mBtnMinimizeVoice.setVisibility(View.GONE);
         if (!isFinishing()) {
             mHandler.removeCallbacks(runnable);
+            // 判断ChatActivity是否到前端显示，不是则更新并发送音视频消息数据
+//            if(!StringUtil.isForeground(this, ChatActivity.class.getName())){
+//                if (event != null) {
+//                    if (event.avChatType == AVChatType.AUDIO.getValue()) {
+//                        SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
+//                    } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
+//                        SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
+//                    }
+//                }
+//            }else{
+//                ToastUtil.show(this,"ChatActivity 在最前面");
+//            }
         }
     }
 
@@ -451,7 +463,11 @@ public class MainActivity extends AppActivity {
 
             if (!isFinishing()) {
                 mHandler.postDelayed(this, TIME);
-                mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+                if (hour > 0) {
+                    mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+                } else {
+                    mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d", min, second));
+                }
             }
         }
     };
