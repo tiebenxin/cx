@@ -4,7 +4,9 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.CoreEnum;
@@ -22,6 +24,7 @@ import java.util.Map;
  * 风险：当请求用户数据和群数据失败的时候，可能导致任务无法正常处理完
  */
 public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
+    private MsgDao msgDao = new MsgDao();
     List<MsgBean.UniversalMessage.WrapMessage> messages;
     List<String> gids = new ArrayList<>();//批量消息接受到群聊id
     List<Long> uids = new ArrayList<>();//批量消息接收到单聊uid
@@ -63,23 +66,27 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     protected void onPostExecute(Boolean aBoolean) {
         super.onPostExecute(aBoolean);
         if (aBoolean) {
-            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理完毕" + "--当前时间=" + System.currentTimeMillis());
-            MessageManager.getInstance().setMessageChange(true);
-            if (checkIsFromSingle()) {
-//                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面,单个刷新");
-                if (gids.size() > 0) {
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, null, gids.get(0), CoreEnum.ESessionRefreshTag.SINGLE, null);
-                } else {
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
-                }
-                MessageManager.getInstance().notifyRefreshChat();
-            } else {
-//                System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面,整体刷新");
-                MessageManager.getInstance().notifyRefreshMsg();
-                MessageManager.getInstance().notifyRefreshChat();
-            }
-            clearIds();
+            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理pending完毕onPostExecute" + "--当前时间=" + System.currentTimeMillis());
+            doPendingData();
+            notifyUIRefresh();
+            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕onPostExecute，刷新页面=" + System.currentTimeMillis());
         }
+    }
+
+    private void notifyUIRefresh() {
+        MessageManager.getInstance().setMessageChange(true);
+        if (checkIsFromSingle()) {
+            if (gids.size() > 0) {
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, null, gids.get(0), CoreEnum.ESessionRefreshTag.SINGLE, null);
+            } else {
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
+            }
+        } else {
+            MessageManager.getInstance().notifyRefreshMsg();
+        }
+        MessageManager.getInstance().notifyRefreshChat();
+
+        clearIds();
     }
 
     /*
@@ -90,20 +97,10 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         taskCount--;
 //        System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--异步更新一次任务数 taskCount=" + taskCount);
         if (taskCount == 0) {
-            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理完毕" + "--当前时间=" + System.currentTimeMillis());
-            MessageManager.getInstance().setMessageChange(true);
-            if (checkIsFromSingle()) {
-                if (gids.size() > 0) {
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, null, gids.get(0), CoreEnum.ESessionRefreshTag.SINGLE, null);
-                } else {
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
-                }
-            } else {
-                MessageManager.getInstance().notifyRefreshMsg();
-            }
-            MessageManager.getInstance().notifyRefreshChat();
-            clearIds();
-//            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕，刷新页面");
+            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理pending完毕updateTaskCount" + "--当前时间=" + System.currentTimeMillis());
+            doPendingData();
+            notifyUIRefresh();
+            System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕updateTaskCount，刷新页面=" + System.currentTimeMillis());
         }
     }
 
@@ -147,5 +144,38 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
 
     private void clearMsgList() {
         totalMsgList.clear();
+    }
+
+    private void doPendingData() {
+        Map<Long, Integer> mapUSession = MessageManager.getInstance().getPendingUserUnreadMap();
+        if (mapUSession != null && mapUSession.size() > 0) {
+            for (Map.Entry<Long, Integer> entry : mapUSession.entrySet()) {
+                MessageManager.getInstance().updateSessionUnread("", entry.getKey(), entry.getValue());
+            }
+        }
+
+        Map<String, Integer> mapGSession = MessageManager.getInstance().getPendingGroupUnreadMap();
+        if (mapGSession != null && mapGSession.size() > 0) {
+            for (Map.Entry<String, Integer> entry : mapGSession.entrySet()) {
+                MessageManager.getInstance().updateSessionUnread(entry.getKey(), -1L, entry.getValue());
+            }
+        }
+
+        List<UserInfo> userInfos = MessageManager.getInstance().getPendingUserList();
+        if (userInfos != null) {
+            int len = userInfos.size();
+            if (len > 0) {
+                for (int i = 0; i < len; i++) {
+                    UserInfo info = userInfos.get(i);
+                    MessageManager.getInstance().updateUserAvatarAndNick(info.getUid(), info.getHead(), info.getName());
+                }
+            }
+        }
+
+        List<MsgAllBean> msgList = MessageManager.getInstance().getPendingMsgList();
+        if (msgList != null) {
+            msgDao.insertOrUpdateMsgList(msgList);
+        }
+        MessageManager.getInstance().clearPendingList();
     }
 }

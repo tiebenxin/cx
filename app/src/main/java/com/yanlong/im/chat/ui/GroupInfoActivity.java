@@ -551,6 +551,7 @@ public class GroupInfoActivity extends AppActivity {
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body().isOk()) {
                     EventBus.getDefault().post(new EventExitChat());
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.DELETE, null);
                     finish();
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
