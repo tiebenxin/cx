@@ -93,6 +93,7 @@
 
         <activity
             android:name=".user.ui.SplashActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -541,7 +542,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".user.ui.FriendVerifyActivity" />
-        <activity android:name=".chat.ui.VideoPlayActivity" />
+        <activity android:name=".chat.ui.VideoPlayActivity"
+            android:launchMode="singleInstance"
+            />
 
     </application>
 

@@ -517,6 +517,9 @@ public class SocketData {
             case SHORT_VIDEO:
                 wmsg.setShortVideo((MsgBean.ShortVideoMessage) value);
                 break;
+            case P2P_AU_VIDEO:
+                wmsg.setP2PAuVideo((MsgBean.P2PAuVideoMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 

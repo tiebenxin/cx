@@ -2,7 +2,6 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -11,7 +10,6 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -388,6 +386,15 @@ public class MsgConversionBean {
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
                 msgAllBean.setMsgCancel(msgCel);
 
+                break;
+            case P2P_AU_VIDEO:// 音视频消息
+                P2PAuVideoMessage p2PAuVideoMessage = new P2PAuVideoMessage();
+                p2PAuVideoMessage.setMsgId(msgAllBean.getMsg_id());
+                p2PAuVideoMessage.setAv_type(bean.getP2PAuVideo().getAvTypeValue());
+                p2PAuVideoMessage.setOperation(bean.getP2PAuVideo().getOperation());
+                p2PAuVideoMessage.setDesc(bean.getP2PAuVideo().getDesc());
+                msgAllBean.setP2PAuVideoMessage(p2PAuVideoMessage);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;

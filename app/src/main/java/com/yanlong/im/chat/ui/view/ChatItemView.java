@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui.view;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatTextView;
@@ -42,14 +43,17 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.luck.picture.lib.tools.StringUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
+import com.yanlong.im.utils.socket.MsgBean;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -143,6 +147,12 @@ public class ChatItemView extends LinearLayout {
     private View viewLock;
     private TextView tvLock;
 
+    private LinearLayout viewMeVoiceVideo;
+    private LinearLayout viewOtVoiceVideo;
+    private TextView txtMeVoiceVideo;
+    private TextView txtOtVoiceVideo;
+
+
     //自动寻找控件
     private void findViews(View rootView) {
 
@@ -233,7 +243,10 @@ public class ChatItemView extends LinearLayout {
         viewLock = rootView.findViewById(R.id.view_lock);
         tvLock = rootView.findViewById(R.id.tv_lock);
 
-
+        viewMeVoiceVideo = rootView.findViewById(R.id.view_me_voice_video);
+        viewOtVoiceVideo = rootView.findViewById(R.id.view_ot_voice_video);
+        txtMeVoiceVideo = rootView.findViewById(R.id.txt_me_voice_video);
+        txtOtVoiceVideo = rootView.findViewById(R.id.txt_ot_voice_video);
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -302,6 +315,8 @@ public class ChatItemView extends LinearLayout {
         img_me_4_time.setVisibility(View.GONE);
         img_ot_4_time.setVisibility(View.GONE);
         img_ot_4_play.setVisibility(View.GONE);
+        viewMeVoiceVideo.setVisibility(GONE);
+        viewOtVoiceVideo.setVisibility(GONE);
         switch (type) {
             case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告
@@ -357,6 +372,10 @@ public class ChatItemView extends LinearLayout {
                 img_me_4_play.setVisibility(View.VISIBLE);
                 img_ot_4_time.setVisibility(View.VISIBLE);
                 img_ot_4_play.setVisibility(View.VISIBLE);
+                break;
+            case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                viewMeVoiceVideo.setVisibility(VISIBLE);
+                viewOtVoiceVideo.setVisibility(VISIBLE);
                 break;
         }
 
@@ -418,6 +437,38 @@ public class ChatItemView extends LinearLayout {
     public void setDataAt(String msg) {
         txtMe1.setText(msg);
         txtOt1.setText(msg);
+    }
+
+    /**
+     * 音视频消息
+     * @param msg
+     */
+    public void setDataVoiceOrVideo(String msg,int type,OnClickListener onClickListener) {
+        txtMeVoiceVideo.setText(msg);
+        txtOtVoiceVideo.setText(msg);
+        Drawable drawableVoice = getResources().getDrawable(R.drawable.svg_small_voice2);
+        Drawable drawableVideo = getResources().getDrawable(R.drawable.svg_small_video2);
+        if(type == MsgBean.AuVideoType.Audio.getNumber()){
+            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo,drawableVoice,2);
+            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo,drawableVoice,0);
+        }else {
+            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo,drawableVideo,2);
+            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo,drawableVideo,0);
+        }
+        txtMeVoiceVideo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setTag(type);
+                onClickListener.onClick(v);
+            }
+        });
+        txtOtVoiceVideo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setTag(type);
+                onClickListener.onClick(v);
+            }
+        });
     }
 
     //戳一下消息
@@ -704,8 +755,9 @@ public class ChatItemView extends LinearLayout {
         }
 //        Glide.with(this).load(imageHead)
 //                .apply(GlideOptionsUtil.headImageOptions()).into(mSdImageHead);
-        Glide.with(this).load(videoMessage.getBg_url()).apply(GlideOptionsUtil.imageOptions()).into(imgOt4);
-        Glide.with(this).load(videoMessage.getBg_url()).apply(GlideOptionsUtil.imageOptions()).into(imgMe4);
+
+        Glide.with(this).load(videoMessage.getBg_url()).apply(options).into(imgOt4);
+        Glide.with(this).load(videoMessage.getBg_url()).apply(options).into(imgMe4);
 
         if (pg != null) {
             setImgageProg(pg);
@@ -726,7 +778,7 @@ public class ChatItemView extends LinearLayout {
         }
 
     }
-
+    private   RequestOptions options =null;
     public void setData4(final ImageMessage image, final Uri uri, final EventPic eventPic, Integer pg) {
         if (uri != null) {
 
@@ -778,8 +830,10 @@ public class ChatItemView extends LinearLayout {
                     imgOt4.post(new Runnable() {
                         @Override
                         public void run() {
-                            Glide.with(getContext()).asBitmap().load(model).into(imgOt4);
-                            Glide.with(getContext()).asBitmap().load(model).into(imgMe4);
+//                            Glide.with(getContext()).asBitmap().load(model).into(imgOt4);
+//                            Glide.with(getContext()).asBitmap().load(model).into(imgMe4);
+                            Glide.with(getContext()).asBitmap().load(options).into(imgOt4);
+                            Glide.with(getContext()).asBitmap().load(options).into(imgMe4);
                         }
                     });
 
@@ -811,7 +865,9 @@ public class ChatItemView extends LinearLayout {
                 rOptions.override(width, height)
                         .priority(Priority.HIGH).diskCacheStrategy(DiskCacheStrategy.ALL);
             }
-            rb.apply(rOptions).listener(requestListener).load(uri);
+
+//            rb.apply(rOptions).listener(requestListener).load(uri);
+            rb.apply(options).listener(requestListener).load(uri);
             rb.into(imgMe4);
             rb.into(imgOt4);
             if (pg != null) {
@@ -885,9 +941,11 @@ public class ChatItemView extends LinearLayout {
         viewOtTouch.setOnClickListener(onk);
     }
 
-
+    private Context mContext;
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext=context;
+        options=new RequestOptions().centerCrop() .transform(new RoundTransform(mContext,10));
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View viewRoot = inflater.inflate(R.layout.view_chat_item, this);
