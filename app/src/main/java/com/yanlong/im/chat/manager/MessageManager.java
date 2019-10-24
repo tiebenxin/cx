@@ -13,6 +13,7 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -28,9 +29,6 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
-
-import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
-
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -162,6 +160,7 @@ public class MessageManager {
             case CHANGE_GROUP_MASTER://转让群主
             case OUT_GROUP://退出群聊
             case ASSISTANT://小消息
+            case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
                     result = saveMessage(bean, isList);
                 }
