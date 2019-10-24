@@ -6,7 +6,7 @@ public class EventMyUserInfo {
     public static final int ALTER_NAME = 3;
     public static final int ALTER_SEX = 3;
 
-    public int type; //1 修改头像 2.修改产品号 3.修改昵称 4.修改性别
+    public int type; //1 修改头像 2.修改常聊号 3.修改昵称 4.修改性别
 
     private UserInfo userInfo;
 
