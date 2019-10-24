@@ -3675,11 +3675,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (TextUtils.isEmpty(df) || !draft.equals(df)) {
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
+                draft= df;
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
+                draft= df;
             }
         }
         if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
