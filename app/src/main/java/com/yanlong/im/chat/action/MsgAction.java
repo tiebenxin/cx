@@ -85,6 +85,7 @@ public class MsgAction {
                 if (response.body().isOk()) {
                     dao.sessionDel(null, id);
                     dao.msgDel(null, id);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, id, CoreEnum.ESessionRefreshTag.DELETE, null);
                 }
                 callback.onResponse(call, response);
             }
@@ -227,7 +228,7 @@ public class MsgAction {
                                 }
                             }
                             MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
-                        }else {
+                        } else {
                             dao.groupNumberSave(newGroup);
                             MessageManager.getInstance().updateCacheGroup(group);
                         }
