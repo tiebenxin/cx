@@ -970,54 +970,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
                     @Override
                     public void onClickItemVideo() {// 视频
-                        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
-                            @Override
-                            public void onSuccess() {
-                                if (userDao != null) {
-                                    UserInfo userInfo = userDao.findUserInfo(toUId);
-                                    if (userInfo != null) {
-                                        Bundle bundle = new Bundle();
-                                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
-                                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
-                                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
-                                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
-                                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
-                                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFail() {
-
-                            }
-                        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
+                        gotoVideoActivity();
                     }
 
                     @Override
                     public void onClickItemVoice() {// 语音
-                        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
-                            @Override
-                            public void onSuccess() {
-                                if (userDao != null) {
-                                    UserInfo userInfo = userDao.findUserInfo(toUId);
-                                    if (userInfo != null) {
-                                        Bundle bundle = new Bundle();
-                                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
-                                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
-                                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
-                                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
-                                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
-                                        IntentUtil.gotoActivity(ChatActivity.this, VoiceCallActivity.class, bundle);
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFail() {
-
-                            }
-                        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
+                        gotoVoiceActivity();
                     }
 
                     @Override
@@ -1175,6 +1133,62 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             finish();
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * 进入视频通话
+     */
+    private void gotoVideoActivity(){
+        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+            @Override
+            public void onSuccess() {
+                if (userDao != null) {
+                    UserInfo userInfo = userDao.findUserInfo(toUId);
+                    if (userInfo != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
+                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
+                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
+                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
+                    }
+                }
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
+    }
+
+    /**
+     * 进入语音通话
+     */
+    private void gotoVoiceActivity(){
+        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
+            @Override
+            public void onSuccess() {
+                if (userDao != null) {
+                    UserInfo userInfo = userDao.findUserInfo(toUId);
+                    if (userInfo != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
+                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
+                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
+                        IntentUtil.gotoActivity(ChatActivity.this, VoiceCallActivity.class, bundle);
+                    }
+                }
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
@@ -1454,15 +1468,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void closevoiceMinimizeEvent(EventFactory.CloseVoiceMinimizeEvent event) {
-//        if (event != null) {
-//            MsgAllBean msgAllbean = null;
-//            if (event.avChatType == AVChatType.AUDIO.getValue()) {
-//                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
-//            } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-//                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
-//            }
-//            showSendObj(msgAllbean);
-//        }
+        if (event != null) {
+            MsgAllBean msgAllbean = null;
+            if (event.avChatType == AVChatType.AUDIO.getValue()) {
+                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
+            } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
+                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
+            }
+            showSendObj(msgAllbean);
+        }
     }
 
     private String[] strings = new String[]{"拍照", "录制视频"};
@@ -2511,6 +2525,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 case ChatEnum.EMessageType.ASSISTANT:
                     holder.viewChatItem.setDataAssistant(msgbean.getAssistantMessage().getMsg());
+                    break;
+                case ChatEnum.EMessageType.MSG_VOICE_VIDEO:
+                    menus.add(new OptionMenu("删除"));
+                    holder.viewChatItem.setDataVoiceOrVideo(msgbean.getP2PAuVideoMessage().getDesc(),msgbean.getP2PAuVideoMessage().getAv_type(),new View.OnClickListener(){
+
+                        @Override
+                        public void onClick(View v) {
+                            if((int)v.getTag() == MsgBean.AuVideoType.Audio.getNumber()){
+                                gotoVoiceActivity();
+                            }else{
+                                gotoVideoActivity();
+                            }
+                        }
+                    });
                     break;
                 case ChatEnum.EMessageType.LOCK:
 //                    holder.viewChatItem.setLock(msgbean.getChat().getMsg());

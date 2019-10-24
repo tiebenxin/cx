@@ -450,7 +450,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
-
                 <!-- 小助手消息-->
                 <LinearLayout
                     android:id="@+id/view_ot_8"
@@ -473,6 +472,30 @@
 
 
                 </LinearLayout>
+
+                <!-- 音视频消息-->
+                <LinearLayout
+                    android:id="@+id/view_ot_voice_video"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selector_chat_other_touch"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/txt_ot_voice_video"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="normal"
+                        android:text="通话时长"
+                        android:paddingLeft="5dp"
+                        android:drawablePadding="10dp"
+                        android:textColor="@color/black"
+                        android:drawableLeft="@drawable/svg_small_voice2"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
 
@@ -881,6 +904,28 @@
                             android:text="我已好友啦"
                             android:textColor="@color/black"
                             android:textIsSelectable="false"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                    <!-- 音视频消息-->
+                    <LinearLayout
+                        android:id="@+id/view_me_voice_video"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selector_chat_me_touch"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <android.support.v7.widget.AppCompatTextView
+                            android:id="@+id/txt_me_voice_video"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="normal"
+                            android:text="通话时长"
+                            android:drawablePadding="10dp"
+                            android:textColor="@color/black"
+                            android:drawableRight="@drawable/svg_small_voice2"
                             android:textSize="15sp" />
 
                     </LinearLayout>

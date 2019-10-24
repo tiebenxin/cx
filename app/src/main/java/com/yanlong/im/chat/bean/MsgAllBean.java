@@ -8,6 +8,7 @@ import com.yanlong.im.chat.ui.cell.IChatModel;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.utils.StringUtil;
 
@@ -237,6 +238,12 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
         }else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
             str = "[视频]";
+        }else if(msg_type == ChatEnum.EMessageType.MSG_VOICE_VIDEO){// 音视频消息
+            if(getP2PAuVideoMessage().getAv_type()== MsgBean.AuVideoType.Vedio.getNumber()){
+                str = "[视频通话]";
+            }else{
+                str = "[语音通话]";
+            }
         }
 
         return str;

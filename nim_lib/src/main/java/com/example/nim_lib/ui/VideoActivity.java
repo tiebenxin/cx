@@ -29,6 +29,7 @@ import com.example.nim_lib.constant.AVChatExitCode;
 import com.example.nim_lib.constant.CoreEnum;
 import com.example.nim_lib.controll.AVChatController;
 import com.example.nim_lib.controll.AVChatProfile;
+import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.module.AVChatTimeoutObserver;
 import com.example.nim_lib.module.SimpleAVChatStateObserver;
 import com.example.nim_lib.permission.BaseMPermission;
@@ -51,12 +52,12 @@ import com.netease.nimlib.sdk.avchat.model.AVChatCalleeAckEvent;
 import com.netease.nimlib.sdk.avchat.model.AVChatCommonEvent;
 import com.netease.nimlib.sdk.avchat.model.AVChatControlEvent;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
-import com.netease.nimlib.sdk.avchat.model.AVChatNotifyOption;
 import com.netease.nimlib.sdk.avchat.model.AVChatVideoFrame;
 import com.netease.nimlib.sdk.avchat.video.AVChatCameraCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
-import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturerFactory;
 import com.netease.nrtc.video.render.IVideoRender;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 import java.util.Locale;
@@ -116,6 +117,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     //render
     private AVChatSurfaceViewRenderer smallRender;
     private AVChatSurfaceViewRenderer largeRender;
+    private IVideoRender remoteRender;
+    private IVideoRender localRender;
 
     private final String[] BASIC_PERMISSIONS = new String[]{Manifest.permission.CAMERA,};
     private int state; // calltype 音频或视频
@@ -262,6 +265,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             mUserHeadSculpture = bundle.getString(Preferences.USER_HEAD_SCULPTURE);
             mVoiceType = bundle.getInt(Preferences.VOICE_TYPE);
             mAVChatType = bundle.getInt(Preferences.AVCHA_TTYPE);
+
             if (avChatData != null) {
                 mIsInComingCall = true;
                 account = avChatData.getAccount();
@@ -269,7 +273,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
 
         if (!mIsInComingCall) {
-            // TODO 先打开录音跟拍照权限
 //            initLargeSurfaceView(mNeteaseaccId);// TODO 进来打开摄像
             outGoingCalling(AVChatType.VIDEO);
         } else {
@@ -316,6 +319,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         registerObserves(true);
     }
 
+    /**
+     * 注册通话中观察者
+     * @param register
+     */
     private void registerObserves(boolean register) {
         AVChatManager.getInstance().observeAVChatState(avchatStateObserver, register);
         AVChatManager.getInstance().observeHangUpNotification(callHangupObserver, register);
@@ -488,6 +495,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             Log.i(TAG, "对方挂断电话");
             if (avChatData != null && avChatData.getChatId() == avChatHangUpInfo.getChatId()) {
                 hangUpByOther(AVChatExitCode.HANGUP);
+                EventFactory.CloseVoiceMinimizeEvent event = new EventFactory.CloseVoiceMinimizeEvent();
+                event.avChatType = mAVChatType;
+                event.operation="hangup";
+                event.txt="通话时长 "+txtLifeTime.getText().toString();
+                EventBus.getDefault().post(event);
                 if (!isFinishing()) {
                     mHandler.removeCallbacks(runnable);
                 }
@@ -602,7 +614,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 break;
         }
     }
-
 
     /**
      * 主动挂断
@@ -738,7 +749,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 //        showRecordView(avChatController.isRecording(), isRecordWarning);
     }
 
-    // 对方打开了摄像头
+    /**
+     * 对方打开了摄像头
+     */
     private void localVideoOn() {
         isLocalVideoOff = false;
         if (localPreviewInSmallSize) {
@@ -774,7 +787,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     /**
      * ********************** surface 初始化 **********************
      */
-
     private void findSurfaceView() {
         if (surfaceInit) {
             return;
@@ -881,9 +893,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
     };
 
-    private IVideoRender remoteRender;
-    private IVideoRender localRender;
-
     /**
      * 大图像surface view 初始化
      */
@@ -950,7 +959,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         surfaceView.setZOrderMediaOverlay(true);
         smallSizePreviewLayout.setVisibility(View.VISIBLE);
     }
-
 
     /**
      * 大小图像显示切换
@@ -1069,51 +1077,66 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      * 接听来电 告知服务器，以便通知其他端
      */
     private void receiveInComingCall() {
-        // 开启音视频引擎
-        AVChatManager.getInstance().enableRtc();
-        if (mVideoCapturer == null) {
-            mVideoCapturer = AVChatVideoCapturerFactory.createCameraCapturer(true, true);
-            AVChatManager.getInstance().setupVideoCapturer(mVideoCapturer);
-        }
-        if (avChatConfigs == null) {
-            avChatConfigs = new AVChatConfigs(this);
-            //设置自己需要的可选参数
-            AVChatManager.getInstance().setParameters(avChatConfigs.getAvChatParameters());
-        }
+        mAVChatController.receiveInComingCall(avChatData.getChatId(), avChatData.getChatType(), mVideoCapturer, avChatConfigs,
+                new AVChatCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        if (!isFinishing()) {
+                            mHandler.postDelayed(runnable, TIME);
+                        }
+//                        onAudioAgree();
+                    }
 
-        if (avChatData.getChatType() == AVChatType.VIDEO) {
-            // 激活视频模块
-            AVChatManager.getInstance().enableVideo();
-            // 开启视频预览
-            AVChatManager.getInstance().startVideoPreview();
-        }
+                    @Override
+                    public void onFailed(int code) {
+                        if (code == -1) {
+                            Toast.makeText(VideoActivity.this, "本地音视频启动失败", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(VideoActivity.this, "建立连接失败", Toast.LENGTH_SHORT).show();
+                        }
+                        handleAcceptFailed();
+                    }
 
-        AVChatManager.getInstance().accept2(avChatData.getChatId(), new AVChatCallback<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
+                    @Override
+                    public void onException(Throwable throwable) {
+                        Toast.makeText(VideoActivity.this, "onException", Toast.LENGTH_LONG).show();
+                        handleAcceptFailed();
+                    }
+                });
+    }
 
-//                Toast.makeText(VideoActivity.this, "onSuccess", Toast.LENGTH_LONG).show();
-                if (!isFinishing()) {
-                    mHandler.postDelayed(runnable, TIME);
-                }
-            }
+    /**
+     * 拨打音视频
+     */
+    private void outGoingCalling(final AVChatType callTypeEnum) {
+        mAVChatController.outGoingCalling(mNeteaseaccId , callTypeEnum,mVideoCapturer, largeRender, avChatConfigs,
+                new AVChatCallback<AVChatData>() {
+                    @Override
+                    public void onSuccess(AVChatData chatData) {
+                        avChatData = chatData;
 
-            @Override
-            public void onFailed(int code) {
-                if (code == -1) {
-                    Toast.makeText(VideoActivity.this, "本地音视频启动失败", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(VideoActivity.this, "建立连接失败", Toast.LENGTH_SHORT).show();
-                }
-                handleAcceptFailed();
-            }
+                        List<String> deniedPermissions = BaseMPermission.getDeniedPermissions(VideoActivity.this, BASIC_PERMISSIONS);
+                        if (deniedPermissions != null && !deniedPermissions.isEmpty()) {
+//                    showNoneCameraPermissionView(true);
+                            return;
+                        }
+                        canSwitchCamera = true;
+                        if (mAVChatType == AVChatType.VIDEO.getValue()) {
+                            initLargeSurfaceView(avChatData.getAccount());
+                        }
+//                        Toast.makeText(VoiceCallActivity.this, "onSuccess", Toast.LENGTH_LONG).show();
+                    }
 
-            @Override
-            public void onException(Throwable exception) {
-                Toast.makeText(VideoActivity.this, "onException", Toast.LENGTH_LONG).show();
-                handleAcceptFailed();
-            }
-        });
+                    @Override
+                    public void onFailed(int i) {
+                        Toast.makeText(VideoActivity.this, "onFailed", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onException(Throwable throwable) {
+                        Toast.makeText(VideoActivity.this, "onException", Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     /**
@@ -1136,76 +1159,76 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     /**
      * 拨打音视频
      */
-    public void outGoingCalling(final AVChatType callTypeEnum) {
-        AVChatNotifyOption notifyOption = new AVChatNotifyOption();
-        //附加字段
-        notifyOption.extendMessage = "extra_data";
-        //是否兼容WebRTC模式
-//        notifyOption.webRTCCompat = webrtcCompat;
-//        //默认forceKeepCalling为true，开发者如果不需要离线持续呼叫功能可以将forceKeepCalling设为false
-//        notifyOption.forceKeepCalling = false;
-        // 开启音视频引擎
-        AVChatManager.getInstance().enableRtc();
-
-//        this.callingState = (callTypeEnum == AVChatType.VIDEO ? CallStateEnum.VIDEO : CallStateEnum.AUDIO);
-        if (avChatConfigs == null) {
-            avChatConfigs = new AVChatConfigs(this);
-            //设置自己需要的可选参数
-            AVChatManager.getInstance().setParameters(avChatConfigs.getAvChatParameters());
-        }
-        //视频通话
-        if (callTypeEnum == AVChatType.VIDEO) {
-            // 激活视频模块
-            AVChatManager.getInstance().enableVideo();
-
-            //创建视频采集模块并且设置到系统中
-            if (mVideoCapturer == null) {
-                mVideoCapturer = AVChatVideoCapturerFactory.createCameraCapturer(true, true);
-                AVChatManager.getInstance().setupVideoCapturer(mVideoCapturer);
-            }
-
-            if (largeRender == null) {
-                largeRender = new AVChatSurfaceViewRenderer(this);
-                //设置本地预览画布
-                AVChatManager.getInstance().setupLocalVideoRender(largeRender, false, AVChatVideoScalingType.SCALE_ASPECT_BALANCED);
-            }
-
-            //开始视频预览
-            AVChatManager.getInstance().startVideoPreview();
-        }
-
-        //呼叫
-        AVChatManager.getInstance().call2(mNeteaseaccId, callTypeEnum, notifyOption, new AVChatCallback<AVChatData>() {
-            @Override
-            public void onSuccess(AVChatData data) {
+//    public void outGoingCalling(final AVChatType callTypeEnum) {
+//        AVChatNotifyOption notifyOption = new AVChatNotifyOption();
+//        //附加字段
+//        notifyOption.extendMessage = "extra_data";
+//        //是否兼容WebRTC模式
+////        notifyOption.webRTCCompat = webrtcCompat;
+////        //默认forceKeepCalling为true，开发者如果不需要离线持续呼叫功能可以将forceKeepCalling设为false
+////        notifyOption.forceKeepCalling = false;
+//        // 开启音视频引擎
+//        AVChatManager.getInstance().enableRtc();
+//
+////        this.callingState = (callTypeEnum == AVChatType.VIDEO ? CallStateEnum.VIDEO : CallStateEnum.AUDIO);
+//        if (avChatConfigs == null) {
+//            avChatConfigs = new AVChatConfigs(this);
+//            //设置自己需要的可选参数
+//            AVChatManager.getInstance().setParameters(avChatConfigs.getAvChatParameters());
+//        }
+//        //视频通话
+//        if (callTypeEnum == AVChatType.VIDEO) {
+//            // 激活视频模块
+//            AVChatManager.getInstance().enableVideo();
+//
+//            //创建视频采集模块并且设置到系统中
+//            if (mVideoCapturer == null) {
+//                mVideoCapturer = AVChatVideoCapturerFactory.createCameraCapturer(true, true);
+//                AVChatManager.getInstance().setupVideoCapturer(mVideoCapturer);
+//            }
+//
+//            if (largeRender == null) {
+//                largeRender = new AVChatSurfaceViewRenderer(this);
+//                //设置本地预览画布
+//                AVChatManager.getInstance().setupLocalVideoRender(largeRender, false, AVChatVideoScalingType.SCALE_ASPECT_BALANCED);
+//            }
+//
+//            //开始视频预览
+//            AVChatManager.getInstance().startVideoPreview();
+//        }
+//
+//        //呼叫
+//        AVChatManager.getInstance().call2(mNeteaseaccId, callTypeEnum, notifyOption, new AVChatCallback<AVChatData>() {
+//            @Override
+//            public void onSuccess(AVChatData data) {
+////                avChatData = data;
+//
 //                avChatData = data;
-
-                avChatData = data;
-                List<String> deniedPermissions = BaseMPermission.getDeniedPermissions(VideoActivity.this, BASIC_PERMISSIONS);
-                if (deniedPermissions != null && !deniedPermissions.isEmpty()) {
-//                    showNoneCameraPermissionView(true);
-                    return;
-                }
-                canSwitchCamera = true;
-//                initLargeSurfaceView(data.getAccount());
-                //发起会话成功
-                Toast.makeText(VideoActivity.this, "onSuccess", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onFailed(int code) {
-                Toast.makeText(VideoActivity.this, "onFailed" + code, Toast.LENGTH_LONG).show();
-//                closeRtc();
-//                closeSessions(-1);
-            }
-
-            @Override
-            public void onException(Throwable exception) {
-                Toast.makeText(VideoActivity.this, "onException", Toast.LENGTH_LONG).show();
-//                closeRtc();
-//                closeSessions(-1);
-            }
-        });
-    }
+//                List<String> deniedPermissions = BaseMPermission.getDeniedPermissions(VideoActivity.this, BASIC_PERMISSIONS);
+//                if (deniedPermissions != null && !deniedPermissions.isEmpty()) {
+////                    showNoneCameraPermissionView(true);
+//                    return;
+//                }
+//                canSwitchCamera = true;
+////                initLargeSurfaceView(data.getAccount());
+//                //发起会话成功
+//                Toast.makeText(VideoActivity.this, "onSuccess", Toast.LENGTH_LONG).show();
+//            }
+//
+//            @Override
+//            public void onFailed(int code) {
+//                Toast.makeText(VideoActivity.this, "onFailed" + code, Toast.LENGTH_LONG).show();
+////                closeRtc();
+////                closeSessions(-1);
+//            }
+//
+//            @Override
+//            public void onException(Throwable exception) {
+//                Toast.makeText(VideoActivity.this, "onException", Toast.LENGTH_LONG).show();
+////                closeRtc();
+////                closeSessions(-1);
+//            }
+//        });
+//    }
 }
 
