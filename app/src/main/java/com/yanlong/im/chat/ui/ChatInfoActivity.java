@@ -120,7 +120,7 @@ public class ChatInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(ChatInfoActivity.this, "提示", "确定清空聊天记录？清空后不可找回！", "确定", "取消", new AlertYesNo.Event() {
+                alertYesNo.init(ChatInfoActivity.this, "提示", "确定清空聊天记录？", "确定", "取消", new AlertYesNo.Event() {
                     @Override
                     public void onON() {
 
@@ -286,6 +286,7 @@ public class ChatInfoActivity extends AppActivity {
     private void taskDelMsg() {
         msgDao.msgDel(fuid, null);
         EventBus.getDefault().post(new EventRefreshChat());
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
         ToastUtil.show(ChatInfoActivity.this, "删除成功");
     }
 

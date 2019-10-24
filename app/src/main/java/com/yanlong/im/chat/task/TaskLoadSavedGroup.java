@@ -3,7 +3,6 @@ package com.yanlong.im.chat.task;
 import android.os.AsyncTask;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -11,11 +10,7 @@ import com.yanlong.im.chat.manager.MessageManager;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.GsonUtils;
 
-import org.json.JSONArray;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

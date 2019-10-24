@@ -422,7 +422,7 @@ public class SocketData {
 
     //不是常聊聊小助手id
     public static boolean isNoAssistant(Long uid, String gid) {
-        if (TextUtils.isEmpty(gid) && (uid != null && uid == CLL_ASSITANCE_ID)){
+        if (TextUtils.isEmpty(gid) && (uid != null && uid == CLL_ASSITANCE_ID)) {
             return false;
         }
         return true;
@@ -517,6 +517,9 @@ public class SocketData {
             case SHORT_VIDEO:
                 wmsg.setShortVideo((MsgBean.ShortVideoMessage) value);
                 break;
+            case P2P_AU_VIDEO:
+                wmsg.setP2PAuVideo((MsgBean.P2PAuVideoMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 
@@ -556,6 +559,27 @@ public class SocketData {
                 .build();
 
         return send4Base(toId, toGid, MsgBean.MessageType.CHAT, chat);
+
+    }
+
+    /**
+     * 发送一条音视频消息
+     *
+     * @param toId
+     * @param toGid
+     * @param txt         操作加时长
+     * @param auVideoType 语音、视频
+     * @param operation   操作
+     * @return
+     */
+    public static MsgAllBean send4VoiceOrVideo(Long toId, String toGid, String txt, MsgBean.AuVideoType auVideoType, String operation) {
+        MsgBean.P2PAuVideoMessage chat = MsgBean.P2PAuVideoMessage.newBuilder()
+                .setAvType(auVideoType)
+                .setOperation(operation)
+                .setDesc(txt)
+                .build();
+
+        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, chat);
 
     }
 

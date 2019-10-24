@@ -8,11 +8,13 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -25,12 +27,10 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
-
-import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
-
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -83,8 +83,15 @@ public class MessageManager {
     private static List<Session> cacheSessions = new ArrayList<>();//Session缓存，
     private static Map<Long, List<MsgAllBean>> cacheMessagePrivate = new HashMap();//私聊消息缓存，以用户id为key
     private static Map<String, List<MsgAllBean>> cacheMessageGroup = new HashMap();//群聊消息缓存，以群id为key
-    private static Map<String, MsgAllBean> saveMessages = new HashMap<>();//接收到的消息，待保存到数据库
     private static List<Group> saveGroups = new ArrayList<>();//已保存群信息缓存
+
+
+    //批量消息待处理
+    private static Map<String, MsgAllBean> pendingMessages = new HashMap<>();//批量接收到的消息，待保存到数据库
+    private static Map<Long, UserInfo> pendingUsers = new HashMap<>();//批量用户信息（头像和昵称），待保存到数据库
+    private static Map<String, Group> pendingGroups = new HashMap<>();//批量群信息（头像和群名），待保存到数据库
+    private static Map<String, Integer> pendingGroupUnread = new HashMap<>();//批量群session未读数，待保存到数据库
+    private static Map<Long, Integer> pendingUserUnread = new HashMap<>();//批量私聊session未读数，待保存到数据库
 
 
     private long playTimeOld = 0;//当前声音播放时间
@@ -138,8 +145,7 @@ public class MessageManager {
                 oldMsgId.add(wrapMessage.getMsgId());
             }
         }
-
-        updateUserAvatarAndNick(wrapMessage);
+        updateUserAvatarAndNick(wrapMessage, isList);
         MsgAllBean bean = MsgConversionBean.ToBean(wrapMessage);
         switch (wrapMessage.getMsgType()) {
             case CHAT://文本
@@ -151,11 +157,10 @@ public class MessageManager {
             case BUSINESS_CARD://名片
             case RED_ENVELOPER://红包
             case RECEIVE_RED_ENVELOPER://领取红包
-            case ACCEPT_BE_GROUP://接受入群
-            case REMOVE_GROUP_MEMBER://被移除群聊
             case CHANGE_GROUP_MASTER://转让群主
             case OUT_GROUP://退出群聊
             case ASSISTANT://小消息
+            case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
                     result = saveMessage(bean, isList);
                 }
@@ -176,6 +181,24 @@ public class MessageManager {
                 break;
             case REMOVE_FRIEND:
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
+                break;
+            case REMOVE_GROUP_MEMBER://自己被移除群聊
+                if (bean != null) {
+                    result = saveMessage(bean, isList);
+                    MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());
+                    msgDao.removeGroupMember(bean.getGid(), memberUser);
+                    notifyGroupChange(false);
+                }
+                break;
+            case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊
+                removeGroupMember(wrapMessage);
+                notifyGroupChange(false);
+                break;
+            case ACCEPT_BE_GROUP://接受入群，
+                if (bean != null) {
+                    result = saveMessage(bean, isList);
+                }
+                notifyGroupChange(true);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
                 msgDao.remidCount("friend_apply");
@@ -265,6 +288,11 @@ public class MessageManager {
         return result;
     }
 
+    private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
+        MsgBean.RemoveGroupMember2Message removeGroupMember2 = wrapMessage.getRemoveGroupMember2();
+        msgDao.removeGroupMember(wrapMessage.getGid(), removeGroupMember2.getUidList());
+    }
+
     private boolean isGroup(Long uid, String gid) {
         if (!TextUtils.isEmpty(gid)) {
             return true;
@@ -303,6 +331,56 @@ public class MessageManager {
         boolean result = false;
         //收到直接存表
         DaoUtil.update(msgAllBean);
+        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
+            if (!loadGids.contains(msgAllBean.getGid())) {
+                loadGids.add(msgAllBean.getGid());
+                loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+            } else {
+                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                if (isList) {
+                    setMessageChange(true);
+                }
+                result = true;
+            }
+        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
+            if (!loadUids.contains(msgAllBean.getFrom_uid())) {
+                loadUids.add(msgAllBean.getFrom_uid());
+                loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                System.out.println(TAG + "--需要加载用户信息");
+
+            } else {
+                System.out.println(TAG + "--异步加载用户信息更新未读数");
+                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                if (isList) {
+                    setMessageChange(true);
+                }
+                result = true;
+            }
+        } else {
+            updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+            if (isList) {
+                setMessageChange(true);
+            }
+            result = true;
+        }
+        return result;
+    }
+
+    /*
+     * 保存消息
+     * @param msgAllBean 消息
+     * @isList 是否是批量消息
+     * */
+    private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
+        msgAllBean.setRead(false);//设置未读
+        msgAllBean.setTo_uid(msgAllBean.getTo_uid());
+        boolean result = false;
+        //收到直接存表
+        if (isList) {
+            pendingMessages.put(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
+        } else {
+            DaoUtil.update(msgAllBean);
+        }
         if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
             if (!loadGids.contains(msgAllBean.getGid())) {
                 loadGids.add(msgAllBean.getGid());
@@ -399,8 +477,13 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
-        System.out.println(TAG + "--更新Session--updateSessionUnread");
+//        System.out.println(TAG + "--更新Session--updateSessionUnread");
         msgDao.sessionReadUpdate(gid, from_uid, isCancel);
+    }
+
+    public synchronized void updateSessionUnreadCount(String gid, Long uid, boolean isCancel) {
+
+
     }
 
     /*
@@ -419,6 +502,7 @@ public class MessageManager {
      * @param msg,最后一条消息，也要刷新时间
      * */
     public void notifyRefreshMsg(@CoreEnum.EChatType int chatType, Long uid, String gid, @CoreEnum.ESessionRefreshTag int refreshTag, Object object) {
+        setMessageChange(true);
         EventRefreshMainMsg eventRefreshMainMsg = new EventRefreshMainMsg();
         eventRefreshMainMsg.setType(chatType);
         eventRefreshMainMsg.setUid(uid);
@@ -670,10 +754,17 @@ public class MessageManager {
      * 根据接收到的消息内容，更新用户头像昵称等资料
      * @param msg
      */
-    private void updateUserAvatarAndNick(MsgBean.UniversalMessage.WrapMessage msg) {
+    private void updateUserAvatarAndNick(MsgBean.UniversalMessage.WrapMessage msg, boolean isList) {
         if (msg.getMsgType().getNumber() > 100) {//通知类消息
             return;
         }
+//        if (isList) {
+//            UserInfo info = new UserInfo();
+//            info.setUid(msg.getFromUid());\
+//            info.setHead(msg.getAvatar());
+//            info.setName(msg.getNickname());
+//            pendingUsers.put(msg.getFromUid(), info);
+//        } else {
         boolean hasChange = updateUserAvatarAndNick(msg.getFromUid(), msg.getAvatar(), msg.getNickname());
         //避免重复刷新通讯录
         if (msg.getMsgType() == REQUEST_FRIEND || msg.getMsgType() == ACCEPT_BE_FRIENDS
@@ -684,6 +775,7 @@ public class MessageManager {
         if (hasChange) {
             notifyRefreshFriend(true, msg.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
         }
+//        }
     }
 
     /*
@@ -882,5 +974,48 @@ public class MessageManager {
             }
         }
         return memberUsers;
+    }
+
+    /*
+     * 检测该群是否还有效，即自己是否还在该群中
+     * */
+    public boolean isGroupValid(Group group) {
+        if (group != null) {
+            List<MemberUser> users = group.getUsers();
+            if (users != null) {
+                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                if (member != null && !users.contains(member)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * 检测该群是否还有效，即自己是否还在该群中
+     * */
+    public boolean isGroupValid(String gid) {
+        Group group = msgDao.groupNumberGet(gid);
+//        Group group = msgDao.getGroup4Id(gid);
+        if (group != null) {
+            List<MemberUser> users = group.getUsers();
+            if (users != null) {
+                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                if (member != null && !users.contains(member)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * 通知群变化
+     * */
+    public void notifyGroupChange(boolean isNeedLoad) {
+        EventGroupChange event = new EventGroupChange();
+        event.setNeedLoad(isNeedLoad);
+        EventBus.getDefault().post(event);
     }
 }

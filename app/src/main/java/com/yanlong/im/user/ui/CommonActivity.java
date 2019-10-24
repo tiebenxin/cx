@@ -201,7 +201,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
      */
     private void taskClearMsg() {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(this, "清理", "确定清理所有消息?", "确定", "取消", new AlertYesNo.Event() {
+        alertYesNo.init(this, "提示", "确定清空聊天记录？", "确定", "取消", new AlertYesNo.Event() {
             @Override
             public void onON() {
 

@@ -15,6 +15,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
 
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class MyPaintView extends View {
         mDrawSize = DimenUtils.dp2pxInt(3);
         mEraserSize = DimenUtils.dp2pxInt(30);
         mPaint.setStrokeWidth(mDrawSize);
-        mPaint.setColor(0XFF000000);
+        mPaint.setColor(R.drawable.color1);
         mXferModeDraw = new PorterDuffXfermode(PorterDuff.Mode.SRC);
         mXferModeClear = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
         mPaint.setXfermode(mXferModeDraw);

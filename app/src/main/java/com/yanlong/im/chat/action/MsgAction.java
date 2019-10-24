@@ -85,6 +85,7 @@ public class MsgAction {
                 if (response.body().isOk()) {
                     dao.sessionDel(null, id);
                     dao.msgDel(null, id);
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, id, CoreEnum.ESessionRefreshTag.DELETE, null);
                 }
                 callback.onResponse(call, response);
             }
@@ -206,26 +207,30 @@ public class MsgAction {
      */
     public void groupInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
 
-        if (NetUtil.isNetworkConnected()) {
+        if (NetUtil.isNetworkConnected() /*&& MessageManager.getInstance().isGroupValid(gid)*/) {
             NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null)
                         return;
                     if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
-                        response.body().getData().getMygroupName();
-                        dao.groupNumberSave(response.body().getData());
+                        Group newGroup = response.body().getData();
+                        newGroup.getMygroupName();
                         Group group = DaoUtil.findOne(Group.class, "gid", gid);
                         if (group != null && group.getUsers() != null) {
-                            response.body().getData().setUsers(group.getUsers());
-//                            for (MemberUser userInfo : response.body().getData().getUsers()) {
-//                                GropLinkInfo link = dao.getGropLinkInfo(gid, userInfo.getUid());
-//                                if (link != null) {
-//                                    userInfo.setMembername(link.getMembername());
-//                                }
-//                            }
-                            MessageManager.getInstance().updateCacheGroup(group);
+                            if (MessageManager.getInstance().isGroupValid(group)) {//在群中，才更新
+                                dao.groupNumberSave(newGroup);
+                                MessageManager.getInstance().updateCacheGroup(group);
+                            } else {
+                                if (MessageManager.getInstance().isGroupValid(newGroup)) {//重新被拉进群，更新
+                                    dao.groupNumberSave(newGroup);
+                                    MessageManager.getInstance().updateCacheGroup(group);
+                                }
+                            }
                             MessageManager.getInstance().updateSessionTopAndDisturb(gid, null, group.getIsTop(), group.getNotNotify());
+                        } else {
+                            dao.groupNumberSave(newGroup);
+                            MessageManager.getInstance().updateCacheGroup(group);
                         }
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);

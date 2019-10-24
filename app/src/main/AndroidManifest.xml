@@ -93,6 +93,7 @@
 
         <activity
             android:name=".user.ui.SplashActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -527,8 +528,10 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-        <activity android:name=".chat.ui.forward.GroupSelectActivity" />
-        <activity android:name=".chat.ui.GroupNoteDetailActivity" />
+        <activity android:name=".chat.ui.forward.GroupSelectActivity"
+                  android:screenOrientation="portrait"/>
+        <activity android:name=".chat.ui.GroupNoteDetailActivity"
+                  android:screenOrientation="portrait"/>
         <activity android:name=".test.TestRecyclerActivity">
             <intent-filter android:priority="1">
                 <data
@@ -541,7 +544,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".user.ui.FriendVerifyActivity" />
-        <activity android:name=".chat.ui.VideoPlayActivity" />
+        <activity android:name=".chat.ui.VideoPlayActivity"
+            android:launchMode="singleInstance"
+            />
 
     </application>
 
