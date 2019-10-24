@@ -142,7 +142,6 @@ public class RecordedActivity extends BaseActivity {
 //                                .openCamera(PictureMimeType.ofImage())
 //                                .compress(true)
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
-
 //                    EventBus.getDefault().post(new ActivityForwordEvent());
 //                    finish();
                 }else{
