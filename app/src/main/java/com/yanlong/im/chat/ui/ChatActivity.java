@@ -1598,6 +1598,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
+    private  boolean clickAble=false;
 
     @Override
     protected void onResume() {
@@ -1613,6 +1614,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //刷新群资料
         taskSessionInfo();
+        clickAble=true;
     }
 
     @Override
@@ -1993,10 +1995,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             Log.i(TAG, "replaceListDataAndNotify: 只刷新" + position);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
-            if (loose){
-                ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(position);
-                itemView.setVideoIMGShow(true);
-            }
+//            if (loose){
+//                ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(position);
+//                itemView.setVideoIMGShow(true);
+//            }
 //            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
     }
@@ -2011,10 +2013,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (msgListData.get(i).getMsg_id().equals(msgid)) {
                 // Log.d("xxxx", "taskRefreshImage: "+msgid);
                 mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-                if (msgListData.get(i).getVideoMessage()!=null){
-                    ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(i);
-                    itemView.setVideoIMGShow(false);
-                }
+//                if (msgListData.get(i).getVideoMessage()!=null){
+//                    ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(i);
+//                    itemView.setVideoIMGShow(false);
+//                }
 
             }
         }
@@ -2256,13 +2258,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pgVideo);
-                        if (pgVideo.intValue()==100){
-                            holder.viewChatItem.setVideoIMGShow(true);
-                        }
+//                        if (pgVideo.intValue()==100){
+//                            holder.viewChatItem.setVideoIMGShow(true);
+//                        }
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
+                        }else if(msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING){
+                            holder.viewChatItem.setVideoIMGShow(false);
+                        }else{
+                            holder.viewChatItem.setVideoIMGShow(true );
                         }
                         break;
                     default:
@@ -2487,31 +2493,32 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     Integer pgVideo = null;
                     pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
 
-
                     holder.viewChatItem.setDataVideo(msgbean.getVideoMessage(), msgbean.getVideoMessage().getUrl(), new ChatItemView.EventPic() {
                         @Override
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
-
-                            String localUrl = msgbean.getVideoMessage().getLocalUrl();
-                            if (StringUtil.isNotNull(localUrl)) {
-                                File file = new File(localUrl);
-                                if (file.exists()) {
-                                    Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-                                    intent.putExtra("videopath", localUrl);
-                                    intent.putExtra("videomsg", new Gson().toJson(msgbean));
-                                    startActivity(intent);
-                                    MsgDao dao = new MsgDao();
-                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
+                            if (clickAble){
+                                clickAble=false;
+                                String localUrl = msgbean.getVideoMessage().getLocalUrl();
+                                if (StringUtil.isNotNull(localUrl)) {
+                                    File file = new File(localUrl);
+                                    if (file.exists()) {
+                                        Log.e("TAG",file.getAbsolutePath());
+                                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                                        intent.putExtra("videopath", localUrl);
+                                        intent.putExtra("videomsg", new Gson().toJson(msgbean));
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                        startActivity(intent);
+//                                    MsgDao dao = new MsgDao();
+//                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
+                                    } else {
+                                        downVideo(msgbean, msgbean.getVideoMessage());
+                                    }
                                 } else {
                                     downVideo(msgbean, msgbean.getVideoMessage());
                                 }
-                            } else {
-                                downVideo(msgbean, msgbean.getVideoMessage());
                             }
-
-
                         }
                     }, pgVideo);
                     // holder.viewChatItem.setImgageProg(pg);
