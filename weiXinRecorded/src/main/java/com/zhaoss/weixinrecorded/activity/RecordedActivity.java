@@ -178,7 +178,8 @@ public class RecordedActivity extends BaseActivity {
         iv_recorded_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishVideo(2);
+//                finishVideo(2);
+                deleteSegment();
             }
         });
         mVideoEditor.setOnProgessListener(new onVideoEditorProgressListener() {
@@ -281,7 +282,9 @@ public class RecordedActivity extends BaseActivity {
         iv_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteSegment();
+                editorTextView = showProgressDialog();
+                executeCount = segmentList.size()+4;
+                finishVideo(2);
             }
         });
 
@@ -348,22 +351,24 @@ public class RecordedActivity extends BaseActivity {
 //                Intent intent = new Intent(mContext, EditVideoActivity.class);
 //                intent.putExtra(INTENT_PATH, result);
 //                startActivityForResult(intent, REQUEST_CODE_KEY);
-                clearProgress();
-
                 switch (type){
                     case 1:
                         Intent intentMas = new Intent();
                         intentMas.putExtra(INTENT_PATH, result);
-                        intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraHelp.getWidth());
-                        intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraHelp.getHeight());
+                        intentMas.putExtra(INTENT_VIDEO_WIDTH,mCameraHelp.getHeight() );
+                        intentMas.putExtra(INTENT_PATH_HEIGHT,mCameraHelp.getWidth() );
                         intentMas.putExtra(INTENT_PATH_TIME,(int)countTime);
                         intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                         setResult(RESULT_OK, intentMas);
                         finish();
                         break;
                     case 2:
+                        Intent intent = new Intent(mContext, EditVideoActivity.class);
+                        intent.putExtra(INTENT_PATH, result);
+                        startActivityForResult(intent, REQUEST_CODE_KEY);
                         break;
                 }
+                clearProgress();
 
             }
 
