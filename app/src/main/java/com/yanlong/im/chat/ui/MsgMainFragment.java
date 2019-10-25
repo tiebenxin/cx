@@ -423,10 +423,10 @@ public class MsgMainFragment extends Fragment {
             if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
-            } else if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE){
+            } else if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE) {
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
-            }else if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE){
+            } else if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
                 System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-DELETE");
                 taskDelSession(event.getUid(), event.getGid());
             }
@@ -469,7 +469,7 @@ public class MsgMainFragment extends Fragment {
                             int index = listData.indexOf(session);
                             if (index >= 0) {
                                 Session s = listData.get(index);
-                                if (isRefreshTop) {//是否刷新置顶
+                                if (isRefreshTop || session.getIsTop() == 1) {//是否刷新置顶
                                     if (session.getIsTop() == 1) {//修改了置顶状态
 //                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新置顶消息 旧session=" + s.getIsTop() + "--新session=" + session.getIsTop());
                                         listData.remove(index);
@@ -578,24 +578,27 @@ public class MsgMainFragment extends Fragment {
         if (listData != null) {
             int len = listData.size();
             boolean hasTop = false;
-            for (int i = 0; i < len; i++) {
-                Session session = listData.get(i);
-                if (session.getIsTop() != 1) {
-                    position = i;
-                    break;//结束循环
-                } else {
-                    hasTop = true;
+            if (s.getIsTop() == 1) {
+                listData.add(0, s);
+            } else {
+                for (int i = 0; i < len; i++) {
+                    Session session = listData.get(i);
+                    if (session.getIsTop() != 1) {
+                        position = i;
+                        break;//结束循环
+                    } else {
+                        hasTop = true;
+                    }
                 }
+                if (hasTop && position == 0) {//全是置顶
+                    position = len;
+                }
+                listData.add(position, s);
             }
-            if (hasTop && position == 0) {//全是置顶
-                position = len;
-            }
-            listData.add(position, s);
         } else {
             listData = new ArrayList<>();
             listData.add(s);
         }
-
         return position;
     }
 

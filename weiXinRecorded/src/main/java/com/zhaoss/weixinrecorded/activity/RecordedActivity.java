@@ -63,7 +63,7 @@ public class RecordedActivity extends BaseActivity {
     private ImageView iv_next;
     private ImageView iv_change_camera;
     private LineProgressView lineProgressView;
-    private ImageView iv_flash_video;
+    private ImageView iv_recorded_edit;
     private TextView editorTextView;
     private TextView tv_hint;
 
@@ -106,7 +106,7 @@ public class RecordedActivity extends BaseActivity {
         recordView = findViewById(R.id.recordView);
         iv_delete = findViewById(R.id.iv_delete);
         iv_next = findViewById(R.id.iv_next);
-        iv_flash_video = findViewById(R.id.iv_flash_video);
+        iv_recorded_edit = findViewById(R.id.iv_recorded_edit);
         iv_change_camera = findViewById(R.id.iv_camera_mode);
         lineProgressView =  findViewById(R.id.lineProgressView);
         tv_hint = findViewById(R.id.tv_hint);
@@ -142,7 +142,6 @@ public class RecordedActivity extends BaseActivity {
 //                                .openCamera(PictureMimeType.ofImage())
 //                                .compress(true)
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
-
 //                    EventBus.getDefault().post(new ActivityForwordEvent());
 //                    finish();
                 }else{
@@ -175,7 +174,13 @@ public class RecordedActivity extends BaseActivity {
                 mCameraHelp.callFocusMode();
             }
         });
-
+        iv_recorded_edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                finishVideo(2);
+                deleteSegment();
+            }
+        });
         mVideoEditor.setOnProgessListener(new onVideoEditorProgressListener() {
             @Override
             public void onProgress(VideoEditor v, int percent) {
@@ -277,7 +282,9 @@ public class RecordedActivity extends BaseActivity {
         iv_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteSegment();
+                editorTextView = showProgressDialog();
+                executeCount = segmentList.size()+4;
+                finishVideo(2);
             }
         });
 
@@ -286,21 +293,21 @@ public class RecordedActivity extends BaseActivity {
             public void onClick(View v) {
                 editorTextView = showProgressDialog();
                 executeCount = segmentList.size()+4;
-                finishVideo();
+                finishVideo(1);
             }
         });
 
-        iv_flash_video.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCameraHelp.changeFlash();
-                if (mCameraHelp.isFlashOpen()) {
-//                    iv_flash_video.setImageResource(R.mipmap.video_flash_open);
-                } else {
-//                    iv_flash_video.setImageResource(R.mipmap.video_flash_close);
-                }
-            }
-        });
+//        iv_flash_video.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mCameraHelp.changeFlash();
+//                if (mCameraHelp.isFlashOpen()) {
+////                    iv_flash_video.setImageResource(R.mipmap.video_flash_open);
+//                } else {
+////                    iv_flash_video.setImageResource(R.mipmap.video_flash_close);
+//                }
+//            }
+//        });
 
         iv_change_camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -315,7 +322,7 @@ public class RecordedActivity extends BaseActivity {
         });
     }
     private String aacPath;
-    public void finishVideo(){
+    public void finishVideo(final int type){
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
             public String doInBackground()throws Exception{
@@ -341,10 +348,32 @@ public class RecordedActivity extends BaseActivity {
                         file.delete();
                     }
                 }
-                Intent intent = new Intent(mContext, EditVideoActivity.class);
-                intent.putExtra(INTENT_PATH, result);
-                startActivityForResult(intent, REQUEST_CODE_KEY);
+//                Intent intent = new Intent(mContext, EditVideoActivity.class);
+//                intent.putExtra(INTENT_PATH, result);
+//                startActivityForResult(intent, REQUEST_CODE_KEY);
+                switch (type){
+                    case 1:
+                        Intent intentMas = new Intent();
+                        intentMas.putExtra(INTENT_PATH, result);
+                        intentMas.putExtra(INTENT_VIDEO_WIDTH,mCameraHelp.getHeight() );
+                        intentMas.putExtra(INTENT_PATH_HEIGHT,mCameraHelp.getWidth() );
+                        intentMas.putExtra(INTENT_PATH_TIME,(int)countTime);
+                        intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
+                        setResult(RESULT_OK, intentMas);
+                        finish();
+                        break;
+                    case 2:
+                        Intent intent = new Intent(mContext, EditVideoActivity.class);
+                        intent.putExtra(INTENT_PATH, result);
+                        startActivityForResult(intent, REQUEST_CODE_KEY);
+                        break;
+                }
+                clearProgress();
+
             }
+
+
+
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
@@ -352,6 +381,12 @@ public class RecordedActivity extends BaseActivity {
                 Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    MyVideoEditor myVideoEditor = new MyVideoEditor();
+
+    private void clearProgress() {
+        recordView.updateProgress(0);
     }
 
     private String syntPcm() throws Exception{
@@ -420,7 +455,7 @@ public class RecordedActivity extends BaseActivity {
             }
         });
     }
-
+    private long countTime;
     private void runLoopPro(){
 
         RxJavaUtil.loop(20, new RxJavaUtil.OnRxLoopListener() {
@@ -433,7 +468,7 @@ public class RecordedActivity extends BaseActivity {
                 long currentTime = System.currentTimeMillis();
                 videoDuration += currentTime - recordTime;
                 recordTime = currentTime;
-                long countTime = videoDuration;
+                countTime= videoDuration;
                 for (long time : timeList) {
                     countTime += time;
                 }
@@ -530,7 +565,7 @@ public class RecordedActivity extends BaseActivity {
 
         iv_delete.setVisibility(View.INVISIBLE);
         iv_next.setVisibility(View.INVISIBLE);
-        iv_flash_video.setVisibility(View.VISIBLE);
+//        iv_flash_video.setVisibility(View.VISIBLE);
     }
 
     @Override

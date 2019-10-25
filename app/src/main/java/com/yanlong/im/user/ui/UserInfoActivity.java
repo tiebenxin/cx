@@ -413,6 +413,10 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void setData(final UserInfo info) {
+        // 处理 You cannot start a load for a destroyed activity问题
+        if(isFinishing()){
+            return ;
+        }
         Glide.with(this).load(info.getHead())
                 .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 

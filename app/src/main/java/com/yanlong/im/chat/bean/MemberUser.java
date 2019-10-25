@@ -33,7 +33,7 @@ public class MemberUser extends RealmObject implements Comparable<MemberUser> {
     @SerializedName("gender")
     private int sex;
     //    @Required
-    private String imid;//产品号
+    private String imid;//常聊号
     @SerializedName("avatar")
 //    @Required
     private String head;//头像
