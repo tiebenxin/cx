@@ -40,6 +40,7 @@ import net.cb.cb.library.view.PySortView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -59,6 +60,7 @@ public class GroupSelectUserActivity extends AppActivity {
 
     private MultiListView mtListView;
     private List<UserInfo> listData = new ArrayList<>();
+    private List<UserInfo> tempData = new ArrayList<>();
     private PySortView viewType;
     private String gid;
     private int type;
@@ -171,7 +173,25 @@ public class GroupSelectUserActivity extends AppActivity {
                         listData = delectMyslfe(response.body().getData());
                     }
                     showAtAll(response.body().getData());
-                    Collections.sort(listData);
+                    // 升序
+                    Collections.sort(listData,new Comparator<UserInfo>() {
+                        @Override
+                        public int compare(UserInfo o1, UserInfo o2) {
+                            return o1.getTag().hashCode() - o2.getTag().hashCode();
+                        }
+                    });
+
+                    // 把#数据放到末尾
+                    tempData.clear();
+                    for (int i = listData.size() - 1; i >= 0; i--) {
+                        UserInfo bean = listData.get(i);
+                        if (bean.getTag().hashCode() == 35) {
+                            tempData.add(bean);
+                            listData.remove(i);
+                        }
+                    }
+                    listData.addAll(tempData);
+
                     adapter.setList(listData);
                     mtListView.notifyDataSetChange();
                     for (int i = 0; i < listData.size(); i++) {

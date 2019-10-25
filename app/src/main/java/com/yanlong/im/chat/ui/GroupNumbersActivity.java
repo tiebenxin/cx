@@ -36,6 +36,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -56,6 +57,7 @@ public class GroupNumbersActivity extends AppActivity {
 
     private String gid;
     private List<UserInfo> listData;
+    private List<UserInfo> tempData = new ArrayList<>();
     private Integer type;
 
     private Gson gson = new Gson();
@@ -259,7 +261,23 @@ public class GroupNumbersActivity extends AppActivity {
 
     private void taskListData() {
 
-
+        // 升序
+        Collections.sort(listData,new Comparator<UserInfo>() {
+            @Override
+            public int compare(UserInfo o1, UserInfo o2) {
+                return o1.getTag().hashCode() - o2.getTag().hashCode();
+            }
+        });
+        // 把#数据放到末尾
+        tempData.clear();
+        for (int i = listData.size() - 1; i >= 0; i--) {
+            UserInfo bean = listData.get(i);
+            if (bean.getTag().hashCode() == 35) {
+                tempData.add(bean);
+                listData.remove(i);
+            }
+        }
+        listData.addAll(tempData);
         for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:
             viewType.putTag(listData.get(i).getTag(), i);

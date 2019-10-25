@@ -18,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ import com.example.nim_lib.controll.AVChatController;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.module.AVChatTimeoutObserver;
+import com.example.nim_lib.module.AVSwitchListener;
 import com.example.nim_lib.module.SimpleAVChatStateObserver;
 import com.example.nim_lib.permission.BaseMPermission;
 import com.example.nim_lib.receiver.PhoneCallStateObserver;
@@ -71,7 +73,7 @@ import java.util.Locale;
  * @description 视频通话
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class VideoActivity extends AppCompatActivity implements View.OnClickListener, ToggleListener {
+public class VideoActivity extends AppCompatActivity implements View.OnClickListener, ToggleListener,AVSwitchListener {
 
     private AVChatCameraCapturer mVideoCapturer;
     private boolean destroyRTC = false;
@@ -126,11 +128,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private int state; // calltype 音频或视频
     private boolean isReleasedVideo = false;
 
-    // touch zone
-    public interface TouchZoneCallback {
-        void onTouch();
-    }
-
     /**
      * surface view
      */
@@ -140,10 +137,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private ImageView smallSizePreviewCoverImg;//stands for peer or local close camera
     private TextView largeSizePreviewCoverLayout;//stands for peer or local close camera
     private ToggleView switchCameraToggle;
-    private TextView txtLifeTime;
-    private CheckBox cbMute;
+    private TextView txtVideoTime;
+    private CheckBox cbChangeVoice;
     private CheckBox cbConvertCamera;
-    private ImageView imgMinimize;
+    private ImageView imgMinimizeVideo;
     private View touchLayout;
 
     // 音视频控制器：用于实现音视频拨打接听，音视频切换的具体功能实现
@@ -168,6 +165,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private ImageView imgHeadPortrait;
     private TextView txtName;
     private TextView txtWaitMsg;
+    private TextView txtLifeTime;
     private LinearLayout layoutVoiceWait;
     private LinearLayout layoutInvitationVoice;
     private LinearLayout layoutAudio;
@@ -177,7 +175,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private ImageView imgAnswer;
     private ImageView imgHandUp2;
     private ImageView imgCancle;
-    private View viewTest;
+    private ImageView imgMinimize;
+    private RelativeLayout layoutVoice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -196,6 +195,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         imgHeadPortrait = findViewById(R.id.img_head_portrait);
         txtName = findViewById(R.id.txt_name);
         imgCancle = findViewById(R.id.img_cancle);
+        imgMinimize = findViewById(R.id.img_minimize);
 
         txtWaitMsg = findViewById(R.id.txt_wait_msg);
         layoutVoiceWait = findViewById(R.id.layout_voice_wait);
@@ -205,8 +205,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         layoutVoiceIng = findViewById(R.id.layout_voice_ing);
         imgRefuse = findViewById(R.id.img_refuse);
         imgAnswer = findViewById(R.id.img_answer);
-        viewTest = findViewById(R.id.layout_test);
         imgHandUp2 = findViewById(R.id.img_hand_up2);
+        layoutVoice = findViewById(R.id.layout_voice);
+        txtLifeTime = findViewById(R.id.txt_life_time);
+
     }
 
     private void onEvent() {
@@ -215,8 +217,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         imgHandUp2.setOnClickListener(this);
         imgCancle.setOnClickListener(this);
         imgMinimize.setOnClickListener(this);
-        cbMute.setOnClickListener(this);
+        cbChangeVoice.setOnClickListener(this);
         cbConvertCamera.setOnClickListener(this);
+        imgMinimizeVideo.setOnClickListener(this);
+        imgMinimize.setOnClickListener(this);
     }
 
     @Override
@@ -236,8 +240,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             }
         } else if (v.getId() == R.id.cb_hands_free) {// 免提
             mAVChatController.toggleSpeaker();
-        } else if (v.getId() == R.id.cb_mute) {// 音频开关
-            mAVChatController.toggleMute();
+        } else if (v.getId() == R.id.cb_change_voice) {// 视频切换到语音
+            mAVChatController.switchVideoToAudio(avChatData.getChatId(), this);
         } else if (v.getId() == R.id.img_minimize) {// 最小化
             // 停止计时器
 //            handler.removeCallbacks(runnable);
@@ -251,6 +255,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (mVideoCapturer != null) {
                 mVideoCapturer.switchCamera();
             }
+        }else if(v.getId()== R.id.img_minimize_video){//
+
         }
     }
 
@@ -310,6 +316,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     layoutInvitationVoice.setVisibility(View.GONE);
                     layoutVideoRoot.setVisibility(View.VISIBLE);
                 } else {
+                    layoutVideoRoot.setVisibility(View.GONE);
                     layoutVoiceIng.setVisibility(View.VISIBLE);
                 }
                 break;
@@ -368,13 +375,19 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void run() {
             mPassedTime++;
+            Log.d("1212",""+mPassedTime);
             int hour = mPassedTime / 3600;
             int min = mPassedTime % 3600 / 60;
             int second = mPassedTime % 60;
-            if (hour > 0) {
-                txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
-            } else {
-                txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d", min, second));
+            if (!isFinishing()) {
+                mHandler.postDelayed(this, TIME);
+                if (hour > 0) {
+                    txtVideoTime.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+                    txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+                } else {
+                    txtVideoTime.setText(String.format(Locale.CHINESE, "%02d:%02d", min, second));
+                    txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d", min, second));
+                }
             }
         }
     };
@@ -440,9 +453,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (mAVChatType == AVChatType.VIDEO.getValue()) {
 //                layoutAudio.setVisibility(View.GONE);
 //                layoutInvitationVoice.setVisibility(View.GONE);
-                viewTest.setVisibility(View.GONE);
+                layoutVoice.setVisibility(View.GONE);
                 layoutVideoRoot.setVisibility(View.VISIBLE);
-
                 initLargeSurfaceView(account);
             }
         }
@@ -502,7 +514,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 EventFactory.CloseVoiceMinimizeEvent event = new EventFactory.CloseVoiceMinimizeEvent();
                 event.avChatType = mAVChatType;
                 event.operation="hangup";
-                event.txt="通话时长 "+txtLifeTime.getText().toString();
+                event.txt="通话时长 "+txtVideoTime.getText().toString();
                 event.toGid = toGid;
                 event.toUId = toUId;
                 EventBus.getDefault().post(event);
@@ -601,7 +613,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 //                Toast.makeText(AVChatActivity.this, R.string.avchat_switch_video_reject, Toast.LENGTH_SHORT).show();
                 break;
             case AVChatControlCommand.SWITCH_VIDEO_TO_AUDIO:
-//                onVideoToAudio();
+                onVideoToAudio();
                 break;
             case AVChatControlCommand.NOTIFY_VIDEO_OFF:
                 // 收到对方关闭画面通知
@@ -619,6 +631,73 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 Toast.makeText(this, "对方发来指令值：" + notification.getControlCommand(), Toast.LENGTH_SHORT).show();
                 break;
         }
+    }
+
+    @Override
+    public void onVideoToAudio() {
+        state = AVChatType.AUDIO.getValue();
+        layoutVoiceWait.setVisibility(View.GONE);
+        layoutInvitationVoice.setVisibility(View.GONE);
+
+        layoutVoice.setVisibility(View.VISIBLE);
+        layoutAudio.setVisibility(View.VISIBLE);
+        layoutVoiceIng.setVisibility(View.VISIBLE);
+
+        layoutVideoRoot.setVisibility(View.GONE);
+//        showAudioInitLayout();
+//
+//        muteToggle.toggle(muteOn ? ToggleState.ON : ToggleState.OFF);
+//        speakerToggle.toggle(speakerOn ? ToggleState.ON : ToggleState.OFF);
+//        recordToggle.setSelected(avChatController.isRecording());
+//
+//        showRecordView(avChatController.isRecording(), isRecordWarning);
+
+        //关闭视频
+        if(AVChatManager.getInstance().isAutoPublishVideo()){
+            AVChatManager.getInstance().stopVideoPreview();
+            AVChatManager.getInstance().disableVideo();
+        }
+        // 判断是否静音，扬声器是否开启，对界面相应控件进行显隐处理。
+//        onVideoToAudio(AVChatManager.getInstance().isLocalAudioMuted(),
+//                AVChatManager.getInstance().speakerEnabled(),
+//                avChatData != null ? avChatData.getAccount() : account);
+    }
+
+    @Override
+    public void onAudioToVideo() {
+
+    }
+
+    @Override
+    public void onReceiveAudioToVideoAgree() {
+
+    }
+
+    // touch zone
+    public interface TouchZoneCallback {
+        void onTouch();
+    }
+
+    /**
+     * 视频切换为音频时，禁音与扬声器按钮状态
+     * @param muteOn
+     * @param speakerOn
+     * @param account
+     */
+    public void onVideoToAudio(boolean muteOn, boolean speakerOn, String account) {
+
+        this.account = account;
+//        showAudioInitLayout();
+//
+//        muteToggle.toggle(muteOn ? ToggleState.ON : ToggleState.OFF);
+//        speakerToggle.toggle(speakerOn ? ToggleState.ON : ToggleState.OFF);
+//        recordToggle.setSelected(avChatController.isRecording());
+//
+//        showRecordView(avChatController.isRecording(), isRecordWarning);
+
+        //关闭视频
+        AVChatManager.getInstance().stopVideoPreview();
+        AVChatManager.getInstance().disableVideo();
     }
 
     /**
@@ -767,6 +846,18 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    /**
+     * 对方打开了摄像头
+     */
+    public void peerVideoOn() {
+        isPeerVideoOff = false;
+        if (localPreviewInSmallSize) {
+            largeSizePreviewCoverLayout.setVisibility(View.GONE);
+        } else {
+            smallSizePreviewCoverImg.setVisibility(View.GONE);
+        }
+    }
+
 
     @Override
     protected void onResume() {
@@ -809,10 +900,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
             largeSizePreviewLayout = surfaceView.findViewById(R.id.large_size_preview);
             largeSizePreviewCoverLayout = surfaceView.findViewById(R.id.notificationLayout);
-            txtLifeTime = surfaceView.findViewById(R.id.txt_life_time);
-            imgMinimize = surfaceView.findViewById(R.id.img_minimize);
-            cbMute = surfaceView.findViewById(R.id.cb_mute);
+            txtVideoTime = surfaceView.findViewById(R.id.txt_video_time);
+            cbChangeVoice = surfaceView.findViewById(R.id.cb_change_voice);
             cbConvertCamera = surfaceView.findViewById(R.id.cb_convert_camera);
+            imgMinimizeVideo = surfaceView.findViewById(R.id.img_minimize_video);
             switchCameraToggle = new ToggleView(cbConvertCamera, ToggleState.OFF, this);
             surfaceInit = true;
         }
@@ -1035,18 +1126,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     }
 
     /**
-     * 对方打开了摄像头
-     */
-    public void peerVideoOn() {
-        isPeerVideoOff = false;
-        if (localPreviewInSmallSize) {
-            largeSizePreviewCoverLayout.setVisibility(View.GONE);
-        } else {
-            smallSizePreviewCoverImg.setVisibility(View.GONE);
-        }
-    }
-
-    /**
      * 关闭小窗口
      */
     private void closeSmallSizePreview() {
@@ -1088,6 +1167,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void onSuccess(Void aVoid) {
                         if (!isFinishing()) {
+                            Log.d("1212","start()");
                             mHandler.postDelayed(runnable, TIME);
                         }
 //                        onAudioAgree();
@@ -1161,80 +1241,5 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         destroyRTC = true;
 //        closeSessions(AVChatExitCode.CANCEL);
     }
-
-    /**
-     * 拨打音视频
-     */
-//    public void outGoingCalling(final AVChatType callTypeEnum) {
-//        AVChatNotifyOption notifyOption = new AVChatNotifyOption();
-//        //附加字段
-//        notifyOption.extendMessage = "extra_data";
-//        //是否兼容WebRTC模式
-////        notifyOption.webRTCCompat = webrtcCompat;
-////        //默认forceKeepCalling为true，开发者如果不需要离线持续呼叫功能可以将forceKeepCalling设为false
-////        notifyOption.forceKeepCalling = false;
-//        // 开启音视频引擎
-//        AVChatManager.getInstance().enableRtc();
-//
-////        this.callingState = (callTypeEnum == AVChatType.VIDEO ? CallStateEnum.VIDEO : CallStateEnum.AUDIO);
-//        if (avChatConfigs == null) {
-//            avChatConfigs = new AVChatConfigs(this);
-//            //设置自己需要的可选参数
-//            AVChatManager.getInstance().setParameters(avChatConfigs.getAvChatParameters());
-//        }
-//        //视频通话
-//        if (callTypeEnum == AVChatType.VIDEO) {
-//            // 激活视频模块
-//            AVChatManager.getInstance().enableVideo();
-//
-//            //创建视频采集模块并且设置到系统中
-//            if (mVideoCapturer == null) {
-//                mVideoCapturer = AVChatVideoCapturerFactory.createCameraCapturer(true, true);
-//                AVChatManager.getInstance().setupVideoCapturer(mVideoCapturer);
-//            }
-//
-//            if (largeRender == null) {
-//                largeRender = new AVChatSurfaceViewRenderer(this);
-//                //设置本地预览画布
-//                AVChatManager.getInstance().setupLocalVideoRender(largeRender, false, AVChatVideoScalingType.SCALE_ASPECT_BALANCED);
-//            }
-//
-//            //开始视频预览
-//            AVChatManager.getInstance().startVideoPreview();
-//        }
-//
-//        //呼叫
-//        AVChatManager.getInstance().call2(mNeteaseaccId, callTypeEnum, notifyOption, new AVChatCallback<AVChatData>() {
-//            @Override
-//            public void onSuccess(AVChatData data) {
-////                avChatData = data;
-//
-//                avChatData = data;
-//                List<String> deniedPermissions = BaseMPermission.getDeniedPermissions(VideoActivity.this, BASIC_PERMISSIONS);
-//                if (deniedPermissions != null && !deniedPermissions.isEmpty()) {
-////                    showNoneCameraPermissionView(true);
-//                    return;
-//                }
-//                canSwitchCamera = true;
-////                initLargeSurfaceView(data.getAccount());
-//                //发起会话成功
-//                Toast.makeText(VideoActivity.this, "onSuccess", Toast.LENGTH_LONG).show();
-//            }
-//
-//            @Override
-//            public void onFailed(int code) {
-//                Toast.makeText(VideoActivity.this, "onFailed" + code, Toast.LENGTH_LONG).show();
-////                closeRtc();
-////                closeSessions(-1);
-//            }
-//
-//            @Override
-//            public void onException(Throwable exception) {
-//                Toast.makeText(VideoActivity.this, "onException", Toast.LENGTH_LONG).show();
-////                closeRtc();
-////                closeSessions(-1);
-//            }
-//        });
-//    }
 }
 
