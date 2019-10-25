@@ -270,32 +270,6 @@ public class UserInfoActivity extends AppActivity {
                 @Override
                 public void onClick(View v) {
                     toSendVerifyActivity();
-//                    AlertTouch alertTouch = new AlertTouch();
-//                    alertTouch.init(UserInfoActivity.this, "好友验证", "确定", 0, new AlertTouch.Event() {
-//                        @Override
-//                        public void onON() {
-//
-//                        }
-//
-//                        @Override
-//                        public void onYes(String content) {
-//                            taskAddFriend(id, content);
-//                        }
-//                    });
-//                    alertTouch.show();
-//                    if (group != null) {
-//                        String name = group.getName();
-//                        if (!TextUtils.isEmpty(name)) {
-//                            String userName = group.getMygroupName();
-//                            if (TextUtils.isEmpty(userName)) {
-//                                userName = UserAction.getMyInfo().getName();
-//                            }
-//                            alertTouch.setContent("我是" + "\"" + name + "\"" + "的" + userName);
-//                        }
-//                    } else {
-//                        alertTouch.setContent("我是" + UserAction.getMyInfo().getName());
-//                    }
-//                    alertTouch.setEdHintOrSize(null, 60);
                 }
             });
         } else {
@@ -340,7 +314,7 @@ public class UserInfoActivity extends AppActivity {
         contactIntimately = intent.getIntExtra(IS_BUSINESS_CARD, 0);
         gid = intent.getStringExtra(GID);
         from = intent.getIntExtra(FROM, ChatEnum.EFromType.DEFAULT);
-        resetLayout();
+        //     resetLayout();
         taskFindExist();
         taskUserInfo(id);
 
@@ -364,6 +338,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void setItemShow(int type) {
+        viewComplaint.setVisibility(View.VISIBLE);
         if (type == 0) {
             mLayoutMsg.setVisibility(View.VISIBLE);
             btnMsg.setVisibility(View.VISIBLE);
@@ -399,7 +374,6 @@ public class UserInfoActivity extends AppActivity {
         if (contactIntimately == 1) {
             mBtnAdd.setVisibility(View.GONE);
         }
-
     }
 
 
@@ -441,8 +415,8 @@ public class UserInfoActivity extends AppActivity {
 
     private void setData(final UserInfo info) {
         // 处理 You cannot start a load for a destroyed activity问题
-        if(isFinishing()){
-            return ;
+        if (isFinishing()) {
+            return;
         }
         Glide.with(this).load(info.getHead())
                 .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
@@ -458,6 +432,16 @@ public class UserInfoActivity extends AppActivity {
         }
         if (info.getStat() != 9) {//不是常聊聊小助手
             setItemShow(type);
+        } else {
+            txtMkname.setVisibility(View.VISIBLE);
+            txtNkname.setVisibility(View.GONE);
+            txtPrNo.setVisibility(View.GONE);
+            mViewSettingName.setVisibility(View.GONE);
+            mLayoutMsg.setVisibility(View.GONE);
+            btnMsg.setVisibility(View.GONE);
+            viewIntroduce.setVisibility(View.VISIBLE);
+            mBtnAdd.setVisibility(View.GONE);
+            viewComplaint.setVisibility(View.GONE);
         }
         imgHead.setOnClickListener(new View.OnClickListener() {
             @Override

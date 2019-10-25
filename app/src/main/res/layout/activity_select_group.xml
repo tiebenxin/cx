@@ -18,32 +18,44 @@
             android:fillViewport="true"
             android:scrollbars="none">
 
+
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    style="@style/app_layout_list2_item"
-                    android:layout_marginTop="7dp">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:paddingTop="10dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:paddingBottom="10dp">
+                    <LinearLayout
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/shape_search_bg"
+                        style="@style/app_layout_list2_item_search">
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="12dp"
-                        android:src="@mipmap/ic_msg_search" />
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="6dp"
+                            android:src="@mipmap/ic_msg_search" />
 
-                    <net.cb.cb.library.view.ClearEditText
-                        android:id="@+id/edt_search"
-                        style="@style/app_edt1"
-                        android:layout_marginRight="@dimen/app_margin_main"
-                        android:hint="搜索" />
+                        <net.cb.cb.library.view.ClearEditText
+                            android:id="@+id/edt_search"
+                            style="@style/app_edt1"
+                            android:hint="搜索"
+                            android:background="@color/transparent"
+                            android:imeOptions="actionSearch" />
 
-                </LinearLayout>
 
-                <View
-                    style="@style/app_line"
-                    android:layout_marginTop="@dimen/app_margin_item_top" />
+                    </LinearLayout>
+                </RelativeLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_at_all"
