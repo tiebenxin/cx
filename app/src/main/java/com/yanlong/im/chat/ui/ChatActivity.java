@@ -1081,8 +1081,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //获取与该view的底部的偏移量
                             lastOffset = topView.getBottom();
                         }
-
                         saveScrollPosition();
+                        System.out.println(TAG + "当前滑动位置：lastPosition=" + lastPosition);
                     }
                 }
             }
@@ -1378,7 +1378,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (isLoadHistory) {
             isLoadHistory = false;
         }
-        System.out.println(TAG + "scrollListView");
+//        System.out.println(TAG + "scrollListView");
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
             if (isMustBottom) {

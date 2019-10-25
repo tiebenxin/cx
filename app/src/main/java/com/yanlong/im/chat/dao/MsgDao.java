@@ -112,7 +112,7 @@ public class MsgDao {
                             memberUser.init(group.getGid());
                         }
                     }
-                    System.out.println("MsgDao--gid=" + group.getGid());
+//                    System.out.println("MsgDao--gid=" + group.getGid());
 //                    Group realmGroup = realm.copyToRealmOrUpdate(group);
 //                    realm.insertOrUpdate(group);
                 }
