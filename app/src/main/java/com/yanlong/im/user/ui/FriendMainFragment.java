@@ -381,6 +381,9 @@ public class FriendMainFragment extends Fragment {
                 case CoreEnum.ERosterAction.BLACK://添加或者解除黑名单
                     taskListData();
                     break;
+                case CoreEnum.ERosterAction.REQUEST_FRIEND://请求添加为好友
+                    mtListView.getListView().getAdapter().notifyItemChanged(0, 0);
+                    break;
                 default:
                     if (uid > 0) {
                         refreshPosition(uid);
@@ -483,6 +486,7 @@ public class FriendMainFragment extends Fragment {
     private void taskApplyNumClean() {
         msgDao.remidClear("friend_apply");
         MessageManager.getInstance().notifyRefreshMsg();
+//        MessageManager.getInstance().notifyRefreshFriend(false,-1, CoreEnum.ERosterAction.REQUEST_FRIEND);
     }
 
     public void taskGetUsersOnlineStatus() {

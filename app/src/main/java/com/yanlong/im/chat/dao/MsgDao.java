@@ -112,7 +112,7 @@ public class MsgDao {
                             memberUser.init(group.getGid());
                         }
                     }
-                    System.out.println("MsgDao--gid=" + group.getGid());
+//                    System.out.println("MsgDao--gid=" + group.getGid());
 //                    Group realmGroup = realm.copyToRealmOrUpdate(group);
 //                    realm.insertOrUpdate(group);
                 }
@@ -931,7 +931,7 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid, boolean isCancel) {
+    public void sessionReadUpdate(String gid, Long from_uid, boolean isCancel, boolean canChangeUnread) {
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
@@ -945,18 +945,22 @@ public class MsgDao {
                     session.setIsTop(group.getIsTop());
                     session.setIsMute(group.getNotNotify());
                 }
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
-                } else {
-                    session.setUnread_count(isCancel ? 0 : 1);
+                if (canChangeUnread) {
+                    if (session.getIsMute() == 1) {//免打扰
+                        session.setUnread_count(0);
+                    } else {
+                        session.setUnread_count(isCancel ? 0 : 1);
+                    }
                 }
             } else {
-                if (session.getIsMute() != 1) {//免打扰
-                    int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                } else {
-                    session.setUnread_count(0);
+                if (canChangeUnread) {
+                    if (session.getIsMute() != 1) {//免打扰
+                        int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
+                        num = num < 0 ? 0 : num;
+                        session.setUnread_count(num);
+                    } else {
+                        session.setUnread_count(0);
+                    }
                 }
             }
             session.setUp_time(System.currentTimeMillis());
@@ -973,19 +977,22 @@ public class MsgDao {
                     session.setIsTop(user.getIstop());
                     session.setIsMute(user.getDisturb());
                 }
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
-                } else {
-                    session.setUnread_count(isCancel ? 0 : 1);
+                if (canChangeUnread) {
+                    if (session.getIsMute() == 1) {//免打扰
+                        session.setUnread_count(0);
+                    } else {
+                        session.setUnread_count(isCancel ? 0 : 1);
+                    }
                 }
-
             } else {
-                if (session.getIsMute() != 1) {//非免打扰
-                    int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                } else {
-                    session.setUnread_count(0);
+                if (canChangeUnread) {
+                    if (session.getIsMute() != 1) {//非免打扰
+                        int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
+                        num = num < 0 ? 0 : num;
+                        session.setUnread_count(num);
+                    } else {
+                        session.setUnread_count(0);
+                    }
                 }
             }
             session.setUp_time(System.currentTimeMillis());

@@ -88,37 +88,37 @@ public class ChatServer extends Service {
     /***
      * 无会话
      */
-    public static void setSessionNull() {
-        if (SESSION_TYPE == 3)
-            return;
-        SESSION_TYPE = 0;
-        SESSION_FUID = null;
-        SESSION_SID = null;
-    }
+//    public static void setSessionNull() {
+//        if (SESSION_TYPE == 3)
+//            return;
+//        SESSION_TYPE = 0;
+//        SESSION_FUID = null;
+//        SESSION_SID = null;
+//    }
 
     /***
      * 群
      * @param sid
      */
-    public static void setSessionGroup(String sid) {
-        if (SESSION_TYPE == 3)
-            return;
-        SESSION_TYPE = 2;
-        SESSION_FUID = null;
-        SESSION_SID = sid;
-    }
+//    public static void setSessionGroup(String sid) {
+//        if (SESSION_TYPE == 3)
+//            return;
+//        SESSION_TYPE = 2;
+//        SESSION_FUID = null;
+//        SESSION_SID = sid;
+//    }
 
     /***
      * 单人
      * @param fuid
      */
-    public static void setSessionSolo(Long fuid) {
-        if (SESSION_TYPE == 3)
-            return;
-        SESSION_TYPE = 1;
-        SESSION_FUID = fuid;
-        SESSION_SID = null;
-    }
+//    public static void setSessionSolo(Long fuid) {
+//        if (SESSION_TYPE == 3)
+//            return;
+//        SESSION_TYPE = 1;
+//        SESSION_FUID = fuid;
+//        SESSION_SID = null;
+//    }
 
 
     @Override

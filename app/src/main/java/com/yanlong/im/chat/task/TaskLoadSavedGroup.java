@@ -81,7 +81,7 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
                 if (response != null && response.body() != null && response.body().isOk()) {
                     List<Group> groups = response.body().getData();
                     if (groups != null) {
-                        System.out.println("群信息--gids=" + gids);
+//                        System.out.println("群信息--gids=" + gids);
                         msgDao.saveGroups(groups);
                         MessageManager.getInstance().addSavedGroup(groups);
                         int next = ++position;
