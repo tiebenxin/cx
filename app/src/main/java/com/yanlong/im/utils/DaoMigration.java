@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import androidx.annotation.Nullable;
+
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
@@ -127,13 +129,13 @@ public class DaoMigration implements RealmMigration {
                 .addRealmObjectField("p2PAuVideoMessage", schema.get("P2PAuVideoMessage"));
     }
 
-//    @Override
-//    public boolean equals(@Nullable Object obj) {
-//        return obj instanceof DaoMigration;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return super.hashCode();
-//    }
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return obj instanceof DaoMigration;
+    }
+
+    @Override
+    public int hashCode() {
+        return 100;
+    }
 }
