@@ -132,16 +132,14 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     protected void onPause() {
         super.onPause();
         //取消激活会话
-        ChatServer.setSessionNull();
+        MessageManager.getInstance().setSessionNull();
 
     }
 
     private void setCurrentSession() {
         if (isGroup) {
-            ChatServer.setSessionGroup(gid);
             MessageManager.getInstance().setSessionGroup(gid);
         } else {
-            ChatServer.setSessionSolo(uid);
             MessageManager.getInstance().setSessionSolo(uid);
         }
     }

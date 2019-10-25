@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
@@ -26,8 +25,6 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.UserUtil;
 
-import com.yanlong.im.chat.bean.GroupCreateMsg;
-
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -38,11 +35,10 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -309,12 +305,30 @@ public class GroupCreateActivity extends AppActivity {
 
 
     private List<UserInfo> listData = new ArrayList<>();
+    private List<UserInfo> tempData = new ArrayList<>();
 
     private void taskListData() {
 
         listData = userDao.friendGetAll();
+        // 升序
+        Collections.sort(listData, new Comparator<UserInfo>() {
+            @Override
+            public int compare(UserInfo o1, UserInfo o2) {
+                return o1.getTag().hashCode() - o2.getTag().hashCode();
+            }
+        });
 
-        Collections.sort(listData);
+        // 把#数据放到末尾
+        tempData.clear();
+        for (int i = listData.size() - 1; i >= 0; i--) {
+            UserInfo bean = listData.get(i);
+            if (bean.getTag().hashCode() == 35) {
+                tempData.add(bean);
+                listData.remove(i);
+            }
+        }
+        listData.addAll(tempData);
+
         for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:
             viewType.putTag(listData.get(i).getTag(), i);

@@ -21,6 +21,7 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.constant.AVChatExitCode;
 import com.example.nim_lib.constant.CoreEnum;
 import com.example.nim_lib.controll.AVChatController;
+import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.databinding.ActivityVoiceCallBinding;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.module.AVChatTimeoutObserver;
@@ -155,6 +156,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
                     } else {
                         outGoingCalling(AVChatType.VIDEO);
                     }
+                    AVChatSoundPlayer.instance(this).play(AVChatSoundPlayer.RingerTypeEnum.CONNECTING);
                     bindingView.txtWaitMsg.setText(getString(R.string.avchat_wait_recieve1));
                     break;
                 case CoreEnum.VoiceType.RECEIVE:
@@ -164,6 +166,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
                     } else {
                         bindingView.txtWaitMsg.setText(R.string.avchat_audio_invitation);
                     }
+                    AVChatSoundPlayer.instance(this).play(AVChatSoundPlayer.RingerTypeEnum.PEER_REJECT);
                     bindingView.layoutInvitationVoice.setVisibility(View.VISIBLE);
                     bindingView.layoutVoiceWait.setVisibility(View.GONE);
                     break;
@@ -205,6 +208,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
 
     @Override
     protected void onDestroy() {
+        AVChatSoundPlayer.instance(this).stop();
         super.onDestroy();
         registerObserves(false);
     }
@@ -271,6 +275,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
      * 对方接受后更新UI
      */
     private void onAudioAgree() {
+        AVChatSoundPlayer.instance(VoiceCallActivity.this).stop();
         if (mAVChatType == AVChatType.VIDEO.getValue()) {
             bindingView.layoutAudio.setVisibility(View.GONE);
             bindingView.layoutInvitationVoice.setVisibility(View.GONE);
@@ -450,6 +455,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
     private Observer<AVChatCalleeAckEvent> callAckObserver = new Observer<AVChatCalleeAckEvent>() {
         @Override
         public void onEvent(AVChatCalleeAckEvent ackInfo) {
+            AVChatSoundPlayer.instance(VoiceCallActivity.this).stop();
             if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_BUSY) {
                 // 对方正在忙
                 LogUtil.getLog().i(TAG, "对方正在忙");

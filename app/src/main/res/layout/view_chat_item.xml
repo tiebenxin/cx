@@ -486,11 +486,12 @@
                         android:id="@+id/txt_ot_voice_video"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="normal"
                         android:text="通话时长"
                         android:paddingLeft="5dp"
                         android:drawablePadding="10dp"
                         android:textColor="@color/black"
+                        android:selectAllOnFocus="true"
+                        android:textIsSelectable="false"
                         android:drawableLeft="@drawable/svg_small_voice2"
                         android:textSize="15sp" />
 
@@ -925,6 +926,8 @@
                             android:text="通话时长"
                             android:drawablePadding="10dp"
                             android:textColor="@color/black"
+                            android:selectAllOnFocus="true"
+                            android:textIsSelectable="false"
                             android:drawableRight="@drawable/svg_small_voice2"
                             android:textSize="15sp" />
 

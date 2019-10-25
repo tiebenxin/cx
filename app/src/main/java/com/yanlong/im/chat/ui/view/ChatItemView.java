@@ -443,7 +443,7 @@ public class ChatItemView extends LinearLayout {
      * 音视频消息
      * @param msg
      */
-    public void setDataVoiceOrVideo(String msg,int type,OnClickListener onClickListener) {
+    public void setDataVoiceOrVideo(String msg,int type,OnClickListener onk) {
         txtMeVoiceVideo.setText(msg);
         txtOtVoiceVideo.setText(msg);
         Drawable drawableVoice = getResources().getDrawable(R.drawable.svg_small_voice2);
@@ -455,20 +455,8 @@ public class ChatItemView extends LinearLayout {
             StringUtils.modifyTextViewDrawable(txtMeVoiceVideo,drawableVideo,2);
             StringUtils.modifyTextViewDrawable(txtOtVoiceVideo,drawableVideo,0);
         }
-        txtMeVoiceVideo.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.setTag(type);
-                onClickListener.onClick(v);
-            }
-        });
-        txtOtVoiceVideo.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.setTag(type);
-                onClickListener.onClick(v);
-            }
-        });
+        viewMeTouch.setOnClickListener(onk);
+        viewOtTouch.setOnClickListener(onk);
     }
 
     //戳一下消息
@@ -704,11 +692,11 @@ public class ChatItemView extends LinearLayout {
                 imgOt4.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
 
                 RelativeLayout.LayoutParams layoutParams=( RelativeLayout.LayoutParams)img_me_4_time.getLayoutParams();
-                layoutParams.setMargins(w-110,h-60,0,0);
+                layoutParams.setMargins(w-105,h-55,0,0);
                 img_me_4_time.setLayoutParams(layoutParams);
 
                 RelativeLayout.LayoutParams layoutParamsOT=( RelativeLayout.LayoutParams)img_ot_4_time.getLayoutParams();
-                layoutParamsOT.setMargins(w-110,h-60,0,0);
+                layoutParamsOT.setMargins(w-105,h-55,0,0);
                 img_ot_4_time.setLayoutParams(layoutParamsOT);
                 long currentTime= videoMessage.getDuration();
                 if (currentTime<10){
@@ -765,6 +753,14 @@ public class ChatItemView extends LinearLayout {
                 setImgageProg(null);
             }
         }
+        if (null!=pg){
+            if (pg.intValue()==100||pg.intValue()==0){
+                setVideoIMGShow(true);
+            }else{
+                setVideoIMGShow(false);
+            }
+        }
+
     }
 
     //图片消息

@@ -1057,7 +1057,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
-
+                        if (mPopupWindow != null && mPopupWindow.isShowing()) {
+                            mPopupWindow.dismiss();
+                        }
                         break;
 
                 }
@@ -1081,8 +1083,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //获取与该view的底部的偏移量
                             lastOffset = topView.getBottom();
                         }
-
                         saveScrollPosition();
+                        System.out.println(TAG + "当前滑动位置：lastPosition=" + lastPosition);
                     }
                 }
             }
@@ -1378,7 +1380,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (isLoadHistory) {
             isLoadHistory = false;
         }
-        System.out.println(TAG + "scrollListView");
+//        System.out.println(TAG + "scrollListView");
         if (msgListData != null) {
             int length = msgListData.size();//刷新后当前size；
             if (isMustBottom) {
@@ -1598,30 +1600,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
-    private  boolean clickAble=false;
+    private boolean clickAble = false;
 
     @Override
     protected void onResume() {
         super.onResume();
         //激活当前会话
         if (isGroup()) {
-            ChatServer.setSessionGroup(toGid);
             MessageManager.getInstance().setSessionGroup(toGid);
         } else {
-            ChatServer.setSessionSolo(toUId);
             MessageManager.getInstance().setSessionSolo(toUId);
         }
 
         //刷新群资料
         taskSessionInfo();
-        clickAble=true;
+        clickAble = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         //取消激活会话
-        ChatServer.setSessionNull();
+        MessageManager.getInstance().setSessionNull();
 
     }
 
@@ -1809,17 +1809,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else {
 //                            ToastUtil.show(this, "图片已损坏，请重新选择");
 
-
                             String videofile = localMedia.getPath();
-                            if (null!=videofile){
+                            if (null != videofile) {
                                 //                            int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
 //                            int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
 //                            int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
                                 final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                                 final String imgMsgId = SocketData.getUUID();
                                 VideoMessage videoMessage = new VideoMessage();
-                                videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
-                                videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
                                 videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
                                 videoMessage.setBg_url(getVideoAttBitmap(videofile));
                                 videoMessage.setLocalUrl(videofile);
@@ -1829,8 +1828,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 msgListData.add(imgMsgBean);
                                 UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
                                 startService(new Intent(getContext(), UpLoadService.class));
-                            }else{
-                                ToastUtil.show(this,"文件已损坏，请重新选择");
+                            } else {
+                                ToastUtil.show(this, "文件已损坏，请重新选择");
                             }
 
                         }
@@ -1904,7 +1903,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             //处理失败的情况
 //            Log.d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
-            replaceListDataAndNotify(msgAllbean,true);
+            replaceListDataAndNotify(msgAllbean, true);
         } else if (event.getState() == 1) {
             //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
@@ -1977,11 +1976,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
     }
+
     /***
      * 替换listData中的某条消息并且刷新
      * @param msgAllbean
      */
-    private void replaceListDataAndNotify(MsgAllBean msgAllbean,boolean loose) {
+    private void replaceListDataAndNotify(MsgAllBean msgAllbean, boolean loose) {
 
         if (msgListData == null)
             return;
@@ -2002,6 +2002,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
     }
+
     /***
      * 更新图片需要的进度
      * @param msgid
@@ -2013,10 +2014,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (msgListData.get(i).getMsg_id().equals(msgid)) {
                 // Log.d("xxxx", "taskRefreshImage: "+msgid);
                 mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-//                if (msgListData.get(i).getVideoMessage()!=null){
-//                    ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(i);
-//                    itemView.setVideoIMGShow(false);
-//                }
+
 
             }
         }
@@ -2258,17 +2256,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pgVideo);
-//                        if (pgVideo.intValue()==100){
-//                            holder.viewChatItem.setVideoIMGShow(true);
-//                        }
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
-                        }else if(msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING){
+                            holder.viewChatItem.setVideoIMGShow(true);
+                        } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
                             holder.viewChatItem.setVideoIMGShow(false);
-                        }else{
-                            holder.viewChatItem.setVideoIMGShow(true );
+                        } else {
                         }
                         break;
                     default:
@@ -2478,16 +2473,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
 
                 case ChatEnum.EMessageType.MSG_VIDEO:
-                    if (msgbean.getSend_state()==ChatEnum.ESendStatus.SENDING){
-                        holder.viewChatItem.setVideoIMGShow(false);
-                    }else
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
+//                        holder.viewChatItem.setVideoIMGShow(false);
+                    } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
                         holder.viewChatItem.setVideoIMGShow(true);
+                        Log.e("TAG","2");
                     } else {
                         menus.add(new OptionMenu("删除"));
-                        holder.viewChatItem.setVideoIMGShow(true);
+
                     }
 
                     Integer pgVideo = null;
@@ -2498,13 +2493,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
-                            if (clickAble){
-                                clickAble=false;
+                            if (clickAble) {
+                                clickAble = false;
                                 String localUrl = msgbean.getVideoMessage().getLocalUrl();
                                 if (StringUtil.isNotNull(localUrl)) {
                                     File file = new File(localUrl);
                                     if (file.exists()) {
-                                        Log.e("TAG",file.getAbsolutePath());
+                                        Log.e("TAG", file.getAbsolutePath());
                                         Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
                                         intent.putExtra("videopath", localUrl);
                                         intent.putExtra("videomsg", new Gson().toJson(msgbean));
@@ -2596,7 +2591,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         @Override
                         public void onClick(View v) {
-                            if ((int) v.getTag() == MsgBean.AuVideoType.Audio.getNumber()) {
+                            if (msgbean.getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Audio.getNumber()) {
                                 gotoVoiceActivity();
                             } else {
                                 gotoVideoActivity();
@@ -3006,86 +3001,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean,
                          final IMenuSelectListener listener, RecyclerViewAdapter.RCViewHolder holder) {
         //禁止滑动
-        //mtListView.getListView().setNestedScrollingEnabled(true);
-
-//        final PopupMenuView menuView = new PopupMenuView(getContext());
-//
-//        menuView.setMenuItems(menus);
-//        menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
-//            @Override
-//            public boolean onOptionMenuClick(int position, OptionMenu menu) {
-//                //放开滑动
-//                // mtListView.getListView().setNestedScrollingEnabled(true);
-//                if (listener != null) {
-//                    listener.onSelected();
-//                }
-//
-//
-//                if (menu.getTitle().equals("删除")) {
-//
-//                    AlertYesNo alertYesNo = new AlertYesNo();
-//                    alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
-//                        @Override
-//                        public void onON() {
-//
-//                        }
-//
-//                        @Override
-//                        public void onYes() {
-//                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
-//                            msgListData.remove(msgbean);
-//                            notifyData();
-//                        }
-//                    });
-//                    alertYesNo.show();
-//
-//
-//                } else if (menu.getTitle().equals("转发")) {
-//                    /*  */
-//                    startActivity(new Intent(getContext(), MsgForwardActivity.class)
-//                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
-//                    );
-//
-//                } else if (menu.getTitle().equals("复制")) {//只有文本
-//                    String txt = "";
-//                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
-//                        txt = msgbean.getAtMessage().getMsg();
-//                    } else {
-//                        txt = msgbean.getChat().getMsg();
-//                    }
-//                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-//                    ClipData mClipData = ClipData.newPlainText(txt, txt);
-//                    cm.setPrimaryClip(mClipData);
-//
-//                } else if (menu.getTitle().equals("听筒播放")) {
-//                    msgDao.userSetingVoicePlayer(1);
-//                } else if (menu.getTitle().equals("扬声器播放")) {
-//                    msgDao.userSetingVoicePlayer(0);
-//                } else if (menu.getTitle().equals("撤回")) {
-//
-//
-//                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
-//
-//
-//                }
-//                menuView.dismiss();
-//                return true;
-//            }
-//        });
-//
-//        menuView.setOnDismissListener(new PopupWindow.OnDismissListener() {
-//            @Override
-//            public void onDismiss() {
-//                if (listener != null) {
-//                    listener.onSelected();
-//                }
-//                menuView.dismiss();
-//
-//            }
-//        });
-//
-//        menuView.show(v);
-//        mPopupWindow.showAsDropDown(v);
+//        mtListView.getListView().setNestedScrollingEnabled(true);
 
         initPopWindowEvent(msgbean);
         setMessageType(menus);
@@ -3500,7 +3416,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        notifyData2Bottom(false);
+                        notifyData2Bottom(true);
 //                        notifyData();
                     }
                 });
@@ -3675,13 +3591,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (TextUtils.isEmpty(df) || !draft.equals(df)) {
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-                draft= df;
+                draft = df;
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-                draft= df;
+                draft = df;
             }
         }
         if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {

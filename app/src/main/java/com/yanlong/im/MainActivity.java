@@ -412,6 +412,8 @@ public class MainActivity extends AppActivity {
     public void eventRefreshFriend(EventRefreshFriend event) {
         if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
             taskLoadSavedGroups();
+        } else if (event.getRosterAction() == CoreEnum.ERosterAction.REQUEST_FRIEND) {//请求添加为好友
+            taskGetFriendNum();
         }
     }
 
