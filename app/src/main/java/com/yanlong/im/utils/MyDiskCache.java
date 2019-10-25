@@ -14,6 +14,7 @@ public class MyDiskCache {
     public static String TYPE_IMA="image";
     public static String TYPE_VOICE="voice";
     public static String TYPE_VIDEO="video";
+    public static String TYPE_DEFALUT="defalut";
     public File getFile(String path){
         try{
 //            DiskLruCache diskLruCache=DiskLruCache.open(new File(""),0,0,0);
@@ -31,10 +32,12 @@ public class MyDiskCache {
         String type=null;
         if (url.endsWith("mp4")){
             type=TYPE_VIDEO;
-        }else if(url.endsWith("png")||url.endsWith("jpg")||url.endsWith("gif")){
+        }else if(url.endsWith("png")||url.endsWith("jpg")||url.endsWith("gif")||url.endsWith("jpeg")){
             type=TYPE_IMA;
         }else if(url.endsWith("caf")){
             type=TYPE_VOICE;
+        }else {
+            type=TYPE_DEFALUT;
         }
 //        DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, DiskCache.Factory.DEFAULT_DISK_CACHE_SIZE);
 //        DiskLruCache.Value value = diskLruCache.get(safeKey);
@@ -58,8 +61,10 @@ public class MyDiskCache {
                 return MyDiskCacheController.MAX_VIDEO_SIZE;
             }else if(type.equals(TYPE_VOICE)){
                 return MyDiskCacheController.MAX_VOICE_SIZE;
+            }else{
+                return MyDiskCacheController.USABLE_DEFALUT_SIZE;
             }
-            return 0;
+//            return 0;
     }
 
 }

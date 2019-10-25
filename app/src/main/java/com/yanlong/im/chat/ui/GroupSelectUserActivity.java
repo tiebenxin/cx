@@ -218,7 +218,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 for (int i = 0; i < len; i++) {
                     MemberUser member = list.get(i);
                     if (group.getMaster().equals(member.getUid() + "")) {
-                        list.remove(i);
+//                        list.remove(i);
                     } else {
                         UserInfo info = MessageManager.getInstance().memberToUser(member);
                         users.add(info);
@@ -239,7 +239,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 for (int i = 0; i < len; i++) {
                     MemberUser member = list.get(i);
                     if (uid.equals(member.getUid())) {
-                        list.remove(i);
+//                        list.remove(i);
                     } else {
                         UserInfo info = MessageManager.getInstance().memberToUser(member);
                         users.add(info);
@@ -307,7 +307,7 @@ public class GroupSelectUserActivity extends AppActivity {
 
                     if (type == 0) {
                         alertYesNo = new AlertYesNo();
-                        alertYesNo.init(GroupSelectUserActivity.this, "转让群", bean.getName()+"将成为该群群主，确定后你将立刻失去群主身份", "确定", "取消", new AlertYesNo.Event() {
+                        alertYesNo.init(GroupSelectUserActivity.this, "转让群", bean.getName() + "将成为该群群主，确定后你将立刻失去群主身份", "确定", "取消", new AlertYesNo.Event() {
                             @Override
                             public void onON() {
 

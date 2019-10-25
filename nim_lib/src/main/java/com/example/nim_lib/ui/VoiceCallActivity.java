@@ -86,6 +86,8 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
     Handler mHandler = new Handler();
     // 通话类型
     private int mAVChatType;
+    private Long toUId = null;
+    private String toGid = null;
 
     // 视频
     //render
@@ -106,6 +108,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
     private boolean isCallEstablished = false; // 电话是否接通
     private boolean surfaceInit = false;
     private boolean isReleasedVideo = false;
+    private boolean isForeground = false;// 判断是否到前台显示
     // move
     private int lastX, lastY;
     private int inX, inY;
@@ -142,6 +145,8 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
             mVoiceType = bundle.getInt(Preferences.VOICE_TYPE);
             mAvChatData = (AVChatData) bundle.getSerializable(Preferences.AVCHATDATA);
             mAVChatType = bundle.getInt(Preferences.AVCHA_TTYPE);
+            toUId =  bundle.getLong(Preferences.TOUID);
+            toGid =  bundle.getString(Preferences.TOGID);
             switch (mVoiceType) {
                 case CoreEnum.VoiceType.WAIT:
                     bindingView.layoutVoiceWait.setVisibility(View.VISIBLE);
@@ -204,6 +209,18 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
         registerObserves(false);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isForeground = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isForeground = false;
+    }
+
     /**
      * 通话计时
      */
@@ -218,7 +235,11 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
 
             if (!isFinishing()) {
                 mHandler.postDelayed(this, TIME);
-                bindingView.txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+                if (hour > 0) {
+                    bindingView.txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+                } else {
+                    bindingView.txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d", min, second));
+                }
             }
         }
     };
@@ -272,7 +293,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
         AVChatManager.getInstance().observeHangUpNotification(callHangupObserver, register);
         AVChatManager.getInstance().observeControlNotification(callControlObserver, register);
         AVChatManager.getInstance().observeCalleeAckNotification(callAckObserver, register);
-        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, register,this);
+        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, register, this);
         PhoneCallStateObserver.getInstance().observeAutoHangUpForLocalPhone(autoHangUpForLocalPhoneObserver, register);
     }
 
@@ -353,7 +374,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
         public void onCallEstablished() {
             Log.d(TAG, "onCallEstablished");
 //            //移除超时监听
-            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall,VoiceCallActivity.this);
+            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall, VoiceCallActivity.this);
 //            if (avChatController.getTimeBase() == 0)
 //                avChatController.setTimeBase(SystemClock.elapsedRealtime());
 
@@ -366,6 +387,9 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
                 findSurfaceView();
             }
             isCallEstablished = true;
+            if (!isFinishing() && !isForeground) {
+                sendVoiceMinimizeEventBus();
+            }
         }
 
         @Override
@@ -463,7 +487,11 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
 //            avChatData = avChatController.getAvChatData();
             Log.d(TAG, "对方挂断电话");
             if (mAvChatData != null && mAvChatData.getChatId() == avChatHangUpInfo.getChatId()) {
-                EventBus.getDefault().post(new EventFactory.CloseVoiceMinimizeEvent());
+                EventFactory.CloseVoiceMinimizeEvent event = new EventFactory.CloseVoiceMinimizeEvent();
+                event.avChatType = mAVChatType;
+                event.operation = "hangup";
+                event.txt = "通话时长 " + bindingView.txtLifeTime.getText().toString();
+                EventBus.getDefault().post(event);
                 if (!isFinishing()) {
                     mHandler.removeCallbacks(runnable);
                 }
@@ -681,13 +709,18 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
         } else if (v.getId() == R.id.img_minimize) {// 最小化
             // 停止计时器
 //            handler.removeCallbacks(runnable);
-            EventFactory.VoiceMinimizeEvent event = new EventFactory.VoiceMinimizeEvent();
-            event.passedTime = mPassedTime;
-            event.showTime = bindingView.txtLifeTime.getText().toString();
-            EventBus.getDefault().post(event);
+            sendVoiceMinimizeEventBus();
             // 退到后台不显
             moveTaskToBack(true);
         }
+    }
+
+    private void sendVoiceMinimizeEventBus() {
+        EventFactory.VoiceMinimizeEvent event = new EventFactory.VoiceMinimizeEvent();
+        event.passedTime = mPassedTime;
+        event.isCallEstablished = isCallEstablished;
+        event.showTime = bindingView.txtLifeTime.getText().toString();
+        EventBus.getDefault().post(event);
     }
 
     /**

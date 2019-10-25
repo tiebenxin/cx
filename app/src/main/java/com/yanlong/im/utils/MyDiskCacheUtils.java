@@ -61,7 +61,7 @@ public class MyDiskCacheUtils {
         }else if(url.endsWith("png")||url.endsWith("jpg")||url.endsWith("gif")){
             path= mContext.getExternalCacheDir().getAbsolutePath()+"/Image/"+safeKey+"."+urls[1];
         }else if(url.endsWith("caf")){
-            path= mContext.getExternalCacheDir().getAbsolutePath()+"/Audio/"+safeKey+"."+urls[1];
+            path= mContext.getExternalCacheDir().getAbsolutePath()+safeKey+"."+urls[1];
         }
 //        DiskLruCache diskLruCache = DiskLruCache.open(new File(cachePath, DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, DiskCache.Factory.DEFAULT_DISK_CACHE_SIZE);
 //        DiskLruCache.Value value = diskLruCache.get(safeKey);
@@ -73,16 +73,20 @@ public class MyDiskCacheUtils {
         if (null==diskCacheController){
            throw new IllegalStateException("先初始化控制类设置基础属性");
         }
-        File file =new File(path);
-        if (file.isDirectory()){
-           long totalSpace= file.length();
-           if (totalSpace>MyDiskCache.getFileVailable(MyDiskCache.getFileType(filePath))){
-               clearFile(file);
-           }
+        if (null!=path&&null!=filePath){
+            File file =new File(path);
+            if (file.isDirectory()){
+                long totalSpace= file.length();
+                if (totalSpace>MyDiskCache.getFileVailable(MyDiskCache.getFileType(filePath))){
+                    clearFile(file);
+                    return false;
+                }
 //           file.getUsableSpace();
 //           file.getFreeSpace();
+            }
+
         }
-        return false;
+        return true;
     }
 
     private void clearFile(File path) {

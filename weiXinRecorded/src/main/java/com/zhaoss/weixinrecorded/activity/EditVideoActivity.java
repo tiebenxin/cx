@@ -233,6 +233,7 @@ public class EditVideoActivity extends BaseActivity {
             public void onClick(View v) {
                 if (isFinsh){
                     isFinsh=false;
+                    tv_finish_video.setClickable(false);
                     finishVideo();
                 }
             }
@@ -404,8 +405,12 @@ public class EditVideoActivity extends BaseActivity {
         if(isSpeed){
             executeCount++;
         }
+        try{
+            mMediaPlayer.stop();
+        }catch (Exception e){
 
-        mMediaPlayer.stop();
+        }
+
         editorTextView = showProgressDialog();
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
@@ -434,11 +439,13 @@ public class EditVideoActivity extends BaseActivity {
                     Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
                 }
                 isFinsh=true;
+                tv_finish_video.setClickable(true);
             }
             @Override
             public void onError(Throwable e) {
                 closeProgressDialog();
                 Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
+                tv_finish_video.setClickable(true);
             }
         });
     }

@@ -109,10 +109,10 @@ public class MyAppLication extends MainApplication {
     /**
      * 初始化网易云信
      */
-    private void initNim(){
+    private void initNim() {
         // SDK初始化（启动后台服务，若已经存在用户登录信息， SDK 将完成自动登录） 必须放到主Application中
         NIMClient.init(this, getLoginInfo(), null);
-        LogUtil.getLog().d(TAG,"NIMClient.init()");
+        LogUtil.getLog().d(TAG, "NIMClient.init()");
         // 以下逻辑只在主进程初始化时执行
         if (NIMUtil.isMainProcess(this)) {
             AVChatKit.getInstance().init(this);
@@ -139,12 +139,13 @@ public class MyAppLication extends MainApplication {
 
     /**
      * 获取网易云账号跟Toekn
+     *
      * @return
      */
     private LoginInfo getLoginInfo() {
         SpUtil spUtil = SpUtil.getSpUtil();
-        String account = spUtil.getSPValue("account","");
-        String token = spUtil.getSPValue("token","");
+        String account = spUtil.getSPValue("account", "");
+        String token = spUtil.getSPValue("token", "");
         if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             return new LoginInfo(account, token);
         } else {
@@ -215,7 +216,7 @@ public class MyAppLication extends MainApplication {
      */
     private void initRedPacket() {
         //改为正式环境
-        JrmfClient.isDebug(!AppConfig.DEBUG);
+        JrmfClient.isDebug(AppConfig.DEBUG);
         /*** 需要在Manifest.xml文件*（JRMF_PARTNER_ID）和* 红包名称（JRMF_PARTNER*/
         JrmfClient.init(this);
         com.jrmf360.tools.utils.LogUtil.init(AppConfig.DEBUG);

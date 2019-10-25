@@ -599,7 +599,7 @@ public class UserAction {
 
 
     /**
-     * 根据产品号获取个人资料
+     * 根据常聊号获取个人资料
      */
     public void getUserInfoByImid(String imid, CallBack<ReturnBean<UserInfo>> callback) {
         NetUtil.getNet().exec(server.getUserInfoByImid(imid), callback);
@@ -607,7 +607,7 @@ public class UserAction {
 
 
     /**
-     * 根据关键字匹配产品号或手机号获取用户信息
+     * 根据关键字匹配常聊号或手机号获取用户信息
      */
     public void getUserInfoByKeyword(String keyWord, CallBack<ReturnBean<List<UserInfo>>> callback) {
         NetUtil.getNet().exec(server.getUserInfoByKeyword(keyWord), callback);

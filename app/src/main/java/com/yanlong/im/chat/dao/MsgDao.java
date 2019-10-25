@@ -26,6 +26,7 @@ import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
@@ -954,6 +955,8 @@ public class MsgDao {
                     int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
                     num = num < 0 ? 0 : num;
                     session.setUnread_count(num);
+                } else {
+                    session.setUnread_count(0);
                 }
             }
             session.setUp_time(System.currentTimeMillis());
@@ -977,10 +980,12 @@ public class MsgDao {
                 }
 
             } else {
-                if (session.getIsMute() != 1) {//免打扰
+                if (session.getIsMute() != 1) {//非免打扰
                     int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
                     num = num < 0 ? 0 : num;
                     session.setUnread_count(num);
+                } else {
+                    session.setUnread_count(0);
                 }
             }
             session.setUp_time(System.currentTimeMillis());
@@ -1308,7 +1313,8 @@ public class MsgDao {
                             if (group != null) {
                                 top = group.getIsTop();
                                 List<MemberUser> users = realm.copyFromRealm(group.getUsers());
-                                if (users != null && !users.contains(UserAction.getMyInfo())) {
+                                MemberUser member = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), group.getGid());
+                                if (users != null && member != null && !users.contains(member)) {
                                     session = realm.copyFromRealm(l);
                                     removes.add(session);
                                 }
@@ -1812,8 +1818,9 @@ public class MsgDao {
      */
     public UserSeting userSetingGet() {
         UserSeting userSeting = DaoUtil.findOne(UserSeting.class, "uid", UserAction.getMyId());
-        if (userSeting == null) {
+        if (userSeting == null) {//数据库中无用户配置信息，则为默认
             userSeting = new UserSeting();
+            userSeting.setUid(UserAction.getMyId());
         }
         return userSeting;
     }
@@ -1935,23 +1942,17 @@ public class MsgDao {
                 if (memberUser != null) {
                     name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : name;
                 }
-
-//                GropLinkInfo gropLinkInfo = null;
-//                if (StringUtil.isNotNull(gid)) {
-//                    gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
-//                }
-//                if (gropLinkInfo != null) {
-//                    //2.获取群成员昵称
-//                    name = StringUtil.isNotNull(gropLinkInfo.getMembername()) ? gropLinkInfo.getMembername() : name;
-//                }
             }
-
-
             //3.获取用户备注名
             name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
         } else {
-            name = StringUtil.isNotNull(uname) ? uname : name;
-            name = StringUtil.isNotNull(groupName) ? groupName : name;
+            MemberUser memberUser = realm.where(MemberUser.class)
+                    .beginGroup().equalTo("uid", uid).endGroup()
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .findFirst();
+            if (memberUser != null) {
+                name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
+            }
 
         }
 
@@ -2583,8 +2584,8 @@ public class MsgDao {
         }
     }
 
-    //添加群成员
-    public void removeGroupMember(String gid, List<MemberUser> memberUsers) {
+    //移出群成员
+    public void removeGroupMember(String gid, List<Long> uids) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -2592,7 +2593,18 @@ public class MsgDao {
             if (group != null) {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
-                    list.removeAll(memberUsers);
+                    List<MemberUser> removeMembers = new ArrayList<>();
+                    for (MemberUser user : list) {
+                        if (uids.contains(user.getUid())) {
+                            removeMembers.add(user);
+                        }
+                        if (removeMembers.size() == uids.size()) {
+                            break;
+                        }
+                    }
+                    if (removeMembers.size() > 0) {
+                        list.removeAll(removeMembers);
+                    }
                 }
             }
             realm.commitTransaction();
@@ -2603,6 +2615,25 @@ public class MsgDao {
     }
 
     //移出群成员
+    public void removeGroupMember(String gid, MemberUser user) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                RealmList<MemberUser> list = group.getUsers();
+                if (list != null) {
+                    list.remove(user);
+                }
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+    //添加群成员
     public void addGroupMember(String gid, List<MemberUser> memberUsers) {
         Realm realm = DaoUtil.open();
         try {
@@ -2612,6 +2643,25 @@ public class MsgDao {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
                     list.addAll(memberUsers);
+                }
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+    //添加群成员
+    public void addGroupMember(String gid, MemberUser user) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                RealmList<MemberUser> list = group.getUsers();
+                if (list != null) {
+                    list.add(user);
                 }
             }
             realm.commitTransaction();

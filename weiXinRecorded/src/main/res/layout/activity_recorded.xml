@@ -30,11 +30,12 @@
         android:layout_marginTop="34dp"
         >
         <ImageView
-            android:id="@+id/iv_flash_video"
+            android:id="@+id/iv_recorded_edit"
             android:layout_width="39dp"
             android:layout_height="36dp"
             android:layout_marginLeft="42dp"
-            android:background="@mipmap/video_flash"/>
+            android:background="@mipmap/video_cancle"/>
+
 <!--        <ImageView-->
 <!--            android:id="@+id/iv_camera_mode"-->
 <!--            android:layout_width="@dimen/title_bar_hei"-->

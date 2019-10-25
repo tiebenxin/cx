@@ -16,12 +16,17 @@ public class EventFactory {
     public static class VoiceMinimizeEvent extends BaseEvent {
         public int passedTime;
         public String showTime;
+        public boolean isCallEstablished;// 是否接听
     }
 
     /**
      * 语音最小化
      */
     public static class CloseVoiceMinimizeEvent extends BaseEvent {
-
+        public String operation;// 操作(cancel|hangup|reject)
+        public String txt;// 操作加时长
+        public int avChatType;// 语音、视频
+        public Long toUId;
+        public String toGid;
     }
 }
