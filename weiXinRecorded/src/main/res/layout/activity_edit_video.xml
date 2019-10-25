@@ -133,8 +133,14 @@
             android:id="@+id/ll_bottom"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="#dd2B2B2B"
+            android:background="#80353535"
             android:layout_alignParentBottom="true">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:orientation="horizontal"
+                >
             <RelativeLayout
                 android:id="@+id/rl_pen"
                 android:layout_width="0dp"
@@ -145,7 +151,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/pen" />
+                    android:src="@mipmap/activity_video_edit_pan" />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/rl_icon"
@@ -157,7 +163,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/icon" />
+                    android:src="@mipmap/activity_video_edit_face" />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/rl_text"
@@ -168,7 +174,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/text_click" />
+                    android:src="@mipmap/activity_video_edit_text" />
             </RelativeLayout>
             <RelativeLayout
                 android:visibility="gone"
@@ -189,15 +195,16 @@
                 android:layout_weight="1"
                 android:layout_height="50dp">
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="26dp"
+                    android:layout_height="23dp"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/cut_size" />
+                    android:src="@mipmap/activity_video_edit_cut" />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/rl_cut_time"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:visibility="gone"
                 android:layout_height="50dp">
                 <ImageView
                     android:layout_width="20dp"
@@ -205,21 +212,22 @@
                     android:layout_centerInParent="true"
                     android:src="@mipmap/cut_time" />
             </RelativeLayout>
+        </LinearLayout>
 
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:layout_weight="1">
+                android:layout_weight="2">
             <TextView
                 android:id="@+id/tv_finish_video"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:paddingLeft="13dp"
-                android:paddingRight="13dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:textSize="14sp"
+                android:textSize="18sp"
                 android:textColor="#fff"
                 android:background="@drawable/yuanjiao"
                 android:text="完成"/>

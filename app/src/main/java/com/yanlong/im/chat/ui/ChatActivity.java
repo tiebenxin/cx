@@ -1806,8 +1806,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                                 final String imgMsgId = SocketData.getUUID();
                                 VideoMessage videoMessage = new VideoMessage();
-                                videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
-                                videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
                                 videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
                                 videoMessage.setBg_url(getVideoAttBitmap(videofile));
                                 videoMessage.setLocalUrl(videofile);
