@@ -37,6 +37,7 @@ import net.cb.cb.library.view.PySortView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -51,6 +52,7 @@ public class FriendMatchActivity extends AppActivity {
     private PySortView viewType;
     private UserAction userAction;
     private PhoneListUtil phoneListUtil = new PhoneListUtil();
+    private List<FriendInfoBean> tempData = new ArrayList<>();
     private List<FriendInfoBean> listData = new ArrayList<>();
     private List<FriendInfoBean> seacchData = new ArrayList<>();
     private RecyclerViewAdapter adapter;
@@ -212,11 +214,11 @@ public class FriendMatchActivity extends AppActivity {
         public void onBindViewHolder(RCViewHolder holder, final int position) {
             final FriendInfoBean bean = list.get(position);
             holder.txtType.setText(bean.getTag());
-        //    holder.imgHead.setImageURI(bean.getAvatar() + "");
+            //    holder.imgHead.setImageURI(bean.getAvatar() + "");
             Glide.with(context).load(bean.getAvatar())
                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
             holder.txtName.setText(bean.getNickname());
-            holder.txtRemark.setText("通讯录: "+bean.getPhoneremark());
+            holder.txtRemark.setText("通讯录: " + bean.getPhoneremark());
 
             if (position != 0) {
                 FriendInfoBean lastbean = list.get(position - 1);
@@ -240,7 +242,7 @@ public class FriendMatchActivity extends AppActivity {
 
                         @Override
                         public void onYes(String content) {
-                            taskFriendApply(bean.getUid(),content,bean.getPhoneremark(), position);
+                            taskFriendApply(bean.getUid(), content, bean.getPhoneremark(), position);
                         }
                     });
                     alertTouch.show();
@@ -297,7 +299,22 @@ public class FriendMatchActivity extends AppActivity {
                         bean.toTag();
                     }
                     //筛选
-                    Collections.sort(listData);
+                    Collections.sort(listData, new Comparator<FriendInfoBean>() {
+                        @Override
+                        public int compare(FriendInfoBean o1, FriendInfoBean o2) {
+                            return o1.getTag().hashCode() - o2.getTag().hashCode();
+                        }
+                    });
+                    // 把#数据放到末尾
+                    tempData.clear();
+                    for (int i = listData.size() - 1; i >= 0; i--) {
+                        FriendInfoBean bean = listData.get(i);
+                        if (bean.getTag().hashCode() == 35) {
+                            tempData.add(bean);
+                            listData.remove(i);
+                        }
+                    }
+                    listData.addAll(tempData);
                     adapter.setList(listData);
                     initViewTypeData();
                     mtListView.notifyDataSetChange();

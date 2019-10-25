@@ -443,7 +443,7 @@ public class ChatItemView extends LinearLayout {
      * 音视频消息
      * @param msg
      */
-    public void setDataVoiceOrVideo(String msg,int type,OnClickListener onClickListener) {
+    public void setDataVoiceOrVideo(String msg,int type,OnClickListener onk) {
         txtMeVoiceVideo.setText(msg);
         txtOtVoiceVideo.setText(msg);
         Drawable drawableVoice = getResources().getDrawable(R.drawable.svg_small_voice2);
@@ -455,20 +455,8 @@ public class ChatItemView extends LinearLayout {
             StringUtils.modifyTextViewDrawable(txtMeVoiceVideo,drawableVideo,2);
             StringUtils.modifyTextViewDrawable(txtOtVoiceVideo,drawableVideo,0);
         }
-        txtMeVoiceVideo.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.setTag(type);
-                onClickListener.onClick(v);
-            }
-        });
-        txtOtVoiceVideo.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.setTag(type);
-                onClickListener.onClick(v);
-            }
-        });
+        viewMeTouch.setOnClickListener(onk);
+        viewOtTouch.setOnClickListener(onk);
     }
 
     //戳一下消息
