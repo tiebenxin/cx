@@ -22,7 +22,6 @@
 
     <RelativeLayout
         android:id="@+id/activity_video_rel_con"
-        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -40,7 +39,7 @@
             <RelativeLayout
                 android:id="@+id/rl_video_play_con"
                 android:layout_width="343dp"
-                android:layout_height="35dp"
+                android:layout_height="38dp"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="94dp"
@@ -48,8 +47,8 @@
 
                 <ImageView
                     android:id="@+id/activity_video_img_con"
-                    android:layout_width="14dp"
-                    android:layout_height="16dp"
+                    android:layout_width="18dp"
+                    android:layout_height="20dp"
                     android:background="@mipmap/video_play_con_pause"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="13dp"

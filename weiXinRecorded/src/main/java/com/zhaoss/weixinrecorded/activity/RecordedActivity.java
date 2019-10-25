@@ -36,11 +36,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * 仿微信录制视频
- * 基于ffmpeg视频编译
- * Created by zhaoshuang on 19/6/18.
- */
+
 public class RecordedActivity extends BaseActivity {
 
     public static final String INTENT_PATH = "intent_path";
@@ -63,7 +59,8 @@ public class RecordedActivity extends BaseActivity {
     private ImageView iv_next;
     private ImageView iv_change_camera;
     private LineProgressView lineProgressView;
-    private ImageView iv_recorded_edit;
+    private ImageView iv_flash_video,iv_delete_back;
+    private TextView iv_recorded_edit;
     private TextView editorTextView;
     private TextView tv_hint;
 
@@ -110,6 +107,8 @@ public class RecordedActivity extends BaseActivity {
         iv_change_camera = findViewById(R.id.iv_camera_mode);
         lineProgressView =  findViewById(R.id.lineProgressView);
         tv_hint = findViewById(R.id.tv_hint);
+        iv_flash_video = findViewById(R.id.iv_flash_video);
+        iv_delete_back = findViewById(R.id.iv_delete_back);
 
         surfaceView.post(new Runnable() {
             @Override
@@ -174,7 +173,7 @@ public class RecordedActivity extends BaseActivity {
                 mCameraHelp.callFocusMode();
             }
         });
-        iv_recorded_edit.setOnClickListener(new View.OnClickListener() {
+        iv_delete_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                finishVideo(2);
@@ -278,7 +277,7 @@ public class RecordedActivity extends BaseActivity {
             }
         });
 
-        iv_delete.setOnClickListener(new View.OnClickListener() {
+        iv_recorded_edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editorTextView = showProgressDialog();
@@ -295,18 +294,23 @@ public class RecordedActivity extends BaseActivity {
                 finishVideo(1);
             }
         });
-
-//        iv_flash_video.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mCameraHelp.changeFlash();
-//                if (mCameraHelp.isFlashOpen()) {
-////                    iv_flash_video.setImageResource(R.mipmap.video_flash_open);
-//                } else {
-////                    iv_flash_video.setImageResource(R.mipmap.video_flash_close);
-//                }
-//            }
-//        });
+        iv_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteSegment();
+            }
+        });
+        iv_flash_video.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCameraHelp.changeFlash();
+                if (mCameraHelp.isFlashOpen()) {
+//                    iv_flash_video.setImageResource(R.mipmap.video_flash_open);
+                } else {
+//                    iv_flash_video.setImageResource(R.mipmap.video_flash_close);
+                }
+            }
+        });
 
         iv_change_camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -413,6 +417,7 @@ public class RecordedActivity extends BaseActivity {
 //        tv_hint.setVisibility(View.GONE);
         iv_delete.setVisibility(View.GONE);
         iv_next.setVisibility(View.GONE);
+        iv_recorded_edit.setVisibility(View.GONE);
     }
 
     private long videoDuration;
@@ -535,16 +540,23 @@ public class RecordedActivity extends BaseActivity {
         tv_hint.setText("长按继续录制");
         tv_hint.setVisibility(View.VISIBLE);
 
-        if (lineProgressView.getSplitCount() > 0) {
-            iv_delete.setVisibility(View.VISIBLE);
-        }else{
-            iv_delete.setVisibility(View.GONE);
-        }
+//        if (lineProgressView.getSplitCount() > 0) {
+//            iv_delete.setVisibility(View.VISIBLE);
+//        }else{
+//            iv_delete.setVisibility(View.GONE);
+//        }
 
         if (lineProgressView.getProgress()* MAX_VIDEO_TIME < MIN_VIDEO_TIME) {
             iv_next.setVisibility(View.GONE);
+            iv_delete.setVisibility(View.GONE);
+            iv_recorded_edit.setVisibility(View.GONE);
+            iv_delete_back.setVisibility(View.VISIBLE);
         } else {
             iv_next.setVisibility(View.VISIBLE);
+            iv_delete.setVisibility(View.VISIBLE);
+            iv_recorded_edit.setVisibility(View.VISIBLE);
+            iv_delete_back.setVisibility(View.GONE);
+
         }
     }
 
@@ -564,6 +576,7 @@ public class RecordedActivity extends BaseActivity {
 
         iv_delete.setVisibility(View.INVISIBLE);
         iv_next.setVisibility(View.INVISIBLE);
+        iv_recorded_edit.setVisibility(View.INVISIBLE);
 //        iv_flash_video.setVisibility(View.VISIBLE);
     }
 

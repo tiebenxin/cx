@@ -1816,8 +1816,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                                 final String imgMsgId = SocketData.getUUID();
                                 VideoMessage videoMessage = new VideoMessage();
-                                videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
-                                videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
                                 videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
                                 videoMessage.setBg_url(getVideoAttBitmap(videofile));
                                 videoMessage.setLocalUrl(videofile);
@@ -2013,10 +2013,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (msgListData.get(i).getMsg_id().equals(msgid)) {
                 // Log.d("xxxx", "taskRefreshImage: "+msgid);
                 mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-//                if (msgListData.get(i).getVideoMessage()!=null){
-//                    ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(i);
-//                    itemView.setVideoIMGShow(false);
-//                }
+
 
             }
         }
@@ -2258,17 +2255,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pgVideo);
-//                        if (pgVideo.intValue()==100){
-//                            holder.viewChatItem.setVideoIMGShow(true);
-//                        }
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
+                            holder.viewChatItem.setVideoIMGShow(true);
                         } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
                             holder.viewChatItem.setVideoIMGShow(false);
                         } else {
-                            holder.viewChatItem.setVideoIMGShow(true);
                         }
                         break;
                     default:
@@ -2479,14 +2473,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 case ChatEnum.EMessageType.MSG_VIDEO:
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
-                        holder.viewChatItem.setVideoIMGShow(false);
+//                        holder.viewChatItem.setVideoIMGShow(false);
                     } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
                         holder.viewChatItem.setVideoIMGShow(true);
+                        Log.e("TAG","2");
                     } else {
                         menus.add(new OptionMenu("删除"));
-                        holder.viewChatItem.setVideoIMGShow(true);
+
                     }
 
                     Integer pgVideo = null;
