@@ -16,7 +16,7 @@
             android:background="@color/white">
 
             <LinearLayout
-                style="@style/app_layout_list2_item"
+                style="@style/app_layout_list2_item_search"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:background="@drawable/shape_search_bg"

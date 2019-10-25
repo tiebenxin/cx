@@ -45,7 +45,6 @@ import androidx.annotation.RequiresApi;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
-import com.example.nim_lib.ui.VoiceCallActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -1192,7 +1191,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
                         bundle.putString(Preferences.TOGID, toGid);
                         bundle.putLong(Preferences.TOUID, toUId);
-                        IntentUtil.gotoActivity(ChatActivity.this, VoiceCallActivity.class, bundle);
+                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);
                     }
                 }
             }

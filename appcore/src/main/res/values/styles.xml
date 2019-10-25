@@ -406,7 +406,7 @@
     <!--设置项-->
     <style name="app_layout_list2_item">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_height">48dp</item>
         <item name="android:background">@color/white</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
@@ -441,7 +441,6 @@
     <style name="app_layout_seacher_item">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
-        <item name="android:background">#ececec</item>
         <item name="android:background">@color/white</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>

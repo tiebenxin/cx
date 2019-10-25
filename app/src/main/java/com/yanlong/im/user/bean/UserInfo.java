@@ -376,7 +376,9 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public void setTag(String tag) {
-        if (tag.hashCode() < 65 || tag.hashCode() > 91) {
+        if ("↑".equals(tag)) {
+            tag = "↑";
+        } else if (tag.hashCode() < 65 || tag.hashCode() > 91) {
             tag = "#";
         }
         this.tag = tag;

@@ -345,9 +345,6 @@ public class FriendMainFragment extends Fragment {
                     public List<UserInfo> apply(Integer integer) throws Exception {
                         listData = userDao.getAllUserInBook();
                         if (listData != null) {
-                            UserInfo topBean = new UserInfo();
-                            topBean.setTag("↑");
-                            listData.add(0, topBean);
                             // 升序
                             Collections.sort(listData,new Comparator<UserInfo>() {
                                 @Override
@@ -367,6 +364,9 @@ public class FriendMainFragment extends Fragment {
                             }
                             listData.addAll(tempData);
 
+                            UserInfo topBean = new UserInfo();
+                            topBean.setTag("↑");
+                            listData.add(0, topBean);
                             for (int i = 1; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
                             }
