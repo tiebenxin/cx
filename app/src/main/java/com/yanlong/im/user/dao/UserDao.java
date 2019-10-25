@@ -91,6 +91,9 @@ public class UserDao {
         }
     }
 
+    /**
+     * 获取阅后即焚状态
+     * */
     public int getReadDestroy(Long uid, String gid) {
         Realm realm = DaoUtil.open();
         try {

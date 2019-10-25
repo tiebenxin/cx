@@ -141,7 +141,6 @@ public class ChatInfoActivity extends AppActivity {
             }
         });
 
-
         //顶部处理
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);

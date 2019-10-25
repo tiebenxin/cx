@@ -98,10 +98,12 @@ import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.MyDiskCache;
 import com.yanlong.im.utils.MyDiskCacheUtils;
+import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
@@ -271,6 +273,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private MsgAllBean currentPlayBean;
     private Session session;
     private boolean isLoadHistory = false;//是否是搜索历史信息
+    private ReadDestroyUtil util = new ReadDestroyUtil();
+    private int survivaltime;
+    private DestroyTimeView destroyTimeView;
 
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
@@ -399,7 +404,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         switch (msg.getMsgType()) {
 
             case DESTROY_GROUP:
-                // ToastUtil.show(getApplicationContext(), "销毁群");
                 taskGroupConf();
             case REMOVE_GROUP_MEMBER://退出群
                 taskGroupConf();
@@ -414,43 +418,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else {
                             taskGroupConf();
                             GroupHeadImageUtil.creatAndSaveImg(this, groupInfo.getGid());
-//                        creatAndSaveImg(groupInfo.getGid());
                         }
                     }
                 }
                 break;
-//            case OTHER_REMOVE_GROUP:
-//                creatAndSaveImg(groupInfo.getGid());
-//                break;
             case CHANGE_GROUP_META:// 修改群信息
                 taskSessionInfo();
                 break;
         }
 
     }
-
-//    private void creatAndSaveImg(String gid) {
-//        Group gginfo = msgDao.getGroup4Id(gid);
-//        int i = gginfo.getUsers().size();
-//        i = i > 9 ? 9 : i;
-//        //头像地址
-//        String url[] = new String[i];
-//        for (int j = 0; j < i; j++) {
-//            UserInfo userInfo = gginfo.getUsers().get(j);
-////            if (j == i - 1) {
-////                name += userInfo.getName();
-////            } else {
-////                name += userInfo.getName() + "、";
-////            }
-//            url[j] = userInfo.getHead();
-//        }
-//        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-////        Glide.with(this).load(file)
-////                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-//
-//        MsgDao msgDao = new MsgDao();
-//        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-//    }
 
 
     private List<View> emojiLayout;
@@ -481,21 +458,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatRobot = findViewById(R.id.view_chat_robot);
         ll_part_chat_video = findViewById(R.id.ll_part_chat_video);
         llChatVideoCall = findViewById(R.id.ll_chat_video_call);
-//        findViewById(R.id.ll_video_recoder).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                CommFunKt.rxRequestPermissions(ChatActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO}, "相机、存储、录音", new Function0<Unit>() {
-//                    @Override
-//                    public Unit invoke() {
-//                        Intent intent=new Intent(ChatActivity.this, VideoRecordActivity.class);
-//                        startActivityForResult(intent,101);
-//                        return null;
-//                    }
-//                });
-//
-//
-//            }
-//        });
         imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
         txtVoice = findViewById(R.id.txt_voice);
@@ -506,23 +468,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void addViewPagerEvent() {
         emojiLayout = new ArrayList<>();
-//                View view1 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji, null);
-//                View view2 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji2, null);
-//                View view3 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji3, null);
-//                View view4 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji4, null);
-//                View view5 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji5, null);
         View view6 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji6, null);
         View view7 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji7, null);
         View view8 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji8, null);
         View view9 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji9, null);
         View view10 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji10, null);
         View view11 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji11, null);
-//        emojiLayout.add(view1);
-//        emojiLayout.add(view2);
-//        emojiLayout.add(view3);
-//        emojiLayout.add(view4);
-//        emojiLayout.add(view5);
-//        emojiLayout.add(view5);
         emojiLayout.add(view6);
         emojiLayout.add(view7);
         emojiLayout.add(view8);
@@ -784,15 +735,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
-//                        PictureSelector.create(ChatActivity.this)
-//                                .openCamera(PictureMimeType.ofImage())
-//                                .compress(true)
-//                                .forResult(PictureConfig.REQUEST_CAMERA);
-
                         Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                         startActivityForResult(intent, VIDEO_RP);
-
-//                        showDownLoadDialog();
                     }
 
                     @Override
@@ -823,10 +767,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewRbZfb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 taskPayRb();
-
-
             }
         });
         viewTransfer.setOnClickListener(new View.OnClickListener() {
@@ -1169,7 +1110,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         actionbar.post(new Runnable() {
             @Override
             public void run() {
-//                taskRefreshMessage();
                 taskDraftGet();
             }
         });
@@ -1179,12 +1119,23 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         taskCleanRead();
     }
 
-    //是否是常聊聊小助手用户
-    public boolean isAssitanceUser() {
-        if (toUId != null && toUId == 1L) {
-            return true;
-        }
-        return false;
+
+    private void initSurvivaltimeState() {
+        survivaltime = userDao.getReadDestroy(toUId, toGid);
+        util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
+        headView.getActionbar().getRightImage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                destroyTimeView = new DestroyTimeView(ChatActivity.this);
+                destroyTimeView.initView();
+                destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
+                    @Override
+                    public void onClickItem(String content, int survivaltime) {
+
+                    }
+                });
+            }
+        });
     }
 
 
@@ -1212,7 +1163,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void fail() {
                 updateSendStatus(ChatEnum.ESendStatus.ERROR, bean);
-//                ToastUtil.show(context, "发送失败!");
             }
 
             @Override
@@ -1528,6 +1478,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         EventBus.getDefault().register(this);
         findViews();
         initEvent();
+        initSurvivaltimeState();
     }
 
     @Override
@@ -2284,7 +2235,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             //发送状态处理
             holder.viewChatItem.setErr(msgbean.getSend_state());
-            LogUtil.getLog().d("getSend_state",msgbean.getSend_state()+"----"+msgbean.getMsg_id());
+            LogUtil.getLog().d("getSend_state", msgbean.getSend_state() + "----" + msgbean.getMsg_id());
 
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();

@@ -1,7 +1,12 @@
 package com.yanlong.im.utils;
 
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.yanlong.im.R;
+
 
 /**
  * @创建人 shenxin
@@ -109,6 +114,63 @@ public class ReadDestroyUtil {
         }
 
         return DateTimes;
+    }
+
+
+    public void setImageViewShow(int destroyTime, ImageView imageView){
+        switch (destroyTime){
+            case -1:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_colse);
+                break;
+            case 0:
+                imageView.setVisibility(View.GONE);
+                break;
+            case 5:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_5_s);
+                break;
+            case 10:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_10_s);
+                break;
+            case 30:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_30_s);
+                break;
+            case 60:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_1_min);
+                break;
+            case 1800:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_30_min);
+                break;
+            case 3600:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_1_h);
+                break;
+            case 21000:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_6_h);
+                break;
+            case 43200:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_12_h);
+                break;
+            case 86400:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_1_day);
+                break;
+            case 604800:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_1_week);
+                break;
+            default:
+                imageView.setVisibility(View.GONE);
+                break;
+        }
+
     }
 
 
