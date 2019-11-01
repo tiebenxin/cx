@@ -37,6 +37,7 @@ import net.cb.cb.library.utils.StringUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -112,11 +113,7 @@ public class MsgDao {
                             memberUser.init(group.getGid());
                         }
                     }
-//                    System.out.println("MsgDao--gid=" + group.getGid());
-//                    Group realmGroup = realm.copyToRealmOrUpdate(group);
-//                    realm.insertOrUpdate(group);
                 }
-//                realm.insertOrUpdate(groups);
                 realm.copyToRealmOrUpdate(groups);
             }
             realm.commitTransaction();
@@ -2513,13 +2510,11 @@ public class MsgDao {
                 int len = groups.size();
                 if (len > 0) {
                     List<Group> temp = new ArrayList<>();
-                    for (int i = 0; i < len; i++) {
-                        if (i < len) {
-                            Group group = groups.get(i);
-                            if (!groupList.contains(group)) {
-                                group.setSaved(0);
-                                temp.add(group);
-                            }
+                    for (Iterator<Group> it = groups.iterator(); it.hasNext(); ) {
+                        Group group = it.next();
+                        if (!groupList.contains(group)) {
+                            group.setSaved(0);
+                            temp.add(group);
                         }
                     }
                     realm.insertOrUpdate(temp);
@@ -2527,10 +2522,12 @@ public class MsgDao {
             }
             realm.commitTransaction();
             realm.close();
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
+
     }
 
 

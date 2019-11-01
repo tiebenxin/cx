@@ -352,6 +352,9 @@ public class UserDao {
                         continue;
                     }
                     UserInfo user = realm.where(UserInfo.class).equalTo("uid", bean.getUid()).findFirst();
+                    if (user == null){//拉黑用户数据库没有？
+                        continue;
+                    }
                     UserInfo userInfo = realm.copyFromRealm(user);
                     if (userInfo == null) {
                         continue;
