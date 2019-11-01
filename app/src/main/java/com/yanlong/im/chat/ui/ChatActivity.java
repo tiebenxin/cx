@@ -45,7 +45,6 @@ import androidx.annotation.RequiresApi;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
-import com.example.nim_lib.ui.VoiceCallActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
@@ -1057,7 +1056,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
-
+                        if (mPopupWindow != null && mPopupWindow.isShowing()) {
+                            mPopupWindow.dismiss();
+                        }
                         break;
 
                 }
@@ -1190,7 +1191,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
                         bundle.putString(Preferences.TOGID, toGid);
                         bundle.putLong(Preferences.TOUID, toUId);
-                        IntentUtil.gotoActivity(ChatActivity.this, VoiceCallActivity.class, bundle);
+                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);
                     }
                 }
             }
@@ -1807,7 +1808,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else {
 //                            ToastUtil.show(this, "图片已损坏，请重新选择");
 
-
                             String videofile = localMedia.getPath();
                             if (null != videofile) {
                                 //                            int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
@@ -1816,8 +1816,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                                 final String imgMsgId = SocketData.getUUID();
                                 VideoMessage videoMessage = new VideoMessage();
-                                videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
-                                videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
                                 videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
                                 videoMessage.setBg_url(getVideoAttBitmap(videofile));
                                 videoMessage.setLocalUrl(videofile);
@@ -2013,10 +2013,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (msgListData.get(i).getMsg_id().equals(msgid)) {
                 // Log.d("xxxx", "taskRefreshImage: "+msgid);
                 mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-//                if (msgListData.get(i).getVideoMessage()!=null){
-//                    ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(i);
-//                    itemView.setVideoIMGShow(false);
-//                }
+
 
             }
         }
@@ -2258,17 +2255,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
                         holder.viewChatItem.setErr(msgbean.getSend_state());
                         holder.viewChatItem.setImgageProg(pgVideo);
-//                        if (pgVideo.intValue()==100){
-//                            holder.viewChatItem.setVideoIMGShow(true);
-//                        }
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
+                            holder.viewChatItem.setVideoIMGShow(true);
                         } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
                             holder.viewChatItem.setVideoIMGShow(false);
                         } else {
-                            holder.viewChatItem.setVideoIMGShow(true);
                         }
                         break;
                     default:
@@ -2479,14 +2473,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 case ChatEnum.EMessageType.MSG_VIDEO:
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
-                        holder.viewChatItem.setVideoIMGShow(false);
+//                        holder.viewChatItem.setVideoIMGShow(false);
                     } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
                         holder.viewChatItem.setVideoIMGShow(true);
+                        Log.e("TAG","2");
                     } else {
                         menus.add(new OptionMenu("删除"));
-                        holder.viewChatItem.setVideoIMGShow(true);
+
                     }
 
                     Integer pgVideo = null;
@@ -2595,7 +2590,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         @Override
                         public void onClick(View v) {
-                            if ((int) v.getTag() == MsgBean.AuVideoType.Audio.getNumber()) {
+                            if (msgbean.getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Audio.getNumber()) {
                                 gotoVoiceActivity();
                             } else {
                                 gotoVideoActivity();
@@ -3005,86 +3000,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean,
                          final IMenuSelectListener listener, RecyclerViewAdapter.RCViewHolder holder) {
         //禁止滑动
-        //mtListView.getListView().setNestedScrollingEnabled(true);
-
-//        final PopupMenuView menuView = new PopupMenuView(getContext());
-//
-//        menuView.setMenuItems(menus);
-//        menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
-//            @Override
-//            public boolean onOptionMenuClick(int position, OptionMenu menu) {
-//                //放开滑动
-//                // mtListView.getListView().setNestedScrollingEnabled(true);
-//                if (listener != null) {
-//                    listener.onSelected();
-//                }
-//
-//
-//                if (menu.getTitle().equals("删除")) {
-//
-//                    AlertYesNo alertYesNo = new AlertYesNo();
-//                    alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
-//                        @Override
-//                        public void onON() {
-//
-//                        }
-//
-//                        @Override
-//                        public void onYes() {
-//                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
-//                            msgListData.remove(msgbean);
-//                            notifyData();
-//                        }
-//                    });
-//                    alertYesNo.show();
-//
-//
-//                } else if (menu.getTitle().equals("转发")) {
-//                    /*  */
-//                    startActivity(new Intent(getContext(), MsgForwardActivity.class)
-//                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
-//                    );
-//
-//                } else if (menu.getTitle().equals("复制")) {//只有文本
-//                    String txt = "";
-//                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
-//                        txt = msgbean.getAtMessage().getMsg();
-//                    } else {
-//                        txt = msgbean.getChat().getMsg();
-//                    }
-//                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-//                    ClipData mClipData = ClipData.newPlainText(txt, txt);
-//                    cm.setPrimaryClip(mClipData);
-//
-//                } else if (menu.getTitle().equals("听筒播放")) {
-//                    msgDao.userSetingVoicePlayer(1);
-//                } else if (menu.getTitle().equals("扬声器播放")) {
-//                    msgDao.userSetingVoicePlayer(0);
-//                } else if (menu.getTitle().equals("撤回")) {
-//
-//
-//                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
-//
-//
-//                }
-//                menuView.dismiss();
-//                return true;
-//            }
-//        });
-//
-//        menuView.setOnDismissListener(new PopupWindow.OnDismissListener() {
-//            @Override
-//            public void onDismiss() {
-//                if (listener != null) {
-//                    listener.onSelected();
-//                }
-//                menuView.dismiss();
-//
-//            }
-//        });
-//
-//        menuView.show(v);
-//        mPopupWindow.showAsDropDown(v);
+//        mtListView.getListView().setNestedScrollingEnabled(true);
 
         initPopWindowEvent(msgbean);
         setMessageType(menus);
@@ -3499,7 +3415,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        notifyData2Bottom(false);
+                        notifyData2Bottom(true);
 //                        notifyData();
                     }
                 });

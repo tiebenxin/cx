@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nim_lib.event.EventFactory;
-import com.example.nim_lib.ui.VoiceCallActivity;
+import com.example.nim_lib.ui.VideoActivity;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.NotificationConfig;
@@ -231,7 +231,7 @@ public class MainActivity extends AppActivity {
             public void onClick() {
                 mBtnMinimizeVoice.setVisibility(View.GONE);
                 mHandler.removeCallbacks(runnable);
-                IntentUtil.gotoActivity(MainActivity.this, VoiceCallActivity.class);
+                IntentUtil.gotoActivity(MainActivity.this, VideoActivity.class);
             }
         });
 
@@ -484,9 +484,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void uploadApp() {
-        if (!AppConfig.DEBUG) {
-            taskNewVersion();
-        }
+        taskNewVersion();
     }
 
 

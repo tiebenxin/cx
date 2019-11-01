@@ -6,8 +6,11 @@ import android.util.Log;
 
 import com.example.nim_lib.config.AVChatConfigs;
 import com.example.nim_lib.constant.AVChatExitCode;
+import com.example.nim_lib.module.AVSwitchListener;
+import com.example.nim_lib.util.LogUtil;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
+import com.netease.nimlib.sdk.avchat.constant.AVChatControlCommand;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.netease.nimlib.sdk.avchat.constant.AVChatVideoScalingType;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
@@ -48,6 +51,7 @@ public class AVChatController {
                 @Override
                 public void onSuccess(Void aVoid) {
                     AVChatProfile.getInstance().setAVChatting(false);
+                    AVChatSoundPlayer.instance(context).stop();
                     if (context != null && !((Activity) context).isFinishing()) {
                         ((Activity) context).finish();
                     }
@@ -194,6 +198,41 @@ public class AVChatController {
             // 打开音频
             AVChatManager.getInstance().muteLocalAudio(false);
         }
+    }
+
+    /**
+     * ********************* 音视频切换 ***********************
+     */
+
+    /**
+     * 发送视频切换为音频命令
+     *
+     * @param chatId
+     * @param avSwitchListener
+     */
+    public void switchVideoToAudio(long chatId, final AVSwitchListener avSwitchListener) {
+        AVChatManager.getInstance().sendControlCommand(chatId, AVChatControlCommand.SWITCH_VIDEO_TO_AUDIO, new AVChatCallback<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                LogUtil.getLog().d(TAG, "videoSwitchAudio onSuccess");
+                //关闭视频
+                AVChatManager.getInstance().stopVideoPreview();
+                AVChatManager.getInstance().disableVideo();
+
+                // 界面布局切换。
+                avSwitchListener.onVideoToAudio();
+            }
+
+            @Override
+            public void onFailed(int code) {
+                LogUtil.getLog().d(TAG, "videoSwitchAudio onFailed");
+            }
+
+            @Override
+            public void onException(Throwable exception) {
+                LogUtil.getLog().d(TAG, "videoSwitchAudio onException");
+            }
+        });
     }
 
 }

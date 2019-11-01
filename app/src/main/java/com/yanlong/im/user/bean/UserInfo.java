@@ -10,9 +10,6 @@ import com.google.gson.annotations.SerializedName;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -379,14 +376,11 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public void setTag(String tag) {
-
-
-        Pattern pattern = Pattern.compile("[0-9]");
-        Matcher isNum = pattern.matcher(tag);
-        if (isNum.matches()) {
+        if ("↑".equals(tag)) {
+            tag = "↑";
+        } else if (tag.hashCode() < 65 || tag.hashCode() > 91) {
             tag = "#";
         }
-
         this.tag = tag;
     }
 
