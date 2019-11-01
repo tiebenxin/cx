@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -334,7 +335,10 @@ public class RecordedActivity extends BaseActivity {
                 Utils.mergeFile(segmentList.toArray(new String[]{}), h264Path);
                 //h264转mp4
                 String mp4Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".mp4";
-                mVideoEditor.h264ToMp4(h264Path, mp4Path);
+                boolean isH264ToMp4= mVideoEditor.h264ToMp4(h264Path, mp4Path);
+                if (!isH264ToMp4){
+                    return null;
+                }
                 //合成音频
                 aacPath= mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
                 //音视频混合
@@ -354,13 +358,18 @@ public class RecordedActivity extends BaseActivity {
 //                Intent intent = new Intent(mContext, EditVideoActivity.class);
 //                intent.putExtra(INTENT_PATH, result);
 //                startActivityForResult(intent, REQUEST_CODE_KEY);
+                if (null==result){
+                    Toast.makeText(getApplicationContext(), "视频编辑失败!退出界面重试", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 switch (type){
                     case 1:
                         Intent intentMas = new Intent();
                         intentMas.putExtra(INTENT_PATH, result);
                         intentMas.putExtra(INTENT_VIDEO_WIDTH,mCameraHelp.getHeight() );
                         intentMas.putExtra(INTENT_PATH_HEIGHT,mCameraHelp.getWidth() );
-                        intentMas.putExtra(INTENT_PATH_TIME,(int)countTime);
+//                        intentMas.putExtra(INTENT_PATH_TIME,(int)countTime);
+                        intentMas.putExtra(INTENT_PATH_TIME,(int)Long.parseLong(getVideoAtt(result)));
                         intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                         setResult(RESULT_OK, intentMas);
                         finish();
@@ -384,6 +393,33 @@ public class RecordedActivity extends BaseActivity {
                 Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private String getVideoAtt(String mUri) {
+        String duration = null;
+        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+        try {
+            if (mUri != null) {
+//                HashMap<String, String> headers = null;
+//                if (headers == null)
+//                {
+//                    headers = new HashMap<String, String>();
+//                    headers.put("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.4.2; zh-CN; MW-KW-001 Build/JRO03C) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.001 U4/0.8.0 Mobile Safari/533.1");
+//                }
+                FileInputStream inputStream = new FileInputStream(new File(mUri).getAbsolutePath());
+                mmr.setDataSource(inputStream.getFD());
+//                mmr.setDataSource(mUri, headers);
+            } else {
+                //mmr.setDataSource(mFD, mOffset, mLength);
+            }
+            duration = mmr.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION);//时长(毫秒)
+
+        } catch (Exception ex) {
+            Log.e("TAG", "MediaMetadataRetriever exception " + ex);
+        } finally {
+            mmr.release();
+        }
+        return duration;
     }
 
     MyVideoEditor myVideoEditor = new MyVideoEditor();

@@ -9,6 +9,7 @@
         android:id="@+id/activity_img_show_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
         android:scaleType="fitXY"/>
 
     <com.zhaoss.weixinrecorded.view.MyPaintView
@@ -220,8 +221,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#000"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp"
         android:visibility="gone">
         <TextView
             android:id="@+id/tv_close"
@@ -249,6 +250,8 @@
             android:layout_below="@id/tv_finish"
             android:textColor="#fff"
             android:gravity="top"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:background="@null"/>
         <TextView
             android:id="@+id/tv_tag"
@@ -260,6 +263,25 @@
             android:textColor="#fff"
             android:visibility="invisible" />
     </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <TextureView
+            android:id="@+id/textureView_cut"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_margin="30dp"/>
+    </RelativeLayout>
+    <com.zhaoss.weixinrecorded.view.CutView
+        android:layout_marginBottom="50dp"
+        android:id="@+id/activity_img_show_cut"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        />
+
     <TextView
         android:id="@+id/tv_hint_delete"
         android:layout_width="match_parent"
