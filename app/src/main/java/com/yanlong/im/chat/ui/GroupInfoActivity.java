@@ -581,17 +581,20 @@ public class GroupInfoActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
+                    if (ginfo == null) {
+                        return;
+                    }
 
-                    Group goldinfo = msgDao.getGroup4Id(gid);
-                    if (!isChange(goldinfo, ginfo)) {
-                        doImgHeadChange(gid, ginfo);
-                    }
+//                    Group goldinfo = msgDao.getGroup4Id(gid);
+//                    if (!isChange(goldinfo, ginfo)) {
+//                        doImgHeadChange(gid, ginfo);
+//                    }
                     //8.8 如果是有群昵称显示自己群昵称
-                    for (MemberUser number : ginfo.getUsers()) {
-                        if (StringUtil.isNotNull(number.getMembername())) {
-                            number.setName(number.getMembername());
-                        }
-                    }
+//                    for (MemberUser number : ginfo.getUsers()) {
+//                        if (StringUtil.isNotNull(number.getMembername())) {
+//                            number.setName(number.getMembername());
+//                        }
+//                    }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
@@ -630,7 +633,7 @@ public class GroupInfoActivity extends AppActivity {
             }
         };
         msgAction.groupInfo4Db(gid, callBack);
-        msgAction.groupInfo(gid, callBack);
+//        msgAction.groupInfo(gid, callBack);
     }
 
     //设置群公告

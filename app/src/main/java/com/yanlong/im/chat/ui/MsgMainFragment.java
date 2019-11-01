@@ -482,7 +482,6 @@ public class MsgMainFragment extends Fragment {
                                 Session s = listData.get(index);
                                 if (isRefreshTop /*|| session.getIsTop() == 1*/) {//是否刷新置顶
                                     if (session.getIsTop() == 1) {//修改了置顶状态
-//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新置顶消息 旧session=" + s.getIsTop() + "--新session=" + session.getIsTop());
                                         listData.remove(index);
                                         listData.add(0, session);//放在首位
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
@@ -493,10 +492,8 @@ public class MsgMainFragment extends Fragment {
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);////范围刷新,刷新旧位置和新位置之间即可
-//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新取消置顶消息--start=" + start + "--count=" + count);
                                     }
                                 } else {
-//                                    System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息 旧session=" + s.getSid() + "--新session=" + session.getSid());
                                     listData.set(index, session);
                                     if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
                                         mtListView.getListView().getAdapter().notifyItemChanged(index, index);
@@ -506,14 +503,11 @@ public class MsgMainFragment extends Fragment {
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);//范围刷新
-//                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--时间刷新重排--start=" + start + "--count=" + count);
                                     }
                                 }
                             } else {
-//                                System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息0" + "--新session=" + session.getSid());
                                 int position = insertSession(session);
                                 if (position == 0) {
-//                                    mtListView.getListView().getAdapter().notifyDataSetChanged();
                                     mtListView.notifyDataSetChange();
                                 } else {
                                     mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
@@ -521,11 +515,8 @@ public class MsgMainFragment extends Fragment {
                                 }
                             }
                         } else {
-//                            System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新普通消息null" + "--新session=" + session.getSid());
-//                                listData.add(0, session);//新会话，插入刷新，考虑置顶
                             int position = insertSession(session);
                             if (position == 0) {
-//                                mtListView.getListView().getAdapter().notifyDataSetChanged();
                                 mtListView.notifyDataSetChange();
 
                             } else {
