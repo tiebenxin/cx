@@ -99,7 +99,7 @@
                     android:id="@+id/cb_mute"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:background="@drawable/mute_selector"
+                    android:background="@drawable/svg_change_voice"
                     android:button="@null"
                     android:clickable="true" />
 

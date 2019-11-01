@@ -254,6 +254,23 @@ public class UserDao {
     }
 
     /***
+     * 更新好友
+     * @param list
+     */
+    public void updateRoster(List<UserInfo> list) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            realm.insertOrUpdate(list);
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+    /***
      * 根据key搜索所有的好友
      */
     public List<UserInfo> searchUser4key(String key) {
@@ -352,6 +369,9 @@ public class UserDao {
                         continue;
                     }
                     UserInfo user = realm.where(UserInfo.class).equalTo("uid", bean.getUid()).findFirst();
+                    if (user == null) {//拉黑用户数据库没有？
+                        continue;
+                    }
                     UserInfo userInfo = realm.copyFromRealm(user);
                     if (userInfo == null) {
                         continue;
@@ -435,8 +455,8 @@ public class UserDao {
     }
 
     /*
-    *
-    * */
+     *
+     * */
     public boolean isUserExist(Long uid) {
         boolean result = false;
         Realm realm = DaoUtil.open();

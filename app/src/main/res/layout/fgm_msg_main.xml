@@ -25,7 +25,11 @@
         android:layout_below="@+id/view_search"
 
          />
-    <LinearLayout   android:id="@+id/view_search" android:layout_marginTop="0dp" style="@style/app_layout_list2" android:background="@color/white"
+    <LinearLayout
+        android:id="@+id/view_search"
+        android:layout_marginTop="0dp"
+        style="@style/app_layout_list2"
+        android:background="@color/white"
         android:paddingTop="10dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"

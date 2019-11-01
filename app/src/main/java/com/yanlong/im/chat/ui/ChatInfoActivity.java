@@ -54,7 +54,6 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewDisturb;
     private CheckBox ckDisturb;
     private LinearLayout viewLogClean;
-    private LinearLayout viewFeedback;
     //  private Session session;
     private UserInfo fUserInfo;
 
@@ -70,7 +69,6 @@ public class ChatInfoActivity extends AppActivity {
         viewDisturb = (LinearLayout) findViewById(R.id.view_disturb);
         ckDisturb = (CheckBox) findViewById(R.id.ck_disturb);
         viewLogClean = (LinearLayout) findViewById(R.id.view_log_clean);
-        viewFeedback = (LinearLayout) findViewById(R.id.view_feedback);
     }
 
 
@@ -120,7 +118,7 @@ public class ChatInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(ChatInfoActivity.this, "提示", "确定清空聊天记录？清空后不可找回！", "确定", "取消", new AlertYesNo.Event() {
+                alertYesNo.init(ChatInfoActivity.this, "提示", "确定清空聊天记录？", "确定", "取消", new AlertYesNo.Event() {
                     @Override
                     public void onON() {
 
@@ -146,14 +144,6 @@ public class ChatInfoActivity extends AppActivity {
         });
 
 
-        viewFeedback.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ChatInfoActivity.this, ComplaintActivity.class);
-                intent.putExtra(ComplaintActivity.UID, fuid.toString());
-                startActivity(intent);
-            }
-        });
     }
 
     @Override

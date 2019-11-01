@@ -283,7 +283,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 AlertYesNo alertYesNo = new AlertYesNo();
-                alertYesNo.init(GroupInfoActivity.this, "提示", "确定清空聊天记录？清空后不可找回！", "确定", "取消", new AlertYesNo.Event() {
+                alertYesNo.init(GroupInfoActivity.this, "提示", "确定清空聊天记录？", "确定", "取消", new AlertYesNo.Event() {
                     @Override
                     public void onON() {
 

@@ -11,11 +11,9 @@ import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.receiver.PhoneCallStateObserver;
 import com.example.nim_lib.ui.VideoActivity;
-import com.example.nim_lib.ui.VoiceCallActivity;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
 import com.netease.nimlib.sdk.avchat.constant.AVChatControlCommand;
-import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -169,11 +167,12 @@ public class AVChatKit {
                         }
                         intent.putExtra(Preferences.VOICE_TYPE, CoreEnum.VoiceType.RECEIVE);
                         intent.putExtra(Preferences.AVCHA_TTYPE, data.getChatType().getValue());
-                        if(data.getChatType()== AVChatType.VIDEO){
-                            intent.setClass(context, VideoActivity.class);
-                        }else{
-                            intent.setClass(context, VoiceCallActivity.class);
-                        }
+//                        if(data.getChatType()== AVChatType.VIDEO){
+//                            intent.setClass(context, VideoActivity.class);
+//                        }else{
+//                            intent.setClass(context, VoiceCallActivity.class);
+//                        }
+                        intent.setClass(context, VideoActivity.class);
                         context.startActivity(intent);
                     }
                 });

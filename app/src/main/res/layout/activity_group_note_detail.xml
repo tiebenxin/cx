@@ -32,8 +32,11 @@
             android:layout_height="wrap_content"
             android:paddingLeft="21dp"
             android:paddingTop="14dp"
+            android:maxHeight="280dp"
             android:paddingRight="21dp"
             android:paddingBottom="13dp"
+            android:scrollbars="vertical"
+            android:gravity="top"
             android:textColor="#000000"
             android:textSize="14sp" />
 

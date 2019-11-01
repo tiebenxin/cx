@@ -37,6 +37,7 @@ import net.cb.cb.library.utils.StringUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -112,11 +113,7 @@ public class MsgDao {
                             memberUser.init(group.getGid());
                         }
                     }
-                    System.out.println("MsgDao--gid=" + group.getGid());
-//                    Group realmGroup = realm.copyToRealmOrUpdate(group);
-//                    realm.insertOrUpdate(group);
                 }
-//                realm.insertOrUpdate(groups);
                 realm.copyToRealmOrUpdate(groups);
             }
             realm.commitTransaction();
@@ -931,7 +928,7 @@ public class MsgDao {
      * 更新或者创建session
      *
      * */
-    public void sessionReadUpdate(String gid, Long from_uid, boolean isCancel) {
+    public void sessionReadUpdate(String gid, Long from_uid, boolean isCancel, boolean canChangeUnread) {
         Session session;
         if (StringUtil.isNotNull(gid)) {//群消息
             session = DaoUtil.findOne(Session.class, "gid", gid);
@@ -945,18 +942,22 @@ public class MsgDao {
                     session.setIsTop(group.getIsTop());
                     session.setIsMute(group.getNotNotify());
                 }
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
-                } else {
-                    session.setUnread_count(isCancel ? 0 : 1);
+                if (canChangeUnread) {
+                    if (session.getIsMute() == 1) {//免打扰
+                        session.setUnread_count(0);
+                    } else {
+                        session.setUnread_count(isCancel ? 0 : 1);
+                    }
                 }
             } else {
-                if (session.getIsMute() != 1) {//免打扰
-                    int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                } else {
-                    session.setUnread_count(0);
+                if (canChangeUnread) {
+                    if (session.getIsMute() != 1) {//免打扰
+                        int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
+                        num = num < 0 ? 0 : num;
+                        session.setUnread_count(num);
+                    } else {
+                        session.setUnread_count(0);
+                    }
                 }
             }
             session.setUp_time(System.currentTimeMillis());
@@ -973,19 +974,22 @@ public class MsgDao {
                     session.setIsTop(user.getIstop());
                     session.setIsMute(user.getDisturb());
                 }
-                if (session.getIsMute() == 1) {//免打扰
-                    session.setUnread_count(0);
-                } else {
-                    session.setUnread_count(isCancel ? 0 : 1);
+                if (canChangeUnread) {
+                    if (session.getIsMute() == 1) {//免打扰
+                        session.setUnread_count(0);
+                    } else {
+                        session.setUnread_count(isCancel ? 0 : 1);
+                    }
                 }
-
             } else {
-                if (session.getIsMute() != 1) {//非免打扰
-                    int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
-                    num = num < 0 ? 0 : num;
-                    session.setUnread_count(num);
-                }else {
-                    session.setUnread_count(0);
+                if (canChangeUnread) {
+                    if (session.getIsMute() != 1) {//非免打扰
+                        int num = isCancel ? session.getUnread_count() - 2 : session.getUnread_count() + 1;
+                        num = num < 0 ? 0 : num;
+                        session.setUnread_count(num);
+                    } else {
+                        session.setUnread_count(0);
+                    }
                 }
             }
             session.setUp_time(System.currentTimeMillis());
@@ -1818,8 +1822,9 @@ public class MsgDao {
      */
     public UserSeting userSetingGet() {
         UserSeting userSeting = DaoUtil.findOne(UserSeting.class, "uid", UserAction.getMyId());
-        if (userSeting == null) {
+        if (userSeting == null) {//数据库中无用户配置信息，则为默认
             userSeting = new UserSeting();
+            userSeting.setUid(UserAction.getMyId());
         }
         return userSeting;
     }
@@ -1941,23 +1946,17 @@ public class MsgDao {
                 if (memberUser != null) {
                     name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : name;
                 }
-
-//                GropLinkInfo gropLinkInfo = null;
-//                if (StringUtil.isNotNull(gid)) {
-//                    gropLinkInfo = realm.where(GropLinkInfo.class).equalTo("gid", gid).equalTo("uid", uid).findFirst();
-//                }
-//                if (gropLinkInfo != null) {
-//                    //2.获取群成员昵称
-//                    name = StringUtil.isNotNull(gropLinkInfo.getMembername()) ? gropLinkInfo.getMembername() : name;
-//                }
             }
-
-
             //3.获取用户备注名
             name = StringUtil.isNotNull(userInfo.getMkName()) ? userInfo.getMkName() : name;
         } else {
-            name = StringUtil.isNotNull(uname) ? uname : name;
-            name = StringUtil.isNotNull(groupName) ? groupName : name;
+            MemberUser memberUser = realm.where(MemberUser.class)
+                    .beginGroup().equalTo("uid", uid).endGroup()
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .findFirst();
+            if (memberUser != null) {
+                name = StringUtil.isNotNull(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
+            }
 
         }
 
@@ -2511,13 +2510,11 @@ public class MsgDao {
                 int len = groups.size();
                 if (len > 0) {
                     List<Group> temp = new ArrayList<>();
-                    for (int i = 0; i < len; i++) {
-                        if (i < len) {
-                            Group group = groups.get(i);
-                            if (!groupList.contains(group)) {
-                                group.setSaved(0);
-                                temp.add(group);
-                            }
+                    for (Iterator<Group> it = groups.iterator(); it.hasNext(); ) {
+                        Group group = it.next();
+                        if (!groupList.contains(group)) {
+                            group.setSaved(0);
+                            temp.add(group);
                         }
                     }
                     realm.insertOrUpdate(temp);
@@ -2525,10 +2522,12 @@ public class MsgDao {
             }
             realm.commitTransaction();
             realm.close();
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
+
     }
 
 
@@ -2589,8 +2588,8 @@ public class MsgDao {
         }
     }
 
-    //添加群成员
-    public void removeGroupMember(String gid, List<MemberUser> memberUsers) {
+    //移出群成员
+    public void removeGroupMember(String gid, List<Long> uids) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -2598,7 +2597,18 @@ public class MsgDao {
             if (group != null) {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
-                    list.removeAll(memberUsers);
+                    List<MemberUser> removeMembers = new ArrayList<>();
+                    for (MemberUser user : list) {
+                        if (uids.contains(user.getUid())) {
+                            removeMembers.add(user);
+                        }
+                        if (removeMembers.size() == uids.size()) {
+                            break;
+                        }
+                    }
+                    if (removeMembers.size() > 0) {
+                        list.removeAll(removeMembers);
+                    }
                 }
             }
             realm.commitTransaction();
@@ -2609,6 +2619,25 @@ public class MsgDao {
     }
 
     //移出群成员
+    public void removeGroupMember(String gid, MemberUser user) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                RealmList<MemberUser> list = group.getUsers();
+                if (list != null) {
+                    list.remove(user);
+                }
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+    //添加群成员
     public void addGroupMember(String gid, List<MemberUser> memberUsers) {
         Realm realm = DaoUtil.open();
         try {
@@ -2618,6 +2647,25 @@ public class MsgDao {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
                     list.addAll(memberUsers);
+                }
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
+    //添加群成员
+    public void addGroupMember(String gid, MemberUser user) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                RealmList<MemberUser> list = group.getUsers();
+                if (list != null) {
+                    list.add(user);
                 }
             }
             realm.commitTransaction();

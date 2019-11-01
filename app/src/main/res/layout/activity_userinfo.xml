@@ -50,7 +50,7 @@
                         android:id="@+id/txt_pr_no"
                         style="@style/app_txt_content_1"
                         android:layout_marginTop="5dp"
-                        android:text="产品号："
+                        android:text="常聊号："
                         android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -75,7 +75,8 @@
         <LinearLayout
             android:id="@+id/view_setting_name"
             style="@style/app_layout_list2"
-            android:layout_marginBottom="@dimen/app_margin_item_top">
+            android:layout_marginBottom="@dimen/app_margin_item_top"
+            android:visibility="gone">
 
             <LinearLayout
                 android:id="@+id/view_mkname"
@@ -144,7 +145,8 @@
             android:id="@+id/layout_msg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
 
             <LinearLayout
@@ -194,7 +196,8 @@
 
                 <LinearLayout
                     android:id="@+id/view_complaint"
-                    style="@style/app_layout_list2_item">
+                    style="@style/app_layout_list2_item"
+                    android:visibility="gone">
 
                     <TextView
                         style="@style/app_txt_title_2"

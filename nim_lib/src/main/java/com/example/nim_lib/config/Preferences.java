@@ -20,5 +20,6 @@ public class Preferences {
     public static final String VOICE_TYPE = "voice_type";// 语音类型
     public static final String AVCHATDATA = "AVChatData";
     public static final String AVCHA_TTYPE = "AVChatType";
-
+    public static final String TOUID = "toUId";
+    public static final String TOGID = "toGid";
 }

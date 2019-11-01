@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +45,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -102,6 +102,7 @@ public class FriendMainFragment extends Fragment {
     }
 
     private List<UserInfo> listData = new ArrayList<>();
+    private List<UserInfo> tempData = new ArrayList<>();
 
     private void initData() {
         taskListData();
@@ -344,10 +345,28 @@ public class FriendMainFragment extends Fragment {
                     public List<UserInfo> apply(Integer integer) throws Exception {
                         listData = userDao.getAllUserInBook();
                         if (listData != null) {
+                            // 升序
+                            Collections.sort(listData,new Comparator<UserInfo>() {
+                                @Override
+                                public int compare(UserInfo o1, UserInfo o2) {
+                                    return o1.getTag().hashCode() - o2.getTag().hashCode();
+                                }
+                            });
+
+                            // 把#数据放到末尾
+                            tempData.clear();
+                            for (int i = listData.size() - 1; i >= 0; i--) {
+                                UserInfo bean = listData.get(i);
+                                if (bean.getTag().hashCode() == 35) {
+                                    tempData.add(bean);
+                                    listData.remove(i);
+                                }
+                            }
+                            listData.addAll(tempData);
+
                             UserInfo topBean = new UserInfo();
                             topBean.setTag("↑");
                             listData.add(0, topBean);
-                            Collections.sort(listData);
                             for (int i = 1; i < listData.size(); i++) {
                                 viewType.putTag(listData.get(i).getTag(), i);
                             }
@@ -380,6 +399,9 @@ public class FriendMainFragment extends Fragment {
                     break;
                 case CoreEnum.ERosterAction.BLACK://添加或者解除黑名单
                     taskListData();
+                    break;
+                case CoreEnum.ERosterAction.REQUEST_FRIEND://请求添加为好友
+                    mtListView.getListView().getAdapter().notifyItemChanged(0, 0);
                     break;
                 default:
                     if (uid > 0) {
@@ -483,6 +505,7 @@ public class FriendMainFragment extends Fragment {
     private void taskApplyNumClean() {
         msgDao.remidClear("friend_apply");
         MessageManager.getInstance().notifyRefreshMsg();
+//        MessageManager.getInstance().notifyRefreshFriend(false,-1, CoreEnum.ERosterAction.REQUEST_FRIEND);
     }
 
     public void taskGetUsersOnlineStatus() {

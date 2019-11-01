@@ -44,6 +44,7 @@
                         android:id="@+id/et_txt"
                         android:layout_width="0dp"
                         android:layout_height="30dp"
+                        android:singleLine="true"
                         android:layout_weight="1"
                         android:background="@null" />
 

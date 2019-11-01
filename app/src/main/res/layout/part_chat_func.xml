@@ -113,7 +113,7 @@
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_chat_pic" />
+                android:src="@mipmap/ic_chat_action" />
 
             <TextView
                 style="@style/app_txt_content_1"
