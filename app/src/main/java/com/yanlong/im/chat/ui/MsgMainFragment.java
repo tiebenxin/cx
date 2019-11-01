@@ -469,7 +469,7 @@ public class MsgMainFragment extends Fragment {
                             int index = listData.indexOf(session);
                             if (index >= 0) {
                                 Session s = listData.get(index);
-                                if (isRefreshTop || session.getIsTop() == 1) {//是否刷新置顶
+                                if (isRefreshTop /*|| session.getIsTop() == 1*/) {//是否刷新置顶
                                     if (session.getIsTop() == 1) {//修改了置顶状态
 //                                        System.out.println(MsgMainFragment.class.getSimpleName() + "--刷新置顶消息 旧session=" + s.getIsTop() + "--新session=" + session.getIsTop());
                                         listData.remove(index);
