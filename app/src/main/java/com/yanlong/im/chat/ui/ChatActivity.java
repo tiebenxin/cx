@@ -2478,7 +2478,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
                         holder.viewChatItem.setVideoIMGShow(true);
-                        Log.e("TAG","2");
+                        Log.e("TAG", "2");
                     } else {
                         menus.add(new OptionMenu("删除"));
 
@@ -3415,7 +3415,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        notifyData2Bottom(true);
+                        notifyData2Bottom(false);
 //                        notifyData();
                     }
                 });
