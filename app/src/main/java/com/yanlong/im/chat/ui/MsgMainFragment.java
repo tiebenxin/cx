@@ -113,6 +113,14 @@ public class MsgMainFragment extends Fragment {
         }
     };
 
+    Runnable showRunnable = new Runnable() {
+        @Override
+        public void run() {
+            viewNetwork.setVisibility(View.VISIBLE);
+
+        }
+    };
+
     //自动寻找控件
     private void findViewsPop(View rootView) {
         viewPopGroup = (LinearLayout) rootView.findViewById(R.id.view_pop_group);
@@ -327,10 +335,13 @@ public class MsgMainFragment extends Fragment {
 
 
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
-        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+//        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
         switch (status) {
             case CoreEnum.ENetStatus.ERROR_ON_NET:
-                viewNetwork.setVisibility(View.VISIBLE);
+//                viewNetwork.setVisibility(View.VISIBLE);
+                if (viewNetwork.getVisibility() == View.GONE) {
+                    viewNetwork.postDelayed(showRunnable, 3 * 1000);
+                }
                 break;
             case CoreEnum.ENetStatus.SUCCESS_ON_NET:
                 if (NetUtil.isNetworkConnected()) {//无网络链接，无效指令
