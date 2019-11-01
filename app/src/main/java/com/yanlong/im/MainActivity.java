@@ -11,6 +11,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,7 +39,6 @@ import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.utils.update.UpdateManage;
 
-import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -96,6 +96,7 @@ public class MainActivity extends AppActivity {
     // 通话时间
     private int mPassedTime = 0;
     private final int TIME = 1000;
+    private long mExitTime;
 
     //自动寻找控件
     private void findViews() {
@@ -229,7 +230,7 @@ public class MainActivity extends AppActivity {
         mBtnMinimizeVoice.setOnClickListener(new ImageMoveView.OnSingleTapListener() {
             @Override
             public void onClick() {
-                mBtnMinimizeVoice.setVisibility(View.GONE);
+                mBtnMinimizeVoice.close(MyAppLication.getInstance().getApplicationContext());
                 mHandler.removeCallbacks(runnable);
                 IntentUtil.gotoActivity(MainActivity.this, VideoActivity.class);
             }
@@ -259,6 +260,26 @@ public class MainActivity extends AppActivity {
         super.onStart();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            reTryExit();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * 在主界面按两次back键退出App
+     */
+    private void reTryExit() {
+        if ((System.currentTimeMillis() - mExitTime) > 2000) {
+            ToastUtil.show(getApplicationContext(), "再按一次退出程序");
+            mExitTime = System.currentTimeMillis();
+        } else {
+            finish();
+        }
+    }
 
     private void doRegisterNetReceiver() {
         if (mNetworkReceiver == null) {
@@ -419,7 +440,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void voiceMinimizeEvent(EventFactory.VoiceMinimizeEvent event) {
-        mBtnMinimizeVoice.setVisibility(View.VISIBLE);
+//        mBtnMinimizeVoice.setVisibility(View.VISIBLE);
         mPassedTime = event.passedTime;
         if (event.isCallEstablished) {// 是否接听
             mBtnMinimizeVoice.updateCallTime(event.showTime);
@@ -427,6 +448,7 @@ public class MainActivity extends AppActivity {
                 mHandler.postDelayed(runnable, TIME);
             }
         } else {
+            mBtnMinimizeVoice.show(MyAppLication.getInstance().getApplicationContext(),getWindow());
             mBtnMinimizeVoice.updateCallTime("等待接听");
         }
     }

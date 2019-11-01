@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.jrmf360.tools.JrmfClient;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.LoginInfo;
@@ -115,6 +116,7 @@ public class MyAppLication extends MainApplication {
         LogUtil.getLog().d(TAG, "NIMClient.init()");
         // 以下逻辑只在主进程初始化时执行
         if (NIMUtil.isMainProcess(this)) {
+            AVChatSoundPlayer.setContext(this);
             AVChatKit.getInstance().init(this);
         }
     }

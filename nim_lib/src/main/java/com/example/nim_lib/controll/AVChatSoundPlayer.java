@@ -40,8 +40,7 @@ public class AVChatSoundPlayer {
     private static AVChatSoundPlayer instance = null;
     private RingModeChangeReceiver ringModeChangeReceiver;
 
-    public static AVChatSoundPlayer instance(Context c) {
-        context = c;
+    public static AVChatSoundPlayer instance() {
         if (instance == null) {
             synchronized (AVChatSoundPlayer.class) {
                 if (instance == null) {
@@ -50,6 +49,14 @@ public class AVChatSoundPlayer {
             }
         }
         return instance;
+    }
+
+    public static Context getContext() {
+        return context;
+    }
+
+    public static void setContext(Context c) {
+        context = c;
     }
 
     public synchronized void play(RingerTypeEnum type) {
