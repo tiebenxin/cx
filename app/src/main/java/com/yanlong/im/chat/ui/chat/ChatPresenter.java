@@ -344,7 +344,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         getView().replaceListDataAndNotify(bean);
     }
 
-    public void doSendText(MsgEditText edtChat, boolean isGroup) {
+    public void doSendText(MsgEditText edtChat, boolean isGroup,int survivalTime) {
         String txt = edtChat.getText().toString();
         if (txt.startsWith("@000")) {
             int count = Integer.parseInt(txt.split("_")[1]);
@@ -364,12 +364,12 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 }
             }
             if (edtChat.isAtAll()) {
-                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 1, edtChat.getUserIdList());
+                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 1, edtChat.getUserIdList(),survivalTime);
 //                showSendObj(msgAllbean);
                 loadAndSetData();
                 edtChat.getText().clear();
             } else {
-                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 0, edtChat.getUserIdList());
+                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 0, edtChat.getUserIdList(),survivalTime);
 //                showSendObj(msgAllbean);
                 loadAndSetData();
                 edtChat.getText().clear();
@@ -511,7 +511,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     }
 
     //戳一下
-    public void doStamp() {
+    public void doStamp(int survivalTime) {
         AlertTouch alertTouch = new AlertTouch();
         alertTouch.init((Activity) context, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
             @Override
@@ -523,7 +523,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             public void onYes(String content) {
                 if (!TextUtils.isEmpty(content)) {
                     //发送普通消息
-                    MsgAllBean msgAllbean = SocketData.send4action(model.getUid(), model.getGid(), content);
+                    MsgAllBean msgAllbean = SocketData.send4action(model.getUid(), model.getGid(), content,survivalTime);
 //                    showSendObj(msgAllbean);
                     loadAndSetData();
                 } else {

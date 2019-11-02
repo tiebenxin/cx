@@ -590,11 +590,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         return;
                     }
                     if (edtChat.isAtAll()) {
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList());
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList(),survivaltime);
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
                     } else {
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, edtChat.getUserIdList());
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, edtChat.getUserIdList(),survivaltime);
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
                     }
@@ -805,7 +805,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onYes(String content) {
                         if (!TextUtils.isEmpty(content)) {
                             //发送普通消息
-                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
+                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content,survivaltime);
                             showSendObj(msgAllbean);
                         } else {
                             ToastUtil.show(getContext(), "留言不能为空");
@@ -1106,6 +1106,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
+        headView.getActionbar().getRightImage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                destroyTimeView = new DestroyTimeView(ChatActivity.this);
+                destroyTimeView.initView();
+                destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
+                    @Override
+                    public void onClickItem(String content, int survivaltime) {
+                        util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
+                        if(isGroup()){
+                            changeSurvivalTime(toGid,survivaltime);
+                        }else{
+                            taskSurvivalTime(toUId,survivaltime);
+                        }
+                    }
+                });
+            }
+        });
 
         //9.17 进去后就清理会话的阅读数量
         taskCleanRead();
@@ -1115,19 +1133,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void initSurvivaltimeState() {
         survivaltime = userDao.getReadDestroy(toUId, toGid);
         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
-        headView.getActionbar().getRightImage().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                destroyTimeView = new DestroyTimeView(ChatActivity.this);
-                destroyTimeView.initView();
-                destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
-                    @Override
-                    public void onClickItem(String content, int survivaltime) {
 
-                    }
-                });
-            }
-        });
     }
 
 
@@ -1478,9 +1484,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (event != null) {
             MsgAllBean msgAllbean = null;
             if (event.avChatType == AVChatType.AUDIO.getValue()) {
-                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
+                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation,survivaltime);
             } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
+                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation,survivaltime);
             }
             showSendObj(msgAllbean);
         }
@@ -1548,7 +1554,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         EventBus.getDefault().register(this);
         findViews();
         initEvent();
-        initSurvivaltimeState();
     }
 
     @Override
@@ -1612,6 +1617,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         //刷新群资料
         taskSessionInfo();
         clickAble=true;
+        //更新阅后即焚状态
+        initSurvivaltimeState();
     }
 
     @Override
@@ -1872,7 +1879,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
 
-            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), userInfo.getImid());
+            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), userInfo.getImid(),survivaltime);
             showSendObj(msgAllbean);
         }/* else if (resultCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
             mks.clear();
@@ -3029,87 +3036,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean,
                          final IMenuSelectListener listener, RecyclerViewAdapter.RCViewHolder holder) {
-        //禁止滑动
-        //mtListView.getListView().setNestedScrollingEnabled(true);
-
-//        final PopupMenuView menuView = new PopupMenuView(getContext());
-//
-//        menuView.setMenuItems(menus);
-//        menuView.setOnMenuClickListener(new OptionMenuView.OnOptionMenuClickListener() {
-//            @Override
-//            public boolean onOptionMenuClick(int position, OptionMenu menu) {
-//                //放开滑动
-//                // mtListView.getListView().setNestedScrollingEnabled(true);
-//                if (listener != null) {
-//                    listener.onSelected();
-//                }
-//
-//
-//                if (menu.getTitle().equals("删除")) {
-//
-//                    AlertYesNo alertYesNo = new AlertYesNo();
-//                    alertYesNo.init(ChatActivity.this, "删除", "确定删除吗?", "确定", "取消", new AlertYesNo.Event() {
-//                        @Override
-//                        public void onON() {
-//
-//                        }
-//
-//                        @Override
-//                        public void onYes() {
-//                            msgDao.msgDel4MsgId(msgbean.getMsg_id());
-//                            msgListData.remove(msgbean);
-//                            notifyData();
-//                        }
-//                    });
-//                    alertYesNo.show();
-//
-//
-//                } else if (menu.getTitle().equals("转发")) {
-//                    /*  */
-//                    startActivity(new Intent(getContext(), MsgForwardActivity.class)
-//                            .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean))
-//                    );
-//
-//                } else if (menu.getTitle().equals("复制")) {//只有文本
-//                    String txt = "";
-//                    if (msgbean.getMsg_type() == ChatEnum.EMessageType.AT) {
-//                        txt = msgbean.getAtMessage().getMsg();
-//                    } else {
-//                        txt = msgbean.getChat().getMsg();
-//                    }
-//                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-//                    ClipData mClipData = ClipData.newPlainText(txt, txt);
-//                    cm.setPrimaryClip(mClipData);
-//
-//                } else if (menu.getTitle().equals("听筒播放")) {
-//                    msgDao.userSetingVoicePlayer(1);
-//                } else if (menu.getTitle().equals("扬声器播放")) {
-//                    msgDao.userSetingVoicePlayer(0);
-//                } else if (menu.getTitle().equals("撤回")) {
-//
-//
-//                    SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id());
-//
-//
-//                }
-//                menuView.dismiss();
-//                return true;
-//            }
-//        });
-//
-//        menuView.setOnDismissListener(new PopupWindow.OnDismissListener() {
-//            @Override
-//            public void onDismiss() {
-//                if (listener != null) {
-//                    listener.onSelected();
-//                }
-//                menuView.dismiss();
-//
-//            }
-//        });
-//
-//        menuView.show(v);
-//        mPopupWindow.showAsDropDown(v);
 
         initPopWindowEvent(msgbean);
         setMessageType(menus);
@@ -3301,7 +3227,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             msg = msgbean.getAtMessage().getMsg();
         }
         msgType = msgbean.getMsg_type();
-        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
+        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType,survivaltime);
     }
 
     /**
@@ -4096,4 +4022,43 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
     }
+
+    /**
+     * 设置单聊阅后即焚时间
+     * */
+    private void taskSurvivalTime(long friend, int survivalTime) {
+        msgAction.setSurvivalTime(friend, survivalTime, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    userDao.updateReadDestroy(friend, survivalTime);
+                    // ToastUtil.show(context,"设置成功");
+                }
+            }
+        });
+    }
+
+    /**
+     * 设置群聊阅后即焚时间
+     * */
+    private void changeSurvivalTime(String gid, int survivalTime) {
+        msgAction.changeSurvivalTime(gid, survivalTime, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    //  userDao.updateReadDestroy(fuid, survivalTime);
+                    // ToastUtil.show(context,"设置成功");
+                }
+            }
+        });
+    }
+
 }

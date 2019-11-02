@@ -161,63 +161,6 @@ public class SocketData {
     //6.6 为后端擦屁股
     public static CopyOnWriteArrayList<String> oldMsgId = new CopyOnWriteArrayList<>();
 
-    /***
-     * 保存接收到的消息及发送消息回执
-     */
-    /*public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
-        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
-
-
-        List<String> msgIds = new ArrayList<>();
-        //1.先进行数据分割
-        for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
-            checkDoubleMessage(wmsg);
-            //2.存库:1.存消息表,存会话表
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
-            //5.28 如果为空就不保存这类消息
-            if (msgAllBean != null) {
-                if (!oldMsgId.contains(wmsg.getMsgId())) {//不是重复消息才更新
-                    msgAllBean.setRead(false);//设置未读
-                    msgAllBean.setTo_uid(bean.getToUid());
-                    LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
-                    //收到直接存表
-                    DaoUtil.update(msgAllBean);
-
-                    //6.6 为后端擦屁股
-                    if (oldMsgId.size() >= 500)
-                        oldMsgId.remove(0);
-                    oldMsgId.add(wmsg.getMsgId());
-                    if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid()) && !loadGids.contains(msgAllBean.getGid())) {
-                        loadGids.add(msgAllBean.getGid());
-                        loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-//                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-//                        MessageManager.getInstance().setMessageChange(true);
-                    } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
-                        loadUids.add(msgAllBean.getFrom_uid());
-                        loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                    } else {
-                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-                        MessageManager.getInstance().setMessageChange(true);
-                    }
-                    LogUtil.getLog().e(TAG, ">>>>>累计 ");
-                } else {
-                    LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
-                }
-                msgIds.add(wmsg.getMsgId());
-            } else {
-                LogUtil.getLog().e(TAG, ">>>>>忽略保存消息: " + wmsg.getMsgId());
-            }
-
-
-        }
-
-
-        //3.发送回执
-        LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
-//        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
-
-
-    }*/
 
     //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
     private static void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
@@ -255,16 +198,11 @@ public class SocketData {
 
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-            //时间戳
-//            if(wmsg.getTimestamp()!=0){
-//                msgAllBean.setTimestamp(wmsg.getTimestamp());
-//            }else{
             msgAllBean.setTimestamp(bean.getTimestamp());
-            /*}*/
 
-            if(wmsg.getSurvivalTime() == 0){
+            if (wmsg.getSurvivalTime() == 0) {
                 msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
-            }else{
+            } else {
                 msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
             }
             //7.16 如果是收到先自己发图图片的消息
@@ -307,9 +245,9 @@ public class SocketData {
             if (isNoAssistant(msgAllBean.getTo_uid(), msgAllBean.getGid())) {
                 msgAllBean.setSend_state(state);
             } else {
-                if(msgAllBean.getSurvival_time() == 0){
+                if (msgAllBean.getSurvival_time() == 0) {
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
-                }else{
+                } else {
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
                 }
             }
@@ -462,8 +400,8 @@ public class SocketData {
         //自动生成uuid
         wmsg.setMsgId(msgid == null ? getUUID() : msgid);
 
-        if(value instanceof MsgBean.UniversalMessage.WrapMessage){
-            MsgBean.UniversalMessage.WrapMessage wrapMessage = (MsgBean.UniversalMessage.WrapMessage)value;
+        if (value instanceof MsgBean.UniversalMessage.WrapMessage) {
+            MsgBean.UniversalMessage.WrapMessage wrapMessage = (MsgBean.UniversalMessage.WrapMessage) value;
             wmsg.setSurvivalTime(wrapMessage.getSurvivalTime());
         }
 
@@ -488,14 +426,15 @@ public class SocketData {
         wmsg.setMsgType(type);
         switch (type) {
             case CHAT:
-                if(value instanceof MsgBean.ChatMessage){
+                if (value instanceof MsgBean.ChatMessage) {
                     wmsg.setChat((MsgBean.ChatMessage) value);
-                }else if(value instanceof MsgBean.UniversalMessage.WrapMessage){
-                    wmsg.setChat(((MsgBean.UniversalMessage.WrapMessage)value).getChat());
+                } else if (value instanceof MsgBean.UniversalMessage.WrapMessage) {
+                    wmsg.setChat(((MsgBean.UniversalMessage.WrapMessage) value).getChat());
                 }
                 break;
             case IMAGE:
-                wmsg.setImage((MsgBean.ImageMessage) value);
+                wmsg.setImage(((MsgBean.UniversalMessage.WrapMessage) value).getImage());
+              //  wmsg.setImage((MsgBean.ImageMessage) value);
                 break;
             case RED_ENVELOPER:
                 wmsg.setRedEnvelope((MsgBean.RedEnvelopeMessage) value);
@@ -507,10 +446,12 @@ public class SocketData {
                 wmsg.setTransfer((MsgBean.TransferMessage) value);
                 break;
             case STAMP:
-                wmsg.setStamp((MsgBean.StampMessage) value);
+                wmsg.setStamp(((MsgBean.UniversalMessage.WrapMessage) value).getStamp());
+             //   wmsg.setStamp((MsgBean.StampMessage) value);
                 break;
             case BUSINESS_CARD:
-                wmsg.setBusinessCard((MsgBean.BusinessCardMessage) value);
+                //wmsg.setBusinessCard((MsgBean.BusinessCardMessage) value);
+                wmsg.setBusinessCard(((MsgBean.UniversalMessage.WrapMessage) value).getBusinessCard());
                 break;
             case ACCEPT_BE_FRIENDS:
                 wmsg.setAcceptBeFriends((MsgBean.AcceptBeFriendsMessage) value);
@@ -519,19 +460,24 @@ public class SocketData {
                 wmsg.setRequestFriend((MsgBean.RequestFriendMessage) value);
                 break;
             case VOICE:
-                wmsg.setVoice((MsgBean.VoiceMessage) value);
+               // wmsg.setVoice((MsgBean.VoiceMessage) value);
+                wmsg.setVoice(((MsgBean.UniversalMessage.WrapMessage) value).getVoice());
                 break;
             case AT:
-                wmsg.setAt((MsgBean.AtMessage) value);
+                //wmsg.setAt((MsgBean.AtMessage) value);
+                wmsg.setAt(((MsgBean.UniversalMessage.WrapMessage) value).getAt());
                 break;
             case CANCEL:
-                wmsg.setCancel((MsgBean.CancelMessage) value);
+                //wmsg.setCancel((MsgBean.CancelMessage) value);
+                wmsg.setCancel(((MsgBean.UniversalMessage.WrapMessage) value).getCancel());
                 break;
             case SHORT_VIDEO:
-                wmsg.setShortVideo((MsgBean.ShortVideoMessage) value);
+                //wmsg.setShortVideo((MsgBean.ShortVideoMessage) value);
+                wmsg.setShortVideo(((MsgBean.UniversalMessage.WrapMessage) value).getShortVideo());
                 break;
             case P2P_AU_VIDEO:
-                wmsg.setP2PAuVideo((MsgBean.P2PAuVideoMessage) value);
+               //wmsg.setP2PAuVideo((MsgBean.P2PAuVideoMessage) value);
+                wmsg.setP2PAuVideo(((MsgBean.UniversalMessage.WrapMessage) value).getP2PAuVideo());
                 break;
             case UNRECOGNIZED:
                 break;
@@ -597,14 +543,17 @@ public class SocketData {
      * @param operation   操作
      * @return
      */
-    public static MsgAllBean send4VoiceOrVideo(Long toId, String toGid, String txt, MsgBean.AuVideoType auVideoType, String operation) {
+    public static MsgAllBean send4VoiceOrVideo(Long toId, String toGid, String txt, MsgBean.AuVideoType auVideoType, String operation, int survivalTime) {
         MsgBean.P2PAuVideoMessage chat = MsgBean.P2PAuVideoMessage.newBuilder()
                 .setAvType(auVideoType)
                 .setOperation(operation)
                 .setDesc(txt)
                 .build();
-
-        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, chat);
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setP2PAuVideo(chat)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, wrapMessage);
 
     }
 
@@ -617,13 +566,17 @@ public class SocketData {
      * @return
      * @消息
      */
-    public static MsgAllBean send4At(Long toId, String toGid, String txt, int atType, List<Long> list) {
+    public static MsgAllBean send4At(Long toId, String toGid, String txt, int atType, List<Long> list, int survivalTime) {
         MsgBean.AtMessage atMessage = MsgBean.AtMessage.newBuilder()
                 .setMsg(txt)
                 .setAtTypeValue(atType)
                 .addAllUid(list)
                 .build();
-        return send4Base(toId, toGid, MsgBean.MessageType.AT, atMessage);
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setAt(atMessage)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.AT, wrapMessage);
     }
 
 
@@ -635,14 +588,15 @@ public class SocketData {
      * @param txt
      * @return
      */
-    public static MsgAllBean send4action(Long toId, String toGid, String txt) {
-
-
+    public static MsgAllBean send4action(Long toId, String toGid, String txt, int survivalTime) {
         MsgBean.StampMessage action = MsgBean.StampMessage.newBuilder()
                 .setComment(txt)
                 .build();
-
-        return send4Base(toId, toGid, MsgBean.MessageType.STAMP, action);
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setStamp(action)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.STAMP, wrapMessage);
 
     }
 
@@ -653,7 +607,7 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize, long time) {
+    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize, long time, int survivalTime) {
         MsgBean.ImageMessage.Builder msg;
         String extTh = "/below-20k";
         String extPv = "/below-200k";
@@ -683,8 +637,12 @@ public class SocketData {
             msgb = msg.build();
         }
 
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setImage(msgb)
+                .build();
 
-        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, msgb);
+        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, wrapMessage);
     }
 
     /***
@@ -708,7 +666,7 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
-    public static MsgAllBean 转发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage) {
+    public static MsgAllBean 转发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage,int survivalTime) {
         String bg_URL = videoMessage.getBg_url();
         long time = videoMessage.getDuration();
         String url = videoMessage.getUrl();
@@ -716,10 +674,15 @@ public class SocketData {
         long height = videoMessage.getHeight();
         String msgId = videoMessage.getMsgId();
 
-
         MsgBean.ShortVideoMessage msg;
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int) width).setHeight((int) height).build();
-        return send4Base(toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
+
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setShortVideo(msg)
+                .build();
+
+        return send4Base(toId, toGid, MsgBean.MessageType.SHORT_VIDEO, wrapMessage);
     }
 
     /***
@@ -729,38 +692,15 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
+    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height,int survivalTime) {
         MsgBean.ShortVideoMessage msg;
-//        String extTh = "/below-20k";
-//        String extPv = "/below-200k";
-//        if (url.toLowerCase().contains(".gif")) {
-//            extTh = "";
-//            extPv = "";
-//        }
-//        if (isOriginal) {
-//            msg = MsgBean.ShortVideoMessage.newBuilder().set
-//                    .setOrigin(url)
-//                    .setPreview(url + extPv)
-//                    .setThumbnail(url + extTh);
-//
-//        } else {
-//            msg = MsgBean.ShortVideoMessage.newBuilder()
-//                    .setPreview(url)
-//                    .setThumbnail(url + extTh);
-//
-//        }
-//        MsgBean.ImageMessage msgb;
-//        if (imageSize != null) {
-//            msgb = msg.setWidth((int)imageSize.getWidth())
-//                    .setHeight((int)imageSize.getHeight())
-//                    .setSize((int)size)
-//                    .build();
-//        } else {
-//            msgb = msg.build();
-//        }
-
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
-        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
+
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setShortVideo(msg)
+                .build();
+        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, wrapMessage);
     }
 
     public static MsgAllBean 转发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
@@ -778,7 +718,7 @@ public class SocketData {
      * @param url2
      * @return
      */
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2, int w, int h, int size) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2, int w, int h, int size,int survivalTime) {
         MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
                 .setOrigin(url)
                 .setPreview(url1)
@@ -788,13 +728,16 @@ public class SocketData {
                 .setSize(size)
                 .build();
 
-
-        return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setImage(msg)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, wrapMessage);
     }
 
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time,int survivalTime) {
 
-        return send4Image(getUUID(), toId, toGid, url, false, imgSize, time);
+        return send4Image(getUUID(), toId, toGid, url, false, imgSize, time,survivalTime);
     }
 
 
@@ -905,21 +848,6 @@ public class SocketData {
 
     }
 
-    /***
-     * 发送语音
-     * @param toId
-     * @param toGid
-     * @param url
-     * @param time
-     * @return
-     */
-    public static MsgAllBean send4Voice(Long toId, String toGid, String url, int time) {
-        MsgBean.VoiceMessage msg = MsgBean.VoiceMessage.newBuilder()
-                .setUrl(url)
-                .setDuration(time)
-                .build();
-        return send4Base(toId, toGid, MsgBean.MessageType.VOICE, msg);
-    }
 
     /****
      * 发送名片
@@ -930,15 +858,18 @@ public class SocketData {
      * @param info
      * @return
      */
-    public static MsgAllBean send4card(Long toId, String toGid, Long uid, String iconUrl, String nkName, String info) {
+    public static MsgAllBean send4card(Long toId, String toGid, Long uid, String iconUrl, String nkName, String info,int survivalTime) {
         MsgBean.BusinessCardMessage msg = MsgBean.BusinessCardMessage.newBuilder()
                 .setAvatar(iconUrl)
                 .setNickname(nkName)
                 .setComment(info)
-                //uid
                 .setUid(uid)
                 .build();
-        return send4Base(toId, toGid, MsgBean.MessageType.BUSINESS_CARD, msg);
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setBusinessCard(msg)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.BUSINESS_CARD, wrapMessage);
     }
 
 
@@ -1019,7 +950,7 @@ public class SocketData {
      * @param msgType    撤回的消息类型
      * @return
      */
-    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId, String msgContent, Integer msgType) {
+    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId, String msgContent, Integer msgType,int survivalTime) {
 
         MsgBean.CancelMessage msg = MsgBean.CancelMessage.newBuilder()
                 .setMsgId(msgId)
@@ -1031,6 +962,7 @@ public class SocketData {
         chatMessage.setMsg(msgContent);
         chatMessage.setMsgid(msgType + "");// 暂时用来存放撤回的消息类型
         msgAllBean.setChat(chatMessage);
+        msgAllBean.setSurvival_time(survivalTime);
         ChatServer.addCanceLsit(id, msgAllBean);
 
         return msgAllBean;

@@ -170,7 +170,39 @@ public class ReadDestroyUtil {
                 imageView.setVisibility(View.GONE);
                 break;
         }
+    }
 
+
+
+    public String getDestroyTimeContent(int destroyTime){
+        switch (destroyTime){
+            case -1:
+                return "退出即焚";
+            case 0:
+                return "关闭";
+            case 5:
+                return "5秒";
+            case 10:
+                return "10秒";
+            case 30:
+                return "30秒";
+            case 60:
+                return "1分钟";
+            case 1800:
+                return "30分钟";
+            case 3600:
+                return "1小时";
+            case 21000:
+                return "6小时";
+            case 43200:
+                return "12小时";
+            case 86400:
+                return "1天";
+            case 604800:
+                return "一个星期";
+            default:
+                return "关闭";
+        }
     }
 
 

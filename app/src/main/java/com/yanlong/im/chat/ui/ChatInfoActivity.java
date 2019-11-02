@@ -24,6 +24,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 
@@ -66,7 +67,7 @@ public class ChatInfoActivity extends AppActivity {
     private int oldDestroyTime;
     private int destroyTime;
 
-    private ReadDestroyUtil readDestroyUtil;
+    private ReadDestroyUtil readDestroyUtil = new ReadDestroyUtil();
     private LinearLayout viewDestroyTime;
     private TextView tvDestroyTime;
 
@@ -78,7 +79,6 @@ public class ChatInfoActivity extends AppActivity {
         findViews();
         initEvent();
         initData();
-        controlDestroyView();
         EventBus.getDefault().register(this);
     }
 
@@ -102,7 +102,8 @@ public class ChatInfoActivity extends AppActivity {
     public void setingReadDestroy(ReadDestroyBean bean) {
         if (bean.uid == fuid) {
             destroyTime = bean.survivaltime;
-
+            String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+            tvDestroyTime.setText(content);
         }
     }
 
@@ -207,7 +208,15 @@ public class ChatInfoActivity extends AppActivity {
         viewDestroyTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                DestroyTimeView destroyTimeView = new DestroyTimeView(ChatInfoActivity.this);
+                destroyTimeView.initView();
+                destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
+                    @Override
+                    public void onClickItem(String content, int survivaltime) {
+                        tvDestroyTime.setText(content);
+                        taskSurvivalTime(fuid, survivaltime);
+                    }
+                });
             }
         });
     }
@@ -224,15 +233,10 @@ public class ChatInfoActivity extends AppActivity {
         UserInfo userInfo = userDao.findUserInfo(fuid);
         destroyTime = userInfo.getDestroy();
         oldDestroyTime = userInfo.getDestroy();
-
-
+        String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+        tvDestroyTime.setText(content);
     }
 
-
-    private void controlDestroyView() {
-
-
-    }
 
 
     //自动生成RecyclerViewAdapter

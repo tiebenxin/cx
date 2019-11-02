@@ -231,13 +231,10 @@ public class EditVideoActivity extends BaseActivity {
         tv_finish_video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                synchronized(this){
                 if (isFinsh){
                     isFinsh=false;
-                    tv_finish_video.setClickable(false);
                     finishVideo();
-                };
-
+                }
             }
         });
 
@@ -394,7 +391,7 @@ public class EditVideoActivity extends BaseActivity {
             }
         });
     }
-
+    private boolean isFinsh=true;
     private void finishVideo() {
 
         final boolean isPen = tv_video.getPathSum() != 0;
@@ -407,12 +404,8 @@ public class EditVideoActivity extends BaseActivity {
         if(isSpeed){
             executeCount++;
         }
-        try{
-            mMediaPlayer.stop();
-        }catch (Exception e){
 
-        }
-
+        mMediaPlayer.stop();
         editorTextView = showProgressDialog();
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
@@ -432,19 +425,20 @@ public class EditVideoActivity extends BaseActivity {
                 if (!TextUtils.isEmpty(result)) {
                     Intent intent = new Intent();
                     intent.putExtra(RecordedActivity.INTENT_PATH, result);
+                    intent.putExtra(RecordedActivity.INTENT_VIDEO_WIDTH, mMediaPlayer.getVideoWidth());
+                    intent.putExtra(RecordedActivity.INTENT_PATH_HEIGHT, mMediaPlayer.getVideoHeight());
+                    intent.putExtra(RecordedActivity.INTENT_PATH_TIME, mMediaPlayer.getDuration());
                     setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
                 }
                 isFinsh=true;
-                tv_finish_video.setClickable(true);
             }
             @Override
             public void onError(Throwable e) {
                 closeProgressDialog();
                 Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
-                tv_finish_video.setClickable(true);
             }
         });
     }
