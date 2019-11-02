@@ -199,8 +199,8 @@ public class UserInfoActivity extends AppActivity {
         viewBlack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final AlertYesNo alertYesNo = new AlertYesNo();
                 if (type == 0) {
-                    final AlertYesNo alertYesNo = new AlertYesNo();
                     alertYesNo.init(UserInfoActivity.this, "提示",
                             "加入黑名单，你将不再收到对方的消息", "确定", "取消", new AlertYesNo.Event() {
                                 @Override
@@ -213,10 +213,21 @@ public class UserInfoActivity extends AppActivity {
                                     taskFriendBlack(id);
                                 }
                             });
-                    alertYesNo.show();
                 } else if (type == 2) {
-                    taskFriendBlackRemove(id);
+                    alertYesNo.init(UserInfoActivity.this, "提示",
+                            "解除黑名单，你将可以与对方发送消息", "确定", "取消", new AlertYesNo.Event() {
+                                @Override
+                                public void onON() {
+
+                                }
+
+                                @Override
+                                public void onYes() {
+                                    taskFriendBlackRemove(id);
+                                }
+                            });
                 }
+                alertYesNo.show();
             }
         });
 

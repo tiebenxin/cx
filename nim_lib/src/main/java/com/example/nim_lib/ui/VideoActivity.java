@@ -175,6 +175,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private boolean mIsFistCountDown = true;
     private VideoAction mVideoAction;
     private String mRoomId; // 网易房间id
+    private boolean isFirstFlg = true;// 第一次发送消息标记
 
     private ImageView imgHeadPortrait;
     private TextView txtName;
@@ -258,10 +259,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (v.getId() == R.id.img_cancle || v.getId() == R.id.img_hand_up
                 || v.getId() == R.id.img_refuse || v.getId() == R.id.img_hand_up2) {
             if (avChatData != null) {
-                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, AVChatType.AUDIO, toUId);
-                if(v.getId() == R.id.img_cancle){
+                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+                if (v.getId() == R.id.img_cancle) {
                     sendEventBus("cancle", AVChatExitCode.CANCEL);
                 }
+            } else {
+                Toast.makeText(VideoActivity.this, R.string.avchat_cancel, Toast.LENGTH_SHORT).show();
+                finish();
             }
         } else if (v.getId() == R.id.img_answer) {// 接听
             if (avChatData != null) {
@@ -319,7 +323,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (mAVChatType == AVChatType.VIDEO.getValue()) {
             if (!mIsInComingCall) {
 //            initLargeSurfaceView(mNeteaseaccId);// TODO 进来打开摄像
-                outGoingCalling(AVChatType.VIDEO);
+//                outGoingCalling(AVChatType.VIDEO);
+
+                auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.VIDEO);
             } else {
                 initLargeSurfaceView(avChatData.getAccount());
                 initSmallSurfaceView();
@@ -331,9 +337,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.CONNECTING);
                 txtWaitMsg.setText(getString(R.string.avchat_wait_recieve1));
                 if (mAVChatType == AVChatType.AUDIO.getValue()) {
-                    outGoingCalling(AVChatType.AUDIO);
+//                    outGoingCalling(AVChatType.AUDIO);
+                    auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.AUDIO);
                 } else {
-                    outGoingCalling(AVChatType.VIDEO);
+//                    outGoingCalling(AVChatType.VIDEO);
+                    auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.VIDEO);
                 }
                 break;
             case CoreEnum.VoiceType.RECEIVE:
@@ -553,7 +561,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         event.avChatType = mAVChatType;
         event.operation = operation;
         if (operationType == AVChatExitCode.CANCEL) {
-            event.txt = "已取消" ;
+            event.txt = "已取消";
         } else if (operationType == AVChatExitCode.REJECT) {
             event.txt = "已拒绝";
         } else if (operationType == AVChatExitCode.HANGUP) {
@@ -561,7 +569,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
         event.toGid = toGid;
         event.toUId = toUId;
-        EventBus.getDefault().post(event);
+        // 临时处理自己取消情况
+        if (operationType != AVChatExitCode.HANGUP || !TextUtils.isEmpty(txtVideoTime.getText().toString())) {
+            EventBus.getDefault().post(event);
+        }
     }
 
     /**
@@ -574,7 +585,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             Log.i(TAG, "对方挂断电话");
             if (avChatData != null && avChatData.getChatId() == avChatHangUpInfo.getChatId()) {
                 hangUpByOther(AVChatExitCode.HANGUP);
-                sendEventBus("hangup", AVChatExitCode.HANGUP);
+                if (isFirstFlg) {
+                    isFirstFlg = false;
+                    sendEventBus("hangup", AVChatExitCode.HANGUP);
+                }
                 if (!isFinishing()) {
                     mHandler.removeCallbacks(runnable);
                 }
@@ -601,11 +615,15 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_BUSY) {
                 // 对方正在忙
                 Log.i(TAG, "对方正在忙");
+                hangUpByOther(AVChatExitCode.PEER_BUSY);
             } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_REJECT) {
                 // 对方拒绝接听
                 Log.i(TAG, "对方拒绝接听");
                 hangUpByOther(AVChatExitCode.REJECT);
-                sendEventBus("reject", AVChatExitCode.REJECT);
+                if (isFirstFlg) {
+                    isFirstFlg = false;
+                    sendEventBus("reject", AVChatExitCode.REJECT);
+                }
             } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_AGREE) {
                 // 对方同意接听
                 Log.i(TAG, "对方同意接听" + ackInfo.getAccount());
@@ -635,6 +653,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onEvent(AVChatControlEvent netCallControlNotification) {
             Log.i(TAG, "通话结束");
+//            hangUpByOther(AVChatExitCode.HANGUP);
             handleCallControl(netCallControlNotification);
         }
     };
@@ -692,7 +711,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 //                }
                 break;
             default:
-                Toast.makeText(this, "对方发来指令值：" + notification.getControlCommand(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "对方发来指令值：" + notification.getControlCommand(), Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -702,6 +721,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         state = AVChatType.AUDIO.getValue();
         layoutVoiceWait.setVisibility(View.GONE);
         layoutInvitationVoice.setVisibility(View.GONE);
+        txtWaitMsg.setVisibility(View.GONE);
 
         layoutVoice.setVisibility(View.VISIBLE);
         layoutAudio.setVisibility(View.VISIBLE);
@@ -782,10 +802,14 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      */
     private void hangUpByOther(int exitCode) {
         if (exitCode == AVChatExitCode.PEER_BUSY) {
-//            avChatController.hangUp(AVChatExitCode.HANGUP);
-            finish();
+            if (avChatData != null) {
+                showQuitToast(AVChatExitCode.PEER_BUSY);
+                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+            }
         } else {
-            releaseVideo();
+            if (mAVChatType == AVChatType.VIDEO.getValue()) {
+                releaseVideo();
+            }
             onHangUp(exitCode);
         }
     }
@@ -1292,7 +1316,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                             initLargeSurfaceView(avChatData.getAccount());
                         }
 //                        Toast.makeText(VoiceCallActivity.this, "onSuccess", Toast.LENGTH_LONG).show();
-                        auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID());
                     }
 
                     @Override
@@ -1327,11 +1350,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     /**
      * 点对点语音发起(已完成)
      *
-     * @param friend 通话接收人uid
-     * @param type   通话类型(1:音频|2:视频)
-     * @param roomId 网易房间id
+     * @param friend     通话接收人uid
+     * @param type       通话类型(1:音频|2:视频)
+     * @param roomId     网易房间id
+     * @param aVChatType
      */
-    public void auVideoDial(Long friend, int type, String roomId) {
+    public void auVideoDial(Long friend, int type, String roomId, AVChatType aVChatType) {
         new RunUtils(new RunUtils.Enent() {
             @Override
             public void onRun() {
@@ -1344,6 +1368,15 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         super.onResponse(call, response);
+                        if (response.body() != null && response.body().isOk()) {
+                            if (aVChatType == AVChatType.VIDEO) {
+                                outGoingCalling(AVChatType.VIDEO);
+                            } else {
+                                outGoingCalling(AVChatType.AUDIO);
+                            }
+                        } else {
+                            ToastUtil.show(VideoActivity.this, response.body().getMsg());
+                        }
                     }
 
                     @Override

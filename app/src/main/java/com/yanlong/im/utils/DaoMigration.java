@@ -36,6 +36,9 @@ public class DaoMigration implements RealmMigration {
             if (newVersion > oldVersion && oldVersion == 5) {
                 updateV6(schema);
                 oldVersion++;
+            }if (newVersion > oldVersion && oldVersion == 6) {
+                updateV7(schema);
+                oldVersion++;
             }
         }
     }
@@ -127,6 +130,11 @@ public class DaoMigration implements RealmMigration {
                 .addField("neteaseAccid", String.class);
         schema.get("MsgAllBean")
                 .addRealmObjectField("p2PAuVideoMessage", schema.get("P2PAuVideoMessage"));
+    }
+
+    private void updateV7(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("vip", String.class);
     }
 
     @Override

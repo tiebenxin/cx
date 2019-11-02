@@ -5,9 +5,7 @@ import com.example.nim_lib.bean.ReturnBean;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 
 /**
  * @version V1.0
@@ -28,7 +26,7 @@ public interface VideoServer {
     @FormUrlEncoded
     Call<ReturnBean> auVideoHangup(@Field("friend") Long friend,@Field("type") int type,@Field("roomId") String roomId);
 
-    @GET("/au-video/keep-alive/{roomId}")
+    @POST("au-video/keep-alive/{roomId}")
     @FormUrlEncoded
-    Call<ReturnBean> auVideoKeepAlive(@Path("roomId") String roomId);
+    Call<ReturnBean> auVideoKeepAlive(@Field("roomId") String roomId);
 }
