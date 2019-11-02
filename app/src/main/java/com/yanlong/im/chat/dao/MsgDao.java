@@ -1524,6 +1524,13 @@ public class MsgDao {
         if (session == null)
             return null;
         session.setIsTop(isTop);
+
+        UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
+        if (user == null)
+            return null;
+        user.setIstop(isTop);
+
+        realm.insertOrUpdate(user);
         realm.insertOrUpdate(session);
         realm.commitTransaction();
         realm.close();
@@ -1562,14 +1569,22 @@ public class MsgDao {
         if (session == null)
             return null;
         session.setIsMute(disturb);
+
+        UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
+        if (user == null)
+            return null;
+        user.setDisturb(disturb);
+
         realm.insertOrUpdate(session);
+        realm.insertOrUpdate(user);
+
         realm.commitTransaction();
         realm.close();
         return session;
     }
 
     /***
-     * 保存单聊置顶
+     * 保存单聊消息免打扰
      * @param uid
      * @param isTop
      */
@@ -2493,6 +2508,27 @@ public class MsgDao {
         Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
         if (g != null) {//已经存在
             g.setName(name);
+            realm.insertOrUpdate(g);
+        } else {//不存在
+            return false;
+        }
+        realm.commitTransaction();
+        realm.close();
+        return true;
+    }
+
+    /***
+     * 修改我在本群昵称
+     * @param gid 群id
+     * @param name 群名
+     */
+    public boolean updateMyGroupName(String gid, String name) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
+        if (g != null) {//已经存在
+            g.setMygroupName(name);
             realm.insertOrUpdate(g);
         } else {//不存在
             return false;

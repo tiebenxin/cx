@@ -12,6 +12,7 @@ import com.example.nim_lib.module.AVSwitchListener;
 import com.example.nim_lib.net.CallBack;
 import com.example.nim_lib.net.RunUtils;
 import com.example.nim_lib.util.LogUtil;
+import com.example.nim_lib.util.ToastUtil;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
 import com.netease.nimlib.sdk.avchat.constant.AVChatControlCommand;
@@ -66,7 +67,7 @@ public class AVChatController {
      * @param type
      * @param avChatType AVChatType.VIDEO AVChatType.AUDIO\e
      */
-    public void hangUp2(long chatId, int type, AVChatType avChatType,Long toUId) {
+    public void hangUp2(long chatId, int type, int avChatType,Long toUId) {
         if ((type == AVChatExitCode.HANGUP || type == AVChatExitCode.PEER_NO_RESPONSE
                 || type == AVChatExitCode.CANCEL || type == AVChatExitCode.REJECT)) {
             AVChatManager.getInstance().hangUp2(chatId, new AVChatCallback<Void>() {
@@ -74,7 +75,7 @@ public class AVChatController {
                 public void onSuccess(Void aVoid) {
                     AVChatProfile.getInstance().setAVChatting(false);
                     AVChatSoundPlayer.instance().stop();
-                    auVideoHandup(toUId, avChatType.getValue(), getUUID());
+                    auVideoHandup(toUId, avChatType, getUUID());
                     if (context != null && !((Activity) context).isFinishing()) {
                         ((Activity) context).finish();
                     }
@@ -82,17 +83,24 @@ public class AVChatController {
                 }
 
                 @Override
-                public void onFailed(int i) {
+                public void onFailed(int code) {
                     Log.d(TAG, "onSuccess");
+                    if (context != null && !((Activity) context).isFinishing()) {
+                        ToastUtil.show(context,AVChatExitCode.getCodeString(code));
+                        ((Activity) context).finish();
+                    }
                 }
 
                 @Override
                 public void onException(Throwable throwable) {
                     Log.d(TAG, "throwable");
+                    if (context != null && !((Activity) context).isFinishing()) {
+                        ((Activity) context).finish();
+                    }
                 }
             });
         }
-        if (avChatType == AVChatType.VIDEO) {
+        if (avChatType == AVChatType.VIDEO.getValue()) {
             // 如果是视频通话，关闭视频模块
             AVChatManager.getInstance().disableVideo();
             // 如果是视频通话，需要先关闭本地预览

@@ -1580,6 +1580,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         initUnreadCount();
         initPopupWindow();
+
+        // 只有Vip才显示视频通话
+        UserInfo userInfo = UserAction.getMyInfo();
+        if (userInfo != null && !"1".equals(userInfo.getVip())) {
+            viewFunc.removeView(llChatVideoCall);
+        }
     }
 
     private void initUnreadCount() {
@@ -2007,6 +2013,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
+            msgListData.get(position).setSend_state(ChatEnum.ESendStatus.NORMAL);
+            ((ChatItemView)mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
+//            setErr;
             if (!isNewAdapter) {
                 msgListData.set(position, msgAllbean);
             } else {
@@ -2014,6 +2023,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             Log.i(TAG, "replaceListDataAndNotify: 只刷新" + position);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+
 //            if (loose){
 //                ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(position);
 //                itemView.setVideoIMGShow(true);
@@ -2336,7 +2346,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (isGroup()) {//群聊显示昵称
 
                 //6.14 这里有性能问题
-                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();//fusinfo.getName();
+                if (StringUtil.isNotNull(msgbean.getFrom_group_nickname())){
+                    nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_group_nickname();
+                }else{
+                    nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
+                }
+             //fusinfo.getName();
+//                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();//fusinfo.getName();
 
 
             } else {//单聊不显示昵称

@@ -252,7 +252,6 @@ public class SocketData {
                     msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
                 }
             }
-
             msgAllBean.setSend_data(msg.build().toByteArray());
 
             //移除旧消息// 7.16 通过msgid 判断唯一
@@ -1339,6 +1338,7 @@ public class SocketData {
                     return null;
                 }
                 break;
+
         }
 
         return msg;

@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#dd2B2B2B"
+        >
+        <RelativeLayout
+            android:id="@+id/rl_close"
+            android:layout_width="50dp"
+            android:layout_height="50dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@mipmap/back"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            android:textSize="18sp"
+            android:layout_centerInParent="true"
+            android:text="编辑照片"/>
+    </RelativeLayout>
     <RelativeLayout
         android:id="@+id/activity_show_rl_big"
         android:layout_width="match_parent"
@@ -9,6 +34,7 @@
         android:id="@+id/activity_img_show_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
         android:layout_marginBottom="50dp"
         android:scaleType="fitXY"/>
 
@@ -272,13 +298,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:layout_margin="30dp"/>
+            android:layout_margin="10dp"/>
     </RelativeLayout>
     <com.zhaoss.weixinrecorded.view.CutView
         android:layout_marginBottom="50dp"
         android:id="@+id/activity_img_show_cut"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
         android:visibility="gone"
         />
 

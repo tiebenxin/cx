@@ -461,7 +461,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
                 LogUtil.getLog().i(TAG, "对方正在忙");
                 ToastUtil.show(VoiceCallActivity.this, "对方正在忙");
                 if (mAvChatData != null) {
-                    mAVChatController.hangUp2(mAvChatData.getChatId(), AVChatExitCode.PEER_BUSY, AVChatType.AUDIO,null);
+                    mAVChatController.hangUp2(mAvChatData.getChatId(), AVChatExitCode.PEER_BUSY, AVChatType.AUDIO.getValue(),null);
                 }
 
             } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_REJECT) {
@@ -469,7 +469,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
                 LogUtil.getLog().i(TAG, "对方拒绝接听");
                 ToastUtil.show(VoiceCallActivity.this, "对方拒绝接听");
                 if (mAvChatData != null) {
-                    mAVChatController.hangUp2(mAvChatData.getChatId(), AVChatExitCode.REJECT, AVChatType.AUDIO,null);
+                    mAVChatController.hangUp2(mAvChatData.getChatId(), AVChatExitCode.REJECT, AVChatType.AUDIO.getValue(),null);
                 }
             } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_AGREE) {
                 // 对方同意接听
@@ -598,7 +598,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
     private void hangUpByOther(int exitCode) {
         if (exitCode == AVChatExitCode.PEER_BUSY) {
             if (mAvChatData != null) {
-                mAVChatController.hangUp2(mAvChatData.getChatId(), AVChatExitCode.HANGUP, AVChatType.AUDIO,null);
+                mAVChatController.hangUp2(mAvChatData.getChatId(), AVChatExitCode.HANGUP, AVChatType.AUDIO.getValue(),null);
             }
         } else {
             handleAcceptFailed();
@@ -702,7 +702,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
         if (v.getId() == R.id.img_cancle || v.getId() == R.id.img_hand_up
                 || v.getId() == R.id.img_refuse || v.getId() == R.id.img_hand_up2) {
             if (mAvChatData != null) {
-                mAVChatController.hangUp2(mAvChatData.getChatId(), AVChatExitCode.HANGUP, AVChatType.AUDIO,null);
+                mAVChatController.hangUp2(mAvChatData.getChatId(), AVChatExitCode.HANGUP, AVChatType.AUDIO.getValue(),null);
             }
         } else if (v.getId() == R.id.img_answer) {// 接听
             if (mAvChatData != null) {

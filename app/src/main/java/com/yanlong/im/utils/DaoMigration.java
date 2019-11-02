@@ -134,8 +134,13 @@ public class DaoMigration implements RealmMigration {
                 .addRealmObjectField("p2PAuVideoMessage", schema.get("P2PAuVideoMessage"));
     }
 
-    //新增群阅后即焚
     private void updateV7(RealmSchema schema) {
+        schema.get("UserInfo")
+                .addField("vip", String.class);
+    }
+
+    //新增群阅后即焚
+    private void updateV8(RealmSchema schema) {
         schema.get("Group")
                 .addField("survivaltime", int.class);
         schema.get("MsgAllBean")

@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zhaoss.weixinrecorded.R;
+import com.zhaoss.weixinrecorded.util.DimenUtils;
 import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.CutView;
 import com.zhaoss.weixinrecorded.view.TouchView;
@@ -123,7 +124,12 @@ public class ImageShowActivity  extends BaseActivity {
                 finish();
             }
         });
-
+        findViewById(R.id.rl_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         findViewById(R.id.iv_show_delete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -322,8 +328,8 @@ public class ImageShowActivity  extends BaseActivity {
 //            /** 如果不设置canvas画布为白色，则生成透明 */
             v.layout(0, 0, activity_img_show_cut.getRectWidth(), activity_img_show_cut.getRectHeight());
             v.draw(c);
-
-            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],(int)cutArr[1],(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
+            int px= (int)DimenUtils.dp2px(60);
+            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
             return cutBitmap;
 
         }else{

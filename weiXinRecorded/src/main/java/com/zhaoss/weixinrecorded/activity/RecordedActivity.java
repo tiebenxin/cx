@@ -52,7 +52,7 @@ public class RecordedActivity extends BaseActivity {
     public static final int REQUEST_CODE_KEY = 100;
 
     public static final float MAX_VIDEO_TIME = 18f*1000;  //最大录制时间
-    public static final float MIN_VIDEO_TIME = 2f*1000;  //最小录制时间
+    public static final float MIN_VIDEO_TIME = 1f*1000;  //最小录制时间
 
     private SurfaceView surfaceView;
     private RecordView recordView;
@@ -195,8 +195,8 @@ public class RecordedActivity extends BaseActivity {
 
     private void shotPhoto(final byte[] nv21){
 
-        TextView textView = showProgressDialog();
-        textView.setText("图片截取中");
+//        TextView textView = showProgressDialog();
+//        textView.setText("图片截取中");
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
             public String doInBackground() throws Throwable {
@@ -232,7 +232,7 @@ public class RecordedActivity extends BaseActivity {
             }
             @Override
             public void onFinish(String result) {
-                closeProgressDialog();
+//                closeProgressDialog();
 
 //                Intent intent = new Intent();
 //                intent.putExtra(INTENT_PATH, result);

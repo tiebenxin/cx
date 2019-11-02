@@ -32,6 +32,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String phone;
     private String oldimid;
     private String neteaseAccid;// 网易id
+    private String vip;// (0:普通|1:vip)
 
     private Integer disturb;///消息免打扰(0:关闭|1:打开)
     private Integer istop;//聊天置顶(0:关闭|1:打开)
@@ -91,6 +92,14 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
 
     public void setDestroyTime(Long destroyTime) {
         this.destroyTime = destroyTime;
+    }
+
+    public String getVip() {
+        return vip;
+    }
+
+    public void setVip(String vip) {
+        this.vip = vip;
     }
 
     public boolean isChecked() {

@@ -4,16 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.receiver.PhoneCallStateObserver;
 import com.example.nim_lib.ui.VideoActivity;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
-import com.netease.nimlib.sdk.avchat.constant.AVChatControlCommand;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -124,13 +121,13 @@ public class AVChatKit {
         public void onEvent(final AVChatData data) {
             String extra = data.getExtra();
             LogUtil.getLog().e(TAG, "Extra Message->" + extra);
-            if (PhoneCallStateObserver.getInstance().getPhoneCallState() != PhoneCallStateObserver.PhoneCallStateEnum.IDLE
-                    || AVChatProfile.getInstance().isAVChatting()
-                    || AVChatManager.getInstance().getCurrentChatId() != 0) {
-                Log.i(TAG, "reject incoming call data =" + data.toString() + " as local phone is not idle");
-                AVChatManager.getInstance().sendControlCommand(data.getChatId(), AVChatControlCommand.BUSY, null);// 用户正忙
-                return;
-            }
+//            if (PhoneCallStateObserver.getInstance().getPhoneCallState() != PhoneCallStateObserver.PhoneCallStateEnum.IDLE
+//                    || AVChatProfile.getInstance().isAVChatting()
+//                    || AVChatManager.getInstance().getCurrentChatId() != 0) {
+//                LogUtil.getLog().i(TAG, "reject incoming call data =" + data.toString() + " as local phone is not idle");
+//                AVChatManager.getInstance().sendControlCommand(data.getChatId(), AVChatControlCommand.BUSY, null);// 用户正忙
+//                return;
+//            }
             LogUtil.getLog().i(TAG, "收到来电：" + data.getAccount());
             AVChatProfile.getInstance().setAVChatting(true);
 
