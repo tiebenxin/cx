@@ -45,10 +45,14 @@ public class CutView extends View {
 
     private void init() {
 
-        marginLeft = (int) getResources().getDimension(R.dimen.dp30);
-        marginRight = (int) getResources().getDimension(R.dimen.dp30);
-        marginTop = (int) getResources().getDimension(R.dimen.dp30);
-        marginBottom = (int) getResources().getDimension(R.dimen.dp80);
+        marginLeft = (int) 1;
+        marginRight = (int) 1;
+        marginTop = (int)1;
+        marginBottom = (int) 1;
+//        marginLeft = (int) getResources().getDimension(R.dimen.dp30);
+//        marginRight = (int) getResources().getDimension(R.dimen.dp30);
+//        marginTop = (int) getResources().getDimension(R.dimen.dp30);
+//        marginBottom = (int) getResources().getDimension(R.dimen.dp80);
         dp3 = (int) getResources().getDimension(R.dimen.dp3);
         dp1 = (int) getResources().getDimension(R.dimen.dp1);
 

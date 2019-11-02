@@ -113,9 +113,21 @@
                     style="@style/app_check" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/view_set_read"
+                style="@style/app_layout_list2_item">
 
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_marginRight="@dimen/app_margin_item"
+                    android:layout_weight="1"
+                    android:text="设置已读消息" />
+
+                <CheckBox
+                    android:id="@+id/ck_set_read"
+                    style="@style/app_check" />
+            </LinearLayout>
         </LinearLayout>
-
 
 
         <LinearLayout style="@style/app_layout_list2">
@@ -166,22 +178,6 @@
                     android:layout_marginRight="@dimen/app_margin_item"
                     android:layout_weight="1"
                     android:text="清空聊天记录" />
-
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout style="@style/app_layout_list2">
-
-            <LinearLayout
-                android:id="@+id/view_feedback"
-                style="@style/app_layout_list2_item">
-
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_weight="1"
-                    android:text="投诉" />
-
 
             </LinearLayout>
         </LinearLayout>

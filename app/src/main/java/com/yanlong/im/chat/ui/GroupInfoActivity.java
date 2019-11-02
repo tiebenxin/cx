@@ -102,13 +102,9 @@ public class GroupInfoActivity extends AppActivity {
     private Gson gson = new Gson();
     private Group ginfo;
 
-    private CheckBox ckRedDestroy;
-    private LinearLayout viewExitDestroy;
-    private CheckBox ckExitDestroy;
+    private int destroyTime;
     private LinearLayout viewDestroyTime;
     private TextView tvDestroyTime;
-    private SeekBar sbDestroyTime;
-    private int destroyTime;
     private ReadDestroyUtil readDestroyUtil;
 
     //自动寻找控件
@@ -141,12 +137,8 @@ public class GroupInfoActivity extends AppActivity {
         btnDel = findViewById(R.id.btn_del);
         viewClearChatRecord = findViewById(R.id.view_clear_chat_record);
 
-        ckRedDestroy = findViewById(R.id.ck_red_destroy);
-        viewExitDestroy = findViewById(R.id.view_exit_destroy);
-        ckExitDestroy = findViewById(R.id.ck_exit_destroy);
         viewDestroyTime = findViewById(R.id.view_destroy_time);
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
-        sbDestroyTime = findViewById(R.id.sb_destroy_time);
         readDestroyUtil = new ReadDestroyUtil();
 
     }
@@ -336,86 +328,18 @@ public class GroupInfoActivity extends AppActivity {
         });
 
         if (!isAdmin()) {
-            ckRedDestroy.setClickable(false);
-            ckExitDestroy.setClickable(false);
-            sbDestroyTime.setClickable(false);
+
         }
 
     }
 
 
-    private void controlDestroyView() {
-        ckRedDestroy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    viewExitDestroy.setVisibility(View.VISIBLE);
-                    viewDestroyTime.setVisibility(View.VISIBLE);
-                    sbDestroyTime.setProgress(60);
-                } else {
-                    viewExitDestroy.setVisibility(View.GONE);
-                    viewDestroyTime.setVisibility(View.GONE);
-                    destroyTime = 0;
-                }
-            }
-        });
-
-        ckExitDestroy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    viewDestroyTime.setVisibility(View.GONE);
-                    destroyTime = -1;
-                } else {
-                    viewDestroyTime.setVisibility(View.VISIBLE);
-                    sbDestroyTime.setProgress(60);
-                }
-            }
-        });
-
-        sbDestroyTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                destroyTime = readDestroyUtil.setSeekBarnProgress(seekBar, progress, tvDestroyTime);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-    }
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void setingReadDestroy(ReadDestroyBean bean) {
-        if (bean.gid == gid) {
-            destroyTime = bean.survivaltime;
-            if (destroyTime == -1) {
-                ckRedDestroy.setChecked(true);
-                ckExitDestroy.setChecked(true);
-                viewExitDestroy.setVisibility(View.VISIBLE);
-                viewDestroyTime.setVisibility(View.GONE);
-            } else if (destroyTime == 0) {
-                ckRedDestroy.setChecked(false);
-                ckExitDestroy.setChecked(false);
-                viewExitDestroy.setVisibility(View.GONE);
-                viewDestroyTime.setVisibility(View.GONE);
-            } else {
-                ckRedDestroy.setChecked(true);
-                ckExitDestroy.setChecked(false);
-                viewExitDestroy.setVisibility(View.VISIBLE);
-                viewDestroyTime.setVisibility(View.VISIBLE);
-                readDestroyUtil.initSeekBarnProgress(sbDestroyTime, destroyTime);
-                tvDestroyTime.setText(readDestroyUtil.formatDateTime(destroyTime));
-            }
-        }
+
+
     }
 
     @Override
@@ -429,7 +353,6 @@ public class GroupInfoActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
         findViews();
-        controlDestroyView();
         EventBus.getDefault().register(this);
     }
 
@@ -512,24 +435,6 @@ public class GroupInfoActivity extends AppActivity {
 
 
         destroyTime = ginfo.getSurvivaltime();
-        if (destroyTime == -1) {
-            ckRedDestroy.setChecked(true);
-            ckExitDestroy.setChecked(true);
-            viewExitDestroy.setVisibility(View.VISIBLE);
-            viewDestroyTime.setVisibility(View.GONE);
-        } else if (destroyTime == 0) {
-            ckRedDestroy.setChecked(false);
-            ckExitDestroy.setChecked(false);
-            viewExitDestroy.setVisibility(View.GONE);
-            viewDestroyTime.setVisibility(View.GONE);
-        } else {
-            ckRedDestroy.setChecked(true);
-            ckExitDestroy.setChecked(false);
-            viewExitDestroy.setVisibility(View.VISIBLE);
-            viewDestroyTime.setVisibility(View.VISIBLE);
-            readDestroyUtil.initSeekBarnProgress(sbDestroyTime, destroyTime);
-            tvDestroyTime.setText(readDestroyUtil.formatDateTime(destroyTime));
-        }
 
     }
 
@@ -714,17 +619,20 @@ public class GroupInfoActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
+                    if (ginfo == null) {
+                        return;
+                    }
 
-                    Group goldinfo = msgDao.getGroup4Id(gid);
-                    if (!isChange(goldinfo, ginfo)) {
-                        doImgHeadChange(gid, ginfo);
-                    }
+//                    Group goldinfo = msgDao.getGroup4Id(gid);
+//                    if (!isChange(goldinfo, ginfo)) {
+//                        doImgHeadChange(gid, ginfo);
+//                    }
                     //8.8 如果是有群昵称显示自己群昵称
-                    for (MemberUser number : ginfo.getUsers()) {
-                        if (StringUtil.isNotNull(number.getMembername())) {
-                            number.setName(number.getMembername());
-                        }
-                    }
+//                    for (MemberUser number : ginfo.getUsers()) {
+//                        if (StringUtil.isNotNull(number.getMembername())) {
+//                            number.setName(number.getMembername());
+//                        }
+//                    }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
@@ -763,7 +671,7 @@ public class GroupInfoActivity extends AppActivity {
             }
         };
         msgAction.groupInfo4Db(gid, callBack);
-        msgAction.groupInfo(gid, callBack);
+//        msgAction.groupInfo(gid, callBack);
     }
 
     //设置群公告

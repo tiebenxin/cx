@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import androidx.annotation.Nullable;
+
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
@@ -87,9 +89,6 @@ public class DaoMigration implements RealmMigration {
     }
 
 
-
-
-
     private void updateV5(RealmSchema schema) {
         schema.get("UserInfo")
                 .addField("joinType", int.class)
@@ -140,17 +139,19 @@ public class DaoMigration implements RealmMigration {
         schema.get("Group")
                 .addField("survivaltime", int.class);
         schema.get("MsgAllBean")
-                .addField("survival_time",int.class)
-                .addField("endTime",long.class) ;
+                .addField("survival_time", int.class)
+                .addField("endTime", long.class);
+        schema.get("UserInfo")
+                .addField("read", int.class);
     }
 
-//    @Override
-//    public boolean equals(@Nullable Object obj) {
-//        return obj instanceof DaoMigration;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return super.hashCode();
-//    }
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return obj instanceof DaoMigration;
+    }
+
+    @Override
+    public int hashCode() {
+        return 100;
+    }
 }

@@ -19,9 +19,9 @@ import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
@@ -59,17 +59,15 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewDisturb;
     private CheckBox ckDisturb;
     private LinearLayout viewLogClean;
-    private LinearLayout viewFeedback;
     //  private Session session;
     private UserInfo fUserInfo;
 
-
-    private int oldDestroyTime;
     private int destroyTime;
 
     private ReadDestroyUtil readDestroyUtil = new ReadDestroyUtil();
     private LinearLayout viewDestroyTime;
     private TextView tvDestroyTime;
+    private CheckBox ckSetRead;
 
 
     @Override
@@ -82,15 +80,6 @@ public class ChatInfoActivity extends AppActivity {
         EventBus.getDefault().register(this);
     }
 
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //初始时间跟返回时间一致就不调用接口设置
-        if (oldDestroyTime != destroyTime) {
-            taskSurvivalTime(fuid, destroyTime);
-        }
-    }
 
     @Override
     protected void onDestroy() {
@@ -119,9 +108,16 @@ public class ChatInfoActivity extends AppActivity {
         viewDisturb = findViewById(R.id.view_disturb);
         ckDisturb = findViewById(R.id.ck_disturb);
         viewLogClean = findViewById(R.id.view_log_clean);
-        viewFeedback = findViewById(R.id.view_feedback);
+        topListView = findViewById(R.id.topListView);
+        viewLog = findViewById(R.id.view_log);
+        viewTop = findViewById(R.id.view_top);
+        ckTop = findViewById(R.id.ck_top);
+        viewDisturb = findViewById(R.id.view_disturb);
+        ckDisturb = findViewById(R.id.ck_disturb);
+        viewLogClean = findViewById(R.id.view_log_clean);
         viewDestroyTime = findViewById(R.id.view_destroy_time);
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
+        ckSetRead = findViewById(R.id.ck_set_read);
     }
 
 
@@ -157,6 +153,7 @@ public class ChatInfoActivity extends AppActivity {
                 taskUpSwitch(null, fUserInfo.getIstop());
             }
         });
+
         ckDisturb.setChecked(fUserInfo.getDisturb() == 1);
         ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -166,6 +163,17 @@ public class ChatInfoActivity extends AppActivity {
                 taskUpSwitch(fUserInfo.getDisturb(), null);
             }
         });
+
+        ckSetRead.setChecked(fUserInfo.getRead() == 1);
+        ckSetRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                fUserInfo.setRead(isChecked ? 1 : 0);
+                taskSaveInfo();
+                taskFriendsSetRead(fuid,isChecked ? 1 : 0);
+            }
+        });
+
         viewLogClean.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,16 +200,6 @@ public class ChatInfoActivity extends AppActivity {
                 startActivity(new Intent(getContext(), SearchMsgActivity.class)
                         .putExtra(SearchMsgActivity.AGM_FUID, fuid)
                 );
-            }
-        });
-
-
-        viewFeedback.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ChatInfoActivity.this, ComplaintActivity.class);
-                intent.putExtra(ComplaintActivity.UID, fuid.toString());
-                startActivity(intent);
             }
         });
 
@@ -232,11 +230,9 @@ public class ChatInfoActivity extends AppActivity {
         readDestroyUtil = new ReadDestroyUtil();
         UserInfo userInfo = userDao.findUserInfo(fuid);
         destroyTime = userInfo.getDestroy();
-        oldDestroyTime = userInfo.getDestroy();
         String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
         tvDestroyTime.setText(content);
     }
-
 
 
     //自动生成RecyclerViewAdapter
@@ -390,11 +386,25 @@ public class ChatInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateReadDestroy(fuid, survivalTime);
-                    // ToastUtil.show(context,"设置成功");
                 }
             }
         });
     }
 
+
+    /**
+     * 设置已读
+     * */
+    private void taskFriendsSetRead(long uid, int read){
+        new UserAction().friendsSetRead(uid, read, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+            }
+        });
+    }
 
 }

@@ -42,6 +42,7 @@ import com.yanlong.im.chat.ui.cell.MessageAdapter;
 import com.yanlong.im.databinding.ActivityChat2Binding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
@@ -92,7 +93,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     private boolean isSoftShow;
     private List<View> emojiLayout;
     private final CheckPermission2Util permission2Util = new CheckPermission2Util();
-
+    private int survivalTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +107,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         initEvent();
         intAdapter();
         initUIAndListener();
+        survivalTime = new UserDao().getReadDestroy(uid,gid);
     }
 
     private void initEvent() {
@@ -132,16 +134,14 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
     protected void onPause() {
         super.onPause();
         //取消激活会话
-        ChatServer.setSessionNull();
+        MessageManager.getInstance().setSessionNull();
 
     }
 
     private void setCurrentSession() {
         if (isGroup) {
-            ChatServer.setSessionGroup(gid);
             MessageManager.getInstance().setSessionGroup(gid);
         } else {
-            ChatServer.setSessionSolo(uid);
             MessageManager.getInstance().setSessionSolo(uid);
         }
     }
@@ -232,7 +232,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             public void onClick(View v) {
                 //test 8.21测试发送
                 // if(AppConfig.DEBUG){
-                presenter.doSendText(ui.edtChat, isGroup);
+                presenter.doSendText(ui.edtChat, isGroup,survivalTime);
             }
         });
         ui.edtChat.addTextChangedListener(new TextWatcher() {
@@ -395,7 +395,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         ui.viewFuncRoot.viewAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.doStamp();
+                presenter.doStamp(survivalTime);
 
             }
         });

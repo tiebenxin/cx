@@ -10,9 +10,6 @@ import com.google.gson.annotations.SerializedName;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -46,6 +43,7 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer displaydetail;//显示详情(0:关闭|1:打开)
     private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单|9:系统用户，如小助手)
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
+    private int read; //已读开关(0:否|1:是)
     private boolean emptyPassword = false;// 是否未设置密码
 
     //阅后即焚
@@ -69,6 +67,15 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String inviterName;
     @Ignore
     private boolean isChecked = false;
+
+
+    public int getRead() {
+        return read;
+    }
+
+    public void setRead(int read) {
+        this.read = read;
+    }
 
     public Integer getDestroy() {
         return destroy;
@@ -401,14 +408,11 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     }
 
     public void setTag(String tag) {
-
-
-        Pattern pattern = Pattern.compile("[0-9]");
-        Matcher isNum = pattern.matcher(tag);
-        if (isNum.matches()) {
+        if ("↑".equals(tag)) {
+            tag = "↑";
+        } else if (tag.hashCode() < 65 || tag.hashCode() > 91) {
             tag = "#";
         }
-
         this.tag = tag;
     }
 

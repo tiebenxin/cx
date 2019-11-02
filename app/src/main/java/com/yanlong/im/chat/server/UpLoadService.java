@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
@@ -171,7 +172,7 @@ public class UpLoadService extends Service {
 
     private static String netBgUrl;
 
-    public  static void onAddVideo(final Context mContext, final String id, final String file, String bgUrl , final Boolean isOriginal, final Long toUId, final String toGid, final long time, final VideoMessage videoMessage) {
+    public  static void onAddVideo(final Context mContext, final String id, final String file, String bgUrl , final Boolean isOriginal, final Long toUId, final String toGid, final long time, final VideoMessage videoMessage ) {
         上传视频预览图(mContext,bgUrl, new UpLoadCallback() {
             @Override
             public void success(String url) {

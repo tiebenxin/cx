@@ -590,13 +590,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         return;
                     }
                     if (edtChat.isAtAll()) {
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList(),survivaltime);
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList(), survivaltime);
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
+                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                     } else {
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, edtChat.getUserIdList(),survivaltime);
+                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, edtChat.getUserIdList(), survivaltime);
                         showSendObj(msgAllbean);
                         edtChat.getText().clear();
+                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                     }
                 } else {
                     //发送普通消息
@@ -613,9 +615,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             if (userDao.getReadDestroy(toUId, toGid) == 0) {
                                 MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
                                 showSendObj(msgAllbean);
+                                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
+                                        toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                             } else {
                                 MsgAllBean msgAllbean = SocketData.send4ChatSurvivalTime(toUId, toGid, text, survivalTime);
                                 showSendObj(msgAllbean);
+                                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
+                                        toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                             }
                             edtChat.getText().clear();
                         } else {
@@ -804,9 +810,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void onYes(String content) {
                         if (!TextUtils.isEmpty(content)) {
-                            //发送普通消息
-                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content,survivaltime);
+                            //发送戳一戳消息
+                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content, survivaltime);
                             showSendObj(msgAllbean);
+                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                         } else {
                             ToastUtil.show(getContext(), "留言不能为空");
                         }
@@ -888,6 +895,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void run() {
                         notifyData2Bottom(true);
+                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msg);
                     }
                 });
                 uploadVoice(file, msg);
@@ -1044,7 +1052,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
-
+                        if (mPopupWindow != null && mPopupWindow.isShowing()) {
+                            mPopupWindow.dismiss();
+                        }
                         break;
 
                 }
@@ -1068,8 +1078,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             //获取与该view的底部的偏移量
                             lastOffset = topView.getBottom();
                         }
-
                         saveScrollPosition();
+                        System.out.println(TAG + "当前滑动位置：lastPosition=" + lastPosition);
                     }
                 }
             }
@@ -1115,10 +1125,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
                         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
-                        if(isGroup()){
-                            changeSurvivalTime(toGid,survivaltime);
-                        }else{
-                            taskSurvivalTime(toUId,survivaltime);
+                        if (isGroup()) {
+                            changeSurvivalTime(toGid, survivaltime);
+                        } else {
+                            taskSurvivalTime(toUId, survivaltime);
                         }
                     }
                 });
@@ -1193,7 +1203,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
                         bundle.putString(Preferences.TOGID, toGid);
                         bundle.putLong(Preferences.TOUID, toUId);
-                        IntentUtil.gotoActivity(ChatActivity.this, VoiceCallActivity.class, bundle);
+                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);
                     }
                 }
             }
@@ -1345,10 +1355,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         break;
                     case 1://emoji面板
-
-//                        viewEmoji.setVisibility(View.VISIBLE);
                         emoji_pager_con.setVisibility(View.VISIBLE);
-
                         break;
                     case 2://语音
                         showVoice(true);
@@ -1380,9 +1387,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (isLoadHistory) {
             isLoadHistory = false;
         }
-        System.out.println(TAG + "scrollListView");
+//        System.out.println(TAG + "scrollListView");
         if (msgListData != null) {
-            int length = msgListData.size();//刷新后当前size；
+            int length = msgListData.size();//刷新后当前size
             if (isMustBottom) {
                 mtListView.getListView().scrollToPosition(length);
             } else {
@@ -1484,11 +1491,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (event != null) {
             MsgAllBean msgAllbean = null;
             if (event.avChatType == AVChatType.AUDIO.getValue()) {
-                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation,survivaltime);
+                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation, survivaltime);
             } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation,survivaltime);
+                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation, survivaltime);
             }
             showSendObj(msgAllbean);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
         }
     }
 
@@ -1531,9 +1539,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (hasUpdate || hasChange) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-        } else {
+        } /*else {
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-        }
+        }*/
     }
 
     @Override
@@ -1600,23 +1608,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
-    private  boolean clickAble=false;
+    private boolean clickAble = false;
 
     @Override
     protected void onResume() {
         super.onResume();
         //激活当前会话
         if (isGroup()) {
-            ChatServer.setSessionGroup(toGid);
             MessageManager.getInstance().setSessionGroup(toGid);
         } else {
-            ChatServer.setSessionSolo(toUId);
             MessageManager.getInstance().setSessionSolo(toUId);
         }
 
         //刷新群资料
         taskSessionInfo();
-        clickAble=true;
+        clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
     }
@@ -1625,7 +1631,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void onPause() {
         super.onPause();
         //取消激活会话
-        ChatServer.setSessionNull();
+        MessageManager.getInstance().setSessionNull();
 
     }
 
@@ -1737,6 +1743,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             switch (requestCode) {
                 case VIDEO_RP:
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
+                    MsgAllBean videoMsgBean = null;
                     if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
@@ -1756,9 +1763,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        Log.e("TAG",videoMessage.toString()+videoMessage.getHeight()+"----"+videoMessage.getWidth()+"----"+videoMessage.getDuration()+"----"+videoMessage.getBg_url()+"----");
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, System.currentTimeMillis(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
-
-                        msgListData.add(imgMsgBean);
+                        videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
+                        msgListData.add(videoMsgBean);
                         UpLoadService.onAddVideo(this.context, imgMsgId, file, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, time, videoMessageSD);
                         startService(new Intent(getContext(), UpLoadService.class));
 
@@ -1782,18 +1788,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         // 记录本次上传图片的ID跟本地路径
                         mTempImgPath.put(imgMsgId, "file://" + file);
                         ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
-                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-
-                        msgListData.add(imgMsgBean);
+                        videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
+                        msgListData.add(videoMsgBean);
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                         startService(new Intent(getContext(), UpLoadService.class));
                     }
                     notifyData2Bottom(true);
+                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, videoMsgBean);
+
                     break;
                 case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
+                    MsgAllBean imgMsgBean = null;
                     for (LocalMedia localMedia : obt) {
                         String file = localMedia.getCompressPath();
                         if (StringUtil.isNotNull(file)) {
@@ -1809,41 +1817,40 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             // 记录本次上传图片的ID跟本地路径
                             mTempImgPath.put(imgMsgId, "file://" + file);
                             ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
-                            MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
-
+                            imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                             msgListData.add(imgMsgBean);
                             UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
                             startService(new Intent(getContext(), UpLoadService.class));
                         } else {
 //                            ToastUtil.show(this, "图片已损坏，请重新选择");
 
-
                             String videofile = localMedia.getPath();
-                            if (null!=videofile){
+                            if (null != videofile) {
                                 //                            int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
 //                            int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
 //                            int time = data.getIntExtra(RecordedActivity.INTENT_PATH_TIME, 0);
                                 final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                                 final String imgMsgId = SocketData.getUUID();
                                 VideoMessage videoMessage = new VideoMessage();
-                                videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
-                                videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
+                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
                                 videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
                                 videoMessage.setBg_url(getVideoAttBitmap(videofile));
                                 videoMessage.setLocalUrl(videofile);
                                 Log.e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
                                 VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + videofile, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), videofile);
-                                MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
+                                imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                                 msgListData.add(imgMsgBean);
                                 UpLoadService.onAddVideo(this.context, imgMsgId, videofile, videoMessage.getBg_url(), isArtworkMaster, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
                                 startService(new Intent(getContext(), UpLoadService.class));
-                            }else{
-                                ToastUtil.show(this,"文件已损坏，请重新选择");
+                            } else {
+                                ToastUtil.show(this, "文件已损坏，请重新选择");
                             }
 
                             ToastUtil.show(this, "图片已损坏，请重新选择");
                         }
                     }
+                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, imgMsgBean);
                     notifyData2Bottom(true);
 
 
@@ -1863,7 +1870,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
                         showSendObj(msgAllbean);
-
+                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                     }
                     break;
                 case GroupSelectUserActivity.RET_CODE_SELECTUSR:
@@ -1879,8 +1886,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
 
-            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), userInfo.getImid(),survivaltime);
+            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), userInfo.getImid());
             showSendObj(msgAllbean);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
         }/* else if (resultCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
             mks.clear();
             taskRefreshMessage();
@@ -1913,7 +1921,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             //处理失败的情况
 //            Log.d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
-            replaceListDataAndNotify(msgAllbean,true);
+            replaceListDataAndNotify(msgAllbean, true);
         } else if (event.getState() == 1) {
             //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
@@ -1986,11 +1994,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
     }
+
+
     /***
      * 替换listData中的某条消息并且刷新
      * @param msgAllbean
      */
-    private void replaceListDataAndNotify(MsgAllBean msgAllbean,boolean loose) {
+    private void replaceListDataAndNotify(MsgAllBean msgAllbean, boolean loose) {
 
         if (msgListData == null)
             return;
@@ -2011,6 +2021,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
     }
+
+
     /***
      * 更新图片需要的进度
      * @param msgid
@@ -2022,10 +2034,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (msgListData.get(i).getMsg_id().equals(msgid)) {
                 // Log.d("xxxx", "taskRefreshImage: "+msgid);
                 mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-//                if (msgListData.get(i).getVideoMessage()!=null){
-//                    ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(i);
-//                    itemView.setVideoIMGShow(false);
-//                }
+
 
             }
         }
@@ -2268,17 +2277,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setErr(msgbean.getSend_state());
 
                         holder.viewChatItem.setImgageProg(pgVideo);
-//                        if (pgVideo.intValue()==100){
-//                            holder.viewChatItem.setVideoIMGShow(true);
-//                        }
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
-                        }else if(msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING){
+                            holder.viewChatItem.setVideoIMGShow(true);
+                        } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
                             holder.viewChatItem.setVideoIMGShow(false);
-                        }else{
-                            holder.viewChatItem.setVideoIMGShow(true );
+                        } else {
                         }
                         break;
 //                    case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
@@ -2506,16 +2512,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
 
                 case ChatEnum.EMessageType.MSG_VIDEO:
-                    if (msgbean.getSend_state()==ChatEnum.ESendStatus.SENDING){
-                        holder.viewChatItem.setVideoIMGShow(false);
-                    }else
-                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
+                    if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
+//                        holder.viewChatItem.setVideoIMGShow(false);
+                    } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
                         holder.viewChatItem.setVideoIMGShow(true);
+                        Log.e("TAG", "2");
                     } else {
                         menus.add(new OptionMenu("删除"));
-                        holder.viewChatItem.setVideoIMGShow(true);
+
                     }
 
                     Integer pgVideo = null;
@@ -2526,13 +2532,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
-                            if (clickAble){
-                                clickAble=false;
+                            if (clickAble) {
+                                clickAble = false;
                                 String localUrl = msgbean.getVideoMessage().getLocalUrl();
                                 if (StringUtil.isNotNull(localUrl)) {
                                     File file = new File(localUrl);
                                     if (file.exists()) {
-                                        Log.e("TAG",file.getAbsolutePath());
+                                        Log.e("TAG", file.getAbsolutePath());
                                         Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
                                         intent.putExtra("videopath", localUrl);
                                         intent.putExtra("videomsg", new Gson().toJson(msgbean));
@@ -2622,7 +2628,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         @Override
                         public void onClick(View v) {
-                            if ((int) v.getTag() == MsgBean.AuVideoType.Audio.getNumber()) {
+                            if (msgbean.getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Audio.getNumber()) {
                                 gotoVoiceActivity();
                             } else {
                                 gotoVideoActivity();
@@ -3036,6 +3042,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void showPop(View v, List<OptionMenu> menus, final MsgAllBean msgbean,
                          final IMenuSelectListener listener, RecyclerViewAdapter.RCViewHolder holder) {
+        //禁止滑动
+//        mtListView.getListView().setNestedScrollingEnabled(true);
+
 
         initPopWindowEvent(msgbean);
         setMessageType(menus);
@@ -3227,7 +3236,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             msg = msgbean.getAtMessage().getMsg();
         }
         msgType = msgbean.getMsg_type();
-        SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType,survivaltime);
+        MsgAllBean msgAllbean = SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
+        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
     }
 
     /**
@@ -3625,13 +3635,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (TextUtils.isEmpty(df) || !draft.equals(df)) {
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-                draft= df;
+                draft = df;
             }
         } else {
             if (!TextUtils.isEmpty(df)) {
                 hasChange = true;
                 dao.sessionDraft(toGid, toUId, df);
-                draft= df;
+                draft = df;
             }
         }
         if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
@@ -3694,7 +3704,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     //设置转账消息
                                     MsgAllBean msgAllbean = SocketData.send4Trans(toUId, rid, info, money);
                                     showSendObj(msgAllbean);
-
+                                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                                 }
                             });
                 }
@@ -3764,6 +3774,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             if (envelopeStatus == 0 && grabRpBean.isHadGrabRp()) {
                                 MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
                                 showSendObj(msgAllbean);
+                                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                                 taskPayRbCheck(msgbean, rbid);
                             }
                             if (envelopeStatus == 2 || envelopeStatus == 3) {
@@ -3996,13 +4007,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         textPosition = position;
         int survivalTime = userDao.getReadDestroy(toUId, toGid);
+        MsgAllBean msgAllbean;
         if (userDao.getReadDestroy(toUId, toGid) == 0) {
-            MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
+            msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
             showSendObj(msgAllbean);
         } else {
-            MsgAllBean msgAllbean = SocketData.send4ChatSurvivalTime(toUId, toGid, list.get(position), survivalTime);
+            msgAllbean = SocketData.send4ChatSurvivalTime(toUId, toGid, list.get(position), survivalTime);
             showSendObj(msgAllbean);
         }
+        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
+                toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
     }
 
     private void fixSendTime(String msgId) {
@@ -4025,7 +4039,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /**
      * 设置单聊阅后即焚时间
-     * */
+     */
     private void taskSurvivalTime(long friend, int survivalTime) {
         msgAction.setSurvivalTime(friend, survivalTime, new CallBack<ReturnBean>() {
             @Override
@@ -4044,7 +4058,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /**
      * 设置群聊阅后即焚时间
-     * */
+     */
     private void changeSurvivalTime(String gid, int survivalTime) {
         msgAction.changeSurvivalTime(gid, survivalTime, new CallBack<ReturnBean>() {
             @Override

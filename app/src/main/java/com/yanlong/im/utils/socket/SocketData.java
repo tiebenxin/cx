@@ -29,6 +29,7 @@ import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.ImgSizeUtil;
@@ -607,7 +608,8 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize, long time, int survivalTime) {
+    public static MsgAllBean send4Image(String msgId, Long toId, String toGid, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize, long time) {
+        int survivalTime = new UserDao().getReadDestroy(toId,toGid);
         MsgBean.ImageMessage.Builder msg;
         String extTh = "/below-20k";
         String extPv = "/below-200k";
@@ -666,7 +668,8 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
-    public static MsgAllBean 转发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage,int survivalTime) {
+    public static MsgAllBean 转发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage) {
+        int survivalTime = new UserDao().getReadDestroy(toId,toGid);
         String bg_URL = videoMessage.getBg_url();
         long time = videoMessage.getDuration();
         String url = videoMessage.getUrl();
@@ -692,7 +695,8 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height,int survivalTime) {
+    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
+        int survivalTime = new UserDao().getReadDestroy(toId,toGid);
         MsgBean.ShortVideoMessage msg;
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
 
@@ -718,7 +722,8 @@ public class SocketData {
      * @param url2
      * @return
      */
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2, int w, int h, int size,int survivalTime) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, String url1, String url2, int w, int h, int size) {
+        int survivalTime = new UserDao().getReadDestroy(toId,toGid);
         MsgBean.ImageMessage msg = MsgBean.ImageMessage.newBuilder()
                 .setOrigin(url)
                 .setPreview(url1)
@@ -735,9 +740,9 @@ public class SocketData {
         return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, wrapMessage);
     }
 
-    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time,int survivalTime) {
+    public static MsgAllBean send4Image(Long toId, String toGid, String url, ImgSizeUtil.ImageSize imgSize, long time) {
 
-        return send4Image(getUUID(), toId, toGid, url, false, imgSize, time,survivalTime);
+        return send4Image(getUUID(), toId, toGid, url, false, imgSize, time);
     }
 
 
@@ -858,7 +863,8 @@ public class SocketData {
      * @param info
      * @return
      */
-    public static MsgAllBean send4card(Long toId, String toGid, Long uid, String iconUrl, String nkName, String info,int survivalTime) {
+    public static MsgAllBean send4card(Long toId, String toGid, Long uid, String iconUrl, String nkName, String info) {
+        int survivalTime = new UserDao().getReadDestroy(toId,toGid);
         MsgBean.BusinessCardMessage msg = MsgBean.BusinessCardMessage.newBuilder()
                 .setAvatar(iconUrl)
                 .setNickname(nkName)
@@ -950,8 +956,8 @@ public class SocketData {
      * @param msgType    撤回的消息类型
      * @return
      */
-    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId, String msgContent, Integer msgType,int survivalTime) {
-
+    public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId, String msgContent, Integer msgType) {
+        int survivalTime = new UserDao().getReadDestroy(toId,toGid);
         MsgBean.CancelMessage msg = MsgBean.CancelMessage.newBuilder()
                 .setMsgId(msgId)
                 .build();

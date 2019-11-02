@@ -196,7 +196,6 @@ public class UserAction {
     }
 
 
-
     /***
      * 拉取服务器的自己的信息到数据库
      */
@@ -800,7 +799,7 @@ public class UserAction {
                 new RequestCallback<LoginInfo>() {
                     @Override
                     public void onSuccess(LoginInfo param) {
-                        if(param!=null){
+                        if (param != null) {
                             AVChatProfile.setAccount(param.getAccount());
                         }
                         LogUtil.getLog().d("UserAction", "onSuccess");
@@ -820,4 +819,13 @@ public class UserAction {
         NIMClient.getService(AuthService.class).login(info)
                 .setCallback(callback);
     }
+
+
+    /**
+     * 设置已读开关
+     */
+    public void friendsSetRead(long uid, int read, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendsSetRead(uid, read), callback);
+    }
+
 }

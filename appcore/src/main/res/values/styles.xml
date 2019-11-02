@@ -144,7 +144,7 @@
 
     <!--编辑框-->
     <style name="app_edt1" parent="app_txt_title_2">
-        <item name="android:layout_height">34dp</item>
+        <item name="android:layout_height">32dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:lines">1</item>
 
@@ -450,7 +450,6 @@
     <style name="app_layout_seacher_item">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
-        <item name="android:background">#ececec</item>
         <item name="android:background">@color/white</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>

@@ -2,10 +2,7 @@ package com.yanlong.im.user.bean;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-public class FriendInfoBean implements Comparable<FriendInfoBean>{
+public class FriendInfoBean implements Comparable<FriendInfoBean> {
     private String nickname;
     private Long uid;
     private String avatar;
@@ -85,12 +82,12 @@ public class FriendInfoBean implements Comparable<FriendInfoBean>{
      * 重设tag
 
      */
-    public void toTag(){
-        String[] n= PinyinHelper.toHanyuPinyinStringArray(nickname.charAt(0));
-        if (n==null){
-            setTag( ""+(nickname.toUpperCase()).charAt(0));
-        }else{
-            setTag(""+n[0].toUpperCase().charAt(0));
+    public void toTag() {
+        String[] n = PinyinHelper.toHanyuPinyinStringArray(nickname.charAt(0));
+        if (n == null) {
+            setTag("" + (nickname.toUpperCase()).charAt(0));
+        } else {
+            setTag("" + n[0].toUpperCase().charAt(0));
         }
     }
 
@@ -99,22 +96,19 @@ public class FriendInfoBean implements Comparable<FriendInfoBean>{
     }
 
     public void setTag(String tag) {
-            Pattern pattern = Pattern.compile("[0-9]");
-            Matcher isNum = pattern.matcher(tag);
-            if( isNum.matches() ){
-                tag="#";
-            }
-
+        if (tag.hashCode() < 65 || tag.hashCode() > 91) {
+            tag = "#";
+        }
         this.tag = tag;
     }
 
     @Override
     public int compareTo(FriendInfoBean o) {
-        int last=getTag().charAt(0);
-        if(getTag().equals("#")){
+        int last = getTag().charAt(0);
+        if (getTag().equals("#")) {
             return 1;
         }
-        if (last>o.getTag().charAt(0)){
+        if (last > o.getTag().charAt(0)) {
             return 1;
         }
         return -1;

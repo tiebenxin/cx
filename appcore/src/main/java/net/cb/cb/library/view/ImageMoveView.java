@@ -1,10 +1,16 @@
 package net.cb.cb.library.view;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
@@ -88,6 +94,45 @@ public class ImageMoveView extends RelativeLayout {
      * 通话时间
      */
     private TextView txtTime;
+    /**
+     * 浮动窗口在屏幕中的x坐标
+     */
+    private static float x = 0;
+    /**
+     * 浮动窗口在屏幕中的y坐标
+     */
+    private static float y = 200;
+    /**
+     * 屏幕触摸状态，暂时未使用
+     */
+    private static float state = 0;
+    /**
+     * 鼠标触摸开始位置
+     */
+    private static float mTouchStartX = 0;
+    /**
+     * 鼠标触摸结束位置
+     */
+    private static float mTouchStartY = 0;
+    /**
+     * windows 窗口管理器
+     */
+    private static WindowManager wm = null;
+
+    /**
+     * 浮动显示对象
+     */
+    private static View floatingViewObj = null;
+
+    /**
+     * 参数设定类
+     */
+    public static WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+    public static int TOOL_BAR_HIGH = 0;
+    /**
+     * 要显示在窗口最前面的对象
+     */
+    private static View view_obj = null;
 
     /**
      * 设置移动按钮点击事件
@@ -117,117 +162,96 @@ public class ImageMoveView extends RelativeLayout {
         super.onWindowFocusChanged(hasWindowFocus);
     }
 
+    public void show(Context context, Window window) {
+        // 关闭浮动显示对象然后再显示
+        close(context);
+        LayoutInflater inflater =LayoutInflater.from(context);
+        floatingViewObj = inflater.inflate(R.layout.view_minimize_voice, null);
+
+        txtTime = floatingViewObj.findViewById(R.id.txt_time);
+
+        view_obj = floatingViewObj;
+        Rect frame = new Rect();
+        // 这一句是关键，让其在top 层显示
+        window.getDecorView().getWindowVisibleDisplayFrame(frame);
+        TOOL_BAR_HIGH = frame.top;
+
+        wm = (WindowManager) context// getApplicationContext()
+                .getSystemService(Activity.WINDOW_SERVICE);
+        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                | WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
+        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+
+        // 设置悬浮窗口长宽数据
+        params.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        // 设定透明度
+        params.alpha = 10;
+        // 设定内部文字对齐方式
+        params.gravity = Gravity.LEFT | Gravity.TOP;
+
+        // 以屏幕左上角为原点，设置x、y初始值ֵ
+        params.x = (int) x;
+        params.y = (int) y;
+        // tv = new MyTextView(TopFrame.this);
+
+        // 设置悬浮窗的Touch监听
+        floatingViewObj.setOnTouchListener(new OnTouchListener()
+        {
+            int lastX, lastY;
+            int paramX, paramY;
+
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                /** 获取该组件在屏幕的x坐标 */
+                deltaX = event.getRawX();
+                /** 获取该组件在屏幕的y坐标 */
+                deltaY = event.getRawY();
+                switch (event.getAction())
+                {
+                    case MotionEvent.ACTION_DOWN:
+                        lastX = (int) event.getRawX();
+                        lastY = (int) event.getRawY();
+                        paramX = params.x;
+                        paramY = params.y;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        int dx = (int) event.getRawX() - lastX;
+                        int dy = (int) event.getRawY() - lastY;
+                        params.x = paramX + dx;
+                        params.y = paramY + dy;
+                        // 更新悬浮窗位置
+                        wm.updateViewLayout(floatingViewObj, params);
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // 判断是否触发点击事件
+                        if (Math.abs(lastX - deltaX) < 10 && Math.abs(lastY - deltaY) < 10 && null != moveViewListenner) {
+                            moveViewListenner.onClick();
+                        }
+                        break;
+
+                }
+                return true;
+            }
+        });
 
 
+        wm.addView(floatingViewObj, params);
 
+    }
 
-//
-//    /**
-//     * 浮动窗口在屏幕中的x坐标
-//     */
-//    private static float x = 0;
-//    /**
-//     * 浮动窗口在屏幕中的y坐标
-//     */
-//    private static float y = 200;
-//    /**
-//     * 屏幕触摸状态，暂时未使用
-//     */
-//    private static float state = 0;
-//    /**
-//     * 鼠标触摸开始位置
-//     */
-//    private static float mTouchStartX = 0;
-//    /**
-//     * 鼠标触摸结束位置
-//     */
-//    private static float mTouchStartY = 0;
-//    /**
-//     * windows 窗口管理器
-//     */
-//    private static WindowManager wm = null;
-//
-//    /**
-//     * 浮动显示对象
-//     */
-//    private static View floatingViewObj = null;
-//
-//    /**
-//     * 参数设定类
-//     */
-//    public static WindowManager.LayoutParams params = new WindowManager.LayoutParams();
-//    public static int TOOL_BAR_HIGH = 0;
-//    /**
-//     * 要显示在窗口最前面的对象
-//     */
-//    private static View view_obj = null;
-//
-//    public void show(Context context, Window window) {
-//        // 关闭浮动显示对象然后再显示
-//        close(context);
-//         LayoutInflater inflater =LayoutInflater.from(context);
-//        floatingViewObj = inflater.inflate(R.layout.view_minimize_voice, null);
-//
-//        view_obj = floatingViewObj;
-//        Rect frame = new Rect();
-//        // 这一句是关键，让其在top 层显示
-//        // getWindow()
-//        window.getDecorView().getWindowVisibleDisplayFrame(frame);
-//        TOOL_BAR_HIGH = frame.top;
-//
-//        wm = (WindowManager) context// getApplicationContext()
-//                .getSystemService(Activity.WINDOW_SERVICE);
-//        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-//                | WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
-//        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-//                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-//
-//        // 设置悬浮窗口长宽数据
-//        params.width = WindowManager.LayoutParams.WRAP_CONTENT;
-//        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
-//        // 设定透明度
-//        params.alpha = 80;
-//        // 设定内部文字对齐方式
-//        params.gravity = Gravity.LEFT | Gravity.TOP;
-//
-//        // 以屏幕左上角为原点，设置x、y初始值ֵ
-//        params.x = (int) x;
-//        params.y = (int) y;
-//        // tv = new MyTextView(TopFrame.this);
-//        wm.addView(floatingViewObj, params);
-//
-//    }
-//
-//    /**
-//     * 关闭浮动显示对象
-//     */
-//    public static void close(Context context) {
-//
-//        if (view_obj != null && view_obj.isShown()) {
-//            WindowManager wm = (WindowManager) context
-//                    .getSystemService(Activity.WINDOW_SERVICE);
-//            wm.removeView(view_obj);
-//        }
-//    }
-//
-//    /**
-//     * 更新弹出窗口位置
-//     */
-//    private static void updateViewPosition(View view) {
-//        // 更新浮动窗口位置参数
-//        params.x = (int) (x - mTouchStartX);
-//        params.y = (int) (y - mTouchStartY);
-//        wm.updateViewLayout(floatingViewObj, params);
-//    }
+    /**
+     * 关闭浮动显示对象
+     */
+    public static void close(Context context) {
 
-
-
-
-
-
-
-
-
+        if (view_obj != null && view_obj.isShown()) {
+            WindowManager wm = (WindowManager) context
+                    .getSystemService(Activity.WINDOW_SERVICE);
+            wm.removeView(view_obj);
+        }
+    }
 
     private void init(Context context) {
         mViewMove = View.inflate(context, R.layout.view_minimize_voice, null);

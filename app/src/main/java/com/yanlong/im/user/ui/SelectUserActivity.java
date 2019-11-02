@@ -1,13 +1,10 @@
 package com.yanlong.im.user.ui;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,19 +12,18 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.UserUtil;
 
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.PySortView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /***
@@ -190,10 +186,28 @@ public class SelectUserActivity extends AppActivity {
 
     private UserDao userDao = new UserDao();
     private List<UserInfo> listData = new ArrayList<>();
+    private List<UserInfo> tempData = new ArrayList<>();
 
     private void taskListData() {
         listData = userDao.friendGetAll();
-        Collections.sort(listData);
+        // 升序
+        Collections.sort(listData,new Comparator<UserInfo>() {
+            @Override
+            public int compare(UserInfo o1, UserInfo o2) {
+                return o1.getTag().hashCode() - o2.getTag().hashCode();
+            }
+        });
+
+        // 把#数据放到末尾
+        tempData.clear();
+        for (int i = listData.size() - 1; i >= 0; i--) {
+            UserInfo bean = listData.get(i);
+            if (bean.getTag().hashCode() == 35) {
+                tempData.add(bean);
+                listData.remove(i);
+            }
+        }
+        listData.addAll(tempData);
 
         for (int i = 0; i < listData.size(); i++) {
             //UserInfo infoBean:

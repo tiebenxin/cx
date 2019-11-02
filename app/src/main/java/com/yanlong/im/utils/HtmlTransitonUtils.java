@@ -1,6 +1,5 @@
 package com.yanlong.im.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,21 +10,14 @@ import android.text.TextUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.notify.LockDialog;
-import com.yanlong.im.user.ui.ServiceAgreementActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
-
-
-import net.cb.cb.library.utils.ToastUtil;
-import net.cb.cb.library.view.WebPageActivity;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

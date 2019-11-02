@@ -161,6 +161,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (msgAllBean == null)
             return;
         AlertForward alertForward = new AlertForward();
+        int survivalTime = new UserDao().getReadDestroy(toUid,toGid);
+
         if (msgAllBean.getChat() != null) {//转换文字
             alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getChat().getMsg(), null, "发送", new AlertForward.Event() {
 
@@ -201,7 +203,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                     if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                         imagesrc.setReadOrigin(true);
                     }
-                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
+                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(),
+                            new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
                     msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(toUid, toGid, content);
@@ -276,7 +279,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     private void notifyRefreshMsg(String toGid, long toUid) {
         MessageManager.getInstance().setMessageChange(true);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, sendMesage);
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
+                toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, sendMesage);
     }
 
     @Override

@@ -543,10 +543,11 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-        <activity android:name=".user.ui.FriendVerifyActivity" />
+        <activity android:name=".user.ui.FriendVerifyActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".chat.ui.VideoPlayActivity"
             android:launchMode="singleInstance"
-            />
+            android:screenOrientation="portrait"/>
 
     </application>
 

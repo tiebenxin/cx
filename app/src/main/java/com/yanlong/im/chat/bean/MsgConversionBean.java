@@ -11,9 +11,12 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.RealmList;
+
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.RED_ENVELOPER;
 
 /***
  * 消息转换类
@@ -29,6 +32,8 @@ public class MsgConversionBean {
     public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean) {
         return ToBean(bean, null, false);
     }
+
+
 
 
     /*
@@ -56,11 +61,17 @@ public class MsgConversionBean {
         msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setFrom_group_nickname(bean.getMembername());
         msgAllBean.setGid(bean.getGid());
-        msgAllBean.setSurvival_time(bean.getSurvivalTime());
-        if(bean.getSurvivalTime() != 0){
-            msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
-        }
 
+        UserDao userDao = new UserDao();
+
+        if(bean.getMsgType() != RED_ENVELOPER){
+            int survivalTime = userDao.getReadDestroy(bean.getFromUid(),bean.getGid());
+            if (survivalTime != 0) {
+                msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
+                msgAllBean.setSurvival_time(survivalTime);
+            }
+            LogUtil.getLog().d("MsgConversionBean",survivalTime+"---id:"+bean.getMsgId());
+        }
 
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
@@ -81,7 +92,6 @@ public class MsgConversionBean {
             //从网路缓存
             bean.getAvatar();
             bean.getNickname();
-            //   bean.
         }
 
         //---------------------
@@ -146,7 +156,7 @@ public class MsgConversionBean {
                 break;
             case SHORT_VIDEO:
                 MsgAllBean videoMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
-                VideoMessage videoMessage=new VideoMessage();
+                VideoMessage videoMessage = new VideoMessage();
                 videoMessage.setMsgId(msgAllBean.getMsg_id());
                 videoMessage.setUrl(bean.getShortVideo().getUrl());
                 videoMessage.setBg_url(bean.getShortVideo().getBgUrl());
@@ -179,7 +189,7 @@ public class MsgConversionBean {
                 msgAllBean.setBusiness_card(businessCard);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.BUSINESS_CARD);
                 break;
-            case RED_ENVELOPER:
+            case RED_ENVELOPER: //红包消息
                 RedEnvelopeMessage envelopeMessage = new RedEnvelopeMessage();
                 envelopeMessage.setMsgid(msgAllBean.getMsg_id());
                 envelopeMessage.setComment(bean.getRedEnvelope().getComment());
@@ -319,7 +329,6 @@ public class MsgConversionBean {
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
                 String name = bean.getNickname();
-                UserDao userDao = new UserDao();
                 UserInfo user = userDao.findUserInfo(bean.getFromUid());
                 if (user != null && !TextUtils.isEmpty(user.getMkName())) {
                     name = user.getMkName();
@@ -404,14 +413,14 @@ public class MsgConversionBean {
                 break;
             case CHANGE_SURVIVAL_TIME:
                 String survivaNotice = "";
-                Log.v("CHANGE_SURVIVAL_TIME",msgAllBean.getMsg_id());
+                Log.v("CHANGE_SURVIVAL_TIME", msgAllBean.getMsg_id());
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
                     survivaNotice = bean.getNickname() + "设置了退出即焚";
                 } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
                     survivaNotice = bean.getNickname() + "取消了阅后即焚";
                 } else {
-                    survivaNotice = bean.getNickname() + "设置了消息"+ formatDateTime(bean.getChangeSurvivalTime().getSurvivalTime())+ "后消失";
+                    survivaNotice = bean.getNickname() + "设置了消息" + formatDateTime(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
                 }
                 MsgCancel survivaMsgCel = new MsgCancel();
                 survivaMsgCel.setNote(survivaNotice);

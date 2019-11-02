@@ -497,7 +497,17 @@ public class MessageManager {
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
 //        System.out.println(TAG + "--更新Session--updateSessionUnread");
-        msgDao.sessionReadUpdate(gid, from_uid, isCancel);
+        boolean canChangeUnread = true;
+        if (!TextUtils.isEmpty(gid)) {
+            if (!TextUtils.isEmpty(SESSION_SID) && SESSION_SID.equals(gid)) {
+                canChangeUnread = false;
+            }
+        } else {
+            if (SESSION_FUID != null && from_uid != null && SESSION_FUID.equals(from_uid)) {
+                canChangeUnread = false;
+            }
+        }
+        msgDao.sessionReadUpdate(gid, from_uid, isCancel, canChangeUnread);
     }
 
     public synchronized void updateSessionUnreadCount(String gid, Long uid, boolean isCancel) {
@@ -766,6 +776,17 @@ public class MessageManager {
             return;
         SESSION_TYPE = 1;
         SESSION_FUID = fuid;
+        SESSION_SID = null;
+    }
+
+    /***
+     * 无会话
+     */
+    public static void setSessionNull() {
+        if (SESSION_TYPE == 3)
+            return;
+        SESSION_TYPE = 0;
+        SESSION_FUID = null;
         SESSION_SID = null;
     }
 

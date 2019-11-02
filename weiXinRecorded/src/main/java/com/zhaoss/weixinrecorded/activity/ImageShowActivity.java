@@ -14,7 +14,10 @@ import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -28,6 +31,7 @@ import android.widget.Toast;
 
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.Utils;
+import com.zhaoss.weixinrecorded.view.CutView;
 import com.zhaoss.weixinrecorded.view.TouchView;
 
 import java.io.File;
@@ -40,11 +44,13 @@ import static java.security.AccessController.getContext;
 public class ImageShowActivity  extends BaseActivity {
     private ImageView activity_img_show_img,iv_show_next,iv_show_delete;
     private String path;
-    private RelativeLayout activity_show_rl_big,rl_pen,rl_back,rl_edit_text,rl_text;
+    private RelativeLayout activity_show_rl_big,rl_pen,rl_back,rl_edit_text,rl_text,rl_text_cut;
     private LinearLayout ll_color;
     private TextView tv_finish_video,tv_finish,tv_close,tv_tag,tv_hint_delete;
     private com.zhaoss.weixinrecorded.view.MyPaintView mypaintview;
     private EditText et_tag;
+    private CutView activity_img_show_cut;
+    private TextureView textureView_cut;
 
     private int windowWidth;
     private int windowHeight;
@@ -155,8 +161,25 @@ public class ImageShowActivity  extends BaseActivity {
             @Override
             public void onClick(View v) {
                 rl_edit_text.setVisibility(View.VISIBLE);
+                showSoftInputFromWindow(et_tag);
                 startAnim(rl_edit_text.getY(), 0, null);
 //                popupEditText();
+            }
+        });
+        rl_text_cut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activity_img_show_cut.getVisibility()==View.VISIBLE){
+                    activity_img_show_cut.setVisibility(View.GONE);
+                }else{
+                    activity_img_show_cut.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        textureView_cut.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                activity_img_show_cut.setMargin(textureView_cut.getLeft(), textureView_cut.getTop(), textureView_cut.getRight()-textureView_cut.getWidth(), textureView_cut.getBottom()-textureView_cut.getHeight());
             }
         });
     }
@@ -245,29 +268,6 @@ public class ImageShowActivity  extends BaseActivity {
         tv_tag.setText("");
     }
 
-//    /**
-//     * 弹出键盘
-//     */
-//    public void popupEditText() {
-//
-//        isFirstShowEditText = true;
-//        et_tag.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                if (isFirstShowEditText) {
-//                    isFirstShowEditText = false;
-//                    et_tag.setFocusable(true);
-//                    et_tag.setFocusableInTouchMode(true);
-//                    et_tag.requestFocus();
-//                    isFirstShowEditText = !manager.showSoftInput(et_tag, 0);
-//                }
-//            }
-//        });
-//    }
-
-    /**
-     * 执行文字编辑区域动画
-     */
     private void startAnim(float start, float end, AnimatorListenerAdapter listenerAdapter) {
 
         ValueAnimator va = ValueAnimator.ofFloat(start, end).setDuration(200);
@@ -304,20 +304,69 @@ public class ImageShowActivity  extends BaseActivity {
         et_tag = findViewById(R.id.et_tag);
         tv_tag = findViewById(R.id.tv_tag);
         tv_hint_delete = findViewById(R.id.tv_hint_delete);
+        activity_img_show_cut = findViewById(R.id.activity_img_show_cut);
+        rl_text_cut = findViewById(R.id.rl_text_cut);
+        textureView_cut = findViewById(R.id.textureView_cut);
     }
     private Bitmap loadBitmapFromView(View v) {
-        int w = v.getWidth();
-        int h = v.getHeight();
-        Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(bmp);
+        if (activity_img_show_cut.getVisibility()==View.VISIBLE){
+            int w = v.getWidth();
+            int h = v.getHeight();
+            Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            float[] cutArr = activity_img_show_cut.getCutArr();
+//            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],(int)cutArr[1],activity_img_show_cut.getRectWidth(),activity_img_show_cut.getRectHeight());
+//            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],activity_img_show_cut.getRectHeight()-(int)cutArr[1],(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-((int)cutArr[3]-(int)cutArr[1]));
+            Log.e("TAG",cutArr[0]+"-----"+cutArr[1]+"-----"+cutArr[2]+"-----"+cutArr[3]+"-----");
+            Canvas c = new Canvas(bmp);
+            c.drawColor(Color.WHITE);
+//            /** 如果不设置canvas画布为白色，则生成透明 */
+            v.layout(0, 0, activity_img_show_cut.getRectWidth(), activity_img_show_cut.getRectHeight());
+            v.draw(c);
 
-        c.drawColor(Color.WHITE);
-        /** 如果不设置canvas画布为白色，则生成透明 */
+            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0],(int)cutArr[1],(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
+            return cutBitmap;
 
-        v.layout(0, 0, w, h);
-        v.draw(c);
-        return bmp;
+        }else{
+            int w = v.getWidth();
+            int h = v.getHeight();
+            Bitmap bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(bmp);
+
+            c.drawColor(Color.WHITE);
+            /** 如果不设置canvas画布为白色，则生成透明 */
+
+            v.layout(0, 0, w, h);
+            v.draw(c);
+            return bmp;
+        }
     }
+
+
+
+    private String editVideo(){
+
+        //得到裁剪后的margin值
+        float[] cutArr = activity_img_show_cut.getCutArr();
+        float left = cutArr[0];
+        float top = cutArr[1];
+        float right = cutArr[2];
+        float bottom = cutArr[3];
+        int cutWidth = activity_img_show_cut.getRectWidth();
+        int cutHeight= activity_img_show_cut.getRectHeight();
+
+        //计算宽高缩放比
+        float leftPro = left/cutWidth;
+        float topPro = top/cutHeight;
+        float rightPro = right/cutWidth;
+        float bottomPro = bottom/cutHeight;
+
+
+//        return  myVideoEditor.executeCropVideoFrame(path, cropWidth, cropHeight, x, y);
+        return  "";
+    }
+
+
+
 
     private static String saveImage(Bitmap bmp, int quality) {
         if (bmp == null) {
@@ -400,5 +449,29 @@ public class ImageShowActivity  extends BaseActivity {
 
             ll_color.addView(relativeLayout, x);
         }
+    }
+
+    public void showSoftInputFromWindow(EditText editText){
+        editText.setFocusable(true);
+        editText.setFocusableInTouchMode(true);
+        editText.requestFocus();
+        InputMethodManager inputManager =
+                (InputMethodManager) editText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.showSoftInput(editText, 0);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode){
+            case KeyEvent.KEYCODE_BACK:
+                if (rl_edit_text.getVisibility()==View.VISIBLE){
+                    rl_edit_text.setVisibility(View.GONE);
+                }else{
+                    finish();
+                }
+                break;
+        }
+//        return super.onKeyDown(keyCode, event);
+        return false;
     }
 }

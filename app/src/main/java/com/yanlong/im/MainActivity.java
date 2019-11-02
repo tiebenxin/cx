@@ -11,13 +11,14 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.example.nim_lib.event.EventFactory;
-import com.example.nim_lib.ui.VoiceCallActivity;
+import com.example.nim_lib.ui.VideoActivity;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -42,7 +43,6 @@ import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.update.UpdateManage;
 
-import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -101,6 +101,7 @@ public class MainActivity extends AppActivity {
     private int mPassedTime = 0;
     private final int TIME = 1000;
     private TimeUtils timeUtils = new TimeUtils();
+    private long mExitTime;
 
     //自动寻找控件
     private void findViews() {
@@ -235,9 +236,9 @@ public class MainActivity extends AppActivity {
         mBtnMinimizeVoice.setOnClickListener(new ImageMoveView.OnSingleTapListener() {
             @Override
             public void onClick() {
-                mBtnMinimizeVoice.setVisibility(View.GONE);
+                mBtnMinimizeVoice.close(MyAppLication.getInstance().getApplicationContext());
                 mHandler.removeCallbacks(runnable);
-                IntentUtil.gotoActivity(MainActivity.this, VoiceCallActivity.class);
+                IntentUtil.gotoActivity(MainActivity.this, VideoActivity.class);
             }
         });
 
@@ -266,6 +267,26 @@ public class MainActivity extends AppActivity {
         super.onStart();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            reTryExit();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * 在主界面按两次back键退出App
+     */
+    private void reTryExit() {
+        if ((System.currentTimeMillis() - mExitTime) > 2000) {
+            ToastUtil.show(getApplicationContext(), "再按一次退出程序");
+            mExitTime = System.currentTimeMillis();
+        } else {
+            finish();
+        }
+    }
 
     private void doRegisterNetReceiver() {
         if (mNetworkReceiver == null) {
@@ -420,12 +441,14 @@ public class MainActivity extends AppActivity {
     public void eventRefreshFriend(EventRefreshFriend event) {
         if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
             taskLoadSavedGroups();
+        } else if (event.getRosterAction() == CoreEnum.ERosterAction.REQUEST_FRIEND) {//请求添加为好友
+            taskGetFriendNum();
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void voiceMinimizeEvent(EventFactory.VoiceMinimizeEvent event) {
-        mBtnMinimizeVoice.setVisibility(View.VISIBLE);
+//        mBtnMinimizeVoice.setVisibility(View.VISIBLE);
         mPassedTime = event.passedTime;
         if (event.isCallEstablished) {// 是否接听
             mBtnMinimizeVoice.updateCallTime(event.showTime);
@@ -433,6 +456,7 @@ public class MainActivity extends AppActivity {
                 mHandler.postDelayed(runnable, TIME);
             }
         } else {
+            mBtnMinimizeVoice.show(MyAppLication.getInstance().getApplicationContext(),getWindow());
             mBtnMinimizeVoice.updateCallTime("等待接听");
         }
     }
@@ -490,9 +514,7 @@ public class MainActivity extends AppActivity {
     }
 
     private void uploadApp() {
-        if (!AppConfig.DEBUG) {
-            taskNewVersion();
-        }
+        taskNewVersion();
     }
 
 
