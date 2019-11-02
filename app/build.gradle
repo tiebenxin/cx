@@ -40,7 +40,7 @@ android {
 
         manifestPlaceholders = [
                 JPUSH_PKGNAME : "com.yanlong.im",
-                JPUSH_APPKEY  : "3ed4e6a14a17e0be39b20cb5", //JPush 上注册的包名对应的 Appkey.
+                JPUSH_APPKEY  : "2a3d16e42d0191a255028864", //JPush 上注册的包名对应的 Appkey.
                 JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
 
                 XIAOMI_APPKEY : "MI‐5411801194485",//小米平台注册的appkey
