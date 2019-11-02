@@ -1995,6 +1995,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
+            msgListData.get(position).setSend_state(ChatEnum.ESendStatus.NORMAL);
+            ((ChatItemView)mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
+//            setErr;
             if (!isNewAdapter) {
                 msgListData.set(position, msgAllbean);
             } else {
@@ -2002,6 +2005,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             Log.i(TAG, "replaceListDataAndNotify: 只刷新" + position);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
+
 //            if (loose){
 //                ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(position);
 //                itemView.setVideoIMGShow(true);
