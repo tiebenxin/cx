@@ -2305,7 +2305,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (isGroup()) {//群聊显示昵称
 
                 //6.14 这里有性能问题
-                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();//fusinfo.getName();
+                if (StringUtil.isNotNull(msgbean.getFrom_group_nickname())){
+                    nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_group_nickname();
+                }else{
+                    nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
+                }
+             //fusinfo.getName();
+//                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();//fusinfo.getName();
 
 
             } else {//单聊不显示昵称
