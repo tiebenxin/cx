@@ -2,18 +2,17 @@ package net.cb.cb.library.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.cb.cb.library.R;
@@ -104,7 +103,9 @@ public class AlertTouch {
 
     public void show() {
         alertDialog.show();
-        WindowManager.LayoutParams p = alertDialog.getWindow().getAttributes();
+        Window window = alertDialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        WindowManager.LayoutParams p = window.getAttributes();
         // p.height = DensityUtil.dip2px(activity, 226);
         p.width = DensityUtil.dip2px(context, 300);
         alertDialog.getWindow().setAttributes(p);
