@@ -151,7 +151,7 @@ public class CutSizeActivity extends BaseActivity implements View.OnClickListene
 
         return  myVideoEditor.executeCropVideoFrame(path, cropWidth, cropHeight, x, y);
     }
-
+    private boolean isClick=true;
     @Override
     public void onClick(View v) {
 
@@ -160,32 +160,36 @@ public class CutSizeActivity extends BaseActivity implements View.OnClickListene
             finish();
 
         } else if (i == R.id.rl_finish) {
-            editorTextView = showProgressDialog();
-            RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
-                @Override
-                public String doInBackground() throws Throwable {
-                    mMediaPlayer.stop();
-                    return editVideo();
-                }
-                @Override
-                public void onFinish(String result) {
-                    closeProgressDialog();
-                    if (!TextUtils.isEmpty(result)) {
-                        Intent intent = new Intent();
-                        intent.putExtra(RecordedActivity.INTENT_PATH, result);
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }else{
+            if (isClick){
+                isClick=false;
+                editorTextView = showProgressDialog();
+                RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
+                    @Override
+                    public String doInBackground() throws Throwable {
+                        mMediaPlayer.stop();
+                        return editVideo();
+                    }
+                    @Override
+                    public void onFinish(String result) {
+                        closeProgressDialog();
+                        isClick=true;
+                        if (!TextUtils.isEmpty(result)) {
+                            Intent intent = new Intent();
+                            intent.putExtra(RecordedActivity.INTENT_PATH, result);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        }else{
+                            Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override
+                    public void onError(Throwable e) {
+                        isClick=true;
+                        closeProgressDialog();
                         Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
                     }
-                }
-                @Override
-                public void onError(Throwable e) {
-                    closeProgressDialog();
-                    Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
-                }
-            });
-
+                });
+            }
         }
     }
 }
