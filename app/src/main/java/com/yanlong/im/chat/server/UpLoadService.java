@@ -192,7 +192,7 @@ public class UpLoadService extends Service {
                         eventUpImgLoadEvent.setUrl(url);
                         eventUpImgLoadEvent.setOriginal(isOriginal);
                         Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url,netBgUrl,isOriginal, time,(int)videoMessage.getWidth(),(int)videoMessage.getHeight());
-
+                        ((VideoMessage)msgbean).setLocalUrl(videoMessage.getLocalUrl());
                         eventUpImgLoadEvent.setMsgAllBean(msgbean);
                         EventBus.getDefault().post(eventUpImgLoadEvent);
 

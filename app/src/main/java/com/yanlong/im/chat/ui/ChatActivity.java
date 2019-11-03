@@ -2200,6 +2200,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage();
+
+                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                    // upProgress.setProgress(100);
+                    eventUpImgLoadEvent.setMsgid(reMsg.getMsg_id());
+                    eventUpImgLoadEvent.setState(1);
+                    eventUpImgLoadEvent.setUrl(url);
+                    EventBus.getDefault().post(eventUpImgLoadEvent);
+
                 }
             } else {
                 //点击发送的时候如果要改变成发送中的状态
@@ -2516,6 +2524,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 if (StringUtil.isNotNull(localUrl)) {
                                     File file = new File(localUrl);
                                     if (file.exists()) {
+                                        downVideo(msgbean, msgbean.getVideoMessage());
                                         Log.e("TAG", file.getAbsolutePath());
                                         Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
                                         intent.putExtra("videopath", localUrl);
