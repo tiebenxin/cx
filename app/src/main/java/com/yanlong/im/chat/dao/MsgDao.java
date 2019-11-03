@@ -2430,7 +2430,7 @@ public class MsgDao {
                     hasChange = true;
                     for (int i = 0; i < len; i++) {
                         MsgAllBean bean = list.get(i);
-                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//  || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
                             continue;
                         }
                         bean.setRead(isRead);

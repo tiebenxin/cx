@@ -13,6 +13,7 @@ import com.example.nim_lib.net.CallBack;
 import com.example.nim_lib.net.RunUtils;
 import com.example.nim_lib.util.LogUtil;
 import com.example.nim_lib.util.ToastUtil;
+import com.google.gson.Gson;
 import com.netease.nimlib.sdk.avchat.AVChatCallback;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
 import com.netease.nimlib.sdk.avchat.constant.AVChatControlCommand;
@@ -24,6 +25,8 @@ import com.netease.nimlib.sdk.avchat.video.AVChatCameraCapturer;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nimlib.sdk.avchat.video.AVChatVideoCapturerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import retrofit2.Call;
@@ -46,9 +49,9 @@ public class AVChatController {
 
     private AVChatCameraCapturer mVideoCapturer;
 
-    public AVChatController(Context c,VideoAction videoAction) {
+    public AVChatController(Context c, VideoAction videoAction) {
         context = c;
-        mVideoAction=videoAction;
+        mVideoAction = videoAction;
     }
 
     /**
@@ -67,7 +70,7 @@ public class AVChatController {
      * @param type
      * @param avChatType AVChatType.VIDEO AVChatType.AUDIO\e
      */
-    public void hangUp2(long chatId, int type, int avChatType,Long toUId) {
+    public void hangUp2(long chatId, int type, int avChatType, Long toUId) {
         if ((type == AVChatExitCode.HANGUP || type == AVChatExitCode.PEER_NO_RESPONSE
                 || type == AVChatExitCode.CANCEL || type == AVChatExitCode.REJECT)) {
             AVChatManager.getInstance().hangUp2(chatId, new AVChatCallback<Void>() {
@@ -86,7 +89,7 @@ public class AVChatController {
                 public void onFailed(int code) {
                     Log.d(TAG, "onSuccess");
                     if (context != null && !((Activity) context).isFinishing()) {
-                        ToastUtil.show(context,AVChatExitCode.getCodeString(code));
+                        ToastUtil.show(context, AVChatExitCode.getCodeString(code));
                         ((Activity) context).finish();
                     }
                 }
@@ -117,13 +120,18 @@ public class AVChatController {
      * @param callTypeEnum  VIDEO、VOICE
      * @param largeRender
      * @param avChatConfigs
+     * @param friend        通话接收人uid
+     * @param roomId        网易房间id
      * @param callBack
      */
     public void outGoingCalling(String account, final AVChatType callTypeEnum, AVChatSurfaceViewRenderer largeRender,
-                                AVChatConfigs avChatConfigs, AVChatCallback<AVChatData> callBack) {
+                                AVChatConfigs avChatConfigs, Long friend, String roomId, AVChatCallback<AVChatData> callBack) {
         AVChatNotifyOption notifyOption = new AVChatNotifyOption();
+        Map<String, String> map = new HashMap<>();
+        map.put("friend", friend + "");
+        map.put("roomId", roomId);
         // 附加字段
-        notifyOption.extendMessage = "extra_data";
+        notifyOption.extendMessage = new Gson().toJson(map);
         // 是否兼容WebRTC模式
 //        notifyOption.webRTCCompat = webrtcCompat;
 //        //默认forceKeepCalling为true，开发者如果不需要离线持续呼叫功能可以将forceKeepCalling设为false
