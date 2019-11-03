@@ -272,7 +272,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
                 if (v.getId() == R.id.img_cancle) {
                     sendEventBus("cancle", AVChatExitCode.CANCEL);
-                } else if (v.getId() == R.id.img_hand_up && toUId != null && toUId != 0) {
+                } else if ((v.getId() == R.id.img_hand_up|| v.getId() == R.id.img_hand_up2) && toUId != null && toUId != 0) {
                     sendEventBus("hangup", AVChatExitCode.HANGUP);
                 }
             } else {
@@ -332,19 +332,22 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (avChatData != null) {
                 mIsInComingCall = true;
                 account = avChatData.getAccount();
-            }
-        }
-        if (mAVChatType == AVChatType.VIDEO.getValue()) {
-            if (!mIsInComingCall) {
-//            initLargeSurfaceView(mNeteaseaccId);// TODO 进来打开摄像
-//                outGoingCalling(AVChatType.VIDEO);
 
-                auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.VIDEO);
-            } else {
                 initLargeSurfaceView(avChatData.getAccount());
                 initSmallSurfaceView();
             }
         }
+//        if (mAVChatType == AVChatType.VIDEO.getValue()) {
+//            if (!mIsInComingCall) {
+////            initLargeSurfaceView(mNeteaseaccId);// TODO 进来打开摄像
+////                outGoingCalling(AVChatType.VIDEO);
+//
+////                auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.VIDEO);
+//            } else {
+//                initLargeSurfaceView(avChatData.getAccount());
+//                initSmallSurfaceView();
+//            }
+//        }
         switch (mVoiceType) {
             case CoreEnum.VoiceType.WAIT:
                 layoutVoiceWait.setVisibility(View.VISIBLE);
