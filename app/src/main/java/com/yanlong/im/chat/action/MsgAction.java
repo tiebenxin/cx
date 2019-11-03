@@ -23,6 +23,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -211,8 +212,10 @@ public class MsgAction {
             NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                    if (response.body() == null)
+                    if (response.body() == null) {
+                        System.out.println("MessageManager--加载群信息后的失败 response=null--gid=" + gid);
                         return;
+                    }
                     if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
                         Group newGroup = response.body().getData();
                         newGroup.getMygroupName();
@@ -235,9 +238,19 @@ public class MsgAction {
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);
                     } else {
+                        System.out.println("MessageManager--加载群信息后的失败--gid=" + gid);
                         MessageManager.getInstance().removeLoadGids(gid);
                         callback.onFailure(call, new Throwable());
                     }
+                }
+
+                @Override
+                public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                    super.onFailure(call, t);
+                    System.out.println("MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
+//                    t.printStackTrace();
+                    MessageManager.getInstance().removeLoadGids(gid);
+                    callback.onFailure(call, new Throwable());
                 }
             });
         } else {//从缓存中读

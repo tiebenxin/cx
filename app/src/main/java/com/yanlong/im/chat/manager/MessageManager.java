@@ -335,6 +335,7 @@ public class MessageManager {
             if (!loadGids.contains(msgAllBean.getGid())) {
                 loadGids.add(msgAllBean.getGid());
                 loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                System.out.println(TAG + "--需要加载群信息");
             } else {
                 updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
                 if (isList) {
@@ -448,7 +449,7 @@ public class MessageManager {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
                 updateSessionUnread(gid, uid, false);
-                System.out.println(TAG + "--加载群信息后的更新");
+                System.out.println(TAG + "--加载群信息后的更新--gid=" + gid);
                 if (isList) {
                     if (taskMsgList != null) {
                         taskMsgList.updateTaskCount();
@@ -1038,5 +1039,15 @@ public class MessageManager {
         EventGroupChange event = new EventGroupChange();
         event.setNeedLoad(isNeedLoad);
         EventBus.getDefault().post(event);
+    }
+
+    //登出时需要清除缓存数据
+    public void clearCache() {
+        if (loadUids != null) {
+            loadUids.clear();
+        }
+        if (loadGids != null) {
+            loadGids.clear();
+        }
     }
 }
