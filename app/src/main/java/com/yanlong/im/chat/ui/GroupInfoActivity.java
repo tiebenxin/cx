@@ -331,7 +331,11 @@ public class GroupInfoActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        initEvent();
+        if (!isBackValue){
+            initEvent();
+            isBackValue=false;
+        }
+
     }
 
     public boolean isPercentage = true;
@@ -489,7 +493,7 @@ public class GroupInfoActivity extends AppActivity {
         }
     }
 
-
+    private boolean isBackValue=false;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -512,6 +516,7 @@ public class GroupInfoActivity extends AppActivity {
 //                    updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
+                    isBackValue=true;
                     break;
             }
         }
