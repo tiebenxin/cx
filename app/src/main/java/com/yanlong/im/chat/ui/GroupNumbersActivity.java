@@ -21,6 +21,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -304,6 +305,7 @@ public class GroupNumbersActivity extends AppActivity {
                     isClickble = 0;
                     return;
                 }
+
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     if(type != TYPE_ADD){
@@ -319,7 +321,7 @@ public class GroupNumbersActivity extends AppActivity {
         } else {
             msgACtion.groupRemove(gid, listDataTop, callback);
         }
-
+        GroupHeadImageUtil.creatAndSaveImg(GroupNumbersActivity.this, gid);
     }
 
 
