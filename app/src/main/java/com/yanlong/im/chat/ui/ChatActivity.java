@@ -1313,6 +1313,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             showVoice(false);
             hideBt();
+            InputUtil.showKeyboard(edtChat);
+            edtChat.requestFocus();
         }
     }
 
@@ -1321,10 +1323,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             txtVoice.setVisibility(View.VISIBLE);
             btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_kb));
             edtChat.setVisibility(View.GONE);
+            btnSend.setVisibility(GONE);
+            btnFunc.setVisibility(VISIBLE);
         } else {//关闭语音
             txtVoice.setVisibility(View.GONE);
             btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_vio));
             edtChat.setVisibility(View.VISIBLE);
+            if(StringUtil.isNotNull(edtChat.getText().toString())){
+                btnSend.setVisibility(VISIBLE);
+            }else{
+                btnSend.setVisibility(GONE);
+            }
         }
     }
 
@@ -1579,10 +1588,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         initPopupWindow();
 
         // 只有Vip才显示视频通话
-        UserInfo userInfo = UserAction.getMyInfo();
-        if (userInfo != null && !"1".equals(userInfo.getVip())) {
-            viewFunc.removeView(llChatVideoCall);
-        }
+//        UserInfo userInfo = UserAction.getMyInfo();
+//        if (userInfo != null && !"1".equals(userInfo.getVip())) {
+//            viewFunc.removeView(llChatVideoCall);
+//        }
     }
 
     private void initUnreadCount() {
@@ -1901,7 +1910,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void taskRefreshMessageEvent(EventRefreshChat event) {
+    public void EtaskRefreshMessagevent(EventRefreshChat event) {
         taskRefreshMessage();
     }
 
@@ -3407,6 +3416,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (needRefresh) {
             needRefresh = false;
         }
+        Log.d("1212","taskRefreshMessage()");
         System.out.println(TAG + "--taskRefreshMessage");
         long time = -1L;
         int length = 0;
@@ -3459,7 +3469,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /**
      * TODO 当本次有本地发送图片时，用本地图片路径展示，是为了解决发图片之后，在发内容第一次会闪一下重新加载问题，
-     * TODO 问题原因是第一次加载本地路径，图片上传成功后加载的是服务器中午路径
+     * TODO 问题原因是第一次加载本地路径，图片上传成功后加载的是服务器路径
      */
     private void onBusPicture() {
         if (mTempImgPath != null && mTempImgPath.size() > 0 && msgListData != null) {
