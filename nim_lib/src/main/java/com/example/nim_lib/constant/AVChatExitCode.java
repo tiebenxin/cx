@@ -131,7 +131,7 @@ public class AVChatExitCode {
             case CODE_11001:
                 return "通话不可达，对方离线状态";
             default:
-                return "";
+                return "服务异常";
         }
     }
 

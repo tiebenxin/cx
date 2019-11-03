@@ -847,7 +847,10 @@ public class GroupInfoActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     txtGroupNick.setText(name);
+                    msgDao.updateMyGroupName(gid, name);
                     initEvent();
+
+
                 }
             }
         });

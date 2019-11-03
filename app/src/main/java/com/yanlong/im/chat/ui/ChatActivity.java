@@ -1577,6 +1577,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         initUnreadCount();
         initPopupWindow();
+
+        // 只有Vip才显示视频通话
+        UserInfo userInfo = UserAction.getMyInfo();
+        if (userInfo != null && !"1".equals(userInfo.getVip())) {
+            viewFunc.removeView(llChatVideoCall);
+        }
     }
 
     private void initUnreadCount() {

@@ -18,7 +18,6 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
@@ -293,10 +292,10 @@ public class ChatInfoActivity extends AppActivity {
                     Session session = null;
                     if (isMute == null && istop != null) {
                         session = msgDao.updateUserSessionTop(fuid, istop);
-                        msgDao.updateUserTop(fuid, istop.intValue());
+//                        msgDao.updateUserTop(fuid, istop.intValue()); TODO 消息列表没数据时会报java.lang.IllegalStateException异常
                     } else if (isMute != null && istop == null) {
                         session = msgDao.updateUserSessionDisturb(fuid, isMute);
-                        msgDao.updateUserDisturb(fuid, isMute.intValue());
+//                        msgDao.updateUserDisturb(fuid, isMute.intValue());TODO 消息列表没数据时会报java.lang.IllegalStateException异常
                     }
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session, true);

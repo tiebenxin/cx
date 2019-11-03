@@ -1,7 +1,5 @@
 package com.yanlong.im.utils;
 
-import com.yanlong.im.user.action.UserAction;
-
 import net.cb.cb.library.AppConfig;
 
 import java.util.ArrayList;
@@ -26,7 +24,7 @@ public class DaoUtil {
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer = 6;
+        long dbVer = 7;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
 //            config = new RealmConfiguration.Builder()
 //                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
