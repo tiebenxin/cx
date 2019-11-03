@@ -537,7 +537,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     //这里保存处理
                     if (txtBig != null){
                         saveImage(imgPath);
-                        txtBig.callOnClick();
+//                        txtBig.callOnClick();
                     }else{
                         saveImageImg(imgPath,imageView);
                     }
