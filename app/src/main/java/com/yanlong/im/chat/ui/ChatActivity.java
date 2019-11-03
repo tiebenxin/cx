@@ -1823,8 +1823,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                                 final String imgMsgId = SocketData.getUUID();
                                 VideoMessage videoMessage = new VideoMessage();
-                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
-                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
+//                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
+//                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
+                                videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
+                                videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
                                 videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
                                 videoMessage.setBg_url(getVideoAttBitmap(videofile));
                                 videoMessage.setLocalUrl(videofile);
@@ -2201,12 +2203,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage();
 
-                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                    // upProgress.setProgress(100);
-                    eventUpImgLoadEvent.setMsgid(reMsg.getMsg_id());
-                    eventUpImgLoadEvent.setState(1);
-                    eventUpImgLoadEvent.setUrl(url);
-                    EventBus.getDefault().post(eventUpImgLoadEvent);
+//                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+//                    // upProgress.setProgress(100);
+//                    eventUpImgLoadEvent.setMsgid(reMsg.getMsg_id());
+//                    eventUpImgLoadEvent.setState(1);
+//                    eventUpImgLoadEvent.setUrl(url);
+//                    EventBus.getDefault().post(eventUpImgLoadEvent);
 
                 }
             } else {

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.socket.SocketData;
@@ -192,7 +193,8 @@ public class UpLoadService extends Service {
                         eventUpImgLoadEvent.setUrl(url);
                         eventUpImgLoadEvent.setOriginal(isOriginal);
                         Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url,netBgUrl,isOriginal, time,(int)videoMessage.getWidth(),(int)videoMessage.getHeight());
-                        ((VideoMessage)msgbean).setLocalUrl(videoMessage.getLocalUrl());
+                        ((MsgAllBean)msgbean).getVideoMessage().setLocalUrl(videoMessage.getLocalUrl());
+//                        ((VideoMessage)msgbean).setLocalUrl(videoMessage.getLocalUrl());
                         eventUpImgLoadEvent.setMsgAllBean(msgbean);
                         EventBus.getDefault().post(eventUpImgLoadEvent);
 
