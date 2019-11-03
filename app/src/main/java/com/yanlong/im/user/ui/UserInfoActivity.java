@@ -149,7 +149,7 @@ public class UserInfoActivity extends AppActivity {
     }
 
     private void resetLayout() {
-        if (id == 1L) {//是常聊小助手
+        if (id == 1L) {//是常信小助手
             txtMkname.setVisibility(View.VISIBLE);
             txtNkname.setVisibility(View.GONE);
             txtPrNo.setVisibility(View.GONE);

@@ -718,8 +718,8 @@ public class UserAction {
     public UserInfo createAssitantUser() {
         UserInfo info = new UserInfo();
         info.setUid(1L);
-        info.setName("常聊小助手");
-        info.setMkName("常聊小助手");
+        info.setName("常信小助手");
+        info.setMkName("常信小助手");
         info.setuType(ChatEnum.EUserType.ASSISTANT);
         info.setFriendvalid(CoreEnum.ESureType.NO);
         info.setAuthStat(ChatEnum.EAuthStatus.AUTH_SECOND);
