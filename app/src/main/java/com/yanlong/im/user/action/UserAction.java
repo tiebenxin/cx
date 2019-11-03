@@ -170,7 +170,7 @@ public class UserAction {
 
 
     /**
-     * 常聊号密码登录
+     * 常信号密码登录
      */
     public void login4Imid(final String imid, String pwd, String devid, final CallBack<ReturnBean<TokenBean>> callback) {
 
@@ -599,7 +599,7 @@ public class UserAction {
 
 
     /**
-     * 根据常聊号获取个人资料
+     * 根据常信号获取个人资料
      */
     public void getUserInfoByImid(String imid, CallBack<ReturnBean<UserInfo>> callback) {
         NetUtil.getNet().exec(server.getUserInfoByImid(imid), callback);
@@ -607,7 +607,7 @@ public class UserAction {
 
 
     /**
-     * 根据关键字匹配常聊号或手机号获取用户信息
+     * 根据关键字匹配常信号或手机号获取用户信息
      */
     public void getUserInfoByKeyword(String keyWord, CallBack<ReturnBean<List<UserInfo>>> callback) {
         NetUtil.getNet().exec(server.getUserInfoByKeyword(keyWord), callback);

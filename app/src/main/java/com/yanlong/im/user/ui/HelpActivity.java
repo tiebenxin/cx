@@ -123,8 +123,8 @@ public class HelpActivity extends AppActivity {
 
     private void initData() {
         List<String> hotList = new ArrayList<>();
-        hotList.add("为什么我常聊聊没有声音");
-        hotList.add("如何下载常聊聊聊天软件?");
+        hotList.add("为什么我常信没有声音");
+        hotList.add("如何下载常信聊天软件?");
         hotList.add("如何添加好友?");
 
         List<String> typeList = new ArrayList<>();

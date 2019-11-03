@@ -1131,7 +1131,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         taskCleanRead();
     }
 
-    //是否是常聊聊小助手用户
+    //是否是常信小助手用户
     public boolean isAssitanceUser() {
         if (toUId != null && toUId == 1L) {
             return true;

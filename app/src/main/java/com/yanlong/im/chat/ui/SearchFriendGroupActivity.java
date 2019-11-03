@@ -419,7 +419,7 @@ public class SearchFriendGroupActivity extends AppActivity {
 
         @RequiresApi(api = Build.VERSION_CODES.M)
         public void setKey(String key) {
-            String content = "网络查找常聊号:" + key;
+            String content = "网络查找常信号:" + key;
             tv_content.setText(getSpan(content, key, 8));
         }
 

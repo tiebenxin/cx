@@ -59,7 +59,7 @@
                     android:enabled="false"
                     android:visibility="visible"
                     android:layout_marginRight="@dimen/app_margin_main"
-                    android:hint="输入常聊号/手机号搜索联系人" />
+                    android:hint="输入常信号/手机号搜索联系人" />
 
 
             </LinearLayout>

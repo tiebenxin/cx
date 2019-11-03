@@ -41,6 +41,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -52,6 +53,8 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -324,6 +327,7 @@ public class GroupInfoActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
+        EventBus.getDefault().register(this);
         findViews();
 
     }
@@ -331,10 +335,16 @@ public class GroupInfoActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!isBackValue){
+        if (!isBackValue) {
             initEvent();
-            isBackValue=false;
+            isBackValue = false;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
 
     }
 
@@ -493,7 +503,8 @@ public class GroupInfoActivity extends AppActivity {
         }
     }
 
-    private boolean isBackValue=false;
+    private boolean isBackValue = false;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -516,7 +527,7 @@ public class GroupInfoActivity extends AppActivity {
 //                    updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
-                    isBackValue=true;
+                    isBackValue = true;
                     break;
             }
         }
@@ -928,6 +939,15 @@ public class GroupInfoActivity extends AppActivity {
         MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
         if (bean != null) {
             SocketData.saveMessage(bean);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventGroupChange event) {
+        if (event.isNeedLoad()) {
+            taskGetInfoNetwork();
+        } else {
+            taskGetInfo();
         }
     }
 
