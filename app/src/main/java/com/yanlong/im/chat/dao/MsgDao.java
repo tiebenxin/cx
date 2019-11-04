@@ -1034,6 +1034,76 @@ public class MsgDao {
     }
 
     /*
+     * 批量更新或者创建session
+     *
+     * */
+    public void sessionReadUpdate(String gid, Long from_uid, int count) {
+        Session session;
+        if (StringUtil.isNotNull(gid)) {//群消息
+            session = DaoUtil.findOne(Session.class, "gid", gid);
+            if (session == null) {
+                session = new Session();
+                session.setSid(UUID.randomUUID().toString());
+                session.setGid(gid);
+                session.setType(1);
+                Group group = DaoUtil.findOne(Group.class, "gid", gid);
+                if (group != null) {
+                    session.setIsTop(group.getIsTop());
+                    session.setIsMute(group.getNotNotify());
+                }
+                if (session.getIsMute() == 1) {//免打扰
+                    session.setUnread_count(0);
+                } else {
+                    session.setUnread_count(count);
+                }
+            } else {
+                if (session.getIsMute() != 1) {//免打扰
+                    int num = session.getUnread_count() + count;
+                    num = num < 0 ? 0 : num;
+                    session.setUnread_count(num);
+                } else {
+                    session.setUnread_count(0);
+                }
+            }
+            session.setUp_time(System.currentTimeMillis());
+
+        } else {//个人消息
+            session = DaoUtil.findOne(Session.class, "from_uid", from_uid);
+            if (session == null) {
+                session = new Session();
+                session.setSid(UUID.randomUUID().toString());
+                session.setFrom_uid(from_uid);
+                session.setType(0);
+                UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", from_uid);
+                if (user != null) {
+                    session.setIsTop(user.getIstop());
+                    session.setIsMute(user.getDisturb());
+                }
+                if (session.getIsMute() == 1) {//免打扰
+                    session.setUnread_count(0);
+                } else {
+                    session.setUnread_count(count);
+                }
+
+            } else {
+                if (session.getIsMute() != 1) {//非免打扰
+                    int num = session.getUnread_count() + count;
+                    num = num < 0 ? 0 : num;
+                    session.setUnread_count(num);
+                } else {
+                    session.setUnread_count(0);
+                }
+            }
+            session.setUp_time(System.currentTimeMillis());
+        }
+//        if (isCancel) {//如果是撤回at消息,星哥说把类型给成这个,at就会去掉
+//            session.setMessageType(1000);
+//        }
+
+        DaoUtil.update(session);
+    }
+
+    /*
      * 跟随群信，或用户信息更新，更新session置顶免打扰字段
      * */
     public void updateSessionTopAndDisturb(String gid, Long from_uid, int top, int disturb) {
@@ -2515,7 +2585,7 @@ public class MsgDao {
                     hasChange = true;
                     for (int i = 0; i < len; i++) {
                         MsgAllBean bean = list.get(i);
-                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
+                        if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE) {//  || bean.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO
                             continue;
                         }
                         bean.setRead(isRead);

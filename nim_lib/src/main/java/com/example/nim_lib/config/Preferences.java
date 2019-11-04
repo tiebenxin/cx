@@ -22,4 +22,6 @@ public class Preferences {
     public static final String AVCHA_TTYPE = "AVChatType";
     public static final String TOUID = "toUId";
     public static final String TOGID = "toGid";
+    public static final String ROOM_ID = "roomId";
+    public static final String FRIEND = "friend";
 }

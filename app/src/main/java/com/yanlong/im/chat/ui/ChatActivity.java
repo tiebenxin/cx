@@ -111,6 +111,7 @@ import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
 import com.yanlong.im.utils.audio.IAudioRecord;
 import com.yanlong.im.utils.audio.IVoicePlayListener;
+import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
@@ -618,6 +619,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
                                     toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                             edtChat.getText().clear();
+                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                         } else {
                             isSendingHypertext = true;//正在分段发送长文本
                             if (totalSize > per * MIN_TEXT) {
@@ -1137,7 +1139,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void initSurvivaltimeState() {
         survivaltime = userDao.getReadDestroy(toUId, toGid);
         util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
+    }
 
+    //是否是常信小助手用户
+    public boolean isAssitanceUser() {
+        if (toUId != null && toUId == 1L) {
+            return true;
+        }
+        return false;
     }
 
 
@@ -1313,6 +1322,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             showVoice(false);
             hideBt();
+            InputUtil.showKeyboard(edtChat);
+            edtChat.requestFocus();
         }
     }
 
@@ -1321,10 +1332,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             txtVoice.setVisibility(View.VISIBLE);
             btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_kb));
             edtChat.setVisibility(View.GONE);
+            btnSend.setVisibility(GONE);
+            btnFunc.setVisibility(VISIBLE);
         } else {//关闭语音
             txtVoice.setVisibility(View.GONE);
             btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_vio));
             edtChat.setVisibility(View.VISIBLE);
+            if (StringUtil.isNotNull(edtChat.getText().toString())) {
+                btnSend.setVisibility(VISIBLE);
+            } else {
+                btnSend.setVisibility(GONE);
+            }
         }
     }
 
@@ -1575,10 +1593,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         initPopupWindow();
 
         // 只有Vip才显示视频通话
-        UserInfo userInfo = UserAction.getMyInfo();
-        if (userInfo != null && !"1".equals(userInfo.getVip())) {
-            viewFunc.removeView(llChatVideoCall);
-        }
+//        UserInfo userInfo = UserAction.getMyInfo();
+//        if (userInfo != null && !"1".equals(userInfo.getVip())) {
+//            viewFunc.removeView(llChatVideoCall);
+//        }
     }
 
     private void initUnreadCount() {
@@ -1905,7 +1923,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void taskRefreshMessageEvent(EventRefreshChat event) {
+    public void EtaskRefreshMessagevent(EventRefreshChat event) {
         taskRefreshMessage();
     }
 
@@ -1994,7 +2012,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
-
     /***
      * 替换listData中的某条消息并且刷新
      * @param msgAllbean
@@ -2007,7 +2024,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
             msgListData.get(position).setSend_state(ChatEnum.ESendStatus.NORMAL);
-            ((ChatItemView) mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
+            ((ChatItemView)mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
+//            setErr;
             if (!isNewAdapter) {
                 msgListData.set(position, msgAllbean);
             } else {
@@ -2205,6 +2223,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage();
+
+                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+                    // upProgress.setProgress(100);
+                    eventUpImgLoadEvent.setMsgid(reMsg.getMsg_id());
+                    eventUpImgLoadEvent.setState(1);
+                    eventUpImgLoadEvent.setUrl(url);
+                    EventBus.getDefault().post(eventUpImgLoadEvent);
+
                 }
             } else {
                 //点击发送的时候如果要改变成发送中的状态
@@ -2362,6 +2388,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
 
                         }
+                        scrollListView(true);
                         return true;
                     }
                 });
@@ -2535,6 +2562,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 if (StringUtil.isNotNull(localUrl)) {
                                     File file = new File(localUrl);
                                     if (file.exists()) {
+                                        downVideo(msgbean, msgbean.getVideoMessage());
                                         Log.e("TAG", file.getAbsolutePath());
                                         Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
                                         intent.putExtra("videopath", localUrl);
@@ -3471,11 +3499,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                        notifyData();
                     }
                 });
+
     }
 
     /**
      * TODO 当本次有本地发送图片时，用本地图片路径展示，是为了解决发图片之后，在发内容第一次会闪一下重新加载问题，
-     * TODO 问题原因是第一次加载本地路径，图片上传成功后加载的是服务器中午路径
+     * TODO 问题原因是第一次加载本地路径，图片上传成功后加载的是服务器路径
      */
     private void onBusPicture() {
         if (mTempImgPath != null && mTempImgPath.size() > 0 && msgListData != null) {

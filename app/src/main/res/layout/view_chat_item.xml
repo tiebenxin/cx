@@ -46,11 +46,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:background="@drawable/bg_time"
+            android:background="@drawable/bg_chat_gray_shape"
+            android:textSize="11sp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:paddingRight="4dp"
+            android:paddingLeft="4dp"
             android:gravity="center"
             android:singleLine="false"
             android:text="公告"
-            android:textColor="@color/white" />
+            android:textColor="@color/gray_500" />
 
 
     </LinearLayout>
@@ -532,15 +537,6 @@
 
             </LinearLayout>
         </LinearLayout>
-
-
-        <ImageView
-            android:id="@+id/img_me_err_ot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="5dp"
-            android:src="@mipmap/ic_net_err" />
 
     </LinearLayout>
 

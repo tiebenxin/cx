@@ -3,6 +3,7 @@ package com.yanlong.im.chat.ui;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
@@ -56,9 +57,9 @@ public class GroupNoteDetailActivity extends AppActivity {
             if (!TextUtils.isEmpty(note)) {
                 ui.etTxt.setText(note);
             } else {
-                ui.etTxt.setHint("修改群公告");
+                ui.etTxt.setHint("群公告");
             }
-            ui.headView.getActionbar().setTxtRight("完成");
+            ui.headView.getActionbar().setTxtRight("编辑");
         } else {
             ui.etTxt.setVisibility(View.GONE);
             ui.tvContent.setVisibility(View.VISIBLE);
@@ -76,60 +77,80 @@ public class GroupNoteDetailActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                String content = ui.etTxt.getText().toString();
-                if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
-                    ToastUtil.show(GroupNoteDetailActivity.this, "不能用空字符");
-                    return;
-                }
-                content = content.trim();
-                if (note.equals(content)) {//未修改，不返回
-                    Intent intent = new Intent();
-                    intent.putExtra(NOTE, content.trim());
-                    setResult(RESULT_CANCELED, intent);
-                    onBackPressed();
-
-                } else {
+//                String content = ui.etTxt.getText().toString();
+//                if (!TextUtils.isEmpty(content) && TextUtils.isEmpty(content.trim())) {
+//                    ToastUtil.show(GroupNoteDetailActivity.this, "不能用空字符");
+//                    return;
+//                }
+//                content = content.trim();
+//                if (note.equals(content)) {//未修改，不返回
 //                    Intent intent = new Intent();
-//                    intent.putExtra(CONTENT, content.trim());
+//                    intent.putExtra(NOTE, content.trim());
+//                    setResult(RESULT_CANCELED, intent);
+//                    onBackPressed();
+//
+//                } else {
+////                    Intent intent = new Intent();
+////                    intent.putExtra(CONTENT, content.trim());
+////                    setResult(RESULT_OK, intent);
+//                    if (groupNick == null) {
+//                        groupNick = "";
+//                    }
+//                    changeGroupAnnouncement(gid, content, groupNick);
+//                }
+                Intent intent =new Intent(GroupNoteDetailActivity.this,GroupNoteDetailEditActivity.class);
+//                groupNick = intent.getStringExtra(GROUP_NICK);
+//                gid = intent.getStringExtra(GID);
+//                note = intent.getStringExtra(NOTE);
+                intent.putExtra(GROUP_NICK,groupNick);
+                intent.putExtra(GID,gid);
+                intent.putExtra(NOTE,note);
+                startActivityForResult(intent,419);
+            }
+        });
+    }
+
+//    private void changeGroupAnnouncement(final String gid, final String announcement, String masterName) {
+//        if (TextUtils.isEmpty(gid)) {
+//            ToastUtil.show(this, "群信息为空");
+//            return;
+//        }
+//        new MsgAction().changeGroupAnnouncement(gid, announcement, masterName, new CallBack<ReturnBean>() {
+//            @Override
+//            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+//                if (response.body() == null) {
+//                    return;
+//                }
+//                ToastUtil.show(getContext(), response.body().getMsg());
+//                if (response.body().isOk()) {
+//                    updateAndGetGroup();
+//                    Intent intent = new Intent();
+//                    intent.putExtra(CONTENT, announcement);
 //                    setResult(RESULT_OK, intent);
-                    if (groupNick == null) {
-                        groupNick = "";
-                    }
-                    changeGroupAnnouncement(gid, content, groupNick);
-                }
-
-            }
-        });
-    }
-
-    private void changeGroupAnnouncement(final String gid, final String announcement, String masterName) {
-        if (TextUtils.isEmpty(gid)) {
-            ToastUtil.show(this, "群信息为空");
-            return;
-        }
-        new MsgAction().changeGroupAnnouncement(gid, announcement, masterName, new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null) {
-                    return;
-                }
-                ToastUtil.show(getContext(), response.body().getMsg());
-                if (response.body().isOk()) {
-                    updateAndGetGroup();
-                    Intent intent = new Intent();
-                    intent.putExtra(CONTENT, announcement);
-                    setResult(RESULT_OK, intent);
-                    onBackPressed();
-                }
-            }
-        });
-    }
+//                    onBackPressed();
+//                }
+//            }
+//        });
+//    }
 
     private void updateAndGetGroup() {
         if (!TextUtils.isEmpty(gid)) {
             MsgDao dao = new MsgDao();
             Group group = dao.groupNumberGet(gid);
             dao.groupNumberSave(group);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (null!=data){
+            String note= data.getExtras().getString(CONTENT);
+            Intent intent = new Intent();
+            intent.putExtra(CONTENT, note);
+            setResult(RESULT_OK, intent);
+//            onBackPressed();
+            finish();
         }
     }
 }

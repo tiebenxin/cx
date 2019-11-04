@@ -50,7 +50,7 @@ public class SocketData {
 
 
     private static MsgDao msgDao = new MsgDao();
-    public static long CLL_ASSITANCE_ID = 1L;//常聊聊小助手id
+    public static long CLL_ASSITANCE_ID = 1L;//常信小助手id
 
 
     /***
@@ -368,7 +368,7 @@ public class SocketData {
         return msgAllbean;
     }
 
-    //不是常聊聊小助手id
+    //不是常信小助手id
     public static boolean isNoAssistant(Long uid, String gid) {
         if (TextUtils.isEmpty(gid) && (uid != null && uid == CLL_ASSITANCE_ID)) {
             return false;

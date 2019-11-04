@@ -1,9 +1,12 @@
 package net.cb.cb.library.view;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -94,11 +97,13 @@ public class AlertYesNo {
 
         alertDialog.show();
 
-        WindowManager.LayoutParams p = alertDialog.getWindow().getAttributes();
+        Window window = alertDialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        WindowManager.LayoutParams p = window.getAttributes();
        // p.height = DensityUtil.dip2px(activity, 226);
         p.width = DensityUtil.dip2px(context,300);
 
-        alertDialog.getWindow().setAttributes(p);
+        window.setAttributes(p);
     }
 
     public interface Event {

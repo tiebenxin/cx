@@ -58,7 +58,7 @@ public class FindFriendActivity extends AppActivity {
         mEdtSearch = findViewById(R.id.edt_search);
         mMtListView = findViewById(R.id.mtListView);
         mMtListView.getLoadView().setStateNormal();
-        mEdtSearch.setHint("输入常聊号/手机号搜索联系人");
+        mEdtSearch.setHint("输入常信号/手机号搜索联系人");
         mHeadView.getActionbar().setTitle("搜索好友");
     }
 

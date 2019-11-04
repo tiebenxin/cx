@@ -172,6 +172,7 @@ public class IdentifyingCodeActivity extends AppActivity implements View.OnClick
 
                            Intent intent = new Intent(getContext(),MainActivity.class);
                            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                           intent.putExtra(MainActivity.IS_LOGIN, true);
                            startActivity(intent);
                        } else {
                            ToastUtil.show(getContext(), response.body().getMsg());

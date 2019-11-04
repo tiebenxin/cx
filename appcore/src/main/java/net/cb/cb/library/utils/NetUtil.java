@@ -10,6 +10,7 @@ import net.cb.cb.library.AppConfig;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -34,6 +35,9 @@ public class NetUtil {
     private static void init() {
         net = new NetUtil();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.connectTimeout(12, TimeUnit.SECONDS);//设置连接超时时间
+        builder.readTimeout(6, TimeUnit.SECONDS);//设置读取超时时间
+        builder.writeTimeout(6, TimeUnit.SECONDS);//设置写入超时时间
         builder.addInterceptor(new NetIntrtceptor());
         if (AppConfig.DEBUG) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -43,9 +47,7 @@ public class NetUtil {
 
         }
         //加证书
-       // builder.sslSocketFactory(Ssl.getCertificates(),Ssl.getTrustManager());
-
-
+        // builder.sslSocketFactory(Ssl.getCertificates(),Ssl.getTrustManager());
 
 
         httpClient = builder.build();
@@ -57,7 +59,6 @@ public class NetUtil {
                 .client(httpClient)
 
                 .build() : retrofit;
-
 
 
     }
@@ -119,15 +120,15 @@ public class NetUtil {
      */
     public <T> Call exec(Call<T> call, final Callback<T> callBack) {
 
-        Callback<T> cb=new CallBack<T>() {
+        Callback<T> cb = new CallBack<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
-                if(response==null){
+                if (response == null) {
                     callBack.onFailure(call, new Throwable());
                     return;
                 }
 
-                callBack.onResponse(call,response);
+                callBack.onResponse(call, response);
             }
 
             @Override

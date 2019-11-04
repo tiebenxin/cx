@@ -45,6 +45,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -351,6 +352,7 @@ public class GroupInfoActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
+        EventBus.getDefault().register(this);
         findViews();
         EventBus.getDefault().register(this);
     }
@@ -358,7 +360,17 @@ public class GroupInfoActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        initEvent();
+        if (!isBackValue) {
+            initEvent();
+            isBackValue = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+
     }
 
 
@@ -531,6 +543,7 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
+    private boolean isBackValue = false;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -554,6 +567,7 @@ public class GroupInfoActivity extends AppActivity {
 //                    updateAndGetGroup();
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
+                    isBackValue = true;
                     break;
             }
         }
@@ -593,6 +607,7 @@ public class GroupInfoActivity extends AppActivity {
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body().isOk()) {
                     EventBus.getDefault().post(new EventExitChat());
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.DELETE, null);
                     finish();
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
@@ -618,10 +633,7 @@ public class GroupInfoActivity extends AppActivity {
                         return;
                     }
 
-//                    Group goldinfo = msgDao.getGroup4Id(gid);
-//                    if (!isChange(goldinfo, ginfo)) {
-//                        doImgHeadChange(gid, ginfo);
-//                    }
+
                     //8.8 如果是有群昵称显示自己群昵称
 //                    for (MemberUser number : ginfo.getUsers()) {
 //                        if (StringUtil.isNotNull(number.getMembername())) {
@@ -681,17 +693,24 @@ public class GroupInfoActivity extends AppActivity {
         }
     }
 
-    private void taskGetInfoNetwork() {
+    private void taskGetInfoNetwork(boolean isMemberChange) {
         CallBack callBack = new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
                     //8.8 如果是有群昵称显示自己群昵称
-                    for (MemberUser number : ginfo.getUsers()) {
-                        if (StringUtil.isNotNull(number.getMembername())) {
-                            number.setName(number.getMembername());
+//                    for (MemberUser number : ginfo.getUsers()) {
+//                        if (StringUtil.isNotNull(number.getMembername())) {
+//                            number.setName(number.getMembername());
+//                        }
+//                    }
+                    if (isMemberChange){
+                        Group goldinfo = msgDao.getGroup4Id(gid);
+                        if (!isChange(goldinfo, ginfo)) {
+                            doImgHeadChange(gid, ginfo);
                         }
+                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP,-1L,gid, CoreEnum.ESessionRefreshTag.SINGLE,null);
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
@@ -742,7 +761,7 @@ public class GroupInfoActivity extends AppActivity {
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    taskGetInfoNetwork();
+                    taskGetInfoNetwork(false);
                 }
 
             }
@@ -761,7 +780,7 @@ public class GroupInfoActivity extends AppActivity {
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    taskGetInfoNetwork();
+                    taskGetInfoNetwork(false);
                 }
 
             }
@@ -797,7 +816,7 @@ public class GroupInfoActivity extends AppActivity {
                     return;
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    taskGetInfoNetwork();
+                    taskGetInfoNetwork(false);
                 }
             }
         });
@@ -971,6 +990,15 @@ public class GroupInfoActivity extends AppActivity {
         MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
         if (bean != null) {
             SocketData.saveMessage(bean);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventGroupChange event) {
+        if (event.isNeedLoad()) {
+            taskGetInfoNetwork(true);
+        } else {
+            taskGetInfo();
         }
     }
 

@@ -486,6 +486,9 @@
         <activity
             android:name=".user.ui.GroupAddActivity"
             android:screenOrientation="portrait"></activity>
+        <activity android:name=".chat.ui.GroupNoteDetailEditActivity"
+            android:screenOrientation="portrait"
+            />
 
 <!--        <receiver-->
 <!--            android:name=".notify.MyReceiver"-->

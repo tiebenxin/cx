@@ -149,7 +149,7 @@ public class UserInfoActivity extends AppActivity {
     }
 
     private void resetLayout() {
-        if (id == 1L) {//是常聊小助手
+        if (id == 1L) {//是常信小助手
             txtMkname.setVisibility(View.VISIBLE);
             txtNkname.setVisibility(View.GONE);
             txtPrNo.setVisibility(View.GONE);
@@ -275,6 +275,7 @@ public class UserInfoActivity extends AppActivity {
 
 
         if (isApply == 0) {
+            actionbar.setTitle("详细资料");
             mBtnAdd.setText("添加好友");
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -283,7 +284,8 @@ public class UserInfoActivity extends AppActivity {
                 }
             });
         } else {
-            mBtnAdd.setText("接受邀请");
+            actionbar.setTitle("朋友验证");
+            mBtnAdd.setText("通过验证");
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -433,14 +435,14 @@ public class UserInfoActivity extends AppActivity {
 
         doGetAndSetName(info);
         mkName = info.getMkName();
-        txtPrNo.setText("常聊号: " + info.getImid());
+        txtPrNo.setText("常信号: " + info.getImid());
         txtNkname.setText("昵称: " + info.getName());
         name = info.getName();
 
         if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
             type = 2;
         }
-        if (info.getStat() != 9) {//不是常聊聊小助手
+        if (info.getStat() != 9) {//不是常信小助手
             setItemShow(type);
         } else {
             txtMkname.setVisibility(View.VISIBLE);

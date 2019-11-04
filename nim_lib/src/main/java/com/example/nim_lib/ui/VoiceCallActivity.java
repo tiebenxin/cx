@@ -619,7 +619,7 @@ public class VoiceCallActivity extends BaseBindActivity<ActivityVoiceCallBinding
      * 拨打音视频
      */
     private void outGoingCalling(AVChatType avChatType) {
-        mAVChatController.outGoingCalling(mNeteaseaccId + "", avChatType, null , mAvChatConfigs,
+        mAVChatController.outGoingCalling(mNeteaseaccId + "", avChatType, null , mAvChatConfigs,null,"",
                 new AVChatCallback<AVChatData>() {
                     @Override
                     public void onSuccess(AVChatData avChatData) {

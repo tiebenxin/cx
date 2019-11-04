@@ -73,6 +73,7 @@ public class SocketUtil {
             LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
 //            SocketData.magSaveAndACK(bean);
+            System.out.println("MessageManager--接收消息size=" + bean.getWrapMsgList().size() + "当前时间--" + System.currentTimeMillis());
             MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {

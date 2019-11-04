@@ -271,7 +271,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         } else if (msg_type == ChatEnum.EMessageType.AT) {
             str = getAtMessage().getMsg();
         } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
-            str = "[常聊通知]";
+            str = "[常信通知]";
         } else if (msg_type == ChatEnum.EMessageType.MSG_CENCAL) {//撤回消息
             str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
         }else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息
