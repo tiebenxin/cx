@@ -13,9 +13,15 @@
             android:screenOrientation="portrait"
             />
         <activity android:name=".activity.EditVideoActivity"
-            android:windowSoftInputMode="adjustResize|adjustPan"/>
-        <activity android:name=".activity.CutSizeActivity"/>
-        <activity android:name=".activity.CutTimeActivity"/>
+            android:windowSoftInputMode="adjustResize|adjustPan"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".activity.CutSizeActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".activity.CutTimeActivity"
+            android:screenOrientation="portrait"
+            />
         <activity android:name=".activity.ImageShowActivity"/>
 
 

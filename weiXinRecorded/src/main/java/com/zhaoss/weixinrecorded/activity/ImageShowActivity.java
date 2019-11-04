@@ -326,10 +326,41 @@ public class ImageShowActivity  extends BaseActivity {
             Canvas c = new Canvas(bmp);
             c.drawColor(Color.WHITE);
 //            /** 如果不设置canvas画布为白色，则生成透明 */
-            v.layout(0, 0, activity_img_show_cut.getRectWidth(), activity_img_show_cut.getRectHeight());
+            v.layout(0, 0,w, h);
             v.draw(c);
             int px= (int)DimenUtils.dp2px(60);
-            Bitmap cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
+            Bitmap cutBitmap=null;
+
+            if ((30+cutArr[2])>=bmp.getWidth()||(px+cutArr[3])>bmp.getHeight()){
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
+                if ((30+cutArr[2])>=bmp.getWidth()&&(px+cutArr[3])>bmp.getHeight()){
+                    cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-((int)cutArr[0]+30),(int)cutArr[3]-((int)cutArr[1]+px));
+                }else{
+                    if ((30+cutArr[2])>=bmp.getWidth()){
+                        cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
+                    }else{
+                        cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-((int)cutArr[1]+px));
+                    }
+                }
+            }else{
+                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
+            }
+//            if ((px+cutArr[3])>bmp.getHeight()){
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-px);
+//            }else{
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],activity_img_show_cut.getRectHeight()-px);
+//            }
+
+//            if ((30+(int)cutArr[2])>=bmp.getWidth()){
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,bmp.getWidth()-((int)cutArr[0]+30),(int)cutArr[3]-(int)cutArr[1]);
+//            }else{
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
+//            }
+//            if ((px+(int)cutArr[3])>bmp.getHeight()){
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],bmp.getHeight()-((int)cutArr[1]+px));
+//            }else{
+//                cutBitmap=Bitmap.createBitmap(bmp,(int)cutArr[0]+30,(int)cutArr[1]+px,(int)cutArr[2]-(int)cutArr[0],(int)cutArr[3]-(int)cutArr[1]);
+//            }
             return cutBitmap;
 
         }else{

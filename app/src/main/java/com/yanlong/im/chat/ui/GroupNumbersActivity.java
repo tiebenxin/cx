@@ -17,10 +17,15 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MemberUser;
+import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.bean.EventRefreshChat;
@@ -34,6 +39,7 @@ import net.cb.cb.library.view.PySortView;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -300,10 +306,12 @@ public class GroupNumbersActivity extends AppActivity {
         CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                GroupHeadImageUtil.creatAndSaveImg(GroupNumbersActivity.this, gid);
                 if (response.body() == null){
                     isClickble = 0;
                     return;
                 }
+
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     if(type != TYPE_ADD){
@@ -314,12 +322,35 @@ public class GroupNumbersActivity extends AppActivity {
 
             }
         };
-        if (type == TYPE_ADD) {
-            msgACtion.groupAdd(gid, listDataTop, UserAction.getMyInfo().getName(), callback);
-        } else {
-            msgACtion.groupRemove(gid, listDataTop, callback);
+        MsgDao dao=new MsgDao();
+        List<MemberUser> list =new ArrayList<>();
+        List<Long> listLong =new ArrayList<>();
+        Group group= dao.getGroup4Id(gid);
+        List<MemberUser> mem= dao.getGroup4Id(gid).getUsers();
+        for (int k=0;k<listDataTop.size();k++){
+            MessageManager msg=new MessageManager();
+            list.add(msg.userToMember(listDataTop.get(k),gid));
         }
 
+        for (int i=0;i<listDataTop.size();i++){
+//            dao.addGroupMember(gid,listDataTop)
+            for (int j=0;j<mem.size();j++){
+                if (listDataTop.get(i).getUid()==mem.get(j).getUid()){
+//                    list.add(mem.get(j));
+                    listLong.add(listDataTop.get(i).getUid());
+                }
+            }
+        }
+
+        if (type == TYPE_ADD) {
+            msgACtion.groupAdd(gid, listDataTop, UserAction.getMyInfo().getName(), callback);
+            dao.addGroupMember(gid,list);
+        } else {
+            msgACtion.groupRemove(gid, listDataTop, callback);
+            dao.removeGroupMember(gid,listLong);
+        }
+
+//        GroupHeadImageUtil.creatAndSaveImg(GroupNumbersActivity.this, gid);
     }
 
 

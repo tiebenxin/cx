@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RecordUtil {
 
     public final static int TIMEOUT_USEC = 10000;
-    public final static int frameRate = 30;
+    public final static int frameRate = 60;
     public final static int frameTime = 1000/frameRate;
     public final static int sampleRateInHz = 44100;
     public final static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
