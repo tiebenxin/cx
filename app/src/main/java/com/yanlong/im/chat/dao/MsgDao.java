@@ -1522,37 +1522,59 @@ public class MsgDao {
     /*
      * 更新群置顶
      * */
-    public void updateGroupTop(String gid, int top) {
+    public Session updateGroupAndSessionTop(String gid, int top) {
+        Session session = null;
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                group.setIsTop(top);
+                realm.insertOrUpdate(group);
+            }
 
-        Group group = DaoUtil.findOne(Group.class, "gid", gid);
-        if (group == null)
-            return;
-        group.setIsTop(top);
-        realm.insertOrUpdate(group);
-        realm.commitTransaction();
-        realm.close();
+            Session s = realm.where(Session.class).equalTo("gid", gid).findFirst();
+            if (s != null) {
+                s.setIsTop(top);
+                session = realm.copyFromRealm(s);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+        return session;
+
     }
 
     /*
      * 更新群免打扰
      * */
-    public void updateGroupDisturb(String gid, int disturb) {
+    public void updateGroupAndSessionDisturb(String gid, int disturb) {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                group.setNotNotify(disturb);
+                realm.insertOrUpdate(group);
+            }
 
-        Group group = DaoUtil.findOne(Group.class, "gid", gid);
-        if (group == null)
-            return;
-        group.setNotNotify(disturb);
-        realm.insertOrUpdate(group);
-        realm.commitTransaction();
-        realm.close();
+            Session session = realm.where(Session.class).equalTo("gid", gid).findFirst();
+            if (session != null) {
+                session.setIsMute(disturb);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
     }
 
     /***
-     * 保存单聊置顶
+     * 保存单聊置顶，session 和 user 一起更新
      * @param uid
      * @param isTop
      */
@@ -1561,43 +1583,24 @@ public class MsgDao {
         realm.beginTransaction();
 
         Session session = DaoUtil.findOne(Session.class, "from_uid", uid);
-        if (session == null)
-            return null;
-        session.setIsTop(isTop);
+        if (session != null) {
+            session.setIsTop(isTop);
+            realm.insertOrUpdate(session);
+        }
 
         UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
-        if (user == null)
-            return null;
-        user.setIstop(isTop);
-
-        realm.insertOrUpdate(user);
-        realm.insertOrUpdate(session);
+        if (user != null) {
+            user.setIstop(isTop);
+            realm.insertOrUpdate(user);
+        }
         realm.commitTransaction();
         realm.close();
         return session;
     }
 
-    /***
-     * 保存单聊置顶
-     * @param uid
-     * @param isTop
-     */
-    public void updateUserTop(Long uid, int isTop) {
-        Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-
-        UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
-        if (user == null)
-            return;
-        user.setIstop(isTop);
-        realm.insertOrUpdate(user);
-        realm.commitTransaction();
-        realm.close();
-    }
-
 
     /***
-     * 保存单聊免打扰
+     * 保存单聊免打扰，session 和user 一起更新
      * @param uid
      * @param disturb
      */
@@ -1606,39 +1609,19 @@ public class MsgDao {
         realm.beginTransaction();
 
         Session session = DaoUtil.findOne(Session.class, "from_uid", uid);
-        if (session == null)
-            return null;
-        session.setIsMute(disturb);
+        if (session != null) {
+            session.setIsMute(disturb);
+            realm.insertOrUpdate(session);
+        }
 
         UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
-        if (user == null)
-            return null;
-        user.setDisturb(disturb);
-
-        realm.insertOrUpdate(session);
-        realm.insertOrUpdate(user);
-
+        if (user != null) {
+            user.setDisturb(disturb);
+            realm.insertOrUpdate(user);
+        }
         realm.commitTransaction();
         realm.close();
         return session;
-    }
-
-    /***
-     * 保存单聊消息免打扰
-     * @param uid
-     * @param isTop
-     */
-    public void updateUserDisturb(Long uid, int isTop) {
-        Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-
-        UserInfo user = DaoUtil.findOne(UserInfo.class, "uid", uid);
-        if (user == null)
-            return;
-        user.setDisturb(isTop);
-        realm.insertOrUpdate(user);
-        realm.commitTransaction();
-        realm.close();
     }
 
 

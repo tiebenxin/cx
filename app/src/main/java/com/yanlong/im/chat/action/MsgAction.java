@@ -1,12 +1,9 @@
 package com.yanlong.im.chat.action;
 
-import android.text.TextUtils;
-
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
-import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -23,7 +20,6 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -329,15 +325,14 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {//存库
-                    Session session = dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
-                    if (session != null && istop != null || notNotify != null || needVerification != null) {
+                    Session session = null;
+                    if (istop != null || notNotify != null || needVerification != null) {
                         boolean isTop = false;
                         if (istop != null) {
-                            dao.updateGroupTop(gid, istop.intValue());
+                            session = dao.updateGroupAndSessionTop(gid, istop.intValue());
                             isTop = true;
                         } else if (notNotify != null) {
-                            dao.updateGroupDisturb(gid, notNotify.intValue());
-                            dao.updateSessionTopAndDisturb(gid, null, 0, notNotify.intValue());
+                            dao.updateGroupAndSessionDisturb(gid, notNotify.intValue());
                             MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
                             isTop = false;
                         }
