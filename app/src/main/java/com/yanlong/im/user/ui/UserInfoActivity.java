@@ -276,6 +276,7 @@ public class UserInfoActivity extends AppActivity {
 
 
         if (isApply == 0) {
+            actionbar.setTitle("详细资料");
             mBtnAdd.setText("添加好友");
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -284,7 +285,8 @@ public class UserInfoActivity extends AppActivity {
                 }
             });
         } else {
-            mBtnAdd.setText("接受邀请");
+            actionbar.setTitle("朋友验证");
+            mBtnAdd.setText("通过验证");
             mBtnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
