@@ -337,13 +337,15 @@ public class UserDao {
         try {
             realm.beginTransaction();
             UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-            UserInfo userInfo = realm.copyFromRealm(user);
-            if (userInfo != null) {
-                userInfo.setActiveType(type);
-                if (type == CoreEnum.ESureType.NO) {
-                    userInfo.setLastonline(time);
+            if (user != null) {
+                UserInfo userInfo = realm.copyFromRealm(user);
+                if (userInfo != null) {
+                    userInfo.setActiveType(type);
+                    if (type == CoreEnum.ESureType.NO) {
+                        userInfo.setLastonline(time);
+                    }
+                    realm.insertOrUpdate(userInfo);
                 }
-                realm.insertOrUpdate(userInfo);
             }
             realm.commitTransaction();
             realm.close();

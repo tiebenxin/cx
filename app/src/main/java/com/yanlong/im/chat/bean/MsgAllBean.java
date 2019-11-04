@@ -73,6 +73,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     private P2PAuVideoMessage p2PAuVideoMessage;
 
+    private P2PAuVideoDialMessage p2PAuVideoDialMessage;
+
     //private RequestFriendMessage request_friend;
 
     // private AcceptBeFriendsMessage accept_be_friends;
@@ -85,6 +87,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public void setP2PAuVideoMessage(P2PAuVideoMessage p2PAuVideoMessage) {
         this.p2PAuVideoMessage = p2PAuVideoMessage;
+    }
+
+    public P2PAuVideoDialMessage getP2PAuVideoDialMessage() {
+        return p2PAuVideoDialMessage;
+    }
+
+    public void setP2PAuVideoDialMessage(P2PAuVideoDialMessage p2PAuVideoDialMessage) {
+        this.p2PAuVideoDialMessage = p2PAuVideoDialMessage;
     }
 
     public boolean isRead() {
@@ -233,7 +243,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
         } else if (msg_type == ChatEnum.EMessageType.AT) {
             str = getAtMessage().getMsg();
         } else if (msg_type == ChatEnum.EMessageType.ASSISTANT) {
-            str = "[常聊通知]";
+            str = "[常信通知]";
         } else if (msg_type == ChatEnum.EMessageType.MSG_CENCAL) {//撤回消息
             str = "" + StringUtil.delHTMLTag(getMsgCancel().getNote());
         }else if (msg_type == ChatEnum.EMessageType.MSG_VIDEO) {//撤回消息

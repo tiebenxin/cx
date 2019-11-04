@@ -21,6 +21,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -314,9 +315,11 @@ public class GroupNumbersActivity extends AppActivity {
 
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    if(type != TYPE_ADD){
-                        EventBus.getDefault().post(new EventRefreshChat());
-                    }
+//                    if(type != TYPE_ADD){
+//                        EventBus.getDefault().post(new EventRefreshChat());
+//                    }
+                    MessageManager.getInstance().notifyGroupChange(true);
+
                     finish();
                 }
 

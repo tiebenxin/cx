@@ -1,12 +1,9 @@
 package com.yanlong.im.chat.action;
 
-import android.text.TextUtils;
-
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
-import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -212,8 +209,10 @@ public class MsgAction {
             NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                    if (response.body() == null)
+                    if (response.body() == null) {
+                        System.out.println("MessageManager--加载群信息后的失败 response=null--gid=" + gid);
                         return;
+                    }
                     if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
                         Group newGroup = response.body().getData();
                         newGroup.getMygroupName();
@@ -236,9 +235,19 @@ public class MsgAction {
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);
                     } else {
+                        System.out.println("MessageManager--加载群信息后的失败--gid=" + gid);
                         MessageManager.getInstance().removeLoadGids(gid);
                         callback.onFailure(call, new Throwable());
                     }
+                }
+
+                @Override
+                public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                    super.onFailure(call, t);
+                    System.out.println("MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
+//                    t.printStackTrace();
+                    MessageManager.getInstance().removeLoadGids(gid);
+                    callback.onFailure(call, new Throwable());
                 }
             });
         } else {//从缓存中读
@@ -317,20 +326,22 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {//存库
-                    Session session = dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
-                    if (session != null && istop != null || notNotify != null || needVerification != null) {
+                    Session session = null;
+                    if (istop != null || notNotify != null || needVerification != null) {
                         boolean isTop = false;
                         if (istop != null) {
-                            dao.updateGroupTop(gid, istop.intValue());
+                            session = dao.updateGroupAndSessionTop(gid, istop.intValue());
                             isTop = true;
                         } else if (notNotify != null) {
-                            dao.updateGroupDisturb(gid, notNotify.intValue());
-                            dao.updateSessionTopAndDisturb(gid, null, 0, notNotify.intValue());
+                            dao.updateGroupAndSessionDisturb(gid, notNotify.intValue());
                             MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
                             isTop = false;
                         }
-                        MessageManager.getInstance().setMessageChange(true);
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
+                        //置顶通知刷新，面打扰在activity onStop时再刷新，避免快速点击开关的时候，造成刷新异常
+                        if (isTop) {
+                            MessageManager.getInstance().setMessageChange(true);
+                            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
+                        }
                     }
                 }
                 cb.onResponse(call, response);

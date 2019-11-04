@@ -176,7 +176,7 @@ public class MyFragment extends Fragment {
                     .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
             txtName.setText(userInfo.getName());
-            mTvInfo.setText("常聊号: " + userInfo.getImid() + "");
+            mTvInfo.setText("常信号: " + userInfo.getImid() + "");
         }
     }
 
@@ -294,7 +294,7 @@ public class MyFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
                 txtName.setText(userInfo.getName());
-                mTvInfo.setText("常聊号: " + userInfo.getImid() + "");
+                mTvInfo.setText("常信号: " + userInfo.getImid() + "");
 
             }
         });

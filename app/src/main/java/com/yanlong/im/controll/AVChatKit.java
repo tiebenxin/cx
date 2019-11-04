@@ -4,11 +4,14 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.ui.VideoActivity;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.avchat.AVChatManager;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
@@ -17,6 +20,8 @@ import com.yanlong.im.user.dao.UserDao;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.utils.LogUtil;
+
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -119,8 +124,6 @@ public class AVChatKit {
     private Observer<AVChatData> inComingCallObserver = new Observer<AVChatData>() {
         @Override
         public void onEvent(final AVChatData data) {
-            String extra = data.getExtra();
-            LogUtil.getLog().e(TAG, "Extra Message->" + extra);
 //            if (PhoneCallStateObserver.getInstance().getPhoneCallState() != PhoneCallStateObserver.PhoneCallStateEnum.IDLE
 //                    || AVChatProfile.getInstance().isAVChatting()
 //                    || AVChatManager.getInstance().getCurrentChatId() != 0) {
@@ -155,6 +158,9 @@ public class AVChatKit {
                 .subscribe(new Consumer<UserInfo>() {
                     @Override
                     public void accept(UserInfo userInfo) throws Exception {
+                        String extra = data.getExtra();
+                        LogUtil.getLog().e(TAG, "Extra Message->" + extra);
+
                         Intent intent = new Intent();
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra(Preferences.AVCHATDATA, data);
@@ -162,13 +168,19 @@ public class AVChatKit {
                             intent.putExtra(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
                             intent.putExtra(Preferences.USER_NAME, userInfo.getName());
                         }
+                        if (!TextUtils.isEmpty(extra)) {
+                            try {
+                                Map<String, String> map = new Gson().fromJson(extra, Map.class);
+                                String roomId = map.get("roomId");
+                                Long friend = Long.parseLong(map.get("friend"));
+                                intent.putExtra(Preferences.ROOM_ID, roomId);
+                                intent.putExtra(Preferences.FRIEND, friend);
+                            } catch (JsonSyntaxException exception) {
+
+                            }
+                        }
                         intent.putExtra(Preferences.VOICE_TYPE, CoreEnum.VoiceType.RECEIVE);
                         intent.putExtra(Preferences.AVCHA_TTYPE, data.getChatType().getValue());
-//                        if(data.getChatType()== AVChatType.VIDEO){
-//                            intent.setClass(context, VideoActivity.class);
-//                        }else{
-//                            intent.setClass(context, VoiceCallActivity.class);
-//                        }
                         intent.setClass(context, VideoActivity.class);
                         context.startActivity(intent);
                     }

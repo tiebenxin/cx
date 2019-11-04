@@ -5,6 +5,7 @@ import com.example.nim_lib.net.CallBack;
 import com.example.nim_lib.net.NetIntrtceptor;
 import com.example.nim_lib.net.NetUtil;
 import com.example.nim_lib.server.VideoServer;
+import com.example.nim_lib.util.LogUtil;
 
 import okhttp3.Headers;
 import retrofit2.Call;
@@ -22,6 +23,7 @@ import retrofit2.Response;
 public class VideoAction {
 
     private VideoServer videoServer;
+    private String TAG = VideoAction.class.getName();
 
     public VideoAction(String token) {
         videoServer = NetUtil.getNet().create(VideoServer.class);
@@ -42,12 +44,14 @@ public class VideoAction {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
+                LogUtil.getLog().i(TAG,"点对点语音发起(已完成)");
                 callBack.onResponse(call, response);
             }
 
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                LogUtil.getLog().i(TAG,"点对点语音发起(失败)");
                 callBack.onFailure(call, t);
             }
         });
@@ -66,12 +70,14 @@ public class VideoAction {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
+                LogUtil.getLog().i(TAG,"点对点语音挂断(已完成)");
                 callBack.onResponse(call, response);
             }
 
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                LogUtil.getLog().i(TAG,"点对点语音挂断(失败)");
                 callBack.onFailure(call, t);
             }
         });
@@ -88,12 +94,14 @@ public class VideoAction {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 super.onResponse(call, response);
+                LogUtil.getLog().i(TAG,"音视频状态保活(已完成)");
                 callBack.onResponse(call, response);
             }
 
             @Override
             public void onFailure(Call<ReturnBean> call, Throwable t) {
                 super.onFailure(call, t);
+                LogUtil.getLog().i(TAG,"音视频状态保活(失败)");
                 callBack.onFailure(call, t);
             }
         });

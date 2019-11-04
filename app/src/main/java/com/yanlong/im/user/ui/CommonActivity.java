@@ -16,6 +16,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatFontActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.VersionBean;
@@ -70,14 +71,14 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         mTvVersion.setText(VersionUtil.getVerName(this));
         cbVoice = findViewById(R.id.cb_voice);
         viewSelectBackground = findViewById(R.id.view_select_background);
-        tvNewVersions =  findViewById(R.id.tv_new_versions);
+        tvNewVersions = findViewById(R.id.tv_new_versions);
 
-        SharedPreferencesUtil sharedPreferencesUtil = new  SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
+        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
-        if(bean != null && !TextUtils.isEmpty(bean.getVersion())){
-            if(new UpdateManage(context,CommonActivity.this).check(bean.getVersion())){
+        if (bean != null && !TextUtils.isEmpty(bean.getVersion())) {
+            if (new UpdateManage(context, CommonActivity.this).check(bean.getVersion())) {
                 tvNewVersions.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 tvNewVersions.setVisibility(View.GONE);
             }
         }
@@ -150,6 +151,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 taskClearMsg();
                 break;
             case R.id.btn_exit:
+                MessageManager.getInstance().clearCache();
                 loginOut(UserAction.getMyInfo().isEmptyPassword());
                 break;
             case R.id.view_about_as:
@@ -210,6 +212,8 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
             @Override
             public void onYes() {
                 msgAction.msgDelAll();
+                MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg();
             }
         });
         alertYesNo.show();

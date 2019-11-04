@@ -3,8 +3,11 @@ package net.cb.cb.library.view;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -162,10 +165,15 @@ public class ImageMoveView extends RelativeLayout {
         super.onWindowFocusChanged(hasWindowFocus);
     }
 
+    /**
+     * 显示浮动按钮
+     * @param context
+     * @param window
+     */
     public void show(Context context, Window window) {
         // 关闭浮动显示对象然后再显示
         close(context);
-        LayoutInflater inflater =LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
         floatingViewObj = inflater.inflate(R.layout.view_minimize_voice, null);
 
         txtTime = floatingViewObj.findViewById(R.id.txt_time);
@@ -176,10 +184,15 @@ public class ImageMoveView extends RelativeLayout {
         window.getDecorView().getWindowVisibleDisplayFrame(frame);
         TOOL_BAR_HIGH = frame.top;
 
-        wm = (WindowManager) context// getApplicationContext()
-                .getSystemService(Activity.WINDOW_SERVICE);
-        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-                | WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
+        wm = (WindowManager) context.getSystemService(Activity.WINDOW_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        } else {
+            params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                    | WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
+        }
+
         params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                 | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 
@@ -190,37 +203,39 @@ public class ImageMoveView extends RelativeLayout {
         params.alpha = 10;
         // 设定内部文字对齐方式
         params.gravity = Gravity.LEFT | Gravity.TOP;
+        // 设置背景透明
+        params.format= PixelFormat.RGBA_8888;
 
         // 以屏幕左上角为原点，设置x、y初始值ֵ
         params.x = (int) x;
         params.y = (int) y;
-        // tv = new MyTextView(TopFrame.this);
+        Log.i("1212","x:"+x+" y:"+y);
 
         // 设置悬浮窗的Touch监听
-        floatingViewObj.setOnTouchListener(new OnTouchListener()
-        {
+        floatingViewObj.setOnTouchListener(new OnTouchListener() {
             int lastX, lastY;
             int paramX, paramY;
 
-            public boolean onTouch(View v, MotionEvent event)
-            {
+            public boolean onTouch(View v, MotionEvent event) {
                 /** 获取该组件在屏幕的x坐标 */
                 deltaX = event.getRawX();
                 /** 获取该组件在屏幕的y坐标 */
                 deltaY = event.getRawY();
-                switch (event.getAction())
-                {
+                switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         lastX = (int) event.getRawX();
                         lastY = (int) event.getRawY();
+                        Log.i("1212","lastX:"+lastX+" lastY:"+lastY);
                         paramX = params.x;
                         paramY = params.y;
                         break;
                     case MotionEvent.ACTION_MOVE:
                         int dx = (int) event.getRawX() - lastX;
                         int dy = (int) event.getRawY() - lastY;
+                        Log.i("1212","dx:"+dx+" dy:"+dy);
                         params.x = paramX + dx;
                         params.y = paramY + dy;
+                        Log.i("1212","params.x:"+params.x+" params.y:"+params.y);
                         // 更新悬浮窗位置
                         wm.updateViewLayout(floatingViewObj, params);
                         break;
@@ -236,21 +251,28 @@ public class ImageMoveView extends RelativeLayout {
             }
         });
 
-
+        //Android6.0以下，不用动态声明权限
         wm.addView(floatingViewObj, params);
-
     }
 
     /**
      * 关闭浮动显示对象
      */
-    public static void close(Context context) {
+    public void close(Context context) {
 
         if (view_obj != null && view_obj.isShown()) {
             WindowManager wm = (WindowManager) context
                     .getSystemService(Activity.WINDOW_SERVICE);
             wm.removeView(view_obj);
         }
+    }
+
+    public boolean isShown(){
+        boolean flg =false;
+        if(view_obj!=null){
+            flg = view_obj.isShown();
+        }
+        return flg;
     }
 
     private void init(Context context) {

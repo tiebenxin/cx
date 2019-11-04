@@ -44,11 +44,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:background="@drawable/bg_time"
+            android:background="@drawable/bg_chat_gray_shape"
+            android:textSize="12sp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:paddingRight="6dp"
+            android:paddingLeft="6dp"
             android:gravity="center"
             android:singleLine="false"
             android:text="公告"
-            android:textColor="@color/white" />
+            android:textColor="@color/gray_500" />
     </LinearLayout>
 
     <LinearLayout

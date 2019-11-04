@@ -1,5 +1,6 @@
 package com.yanlong.im.utils.socket;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -49,7 +50,7 @@ public class SocketData {
 
 
     private static MsgDao msgDao = new MsgDao();
-    public static long CLL_ASSITANCE_ID = 1L;//常聊聊小助手id
+    public static long CLL_ASSITANCE_ID = 1L;//常信小助手id
 
 
     /***
@@ -425,7 +426,7 @@ public class SocketData {
         return msgAllbean;
     }
 
-    //不是常聊聊小助手id
+    //不是常信小助手id
     public static boolean isNoAssistant(Long uid, String gid) {
         if (TextUtils.isEmpty(gid) && (uid != null && uid == CLL_ASSITANCE_ID)) {
             return false;
@@ -525,6 +526,9 @@ public class SocketData {
             case P2P_AU_VIDEO:
                 wmsg.setP2PAuVideo((MsgBean.P2PAuVideoMessage) value);
                 break;
+            case P2P_AU_VIDEO_DIAL:
+                wmsg.setP2PAuVideoDial((MsgBean.P2PAuVideoDialMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 
@@ -585,6 +589,23 @@ public class SocketData {
                 .build();
 
         return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, chat);
+
+    }
+
+    /**
+     * 发送一条音视频通知
+     *
+     * @param toId
+     * @param toGid
+     * @param auVideoType 语音、视频
+     * @return
+     */
+    public static MsgAllBean send4VoiceOrVideoNotice(Long toId, String toGid,MsgBean.AuVideoType auVideoType) {
+        MsgBean.P2PAuVideoDialMessage chat = MsgBean.P2PAuVideoDialMessage.newBuilder()
+                .setAvType(auVideoType)
+                .build();
+
+        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
 
     }
 
@@ -1018,12 +1039,20 @@ public class SocketData {
         return msgAllBean;
     }
 
-    public static void sendMessage(MsgAllBean bean) {
+    public static void sendAndSaveMessage(MsgAllBean bean) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + bean.getTo_uid() + "--gid" + bean.getGid());
+
         int msgType = bean.getMsg_type();
         MsgBean.MessageType type = null;
         Object value = null;
         switch (msgType) {
+            case ChatEnum.EMessageType.TEXT:
+                ChatMessage chat = bean.getChat();
+                MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
+                txtBuilder.setMsg(chat.getMsg());
+                value = txtBuilder.build();
+                type = MsgBean.MessageType.CHAT;
+                break;
             case ChatEnum.EMessageType.IMAGE:
                 ImageMessage image = bean.getImage();
                 MsgBean.ImageMessage.Builder imgBuilder = MsgBean.ImageMessage.newBuilder();
@@ -1047,10 +1076,11 @@ public class SocketData {
         }
 
         saveMessage(bean);
-
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
-        //立即发送
-        SocketUtil.getSocketUtil().sendData4Msg(msg);
+        if (type != null && value != null) {
+            MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
+            //立即发送
+            SocketUtil.getSocketUtil().sendData4Msg(msg);
+        }
 
     }
 
@@ -1175,7 +1205,7 @@ public class SocketData {
         msg.setFrom_uid(UserAction.getMyId());
         msg.setFrom_avatar(UserAction.getMyInfo().getHead());
         msg.setFrom_nickname(UserAction.getMyInfo().getName());
-
+        msg.setRead(true);//已读
         if (isGroup) {
             Group group = msgDao.getGroup4Id(gid);
             if (group != null) {

@@ -194,7 +194,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 //                public void onYes(String content) {
 //
 //
-//                    sendMessage(uid, gid, msgAllBean.getVideoMessage().getMsg(), content);
+//                    sendAndSaveMessage(uid, gid, msgAllBean.getVideoMessage().getMsg(), content);
 //                }
 //            });
 //        }

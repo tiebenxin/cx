@@ -65,7 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_gravity="center"
             android:layout_height="wrap_content"
-            android:text="如需联系在线客服，请添加客服常聊号。" />
+            android:text="如需联系在线客服，请添加客服常信号。" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -78,13 +78,13 @@
                 style="@style/app_txt_title_4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="常聊聊客服1：CLL888" />
+                android:text="常信客服1：CX888" />
             <TextView
                 style="@style/app_txt_title_4"
                 android:layout_width="wrap_content"
                 android:layout_marginTop="@dimen/dimen_5"
                 android:layout_height="wrap_content"
-                android:text="常聊聊客服2：CLL999" />
+                android:text="常信客服2：CX999" />
         </LinearLayout>
     </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
