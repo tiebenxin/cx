@@ -21,6 +21,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -35,12 +36,14 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -187,16 +190,19 @@ public class MessageManager {
                     result = saveMessageNew(bean, isList);
                     MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());
                     msgDao.removeGroupMember(bean.getGid(), memberUser);
+                    changeGroupAvatar(bean.getGid());
                     notifyGroupChange(false);
                 }
                 break;
             case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊
                 removeGroupMember(wrapMessage);
+                changeGroupAvatar(wrapMessage.getGid());
                 notifyGroupChange(false);
                 break;
             case ACCEPT_BE_GROUP://接受入群，
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
+                    changeGroupAvatar(bean.getGid());
                 }
                 notifyGroupChange(true);
                 break;
@@ -286,6 +292,15 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    //重新生成群头像
+    private void changeGroupAvatar(String gid) {
+        Group group = msgDao.getGroup4Id(gid);
+        if (group != null) {
+            doImgHeadChange(gid, group);
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        }
     }
 
     private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
@@ -460,7 +475,6 @@ public class MessageManager {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
-//                updateSessionUnread(gid, uid, false);
                 if (isList) {
                     Group group = response.body().getData();
                     boolean isDisturb = false;
@@ -1193,4 +1207,26 @@ public class MessageManager {
             loadGids.clear();
         }
     }
+
+    private void doImgHeadChange(String gid, Group ginfo) {
+        int i = ginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            MemberUser userInfo = ginfo.getUsers().get(j);
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(AppConfig.getContext(), url);
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgUpdate(gid, file.getAbsolutePath());
+    }
+
+    /*
+     * 群成员数据变化时，更新群信息
+     * */
+    private synchronized void refreshGroupInfo(final String gid, final long uid) {
+//        NetUtil.getNet().exec()
+    }
+
 }

@@ -203,8 +203,7 @@ public class MsgAction {
      * @param callback
      */
     public void groupInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
-
-        if (NetUtil.isNetworkConnected() /*&& MessageManager.getInstance().isGroupValid(gid)*/) {
+        if (NetUtil.isNetworkConnected()) {
             NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
