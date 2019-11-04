@@ -212,6 +212,8 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
             @Override
             public void onYes() {
                 msgAction.msgDelAll();
+                MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg();
             }
         });
         alertYesNo.show();
