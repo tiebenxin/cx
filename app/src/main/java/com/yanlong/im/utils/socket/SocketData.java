@@ -1,6 +1,5 @@
 package com.yanlong.im.utils.socket;
 
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -384,6 +383,18 @@ public class SocketData {
     }
 
     /***
+     * 保存并发送消息
+     * @param toId
+     * @param toGid
+     * @param type
+     * @param value
+     * @return
+     */
+    private static MsgAllBean send4Base(boolean isSave, Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        return send4Base(isSave, true, null, toId, toGid, -1, type, value);
+    }
+
+    /***
      * 根据消息id保存发送数据
      * @param msgId
      * @param toId
@@ -545,7 +556,8 @@ public class SocketData {
      * @return false 需要忽略
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
-        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.CANCEL) {
+        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.CANCEL
+                || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL) {
             return false;
         }
 
@@ -600,12 +612,12 @@ public class SocketData {
      * @param auVideoType 语音、视频
      * @return
      */
-    public static MsgAllBean send4VoiceOrVideoNotice(Long toId, String toGid,MsgBean.AuVideoType auVideoType) {
+    public static MsgAllBean send4VoiceOrVideoNotice(Long toId, String toGid, MsgBean.AuVideoType auVideoType) {
         MsgBean.P2PAuVideoDialMessage chat = MsgBean.P2PAuVideoDialMessage.newBuilder()
                 .setAvType(auVideoType)
                 .build();
 
-        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
+        return send4Base(false, toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
 
     }
 

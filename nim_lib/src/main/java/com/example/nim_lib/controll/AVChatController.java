@@ -141,8 +141,12 @@ public class AVChatController {
 
         if (avChatConfigs == null) {
             avChatConfigs = new AVChatConfigs(context);
-            // 设置自己需要的可选参数
-            AVChatManager.getInstance().setParameters(avChatConfigs.getAvChatParameters());
+            try {
+                // 设置自己需要的可选参数
+                AVChatManager.getInstance().setParameters(avChatConfigs.getAvChatParameters());
+            }catch (IllegalArgumentException e){
+
+            }
         }
         // 视频通话
         if (callTypeEnum == AVChatType.VIDEO) {
