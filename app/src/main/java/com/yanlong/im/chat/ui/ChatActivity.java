@@ -2526,21 +2526,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 if (StringUtil.isNotNull(localUrl)) {
                                     File file = new File(localUrl);
                                     if (file.exists()) {
-                                        downVideo(msgbean, msgbean.getVideoMessage());
+//                                        downVideo(msgbean, msgbean.getVideoMessage());
                                         Log.e("TAG", file.getAbsolutePath());
-                                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-                                        intent.putExtra("videopath", localUrl);
-                                        intent.putExtra("videomsg", new Gson().toJson(msgbean));
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                                        startActivity(intent);
-//                                    MsgDao dao = new MsgDao();
-//                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
+//                                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+//                                        intent.putExtra("videopath", localUrl);
+//                                        intent.putExtra("videomsg", new Gson().toJson(msgbean));
+//                                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//                                        startActivity(intent);
+
                                     } else {
                                         downVideo(msgbean, msgbean.getVideoMessage());
+                                        localUrl=msgbean.getVideoMessage().getUrl();
                                     }
                                 } else {
                                     downVideo(msgbean, msgbean.getVideoMessage());
+                                    localUrl=msgbean.getVideoMessage().getUrl();
                                 }
+                                Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                                intent.putExtra("videopath", localUrl);
+                                intent.putExtra("videomsg", new Gson().toJson(msgbean));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                startActivity(intent);
+
                             }
                         }
                     }, pgVideo);
@@ -2790,6 +2797,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
+        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
         new Thread() {
             @Override
             public void run() {
@@ -2806,7 +2814,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             bundle.putString("url", fileVideo.getAbsolutePath());
                             message.setData(bundle);
                             handler.sendMessage(message);
-                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+//                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
 //                        msgAllBean.setVideoMessage(videoMessage);
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
