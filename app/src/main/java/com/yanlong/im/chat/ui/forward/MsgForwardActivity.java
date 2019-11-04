@@ -13,6 +13,8 @@ import android.view.View;
 
 import com.google.gson.Gson;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -172,13 +174,23 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
                 @Override
                 public void onYes(String content) {
-                    // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
+                    ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getChat().getMsg());
+                    MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
+                    }
 
-//                    Long toUId = bean.getFrom_uid();
-//                    String toGid = bean.getGid();
-                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
+//                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getChat().getMsg());
                     if (StringUtil.isNotNull(content)) {
-                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
+                        ChatMessage chat = SocketData.createChatMessage(SocketData.getUUID(), content);
+                        MsgAllBean messageBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chat);
+                        if (messageBean != null) {
+                            SocketData.sendAndSaveMessage(messageBean);
+                            sendMesage = messageBean;
+
+                        }
+//                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
                     }
                     doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
@@ -222,14 +234,27 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
                 @Override
                 public void onYes(String content) {
-                    // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
+//                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getAtMessage().getMsg());
+//                    if (StringUtil.isNotNull(content)) {
+//                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
+//                    }
 
-//                    Long toUId = bean.getFrom_uid();
-//                    String toGid = bean.getGid();
-                    sendMesage = SocketData.send4Chat(toUid, toGid, msgAllBean.getAtMessage().getMsg());
-                    if (StringUtil.isNotNull(content)) {
-                        sendMesage = SocketData.send4Chat(toUid, toGid, content);
+                    ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
+                    MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
                     }
+                    if (StringUtil.isNotNull(content)) {
+                        ChatMessage chat = SocketData.createChatMessage(SocketData.getUUID(), content);
+                        MsgAllBean messageBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chat);
+                        if (messageBean != null) {
+                            SocketData.sendAndSaveMessage(messageBean);
+                            sendMesage = messageBean;
+
+                        }
+                    }
+
                     doSendSuccess();
                     notifyRefreshMsg(toGid, toUid);
                 }
@@ -260,7 +285,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     }
 
     public void doSendSuccess() {
-        ToastUtil.show(this,"转发成功");
+        ToastUtil.show(this, "转发成功");
         finish();
         //        ui.tvSuccess.setVisibility(View.VISIBLE);
 //        ui.tvSuccess.postDelayed(new Runnable() {

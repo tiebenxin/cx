@@ -1,5 +1,6 @@
 package com.yanlong.im.utils.socket;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -1011,12 +1012,20 @@ public class SocketData {
         return msgAllBean;
     }
 
-    public static void sendMessage(MsgAllBean bean) {
+    public static void sendAndSaveMessage(MsgAllBean bean) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + bean.getTo_uid() + "--gid" + bean.getGid());
+
         int msgType = bean.getMsg_type();
         MsgBean.MessageType type = null;
         Object value = null;
         switch (msgType) {
+            case ChatEnum.EMessageType.TEXT:
+                ChatMessage chat = bean.getChat();
+                MsgBean.ChatMessage.Builder txtBuilder = MsgBean.ChatMessage.newBuilder();
+                txtBuilder.setMsg(chat.getMsg());
+                value = txtBuilder.build();
+                type = MsgBean.MessageType.CHAT;
+                break;
             case ChatEnum.EMessageType.IMAGE:
                 ImageMessage image = bean.getImage();
                 MsgBean.ImageMessage.Builder imgBuilder = MsgBean.ImageMessage.newBuilder();
@@ -1040,10 +1049,11 @@ public class SocketData {
         }
 
         saveMessage(bean);
-
-        MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
-        //立即发送
-        SocketUtil.getSocketUtil().sendData4Msg(msg);
+        if (type != null && value != null) {
+            MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
+            //立即发送
+            SocketUtil.getSocketUtil().sendData4Msg(msg);
+        }
 
     }
 
@@ -1168,7 +1178,7 @@ public class SocketData {
         msg.setFrom_uid(UserAction.getMyId());
         msg.setFrom_avatar(UserAction.getMyInfo().getHead());
         msg.setFrom_nickname(UserAction.getMyInfo().getName());
-
+        msg.setRead(true);//已读
         if (isGroup) {
             Group group = msgDao.getGroup4Id(gid);
             if (group != null) {

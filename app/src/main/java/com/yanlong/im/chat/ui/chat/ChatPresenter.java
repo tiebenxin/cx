@@ -51,7 +51,6 @@ import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.UpFileAction;
 import net.cb.cb.library.utils.UpFileUtil;
@@ -324,7 +323,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 Log.v(ChatActivity3.class.getSimpleName(), "上传语音成功--" + url);
                 VoiceMessage voice = bean.getVoiceMessage();
                 voice.setUrl(url);
-                SocketData.sendMessage(bean);
+                SocketData.sendAndSaveMessage(bean);
             }
 
             @Override

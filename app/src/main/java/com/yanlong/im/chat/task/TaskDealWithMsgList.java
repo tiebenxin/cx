@@ -81,6 +81,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             } else {
                 MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uids.get(0), "", CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
+
         } else {
             MessageManager.getInstance().notifyRefreshMsg();
         }

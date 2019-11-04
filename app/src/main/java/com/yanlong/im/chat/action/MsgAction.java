@@ -341,8 +341,11 @@ public class MsgAction {
                             MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
                             isTop = false;
                         }
-                        MessageManager.getInstance().setMessageChange(true);
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
+                        //置顶通知刷新，面打扰在activity onStop时再刷新，避免快速点击开关的时候，造成刷新异常
+                        if (isTop) {
+                            MessageManager.getInstance().setMessageChange(true);
+                            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
+                        }
                     }
                 }
                 cb.onResponse(call, response);

@@ -1218,7 +1218,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 Log.v(ChatActivity.class.getSimpleName(), "上传语音成功--" + url);
                 VoiceMessage voice = bean.getVoiceMessage();
                 voice.setUrl(url);
-                SocketData.sendMessage(bean);
+                SocketData.sendAndSaveMessage(bean);
             }
 
             @Override

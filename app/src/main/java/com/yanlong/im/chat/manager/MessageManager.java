@@ -514,7 +514,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, int count) {
-        System.out.println(TAG + "--更新Session--updateSessionUnread--count=" + count);
+        System.out.println(TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
         msgDao.sessionReadUpdate(gid, from_uid, count);
     }
 

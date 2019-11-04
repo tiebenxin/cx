@@ -106,7 +106,7 @@ public class UpLoadService extends Service {
 
 //                ImageMessage image = SocketData.createImageMessage(id, url, isOriginal, img);
 //                MsgAllBean msgBean = SocketData.createMessageBean(toUId, toGid, ChatEnum.EMessageType.IMAGE, ChatEnum.ESendStatus.SENDING, time, image);
-//                SocketData.sendMessage(msgBean);
+//                SocketData.sendAndSaveMessage(msgBean);
 //                SocketData.saveMessage(msgBean);
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
