@@ -1916,6 +1916,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else if (event.getState() == 1) {
             //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+//            if (msgAllbean.getVideoMessage()!=null&&msgAllbean.getVideoMessage().getLocalUrl()!=null){
+//                                        MsgDao dao = new MsgDao();
+//                        dao.fixVideoLocalUrl(msgAllbean.getMsg_id(), msgAllbean.getVideoMessage().getLocalUrl());
+//            }
             replaceListDataAndNotify(msgAllbean);
         } else {
             //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgId());

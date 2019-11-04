@@ -161,7 +161,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             @Override
             public void run() {
 
-                //获取歌曲的进度
                 if (null!=mMediaPlayer){
                     try {
                         currentTime = mMediaPlayer.getCurrentPosition();
@@ -171,7 +170,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         timer.cancel();
                     }
                 }
-                //将获取歌曲的进度赋值给seekbar
 //                activity_video_seek.setProgress(p);
             }
         }, 0, 1000);
