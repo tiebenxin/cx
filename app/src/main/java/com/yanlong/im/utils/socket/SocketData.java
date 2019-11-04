@@ -267,6 +267,9 @@ public class SocketData {
             //移除旧消息
             DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
 
+            if (msgAllBean.getVideoMessage()!=null){
+                msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
+            }
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
             MsgDao msgDao = new MsgDao();
@@ -309,7 +312,9 @@ public class SocketData {
             //移除旧消息// 7.16 通过msgid 判断唯一
             DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
             // DaoUtil.deleteOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
-
+            if (msgAllBean.getVideoMessage()!=null){
+                msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
+            }
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
             MsgDao msgDao = new MsgDao();
@@ -725,8 +730,10 @@ public class SocketData {
      * @param url
      * @return
      */
-    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
+    private static String videoLocalUrl=null;
+    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height,String videoLocalPath) {
         MsgBean.ShortVideoMessage msg;
+        videoLocalUrl=videoLocalPath;
 //        String extTh = "/below-20k";
 //        String extPv = "/below-200k";
 //        if (url.toLowerCase().contains(".gif")) {
