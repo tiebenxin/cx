@@ -1329,9 +1329,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             txtVoice.setVisibility(View.GONE);
             btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_vio));
             edtChat.setVisibility(View.VISIBLE);
-            if(StringUtil.isNotNull(edtChat.getText().toString())){
+            if (StringUtil.isNotNull(edtChat.getText().toString())) {
                 btnSend.setVisibility(VISIBLE);
-            }else{
+            } else {
                 btnSend.setVisibility(GONE);
             }
         }
@@ -2011,7 +2011,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
             msgListData.get(position).setSend_state(ChatEnum.ESendStatus.NORMAL);
-            ((ChatItemView)mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
+            ((ChatItemView) mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
 //            setErr;
             if (!isNewAdapter) {
                 msgListData.set(position, msgAllbean);
@@ -2332,12 +2332,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (isGroup()) {//群聊显示昵称
 
                 //6.14 这里有性能问题
-                if (StringUtil.isNotNull(msgbean.getFrom_group_nickname())){
+                if (StringUtil.isNotNull(msgbean.getFrom_group_nickname())) {
                     nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_group_nickname();
-                }else{
+                } else {
                     nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
                 }
-             //fusinfo.getName();
+                //fusinfo.getName();
 //                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();//fusinfo.getName();
 
 
@@ -2367,6 +2367,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
 
                         }
+                        scrollListView(true);
                         return true;
                     }
                 });
@@ -3416,7 +3417,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (needRefresh) {
             needRefresh = false;
         }
-        Log.d("1212","taskRefreshMessage()");
+        Log.d("1212", "taskRefreshMessage()");
         System.out.println(TAG + "--taskRefreshMessage");
         long time = -1L;
         int length = 0;
