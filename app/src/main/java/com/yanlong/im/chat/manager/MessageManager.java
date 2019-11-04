@@ -39,6 +39,7 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -57,6 +58,7 @@ import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_GROUP;
 import static com.yanlong.im.utils.socket.SocketData.createMsgBean;
+import static com.yanlong.im.utils.socket.SocketData.createMsgBeanOfNotice;
 import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 
 /**
@@ -274,12 +276,20 @@ public class MessageManager {
                 }
                 int survivalTime = wrapMessage.getChangeSurvivalTime().getSurvivalTime();
                 if (!TextUtils.isEmpty(wrapMessage.getGid())) {
-                    wrapMessage.getMsgId();
+                    userDao.updateGroupReadDestroy(wrapMessage.getGid(),survivalTime);
                 } else {
                     userDao.updateReadDestroy(wrapMessage.getFromUid(), survivalTime);
                 }
                 EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
                 break;
+            case READ://已读消息
+                LogUtil.getLog().d(TAG,"已读消息:"+wrapMessage.getRead().getTimestamp());
+                msgDao.setUpdateRead(wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
+                break;
+            case SWITCH_CHANGE: //开关变更
+                LogUtil.getLog().d(TAG,"开关变更:"+wrapMessage.getSwitchChange().getSwitchType());
+                break;
+
         }
         //刷新单个
         if (result && !isList && bean != null) {

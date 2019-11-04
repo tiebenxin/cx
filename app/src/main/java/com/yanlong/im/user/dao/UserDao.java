@@ -3,6 +3,7 @@ package com.yanlong.im.user.dao;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.bumptech.glide.gifdecoder.GifDecoder;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.bean.UserInfo;
@@ -91,6 +92,28 @@ public class UserDao {
         }
     }
 
+
+    /***
+     * 更新群阅后即焚状态
+     */
+    public void updateGroupReadDestroy(String gid, int type){
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                group.setSurvivaltime(type);
+                realm.insertOrUpdate(group);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+
+    }
+
     /**
      * 获取阅后即焚状态
      * */
@@ -99,11 +122,9 @@ public class UserDao {
         try {
             if (TextUtils.isEmpty(gid)) {
                 UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-
                 return userInfo.getDestroy();
             } else {
                 Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-                realm.close();
                 return group.getSurvivaltime();
             }
         } catch (Exception e) {

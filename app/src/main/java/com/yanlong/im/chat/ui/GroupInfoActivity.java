@@ -37,6 +37,7 @@ import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
@@ -219,18 +220,6 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (!isAdmin()) {
-//                    ToastUtil.show(getContext(), "非群主无法修改");
-//                    return;
-//                }
-//                Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
-//                intent.putExtra(CommonSetingActivity.TITLE, "修改群公告");
-//                intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
-//                intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
-//                intent.putExtra(CommonSetingActivity.TYPE_LINE, 1);
-//                intent.putExtra(CommonSetingActivity.SIZE, 500);
-//                intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
-//                startActivityForResult(intent, GROUP_NOTE);
                 ginfo.getMaster();
                 if (isAdmin()) {
                     Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
@@ -327,12 +316,27 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
-        if (!isAdmin()) {
 
-        }
+        viewDestroyTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isAdmin()){
+                    ToastUtil.show(context,"只有群主才能修改该选项");
+                    return;
+                }
+                DestroyTimeView destroyTimeView = new DestroyTimeView(GroupInfoActivity.this);
+                destroyTimeView.initView();
+                destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
+                    @Override
+                    public void onClickItem(String content, int survivaltime) {
+                        tvDestroyTime.setText(content);
+                        changeSurvivalTime(gid,survivaltime);
+                    }
+                });
+            }
+        });
 
     }
-
 
 
 
@@ -342,11 +346,6 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        //  setResult(ChatActivity.REQ_REFRESH);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -362,11 +361,6 @@ public class GroupInfoActivity extends AppActivity {
         initEvent();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        changeSurvivalTime(gid,destroyTime);
-    }
 
     @Override
     protected void onDestroy() {
@@ -435,7 +429,8 @@ public class GroupInfoActivity extends AppActivity {
 
 
         destroyTime = ginfo.getSurvivaltime();
-
+        String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+        tvDestroyTime.setText(content);
     }
 
     private List<MemberUser> listDataTop = new ArrayList<>();
@@ -898,8 +893,7 @@ public class GroupInfoActivity extends AppActivity {
                     return;
                 }
                 if (response.body().isOk()) {
-                  //  userDao.updateReadDestroy(fuid, survivalTime);
-                    // ToastUtil.show(context,"设置成功");
+                    userDao.updateGroupReadDestroy(gid, survivalTime);
                 }
             }
         });

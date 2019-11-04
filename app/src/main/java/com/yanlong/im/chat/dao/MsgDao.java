@@ -196,13 +196,15 @@ public class MsgDao {
 
     /**
      * 设置阅后即焚销毁时间
-     * */
+     */
     public void setMsgEndTime(long time, String msgid) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class)
                 .equalTo("msg_id", msgid).findFirst();
-        msgAllBean.setEndTime(time);
+        if (msgAllBean != null) {
+            msgAllBean.setEndTime(time);
+        }
         realm.insertOrUpdate(msgAllBean);
         realm.commitTransaction();
         realm.close();
@@ -1408,6 +1410,30 @@ public class MsgDao {
         return ret;
     }
 
+    /**
+     * 获取最后一条收到的消息
+     */
+    public MsgAllBean msgGetLast4FromUid(Long uid) {
+        MsgAllBean ret = null;
+        Realm realm = DaoUtil.open();
+        try {
+            MsgAllBean bean = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").and().isNotNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("from_uid", uid).endGroup()
+                    .sort("timestamp", Sort.DESCENDING).findFirst();
+            if (bean != null) {
+                ret = realm.copyFromRealm(bean);
+            }
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+        return ret;
+    }
+
+
     /***
      * 获取群最后的消息
      * @param uid
@@ -1430,7 +1456,6 @@ public class MsgDao {
             e.printStackTrace();
             DaoUtil.close(realm);
         }
-
         return ret;
     }
 
@@ -1451,6 +1476,36 @@ public class MsgDao {
         realm.close();
         return ret;
     }
+
+    /**
+     * 更新已读状态
+     */
+    public void setUpdateRead(long uid, long timestamp) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        try {
+            List<MsgAllBean> list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").and().isNotNull("gid").endGroup()
+                    .and()
+                    .beginGroup().equalTo("to_uid", uid).endGroup()
+                    .sort("timestamp", Sort.DESCENDING).findAll();
+            if (list != null) {
+                for (int i = 0; i < list.size(); i++) {
+                    MsgAllBean msgAllBean = list.get(i);
+                    if(msgAllBean.getTimestamp() <= timestamp && msgAllBean.getRead() == 0){
+                        msgAllBean.setRead(1);
+                    }
+                }
+                realm.insertOrUpdate(list);
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+    }
+
 
     /***
      * 保存群状态

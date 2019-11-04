@@ -22,7 +22,6 @@ import com.example.nim_lib.ui.VideoActivity;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.example.nim_lib.ui.VoiceCallActivity;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;

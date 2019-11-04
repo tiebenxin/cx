@@ -364,12 +364,12 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 }
             }
             if (edtChat.isAtAll()) {
-                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 1, edtChat.getUserIdList(),survivalTime);
+                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 1, edtChat.getUserIdList());
 //                showSendObj(msgAllbean);
                 loadAndSetData();
                 edtChat.getText().clear();
             } else {
-                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 0, edtChat.getUserIdList(),survivalTime);
+                MsgAllBean msgAllbean = SocketData.send4At(model.getUid(), model.getGid(), text, 0, edtChat.getUserIdList());
 //                showSendObj(msgAllbean);
                 loadAndSetData();
                 edtChat.getText().clear();
@@ -523,7 +523,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
             public void onYes(String content) {
                 if (!TextUtils.isEmpty(content)) {
                     //发送普通消息
-                    MsgAllBean msgAllbean = SocketData.send4action(model.getUid(), model.getGid(), content,survivalTime);
+                    MsgAllBean msgAllbean = SocketData.send4action(model.getUid(), model.getGid(), content);
 //                    showSendObj(msgAllbean);
                     loadAndSetData();
                 } else {

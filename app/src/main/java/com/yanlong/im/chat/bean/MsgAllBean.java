@@ -34,6 +34,7 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private Long to_uid;
     //   private UserInfo to_user;
     private String gid;
+    private int read = 0; //已读
 
     @ChatEnum.EMessageType
     private Integer msg_type;
@@ -52,6 +53,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public int getSurvival_time() {
         return survival_time;
+    }
+
+    public int getRead() {
+        return read;
+    }
+
+    public void setRead(int read) {
+        this.read = read;
     }
 
     public void setSurvival_time(int survival_time) {

@@ -153,7 +153,6 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewReadDestroy;
     private TextView txtReadDestroy;
     private ImageView imgReadDestroy;
-    private TextView tvChangeTime;
     private ImageView imgMeErrOt;
 
     private LinearLayout viewMeVoiceVideo;
@@ -260,7 +259,6 @@ public class ChatItemView extends LinearLayout {
         viewReadDestroy = rootView.findViewById(R.id.view_read_destroy);
         txtReadDestroy = rootView.findViewById(R.id.txt_read_destroy);
         imgReadDestroy = rootView.findViewById(R.id.img_read_destroy);
-        tvChangeTime = rootView.findViewById(R.id.tv_change_time);
 
         imgMeErrOt = rootView.findViewById(R.id.img_me_err_ot);
     }
@@ -970,28 +968,13 @@ public class ChatItemView extends LinearLayout {
     }
 
     private Context mContext;
-    public void setReadDestroy(String gid, long uid, int type, String info, Context context) {
+    public void setReadDestroy(String gid, long uid, int type, String info) {
         txtReadDestroy.setText(info);
         if (type == 0) {
             imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
         } else {
             imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_seting);
         }
-        tvChangeTime.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                if (!TextUtils.isEmpty(gid)) {
-                    intent.putExtra(GroupInfoActivity.AGM_GID, gid);
-                    intent.setClass(context, GroupInfoActivity.class);
-                } else {
-                    intent.putExtra(ChatInfoActivity.AGM_FUID, uid);
-                    intent.setClass(context, ChatInfoActivity.class);
-
-                }
-                context.startActivity(intent);
-            }
-        });
     }
 
 

@@ -236,6 +236,14 @@ public final class MsgBean {
         P2P_AU_VIDEO_DIAL(119),
         /**
          * <pre>
+         *已读消息
+         * </pre>
+         *
+         * <code>READ = 120;</code>
+         */
+        READ(120),
+        /**
+         * <pre>
          * 强制下线
          * </pre>
          *
@@ -258,6 +266,14 @@ public final class MsgBean {
          * <code>RESOURCE_LOCK = 202;</code>
          */
         RESOURCE_LOCK(202),
+        /**
+         * <pre>
+         *开关变更
+         * </pre>
+         *
+         * <code>SWITCH_CHANGE = 203;</code>
+         */
+        SWITCH_CHANGE(203),
         UNRECOGNIZED(-1),
         ;
 
@@ -474,6 +490,14 @@ public final class MsgBean {
         public static final int P2P_AU_VIDEO_DIAL_VALUE = 119;
         /**
          * <pre>
+         *已读消息
+         * </pre>
+         *
+         * <code>READ = 120;</code>
+         */
+        public static final int READ_VALUE = 120;
+        /**
+         * <pre>
          * 强制下线
          * </pre>
          *
@@ -496,6 +520,14 @@ public final class MsgBean {
          * <code>RESOURCE_LOCK = 202;</code>
          */
         public static final int RESOURCE_LOCK_VALUE = 202;
+        /**
+         * <pre>
+         *开关变更
+         * </pre>
+         *
+         * <code>SWITCH_CHANGE = 203;</code>
+         */
+        public static final int SWITCH_CHANGE_VALUE = 203;
 
 
         public final int getNumber() {
@@ -542,9 +574,11 @@ public final class MsgBean {
                 case 113: return CHANGE_SURVIVAL_TIME;
                 case 118: return P2P_AU_VIDEO;
                 case 119: return P2P_AU_VIDEO_DIAL;
+                case 120: return READ;
                 case 200: return FORCE_OFFLINE;
                 case 201: return ACTIVE_STAT_CHANGE;
                 case 202: return RESOURCE_LOCK;
+                case 203: return SWITCH_CHANGE;
                 default: return null;
             }
         }
@@ -24448,6 +24482,1207 @@ public final class MsgBean {
 
     }
 
+    public interface ReadMessageOrBuilder extends
+            // @@protoc_insertion_point(interface_extends:ReadMessage)
+            com.google.protobuf.MessageOrBuilder {
+
+        /**
+         * <pre>
+         * 时间戳
+         * </pre>
+         *
+         * <code>uint64 timestamp = 1;</code>
+         */
+        long getTimestamp();
+    }
+    /**
+     * <pre>
+     * 已读通知
+     * </pre>
+     *
+     * Protobuf type {@code ReadMessage}
+     */
+    public  static final class ReadMessage extends
+            com.google.protobuf.GeneratedMessageV3 implements
+            // @@protoc_insertion_point(message_implements:ReadMessage)
+            ReadMessageOrBuilder {
+        private static final long serialVersionUID = 0L;
+        // Use ReadMessage.newBuilder() to construct.
+        private ReadMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+        private ReadMessage() {
+            timestamp_ = 0L;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+        private ReadMessage(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            if (extensionRegistry == null) {
+                throw new java.lang.NullPointerException();
+            }
+            int mutable_bitField0_ = 0;
+            com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+                    com.google.protobuf.UnknownFieldSet.newBuilder();
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!parseUnknownFieldProto3(
+                                    input, unknownFields, extensionRegistry, tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 8: {
+
+                            timestamp_ = input.readUInt64();
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(
+                        e).setUnfinishedMessage(this);
+            } finally {
+                this.unknownFields = unknownFields.build();
+                makeExtensionsImmutable();
+            }
+        }
+        public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+            return com.yanlong.im.utils.socket.MsgBean.internal_static_ReadMessage_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return com.yanlong.im.utils.socket.MsgBean.internal_static_ReadMessage_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            com.yanlong.im.utils.socket.MsgBean.ReadMessage.class, com.yanlong.im.utils.socket.MsgBean.ReadMessage.Builder.class);
+        }
+
+        public static final int TIMESTAMP_FIELD_NUMBER = 1;
+        private long timestamp_;
+        /**
+         * <pre>
+         * 时间戳
+         * </pre>
+         *
+         * <code>uint64 timestamp = 1;</code>
+         */
+        public long getTimestamp() {
+            return timestamp_;
+        }
+
+        private byte memoizedIsInitialized = -1;
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1) return true;
+            if (isInitialized == 0) return false;
+
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            if (timestamp_ != 0L) {
+                output.writeUInt64(1, timestamp_);
+            }
+            unknownFields.writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (timestamp_ != 0L) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(1, timestamp_);
+            }
+            size += unknownFields.getSerializedSize();
+            memoizedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.ReadMessage)) {
+                return super.equals(obj);
+            }
+            com.yanlong.im.utils.socket.MsgBean.ReadMessage other = (com.yanlong.im.utils.socket.MsgBean.ReadMessage) obj;
+
+            boolean result = true;
+            result = result && (getTimestamp()
+                    == other.getTimestamp());
+            result = result && unknownFields.equals(other.unknownFields);
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptor().hashCode();
+            hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
+            hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+                    getTimestamp());
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(
+                java.nio.ByteBuffer data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(
+                java.nio.ByteBuffer data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(
+                com.google.protobuf.ByteString data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(
+                com.google.protobuf.ByteString data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(byte[] data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(
+                byte[] data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseDelimitedFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseDelimitedFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(
+                com.google.protobuf.CodedInputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage parseFrom(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+        public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.ReadMessage prototype) {
+            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        }
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE
+                    ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(
+                com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+        /**
+         * <pre>
+         * 已读通知
+         * </pre>
+         *
+         * Protobuf type {@code ReadMessage}
+         */
+        public static final class Builder extends
+                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+                // @@protoc_insertion_point(builder_implements:ReadMessage)
+                com.yanlong.im.utils.socket.MsgBean.ReadMessageOrBuilder {
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_ReadMessage_descriptor;
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_ReadMessage_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                com.yanlong.im.utils.socket.MsgBean.ReadMessage.class, com.yanlong.im.utils.socket.MsgBean.ReadMessage.Builder.class);
+            }
+
+            // Construct using com.yanlong.im.utils.socket.MsgBean.ReadMessage.newBuilder()
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
+
+            private Builder(
+                    com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3
+                        .alwaysUseFieldBuilders) {
+                }
+            }
+            public Builder clear() {
+                super.clear();
+                timestamp_ = 0L;
+
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_ReadMessage_descriptor;
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.ReadMessage getDefaultInstanceForType() {
+                return com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance();
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.ReadMessage build() {
+                com.yanlong.im.utils.socket.MsgBean.ReadMessage result = buildPartial();
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.ReadMessage buildPartial() {
+                com.yanlong.im.utils.socket.MsgBean.ReadMessage result = new com.yanlong.im.utils.socket.MsgBean.ReadMessage(this);
+                result.timestamp_ = timestamp_;
+                onBuilt();
+                return result;
+            }
+
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+            public Builder setField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    java.lang.Object value) {
+                return (Builder) super.setField(field, value);
+            }
+            public Builder clearField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+            public Builder clearOneof(
+                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+            public Builder setRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    int index, java.lang.Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+            public Builder addRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    java.lang.Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+            public Builder mergeFrom(com.google.protobuf.Message other) {
+                if (other instanceof com.yanlong.im.utils.socket.MsgBean.ReadMessage) {
+                    return mergeFrom((com.yanlong.im.utils.socket.MsgBean.ReadMessage)other);
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
+
+            public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.ReadMessage other) {
+                if (other == com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance()) return this;
+                if (other.getTimestamp() != 0L) {
+                    setTimestamp(other.getTimestamp());
+                }
+                this.mergeUnknownFields(other.unknownFields);
+                onChanged();
+                return this;
+            }
+
+            public final boolean isInitialized() {
+                return true;
+            }
+
+            public Builder mergeFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws java.io.IOException {
+                com.yanlong.im.utils.socket.MsgBean.ReadMessage parsedMessage = null;
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                    parsedMessage = (com.yanlong.im.utils.socket.MsgBean.ReadMessage) e.getUnfinishedMessage();
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            private long timestamp_ ;
+            /**
+             * <pre>
+             * 时间戳
+             * </pre>
+             *
+             * <code>uint64 timestamp = 1;</code>
+             */
+            public long getTimestamp() {
+                return timestamp_;
+            }
+            /**
+             * <pre>
+             * 时间戳
+             * </pre>
+             *
+             * <code>uint64 timestamp = 1;</code>
+             */
+            public Builder setTimestamp(long value) {
+
+                timestamp_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 时间戳
+             * </pre>
+             *
+             * <code>uint64 timestamp = 1;</code>
+             */
+            public Builder clearTimestamp() {
+
+                timestamp_ = 0L;
+                onChanged();
+                return this;
+            }
+            public final Builder setUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.setUnknownFieldsProto3(unknownFields);
+            }
+
+            public final Builder mergeUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.mergeUnknownFields(unknownFields);
+            }
+
+
+            // @@protoc_insertion_point(builder_scope:ReadMessage)
+        }
+
+        // @@protoc_insertion_point(class_scope:ReadMessage)
+        private static final com.yanlong.im.utils.socket.MsgBean.ReadMessage DEFAULT_INSTANCE;
+        static {
+            DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.ReadMessage();
+        }
+
+        public static com.yanlong.im.utils.socket.MsgBean.ReadMessage getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        private static final com.google.protobuf.Parser<ReadMessage>
+                PARSER = new com.google.protobuf.AbstractParser<ReadMessage>() {
+            public ReadMessage parsePartialFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws com.google.protobuf.InvalidProtocolBufferException {
+                return new ReadMessage(input, extensionRegistry);
+            }
+        };
+
+        public static com.google.protobuf.Parser<ReadMessage> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<ReadMessage> getParserForType() {
+            return PARSER;
+        }
+
+        public com.yanlong.im.utils.socket.MsgBean.ReadMessage getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+    }
+
+    public interface SwitchChangeMessageOrBuilder extends
+            // @@protoc_insertion_point(interface_extends:SwitchChangeMessage)
+            com.google.protobuf.MessageOrBuilder {
+
+        /**
+         * <pre>
+         * 变更类型
+         * </pre>
+         *
+         * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+         */
+        int getSwitchTypeValue();
+        /**
+         * <pre>
+         * 变更类型
+         * </pre>
+         *
+         * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+         */
+        com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType getSwitchType();
+
+        /**
+         * <pre>
+         *开关值
+         * </pre>
+         *
+         * <code>uint32 switch_value = 2;</code>
+         */
+        int getSwitchValue();
+    }
+    /**
+     * <pre>
+     * 开关变更通知
+     * </pre>
+     *
+     * Protobuf type {@code SwitchChangeMessage}
+     */
+    public  static final class SwitchChangeMessage extends
+            com.google.protobuf.GeneratedMessageV3 implements
+            // @@protoc_insertion_point(message_implements:SwitchChangeMessage)
+            SwitchChangeMessageOrBuilder {
+        private static final long serialVersionUID = 0L;
+        // Use SwitchChangeMessage.newBuilder() to construct.
+        private SwitchChangeMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+            super(builder);
+        }
+        private SwitchChangeMessage() {
+            switchType_ = 0;
+            switchValue_ = 0;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+        private SwitchChangeMessage(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            this();
+            if (extensionRegistry == null) {
+                throw new java.lang.NullPointerException();
+            }
+            int mutable_bitField0_ = 0;
+            com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+                    com.google.protobuf.UnknownFieldSet.newBuilder();
+            try {
+                boolean done = false;
+                while (!done) {
+                    int tag = input.readTag();
+                    switch (tag) {
+                        case 0:
+                            done = true;
+                            break;
+                        default: {
+                            if (!parseUnknownFieldProto3(
+                                    input, unknownFields, extensionRegistry, tag)) {
+                                done = true;
+                            }
+                            break;
+                        }
+                        case 8: {
+                            int rawValue = input.readEnum();
+
+                            switchType_ = rawValue;
+                            break;
+                        }
+                        case 16: {
+
+                            switchValue_ = input.readUInt32();
+                            break;
+                        }
+                    }
+                }
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(this);
+            } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(
+                        e).setUnfinishedMessage(this);
+            } finally {
+                this.unknownFields = unknownFields.build();
+                makeExtensionsImmutable();
+            }
+        }
+        public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+            return com.yanlong.im.utils.socket.MsgBean.internal_static_SwitchChangeMessage_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return com.yanlong.im.utils.socket.MsgBean.internal_static_SwitchChangeMessage_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.class, com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.Builder.class);
+        }
+
+        /**
+         * Protobuf enum {@code SwitchChangeMessage.SwitchType}
+         */
+        public enum SwitchType
+                implements com.google.protobuf.ProtocolMessageEnum {
+            /**
+             * <pre>
+             * 单聊已读
+             * </pre>
+             *
+             * <code>READ = 0;</code>
+             */
+            READ(0),
+            /**
+             * <pre>
+             * vip变更
+             * </pre>
+             *
+             * <code>VIP = 1;</code>
+             */
+            VIP(1),
+            UNRECOGNIZED(-1),
+            ;
+
+            /**
+             * <pre>
+             * 单聊已读
+             * </pre>
+             *
+             * <code>READ = 0;</code>
+             */
+            public static final int READ_VALUE = 0;
+            /**
+             * <pre>
+             * vip变更
+             * </pre>
+             *
+             * <code>VIP = 1;</code>
+             */
+            public static final int VIP_VALUE = 1;
+
+
+            public final int getNumber() {
+                if (this == UNRECOGNIZED) {
+                    throw new java.lang.IllegalArgumentException(
+                            "Can't get the number of an unknown enum value.");
+                }
+                return value;
+            }
+
+            /**
+             * @deprecated Use {@link #forNumber(int)} instead.
+             */
+            @java.lang.Deprecated
+            public static SwitchType valueOf(int value) {
+                return forNumber(value);
+            }
+
+            public static SwitchType forNumber(int value) {
+                switch (value) {
+                    case 0: return READ;
+                    case 1: return VIP;
+                    default: return null;
+                }
+            }
+
+            public static com.google.protobuf.Internal.EnumLiteMap<SwitchType>
+            internalGetValueMap() {
+                return internalValueMap;
+            }
+            private static final com.google.protobuf.Internal.EnumLiteMap<
+                    SwitchType> internalValueMap =
+                    new com.google.protobuf.Internal.EnumLiteMap<SwitchType>() {
+                        public SwitchType findValueByNumber(int number) {
+                            return SwitchType.forNumber(number);
+                        }
+                    };
+
+            public final com.google.protobuf.Descriptors.EnumValueDescriptor
+            getValueDescriptor() {
+                return getDescriptor().getValues().get(ordinal());
+            }
+            public final com.google.protobuf.Descriptors.EnumDescriptor
+            getDescriptorForType() {
+                return getDescriptor();
+            }
+            public static final com.google.protobuf.Descriptors.EnumDescriptor
+            getDescriptor() {
+                return com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDescriptor().getEnumTypes().get(0);
+            }
+
+            private static final SwitchType[] VALUES = values();
+
+            public static SwitchType valueOf(
+                    com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+                if (desc.getType() != getDescriptor()) {
+                    throw new java.lang.IllegalArgumentException(
+                            "EnumValueDescriptor is not for this type.");
+                }
+                if (desc.getIndex() == -1) {
+                    return UNRECOGNIZED;
+                }
+                return VALUES[desc.getIndex()];
+            }
+
+            private final int value;
+
+            private SwitchType(int value) {
+                this.value = value;
+            }
+
+            // @@protoc_insertion_point(enum_scope:SwitchChangeMessage.SwitchType)
+        }
+
+        public static final int SWITCH_TYPE_FIELD_NUMBER = 1;
+        private int switchType_;
+        /**
+         * <pre>
+         * 变更类型
+         * </pre>
+         *
+         * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+         */
+        public int getSwitchTypeValue() {
+            return switchType_;
+        }
+        /**
+         * <pre>
+         * 变更类型
+         * </pre>
+         *
+         * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+         */
+        public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType getSwitchType() {
+            com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType result = com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType.valueOf(switchType_);
+            return result == null ? com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED : result;
+        }
+
+        public static final int SWITCH_VALUE_FIELD_NUMBER = 2;
+        private int switchValue_;
+        /**
+         * <pre>
+         *开关值
+         * </pre>
+         *
+         * <code>uint32 switch_value = 2;</code>
+         */
+        public int getSwitchValue() {
+            return switchValue_;
+        }
+
+        private byte memoizedIsInitialized = -1;
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized == 1) return true;
+            if (isInitialized == 0) return false;
+
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            if (switchType_ != com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType.READ.getNumber()) {
+                output.writeEnum(1, switchType_);
+            }
+            if (switchValue_ != 0) {
+                output.writeUInt32(2, switchValue_);
+            }
+            unknownFields.writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (switchType_ != com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType.READ.getNumber()) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeEnumSize(1, switchType_);
+            }
+            if (switchValue_ != 0) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt32Size(2, switchValue_);
+            }
+            size += unknownFields.getSerializedSize();
+            memoizedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        public boolean equals(final java.lang.Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage)) {
+                return super.equals(obj);
+            }
+            com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage other = (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) obj;
+
+            boolean result = true;
+            result = result && switchType_ == other.switchType_;
+            result = result && (getSwitchValue()
+                    == other.getSwitchValue());
+            result = result && unknownFields.equals(other.unknownFields);
+            return result;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            if (memoizedHashCode != 0) {
+                return memoizedHashCode;
+            }
+            int hash = 41;
+            hash = (19 * hash) + getDescriptor().hashCode();
+            hash = (37 * hash) + SWITCH_TYPE_FIELD_NUMBER;
+            hash = (53 * hash) + switchType_;
+            hash = (37 * hash) + SWITCH_VALUE_FIELD_NUMBER;
+            hash = (53 * hash) + getSwitchValue();
+            hash = (29 * hash) + unknownFields.hashCode();
+            memoizedHashCode = hash;
+            return hash;
+        }
+
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(
+                java.nio.ByteBuffer data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(
+                java.nio.ByteBuffer data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(
+                com.google.protobuf.ByteString data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(
+                com.google.protobuf.ByteString data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(byte[] data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(
+                byte[] data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseDelimitedFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseDelimitedFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(
+                com.google.protobuf.CodedInputStream input)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input);
+        }
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parseFrom(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return com.google.protobuf.GeneratedMessageV3
+                    .parseWithIOException(PARSER, input, extensionRegistry);
+        }
+
+        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return DEFAULT_INSTANCE.toBuilder();
+        }
+        public static Builder newBuilder(com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage prototype) {
+            return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        }
+        public Builder toBuilder() {
+            return this == DEFAULT_INSTANCE
+                    ? new Builder() : new Builder().mergeFrom(this);
+        }
+
+        @java.lang.Override
+        protected Builder newBuilderForType(
+                com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            Builder builder = new Builder(parent);
+            return builder;
+        }
+        /**
+         * <pre>
+         * 开关变更通知
+         * </pre>
+         *
+         * Protobuf type {@code SwitchChangeMessage}
+         */
+        public static final class Builder extends
+                com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+                // @@protoc_insertion_point(builder_implements:SwitchChangeMessage)
+                com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessageOrBuilder {
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_SwitchChangeMessage_descriptor;
+            }
+
+            protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_SwitchChangeMessage_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.class, com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.Builder.class);
+            }
+
+            // Construct using com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.newBuilder()
+            private Builder() {
+                maybeForceBuilderInitialization();
+            }
+
+            private Builder(
+                    com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+                super(parent);
+                maybeForceBuilderInitialization();
+            }
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessageV3
+                        .alwaysUseFieldBuilders) {
+                }
+            }
+            public Builder clear() {
+                super.clear();
+                switchType_ = 0;
+
+                switchValue_ = 0;
+
+                return this;
+            }
+
+            public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+                return com.yanlong.im.utils.socket.MsgBean.internal_static_SwitchChangeMessage_descriptor;
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage getDefaultInstanceForType() {
+                return com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance();
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage build() {
+                com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage result = buildPartial();
+                if (!result.isInitialized()) {
+                    throw newUninitializedMessageException(result);
+                }
+                return result;
+            }
+
+            public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage buildPartial() {
+                com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage result = new com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage(this);
+                result.switchType_ = switchType_;
+                result.switchValue_ = switchValue_;
+                onBuilt();
+                return result;
+            }
+
+            public Builder clone() {
+                return (Builder) super.clone();
+            }
+            public Builder setField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    java.lang.Object value) {
+                return (Builder) super.setField(field, value);
+            }
+            public Builder clearField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field) {
+                return (Builder) super.clearField(field);
+            }
+            public Builder clearOneof(
+                    com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+                return (Builder) super.clearOneof(oneof);
+            }
+            public Builder setRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    int index, java.lang.Object value) {
+                return (Builder) super.setRepeatedField(field, index, value);
+            }
+            public Builder addRepeatedField(
+                    com.google.protobuf.Descriptors.FieldDescriptor field,
+                    java.lang.Object value) {
+                return (Builder) super.addRepeatedField(field, value);
+            }
+            public Builder mergeFrom(com.google.protobuf.Message other) {
+                if (other instanceof com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) {
+                    return mergeFrom((com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage)other);
+                } else {
+                    super.mergeFrom(other);
+                    return this;
+                }
+            }
+
+            public Builder mergeFrom(com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage other) {
+                if (other == com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance()) return this;
+                if (other.switchType_ != 0) {
+                    setSwitchTypeValue(other.getSwitchTypeValue());
+                }
+                if (other.getSwitchValue() != 0) {
+                    setSwitchValue(other.getSwitchValue());
+                }
+                this.mergeUnknownFields(other.unknownFields);
+                onChanged();
+                return this;
+            }
+
+            public final boolean isInitialized() {
+                return true;
+            }
+
+            public Builder mergeFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws java.io.IOException {
+                com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage parsedMessage = null;
+                try {
+                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                    parsedMessage = (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) e.getUnfinishedMessage();
+                    throw e.unwrapIOException();
+                } finally {
+                    if (parsedMessage != null) {
+                        mergeFrom(parsedMessage);
+                    }
+                }
+                return this;
+            }
+
+            private int switchType_ = 0;
+            /**
+             * <pre>
+             * 变更类型
+             * </pre>
+             *
+             * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+             */
+            public int getSwitchTypeValue() {
+                return switchType_;
+            }
+            /**
+             * <pre>
+             * 变更类型
+             * </pre>
+             *
+             * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+             */
+            public Builder setSwitchTypeValue(int value) {
+                switchType_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 变更类型
+             * </pre>
+             *
+             * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType getSwitchType() {
+                com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType result = com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType.valueOf(switchType_);
+                return result == null ? com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType.UNRECOGNIZED : result;
+            }
+            /**
+             * <pre>
+             * 变更类型
+             * </pre>
+             *
+             * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+             */
+            public Builder setSwitchType(com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.SwitchType value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+
+                switchType_ = value.getNumber();
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             * 变更类型
+             * </pre>
+             *
+             * <code>.SwitchChangeMessage.SwitchType switch_type = 1;</code>
+             */
+            public Builder clearSwitchType() {
+
+                switchType_ = 0;
+                onChanged();
+                return this;
+            }
+
+            private int switchValue_ ;
+            /**
+             * <pre>
+             *开关值
+             * </pre>
+             *
+             * <code>uint32 switch_value = 2;</code>
+             */
+            public int getSwitchValue() {
+                return switchValue_;
+            }
+            /**
+             * <pre>
+             *开关值
+             * </pre>
+             *
+             * <code>uint32 switch_value = 2;</code>
+             */
+            public Builder setSwitchValue(int value) {
+
+                switchValue_ = value;
+                onChanged();
+                return this;
+            }
+            /**
+             * <pre>
+             *开关值
+             * </pre>
+             *
+             * <code>uint32 switch_value = 2;</code>
+             */
+            public Builder clearSwitchValue() {
+
+                switchValue_ = 0;
+                onChanged();
+                return this;
+            }
+            public final Builder setUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.setUnknownFieldsProto3(unknownFields);
+            }
+
+            public final Builder mergeUnknownFields(
+                    final com.google.protobuf.UnknownFieldSet unknownFields) {
+                return super.mergeUnknownFields(unknownFields);
+            }
+
+
+            // @@protoc_insertion_point(builder_scope:SwitchChangeMessage)
+        }
+
+        // @@protoc_insertion_point(class_scope:SwitchChangeMessage)
+        private static final com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage DEFAULT_INSTANCE;
+        static {
+            DEFAULT_INSTANCE = new com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage();
+        }
+
+        public static com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage getDefaultInstance() {
+            return DEFAULT_INSTANCE;
+        }
+
+        private static final com.google.protobuf.Parser<SwitchChangeMessage>
+                PARSER = new com.google.protobuf.AbstractParser<SwitchChangeMessage>() {
+            public SwitchChangeMessage parsePartialFrom(
+                    com.google.protobuf.CodedInputStream input,
+                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                    throws com.google.protobuf.InvalidProtocolBufferException {
+                return new SwitchChangeMessage(input, extensionRegistry);
+            }
+        };
+
+        public static com.google.protobuf.Parser<SwitchChangeMessage> parser() {
+            return PARSER;
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<SwitchChangeMessage> getParserForType() {
+            return PARSER;
+        }
+
+        public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage getDefaultInstanceForType() {
+            return DEFAULT_INSTANCE;
+        }
+
+    }
+
     public interface AckMessageOrBuilder extends
             // @@protoc_insertion_point(interface_extends:AckMessage)
             com.google.protobuf.MessageOrBuilder {
@@ -27124,6 +28359,19 @@ public final class MsgBean {
             com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessageOrBuilder getP2PAuVideoDialOrBuilder();
 
             /**
+             * <code>.ReadMessage read = 10220;</code>
+             */
+            boolean hasRead();
+            /**
+             * <code>.ReadMessage read = 10220;</code>
+             */
+            com.yanlong.im.utils.socket.MsgBean.ReadMessage getRead();
+            /**
+             * <code>.ReadMessage read = 10220;</code>
+             */
+            com.yanlong.im.utils.socket.MsgBean.ReadMessageOrBuilder getReadOrBuilder();
+
+            /**
              * <code>.ForceOfflineMessage force_offline = 10300;</code>
              */
             boolean hasForceOffline();
@@ -27161,6 +28409,19 @@ public final class MsgBean {
              * <code>.ResourceLockMessage resource_lock = 10302;</code>
              */
             com.yanlong.im.utils.socket.MsgBean.ResourceLockMessageOrBuilder getResourceLockOrBuilder();
+
+            /**
+             * <code>.SwitchChangeMessage switch_change = 10303;</code>
+             */
+            boolean hasSwitchChange();
+            /**
+             * <code>.SwitchChangeMessage switch_change = 10303;</code>
+             */
+            com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage getSwitchChange();
+            /**
+             * <code>.SwitchChangeMessage switch_change = 10303;</code>
+             */
+            com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessageOrBuilder getSwitchChangeOrBuilder();
 
             public com.yanlong.im.utils.socket.MsgBean.UniversalMessage.WrapMessage.RealMsgCase getRealMsgCase();
         }
@@ -27635,6 +28896,20 @@ public final class MsgBean {
                                 realMsgCase_ = 10219;
                                 break;
                             }
+                            case 81762: {
+                                com.yanlong.im.utils.socket.MsgBean.ReadMessage.Builder subBuilder = null;
+                                if (realMsgCase_ == 10220) {
+                                    subBuilder = ((com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_).toBuilder();
+                                }
+                                realMsg_ =
+                                        input.readMessage(com.yanlong.im.utils.socket.MsgBean.ReadMessage.parser(), extensionRegistry);
+                                if (subBuilder != null) {
+                                    subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_);
+                                    realMsg_ = subBuilder.buildPartial();
+                                }
+                                realMsgCase_ = 10220;
+                                break;
+                            }
                             case 82402: {
                                 com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder subBuilder = null;
                                 if (realMsgCase_ == 10300) {
@@ -27675,6 +28950,20 @@ public final class MsgBean {
                                     realMsg_ = subBuilder.buildPartial();
                                 }
                                 realMsgCase_ = 10302;
+                                break;
+                            }
+                            case 82426: {
+                                com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.Builder subBuilder = null;
+                                if (realMsgCase_ == 10303) {
+                                    subBuilder = ((com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_).toBuilder();
+                                }
+                                realMsg_ =
+                                        input.readMessage(com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.parser(), extensionRegistry);
+                                if (subBuilder != null) {
+                                    subBuilder.mergeFrom((com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_);
+                                    realMsg_ = subBuilder.buildPartial();
+                                }
+                                realMsgCase_ = 10303;
                                 break;
                             }
                         }
@@ -27731,9 +29020,11 @@ public final class MsgBean {
                 CHANGE_SURVIVAL_TIME(10213),
                 P2P_AU_VIDEO(10218),
                 P2P_AU_VIDEO_DIAL(10219),
+                READ(10220),
                 FORCE_OFFLINE(10300),
                 ACTIVE_STAT_CHANGE(10301),
                 RESOURCE_LOCK(10302),
+                SWITCH_CHANGE(10303),
                 REALMSG_NOT_SET(0);
                 private final int value;
                 private RealMsgCase(int value) {
@@ -27775,9 +29066,11 @@ public final class MsgBean {
                         case 10213: return CHANGE_SURVIVAL_TIME;
                         case 10218: return P2P_AU_VIDEO;
                         case 10219: return P2P_AU_VIDEO_DIAL;
+                        case 10220: return READ;
                         case 10300: return FORCE_OFFLINE;
                         case 10301: return ACTIVE_STAT_CHANGE;
                         case 10302: return RESOURCE_LOCK;
+                        case 10303: return SWITCH_CHANGE;
                         case 0: return REALMSG_NOT_SET;
                         default: return null;
                     }
@@ -28755,6 +30048,32 @@ public final class MsgBean {
                 return com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage.getDefaultInstance();
             }
 
+            public static final int READ_FIELD_NUMBER = 10220;
+            /**
+             * <code>.ReadMessage read = 10220;</code>
+             */
+            public boolean hasRead() {
+                return realMsgCase_ == 10220;
+            }
+            /**
+             * <code>.ReadMessage read = 10220;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.ReadMessage getRead() {
+                if (realMsgCase_ == 10220) {
+                    return (com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_;
+                }
+                return com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance();
+            }
+            /**
+             * <code>.ReadMessage read = 10220;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.ReadMessageOrBuilder getReadOrBuilder() {
+                if (realMsgCase_ == 10220) {
+                    return (com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_;
+                }
+                return com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance();
+            }
+
             public static final int FORCE_OFFLINE_FIELD_NUMBER = 10300;
             /**
              * <code>.ForceOfflineMessage force_offline = 10300;</code>
@@ -28831,6 +30150,32 @@ public final class MsgBean {
                     return (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_;
                 }
                 return com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage.getDefaultInstance();
+            }
+
+            public static final int SWITCH_CHANGE_FIELD_NUMBER = 10303;
+            /**
+             * <code>.SwitchChangeMessage switch_change = 10303;</code>
+             */
+            public boolean hasSwitchChange() {
+                return realMsgCase_ == 10303;
+            }
+            /**
+             * <code>.SwitchChangeMessage switch_change = 10303;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage getSwitchChange() {
+                if (realMsgCase_ == 10303) {
+                    return (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_;
+                }
+                return com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance();
+            }
+            /**
+             * <code>.SwitchChangeMessage switch_change = 10303;</code>
+             */
+            public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessageOrBuilder getSwitchChangeOrBuilder() {
+                if (realMsgCase_ == 10303) {
+                    return (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_;
+                }
+                return com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance();
             }
 
             private byte memoizedIsInitialized = -1;
@@ -28950,6 +30295,9 @@ public final class MsgBean {
                 if (realMsgCase_ == 10219) {
                     output.writeMessage(10219, (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_);
                 }
+                if (realMsgCase_ == 10220) {
+                    output.writeMessage(10220, (com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_);
+                }
                 if (realMsgCase_ == 10300) {
                     output.writeMessage(10300, (com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage) realMsg_);
                 }
@@ -28958,6 +30306,9 @@ public final class MsgBean {
                 }
                 if (realMsgCase_ == 10302) {
                     output.writeMessage(10302, (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_);
+                }
+                if (realMsgCase_ == 10303) {
+                    output.writeMessage(10303, (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_);
                 }
                 unknownFields.writeTo(output);
             }
@@ -29102,6 +30453,10 @@ public final class MsgBean {
                     size += com.google.protobuf.CodedOutputStream
                             .computeMessageSize(10219, (com.yanlong.im.utils.socket.MsgBean.P2PAuVideoDialMessage) realMsg_);
                 }
+                if (realMsgCase_ == 10220) {
+                    size += com.google.protobuf.CodedOutputStream
+                            .computeMessageSize(10220, (com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_);
+                }
                 if (realMsgCase_ == 10300) {
                     size += com.google.protobuf.CodedOutputStream
                             .computeMessageSize(10300, (com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage) realMsg_);
@@ -29113,6 +30468,10 @@ public final class MsgBean {
                 if (realMsgCase_ == 10302) {
                     size += com.google.protobuf.CodedOutputStream
                             .computeMessageSize(10302, (com.yanlong.im.utils.socket.MsgBean.ResourceLockMessage) realMsg_);
+                }
+                if (realMsgCase_ == 10303) {
+                    size += com.google.protobuf.CodedOutputStream
+                            .computeMessageSize(10303, (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_);
                 }
                 size += unknownFields.getSerializedSize();
                 memoizedSize = size;
@@ -29255,6 +30614,10 @@ public final class MsgBean {
                         result = result && getP2PAuVideoDial()
                                 .equals(other.getP2PAuVideoDial());
                         break;
+                    case 10220:
+                        result = result && getRead()
+                                .equals(other.getRead());
+                        break;
                     case 10300:
                         result = result && getForceOffline()
                                 .equals(other.getForceOffline());
@@ -29266,6 +30629,10 @@ public final class MsgBean {
                     case 10302:
                         result = result && getResourceLock()
                                 .equals(other.getResourceLock());
+                        break;
+                    case 10303:
+                        result = result && getSwitchChange()
+                                .equals(other.getSwitchChange());
                         break;
                     case 0:
                     default:
@@ -29406,6 +30773,10 @@ public final class MsgBean {
                         hash = (37 * hash) + P2P_AU_VIDEO_DIAL_FIELD_NUMBER;
                         hash = (53 * hash) + getP2PAuVideoDial().hashCode();
                         break;
+                    case 10220:
+                        hash = (37 * hash) + READ_FIELD_NUMBER;
+                        hash = (53 * hash) + getRead().hashCode();
+                        break;
                     case 10300:
                         hash = (37 * hash) + FORCE_OFFLINE_FIELD_NUMBER;
                         hash = (53 * hash) + getForceOffline().hashCode();
@@ -29417,6 +30788,10 @@ public final class MsgBean {
                     case 10302:
                         hash = (37 * hash) + RESOURCE_LOCK_FIELD_NUMBER;
                         hash = (53 * hash) + getResourceLock().hashCode();
+                        break;
+                    case 10303:
+                        hash = (37 * hash) + SWITCH_CHANGE_FIELD_NUMBER;
+                        hash = (53 * hash) + getSwitchChange().hashCode();
                         break;
                     case 0:
                     default:
@@ -29783,6 +31158,13 @@ public final class MsgBean {
                             result.realMsg_ = p2PAuVideoDialBuilder_.build();
                         }
                     }
+                    if (realMsgCase_ == 10220) {
+                        if (readBuilder_ == null) {
+                            result.realMsg_ = realMsg_;
+                        } else {
+                            result.realMsg_ = readBuilder_.build();
+                        }
+                    }
                     if (realMsgCase_ == 10300) {
                         if (forceOfflineBuilder_ == null) {
                             result.realMsg_ = realMsg_;
@@ -29802,6 +31184,13 @@ public final class MsgBean {
                             result.realMsg_ = realMsg_;
                         } else {
                             result.realMsg_ = resourceLockBuilder_.build();
+                        }
+                    }
+                    if (realMsgCase_ == 10303) {
+                        if (switchChangeBuilder_ == null) {
+                            result.realMsg_ = realMsg_;
+                        } else {
+                            result.realMsg_ = switchChangeBuilder_.build();
                         }
                     }
                     result.realMsgCase_ = realMsgCase_;
@@ -29983,6 +31372,10 @@ public final class MsgBean {
                             mergeP2PAuVideoDial(other.getP2PAuVideoDial());
                             break;
                         }
+                        case READ: {
+                            mergeRead(other.getRead());
+                            break;
+                        }
                         case FORCE_OFFLINE: {
                             mergeForceOffline(other.getForceOffline());
                             break;
@@ -29993,6 +31386,10 @@ public final class MsgBean {
                         }
                         case RESOURCE_LOCK: {
                             mergeResourceLock(other.getResourceLock());
+                            break;
+                        }
+                        case SWITCH_CHANGE: {
+                            mergeSwitchChange(other.getSwitchChange());
                             break;
                         }
                         case REALMSG_NOT_SET: {
@@ -34244,6 +35641,142 @@ public final class MsgBean {
                 }
 
                 private com.google.protobuf.SingleFieldBuilderV3<
+                        com.yanlong.im.utils.socket.MsgBean.ReadMessage, com.yanlong.im.utils.socket.MsgBean.ReadMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ReadMessageOrBuilder> readBuilder_;
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                public boolean hasRead() {
+                    return realMsgCase_ == 10220;
+                }
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.ReadMessage getRead() {
+                    if (readBuilder_ == null) {
+                        if (realMsgCase_ == 10220) {
+                            return (com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_;
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance();
+                    } else {
+                        if (realMsgCase_ == 10220) {
+                            return readBuilder_.getMessage();
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                public Builder setRead(com.yanlong.im.utils.socket.MsgBean.ReadMessage value) {
+                    if (readBuilder_ == null) {
+                        if (value == null) {
+                            throw new NullPointerException();
+                        }
+                        realMsg_ = value;
+                        onChanged();
+                    } else {
+                        readBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10220;
+                    return this;
+                }
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                public Builder setRead(
+                        com.yanlong.im.utils.socket.MsgBean.ReadMessage.Builder builderForValue) {
+                    if (readBuilder_ == null) {
+                        realMsg_ = builderForValue.build();
+                        onChanged();
+                    } else {
+                        readBuilder_.setMessage(builderForValue.build());
+                    }
+                    realMsgCase_ = 10220;
+                    return this;
+                }
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                public Builder mergeRead(com.yanlong.im.utils.socket.MsgBean.ReadMessage value) {
+                    if (readBuilder_ == null) {
+                        if (realMsgCase_ == 10220 &&
+                                realMsg_ != com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance()) {
+                            realMsg_ = com.yanlong.im.utils.socket.MsgBean.ReadMessage.newBuilder((com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_)
+                                    .mergeFrom(value).buildPartial();
+                        } else {
+                            realMsg_ = value;
+                        }
+                        onChanged();
+                    } else {
+                        if (realMsgCase_ == 10220) {
+                            readBuilder_.mergeFrom(value);
+                        }
+                        readBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10220;
+                    return this;
+                }
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                public Builder clearRead() {
+                    if (readBuilder_ == null) {
+                        if (realMsgCase_ == 10220) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                            onChanged();
+                        }
+                    } else {
+                        if (realMsgCase_ == 10220) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                        }
+                        readBuilder_.clear();
+                    }
+                    return this;
+                }
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.ReadMessage.Builder getReadBuilder() {
+                    return getReadFieldBuilder().getBuilder();
+                }
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.ReadMessageOrBuilder getReadOrBuilder() {
+                    if ((realMsgCase_ == 10220) && (readBuilder_ != null)) {
+                        return readBuilder_.getMessageOrBuilder();
+                    } else {
+                        if (realMsgCase_ == 10220) {
+                            return (com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_;
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <code>.ReadMessage read = 10220;</code>
+                 */
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        com.yanlong.im.utils.socket.MsgBean.ReadMessage, com.yanlong.im.utils.socket.MsgBean.ReadMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ReadMessageOrBuilder>
+                getReadFieldBuilder() {
+                    if (readBuilder_ == null) {
+                        if (!(realMsgCase_ == 10220)) {
+                            realMsg_ = com.yanlong.im.utils.socket.MsgBean.ReadMessage.getDefaultInstance();
+                        }
+                        readBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                                com.yanlong.im.utils.socket.MsgBean.ReadMessage, com.yanlong.im.utils.socket.MsgBean.ReadMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ReadMessageOrBuilder>(
+                                (com.yanlong.im.utils.socket.MsgBean.ReadMessage) realMsg_,
+                                getParentForChildren(),
+                                isClean());
+                        realMsg_ = null;
+                    }
+                    realMsgCase_ = 10220;
+                    onChanged();;
+                    return readBuilder_;
+                }
+
+                private com.google.protobuf.SingleFieldBuilderV3<
                         com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessage.Builder, com.yanlong.im.utils.socket.MsgBean.ForceOfflineMessageOrBuilder> forceOfflineBuilder_;
                 /**
                  * <code>.ForceOfflineMessage force_offline = 10300;</code>
@@ -34649,6 +36182,142 @@ public final class MsgBean {
                     realMsgCase_ = 10302;
                     onChanged();;
                     return resourceLockBuilder_;
+                }
+
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage, com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessageOrBuilder> switchChangeBuilder_;
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                public boolean hasSwitchChange() {
+                    return realMsgCase_ == 10303;
+                }
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage getSwitchChange() {
+                    if (switchChangeBuilder_ == null) {
+                        if (realMsgCase_ == 10303) {
+                            return (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_;
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance();
+                    } else {
+                        if (realMsgCase_ == 10303) {
+                            return switchChangeBuilder_.getMessage();
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                public Builder setSwitchChange(com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage value) {
+                    if (switchChangeBuilder_ == null) {
+                        if (value == null) {
+                            throw new NullPointerException();
+                        }
+                        realMsg_ = value;
+                        onChanged();
+                    } else {
+                        switchChangeBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10303;
+                    return this;
+                }
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                public Builder setSwitchChange(
+                        com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.Builder builderForValue) {
+                    if (switchChangeBuilder_ == null) {
+                        realMsg_ = builderForValue.build();
+                        onChanged();
+                    } else {
+                        switchChangeBuilder_.setMessage(builderForValue.build());
+                    }
+                    realMsgCase_ = 10303;
+                    return this;
+                }
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                public Builder mergeSwitchChange(com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage value) {
+                    if (switchChangeBuilder_ == null) {
+                        if (realMsgCase_ == 10303 &&
+                                realMsg_ != com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance()) {
+                            realMsg_ = com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.newBuilder((com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_)
+                                    .mergeFrom(value).buildPartial();
+                        } else {
+                            realMsg_ = value;
+                        }
+                        onChanged();
+                    } else {
+                        if (realMsgCase_ == 10303) {
+                            switchChangeBuilder_.mergeFrom(value);
+                        }
+                        switchChangeBuilder_.setMessage(value);
+                    }
+                    realMsgCase_ = 10303;
+                    return this;
+                }
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                public Builder clearSwitchChange() {
+                    if (switchChangeBuilder_ == null) {
+                        if (realMsgCase_ == 10303) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                            onChanged();
+                        }
+                    } else {
+                        if (realMsgCase_ == 10303) {
+                            realMsgCase_ = 0;
+                            realMsg_ = null;
+                        }
+                        switchChangeBuilder_.clear();
+                    }
+                    return this;
+                }
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.Builder getSwitchChangeBuilder() {
+                    return getSwitchChangeFieldBuilder().getBuilder();
+                }
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                public com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessageOrBuilder getSwitchChangeOrBuilder() {
+                    if ((realMsgCase_ == 10303) && (switchChangeBuilder_ != null)) {
+                        return switchChangeBuilder_.getMessageOrBuilder();
+                    } else {
+                        if (realMsgCase_ == 10303) {
+                            return (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_;
+                        }
+                        return com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance();
+                    }
+                }
+                /**
+                 * <code>.SwitchChangeMessage switch_change = 10303;</code>
+                 */
+                private com.google.protobuf.SingleFieldBuilderV3<
+                        com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage, com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessageOrBuilder>
+                getSwitchChangeFieldBuilder() {
+                    if (switchChangeBuilder_ == null) {
+                        if (!(realMsgCase_ == 10303)) {
+                            realMsg_ = com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.getDefaultInstance();
+                        }
+                        switchChangeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+                                com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage, com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage.Builder, com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessageOrBuilder>(
+                                (com.yanlong.im.utils.socket.MsgBean.SwitchChangeMessage) realMsg_,
+                                getParentForChildren(),
+                                isClean());
+                        realMsg_ = null;
+                    }
+                    realMsgCase_ = 10303;
+                    onChanged();;
+                    return switchChangeBuilder_;
                 }
                 public final Builder setUnknownFields(
                         final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -35709,6 +37378,16 @@ public final class MsgBean {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
             internal_static_ResourceLockMessage_fieldAccessorTable;
     private static final com.google.protobuf.Descriptors.Descriptor
+            internal_static_ReadMessage_descriptor;
+    private static final
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internal_static_ReadMessage_fieldAccessorTable;
+    private static final com.google.protobuf.Descriptors.Descriptor
+            internal_static_SwitchChangeMessage_descriptor;
+    private static final
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internal_static_SwitchChangeMessage_fieldAccessorTable;
+    private static final com.google.protobuf.Descriptors.Descriptor
             internal_static_AckMessage_descriptor;
     private static final
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -35802,75 +37481,82 @@ public final class MsgBean {
                         "\220\001\n\023ResourceLockMessage\022A\n\022resource_lock" +
                         "_type\030\001 \001(\0162%.ResourceLockMessage.Resour" +
                         "ceLockType\022\014\n\004lock\030\002 \001(\r\"(\n\020ResourceLock" +
-                        "Type\022\024\n\020CLOUDREDENVELOPE\020\000\"e\n\nAckMessage" +
-                        "\022 \n\013reject_type\030\001 \001(\0162\013.RejectType\022\022\n\nre" +
-                        "quest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n\ttimest" +
-                        "amp\030\004 \001(\004\"*\n\022AuthRequestMessage\022\024\n\014acces" +
-                        "s_token\030\001 \001(\t\"\'\n\023AuthResponseMessage\022\020\n\010" +
-                        "accepted\030\001 \001(\021\"\200\r\n\020UniversalMessage\022\022\n\nr" +
-                        "equest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapM" +
-                        "sg\030\221N \003(\0132\035.UniversalMessage.WrapMessage" +
-                        "\032\226\014\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010m" +
-                        "sg_type\030\002 \001(\0162\014.MessageType\022\016\n\006msg_id\030\003 " +
-                        "\001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010ni" +
-                        "ckname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nmemberna" +
-                        "me\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021\022\035\n\004chat\030" +
-                        "\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221N \001(\0132\r" +
-                        ".ImageMessageH\000\022,\n\014red_envelope\030\222N \001(\0132\023" +
-                        ".RedEnvelopeMessageH\000\022;\n\024receive_red_env" +
-                        "elope\030\223N \001(\0132\032.ReceiveRedEnvelopeMessage" +
-                        "H\000\022%\n\010transfer\030\224N \001(\0132\020.TransferMessageH" +
-                        "\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH\000\022.\n\rbu" +
-                        "siness_card\030\226N \001(\0132\024.BusinessCardMessage" +
-                        "H\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessageH\000\022\031\n\002a" +
-                        "t\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassistant\030\231N \001" +
-                        "(\0132\021.AssistantMessageH\000\022!\n\006cancel\030\232N \001(\013" +
-                        "2\016.CancelMessageH\000\022*\n\013short_video\030\233N \001(\013" +
-                        "2\022.ShortVideoMessageH\000\0220\n\016request_friend" +
-                        "\030\364N \001(\0132\025.RequestFriendMessageH\000\0225\n\021acce" +
-                        "pt_be_friends\030\365N \001(\0132\027.AcceptBeFriendsMe" +
-                        "ssageH\000\022.\n\rremove_friend\030\366N \001(\0132\024.Remove" +
-                        "FriendMessageH\000\022.\n\rrequest_group\030\330O \001(\0132" +
-                        "\024.RequestGroupMessageH\000\0221\n\017accept_be_gro" +
-                        "up\030\331O \001(\0132\025.AcceptBeGroupMessageH\000\0229\n\023re" +
-                        "move_group_member\030\332O \001(\0132\031.RemoveGroupMe" +
-                        "mberMessageH\000\0229\n\023change_group_master\030\333O " +
-                        "\001(\0132\031.ChangeGroupMasterMessageH\000\022.\n\rdest" +
-                        "roy_group\030\336O \001(\0132\024.DestroyGroupMessageH\000" +
-                        "\022;\n\024remove_group_member2\030\337O \001(\0132\032.Remove" +
-                        "GroupMember2MessageH\000\022&\n\tout_group\030\342O \001(" +
-                        "\0132\020.OutGroupMessageH\000\0225\n\021change_group_me" +
-                        "ta\030\344O \001(\0132\027.ChangeGroupMetaMessageH\000\022;\n\024" +
-                        "change_survival_time\030\345O \001(\0132\032.ChangeSurv" +
-                        "ivalTimeMessageH\000\022+\n\014p2p_au_video\030\352O \001(\013" +
-                        "2\022.P2PAuVideoMessageH\000\0224\n\021p2p_au_video_d" +
-                        "ial\030\353O \001(\0132\026.P2PAuVideoDialMessageH\000\022.\n\r" +
-                        "force_offline\030\274P \001(\0132\024.ForceOfflineMessa" +
-                        "geH\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Acti" +
-                        "veStatChangeMessageH\000\022.\n\rresource_lock\030\276" +
-                        "P \001(\0132\024.ResourceLockMessageH\000B\n\n\010real_ms" +
-                        "g*\252\004\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021" +
-                        "\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_ENVELOP" +
-                        "ER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rBUSINES" +
-                        "S_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASSISTANT" +
-                        "\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\022\n\016REQUE" +
-                        "ST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e\022\021\n\rRE" +
-                        "MOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023\n\017ACCE" +
-                        "PT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMBER\020i\022\027" +
-                        "\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024REMOVE_GROUP_" +
-                        "MEMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOUT_GROU" +
-                        "P\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CHANGE_SUR" +
-                        "VIVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021P2P_AU" +
-                        "_VIDEO_DIAL\020w\022\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACT" +
-                        "IVE_STAT_CHANGE\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001*." +
-                        "\n\022ForceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LO" +
-                        "CKED\020\001*v\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NO" +
-                        "T_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKL" +
-                        "IST\020\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAIL" +
-                        "ABLE\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007P" +
-                        "ASSIVE\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Ve" +
-                        "dio\020\001B&\n\033com.yanlong.im.utils.socketB\007Ms" +
-                        "gBeanb\006proto3"
+                        "Type\022\024\n\020CLOUDREDENVELOPE\020\000\" \n\013ReadMessag" +
+                        "e\022\021\n\ttimestamp\030\001 \001(\004\"\202\001\n\023SwitchChangeMes" +
+                        "sage\0224\n\013switch_type\030\001 \001(\0162\037.SwitchChange" +
+                        "Message.SwitchType\022\024\n\014switch_value\030\002 \001(\r" +
+                        "\"\037\n\nSwitchType\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\"e\n\nAck" +
+                        "Message\022 \n\013reject_type\030\001 \001(\0162\013.RejectTyp" +
+                        "e\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n" +
+                        "\ttimestamp\030\004 \001(\004\"*\n\022AuthRequestMessage\022\024" +
+                        "\n\014access_token\030\001 \001(\t\"\'\n\023AuthResponseMess" +
+                        "age\022\020\n\010accepted\030\001 \001(\021\"\317\r\n\020UniversalMessa" +
+                        "ge\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/" +
+                        "\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage.Wrap" +
+                        "Message\032\345\014\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001" +
+                        "(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006ms" +
+                        "g_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(" +
+                        "\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nm" +
+                        "embername\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021\022\035" +
+                        "\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221" +
+                        "N \001(\0132\r.ImageMessageH\000\022,\n\014red_envelope\030\222" +
+                        "N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024receive_" +
+                        "red_envelope\030\223N \001(\0132\032.ReceiveRedEnvelope" +
+                        "MessageH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferM" +
+                        "essageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH" +
+                        "\000\022.\n\rbusiness_card\030\226N \001(\0132\024.BusinessCard" +
+                        "MessageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessage" +
+                        "H\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassista" +
+                        "nt\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006cancel" +
+                        "\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013short_video" +
+                        "\030\233N \001(\0132\022.ShortVideoMessageH\000\0220\n\016request" +
+                        "_friend\030\364N \001(\0132\025.RequestFriendMessageH\000\022" +
+                        "5\n\021accept_be_friends\030\365N \001(\0132\027.AcceptBeFr" +
+                        "iendsMessageH\000\022.\n\rremove_friend\030\366N \001(\0132\024" +
+                        ".RemoveFriendMessageH\000\022.\n\rrequest_group\030" +
+                        "\330O \001(\0132\024.RequestGroupMessageH\000\0221\n\017accept" +
+                        "_be_group\030\331O \001(\0132\025.AcceptBeGroupMessageH" +
+                        "\000\0229\n\023remove_group_member\030\332O \001(\0132\031.Remove" +
+                        "GroupMemberMessageH\000\0229\n\023change_group_mas" +
+                        "ter\030\333O \001(\0132\031.ChangeGroupMasterMessageH\000\022" +
+                        ".\n\rdestroy_group\030\336O \001(\0132\024.DestroyGroupMe" +
+                        "ssageH\000\022;\n\024remove_group_member2\030\337O \001(\0132\032" +
+                        ".RemoveGroupMember2MessageH\000\022&\n\tout_grou" +
+                        "p\030\342O \001(\0132\020.OutGroupMessageH\000\0225\n\021change_g" +
+                        "roup_meta\030\344O \001(\0132\027.ChangeGroupMetaMessag" +
+                        "eH\000\022;\n\024change_survival_time\030\345O \001(\0132\032.Cha" +
+                        "ngeSurvivalTimeMessageH\000\022+\n\014p2p_au_video" +
+                        "\030\352O \001(\0132\022.P2PAuVideoMessageH\000\0224\n\021p2p_au_" +
+                        "video_dial\030\353O \001(\0132\026.P2PAuVideoDialMessag" +
+                        "eH\000\022\035\n\004read\030\354O \001(\0132\014.ReadMessageH\000\022.\n\rfo" +
+                        "rce_offline\030\274P \001(\0132\024.ForceOfflineMessage" +
+                        "H\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Active" +
+                        "StatChangeMessageH\000\022.\n\rresource_lock\030\276P " +
+                        "\001(\0132\024.ResourceLockMessageH\000\022.\n\rswitch_ch" +
+                        "ange\030\277P \001(\0132\024.SwitchChangeMessageH\000B\n\n\010r" +
+                        "eal_msg*\310\004\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMA" +
+                        "GE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_E" +
+                        "NVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rB" +
+                        "USINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASS" +
+                        "ISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\022\n" +
+                        "\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e" +
+                        "\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023" +
+                        "\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMB" +
+                        "ER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024REMOVE_" +
+                        "GROUP_MEMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOU" +
+                        "T_GROUP\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CHAN" +
+                        "GE_SURVIVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021" +
+                        "P2P_AU_VIDEO_DIAL\020w\022\010\n\004READ\020x\022\022\n\rFORCE_O" +
+                        "FFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rRE" +
+                        "SOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001*.\n\022Fo" +
+                        "rceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED" +
+                        "\020\001*v\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FR" +
+                        "IENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020" +
+                        "\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAILABLE" +
+                        "\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSI" +
+                        "VE\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020" +
+                        "\001B&\n\033com.yanlong.im.utils.socketB\007MsgBea" +
+                        "nb\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -36070,26 +37756,38 @@ public final class MsgBean {
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_ResourceLockMessage_descriptor,
                 new java.lang.String[] { "ResourceLockType", "Lock", });
-        internal_static_AckMessage_descriptor =
+        internal_static_ReadMessage_descriptor =
                 getDescriptor().getMessageTypes().get(31);
+        internal_static_ReadMessage_fieldAccessorTable = new
+                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_ReadMessage_descriptor,
+                new java.lang.String[] { "Timestamp", });
+        internal_static_SwitchChangeMessage_descriptor =
+                getDescriptor().getMessageTypes().get(32);
+        internal_static_SwitchChangeMessage_fieldAccessorTable = new
+                com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_SwitchChangeMessage_descriptor,
+                new java.lang.String[] { "SwitchType", "SwitchValue", });
+        internal_static_AckMessage_descriptor =
+                getDescriptor().getMessageTypes().get(33);
         internal_static_AckMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AckMessage_descriptor,
                 new java.lang.String[] { "RejectType", "RequestId", "MsgId", "Timestamp", });
         internal_static_AuthRequestMessage_descriptor =
-                getDescriptor().getMessageTypes().get(32);
+                getDescriptor().getMessageTypes().get(34);
         internal_static_AuthRequestMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AuthRequestMessage_descriptor,
                 new java.lang.String[] { "AccessToken", });
         internal_static_AuthResponseMessage_descriptor =
-                getDescriptor().getMessageTypes().get(33);
+                getDescriptor().getMessageTypes().get(35);
         internal_static_AuthResponseMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_AuthResponseMessage_descriptor,
                 new java.lang.String[] { "Accepted", });
         internal_static_UniversalMessage_descriptor =
-                getDescriptor().getMessageTypes().get(34);
+                getDescriptor().getMessageTypes().get(36);
         internal_static_UniversalMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_descriptor,
@@ -36099,7 +37797,7 @@ public final class MsgBean {
         internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_WrapMessage_descriptor,
-                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "ForceOffline", "ActiveStatChange", "ResourceLock", "RealMsg", });
+                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "RealMsg", });
     }
 
     // @@protoc_insertion_point(outer_class_scope)

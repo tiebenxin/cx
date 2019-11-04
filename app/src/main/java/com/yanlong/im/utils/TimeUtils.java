@@ -6,7 +6,10 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -42,6 +45,7 @@ public class TimeUtils {
                         LogUtil.getLog().i("SurvivalTime","删除msg:"+bean.getMsg_id());
                         msgDao.msgDel4MsgId(bean.getMsg_id());
                         it.remove();
+                        EventBus.getDefault().post(new EventRefreshChat());
                     }
                 }
             }

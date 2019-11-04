@@ -93,10 +93,7 @@ public class MsgConversionBean {
             bean.getAvatar();
             bean.getNickname();
         }
-
         //---------------------
-
-
         msgAllBean.setMsg_id(bean.getMsgId());
 
 
@@ -360,13 +357,6 @@ public class MsgConversionBean {
                 }
 
                 break;
-//            case CHANGE_GROUP_ANNOUNCEMENT:
-//                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
-//                MsgNotice ani = new MsgNotice();
-//                ani.setMsgid(msgAllBean.getMsg_id());
-//                ani.setNote("群公告:" + bean.getChangeGroupAnnouncement().getAnnouncement());
-//                msgAllBean.setMsgNotice(ani);
-//                break;
             case AT:
                 RealmList<Long> realmList = new RealmList<>();
                 realmList.addAll(bean.getAt().getUidList());
