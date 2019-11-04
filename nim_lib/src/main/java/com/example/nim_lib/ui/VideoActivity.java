@@ -179,6 +179,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private final int SHOW_WAIT_TIME = 10;
     // 1秒刷新
     private final int TIME = 1000;
+    // 每隔10秒保活一次，告诉后端还在通话中
+    private final int KEEP_ALIVE_TIME=10;
     // 收到接听后是否第一次开始倒计时，默认是
     private boolean mIsFistCountDown = true;
     private VideoAction mVideoAction;
@@ -272,7 +274,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
                 if (v.getId() == R.id.img_cancle) {
                     sendEventBus("cancle", AVChatExitCode.CANCEL);
-                } else if ((v.getId() == R.id.img_hand_up|| v.getId() == R.id.img_hand_up2) && toUId != null && toUId != 0) {
+                } else if ((v.getId() == R.id.img_hand_up || v.getId() == R.id.img_hand_up2) && toUId != null && toUId != 0) {
                     sendEventBus("hangup", AVChatExitCode.HANGUP);
                 }
             } else {
@@ -294,7 +296,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         } else if (v.getId() == R.id.cb_convert_camera) {// 摄像头切换
             mAVChatController.switchCamera();
         } else if (v.getId() == R.id.img_minimize_video) {// 视频最小化
-
+            sendVoiceMinimizeEventBus();
+            // 退到后台不显
+            moveTaskToBack(true);
         } else if (v.getId() == R.id.cb_mute) {// 音频开关
             mAVChatController.toggleMute();
         }
@@ -302,6 +306,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     private void sendVoiceMinimizeEventBus() {
         EventFactory.VoiceMinimizeEvent event = new EventFactory.VoiceMinimizeEvent();
+        event.type = mAVChatType;
         event.passedTime = mPassedTime;
         event.isCallEstablished = isCallEstablished;
         event.showTime = txtLifeTime.getText().toString();
@@ -310,6 +315,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     private void init() {
         AppConfig.setContext(getApplicationContext());
+        ScreenUtil.init(this);
         TokenBean tokenBean = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
         mVideoAction = new VideoAction(tokenBean.getAccessToken());
 
@@ -461,6 +467,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 } else {
                     txtVideoTime.setText(String.format(Locale.CHINESE, "%02d:%02d", min, second));
                     txtLifeTime.setText(String.format(Locale.CHINESE, "%02d:%02d", min, second));
+                }
+                // 每隔10秒保活一次，告诉后端还在通话中
+                if (second % KEEP_ALIVE_TIME == 0) {
+                    if (!TextUtils.isEmpty(mRoomId)) {
+                        auVideoKeepAlive(mRoomId);
+                    }
                 }
             }
         }
@@ -629,7 +641,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         } else if (operationType == AVChatExitCode.REJECT) {
             event.txt = "已拒绝";
         } else if (operationType == AVChatExitCode.HANGUP) {
-            event.txt = "通话时长 " + txtVideoTime.getText().toString();
+            event.txt = "聊天时长 " + txtVideoTime.getText().toString();
         }
         event.toGid = toGid;
         event.toUId = toUId;
@@ -654,6 +666,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     isFirstFlg = false;
                     sendEventBus("hangup", AVChatExitCode.HANGUP);
                 }
+                // 关闭不发送消息
+                EventBus.getDefault().post(new EventFactory.CloseMinimizeEvent());
                 // 接收方通知后端已挂断
                 if (mFriend != null && mFriend != 0) {
                     mAVChatController.auVideoHandup(mFriend, mAVChatType, mRoomId);
@@ -1109,7 +1123,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         public boolean onTouch(final View v, MotionEvent event) {
             int x = (int) event.getRawX();
             int y = (int) event.getRawY();
-
+            Log.i(TAG, "x:" + x + " y:" + y);
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     lastX = x;
@@ -1119,9 +1133,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     inX = x - p[0];
                     inY = y - p[1];
 
+                    Log.i(TAG, "inX:" + inX + " inY:" + inY);
+
                     break;
                 case MotionEvent.ACTION_MOVE:
                     final int diff = Math.max(Math.abs(lastX - x), Math.abs(lastY - y));
+                    Log.i(TAG, "diff:" + diff);
                     if (diff < TOUCH_SLOP)
                         break;
 
@@ -1133,10 +1150,14 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     int destX, destY;
                     if (x - inX <= paddingRect.left) {
                         destX = paddingRect.left;
+                        Log.i(TAG, "destX = paddingRect.left :" + destX);
                     } else if (x - inX + v.getWidth() >= ScreenUtil.screenWidth - paddingRect.right) {
+
                         destX = ScreenUtil.screenWidth - v.getWidth() - paddingRect.right;
+                        Log.i(TAG, "11 ScreenUtil.screenWidth :" + ScreenUtil.screenWidth + " v.getWidth():" + v.getWidth() + " paddingRect.right:" + paddingRect.right);
                     } else {
                         destX = x - inX;
+                        Log.i(TAG, "destX = x - inX :" + destX);
                     }
 
                     if (y - inY <= paddingRect.top) {
@@ -1151,6 +1172,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     params.gravity = Gravity.NO_GRAVITY;
                     params.leftMargin = destX;
                     params.topMargin = destY;
+                    Log.i(TAG, "destX:" + destX + " destY:" + destY);
                     v.setLayoutParams(params);
 
                     break;
@@ -1401,6 +1423,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                         if (!isFinishing()) {
                             mHandler.postDelayed(runnableWait, TIME);
                         }
+
+                        // 点对点音视频发起通知
+                        EventFactory.SendP2PAuVideoDialMessage event= new EventFactory.SendP2PAuVideoDialMessage();
+                        event.avChatType = mAVChatType;
+                        event.toGid = toGid;
+                        event.toUId = toUId;
+                        EventBus.getDefault().post(event);
 //                        Toast.makeText(VoiceCallActivity.this, "onSuccess", Toast.LENGTH_LONG).show();
                     }
 

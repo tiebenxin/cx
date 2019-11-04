@@ -521,6 +521,9 @@ public class SocketData {
             case P2P_AU_VIDEO:
                 wmsg.setP2PAuVideo((MsgBean.P2PAuVideoMessage) value);
                 break;
+            case P2P_AU_VIDEO_DIAL:
+                wmsg.setP2PAuVideoDial((MsgBean.P2PAuVideoDialMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
 
@@ -581,6 +584,23 @@ public class SocketData {
                 .build();
 
         return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, chat);
+
+    }
+
+    /**
+     * 发送一条音视频通知
+     *
+     * @param toId
+     * @param toGid
+     * @param auVideoType 语音、视频
+     * @return
+     */
+    public static MsgAllBean send4VoiceOrVideoNotice(Long toId, String toGid,MsgBean.AuVideoType auVideoType) {
+        MsgBean.P2PAuVideoDialMessage chat = MsgBean.P2PAuVideoDialMessage.newBuilder()
+                .setAvType(auVideoType)
+                .build();
+
+        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
 
     }
 
