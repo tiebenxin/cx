@@ -878,10 +878,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
     private void saveImage(String path) {
-        Log.d("TAG", "------------showLoadingImage$:saveImage " + path);
+        Log.e("TAG", "------------showLoadingImage$:saveImage " + path);
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
+            Log.e("TAG", "------------showLoadingImage$:saveImage " + "http");
             getFileCache(path);
             showPleaseDialog();
             loadDataThread = new LoadDataThread(path, 0, null);
@@ -892,19 +893,36 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             }
             // 有可能本地图片
             try {
+                String[] paths=null;
+                String spiltPath=null;
+                if (path.contains("_below")){
+                    paths= path.split("_below");
+                    spiltPath=paths[0];
+                    File file =new File(path);
+                    file.renameTo(new File(spiltPath));
+                    path=spiltPath;
+                }
+                Log.e("TAG", "------------showLoadingImage$:saveImage__path__" + path+"--------"+spiltPath);
                 String fileName = getFileExt(path);
-//                String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
-//                        fileName, directory_path);
-//                PictureFileUtils.copyFile(path, dirPath);
-//                //刷新相册的广播
-//                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-//                Uri uri = Uri.fromFile(new File(dirPath));
-//                intent.setData(uri);
-//                getApplicationContext().sendBroadcast(intent);
+                String spiltFileName=null;
+                if (fileName.contains("_below")){
+                    paths= path.split("_below");
+                    spiltFileName=paths[0];
+                }
+                Log.e("TAG", "------------showLoadingImage$:saveImage__path__" + fileName);
+                String dirPath = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
+                            fileName, directory_path);
+                PictureFileUtils.copyFile(path, dirPath);
+                //刷新相册的广播
+                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                Uri uri = Uri.fromFile(new File(dirPath));
+                intent.setData(uri);
+                getApplicationContext().sendBroadcast(intent);
 
-
-                MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
+                String filenamePath= MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
+                Log.e("TAG", "------------showLoadingImage$:saveImage " + filenamePath);
                 ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + path);
+//                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
                 dismissDialog();
             } catch (Exception e) {
                 ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_error) + "\n" + e.getMessage());
