@@ -3,7 +3,9 @@ package com.zhaoss.weixinrecorded.activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -20,7 +22,6 @@ import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.libyuv.LibyuvUtil;
 import com.zhaoss.weixinrecorded.R;
-import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
 import com.zhaoss.weixinrecorded.util.RecordUtil;
@@ -29,16 +30,17 @@ import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static android.hardware.Camera.getNumberOfCameras;
 
-public class RecordedActivity extends BaseActivity {
+
+public class RecordedLocalActivity extends BaseActivity  {
 
     public static final String INTENT_PATH = "intent_path";
     public static final String INTENT_VIDEO_WIDTH= "intent_width";
@@ -87,7 +89,7 @@ public class RecordedActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_recorded);
+        setContentView(R.layout.activity_recorded_local);
 
         LanSoEditor.initSDK(this, null);
         LanSongFileUtil.setFileDir("/sdcard/WeiXinRecorded/"+System.currentTimeMillis()+"/");
@@ -95,7 +97,24 @@ public class RecordedActivity extends BaseActivity {
 
         initUI();
         initData();
-        initMediaRecorder();
+//        startRecordLocal();
+//        initMediaRecorder();
+        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                mSurfaceHolder = holder;
+                mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
+            }
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+            }
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                mCameraHelp.release();
+            }
+        });
+
     }
 
     private void initUI() {
@@ -131,67 +150,67 @@ public class RecordedActivity extends BaseActivity {
         });
     }
 
-    private void initMediaRecorder() {
-        mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
-            @Override
-            public void onPreviewFrame(byte[] data, Camera camera) {
-                if(isShotPhoto.get()){
-                    isShotPhoto.set(false);
-                    shotPhoto(data);
-//                        PictureSelector.create(ChatActivity.this)
-//                                .openCamera(PictureMimeType.ofImage())
-//                                .compress(true)
-//                                .forResult(PictureConfig.REQUEST_CAMERA);
-//                    EventBus.getDefault().post(new ActivityForwordEvent());
-//                    finish();
-                }else{
-                    if(isRecordVideo.get() && mOnPreviewFrameListener!=null){
-                        mOnPreviewFrameListener.onPreviewFrame(data);
-                    }
-                }
-            }
-        });
-
-        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                mSurfaceHolder = holder;
-                mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
-            }
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                mCameraHelp.release();
-            }
-        });
-
-        surfaceView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCameraHelp.callFocusMode();
-            }
-        });
-        iv_delete_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                finishVideo(2);
-                deleteSegment();
-            }
-        });
-        mVideoEditor.setOnProgessListener(new onVideoEditorProgressListener() {
-            @Override
-            public void onProgress(VideoEditor v, int percent) {
-                if(percent==100){
-                    executeProgress++;
-                }
-                int pro = (int) (executeProgress/executeCount*100);
-                editorTextView.setText("视频编辑中"+pro+"%");
-            }
-        });
-    }
+//    private void initMediaRecorder() {
+//        mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
+//            @Override
+//            public void onPreviewFrame(byte[] data, Camera camera) {
+//                if(isShotPhoto.get()){
+//                    isShotPhoto.set(false);
+//                    shotPhoto(data);
+////                        PictureSelector.create(ChatActivity.this)
+////                                .openCamera(PictureMimeType.ofImage())
+////                                .compress(true)
+////                                .forResult(PictureConfig.REQUEST_CAMERA);
+////                    EventBus.getDefault().post(new ActivityForwordEvent());
+////                    finish();
+//                }else{
+//                    if(isRecordVideo.get() && mOnPreviewFrameListener!=null){
+//                        mOnPreviewFrameListener.onPreviewFrame(data);
+//                    }
+//                }
+//            }
+//        });
+//
+//        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+//            @Override
+//            public void surfaceCreated(SurfaceHolder holder) {
+//                mSurfaceHolder = holder;
+//                mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
+//            }
+//            @Override
+//            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+//
+//            }
+//            @Override
+//            public void surfaceDestroyed(SurfaceHolder holder) {
+//                mCameraHelp.release();
+//            }
+//        });
+//
+//        surfaceView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mCameraHelp.callFocusMode();
+//            }
+//        });
+//        iv_delete_back.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                finishVideo(2);
+////                deleteSegment();
+//            }
+//        });
+//        mVideoEditor.setOnProgessListener(new onVideoEditorProgressListener() {
+//            @Override
+//            public void onProgress(VideoEditor v, int percent) {
+//                if(percent==100){
+//                    executeProgress++;
+//                }
+//                int pro = (int) (executeProgress/executeCount*100);
+//                editorTextView.setText("视频编辑中"+pro+"%");
+//            }
+//        });
+//    }
 
     private void shotPhoto(final byte[] nv21){
 
@@ -239,7 +258,7 @@ public class RecordedActivity extends BaseActivity {
 //                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
 //                setResult(RESULT_OK, intent);
 //                finish();
-                Intent intent =new Intent(RecordedActivity.this,ImageShowActivity.class);
+                Intent intent =new Intent(RecordedLocalActivity.this,ImageShowActivity.class);
                 intent.putExtra("imgpath",result);
                 startActivityForResult(intent,90);
             }
@@ -260,15 +279,18 @@ public class RecordedActivity extends BaseActivity {
             public void onDown() {
                 //长按录像
                 isRecordVideo.set(true);
-                startRecord();
+//                startRecord();
+                startRecordLocal();
                 goneRecordLayout();
             }
             @Override
             public void onUp() {
-                if(isRecordVideo.get()){
-                    isRecordVideo.set(false);
-                    upEvent();
-                }
+//                if(isRecordVideo.get()){
+//                    isRecordVideo.set(false);
+//                    upEvent();
+//                }
+                mRecorder.stop();
+                initRecorderState();
             }
             @Override
             public void onClick() {
@@ -299,7 +321,7 @@ public class RecordedActivity extends BaseActivity {
         iv_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteSegment();
+//                deleteSegment();
             }
         });
         iv_flash_video.setOnClickListener(new View.OnClickListener() {
@@ -496,6 +518,109 @@ public class RecordedActivity extends BaseActivity {
             }
         });
     }
+
+    private MediaRecorder mRecorder;
+    private Camera camera;
+    private String path;
+    private void startRecordLocal(){
+//           int count=  Camera.getNumberOfCameras();
+           if (null==mRecorder){
+               mRecorder=new MediaRecorder();
+           }
+
+        camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+
+        if (camera != null) {
+            camera.setDisplayOrientation(90);
+            camera.unlock();
+            mRecorder.setCamera(camera);
+        }
+
+        try {
+            // 这两项需要放在setOutputFormat之前
+            mRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+            mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+
+            // Set output file format
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+
+            // 这两项需要放在setOutputFormat之后
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            mRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+
+            mRecorder.setVideoSize(640, 480);
+            mRecorder.setVideoFrameRate(30);
+            mRecorder.setVideoEncodingBitRate(3 * 1024 * 1024);
+            mRecorder.setOrientationHint(90);
+
+            //设置记录会话的最大持续时间（毫秒）
+            mRecorder.setMaxDuration(30 * 1000);
+            mRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
+
+
+
+            path = getSDPath();
+            if (path != null) {
+//                File dir = new File(path + "/recordtest");
+                File dir = new File("/sdcard/WeiXinRecorded/"+System.currentTimeMillis()+"/");
+                if (!dir.exists()) {
+                    dir.mkdir();
+                }
+                path = dir + "/" + getDate() + ".mp4";
+                mRecorder.setOutputFile(path);
+                mRecorder.prepare();
+                mRecorder.start();
+//                mStartedFlg = true;
+//                mBtnStartStop.setText("Stop");
+                runLoopPro();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SurfaceHolder holder = surfaceView.getHolder();
+        // setType必须设置，要不出错.
+        holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+    }
+
+
+    /**
+     * 获取系统时间
+     *
+     * @return
+     */
+    public static String getDate() {
+        Calendar ca = Calendar.getInstance();
+        int year = ca.get(Calendar.YEAR);           // 获取年份
+        int month = ca.get(Calendar.MONTH);         // 获取月份
+        int day = ca.get(Calendar.DATE);            // 获取日
+        int minute = ca.get(Calendar.MINUTE);       // 分
+        int hour = ca.get(Calendar.HOUR);           // 小时
+        int second = ca.get(Calendar.SECOND);       // 秒
+
+        String date = "" + year + (month + 1) + day + hour + minute + second;
+        Log.d("TAG", "date:" + date);
+
+        return date;
+    }
+
+    /**
+     * 获取SD path
+     *
+     * @return
+     */
+    public String getSDPath() {
+        File sdDir = null;
+        boolean sdCardExist = Environment.getExternalStorageState()
+                .equals(android.os.Environment.MEDIA_MOUNTED); // 判断sd卡是否存在
+        if (sdCardExist) {
+            sdDir = Environment.getExternalStorageDirectory();// 获取跟目录
+            return sdDir.toString();
+        }
+
+        return null;
+    }
+
     private long countTime;
     private void runLoopPro(){
 
@@ -545,24 +670,6 @@ public class RecordedActivity extends BaseActivity {
         initRecorderState();
     }
 
-    private void deleteSegment(){
-        finish();
-//        showConfirm("确认删除上一段视频?", new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-////                closeProgressDialog();
-////
-////                if(segmentList.size()>0 && timeList.size()>0) {
-////                    segmentList.remove(segmentList.size() - 1);
-////                    aacList.remove(aacList.size() - 1);
-////                    timeList.remove(timeList.size() - 1);
-////                    lineProgressView.removeSplit();
-////                }
-////                initRecorderState();
-//            }
-//        });
-    }
 
     /**
      * 初始化视频拍摄状态
@@ -657,4 +764,31 @@ public class RecordedActivity extends BaseActivity {
             initRecorderState();
         }
     }
+//
+//    @Override
+//    public void surfaceCreated(SurfaceHolder holder) {
+//        mSurfaceHolder = holder;
+//
+//}
+//    @Override
+//    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+//        mSurfaceHolder = holder;
+//    }
+//
+//    @Override
+//    public void surfaceDestroyed(SurfaceHolder holder) {
+//        surfaceView = null;
+//        mSurfaceHolder = null;
+////        handler.removeCallbacks(runnable);
+//        if (mRecorder != null) {
+//            mRecorder.release();
+//            mRecorder = null;
+//            Log.d("TAG", "surfaceDestroyed release mRecorder");
+//        }
+//        if (camera != null) {
+//            camera.release();
+//            camera = null;
+//        }
+//
+//    }
 }

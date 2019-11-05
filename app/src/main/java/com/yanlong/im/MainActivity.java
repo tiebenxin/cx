@@ -40,6 +40,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
+import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -495,6 +496,17 @@ public class MainActivity extends AppActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void restartAppEvent(net.cb.cb.library.event.EventFactory.RestartAppEvent event) {
+        if (!isFinishing()) {
+            // 处理APP在后台，关闭某个权限后需要重启APP
+            Intent intent=new Intent(this, SplashActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void sendP2PAuVideoDialMessageEvent(EventFactory.SendP2PAuVideoDialMessage event) {
 
         if (event.avChatType == AVChatType.AUDIO.getValue()) {
@@ -502,6 +514,11 @@ public class MainActivity extends AppActivity {
         } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
             SocketData.send4VoiceOrVideoNotice(event.toUId, event.toGid,MsgBean.AuVideoType.Vedio);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showVoiceMinimizeEvent(EventFactory.ShowVoiceMinimizeEvent event) {
+        showMinimizeVoiceView();
     }
 
     private void showMinimizeVoiceView(){

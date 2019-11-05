@@ -236,6 +236,11 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                     setResult(RESULT_OK);
                     finish();
                     notifyRefreshMsg(gid, uid);
+//                    ToastUtil.show(GroupSelectActivity.this,"转发成功");
+//                    setResult(RESULT_OK);
+////                    doSendSuccess();
+//                    notifyRefreshMsg( gid,uid,content);
+//                    finish();
                 }
             });
 
