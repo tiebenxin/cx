@@ -3228,6 +3228,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public void onYes() {
                 msgDao.msgDel4MsgId(msgbean.getMsg_id());
                 msgListData.remove(msgbean);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 notifyData();
             }
         });

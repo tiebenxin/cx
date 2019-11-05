@@ -65,7 +65,7 @@ public class VoiceView extends LinearLayout {
     }
 
     public void init(final boolean isMe, final int second, boolean isRead, boolean isPlay, int playStatus) {
-//        LogUtil.getLog().i(VoiceView.class.getSimpleName(), "初始化View--" + "isRead=" + isRead + "--isPlay=" + isPlay + "--isMe=" + isMe + "--playStatus=" + playStatus);
+        LogUtil.getLog().i(VoiceView.class.getSimpleName(), "初始化View--" + "isRead=" + isRead + "--isPlay=" + isPlay + "--isMe=" + isMe + "--playStatus=" + playStatus);
         if (isMe) {
             viewMeVoice.setVisibility(VISIBLE);
             viewOtVoice.setVisibility(GONE);
@@ -78,20 +78,20 @@ public class VoiceView extends LinearLayout {
         txtOtVoice.setText(second + "''");
         txtMeVoice.setText(second + "''");
         if (isPlay && playStatus == ChatEnum.EPlayStatus.PLAYING) {
-//            LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
+            LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
             ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
             ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
             ((AnimationDrawable) imgMeIcon.getDrawable()).start();
             ((AnimationDrawable) imgOtIcon.getDrawable()).start();
         } else {
-            if (isRead && playStatus == ChatEnum.EPlayStatus.NO_DOWNLOADED) {
-//                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
+            if (!isMe && isRead && playStatus == ChatEnum.EPlayStatus.NO_DOWNLOADED) {
+                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
                 ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
                 ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
                 ((AnimationDrawable) imgMeIcon.getDrawable()).start();
                 ((AnimationDrawable) imgOtIcon.getDrawable()).start();
             } else {
-//                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "终止语音动画");
+                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "终止语音动画");
                 ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
                 ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
                 ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);

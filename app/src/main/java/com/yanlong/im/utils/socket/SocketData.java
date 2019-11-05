@@ -251,7 +251,7 @@ public class SocketData {
             //  Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
-
+            msgAllBean.setRead(true);//自己发送的消息是已读
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
             /*if(wmsg.getTimestamp()!=0){
@@ -826,6 +826,7 @@ public class SocketData {
         msgAllBean.setRequest_id(getSysTime() + "");
         msgAllBean.setTimestamp(time);
         msgAllBean.setMsg_type(type);
+        msgAllBean.setRead(true);//自己发送时已读的
         switch (type) {
             case ChatEnum.EMessageType.IMAGE:
                 ImageMessage image = (ImageMessage) t;
