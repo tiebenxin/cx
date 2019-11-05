@@ -24,4 +24,9 @@ public class Preferences {
     public static final String TOGID = "toGid";
     public static final String ROOM_ID = "roomId";
     public static final String FRIEND = "friend";
+
+    public static final String NOTACCPET = "notaccpet";
+    public static final String CANCLE = "cancel";
+    public static final String HANGUP = "hangup";
+    public static final String REJECT = "reject";
 }

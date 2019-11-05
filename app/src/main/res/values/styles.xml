@@ -7,4 +7,10 @@
         <item name="android:fontFamily">@font/emoji_font</item>
     </style>
 
+    <!--启动页的主题,给个默认背景-->
+    <style name="LauncherAppThemeNoTranslucent" parent="Theme.AppCompat.Light.NoActionBar">
+<!--          <item name="android:windowIsTranslucent">false</item>-->
+        <item name="android:windowBackground">@drawable/bg_splash_start_page</item>
+    </style>
+
 </resources>

@@ -13,6 +13,11 @@ import android.view.inputmethod.InputMethodManager;
 import com.umeng.analytics.MobclickAgent;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.event.EventFactory;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /***
  * 统一的activity
@@ -33,7 +38,11 @@ public class AppActivity extends AppCompatActivity {
         alert = new AlertWait(this);
         super.onCreate(savedInstanceState);
         //友盟Push后台进行日活统计及多维度推送的必调用方法
-
+        if(savedInstanceState!=null){
+            // 处理APP在后台，关闭某个权限后需要重启APP
+            EventBus.getDefault().register(this);
+            EventBus.getDefault().post(new EventFactory.RestartAppEvent());
+        }
     }
 
     @Override
@@ -53,6 +62,14 @@ public class AppActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         alert.dismiss4distory();
+        if(EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().unregister(this);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(Object myEvent) {
+
     }
 
     //字体缩放倍数
