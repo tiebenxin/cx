@@ -360,10 +360,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.CONNECTING);
                 txtWaitMsg.setText(getString(R.string.avchat_wait_recieve1));
                 if (mAVChatType == AVChatType.AUDIO.getValue()) {
-//                    outGoingCalling(AVChatType.AUDIO);
                     auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.AUDIO);
                 } else {
-//                    outGoingCalling(AVChatType.VIDEO);
+                    imgMinimize.setVisibility(View.GONE);
                     auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.VIDEO);
                 }
                 break;
@@ -987,6 +986,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             layoutAudio.setVisibility(View.GONE);
             layoutInvitationVoice.setVisibility(View.GONE);
             layoutVideoRoot.setVisibility(View.VISIBLE);
+            imgMinimize.setVisibility(View.VISIBLE);
         } else {
             layoutVoiceIng.setVisibility(View.VISIBLE);
             txtWaitMsg.setVisibility(View.GONE);
