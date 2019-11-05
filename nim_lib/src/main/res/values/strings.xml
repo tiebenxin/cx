@@ -23,6 +23,7 @@
     <string name="avchat_network_grade_2">网络一般：</string>
     <string name="avchat_network_grade_3">网络较差：</string>
     <string name="avchat_refuse">挂断</string>
+    <string name="avchat_reject">拒绝</string>
     <string name="avchat_receive">开启</string>
     <string name="avchat_pickup">接听</string>
     <string name="avchat_mute">静音</string>

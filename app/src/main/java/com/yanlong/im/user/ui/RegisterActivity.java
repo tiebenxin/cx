@@ -119,7 +119,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             @Override
             public void onClick(View widget) {
                 Intent intent = new Intent(RegisterActivity.this,WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL,"https://changliaoliao.zhixun5588.com/yhxy.html");
+                intent.putExtra(WebPageActivity.AGM_URL,"https://changxin.zhixun6.com/yhxy.html");
                 startActivity(intent);
             }
         };
@@ -131,7 +131,7 @@ public class RegisterActivity extends AppActivity implements View.OnClickListene
             @Override
             public void onClick(View widget) {
                 Intent intent = new Intent(RegisterActivity.this,WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL,"https://changliaoliao.zhixun5588.com/yszc.html");
+                intent.putExtra(WebPageActivity.AGM_URL,"https://changxin.zhixun6.com/yszc.html");
                 startActivity(intent);
 
             }

@@ -43,6 +43,7 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
@@ -230,6 +231,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
     public static final int REQ_TRANS = 9653;
+    // 浮动窗口
+    private final int REQUEST_CODE = 100;
 
 
     private MessageAdapter messageAdapter;
@@ -1634,7 +1637,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             MessageManager.getInstance().setSessionSolo(toUId);
         }
-
+        // 打开浮动窗口权限时，重新显示音视频浮动按钮
+        if(AVChatProfile.getInstance().isCallIng()){
+            EventBus.getDefault().post(new EventFactory.ShowVoiceMinimizeEvent());
+        }
         //刷新群资料
         taskSessionInfo();
         clickAble = true;
@@ -3231,6 +3237,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public void onYes() {
                 msgDao.msgDel4MsgId(msgbean.getMsg_id());
                 msgListData.remove(msgbean);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 notifyData();
             }
         });

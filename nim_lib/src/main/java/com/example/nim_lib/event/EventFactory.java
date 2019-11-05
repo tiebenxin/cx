@@ -45,4 +45,10 @@ public class EventFactory {
         public Long toUId;
         public String toGid;
     }
+
+    /**
+     * 语音最小化
+     */
+    public static class ShowVoiceMinimizeEvent extends BaseEvent {
+    }
 }
