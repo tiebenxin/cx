@@ -12,15 +12,19 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityGroupSaveBinding;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.socket.SocketData;
@@ -59,6 +63,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
     private ActivityGroupSaveBinding ui;
     private MsgAllBean msgAllBean;
     private MsgDao msgDao = new MsgDao();
+    private MsgAllBean sendMesage;
 
 
     @Override
@@ -158,15 +163,6 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
                 @Override
                 public void onYes(String content) {
-                    // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
-
-//                    Long toUId = bean.getFrom_uid();
-//                    String toGid = bean.getGid();
-//                    SocketData.send4Chat(uid, gid, msgAllBean.getChat().getMsg());
-//                    if (StringUtil.isNotNull(content)) {
-//                        SocketData.send4Chat(uid, gid, content);
-//                    }
-//                    finish();
                     sendMessage(uid, gid, msgAllBean.getChat().getMsg(), content);
 
                 }
@@ -181,18 +177,23 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
                 @Override
                 public void onYes(String content) {
-                    // ToastUtil.show(context, msgAllBean.getImage().getThumbnail()+"---\n"+content);
-//                    Long toUId = bean.getFrom_uid();
-//                    String toGid = bean.getGid();
                     ImageMessage imagesrc = msgAllBean.getImage();
-                    SocketData.send4Image(uid, gid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
-                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), true);
-                    if (StringUtil.isNotNull(content)) {
-                        SocketData.send4Chat(uid, gid, content);
+                    if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
+                        imagesrc.setReadOrigin(true);
                     }
+                    ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), false, imagesrc.isReadOrigin());
+                    MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
+                    }
+//                    sendMesage = SocketData.send4Image(toUid, toGid, imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), new Long(imagesrc.getWidth()).intValue(), new Long(imagesrc.getHeight()).intValue(), new Long(imagesrc.getSize()).intValue());
+//                    msgDao.ImgReadStatSet(imagesrc.getOrigin(), imagesrc.isReadOrigin());
+                    sendLeaveMessage(content, uid, gid);
+                    ToastUtil.show(GroupSelectActivity.this, "转发成功");
                     setResult(RESULT_OK);
                     finish();
-
+                    notifyRefreshMsg(gid, uid);
                 }
             });
 
@@ -206,36 +207,10 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
                 @Override
                 public void onYes(String content) {
-                    // ToastUtil.show(context, msgAllBean.getChat().getMsg()+"---\n"+content);
-
-//                    Long toUId = bean.getFrom_uid();
-//                    String toGid = bean.getGid();
-//                    SocketData.send4Chat(uid, gid, msgAllBean.getAtMessage().getMsg());
-//                    if (StringUtil.isNotNull(content)) {
-//                        SocketData.send4Chat(uid, gid, content);
-//                    }
-//                    finish();
-
                     sendMessage(uid, gid, msgAllBean.getAtMessage().getMsg(), content);
                 }
             });
-        }
-//        else if(msgAllBean.getVideoMessage() != null){
-//            alertForward.init(GroupSelectActivity.this, avatar, nick, msgAllBean.getAtMessage().getMsg(), null, "发送", new AlertForward.Event() {
-//                @Override
-//                public void onON() {
-//
-//                }
-//
-//                @Override
-//                public void onYes(String content) {
-//
-//
-//                    sendAndSaveMessage(uid, gid, msgAllBean.getVideoMessage().getMsg(), content);
-//                }
-//            });
-//        }
-        else if (msgAllBean.getVideoMessage() != null) {
+        } else if (msgAllBean.getVideoMessage() != null) {
             alertForward.init(GroupSelectActivity.this, avatar, nick, null, msgAllBean.getVideoMessage().getBg_url(), "发送", new AlertForward.Event() {
                 @Override
                 public void onON() {
@@ -244,16 +219,23 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
                 @Override
                 public void onYes(String content) {
-
-                    MsgAllBean sendMesage = SocketData.转发送视频整体信息(uid, gid, msgAllBean.getVideoMessage());
-
-                    if (StringUtil.isNotNull(content)) {
-                        sendMesage = SocketData.send4Chat(uid, gid, content);
+//                    MsgAllBean sendMesage = SocketData.转发送视频整体信息(uid, gid, msgAllBean.getVideoMessage());
+//
+//                    if (StringUtil.isNotNull(content)) {
+//                        sendMesage = SocketData.send4Chat(uid, gid, content);
+//                    }
+                    VideoMessage video = msgAllBean.getVideoMessage();
+                    VideoMessage videoMessage = SocketData.createVideoMessage(SocketData.getUUID(), video.getBg_url(), video.getUrl(), video.getDuration(), video.getWidth(), video.getHeight(), video.isReadOrigin());
+                    MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.NORMAL, SocketData.getFixTime(), videoMessage);
+                    if (allBean != null) {
+                        SocketData.sendAndSaveMessage(allBean);
+                        sendMesage = allBean;
                     }
+                    sendLeaveMessage(content, uid, gid);
                     ToastUtil.show(GroupSelectActivity.this, "转发成功");
+                    setResult(RESULT_OK);
                     finish();
-//                    doSendSuccess();
-                    notifyRefreshMsg(gid, uid, content);
+                    notifyRefreshMsg(gid, uid);
                 }
             });
 
@@ -267,17 +249,26 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
      * comments 转发留言
      * */
     private void sendMessage(long msgUid, String msgGid, String msgMsg, String comments) {
-        SocketData.send4Chat(msgUid, msgGid, msgMsg);
-        if (StringUtil.isNotNull(comments)) {
-            SocketData.send4Chat(msgUid, msgGid, comments);
+
+//        SocketData.send4Chat(msgUid, msgGid, msgMsg);
+//        if (StringUtil.isNotNull(comments)) {
+//            SocketData.send4Chat(msgUid, msgGid, comments);
+//        }
+        ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgMsg);
+        MsgAllBean allBean = SocketData.createMessageBean(msgUid, msgGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+        if (allBean != null) {
+            SocketData.sendAndSaveMessage(allBean);
+            sendMesage = allBean;
         }
+        sendLeaveMessage(comments, msgUid, msgGid);
         setResult(RESULT_OK);
         finish();
+        notifyRefreshMsg(msgGid, msgUid);
     }
 
-    private void notifyRefreshMsg(String toGid, long toUid, String content) {
+    private void notifyRefreshMsg(String toGid, long toUid) {
         MessageManager.getInstance().setMessageChange(true);
-        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, content);
+        MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, sendMesage);
     }
 
     //自动生成RecyclerViewAdapter
@@ -374,6 +365,20 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
         MsgDao msgDao = new MsgDao();
         msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+    }
+
+    /*
+     * 发送留言消息
+     * */
+    private void sendLeaveMessage(String content, long toUid, String toGid) {
+        if (StringUtil.isNotNull(content)) {
+            ChatMessage chat = SocketData.createChatMessage(SocketData.getUUID(), content);
+            MsgAllBean messageBean = SocketData.createMessageBean(toUid, toGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chat);
+            if (messageBean != null) {
+                SocketData.sendAndSaveMessage(messageBean);
+                sendMesage = messageBean;
+            }
+        }
     }
 
 }

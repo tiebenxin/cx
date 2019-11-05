@@ -136,7 +136,7 @@ public class MessageManager {
      * @param isList 是否是批量消息
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
-        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType" + wrapMessage.getMsgType());
+        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
         boolean result = true;
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
@@ -440,7 +440,7 @@ public class MessageManager {
             e.printStackTrace();
             System.out.println(TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         }
-        System.out.println(TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
+//        System.out.println(TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         return result;
     }
 

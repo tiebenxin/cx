@@ -2366,14 +2366,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         String name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
-                        if (!TextUtils.isEmpty(name)) {
-                            edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
-                        } else {
-                            name = TextUtils.isEmpty(msgbean.getFrom_group_nickname()) ? msgbean.getFrom_nickname() : msgbean.getFrom_group_nickname();
-                            edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
-
+                        String txt = edtChat.getText().toString().trim();
+                        if (!txt.contains("@" + name)) {
+                            if (!TextUtils.isEmpty(name)) {
+                                edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                            } else {
+                                name = TextUtils.isEmpty(msgbean.getFrom_group_nickname()) ? msgbean.getFrom_nickname() : msgbean.getFrom_group_nickname();
+                                edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                            }
+                            scrollListView(true);
                         }
-                        scrollListView(true);
                         return true;
                     }
                 });
