@@ -1,10 +1,12 @@
 package com.yanlong.im.chat.task;
 
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import com.google.gson.JsonArray;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 
@@ -83,6 +85,7 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
                     if (groups != null) {
 //                        System.out.println("群信息--gids=" + gids);
                         msgDao.saveGroups(groups);
+                        createGroupHead(groups);
                         MessageManager.getInstance().addSavedGroup(groups);
                         int next = ++position;
                         loadGroups(next);
@@ -90,5 +93,21 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
                 }
             }
         });
+    }
+
+    /*
+     * 创建群聊头像
+     * */
+    private void createGroupHead(List<Group> groupList) {
+        int len = groupList.size();
+        for (int i = 0; i < len; i++) {
+            Group group = groupList.get(i);
+            if (TextUtils.isEmpty(group.getAvatar())) {
+                String avatar = msgDao.groupHeadImgGet(group.getGid());
+                if (TextUtils.isEmpty(avatar)) {
+                    MessageManager.getInstance().doImgHeadChange(group.getGid(), group);
+                }
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui.forward;
 
+import android.annotation.SuppressLint;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -14,12 +15,14 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.ImageMessage;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.view.AlertForward;
 import com.yanlong.im.databinding.ActivityGroupSaveBinding;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
@@ -31,9 +34,15 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -89,7 +98,8 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
     private void initData() {
         groupInfoBeans = new ArrayList<>();
         ui.mtListView.init(new RecyclerViewAdapter());
-        taskMySaved();
+//        taskMySaved();
+        loadSavedGroup();
     }
 
 
@@ -105,6 +115,33 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 ui.mtListView.notifyDataSetChange(response);
             }
         });
+    }
+
+    @SuppressLint("CheckResult")
+    private void loadSavedGroup() {
+        Observable.just(0)
+                .map(new Function<Integer, List<Group>>() {
+                    @Override
+                    public List<Group> apply(Integer integer) throws Exception {
+                        return msgDao.getMySavedGroup();
+                    }
+                }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(Observable.<List<Group>>empty())
+                .subscribe(new Consumer<List<Group>>() {
+                    @Override
+                    public void accept(List<Group> list) throws Exception {
+                        if (list == null || list.size() <= 0) {
+                            ui.mtListView.getLoadView().setStateNoData(R.mipmap.ic_nodate);
+                            return;
+                        }
+                        if (groupInfoBeans != null && groupInfoBeans.size() > 0) {
+                            groupInfoBeans.clear();
+                        }
+                        groupInfoBeans.addAll(list);
+                        ui.mtListView.notifyDataSetChange();
+                    }
+                });
     }
 
     @Override
@@ -208,22 +245,22 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 @Override
                 public void onYes(String content) {
 
-                    MsgAllBean  sendMesage = SocketData.转发送视频整体信息(uid, gid, msgAllBean.getVideoMessage());
+                    MsgAllBean sendMesage = SocketData.转发送视频整体信息(uid, gid, msgAllBean.getVideoMessage());
 
                     if (StringUtil.isNotNull(content)) {
                         sendMesage = SocketData.send4Chat(uid, gid, content);
                     }
-                    ToastUtil.show(GroupSelectActivity.this,"转发成功");
+                    ToastUtil.show(GroupSelectActivity.this, "转发成功");
                     finish();
 //                    doSendSuccess();
-                    notifyRefreshMsg( gid,uid,content);
+                    notifyRefreshMsg(gid, uid, content);
                 }
             });
 
         }
-            alertForward.show();
+        alertForward.show();
 
-        }
+    }
 
     /*
      * msg 转发消息内容
@@ -237,7 +274,8 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         setResult(RESULT_OK);
         finish();
     }
-    private void notifyRefreshMsg(String toGid, long toUid,String content) {
+
+    private void notifyRefreshMsg(String toGid, long toUid, String content) {
         MessageManager.getInstance().setMessageChange(true);
         MessageManager.getInstance().notifyRefreshMsg(!TextUtils.isEmpty(toGid) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUid, toGid, CoreEnum.ESessionRefreshTag.SINGLE, content);
     }
@@ -254,11 +292,20 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
         @Override
         public void onBindViewHolder(RCViewHolder holder, int position) {
             final Group groupInfoBean = groupInfoBeans.get(position);
-         //   holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
-            Glide.with(context).load(groupInfoBean.getAvatar())
-                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
-           // holder.txtName.setText(groupInfoBean.getName());
+            String imageHead = groupInfoBean.getAvatar();
+            if (imageHead != null && !imageHead.isEmpty() && StringUtil.isNotNull(imageHead)) {
+                Glide.with(context).load(imageHead).apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+            } else {
+                String url = msgDao.groupHeadImgGet(groupInfoBean.getGid());
+                if (StringUtil.isNotNull(url)) {
+                    Glide.with(context).load(url).apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                } else {
+                    creatAndSaveImg(groupInfoBean, holder.imgHead);
+                }
+            }
+
+            // holder.txtName.setText(groupInfoBean.getName());
             //holder.imgHead.setImageURI(groupInfoBean.getAvatar() + "");
             holder.txtName.setText(/*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -304,6 +351,29 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
             }
 
         }
+    }
+
+    private void creatAndSaveImg(Group bean, ImageView imgHead) {
+        Group gginfo = bean;
+        int i = gginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            MemberUser userInfo = gginfo.getUsers().get(j);
+//            if (j == i - 1) {
+//                name += userInfo.getName();
+//            } else {
+//                name += userInfo.getName() + "、";
+//            }
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+        Glide.with(context).load(file)
+                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
     }
 
 }

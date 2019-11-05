@@ -47,9 +47,9 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 boolean result = MessageManager.getInstance().dealWithMsg(wrapMessage, true, i == length - 1);//最后一条消息，发出通知声音
                 if (result) {
                     taskCount--;
-//                    System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新一次任务数 taskCount=" + taskCount + "--msgId=" + wrapMessage.getMsgId());
+                    System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新一次任务数 taskCount=" + taskCount + "--msgId=" + wrapMessage.getMsgId());
                 } else {
-//                    System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新任务数失败" + "--msgId=" + wrapMessage.getMsgId());
+                    System.out.println(TaskDealWithMsgList.class.getSimpleName() + "--更新任务数失败" + "--msgId=" + wrapMessage.getMsgId());
                 }
             }
         }

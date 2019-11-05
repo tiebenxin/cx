@@ -136,7 +136,8 @@ public class MessageManager {
      * @param isList 是否是批量消息
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
-        boolean result = false;
+        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType" + wrapMessage.getMsgType());
+        boolean result = true;
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
@@ -388,19 +389,44 @@ public class MessageManager {
      * @isList 是否是批量消息
      * */
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
-        msgAllBean.setRead(false);//设置未读
-        msgAllBean.setTo_uid(msgAllBean.getTo_uid());
         boolean result = false;
-        //收到直接存表
-        if (isList) {
-            pendingMessages.put(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
-        } else {
-            DaoUtil.update(msgAllBean);
-        }
-        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
-            if (!loadGids.contains(msgAllBean.getGid())) {
-                loadGids.add(msgAllBean.getGid());
-                loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+        try {
+            msgAllBean.setRead(false);//设置未读
+            msgAllBean.setTo_uid(msgAllBean.getTo_uid());
+            //收到直接存表
+            if (isList) {
+                pendingMessages.put(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
+            } else {
+                DaoUtil.update(msgAllBean);
+            }
+            if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
+                if (!loadGids.contains(msgAllBean.getGid())) {
+                    loadGids.add(msgAllBean.getGid());
+                    loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                } else {
+                    if (!isList) {
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                        setMessageChange(true);
+                    } else {
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                    }
+                    result = true;
+                }
+            } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
+                if (!loadUids.contains(msgAllBean.getFrom_uid())) {
+                    loadUids.add(msgAllBean.getFrom_uid());
+                    loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                    System.out.println(TAG + "--需要加载用户信息");
+                } else {
+                    System.out.println(TAG + "--异步加载用户信息更新未读数");
+                    if (!isList) {
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                        setMessageChange(true);
+                    } else {
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                    }
+                    result = true;
+                }
             } else {
                 if (!isList) {
                     updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
@@ -410,30 +436,11 @@ public class MessageManager {
                 }
                 result = true;
             }
-        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
-            if (!loadUids.contains(msgAllBean.getFrom_uid())) {
-                loadUids.add(msgAllBean.getFrom_uid());
-                loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
-                System.out.println(TAG + "--需要加载用户信息");
-            } else {
-                System.out.println(TAG + "--异步加载用户信息更新未读数");
-                if (!isList) {
-                    updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-                    setMessageChange(true);
-                } else {
-                    updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
-                }
-                result = true;
-            }
-        } else {
-            if (!isList) {
-                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-                setMessageChange(true);
-            } else {
-                updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
-            }
-            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         }
+        System.out.println(TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         return result;
     }
 
