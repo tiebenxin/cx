@@ -232,7 +232,7 @@ public class RecordedActivity extends BaseActivity {
             }
             @Override
             public void onFinish(String result) {
-//                closeProgressDialog();
+                closeProgressDialog();
 
 //                Intent intent = new Intent();
 //                intent.putExtra(INTENT_PATH, result);
@@ -247,6 +247,7 @@ public class RecordedActivity extends BaseActivity {
             public void onError(Throwable e) {
                 closeProgressDialog();
                 Toast.makeText(getApplicationContext(), "图片截取失败", Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
     }

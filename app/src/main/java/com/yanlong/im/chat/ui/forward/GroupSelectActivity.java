@@ -214,9 +214,10 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                         sendMesage = SocketData.send4Chat(uid, gid, content);
                     }
                     ToastUtil.show(GroupSelectActivity.this,"转发成功");
-                    finish();
+                    setResult(RESULT_OK);
 //                    doSendSuccess();
                     notifyRefreshMsg( gid,uid,content);
+                    finish();
                 }
             });
 
