@@ -198,19 +198,21 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             mMediaPlayer.setDisplay(surfaceHolder);
             mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             mMediaPlayer.setLooping(false);
-            int duration=mMediaPlayer.getDuration();
-            if (duration<=0){
-                ToastUtil.show(getApplicationContext(),"文件损坏，请退出重新点击进入");
-                File file=new File(path);
-                if (null!=file&&file.exists()){
-                    file.delete();
-                }
-                finish();
-            }
+
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     mMediaPlayer.start();
+//                    int duration=mMediaPlayer.getDuration();
+//                    if (duration<=0){
+//                        ToastUtil.show(getApplicationContext(),"文件损坏，请退出重新点击进入");
+//                        File file=new File(path);
+//                        if (null!=file&&file.exists()){
+//                            file.delete();
+//                        }
+//                        finish();
+//                    }
+
                     changeVideoSize();
                     if (mMediaPlayer.getDuration()/1000<10){
                         activity_video_count_time.setText("00:0"+(mMediaPlayer.getDuration()/1000)+"");
