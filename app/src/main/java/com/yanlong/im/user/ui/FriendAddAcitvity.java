@@ -113,7 +113,7 @@ public class FriendAddAcitvity extends AppActivity {
 
         UMImage thumb =  new UMImage(this, R.mipmap.icon_share_logo);
         thumb.setThumb(thumb);
-        UMWeb web = new UMWeb("https://changliaoliao.zhixun5588.com/fx/");
+        UMWeb web = new UMWeb("https://changxin.zhixun6.com/fx/index.html");
         web.setTitle("我们一起用“常信”来聊天吧");//标题
         web.setThumb(thumb);  //缩略图
         web.setDescription("我正在使用常信，一款为有共同兴趣爱好用户定制打造的聊天交友软件");//描述
