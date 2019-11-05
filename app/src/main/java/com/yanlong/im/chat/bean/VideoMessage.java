@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import android.text.TextUtils;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -15,14 +17,13 @@ public class VideoMessage extends RealmObject implements IMsgContent {
     private String localUrl;
 
 
-
     public long getDuration() {
         return duration;
     }
 
 
     public String getLocalUrl() {
-        return localUrl;
+        return !TextUtils.isEmpty(localUrl) ? localUrl : "";
     }
 
     public void setLocalUrl(String localUrl) {
@@ -48,7 +49,7 @@ public class VideoMessage extends RealmObject implements IMsgContent {
     }
 
     public String getBg_url() {
-        return bg_url;
+        return !TextUtils.isEmpty(bg_url) ? bg_url : "";
     }
 
     public void setBg_url(String bg_url) {
@@ -72,7 +73,7 @@ public class VideoMessage extends RealmObject implements IMsgContent {
     }
 
     public String getUrl() {
-        return url;
+        return !TextUtils.isEmpty(url) ? url : "";
     }
 
     public void setUrl(String url) {

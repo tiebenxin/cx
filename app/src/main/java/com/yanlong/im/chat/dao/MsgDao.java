@@ -85,6 +85,7 @@ public class MsgDao {
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
+            DaoUtil.reportException(e);
             DaoUtil.close(realm);
         }
     }
@@ -120,6 +121,7 @@ public class MsgDao {
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
+            DaoUtil.reportException(e);
             DaoUtil.close(realm);
         }
     }
@@ -232,6 +234,7 @@ public class MsgDao {
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
+            DaoUtil.reportException(e);
             DaoUtil.close(realm);
         }
         return beans;
@@ -261,6 +264,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return beans;
     }
@@ -285,6 +289,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return beans;
     }
@@ -323,6 +328,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return beans;
     }
@@ -349,6 +355,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return beans;
     }
@@ -372,6 +379,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return beans;
     }
@@ -395,6 +403,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return beans;
     }
@@ -419,6 +428,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return beans;
     }
@@ -472,6 +482,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -516,6 +527,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return groupInfoBean;
     }
@@ -576,6 +588,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -623,6 +636,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -705,6 +719,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -741,6 +756,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
 
     }
@@ -856,6 +872,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return ret;
     }
@@ -1197,6 +1214,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -1220,6 +1238,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -1242,6 +1261,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -1288,6 +1308,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -1353,6 +1374,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return rts;
     }
@@ -1417,6 +1439,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
 
         return rts;
@@ -1444,6 +1467,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return ret;
     }
@@ -1469,6 +1493,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
 
         return ret;
@@ -1543,6 +1568,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return session;
 
@@ -1570,6 +1596,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -1930,7 +1957,6 @@ public class MsgDao {
             img.setReadOrigin(isread);
             realm.insertOrUpdate(img);
         }
-
         realm.commitTransaction();
         realm.close();
 
@@ -2419,6 +2445,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return sum;
     }
@@ -2436,6 +2463,7 @@ public class MsgDao {
             } catch (Exception e) {
                 e.printStackTrace();
                 DaoUtil.close(realm);
+                DaoUtil.reportException(e);
             }
         }
         return exist;
@@ -2497,6 +2525,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return hasChange;
     }
@@ -2516,6 +2545,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -2572,6 +2602,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return false;
     }
@@ -2611,10 +2642,10 @@ public class MsgDao {
             }
             realm.commitTransaction();
             realm.close();
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
 
     }
@@ -2636,6 +2667,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return results;
     }
@@ -2657,6 +2689,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -2674,6 +2707,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -2704,6 +2738,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -2723,6 +2758,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -2742,6 +2778,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -2761,6 +2798,7 @@ public class MsgDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 

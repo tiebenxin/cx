@@ -1,6 +1,5 @@
 package com.yanlong.im.utils.socket;
 
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -267,7 +266,7 @@ public class SocketData {
             //移除旧消息
             DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
 
-            if (msgAllBean.getVideoMessage()!=null){
+            if (msgAllBean.getVideoMessage() != null) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
             //收到直接存表,创建会话
@@ -312,7 +311,7 @@ public class SocketData {
             //移除旧消息// 7.16 通过msgid 判断唯一
             DaoUtil.deleteOne(MsgAllBean.class, "request_id", msgAllBean.getRequest_id());
             // DaoUtil.deleteOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
-            if (msgAllBean.getVideoMessage()!=null){
+            if (msgAllBean.getVideoMessage() != null) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
             //收到直接存表,创建会话
@@ -381,6 +380,18 @@ public class SocketData {
      */
     private static MsgAllBean send4Base(Long toId, String toGid, MsgBean.MessageType type, Object value) {
         return send4Base(true, true, null, toId, toGid, -1, type, value);
+    }
+
+    /***
+     * 保存并发送消息
+     * @param toId
+     * @param toGid
+     * @param type
+     * @param value
+     * @return
+     */
+    private static MsgAllBean send4Base(boolean isSave, Long toId, String toGid, MsgBean.MessageType type, Object value) {
+        return send4Base(isSave, true, null, toId, toGid, -1, type, value);
     }
 
     /***
@@ -545,7 +556,8 @@ public class SocketData {
      * @return false 需要忽略
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
-        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.CANCEL) {
+        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.CANCEL
+                || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL) {
             return false;
         }
 
@@ -600,12 +612,12 @@ public class SocketData {
      * @param auVideoType 语音、视频
      * @return
      */
-    public static MsgAllBean send4VoiceOrVideoNotice(Long toId, String toGid,MsgBean.AuVideoType auVideoType) {
+    public static MsgAllBean send4VoiceOrVideoNotice(Long toId, String toGid, MsgBean.AuVideoType auVideoType) {
         MsgBean.P2PAuVideoDialMessage chat = MsgBean.P2PAuVideoDialMessage.newBuilder()
                 .setAvType(auVideoType)
                 .build();
 
-        return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
+        return send4Base(false, toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO_DIAL, chat);
 
     }
 
@@ -730,10 +742,11 @@ public class SocketData {
      * @param url
      * @return
      */
-    private static String videoLocalUrl=null;
-    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height,String videoLocalPath) {
+    private static String videoLocalUrl = null;
+
+    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height, String videoLocalPath) {
         MsgBean.ShortVideoMessage msg;
-        videoLocalUrl=videoLocalPath;
+        videoLocalUrl = videoLocalPath;
 //        String extTh = "/below-20k";
 //        String extPv = "/below-200k";
 //        if (url.toLowerCase().contains(".gif")) {
@@ -866,17 +879,18 @@ public class SocketData {
     }
 
     @NonNull
-    public static ImageMessage createImageMessage(String msgId, String url, boolean isOriginal, ImgSizeUtil.ImageSize imageSize) {
+    public static ImageMessage createImageMessage(String msgId, String url, String previewUrl, String thumUrl, long width, long height, boolean isOriginal, boolean isOriginRead) {
         ImageMessage image = new ImageMessage();
         image.setLocalimg(url);
-        image.setPreview(url);
-        image.setThumbnail(url);
+        image.setPreview(previewUrl);
+        image.setThumbnail(thumUrl);
         image.setMsgid(msgId);
-        image.setWidth(imageSize.getWidth());
-        image.setHeight(imageSize.getHeight());
+        image.setWidth(width);
+        image.setHeight(height);
         if (isOriginal) {
             image.setOrigin(url);
         }
+        image.setReadOrigin(isOriginRead);
         return image;
     }
 
@@ -1039,9 +1053,11 @@ public class SocketData {
         return msgAllBean;
     }
 
+    /*
+     * 发送及保存消息
+     * */
     public static void sendAndSaveMessage(MsgAllBean bean) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + bean.getTo_uid() + "--gid" + bean.getGid());
-
         int msgType = bean.getMsg_type();
         MsgBean.MessageType type = null;
         Object value = null;
@@ -1072,6 +1088,13 @@ public class SocketData {
                 voiceBuilder.setUrl(voice.getUrl());
                 value = voiceBuilder.build();
                 type = MsgBean.MessageType.VOICE;
+                break;
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                VideoMessage video = bean.getVideoMessage();
+                MsgBean.ShortVideoMessage.Builder videoBuilder = MsgBean.ShortVideoMessage.newBuilder();
+                videoBuilder.setBgUrl(video.getBg_url()).setDuration((int) video.getDuration()).setUrl(video.getUrl()).setWidth((int) video.getWidth()).setHeight((int) video.getHeight());
+                value = videoBuilder.build();
+                type = MsgBean.MessageType.SHORT_VIDEO;
                 break;
         }
 
@@ -1293,6 +1316,13 @@ public class SocketData {
                     return null;
                 }
                 break;
+            case ChatEnum.EMessageType.MSG_VIDEO:
+                if (obj instanceof VideoMessage) {
+                    msg.setVideoMessage((VideoMessage) obj);
+                } else {
+                    return null;
+                }
+                break;
 
         }
 
@@ -1462,5 +1492,19 @@ public class SocketData {
         bean.setChat(message);
         return bean;
     }
+
+    @NonNull
+    public static VideoMessage createVideoMessage(String msgId, String bgUrl, String url, long duration, long width, long height, boolean isReadOrigin) {
+        VideoMessage videoMessage = new VideoMessage();
+        videoMessage.setMsgId(msgId);
+        videoMessage.setBg_url(bgUrl);
+        videoMessage.setUrl(url);
+        videoMessage.setDuration(duration);
+        videoMessage.setWidth(width);
+        videoMessage.setHeight(height);
+        videoMessage.setReadOrigin(isReadOrigin);
+        return videoMessage;
+    }
+
 
 }
