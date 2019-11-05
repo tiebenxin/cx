@@ -256,6 +256,50 @@ public class MsgAction {
     }
 
     /***
+     * 获取群成员有变化，更新群成员
+     * @param gid
+     * @param callback
+     */
+    public void loadGroupMember(final String gid, final Callback<ReturnBean<Group>> callback) {
+        if (NetUtil.isNetworkConnected()) {
+            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                    if (response.body() == null) {
+                        System.out.println("MessageManager--加载群信息后的失败 response=null--gid=" + gid);
+                        return;
+                    }
+                    if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
+                        Group newGroup = response.body().getData();
+                        newGroup.getMygroupName();
+                        dao.groupNumberSave(newGroup);
+                        MessageManager.getInstance().updateCacheGroup(newGroup);
+                        //8.8 取消从数据库里读取群成员信息
+                        MessageManager.getInstance().doImgHeadChange(gid,newGroup);
+                        callback.onResponse(call, response);
+                    } else {
+                        System.out.println("MessageManager--加载群信息后的失败--gid=" + gid);
+                        MessageManager.getInstance().removeLoadGids(gid);
+                        callback.onFailure(call, new Throwable());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                    super.onFailure(call, t);
+                    System.out.println("MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
+//                    t.printStackTrace();
+//                    MessageManager.getInstance().removeLoadGids(gid);
+                    callback.onFailure(call, new Throwable());
+                }
+            });
+        } else {//从缓存中读
+            groupInfo4Db(gid, callback);
+        }
+
+    }
+
+    /***
      * 从缓存里面读取
      * @param gid
      * @param callback

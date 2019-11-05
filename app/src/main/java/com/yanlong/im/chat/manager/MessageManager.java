@@ -202,7 +202,7 @@ public class MessageManager {
             case ACCEPT_BE_GROUP://接受入群，
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
-                    changeGroupAvatar(bean.getGid());
+                    refreshGroupInfo(bean.getGid());
                 }
                 notifyGroupChange(true);
                 break;
@@ -295,7 +295,7 @@ public class MessageManager {
     }
 
     //重新生成群头像
-    private void changeGroupAvatar(String gid) {
+    public void changeGroupAvatar(String gid) {
         Group group = msgDao.getGroup4Id(gid);
         if (group != null) {
             doImgHeadChange(gid, group);
@@ -1156,7 +1156,7 @@ public class MessageManager {
 
 
     /*
-     * 检测该群是否还有效，即自己是否还在该群中
+     * 检测该群是否还有效，即自己是否还在该群中,有效为true，无效为false
      * */
     public boolean isGroupValid(Group group) {
         if (group != null) {
@@ -1208,13 +1208,13 @@ public class MessageManager {
         }
     }
 
-    private void doImgHeadChange(String gid, Group ginfo) {
-        int i = ginfo.getUsers().size();
+    public void doImgHeadChange(String gid, Group group) {
+        int i = group.getUsers().size();
         i = i > 9 ? 9 : i;
         //头像地址
         String url[] = new String[i];
         for (int j = 0; j < i; j++) {
-            MemberUser userInfo = ginfo.getUsers().get(j);
+            MemberUser userInfo = group.getUsers().get(j);
             url[j] = userInfo.getHead();
         }
         File file = GroupHeadImageUtil.synthesis(AppConfig.getContext(), url);
@@ -1225,8 +1225,19 @@ public class MessageManager {
     /*
      * 群成员数据变化时，更新群信息
      * */
-    private synchronized void refreshGroupInfo(final String gid, final long uid) {
-//        NetUtil.getNet().exec()
+    private synchronized void refreshGroupInfo(final String gid) {
+        new MsgAction().loadGroupMember(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                super.onResponse(call, response);
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
     }
 
 }

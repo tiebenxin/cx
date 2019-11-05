@@ -2556,11 +2556,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                                     } else {
                                         downVideo(msgbean, msgbean.getVideoMessage());
-                                        localUrl=msgbean.getVideoMessage().getUrl();
+                                        localUrl = msgbean.getVideoMessage().getUrl();
                                     }
                                 } else {
                                     downVideo(msgbean, msgbean.getVideoMessage());
-                                    localUrl=msgbean.getVideoMessage().getUrl();
+                                    localUrl = msgbean.getVideoMessage().getUrl();
                                 }
                                 Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
                                 intent.putExtra("videopath", localUrl);
@@ -2821,7 +2821,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         new Thread() {
             @Override
             public void run() {
-                try{
+                try {
 
                     DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
                         @Override
@@ -2853,7 +2853,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                     });
 
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
 
@@ -3651,6 +3651,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      *
      */
     private boolean updateSessionDraftAndAtMessage() {
+        boolean hasChange = checkAndSaveDraft();
+        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
+            hasChange = true;
+            dao.updateSessionAtMsg(toGid, toUId);
+        }
+        return hasChange;
+    }
+
+    private boolean checkAndSaveDraft() {
+        if (isGroup() && !MessageManager.getInstance().isGroupValid(groupInfo)) {//无效群，不存草稿
+            return false;
+        }
         String df = edtChat.getText().toString().trim();
         boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
@@ -3665,10 +3677,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 dao.sessionDraft(toGid, toUId, df);
                 draft = df;
             }
-        }
-        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
-            hasChange = true;
-            dao.updateSessionAtMsg(toGid, toUId);
         }
         return hasChange;
     }
