@@ -113,6 +113,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
+import com.zhaoss.weixinrecorded.activity.RecordedLocalActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.CoreEnum;
@@ -778,6 +779,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                                .compress(true)
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
 
+//                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
+//                        startActivityForResult(intent, VIDEO_RP);
                         Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                         startActivityForResult(intent, VIDEO_RP);
 
@@ -788,7 +791,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onFail() {
 
                     }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA});
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO});
 
 
             }

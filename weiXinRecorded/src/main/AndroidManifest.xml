@@ -12,6 +12,9 @@
         <activity android:name=".activity.RecordedActivity"
             android:screenOrientation="portrait"
             />
+        <activity android:name=".activity.RecordedLocalActivity"
+            android:screenOrientation="portrait"
+            />
         <activity android:name=".activity.EditVideoActivity"
             android:windowSoftInputMode="adjustResize|adjustPan"
             android:screenOrientation="portrait"

@@ -3,6 +3,7 @@
     package="com.yanlong.im">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-feature android:name="android.hardware.camera" />
     <application
         android:name=".MyAppLication"
         android:allowBackup="true"
@@ -551,6 +552,7 @@
         <activity android:name=".chat.ui.VideoPlayActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"/>
+
 
     </application>
 
