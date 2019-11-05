@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
@@ -106,6 +107,14 @@ public class MyFragment extends Fragment {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void refreshUser(EventRefreshUser event) {
+        System.out.println(MyFragment.class.getSimpleName() + "刷新用户信息");
+        if (event.getInfo() != null) {
+            initData(event.getInfo());
+        }
+    }
+
 
     //自动生成的控件事件
     private void initEvent() {
@@ -158,25 +167,32 @@ public class MyFragment extends Fragment {
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String value = SpUtil.getSpUtil().getSPValue("ServieAgreement","");
-                if(StringUtil.isNotNull(value)){
+                String value = SpUtil.getSpUtil().getSPValue("ServieAgreement", "");
+                if (StringUtil.isNotNull(value)) {
                     taskWallet();
-                }else{
-                    IntentUtil.gotoActivity(getActivity(),ServiceAgreementActivity.class);
+                } else {
+                    IntentUtil.gotoActivity(getActivity(), ServiceAgreementActivity.class);
                 }
             }
         });
     }
 
 
-    private void initData() {
-        UserInfo userInfo = UserAction.getMyInfo();
+    private void initData(UserInfo userInfo) {
         if (userInfo != null) {
-            Glide.with(this).load(userInfo.getHead() + "")
-                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+            if (imgHead != null) {
+                Glide.with(this).load(userInfo.getHead() + "").apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+            }
+            if (txtName != null) {
+                txtName.setText(userInfo.getName());
+            }
+            if (mTvInfo != null) {
+                mTvInfo.setText("常信号: " + userInfo.getImid() + "");
+            }
+        }else {
+//            System.out.println(MyFragment.class.getSimpleName() + "刷新用户信息失败");
+//            taskGetUserInfo4Id();
 
-            txtName.setText(userInfo.getName());
-            mTvInfo.setText("常信号: " + userInfo.getImid() + "");
         }
     }
 
@@ -200,6 +216,7 @@ public class MyFragment extends Fragment {
 /*            mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);*/
         }
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -226,13 +243,13 @@ public class MyFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        initData();
+        initData(UserAction.getMyInfo());
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -281,12 +298,12 @@ public class MyFragment extends Fragment {
     }
 
 
-    private void taskGetUserInfo4Id(Long uid){
+    private void taskGetUserInfo4Id(Long uid) {
         new UserAction().getUserInfo4Id(uid, new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 super.onResponse(call, response);
-                if(response.body() == null){
+                if (response.body() == null) {
                     return;
                 }
                 UserInfo userInfo = response.body().getData();

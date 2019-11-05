@@ -15,6 +15,7 @@ import com.yanlong.im.chat.bean.MsgConversionBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
@@ -136,7 +137,7 @@ public class MessageManager {
      * @param isList 是否是批量消息
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
-        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
+//        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
         boolean result = true;
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
@@ -1245,6 +1246,12 @@ public class MessageManager {
                 super.onFailure(call, t);
             }
         });
+    }
+
+    public void notifyRefreshUser(UserInfo info) {
+        EventRefreshUser eventRefreshUser = new EventRefreshUser();
+        eventRefreshUser.setInfo(info);
+        EventBus.getDefault().post(eventRefreshUser);
     }
 
 }
