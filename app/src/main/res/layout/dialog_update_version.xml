@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/ic_update_bg"
+    android:orientation="vertical"
+    android:paddingTop="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            android:background="@drawable/shape_update_version_bg"
+            android:text="1.0.0"
+            android:textColor="@color/white"
+            android:textSize="9sp" />
+
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:text=""
+            android:textColor="@color/black_3e"
+            android:textSize="13sp" />
+
+
+        <TextView
+            android:id="@+id/tv_update"
+            android:layout_width="150dp"
+            android:layout_height="38dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/shape_update_bg"
+            android:gravity="center"
+            android:text="立即更新"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="150dp"
+            android:layout_height="38dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:text="以后再说"
+            android:textColor="#969696"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+
+</ScrollView>

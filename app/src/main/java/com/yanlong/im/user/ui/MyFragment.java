@@ -20,13 +20,17 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
+import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.update.UpdateManage;
@@ -34,6 +38,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -53,6 +58,8 @@ import static android.app.Activity.RESULT_OK;
  * 我
  */
 public class MyFragment extends Fragment {
+    private final long CX888_UID = 100121L;
+
     private View rootView;
     private LinearLayout viewHead;
     private ImageView imgHead;
@@ -66,6 +73,7 @@ public class MyFragment extends Fragment {
     private LinearLayout mViewScanQrcode;
     private LinearLayout mViewHelp;
     private TextView tvNewVersions;
+    private LinearLayout viewService;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -81,6 +89,7 @@ public class MyFragment extends Fragment {
         mViewScanQrcode = rootView.findViewById(R.id.view_scan_qrcode);
         mViewHelp = rootView.findViewById(R.id.view_help);
         tvNewVersions = rootView.findViewById(R.id.tv_new_versions);
+        viewService = rootView.findViewById(R.id.view_service);
 
         SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
@@ -175,6 +184,23 @@ public class MyFragment extends Fragment {
                 }
             }
         });
+
+        //常信客服
+        viewService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkCxService();
+            }
+        });
+    }
+
+    private void checkCxService() {
+        UserInfo userInfo = new UserDao().findUserInfo(CX888_UID);
+        if (userInfo != null && userInfo.getuType() == ChatEnum.EUserType.FRIEND) {
+            toChatActivity();
+        } else {
+            taskAddFriend(CX888_UID);
+        }
     }
 
 
@@ -189,7 +215,7 @@ public class MyFragment extends Fragment {
             if (mTvInfo != null) {
                 mTvInfo.setText("常信号: " + userInfo.getImid() + "");
             }
-        }else {
+        } else {
 //            System.out.println(MyFragment.class.getSimpleName() + "刷新用户信息失败");
 //            taskGetUserInfo4Id();
 
@@ -315,6 +341,33 @@ public class MyFragment extends Fragment {
 
             }
         });
+    }
+
+
+    private void taskAddFriend(Long id) {
+        if (NetUtil.isNetworkConnected()) {
+            new UserAction().friendApply(id, "", null, new CallBack<ReturnBean>() {
+                @Override
+                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                    if (response.body() == null) {
+                        ToastUtil.show(getActivity(), "请检查当前网络");
+                        return;
+                    }
+                    if (response.body().isOk()) {
+                        toChatActivity();
+                    } else {
+                        ToastUtil.show(getActivity(), "请检查当前网络");
+                    }
+                }
+            });
+        } else {
+            ToastUtil.show(getActivity(), "请检查当前网络");
+        }
+    }
+
+    private void toChatActivity() {
+        //CX888 uid=100121
+        startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOUID, CX888_UID));
     }
 
 }
