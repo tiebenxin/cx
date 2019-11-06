@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -56,33 +57,24 @@ public class MsgConversionBean {
         msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setFrom_group_nickname(bean.getMembername());
         msgAllBean.setGid(bean.getGid());
+        if (!TextUtils.isEmpty(bean.getGid())) {//群聊
+            if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
+                msgAllBean.setRead(true);
+            } else {
+                msgAllBean.setRead(false);
+            }
+        } else {//私聊
+            if (MessageManager.SESSION_FUID != null && MessageManager.SESSION_FUID.equals(bean.getFromUid())) {
+                msgAllBean.setRead(true);
+            } else {
+                msgAllBean.setRead(false);
+            }
+        }
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());
-            UserInfo toInfo = DaoUtil.findOne(UserInfo.class, "uid", msg.getToUid());
-            if (toInfo != null) {//更新用户信息
-                //  msgAllBean.setTo_user(toInfo);
-            } else {
-                //从网路缓存
-            }
         }
-
-        //这里需要处理用户信息
-        UserInfo userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
-        if (userInfo != null) {//更新用户信息
-            //   msgAllBean.setFrom_user(userInfo);
-        } else {
-            //从网路缓存
-            bean.getAvatar();
-            bean.getNickname();
-            //   bean.
-        }
-
-        //---------------------
-
-
         msgAllBean.setMsg_id(bean.getMsgId());
-
 
         switch (bean.getMsgType()) {
             case CHAT:
@@ -140,7 +132,7 @@ public class MsgConversionBean {
                 break;
             case SHORT_VIDEO:
                 MsgAllBean videoMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
-                VideoMessage videoMessage=new VideoMessage();
+                VideoMessage videoMessage = new VideoMessage();
                 videoMessage.setMsgId(msgAllBean.getMsg_id());
                 videoMessage.setUrl(bean.getShortVideo().getUrl());
                 videoMessage.setBg_url(bean.getShortVideo().getBgUrl());
@@ -397,7 +389,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO);
                 break;
             case P2P_AU_VIDEO_DIAL:// 点对点音视频发起通知
-                P2PAuVideoDialMessage p2PAuVideoDialMessage= new P2PAuVideoDialMessage();
+                P2PAuVideoDialMessage p2PAuVideoDialMessage = new P2PAuVideoDialMessage();
                 p2PAuVideoDialMessage.setAv_type(bean.getP2PAuVideoDial().getAvTypeValue());
                 msgAllBean.setP2PAuVideoDialMessage(p2PAuVideoDialMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);

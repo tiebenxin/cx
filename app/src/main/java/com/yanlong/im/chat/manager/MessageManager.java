@@ -68,8 +68,8 @@ public class MessageManager {
     private final String TAG = MessageManager.class.getSimpleName();
 
     private static int SESSION_TYPE = 0;//无会话,1:单人;2群,3静音模式
-    private static Long SESSION_FUID;//单人会话id
-    private static String SESSION_SID;//会话id
+    public static Long SESSION_FUID;//单人会话id
+    public static String SESSION_GID;//群会话id
 
     private static MessageManager INSTANCE;
     private MsgDao msgDao = new MsgDao();
@@ -417,7 +417,6 @@ public class MessageManager {
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
         try {
-            msgAllBean.setRead(false);//设置未读
             msgAllBean.setTo_uid(msgAllBean.getTo_uid());
             //收到直接存表
             if (isList) {
@@ -546,7 +545,7 @@ public class MessageManager {
 //        System.out.println(TAG + "--更新Session--updateSessionUnread");
         boolean canChangeUnread = true;
         if (!TextUtils.isEmpty(gid)) {
-            if (!TextUtils.isEmpty(SESSION_SID) && SESSION_SID.equals(gid)) {
+            if (!TextUtils.isEmpty(SESSION_GID) && SESSION_GID.equals(gid)) {
                 canChangeUnread = false;
             }
         } else {
@@ -607,11 +606,17 @@ public class MessageManager {
                         count = 0;
                         pendingGroupUnread.put(gid, count);
                     } else {
-                        count++;
+                        if (TextUtils.isEmpty(SESSION_GID) || !SESSION_GID.equals(gid)) {//不是当前会话
+                            count++;
+                        }
                         pendingGroupUnread.put(gid, count);
                     }
                 } else {
-                    pendingGroupUnread.put(gid, isDisturb ? 0 : 1);
+                    int count = 0;
+                    if (TextUtils.isEmpty(SESSION_GID) || !SESSION_GID.equals(gid)) {//不是当前会话
+                        count = isDisturb ? 0 : 1;
+                    }
+                    pendingGroupUnread.put(gid, count);
 
                 }
             } else {
@@ -621,11 +626,17 @@ public class MessageManager {
                         count = 0;
                         pendingUserUnread.put(uid, count);
                     } else {
-                        count++;
+                        if (SESSION_FUID == null || !SESSION_FUID.equals(uid)) {//不是当前会话
+                            count++;
+                        }
                         pendingUserUnread.put(uid, count);
                     }
                 } else {
-                    pendingUserUnread.put(uid, isDisturb ? 0 : 1);
+                    int count = 0;
+                    if (SESSION_FUID == null || !SESSION_FUID.equals(uid)) {//不是当前会话
+                        count = isDisturb ? 0 : 1;
+                    }
+                    pendingUserUnread.put(uid, count);
                 }
             }
 
@@ -881,7 +892,7 @@ public class MessageManager {
             return;
         SESSION_TYPE = 2;
         SESSION_FUID = null;
-        SESSION_SID = sid;
+        SESSION_GID = sid;
     }
 
     /***
@@ -893,7 +904,7 @@ public class MessageManager {
             return;
         SESSION_TYPE = 1;
         SESSION_FUID = fuid;
-        SESSION_SID = null;
+        SESSION_GID = null;
     }
 
     /***
@@ -904,7 +915,7 @@ public class MessageManager {
             return;
         SESSION_TYPE = 0;
         SESSION_FUID = null;
-        SESSION_SID = null;
+        SESSION_GID = null;
     }
 
     /***
@@ -963,7 +974,7 @@ public class MessageManager {
         if (session != null && session.getIsMute() == 1) {
             return;
         }
-        if (isGroup && SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
+        if (isGroup && SESSION_TYPE == 2 && SESSION_GID.equals(msg.getGid())) { //群
             //当前会话是本群不提示
 
         } else if (SESSION_TYPE == 1 && SESSION_FUID != null && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
