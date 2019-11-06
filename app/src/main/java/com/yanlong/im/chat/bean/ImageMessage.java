@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import android.text.TextUtils;
+
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -64,7 +66,7 @@ public class ImageMessage extends RealmObject implements IMsgContent {
     }
 
     public String getOrigin() {
-        return origin;
+        return !TextUtils.isEmpty(origin) ? origin : "";
     }
 
     public String getOriginShow() {
@@ -81,7 +83,7 @@ public class ImageMessage extends RealmObject implements IMsgContent {
     }
 
     public String getPreview() {
-        return preview;
+        return !TextUtils.isEmpty(preview) ? preview : "";
     }
 
     public String getPreviewShow() {
@@ -99,7 +101,7 @@ public class ImageMessage extends RealmObject implements IMsgContent {
     }
 
     public String getThumbnail() {
-        return thumbnail;
+        return !TextUtils.isEmpty(thumbnail) ? thumbnail : "";
     }
 
     public String getThumbnailShow() {

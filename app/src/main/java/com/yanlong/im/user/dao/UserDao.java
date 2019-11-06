@@ -46,6 +46,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -69,6 +70,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -153,6 +155,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
 
     }
@@ -190,6 +193,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return res;
 
@@ -212,6 +216,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return res;
     }
@@ -235,6 +240,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return res;
     }
@@ -253,6 +259,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -316,6 +323,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -333,6 +341,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -353,6 +362,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return ret;
     }
@@ -387,6 +397,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return hasChange;
     }
@@ -403,19 +414,22 @@ public class UserDao {
         try {
             realm.beginTransaction();
             UserInfo user = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-            UserInfo userInfo = realm.copyFromRealm(user);
-            if (userInfo != null) {
-                userInfo.setActiveType(type);
-                if (type == CoreEnum.ESureType.NO) {
-                    userInfo.setLastonline(time);
+            if (user != null) {
+                UserInfo userInfo = realm.copyFromRealm(user);
+                if (userInfo != null) {
+                    userInfo.setActiveType(type);
+                    if (type == CoreEnum.ESureType.NO) {
+                        userInfo.setLastonline(time);
+                    }
+                    realm.insertOrUpdate(userInfo);
                 }
-                realm.insertOrUpdate(userInfo);
             }
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -454,6 +468,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -471,6 +486,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -493,6 +509,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return isInit;
     }
@@ -517,6 +534,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
     }
 
@@ -532,6 +550,7 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
         return result;
     }

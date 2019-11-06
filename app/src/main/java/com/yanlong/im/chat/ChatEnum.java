@@ -181,6 +181,7 @@ public class ChatEnum {
         int MSG_CENCAL = 10; //撤回消息
         int MSG_VIDEO = 11; //短视频消息
         int MSG_VOICE_VIDEO = 12; //音视频消息
+        int MSG_VOICE_VIDEO_NOTICE = 13; //音视频消息通知
         int CHANGE_SURVIVAL_TIME = 113;//阅后即焚
         int READ = 120;//已读消息
 

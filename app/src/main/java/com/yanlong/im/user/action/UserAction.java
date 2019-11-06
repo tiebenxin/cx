@@ -209,6 +209,7 @@ public class UserAction {
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
                     userInfo.toTag();
                     updateUserinfo2DB(userInfo);
+                    MessageManager.getInstance().notifyRefreshUser(userInfo);
                 }
             }
         });

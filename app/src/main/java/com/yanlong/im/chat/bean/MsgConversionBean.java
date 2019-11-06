@@ -416,6 +416,12 @@ public class MsgConversionBean {
                 changeSurvivalTimeMessage.setSurvival_time(bean.getChangeSurvivalTime().getSurvivalTime());
                 msgAllBean.setChangeSurvivalTimeMessage(changeSurvivalTimeMessage);
                 break;
+            case P2P_AU_VIDEO_DIAL:// 点对点音视频发起通知
+                P2PAuVideoDialMessage p2PAuVideoDialMessage= new P2PAuVideoDialMessage();
+                p2PAuVideoDialMessage.setAv_type(bean.getP2PAuVideoDial().getAvTypeValue());
+                msgAllBean.setP2PAuVideoDialMessage(p2PAuVideoDialMessage);
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);
+                break;
             default://普通操作通知，不产生本地消息记录，直接return null
                 return null;
         }

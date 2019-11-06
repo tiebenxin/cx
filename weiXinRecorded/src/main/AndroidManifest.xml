@@ -9,11 +9,22 @@
         android:allowBackup="true"
         android:supportsRtl="true">
 
-        <activity android:name=".activity.RecordedActivity"/>
+        <activity android:name=".activity.RecordedActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".activity.RecordedLocalActivity"
+            android:screenOrientation="portrait"
+            />
         <activity android:name=".activity.EditVideoActivity"
-            android:windowSoftInputMode="adjustResize|adjustPan"/>
-        <activity android:name=".activity.CutSizeActivity"/>
-        <activity android:name=".activity.CutTimeActivity"/>
+            android:windowSoftInputMode="adjustResize|adjustPan"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".activity.CutSizeActivity"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".activity.CutTimeActivity"
+            android:screenOrientation="portrait"
+            />
         <activity android:name=".activity.ImageShowActivity"/>
 
 

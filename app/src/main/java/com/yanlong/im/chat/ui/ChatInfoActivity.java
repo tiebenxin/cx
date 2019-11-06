@@ -61,6 +61,7 @@ public class ChatInfoActivity extends AppActivity {
     private LinearLayout viewLogClean;
     //  private Session session;
     private UserInfo fUserInfo;
+    boolean isSessionChange = false;
 
     private int destroyTime;
 

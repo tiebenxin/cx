@@ -111,6 +111,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     private P2PAuVideoMessage p2PAuVideoMessage;
 
+    private P2PAuVideoDialMessage p2PAuVideoDialMessage;
+
     //private RequestFriendMessage request_friend;
 
     // private AcceptBeFriendsMessage accept_be_friends;
@@ -123,6 +125,14 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     public void setP2PAuVideoMessage(P2PAuVideoMessage p2PAuVideoMessage) {
         this.p2PAuVideoMessage = p2PAuVideoMessage;
+    }
+
+    public P2PAuVideoDialMessage getP2PAuVideoDialMessage() {
+        return p2PAuVideoDialMessage;
+    }
+
+    public void setP2PAuVideoDialMessage(P2PAuVideoDialMessage p2PAuVideoDialMessage) {
+        this.p2PAuVideoDialMessage = p2PAuVideoDialMessage;
     }
 
     public boolean isRead() {

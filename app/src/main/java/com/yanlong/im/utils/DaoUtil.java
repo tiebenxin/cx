@@ -1,5 +1,7 @@
 package com.yanlong.im.utils;
 
+import com.tencent.bugly.crashreport.CrashReport;
+
 import net.cb.cb.library.AppConfig;
 
 import java.util.ArrayList;
@@ -24,7 +26,7 @@ public class DaoUtil {
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer = 7;
+        long dbVer = 8;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
 //            config = new RealmConfiguration.Builder()
 //                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。
@@ -87,6 +89,7 @@ public class DaoUtil {
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
+            reportException(e);
         }
     }
 
@@ -102,6 +105,7 @@ public class DaoUtil {
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
+            reportException(e);
         }
     }
 
@@ -141,6 +145,7 @@ public class DaoUtil {
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
+            reportException(e);
         }
         return (T) beans;
     }
@@ -157,6 +162,7 @@ public class DaoUtil {
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
+            reportException(e);
         }
         return beans;
     }
@@ -190,6 +196,7 @@ public class DaoUtil {
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
+            reportException(e);
         }
     }
 
@@ -250,6 +257,7 @@ public class DaoUtil {
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
+            reportException(e);
             return false;
         }
     }
@@ -268,8 +276,12 @@ public class DaoUtil {
         } catch (Exception e) {
             e.printStackTrace();
             close(realm);
+            reportException(e);
             return false;
         }
     }
 
+    public static void reportException(Exception e) {
+        CrashReport.postCatchedException(e);
+    }
 }

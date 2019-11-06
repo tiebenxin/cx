@@ -101,6 +101,7 @@ public class GroupInfoActivity extends AppActivity {
     private Button btnDel;
     private Gson gson = new Gson();
     private Group ginfo;
+    private boolean isSessionChange = false;
 
     private int destroyTime;
     private LinearLayout viewDestroyTime;
@@ -297,7 +298,7 @@ public class GroupInfoActivity extends AppActivity {
                         MsgDao msgDao = new MsgDao();
                         msgDao.msgDel(null, gid);
                         EventBus.getDefault().post(new EventRefreshChat());
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                         ToastUtil.show(GroupInfoActivity.this, "删除成功");
                     }
                 });
@@ -682,12 +683,12 @@ public class GroupInfoActivity extends AppActivity {
 //                            number.setName(number.getMembername());
 //                        }
 //                    }
-                    if (isMemberChange){
+                    if (isMemberChange) {
                         Group goldinfo = msgDao.getGroup4Id(gid);
                         if (!isChange(goldinfo, ginfo)) {
                             doImgHeadChange(gid, ginfo);
                         }
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP,-1L,gid, CoreEnum.ESessionRefreshTag.SINGLE,null);
+                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                     }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
@@ -758,6 +759,9 @@ public class GroupInfoActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     taskGetInfoNetwork(false);
+//                    if (notNotify != null) {//免打扰通知变化
+                    isSessionChange = true;
+//                    }
                 }
 
             }
@@ -853,8 +857,9 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     txtGroupName.setText(name);
                     msgDao.updateGroupName(gid, name);
-                    MessageManager.getInstance().setMessageChange(true);
-                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+                    isSessionChange = true;
+//                    MessageManager.getInstance().setMessageChange(true);
+//                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                     initEvent();
                 }
             }
@@ -979,5 +984,11 @@ public class GroupInfoActivity extends AppActivity {
         }
     }
 
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isSessionChange) {//免打扰，群名变化
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        }
+    }
 }

@@ -7,7 +7,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -44,6 +43,7 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
@@ -117,6 +117,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
+import com.zhaoss.weixinrecorded.activity.RecordedLocalActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.CoreEnum;
@@ -235,6 +236,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
     public static final int REQ_TRANS = 9653;
+    // 浮动窗口
+    private final int REQUEST_CODE = 100;
 
 
     private MessageAdapter messageAdapter;
@@ -754,7 +757,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
-                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
                         startActivityForResult(intent, VIDEO_RP);
                     }
 
@@ -762,7 +765,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onFail() {
 
                     }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA});
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO});
 
 
             }
@@ -1235,7 +1238,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 Log.v(ChatActivity.class.getSimpleName(), "上传语音成功--" + url);
                 VoiceMessage voice = bean.getVoiceMessage();
                 voice.setUrl(url);
-                SocketData.sendMessage(bean);
+                SocketData.sendAndSaveMessage(bean);
             }
 
             @Override
@@ -1653,7 +1656,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             MessageManager.getInstance().setSessionSolo(toUId);
         }
-
+        // 打开浮动窗口权限时，重新显示音视频浮动按钮
+        if(AVChatProfile.getInstance().isCallIng()){
+            EventBus.getDefault().post(new EventFactory.ShowVoiceMinimizeEvent());
+        }
         //刷新群资料
         taskSessionInfo();
         clickAble = true;
@@ -1866,8 +1872,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                                 final String imgMsgId = SocketData.getUUID();
                                 VideoMessage videoMessage = new VideoMessage();
-                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
-                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
+//                                videoMessage.setHeight(Long.parseLong(getVideoAttWeith(videofile)));
+//                                videoMessage.setWidth(Long.parseLong(getVideoAttHeigh(videofile)));
+                                videoMessage.setHeight(Long.parseLong(getVideoAttHeigh(videofile)));
+                                videoMessage.setWidth(Long.parseLong(getVideoAttWeith(videofile)));
                                 videoMessage.setDuration(Long.parseLong(getVideoAtt(videofile)));
                                 videoMessage.setBg_url(getVideoAttBitmap(videofile));
                                 videoMessage.setLocalUrl(videofile);
@@ -1959,6 +1967,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else if (event.getState() == 1) {
             //  Log.d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+//            if (msgAllbean.getVideoMessage()!=null&&msgAllbean.getVideoMessage().getLocalUrl()!=null){
+//                                        MsgDao dao = new MsgDao();
+//                        dao.fixVideoLocalUrl(msgAllbean.getMsg_id(), msgAllbean.getVideoMessage().getLocalUrl());
+//            }
             replaceListDataAndNotify(msgAllbean);
         } else {
             //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgId());
@@ -2241,12 +2253,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage();
 
-                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                    // upProgress.setProgress(100);
-                    eventUpImgLoadEvent.setMsgid(reMsg.getMsg_id());
-                    eventUpImgLoadEvent.setState(1);
-                    eventUpImgLoadEvent.setUrl(url);
-                    EventBus.getDefault().post(eventUpImgLoadEvent);
+//                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
+//                    // upProgress.setProgress(100);
+//                    eventUpImgLoadEvent.setMsgid(reMsg.getMsg_id());
+//                    eventUpImgLoadEvent.setState(1);
+//                    eventUpImgLoadEvent.setUrl(url);
+//                    EventBus.getDefault().post(eventUpImgLoadEvent);
 
                 }
             } else {
@@ -2391,14 +2403,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         String name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
-                        if (!TextUtils.isEmpty(name)) {
-                            edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
-                        } else {
-                            name = TextUtils.isEmpty(msgbean.getFrom_group_nickname()) ? msgbean.getFrom_nickname() : msgbean.getFrom_group_nickname();
-                            edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
-
+                        String txt = edtChat.getText().toString().trim();
+                        if (!txt.contains("@" + name)) {
+                            if (!TextUtils.isEmpty(name)) {
+                                edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                            } else {
+                                name = TextUtils.isEmpty(msgbean.getFrom_group_nickname()) ? msgbean.getFrom_nickname() : msgbean.getFrom_group_nickname();
+                                edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                            }
+                            scrollListView(true);
                         }
-                        scrollListView(true);
                         return true;
                     }
                 });
@@ -2572,21 +2586,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 if (StringUtil.isNotNull(localUrl)) {
                                     File file = new File(localUrl);
                                     if (file.exists()) {
-                                        downVideo(msgbean, msgbean.getVideoMessage());
+//                                        downVideo(msgbean, msgbean.getVideoMessage());
                                         Log.e("TAG", file.getAbsolutePath());
-                                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-                                        intent.putExtra("videopath", localUrl);
-                                        intent.putExtra("videomsg", new Gson().toJson(msgbean));
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                                        startActivity(intent);
-//                                    MsgDao dao = new MsgDao();
-//                                    dao.fixVideoLocalUrl(msgbean.getVideoMessage().getMsgId(), localUrl);
+//                                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+//                                        intent.putExtra("videopath", localUrl);
+//                                        intent.putExtra("videomsg", new Gson().toJson(msgbean));
+//                                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//                                        startActivity(intent);
+
                                     } else {
                                         downVideo(msgbean, msgbean.getVideoMessage());
+                                        localUrl = msgbean.getVideoMessage().getUrl();
                                     }
                                 } else {
                                     downVideo(msgbean, msgbean.getVideoMessage());
+                                    localUrl = msgbean.getVideoMessage().getUrl();
                                 }
+                                Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                                intent.putExtra("videopath", localUrl);
+                                intent.putExtra("videomsg", new Gson().toJson(msgbean));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                startActivity(intent);
+
                             }
                         }
                     }, pgVideo);
@@ -2840,38 +2861,46 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
+        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
         new Thread() {
             @Override
             public void run() {
-                DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
-                    @Override
-                    public void onDownloadSuccess(File file) {
-                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-                        intent.putExtra("videopath", fileVideo.getAbsolutePath());
-                        Message message = new Message();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("msgid", msgAllBean.getVideoMessage().getMsgId());
-                        bundle.putString("url", fileVideo.getAbsolutePath());
-                        message.setData(bundle);
-                        handler.sendMessage(message);
-                        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+                try {
+
+                    DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
+                        @Override
+                        public void onDownloadSuccess(File file) {
+                            Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
+                            intent.putExtra("videopath", fileVideo.getAbsolutePath());
+                            Message message = new Message();
+                            Bundle bundle = new Bundle();
+                            bundle.putString("msgid", msgAllBean.getVideoMessage().getMsgId());
+                            bundle.putString("url", fileVideo.getAbsolutePath());
+                            message.setData(bundle);
+                            handler.sendMessage(message);
+//                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
 //                        msgAllBean.setVideoMessage(videoMessage);
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
-                        startActivity(intent);
-                        MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
-                    }
+                            startActivity(intent);
+                            MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
+                        }
 
-                    @Override
-                    public void onDownloading(int progress) {
+                        @Override
+                        public void onDownloading(int progress) {
 
-                    }
+                        }
 
-                    @Override
-                    public void onDownloadFailed(Exception e) {
+                        @Override
+                        public void onDownloadFailed(Exception e) {
 
-                    }
-                });
+                        }
+                    });
+
+                } catch (Exception e) {
+
+                }
+
             }
         }.start();
 
@@ -3238,6 +3267,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public void onYes() {
                 msgDao.msgDel4MsgId(msgbean.getMsg_id());
                 msgListData.remove(msgbean);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                 notifyData();
             }
         });
@@ -3677,6 +3707,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      *
      */
     private boolean updateSessionDraftAndAtMessage() {
+        boolean hasChange = checkAndSaveDraft();
+        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
+            hasChange = true;
+            dao.updateSessionAtMsg(toGid, toUId);
+        }
+        return hasChange;
+    }
+
+    private boolean checkAndSaveDraft() {
+        if (isGroup() && !MessageManager.getInstance().isGroupValid(groupInfo)) {//无效群，不存草稿
+            return false;
+        }
         String df = edtChat.getText().toString().trim();
         boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
@@ -3691,10 +3733,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 dao.sessionDraft(toGid, toUId, df);
                 draft = df;
             }
-        }
-        if (session != null && !TextUtils.isEmpty(session.getAtMessage())) {
-            hasChange = true;
-            dao.updateSessionAtMsg(toGid, toUId);
         }
         return hasChange;
     }

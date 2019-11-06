@@ -8,7 +8,6 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.GroupConfig;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
@@ -16,12 +15,14 @@ import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
+import com.yanlong.im.chat.eventbus.EventRefreshUser;
 import com.yanlong.im.chat.task.TaskDealWithMsgList;
 import com.yanlong.im.chat.ui.ChatActionActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
@@ -43,6 +44,7 @@ import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -137,7 +139,8 @@ public class MessageManager {
      * @param isList 是否是批量消息
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
-        boolean result = false;
+//        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
+        boolean result = true;
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
@@ -164,8 +167,19 @@ public class MessageManager {
             case CHANGE_GROUP_MASTER://转让群主
             case OUT_GROUP://退出群聊
             case ASSISTANT://小消息
+                if (bean != null) {
+                    result = saveMessageNew(bean, isList);
+                }
+                break;
             case P2P_AU_VIDEO:// 音视频消息
                 if (bean != null) {
+                    if (bean.getP2PAuVideoMessage() != null && "cancel".equals(bean.getP2PAuVideoMessage().getOperation())) {
+                        bean.getP2PAuVideoMessage().setDesc("对方" + bean.getP2PAuVideoMessage().getDesc());
+                    } else if (bean.getP2PAuVideoMessage() != null && "reject".equals(bean.getP2PAuVideoMessage().getOperation())) {
+                        bean.getP2PAuVideoMessage().setDesc(bean.getP2PAuVideoMessage().getDesc().replace("对方",""));
+                    } else if (bean.getP2PAuVideoMessage() != null && "notaccpet".equals(bean.getP2PAuVideoMessage().getOperation())) {
+                        bean.getP2PAuVideoMessage().setDesc("对方已取消");
+                    }
                     result = saveMessageNew(bean, isList);
                 }
                 break;
@@ -191,16 +205,19 @@ public class MessageManager {
                     result = saveMessageNew(bean, isList);
                     MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());
                     msgDao.removeGroupMember(bean.getGid(), memberUser);
+                    changeGroupAvatar(bean.getGid());
                     notifyGroupChange(false);
                 }
                 break;
             case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊
                 removeGroupMember(wrapMessage);
+                changeGroupAvatar(wrapMessage.getGid());
                 notifyGroupChange(false);
                 break;
             case ACCEPT_BE_GROUP://接受入群，
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
+                    refreshGroupInfo(bean.getGid());
                 }
                 notifyGroupChange(true);
                 break;
@@ -312,6 +329,15 @@ public class MessageManager {
         return result;
     }
 
+    //重新生成群头像
+    public void changeGroupAvatar(String gid) {
+        Group group = msgDao.getGroup4Id(gid);
+        if (group != null) {
+            doImgHeadChange(gid, group);
+            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        }
+    }
+
     private void removeGroupMember(MsgBean.UniversalMessage.WrapMessage wrapMessage) {
         MsgBean.RemoveGroupMember2Message removeGroupMember2 = wrapMessage.getRemoveGroupMember2();
         msgDao.removeGroupMember(wrapMessage.getGid(), removeGroupMember2.getUidList());
@@ -401,19 +427,44 @@ public class MessageManager {
      * @isList 是否是批量消息
      * */
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
-        msgAllBean.setRead(false);//设置未读
-        msgAllBean.setTo_uid(msgAllBean.getTo_uid());
         boolean result = false;
-        //收到直接存表
-        if (isList) {
-            pendingMessages.put(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
-        } else {
-            DaoUtil.update(msgAllBean);
-        }
-        if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
-            if (!loadGids.contains(msgAllBean.getGid())) {
-                loadGids.add(msgAllBean.getGid());
-                loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+        try {
+            msgAllBean.setRead(false);//设置未读
+            msgAllBean.setTo_uid(msgAllBean.getTo_uid());
+            //收到直接存表
+            if (isList) {
+                pendingMessages.put(msgAllBean.getMsg_id(), msgAllBean);//批量消息先保存到map中，后面再批量存到数据库
+            } else {
+                DaoUtil.update(msgAllBean);
+            }
+            if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
+                if (!loadGids.contains(msgAllBean.getGid())) {
+                    loadGids.add(msgAllBean.getGid());
+                    loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                } else {
+                    if (!isList) {
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                        setMessageChange(true);
+                    } else {
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                    }
+                    result = true;
+                }
+            } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
+                if (!loadUids.contains(msgAllBean.getFrom_uid())) {
+                    loadUids.add(msgAllBean.getFrom_uid());
+                    loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                    System.out.println(TAG + "--需要加载用户信息");
+                } else {
+                    System.out.println(TAG + "--异步加载用户信息更新未读数");
+                    if (!isList) {
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                        setMessageChange(true);
+                    } else {
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                    }
+                    result = true;
+                }
             } else {
                 if (!isList) {
                     updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
@@ -423,30 +474,11 @@ public class MessageManager {
                 }
                 result = true;
             }
-        } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
-            if (!loadUids.contains(msgAllBean.getFrom_uid())) {
-                loadUids.add(msgAllBean.getFrom_uid());
-                loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
-                System.out.println(TAG + "--需要加载用户信息");
-            } else {
-                System.out.println(TAG + "--异步加载用户信息更新未读数");
-                if (!isList) {
-                    updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-                    setMessageChange(true);
-                } else {
-                    updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
-                }
-                result = true;
-            }
-        } else {
-            if (!isList) {
-                updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-                setMessageChange(true);
-            } else {
-                updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
-            }
-            result = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         }
+//        System.out.println(TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         return result;
     }
 
@@ -489,7 +521,6 @@ public class MessageManager {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
-//                updateSessionUnread(gid, uid, false);
                 if (isList) {
                     Group group = response.body().getData();
                     boolean isDisturb = false;
@@ -543,7 +574,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, int count) {
-        System.out.println(TAG + "--更新Session--updateSessionUnread--count=" + count);
+        System.out.println(TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
         msgDao.sessionReadUpdate(gid, from_uid, count);
     }
 
@@ -1171,7 +1202,7 @@ public class MessageManager {
 
 
     /*
-     * 检测该群是否还有效，即自己是否还在该群中
+     * 检测该群是否还有效，即自己是否还在该群中,有效为true，无效为false
      * */
     public boolean isGroupValid(Group group) {
         if (group != null) {
@@ -1222,4 +1253,43 @@ public class MessageManager {
             loadGids.clear();
         }
     }
+
+    public void doImgHeadChange(String gid, Group group) {
+        int i = group.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            MemberUser userInfo = group.getUsers().get(j);
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(AppConfig.getContext(), url);
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgUpdate(gid, file.getAbsolutePath());
+    }
+
+    /*
+     * 群成员数据变化时，更新群信息
+     * */
+    private synchronized void refreshGroupInfo(final String gid) {
+        new MsgAction().loadGroupMember(gid, new CallBack<ReturnBean<Group>>() {
+            @Override
+            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                super.onResponse(call, response);
+                MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                super.onFailure(call, t);
+            }
+        });
+    }
+
+    public void notifyRefreshUser(UserInfo info) {
+        EventRefreshUser eventRefreshUser = new EventRefreshUser();
+        eventRefreshUser.setInfo(info);
+        EventBus.getDefault().post(eventRefreshUser);
+    }
+
 }

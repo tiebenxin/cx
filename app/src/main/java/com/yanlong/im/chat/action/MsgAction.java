@@ -1,12 +1,9 @@
 package com.yanlong.im.chat.action;
 
-import android.text.TextUtils;
-
 import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
-import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -18,12 +15,12 @@ import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -207,8 +204,7 @@ public class MsgAction {
      * @param callback
      */
     public void groupInfo(final String gid, final Callback<ReturnBean<Group>> callback) {
-
-        if (NetUtil.isNetworkConnected() /*&& MessageManager.getInstance().isGroupValid(gid)*/) {
+        if (NetUtil.isNetworkConnected()) {
             NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
@@ -250,6 +246,50 @@ public class MsgAction {
                     System.out.println("MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
 //                    t.printStackTrace();
                     MessageManager.getInstance().removeLoadGids(gid);
+                    callback.onFailure(call, new Throwable());
+                }
+            });
+        } else {//从缓存中读
+            groupInfo4Db(gid, callback);
+        }
+
+    }
+
+    /***
+     * 获取群成员有变化，更新群成员
+     * @param gid
+     * @param callback
+     */
+    public void loadGroupMember(final String gid, final Callback<ReturnBean<Group>> callback) {
+        if (NetUtil.isNetworkConnected()) {
+            NetUtil.getNet().exec(server.groupInfo(gid), new CallBack<ReturnBean<Group>>() {
+                @Override
+                public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                    if (response.body() == null) {
+                        System.out.println("MessageManager--加载群信息后的失败 response=null--gid=" + gid);
+                        return;
+                    }
+                    if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
+                        Group newGroup = response.body().getData();
+                        newGroup.getMygroupName();
+                        dao.groupNumberSave(newGroup);
+                        MessageManager.getInstance().updateCacheGroup(newGroup);
+                        //8.8 取消从数据库里读取群成员信息
+                        MessageManager.getInstance().doImgHeadChange(gid,newGroup);
+                        callback.onResponse(call, response);
+                    } else {
+                        System.out.println("MessageManager--加载群信息后的失败--gid=" + gid);
+                        MessageManager.getInstance().removeLoadGids(gid);
+                        callback.onFailure(call, new Throwable());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                    super.onFailure(call, t);
+                    System.out.println("MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
+//                    t.printStackTrace();
+//                    MessageManager.getInstance().removeLoadGids(gid);
                     callback.onFailure(call, new Throwable());
                 }
             });
@@ -329,20 +369,22 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {//存库
-                    Session session = dao.saveSession4Switch(gid, istop, notNotify, saved, needVerification);
-                    if (session != null && istop != null || notNotify != null || needVerification != null) {
+                    Session session = null;
+                    if (istop != null || notNotify != null || needVerification != null) {
                         boolean isTop = false;
                         if (istop != null) {
-                            dao.updateGroupTop(gid, istop.intValue());
+                            session = dao.updateGroupAndSessionTop(gid, istop.intValue());
                             isTop = true;
                         } else if (notNotify != null) {
-                            dao.updateGroupDisturb(gid, notNotify.intValue());
-                            dao.updateSessionTopAndDisturb(gid, null, 0, notNotify.intValue());
+                            dao.updateGroupAndSessionDisturb(gid, notNotify.intValue());
                             MessageManager.getInstance().updateCacheTopOrDisturb(gid, 0, notNotify.intValue());
                             isTop = false;
                         }
-                        MessageManager.getInstance().setMessageChange(true);
-                        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
+                        //置顶通知刷新，面打扰在activity onStop时再刷新，避免快速点击开关的时候，造成刷新异常
+                        if (isTop) {
+                            MessageManager.getInstance().setMessageChange(true);
+                            MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, session, isTop);
+                        }
                     }
                 }
                 cb.onResponse(call, response);

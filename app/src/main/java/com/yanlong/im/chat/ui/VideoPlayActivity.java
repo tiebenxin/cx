@@ -3,6 +3,8 @@ package com.yanlong.im.chat.ui;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -15,6 +17,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
@@ -41,9 +45,11 @@ import java.text.NumberFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class VideoPlayActivity extends AppActivity implements View.OnClickListener {
+import static android.widget.RelativeLayout.CENTER_IN_PARENT;
+
+public class VideoPlayActivity extends AppActivity implements View.OnClickListener, SurfaceHolder.Callback,MediaPlayer.OnVideoSizeChangedListener {
     private InputMethodManager manager;
-    private  TextureView textureView;
+    private SurfaceView textureView;
     private SurfaceTexture surfaceTexture;
     private String path;
     private String msgAllBean;
@@ -67,25 +73,26 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void initEvent() {
         findViewById(R.id.rl_video_play_con).setOnClickListener(this);
-        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
-            @Override
-            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-                surfaceTexture = surface;
-                initMediaPlay(surface);
-            }
-            @Override
-            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
-            }
-            @Override
-            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-                return false;
-            }
-            @Override
-            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
-            }
-        });
+//        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+//            @Override
+//            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+//                surfaceTexture = surface;
+//                initMediaPlay(surface);
+//            }
+//            @Override
+//            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+//
+//            }
+//            @Override
+//            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+//                return false;
+//            }
+//            @Override
+//            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+//
+//            }
+//        });
+//        textureView.set
         textureView.setOnClickListener(this);
         textureView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -126,7 +133,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 mMediaPlayer.start();
             }
         });
-
+//        initMediaPlay(textureView);
     }
 
     private Handler handler=new Handler(){
@@ -154,7 +161,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             @Override
             public void run() {
 
-                //获取歌曲的进度
                 if (null!=mMediaPlayer){
                     try {
                         currentTime = mMediaPlayer.getCurrentPosition();
@@ -164,13 +170,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         timer.cancel();
                     }
                 }
-                //将获取歌曲的进度赋值给seekbar
 //                activity_video_seek.setProgress(p);
             }
         }, 0, 1000);
     }
     private void initView() {
         textureView=findViewById(R.id.textureView);
+        textureView.getHolder().addCallback(this);
         activity_video_rel_con=findViewById(R.id.activity_video_rel_con);
         activity_video_img_con=findViewById(R.id.activity_video_img_con);
         activity_video_big_con=findViewById(R.id.activity_video_big_con);
@@ -179,19 +185,35 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_count_time=findViewById(R.id.activity_video_count_time);
         activity_video_current_time=findViewById(R.id.activity_video_current_time);
     }
-
+    private int surfaceWidth;
+    private int surfaceHeight;
     private MediaPlayer mMediaPlayer;
-    private void initMediaPlay(SurfaceTexture surface){
+//    private void initMediaPlay(SurfaceTexture surface){
+    private void initMediaPlay(SurfaceHolder surfaceHolder){
 
         try {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(path);
-            mMediaPlayer.setSurface(new Surface(surface));
+//            mMediaPlayer.setSurface(new Surface(surface));
+            mMediaPlayer.setDisplay(surfaceHolder);
+            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             mMediaPlayer.setLooping(false);
+
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     mMediaPlayer.start();
+//                    int duration=mMediaPlayer.getDuration();
+//                    if (duration<=0){
+//                        ToastUtil.show(getApplicationContext(),"文件损坏，请退出重新点击进入");
+//                        File file=new File(path);
+//                        if (null!=file&&file.exists()){
+//                            file.delete();
+//                        }
+//                        finish();
+//                    }
+
+                    changeVideoSize();
                     if (mMediaPlayer.getDuration()/1000<10){
                         activity_video_count_time.setText("00:0"+(mMediaPlayer.getDuration()/1000)+"");
                     }else{
@@ -202,6 +224,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 }
             });
             mMediaPlayer.prepareAsync();
+
+            if(getResources().getConfiguration().orientation== ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
+                surfaceWidth=textureView.getWidth();
+                surfaceHeight=textureView.getHeight();
+            }else {
+                surfaceWidth=textureView.getHeight();
+                surfaceHeight=textureView.getWidth();
+            }
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -405,4 +436,54 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         return values;
     }
 
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        initMediaPlay(holder);
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        changeVideoSize();
+    }
+
+    public void changeVideoSize() {
+        int videoWidth = mMediaPlayer.getVideoWidth();
+        int videoHeight = mMediaPlayer.getVideoHeight();
+
+        //根据视频尺寸去计算->视频可以在sufaceView中放大的最大倍数。
+        float max;
+        if (getResources().getConfiguration().orientation==ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            //竖屏模式下按视频宽度计算放大倍数值
+            max = Math.max((float) videoWidth / (float) surfaceWidth,(float) videoHeight / (float) surfaceHeight);
+        } else{
+            //横屏模式下按视频高度计算放大倍数值
+            max = Math.max(((float) videoWidth/(float) surfaceHeight),(float) videoHeight/(float) surfaceWidth);
+        }
+
+        //视频宽高分别/最大倍数值 计算出放大后的视频尺寸
+        videoWidth = (int) Math.ceil((float) videoWidth / max);
+        videoHeight = (int) Math.ceil((float) videoHeight / max);
+
+        //无法直接设置视频尺寸，将计算出的视频尺寸设置到surfaceView 让视频自动填充。
+        RelativeLayout.LayoutParams layoutParams= new RelativeLayout.LayoutParams(videoWidth, videoHeight);
+        layoutParams.addRule(CENTER_IN_PARENT);
+        textureView.setLayoutParams(layoutParams);
+//        textureView.set
+    }
+
+    @Override
+    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+        changeVideoSize();
+    }
 }

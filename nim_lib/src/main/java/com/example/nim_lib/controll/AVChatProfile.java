@@ -8,6 +8,8 @@ public class AVChatProfile {
     private final String TAG = "AVChatProfile";
 
     private boolean isAVChatting = false; // 是否正在音视频通话
+    // 是否正在拨打电话
+    private boolean isCallIng = false;
 
     private static String account;
 
@@ -21,6 +23,14 @@ public class AVChatProfile {
 
     public void setAVChatting(boolean chating) {
         isAVChatting = chating;
+    }
+
+    public boolean isCallIng() {
+        return isCallIng;
+    }
+
+    public void setCallIng(boolean callIng) {
+        isCallIng = callIng;
     }
 
     private static class InstanceHolder {

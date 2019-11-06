@@ -39,7 +39,11 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 6) {
                 updateV7(schema);
+                oldVersion++;
+            }
+            if (newVersion > oldVersion && oldVersion == 7) {
                 updateV8(schema);
+                updateV9(schema);
                 oldVersion++;
             }
         }
@@ -88,7 +92,6 @@ public class DaoMigration implements RealmMigration {
                 .addField("url", String.class);
 //                .addField("localUrl", String.class);
     }
-
 
     private void updateV5(RealmSchema schema) {
         schema.get("UserInfo")
@@ -140,8 +143,15 @@ public class DaoMigration implements RealmMigration {
                 .addField("vip", String.class);
     }
 
-    //新增群阅后即焚
     private void updateV8(RealmSchema schema) {
+        schema.create("P2PAuVideoDialMessage")
+                .addField("av_type", int.class);
+        schema.get("MsgAllBean")
+                .addRealmObjectField("p2PAuVideoDialMessage", schema.get("P2PAuVideoDialMessage"));
+    }
+
+    //新增群阅后即焚
+    private void updateV9(RealmSchema schema) {
         schema.get("Group")
                 .addField("survivaltime", int.class);
         schema.get("MsgAllBean")
