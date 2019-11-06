@@ -16,7 +16,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.HtmlBean;
 import com.yanlong.im.chat.bean.HtmlBeanList;
-import com.yanlong.im.notify.LockDialog;
+import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
 import org.jsoup.Jsoup;

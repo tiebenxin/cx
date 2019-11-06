@@ -1,4 +1,4 @@
-package com.yanlong.im.notify;
+package com.yanlong.im.dialog;
 
 import android.content.Context;
 import android.view.View;
@@ -11,25 +11,25 @@ import net.cb.cb.library.base.BaseDialog;
 /**
  * @anthor Liszt
  * @data 2019/8/29
- * Description 设置允许通知
+ * Description 版本更新dialog
  */
-public class LockDialog extends BaseDialog {
+public class UpdateVersionDialog extends BaseDialog {
 
 
     private TextView tv_content;
 
-    public LockDialog(Context context, int theme) {
+    public UpdateVersionDialog(Context context, int theme) {
         super(context, theme);
     }
 
-    public LockDialog(Context context) {
+    public UpdateVersionDialog(Context context) {
         super(context);
     }
 
 
     @Override
     public void initView() {
-        setContentView(R.layout.dialog_lock_detail);
+        setContentView(R.layout.dialog_update_version);
         tv_content = findViewById(R.id.tv_content);
     }
 

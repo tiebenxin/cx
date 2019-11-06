@@ -172,7 +172,7 @@ public class MessageManager {
                     if (bean.getP2PAuVideoMessage() != null && "cancel".equals(bean.getP2PAuVideoMessage().getOperation())) {
                         bean.getP2PAuVideoMessage().setDesc("对方" + bean.getP2PAuVideoMessage().getDesc());
                     } else if (bean.getP2PAuVideoMessage() != null && "reject".equals(bean.getP2PAuVideoMessage().getOperation())) {
-                        bean.getP2PAuVideoMessage().setDesc(bean.getP2PAuVideoMessage().getDesc().replace("对方",""));
+                        bean.getP2PAuVideoMessage().setDesc(bean.getP2PAuVideoMessage().getDesc().replace("对方", ""));
                     } else if (bean.getP2PAuVideoMessage() != null && "notaccpet".equals(bean.getP2PAuVideoMessage().getOperation())) {
                         bean.getP2PAuVideoMessage().setDesc("对方已取消");
                     }
@@ -269,16 +269,32 @@ public class MessageManager {
             case CANCEL://撤销消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
+                    String cancelMsgId = wrapMessage.getCancel().getMsgId();
+                    if (isList) {
+                        if (pendingMessages.containsKey(cancelMsgId)) {
+                            pendingMessages.remove(cancelMsgId);
+                        } else {
+                            String gid = wrapMessage.getGid();
+                            if (!StringUtil.isNotNull(gid)) {
+                                gid = null;
+                            }
+                            long fromUid = wrapMessage.getFromUid();
+                            updateSessionUnread(gid, fromUid, true);
+                            msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
+                        }
+                    } else {
+                        String gid = wrapMessage.getGid();
+                        if (!StringUtil.isNotNull(gid)) {
+                            gid = null;
+                        }
+                        long fromUid = wrapMessage.getFromUid();
+                        updateSessionUnread(gid, fromUid, true);
+                        msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
+                    }
+                    EventBus.getDefault().post(new EventRefreshChat());
+                    MessageManager.getInstance().setMessageChange(true);
                 }
-                String gid = wrapMessage.getGid();
-                if (!StringUtil.isNotNull(gid)) {
-                    gid = null;
-                }
-                long fromUid = wrapMessage.getFromUid();
-                updateSessionUnread(gid, fromUid, true);
-                msgDao.msgDel4Cancel(wrapMessage.getMsgId(), wrapMessage.getCancel().getMsgId(), "", "");
-                EventBus.getDefault().post(new EventRefreshChat());
-                MessageManager.getInstance().setMessageChange(true);
+
                 break;
             case RESOURCE_LOCK://资源锁定
                 updateUserLockCloudRedEnvelope(wrapMessage);

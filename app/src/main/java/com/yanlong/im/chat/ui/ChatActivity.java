@@ -794,7 +794,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onFail() {
 
                     }
-                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO});
+                }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
 
 
             }
@@ -1638,7 +1638,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             MessageManager.getInstance().setSessionSolo(toUId);
         }
         // 打开浮动窗口权限时，重新显示音视频浮动按钮
-        if(AVChatProfile.getInstance().isCallIng()){
+        if (AVChatProfile.getInstance().isCallIng()) {
             EventBus.getDefault().post(new EventFactory.ShowVoiceMinimizeEvent());
         }
         //刷新群资料
@@ -3407,6 +3407,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         } else {
             UserInfo finfo = userDao.findUserInfo(toUId);
+            if (finfo == null && toUId == 100121L) {
+                finfo = new UserInfo();
+                finfo.setUid(100121L);
+                finfo.setName("常信客服");
+            }
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
                 actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
