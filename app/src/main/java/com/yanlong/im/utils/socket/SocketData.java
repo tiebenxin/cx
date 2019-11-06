@@ -237,7 +237,6 @@ public class SocketData {
                     .build();
             Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
-
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
             // msgAllBean.setTimestamp(bean.getTimestamp());

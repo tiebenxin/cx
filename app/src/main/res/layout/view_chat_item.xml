@@ -480,6 +480,8 @@
 
                     </LinearLayout>
 
+
+
                 </LinearLayout>
 
                 <!--语音-->
@@ -538,6 +540,13 @@
             </LinearLayout>
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/img_me_err_ot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:src="@mipmap/ic_net_err" />
     </LinearLayout>
 
 

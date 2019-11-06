@@ -33,9 +33,6 @@ public class MsgConversionBean {
         return ToBean(bean, null, false);
     }
 
-
-
-
     /*
      * @param isError是否是发送失败消息
      * */
@@ -61,7 +58,7 @@ public class MsgConversionBean {
         msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setFrom_group_nickname(bean.getMembername());
         msgAllBean.setGid(bean.getGid());
-
+        msgAllBean.setSurvival_time(bean.getSurvivalTime());
         UserDao userDao = new UserDao();
 
         if(bean.getMsgType() != RED_ENVELOPER){

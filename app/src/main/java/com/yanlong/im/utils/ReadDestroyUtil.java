@@ -142,6 +142,10 @@ public class ReadDestroyUtil {
                 imageView.setVisibility(View.VISIBLE);
                 imageView.setImageResource(R.mipmap.icon_1_min);
                 break;
+            case 300:
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setImageResource(R.mipmap.icon_5_min);
+                break;
             case 1800:
                 imageView.setVisibility(View.VISIBLE);
                 imageView.setImageResource(R.mipmap.icon_30_min);

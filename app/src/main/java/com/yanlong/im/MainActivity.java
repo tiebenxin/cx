@@ -667,6 +667,7 @@ public class MainActivity extends AppActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                //查询所有阅后即焚消息加入定时器
                 List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
                 if(list != null){
                     timeUtils.addMsgAllBeans(list);
@@ -677,8 +678,11 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd){
-        LogUtil.getLog().d("SurvivalTime",""+survivalTimeAdd.msgAllBean.getMsg_id());
-        timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
+        if(survivalTimeAdd.msgAllBean != null){
+            timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
+        }else if(survivalTimeAdd.list != null){
+            timeUtils.addMsgAllBeans(survivalTimeAdd.list);
+        }
     }
 
 

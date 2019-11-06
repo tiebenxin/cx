@@ -179,6 +179,43 @@ public class MsgDao {
     }
 
 
+
+
+    /**
+     * 查询已读的阅后即焚消息
+     */
+    public List<MsgAllBean> getMsg4SurvivalTimeAndRead(Long userid) {
+        List<MsgAllBean> beans;
+        Realm realm = DaoUtil.open();
+        RealmResults list = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                .and().beginGroup().equalTo("to_uid", userid).endGroup()
+                .and().greaterThan("read",0)
+                .findAll();
+        beans = realm.copyFromRealm(list);
+        realm.close();
+        return beans;
+    }
+    
+    
+    /**
+     * 查询当前会话退出即焚消息
+     * */
+    // TODO: 2019/11/5 0005 未完成 
+    public List<MsgAllBean> getMsg4SurvivalTimeAndRead(String gid,Long userid) {
+        List<MsgAllBean> beans;
+        Realm realm = DaoUtil.open();
+        RealmResults list = realm.where(MsgAllBean.class)
+                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                .and().beginGroup().equalTo("to_uid", userid).endGroup()
+                .and().greaterThan("read",0)
+                .findAll();
+        beans = realm.copyFromRealm(list);
+        realm.close();
+        return beans;
+    }
+    
+    
     /**
      * 查询所有查看过的阅后即焚消息
      */
@@ -1556,13 +1593,12 @@ public class MsgDao {
         try {
             List<MsgAllBean> list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").and().isNotNull("gid").endGroup()
-                    .and()
-                    .beginGroup().equalTo("to_uid", uid).endGroup()
-                    .sort("timestamp", Sort.DESCENDING).findAll();
+                    .and().beginGroup().equalTo("to_uid", uid).endGroup()
+                    .findAll();
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
                     MsgAllBean msgAllBean = list.get(i);
-                    if(msgAllBean.getTimestamp() <= timestamp && msgAllBean.getRead() == 0){
+                    if (msgAllBean.getTimestamp() <= timestamp && msgAllBean.getRead() == 0) {
                         msgAllBean.setRead(1);
                     }
                 }

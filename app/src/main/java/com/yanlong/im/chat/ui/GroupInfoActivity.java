@@ -78,8 +78,6 @@ public class GroupInfoActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private android.support.v7.widget.RecyclerView topListView;
-    //  private ImageView btnAdd;
-    //  private ImageView btnRm;
     private LinearLayout viewGroupName, viewGroupImg;
     private LinearLayout viewGroupMore;
     private TextView txtGroupName;
@@ -354,7 +352,6 @@ public class GroupInfoActivity extends AppActivity {
         setContentView(R.layout.activity_group_info);
         EventBus.getDefault().register(this);
         findViews();
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -373,12 +370,6 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
 
     public boolean isPercentage = true;
 
@@ -534,13 +525,8 @@ public class GroupInfoActivity extends AppActivity {
                 imgHead = convertView.findViewById(R.id.img_head);
                 imgGroup = convertView.findViewById(R.id.img_group);
                 txtName = convertView.findViewById(R.id.txt_name);
-
             }
-
-
         }
-
-
     }
 
     private boolean isBackValue = false;
@@ -632,14 +618,6 @@ public class GroupInfoActivity extends AppActivity {
                     if (ginfo == null) {
                         return;
                     }
-
-
-                    //8.8 如果是有群昵称显示自己群昵称
-//                    for (MemberUser number : ginfo.getUsers()) {
-//                        if (StringUtil.isNotNull(number.getMembername())) {
-//                            number.setName(number.getMembername());
-//                        }
-//                    }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
@@ -678,7 +656,6 @@ public class GroupInfoActivity extends AppActivity {
             }
         };
         msgAction.groupInfo4Db(gid, callBack);
-//        msgAction.groupInfo(gid, callBack);
     }
 
     //设置群公告

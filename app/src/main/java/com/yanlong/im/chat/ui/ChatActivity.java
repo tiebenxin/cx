@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -152,11 +153,7 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
 
-import com.yanlong.im.utils.socket.MsgBean;
-import com.example.nim_lib.config.Preferences;
-import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.example.nim_lib.ui.VoiceCallActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -298,8 +295,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 @Override
                 public void run() {
 
-
                     fixSendTime(bean.getMsgId(0));
+
+                    //群聊自己发送的消息直接加入阅后即焚队列
+                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsgId(0));
+                    if (isGroup()) {
+                        addSurvivalTime(msgAllBean);
+                    }
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
                         taskRefreshMessage();
 //                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
@@ -334,9 +336,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 public void run() {
 
                     needRefresh = false;
+
                     for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
+                            //收到消息加入阅后即焚队列
+                            MsgAllBean msgAllBean = msgDao.getMsgById(msg.getMsgId());
+                            addSurvivalTime(msgAllBean);
                             if (isGroup()) {
                                 needRefresh = msg.getGid().equals(toGid);
                             } else {
@@ -374,7 +380,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     //ToastUtil.show(context, "发送失败" + bean.getRequestId());
                     MsgAllBean msgAllBean = MsgConversionBean.ToBean(bean.getWrapMsg(0), bean, true);
-                    if(msgAllBean == null){
+                    if (msgAllBean == null) {
                         return;
                     }
                     if (msgAllBean.getMsg_type().intValue() == ChatEnum.EMessageType.MSG_CENCAL
@@ -1117,6 +1123,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             public void onClick(View v) {
                 destroyTimeView = new DestroyTimeView(ChatActivity.this);
                 destroyTimeView.initView();
+                destroyTimeView.setPostion(survivaltime);
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
@@ -1574,6 +1581,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         EventBus.getDefault().register(this);
         findViews();
         initEvent();
+        initSurvivaltime4Uid();
     }
 
     @Override
@@ -1598,6 +1606,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            viewFunc.removeView(llChatVideoCall);
 //        }
     }
+
+    //单聊获取已读阅后即焚消息
+    private void initSurvivaltime4Uid() {
+        if (!isGroup()) {
+            List<MsgAllBean> list = msgDao.getMsg4SurvivalTimeAndRead(toUId);
+            addSurvivalTimeForList(list);
+        }
+    }
+
 
     private void initUnreadCount() {
         new RunUtils(new RunUtils.Enent() {
@@ -2024,7 +2041,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
             msgListData.get(position).setSend_state(ChatEnum.ESendStatus.NORMAL);
-            ((ChatItemView)mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
+            ((ChatItemView) mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
 //            setErr;
             if (!isNewAdapter) {
                 msgListData.set(position, msgAllbean);
@@ -2318,23 +2335,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
 
+
         //自动生成控件事件
         @Override
         public void onBindViewHolder(RCViewHolder holder, final int position) {
 //            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "onBindViewHolder--position=" + position);
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
-
-            if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
-                long date = DateUtils.getSystemTime();
-                LogUtil.getLog().d("ssss", (date + msgbean.getSurvival_time() * 1000) + "");
-                LogUtil.getLog().d("ssss", msgbean.getMsg_id() + "");
-                msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), msgbean.getMsg_id());
-                msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
-                EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean));
-                LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
-            } else if (msgbean.getSurvival_time() == -1) {
-
+            if(!msgbean.isMe()){
+                addSurvivalTime(msgbean);
+            }else{
+                if(!isGroup()){
+                    addSurvivalTimeAndRead(msgbean);
+                }
             }
 
             //时间戳合并
@@ -2358,9 +2371,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 } else {
                     nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
                 }
-                //fusinfo.getName();
-//                nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();//fusinfo.getName();
-
 
             } else {//单聊不显示昵称
                 nikeName = null;
@@ -2667,10 +2677,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
                     Log.d("CHANGE_SURVIVAL_TIME", msgbean.getMsg_id());
-                    holder.viewChatItem.setReadDestroy(toGid, msgbean.getFrom_uid(),
-                            msgbean.getChangeSurvivalTimeMessage().getSurvival_time()
-                            , msgbean.getMsgCancel().getNote());
-
+                    if (msgbean != null) {
+                        holder.viewChatItem.setReadDestroy(toGid, msgbean.getFrom_uid(),
+                                msgbean.getChangeSurvivalTimeMessage().getSurvival_time()
+                                , msgbean.getMsgCancel().getNote());
+                    }
                     break;
             }
 
@@ -3263,6 +3274,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /**
      * 设置不同的消息类型弹出对应气泡
+     *
      * @param menus
      */
     private void setMessageType(List<OptionMenu> menus) {
@@ -3430,6 +3442,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
     private String msgid;
+
     /***
      * 获取最新的
      */
@@ -3439,13 +3452,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             needRefresh = false;
         }
 
-        if(TextUtils.isEmpty(toGid)){
+        if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
-            if(bean != null){
-                if(TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())){
+            if (bean != null) {
+                if (TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) {
                     msgid = bean.getMsg_id();
-                    LogUtil.getLog().d("taskRefreshMessage",bean.getMsg_id());
-                    SocketData.send4Read(toUId,bean.getTimestamp());
+                    LogUtil.getLog().d("taskRefreshMessage", bean.getMsg_id());
+                    SocketData.send4Read(toUId, bean.getTimestamp());
                 }
             }
         }
@@ -4041,7 +4054,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             isSendingHypertext = false;
         }
         textPosition = position;
-        int survivalTime = userDao.getReadDestroy(toUId, toGid);
         MsgAllBean msgAllbean;
         msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
         showSendObj(msgAllbean);
@@ -4065,6 +4077,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 DaoUtil.update(msg);
             }
         }
+
     }
 
     /**
@@ -4079,6 +4092,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
                 }
                 if (response.body().isOk()) {
+                    ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateReadDestroy(friend, survivalTime);
                 }
             }
@@ -4097,10 +4111,68 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
                 }
                 if (response.body().isOk()) {
+                    ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
                 }
             }
         });
     }
+
+    /**
+     * 添加阅读即焚消息到队列
+     */
+    public void addSurvivalTime(MsgAllBean msgbean) {
+        if (msgbean == null) {
+            return;
+        }
+        if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
+            long date = DateUtils.getSystemTime();
+            LogUtil.getLog().d("ssss", (date + msgbean.getSurvival_time() * 1000) + "");
+            LogUtil.getLog().d("ssss", msgbean.getMsg_id() + "");
+            msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), msgbean.getMsg_id());
+            msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
+            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+        } else if (msgbean.getSurvival_time() == -1) {
+
+        }
+    }
+
+    public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
+        if (msgbean == null) {
+            return;
+        }
+        if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {
+            long date = DateUtils.getSystemTime();
+            LogUtil.getLog().d("ssss", (date + msgbean.getSurvival_time() * 1000) + "");
+            LogUtil.getLog().d("ssss", msgbean.getMsg_id() + "");
+            msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), msgbean.getMsg_id());
+            msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
+            EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+        } else if (msgbean.getSurvival_time() == -1) {
+
+        }
+    }
+
+
+    public void addSurvivalTimeForList(List<MsgAllBean> list) {
+        if (list == null && list.size() == 0) {
+            return;
+        }
+        for (int i = 0; i < list.size(); i++) {
+
+            MsgAllBean msgbean = list.get(i);
+            if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
+                long date = DateUtils.getSystemTime();
+                msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), msgbean.getMsg_id());
+                msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
+
+                LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+            }
+        }
+        EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
+    }
+
 
 }

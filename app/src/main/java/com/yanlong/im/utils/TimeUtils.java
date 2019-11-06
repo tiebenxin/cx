@@ -38,14 +38,16 @@ public class TimeUtils {
                 Iterator<MsgAllBean> it = msgAllBeans.iterator();
                 while (it.hasNext()) {
                     MsgAllBean bean = it.next();
-
                     if(bean.getEndTime() <= DateUtils.getSystemTime()){
-
                         LogUtil.getLog().d("SurvivalTime","结束时间:"+bean.getEndTime()+"---------"+"系统时间"+DateUtils.getSystemTime());
                         LogUtil.getLog().i("SurvivalTime","删除msg:"+bean.getMsg_id());
                         msgDao.msgDel4MsgId(bean.getMsg_id());
                         it.remove();
                         EventBus.getDefault().post(new EventRefreshChat());
+                    }else if(bean.getSurvival_time() == -1){
+                        LogUtil.getLog().i("SurvivalTime","退出即焚删除msg:"+bean.getMsg_id());
+                        msgDao.msgDel4MsgId(bean.getMsg_id());
+                        it.remove();
                     }
                 }
             }

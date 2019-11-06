@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.yanlong.im.R;
 import com.yanlong.im.view.PickValueView;
 
@@ -44,6 +45,8 @@ public class DestroyTimeView implements View.OnClickListener {
         tvCancel.setOnClickListener(this);
         tvConfirm.setOnClickListener(this);
         //获取Dialog的监听
+
+
         pickString.setOnSelectedChangeListener(new PickValueView.onSelectedChangeListener() {
             @Override
             public void onSelected(PickValueView view, Object leftValue, Object middleValue, Object rightValue) {
@@ -63,6 +66,56 @@ public class DestroyTimeView implements View.OnClickListener {
         dialog.show();//显示弹窗
     }
 
+
+    public void setPostion(int time) {
+        survivaltime = time;
+        switch (time) {
+            case 0:
+                pickString.setValueData(valueStr, valueStr[0]);
+                break;
+            case -1:
+                pickString.setValueData(valueStr, valueStr[1]);
+                break;
+            case 5:
+                pickString.setValueData(valueStr, valueStr[2]);
+                break;
+            case 10:
+                pickString.setValueData(valueStr, valueStr[3]);
+                break;
+            case 30:
+                pickString.setValueData(valueStr, valueStr[4]);
+                break;
+            case 60:
+                pickString.setValueData(valueStr, valueStr[5]);
+                break;
+            case 300:
+                pickString.setValueData(valueStr, valueStr[6]);
+                break;
+            case 1800:
+                pickString.setValueData(valueStr, valueStr[7]);
+                break;
+            case 3600:
+                pickString.setValueData(valueStr, valueStr[8]);
+                break;
+            case 21000:
+                pickString.setValueData(valueStr, valueStr[9]);
+                break;
+            case 43200:
+                pickString.setValueData(valueStr, valueStr[10]);
+                break;
+            case 86400:
+                pickString.setValueData(valueStr, valueStr[11]);
+                break;
+            case 604800:
+                pickString.setValueData(valueStr, valueStr[12]);
+                break;
+            default:
+                pickString.setValueData(valueStr, valueStr[0]);
+                break;
+        }
+    }
+
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -71,7 +124,7 @@ public class DestroyTimeView implements View.OnClickListener {
                 break;
             case R.id.tv_confirm:
                 if (onClickItem != null) {
-                    onClickItem.onClickItem(content,survivaltime);
+                    onClickItem.onClickItem(content, survivaltime);
                 }
                 dialog.dismiss();
                 break;
@@ -81,6 +134,7 @@ public class DestroyTimeView implements View.OnClickListener {
 
     public interface OnClickItem {
         void onClickItem(String content, int survivaltime);
+
     }
 
 
