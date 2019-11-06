@@ -2514,7 +2514,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
                     } else {
-                        menus.add(new OptionMenu("删除"));
+//                        menus.add(new OptionMenu("删除"));
                     }
                     Integer pg = null;
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
@@ -2539,7 +2539,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setVideoIMGShow(true);
                         Log.e("TAG", "2");
                     } else {
-                        menus.add(new OptionMenu("删除"));
+//                        menus.add(new OptionMenu("删除"));
 
                     }
 
@@ -2828,7 +2828,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
-        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+//        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
         new Thread() {
             @Override
             public void run() {
@@ -2845,7 +2845,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             bundle.putString("url", fileVideo.getAbsolutePath());
                             message.setData(bundle);
                             handler.sendMessage(message);
-//                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
 //                        msgAllBean.setVideoMessage(videoMessage);
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
