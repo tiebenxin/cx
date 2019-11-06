@@ -92,7 +92,7 @@ public class RecordedLocalActivity extends BaseActivity  {
         setContentView(R.layout.activity_recorded_local);
 
         LanSoEditor.initSDK(this, null);
-        LanSongFileUtil.setFileDir("/sdcard/WeiXinRecorded/"+System.currentTimeMillis()+"/");
+//        LanSongFileUtil.setFileDir("/sdcard/WeiXinRecorded/"+System.currentTimeMillis()+"/");
         LibyuvUtil.loadLibrary();
 
         initUI();
@@ -278,6 +278,7 @@ public class RecordedLocalActivity extends BaseActivity  {
             @Override
             public void onDown() {
                 //长按录像
+                recordTime = System.currentTimeMillis();
                 isRecordVideo.set(true);
 //                startRecord();
                 startRecordLocal();
@@ -285,10 +286,10 @@ public class RecordedLocalActivity extends BaseActivity  {
             }
             @Override
             public void onUp() {
-//                if(isRecordVideo.get()){
-//                    isRecordVideo.set(false);
+                if(isRecordVideo.get()){
+                    isRecordVideo.set(false);
 //                    upEvent();
-//                }
+                }
                 mRecorder.stop();
                 initRecorderState();
             }
@@ -350,72 +351,70 @@ public class RecordedLocalActivity extends BaseActivity  {
     }
     private String aacPath;
     public void finishVideo(final int type){
-        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
-            @Override
-            public String doInBackground()throws Exception{
-                //合并h264
-                String h264Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
-                Utils.mergeFile(segmentList.toArray(new String[]{}), h264Path);
-                //h264转mp4
-                String mp4Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".mp4";
-                boolean isH264ToMp4= mVideoEditor.h264ToMp4(h264Path, mp4Path);
-                if (!isH264ToMp4){
-                    return null;
-                }
-                //合成音频
-                aacPath= mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
-                //音视频混合
-                mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, aacPath);
-                return mp4Path;
-            }
-            @Override
-            public void onFinish(String result) {
-                closeProgressDialog();
-                //todo 删除合成钱原始音视频文件
-                if (null!=aacPath){
-                   File file=new File(aacPath);
-                   if (file.exists()){
-                       file.delete();
-                   }
-                }
-//                Intent intent = new Intent(mContext, EditVideoActivity.class);
-//                intent.putExtra(INTENT_PATH, result);
-//                startActivityForResult(intent, REQUEST_CODE_KEY);
-                if (null==result){
-                    Toast.makeText(getApplicationContext(), "视频编辑失败!退出界面重试", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//        RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
+//            @Override
+//            public String doInBackground()throws Exception{
+//                //合并h264
+//                String h264Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
+//                Utils.mergeFile(segmentList.toArray(new String[]{}), h264Path);
+//                //h264转mp4
+//                String mp4Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".mp4";
+//                boolean isH264ToMp4= mVideoEditor.h264ToMp4(h264Path, mp4Path);
+//                if (!isH264ToMp4){
+//                    return null;
+//                }
+//                //合成音频
+//                aacPath= mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
+//                //音视频混合
+//                mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, aacPath);
+//                return mp4Path;
+//            }
+//            @Override
+//            public void onFinish(String result) {
+//                closeProgressDialog();
+//                //todo 删除合成钱原始音视频文件
+//                if (null!=aacPath){
+//                   File file=new File(aacPath);
+//                   if (file.exists()){
+//                       file.delete();
+//                   }
+//                }
+////                Intent intent = new Intent(mContext, EditVideoActivity.class);
+////                intent.putExtra(INTENT_PATH, result);
+////                startActivityForResult(intent, REQUEST_CODE_KEY);
+//                if (null==result){
+//                    Toast.makeText(getApplicationContext(), "视频编辑失败!退出界面重试", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
                 switch (type){
                     case 1:
                         Intent intentMas = new Intent();
-                        intentMas.putExtra(INTENT_PATH, result);
+                        intentMas.putExtra(INTENT_PATH, path);
                         intentMas.putExtra(INTENT_VIDEO_WIDTH,mCameraHelp.getHeight() );
                         intentMas.putExtra(INTENT_PATH_HEIGHT,mCameraHelp.getWidth() );
 //                        intentMas.putExtra(INTENT_PATH_TIME,(int)countTime);
-                        intentMas.putExtra(INTENT_PATH_TIME,(int)Long.parseLong(getVideoAtt(result)));
+                        intentMas.putExtra(INTENT_PATH_TIME,(int)Long.parseLong(getVideoAtt(path)));
                         intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                         setResult(RESULT_OK, intentMas);
                         finish();
                         break;
                     case 2:
                         Intent intent = new Intent(mContext, EditVideoActivity.class);
-                        intent.putExtra(INTENT_PATH, result);
+                        intent.putExtra(INTENT_PATH, path);
                         startActivityForResult(intent, REQUEST_CODE_KEY);
                         break;
-                }
-                clearProgress();
-
+//                }
+//                clearProgress();
+//
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//                e.printStackTrace();
+//                closeProgressDialog();
+//                Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
             }
-
-
-
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-                closeProgressDialog();
-                Toast.makeText(getApplicationContext(), "视频编辑失败", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        });
     }
 
     private String getVideoAtt(String mUri) {
@@ -627,7 +626,8 @@ public class RecordedLocalActivity extends BaseActivity  {
         RxJavaUtil.loop(20, new RxJavaUtil.OnRxLoopListener() {
             @Override
             public Boolean takeWhile(){
-                return recordUtil!=null && recordUtil.isRecording();
+                return isRecordVideo.get();
+//                return recordUtil!=null && recordUtil.isRecording();
             }
             @Override
             public void onExecute() {
@@ -635,6 +635,7 @@ public class RecordedLocalActivity extends BaseActivity  {
                 videoDuration += currentTime - recordTime;
                 recordTime = currentTime;
                 countTime= videoDuration;
+                Log.e("TAG",countTime+"");
                 for (long time : timeList) {
                     countTime += time;
                 }

@@ -782,10 +782,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                                .compress(true)
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
 
-//                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
-//                        startActivityForResult(intent, VIDEO_RP);
-                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
                         startActivityForResult(intent, VIDEO_RP);
+//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                        startActivityForResult(intent, VIDEO_RP);
 
 //                        showDownLoadDialog();
                     }
