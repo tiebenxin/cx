@@ -526,10 +526,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 public void onClick(View v) {
                     //这里保存处理
                     if (txtBig != null) {
-                        saveImage(imgPath);
+//                        saveImage(imgPath);
 //                        txtBig.callOnClick();
+                        downloadAndSaveImage(imgPath, (TextView) txtBig, ivDownload);
                     } else {
-                        saveImageImg(imgPath, imageView);
+                        saveImageImg(imgPath, imageView, ivDownload);
                     }
 
                 }
@@ -559,13 +560,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
         //大图事件
-        private void imgLargeEvent(final PhotoView imageView, final TextView txtBig, final View btnDown, final LargeImageView imgLarge, final String imgpath) {
-            txtBig.setOnClickListener(new View.OnClickListener() {
+        private void imgLargeEvent(final PhotoView imageView, final TextView tvLookOringin, final View btnDown, final LargeImageView imgLarge, final String imgpath) {
+            tvLookOringin.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // txtBig.setVisibility(View.GONE);
-                    setDownloadProgress(txtBig, 0);
-                    showBigImage(imageView, txtBig, btnDown, imgLarge, imgpath);
+                    setDownloadProgress(tvLookOringin, 0);
+                    showBigImage(imageView, tvLookOringin, btnDown, imgLarge, imgpath);
 
                 }
             });
@@ -596,7 +597,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
                     imgLarge.setAlpha(1);
                     dismissDialog();
-                    setDownloadProgress(txtBig, 100);
+                    setDownloadProgress(tvLookOringin, 100);
                     // ToastUtil.show(getApplicationContext(),"加载完成");
                 }
 
@@ -917,11 +918,14 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         dismissDialog();
     }
 
-    private void saveImageImg(String path, ImageView imageView) {
+    private void saveImageImg(String path, ImageView imageView, ImageView ivDownload) {
         Log.d("TAG", "------------showLoadingImage$:saveImage " + path);
         Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
         if (null != bitmap) {
-            PicSaveUtils.saveImgLoc(this, bitmap, path);
+            boolean isSuccess = PicSaveUtils.saveImgLoc(this, bitmap, path);
+            if (isSuccess) {
+                ivDownload.setEnabled(true);
+            }
         }
     }
 
@@ -1135,6 +1139,79 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     }
                 });
 
+    }
+
+    private void downloadAndSaveImage(String url, TextView tvLookOrigin, ImageView ivDownLoad) {
+        final String filePath = getExternalCacheDir().getAbsolutePath() + "/Image/";
+        final String fileName = url.substring(url.lastIndexOf("/") + 1);
+        File fileSave = new File(filePath + "/" + fileName);
+
+        if (fileSave.exists()) {
+            long fsize = (long) tvLookOrigin.getTag();
+            long fsize2 = fileSave.length();
+            boolean broken = fsize2 < fsize;
+
+            if (broken) {//缓存清理
+                fileSave.delete();
+                new File(fileSave.getAbsolutePath() + FileBitmapDecoderFactory.cache_name).delete();
+            }
+
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                final Call download = DownloadUtil.get().download(url, filePath, fileName, new DownloadUtil.OnDownloadListener() {
+
+                    @Override
+                    public void onDownloadSuccess(final File file) {
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+//                                imgLarge.setAlpha(0);
+//                                imgLarge.setVisibility(View.VISIBLE);
+                                setDownloadProgress(tvLookOrigin, 100);
+                                ivDownLoad.setEnabled(true);
+                                Log.d("showBigImage", "showBigImage: " + url);
+//                                imgLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
+                                MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
+                                //这边要改成已读
+                                msgDao.ImgReadStatSet(url, true);
+                            }
+                        });
+                        saveImage(url);
+                    }
+
+                    @Override
+                    public void onDownloading(final int progress) {
+                        Log.d(TAG, "onDownloading: " + progress);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                setDownloadProgress(tvLookOrigin, progress);
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onDownloadFailed(Exception e) {
+                        new File(filePath + "/" + fileName).delete();
+                        new File(filePath + "/" + fileName + FileBitmapDecoderFactory.cache_name).delete();
+                        e.printStackTrace();
+                    }
+                });
+//                imgLarge.setOnDetached(new LargeImageView.Event() {
+//                    @Override
+//                    public void onDetach() {
+//                        download.cancel();
+//                    }
+//                });
+
+
+            }
+        }).start();
     }
 
 }

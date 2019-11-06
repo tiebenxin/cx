@@ -17,7 +17,7 @@ import java.io.IOException;
 import static com.luck.picture.lib.tools.PictureFileUtils.APP_NAME;
 
 public class PicSaveUtils {
-    public static void saveImgLoc(Context mContext, Bitmap bmp, String bitName) {
+    public static boolean saveImgLoc(Context mContext, Bitmap bmp, String bitName) {
         // 首先保存图片
         bitName = SystemClock.currentThreadTimeMillis() + "";
         File appDir = new File(Environment.getExternalStorageDirectory(),
@@ -39,12 +39,13 @@ public class PicSaveUtils {
             sendBroadcast(file, mContext);
 //            Toast.makeText(mContext, "保存成功至" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
             Toast.makeText(mContext, "保存成功", Toast.LENGTH_SHORT).show();
+            return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        setPhotoFile(file);
+        return false;
     }
 
     public static void sendBroadcast(File dirPath, Context context) {
