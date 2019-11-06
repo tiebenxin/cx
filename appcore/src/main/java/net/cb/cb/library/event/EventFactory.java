@@ -9,11 +9,19 @@ package net.cb.cb.library.event;
  * @description 事件工厂
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class EventFactory extends BaseEvent{
+public class EventFactory extends BaseEvent {
     /**
      * 重启APP
      */
     public static class RestartAppEvent extends BaseEvent {
 
+    }
+
+    /**
+     * 撤回消息关闭图片预览
+     */
+    public static class ClosePictureEvent extends BaseEvent {
+        public String msg_id;
+        public String name;
     }
 }

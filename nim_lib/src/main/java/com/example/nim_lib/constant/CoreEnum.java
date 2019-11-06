@@ -20,4 +20,13 @@ public class CoreEnum {
         int RECEIVE = 1; // 接收
         int CALLING = 2; // 通话
     }
+
+    @IntDef({ENetStatus.SUCCESS_ON_NET, ENetStatus.ERROR_ON_NET, ENetStatus.SUCCESS_ON_SERVER, ENetStatus.ERROR_ON_SERVER})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ENetStatus {
+        int SUCCESS_ON_NET = 0;//本地网络正常
+        int ERROR_ON_NET = 1;//本地网络错误
+        int SUCCESS_ON_SERVER = 2;//服务器正常
+        int ERROR_ON_SERVER = 3;//服务器错误
+    }
 }

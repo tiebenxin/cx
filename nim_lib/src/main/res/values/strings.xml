@@ -59,6 +59,9 @@
     <string name="avchat_no_permission">暂无权限，请开通音视频服务</string>
     <string name="avchat_in_switch">请耐心等待！</string>
     <string name="avchat_peer_busy_ing">对方可能正忙，建议稍后再次尝试</string>
+    <string name="avchat_peer_break">对方通话已中断</string>
+    <string name="avchat_peer_in_network_no">当前通话你的网络不佳</string>
+    <string name="avchat_peer_out_network_no">当前通话你的网络不佳</string>
 
     <!-- team video call -->
     <string name="t_avchat_not_start_with_less_member">无法发起，人数少于2人</string>

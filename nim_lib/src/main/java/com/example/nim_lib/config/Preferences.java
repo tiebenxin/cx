@@ -29,4 +29,5 @@ public class Preferences {
     public static final String CANCLE = "cancel";
     public static final String HANGUP = "hangup";
     public static final String REJECT = "reject";
+    public static final String INTERRUPT = "interrupt";
 }

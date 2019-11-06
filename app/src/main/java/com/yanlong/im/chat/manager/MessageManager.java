@@ -34,6 +34,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -175,6 +176,8 @@ public class MessageManager {
                         bean.getP2PAuVideoMessage().setDesc(bean.getP2PAuVideoMessage().getDesc().replace("对方", ""));
                     } else if (bean.getP2PAuVideoMessage() != null && "notaccpet".equals(bean.getP2PAuVideoMessage().getOperation())) {
                         bean.getP2PAuVideoMessage().setDesc("对方已取消");
+                    } else if (bean.getP2PAuVideoMessage() != null && "interrupt".equals(bean.getP2PAuVideoMessage().getOperation())) {
+                        bean.getP2PAuVideoMessage().setDesc("通话中断");
                     }
                     result = saveMessageNew(bean, isList);
                 }
@@ -292,9 +295,13 @@ public class MessageManager {
                         msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
                     }
                     EventBus.getDefault().post(new EventRefreshChat());
+                    // 处理图片撤回，在预览弹出提示
+                    EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
+                    event.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    event.name = bean.getFrom_nickname();
+                    EventBus.getDefault().post(event);
                     MessageManager.getInstance().setMessageChange(true);
                 }
-
                 break;
             case RESOURCE_LOCK://资源锁定
                 updateUserLockCloudRedEnvelope(wrapMessage);
