@@ -2889,13 +2889,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
-        if (!msgBean.isMe() && !msgBean.isRead()) {
+        if (!msgBean.isMe() && !isVoiceRead(msgBean)) {
             list.add(msgBean);
             int length = msgListData.size();
             if (position < length - 1) {
                 for (int i = position + 1; i < length; i++) {
                     MsgAllBean bean = msgListData.get(i);
-                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !bean.isRead()) {
+                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !isVoiceRead(bean)) {
                         list.add(bean);
                     }
                 }
@@ -2924,7 +2924,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (start < length - 1) {
             for (int i = start + 1; i < length; i++) {
                 MsgAllBean bean = msgListData.get(i);
-                if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !bean.isRead()) {
+                if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !isVoiceRead(bean)) {
                     message = bean;
                     position = i;
                     break;
@@ -2935,6 +2935,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (message != null) {
             playVoice(message, true, position);
         }
+
+    }
+
+    private boolean isVoiceRead(MsgAllBean bean) {
+        VoiceMessage voice = bean.getVoiceMessage();
+        if (voice != null && voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED) {
+            return true;
+        }
+        return false;
 
     }
 
@@ -2972,7 +2981,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
-            if (!bean.isRead() && !bean.isMe()) {
+            if (bean.getVoiceMessage().getPlayStatus() == ChatEnum.EPlayStatus.NO_DOWNLOADED && !bean.isMe()) {
                 int len = downloadList.size();
                 if (len > 0) {//有下载
                     MsgAllBean msg = downloadList.get(len - 1);

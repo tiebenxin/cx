@@ -234,7 +234,7 @@ public class ChatEnum {
         int DOWNLOADING = 1; // 开始下载
         int NO_PLAY = 2; //下载成功，未播放
         int PLAYING = 3; //正播放
-        int STOP_PLAY = 4; //正播放
+        int STOP_PLAY = 4; //停止播放
         int PLAYED = 5;//已播放
     }
 
