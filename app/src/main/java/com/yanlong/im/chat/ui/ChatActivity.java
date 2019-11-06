@@ -782,10 +782,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                                .compress(true)
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
 
-                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
-                        startActivityForResult(intent, VIDEO_RP);
-//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
 //                        startActivityForResult(intent, VIDEO_RP);
+                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                        startActivityForResult(intent, VIDEO_RP);
 
 //                        showDownLoadDialog();
                     }
@@ -2566,15 +2566,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                                        startActivity(intent);
 
                                     } else {
-                                        downVideo(msgbean, msgbean.getVideoMessage());
+//                                        downVideo(msgbean, msgbean.getVideoMessage());
                                         localUrl = msgbean.getVideoMessage().getUrl();
                                     }
                                 } else {
-                                    downVideo(msgbean, msgbean.getVideoMessage());
+//                                    downVideo(msgbean, msgbean.getVideoMessage());
                                     localUrl = msgbean.getVideoMessage().getUrl();
                                 }
                                 Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
                                 intent.putExtra("videopath", localUrl);
+//                                intent.putExtra("videopath", localUrl);
                                 intent.putExtra("videomsg", new Gson().toJson(msgbean));
                                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                 startActivity(intent);
