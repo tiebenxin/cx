@@ -45,6 +45,7 @@ import com.example.nim_lib.net.RunUtils;
 import com.example.nim_lib.permission.BaseMPermission;
 import com.example.nim_lib.receiver.PhoneCallStateObserver;
 import com.example.nim_lib.util.GlideUtil;
+import com.example.nim_lib.util.LogUtil;
 import com.example.nim_lib.util.ScreenUtil;
 import com.example.nim_lib.util.SharedPreferencesUtil;
 import com.example.nim_lib.util.ToastUtil;
@@ -65,11 +66,14 @@ import com.netease.nimlib.sdk.avchat.model.AVChatCalleeAckEvent;
 import com.netease.nimlib.sdk.avchat.model.AVChatCommonEvent;
 import com.netease.nimlib.sdk.avchat.model.AVChatControlEvent;
 import com.netease.nimlib.sdk.avchat.model.AVChatData;
+import com.netease.nimlib.sdk.avchat.model.AVChatNetworkStats;
 import com.netease.nimlib.sdk.avchat.model.AVChatVideoFrame;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nrtc.video.render.IVideoRender;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 import java.util.Locale;
@@ -204,12 +208,14 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private ImageView imgCancle;
     private ImageView imgMinimize;
     private TextView txtMessage;
+    private TextView txtMessageVideo;
     private CheckBox cbMute;
     private RelativeLayout layoutVoice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         setContentView(R.layout.activity_video);
         setStatusBarColor(R.color.color_707);
         findSurfaceView();
@@ -246,6 +252,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         txtLifeTime = findViewById(R.id.txt_life_time);
         cbMute = findViewById(R.id.cb_mute);
         txtMessage = findViewById(R.id.txt_message);
+        txtMessageVideo = findViewById(R.id.txt_message_video);
     }
 
     private void onEvent() {
@@ -425,14 +432,61 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         AVChatSoundPlayer.instance().stop();
         AVChatProfile.getInstance().setCallIng(false);
-        super.onDestroy();
+        AVChatManager.getInstance().disableRtc();
+        releaseVideo();
         registerObserves(false);
         if (!isFinishing()) {
             mHandler.removeCallbacks(runnable);
             mHandler.removeCallbacks(runnableWait);
             mHandler.removeCallbacks(runnableShowWait);
+            if (EventBus.getDefault().isRegistered(this)) {
+                EventBus.getDefault().unregister(this);
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void closevoiceMinimizeEvent(EventFactory.CloseVideoActivityEvent event) {
+        if (!isFinishing()) {
+            finish();
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventNetStatus(EventFactory.EventNetStatus event) {
+        Log.i(TAG, "Hello:" + event.getStatus());
+        resetNetWorkView(event.getStatus());
+    }
+
+    private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
+        switch (status) {
+            case CoreEnum.ENetStatus.ERROR_ON_NET:
+                if (mAVChatType == AVChatType.VIDEO.getValue()) {
+                    txtMessageVideo.setText(getString(R.string.avchat_peer_in_network_no));
+                    txtMessageVideo.setVisibility(View.VISIBLE);
+                } else {
+                    txtMessage.setText(getString(R.string.avchat_peer_in_network_no));
+                    txtMessage.setVisibility(View.VISIBLE);
+                }
+                break;
+            case CoreEnum.ENetStatus.SUCCESS_ON_NET:
+                if (mAVChatType == AVChatType.VIDEO.getValue()) {
+                    txtMessageVideo.setVisibility(View.GONE);
+                } else {
+                    txtMessage.setVisibility(View.GONE);
+                }
+                break;
+            case CoreEnum.ENetStatus.ERROR_ON_SERVER:
+
+                break;
+            case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
+
+                break;
+            default:
+                break;
         }
     }
 
@@ -576,7 +630,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onJoinedChannel(int code, String audioFile, String videoFile, int i) {
             Log.d(TAG, "audioFile -> " + audioFile + " videoFile -> " + videoFile);
-//            handleWithConnectServerResult(code);
+            handleWithConnectServerResult(code);
         }
 
         @Override
@@ -594,11 +648,23 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             }
         }
 
+        /**
+         * 退出登录后通话已中断
+         * @param account
+         * @param event
+         */
         @Override
         public void onUserLeave(String account, int event) {
             Log.d(TAG, "onUserLeave -> " + account);
-//            manualHangUp(AVChatExitCode.HANGUP);
-            finish();
+            manualHangUp(AVChatExitCode.INTERRUPT);
+            // 异常中断后需要挂断
+            if (avChatData != null) {
+                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+            }
+            if (isFirstFlg && toUId != null && toUId != 0) {
+                isFirstFlg = false;
+                sendEventBus(Preferences.INTERRUPT, AVChatExitCode.CANCEL);
+            }
         }
 
         @Override
@@ -634,6 +700,17 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             return true;
         }
 
+        @Override
+        public void onNetworkQuality(String user, int quality, AVChatNetworkStats stats) {
+            super.onNetworkQuality(user, quality, stats);
+            Log.i(TAG, "onNetworkQuality: user:" + user+" quality:"+quality);
+        }
+
+        @Override
+        public void onConnectionTypeChanged(int netType) {
+            super.onConnectionTypeChanged(netType);
+            Log.i(TAG, "onConnectionTypeChanged: netType:" + netType);
+        }
     };
 
     private void sendEventBus(String operation, int operationType) {
@@ -645,6 +722,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (operationType == AVChatExitCode.CANCEL) {
             if (Preferences.NOTACCPET.equals(operation)) {
                 event.txt = "对方无应答";
+            } else if (Preferences.INTERRUPT.equals(operation)) {
+                event.txt = "通话中断";
             } else {
                 event.txt = "已取消";
             }
@@ -658,6 +737,26 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         // 临时处理自己取消情况
         if (operationType != AVChatExitCode.HANGUP || !TextUtils.isEmpty(txtVideoTime.getText().toString())) {
             EventBus.getDefault().post(event);
+        }
+    }
+
+    /**
+     * 处理连接服务器的返回值
+     *
+     * @param auth_result
+     */
+    protected void handleWithConnectServerResult(int auth_result) {
+        LogUtil.getLog().i(TAG, "result code->" + auth_result);
+        if (auth_result == 200) {
+            LogUtil.getLog().d(TAG, "onConnectServer success");
+        } else if (auth_result == 101) { // 连接超时
+            showQuitToast(AVChatExitCode.PEER_NO_RESPONSE);
+        } else if (auth_result == 401) { // 验证失败
+            showQuitToast(AVChatExitCode.CONFIG_ERROR);
+        } else if (auth_result == 417) { // 无效的channelId
+            showQuitToast(AVChatExitCode.INVALIDE_CHANNELID);
+        } else { // 连接服务器错误，直接退出
+            showQuitToast(AVChatExitCode.CONFIG_ERROR);
         }
     }
 
@@ -986,6 +1085,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case AVChatExitCode.CANCEL:
                 Toast.makeText(VideoActivity.this, R.string.avchat_no_pickup_call, Toast.LENGTH_LONG).show();
+                break;
+            case AVChatExitCode.INTERRUPT:
+                Toast.makeText(VideoActivity.this, R.string.avchat_peer_break, Toast.LENGTH_LONG).show();
                 break;
             default:
                 break;

@@ -2,18 +2,15 @@ package com.yanlong.im.user.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
@@ -60,22 +57,28 @@ import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ToastManage;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.luck.picture.lib.view.bigImg.BlockImageLoader;
+import com.luck.picture.lib.view.bigImg.LargeImageView;
+import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
 import com.luck.picture.lib.widget.PreviewViewPager;
 import com.luck.picture.lib.widget.longimage.ImageSource;
 import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
-import com.luck.picture.lib.view.bigImg.LargeImageView;
-import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
 
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.AlertYesNo;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -126,6 +129,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         //去除状态栏
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(com.luck.picture.lib.R.layout.picture_activity_external_preview);
+        EventBus.getDefault().register(this);
         inflater = LayoutInflater.from(this);
         tv_title = (TextView) findViewById(com.luck.picture.lib.R.id.picture_title);
         left_back = (ImageButton) findViewById(com.luck.picture.lib.R.id.left_back);
@@ -355,6 +359,35 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         });
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventFactory.ClosePictureEvent event) {
+        if (images != null && event != null) {
+            for (LocalMedia localMedia : images) {
+                if (event.msg_id.equals(localMedia.getMsg_id())) {
+                    showDialog(event.name);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void showDialog(String name) {
+        AlertYesNo alertYesNo = new AlertYesNo();
+        alertYesNo.init(PictureExternalPreviewActivity.this, null, "\"" + name + "\"" + "撤回了一条消息",
+                "确定", null, new AlertYesNo.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes() {
+                        finish();
+                    }
+                });
+        alertYesNo.show();
+    }
+
     @Override
     public void onClick(View v) {
         finish();
@@ -486,7 +519,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
                 imgLargeEvent(imageView, tvLookOrigin, ivDownload, imgLarge, imgpath);
 
-
                 if (readStat) {//原图已读,就显示
                     tvLookOrigin.setVisibility(View.GONE);
                     tvLookOrigin.callOnClick();
@@ -495,11 +527,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     imgDownloadEvent(ivDownload, tvLookOrigin, imgpath, imageView);
                     tvLookOrigin.setVisibility(View.VISIBLE);
                     tvLookOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(images.get(position).getSize()) + ")");
-
-
                 }
-
-
             } else {
                 tvLookOrigin.setVisibility(View.GONE);
                 ivDownload.setVisibility(View.VISIBLE);
@@ -532,7 +560,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     } else {
                         saveImageImg(imgPath, imageView, ivDownload);
                     }
-
                 }
             });
 
@@ -929,7 +956,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         }
     }
 
-
     // 进度条线程
     public class LoadDataThread extends Thread {
         private String path;
@@ -1102,7 +1128,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     protected void onDestroy() {
         viewPager.setAdapter(null);
         super.onDestroy();
-
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
     @SuppressLint("CheckResult")

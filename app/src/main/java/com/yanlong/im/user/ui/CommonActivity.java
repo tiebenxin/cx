@@ -10,6 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.nim_lib.event.EventFactory;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.yanlong.im.R;
@@ -190,7 +191,11 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
      */
     private void taskExit() {
         finish();
-        NIMClient.getService(AuthService.class).logout();// 登录网易登录
+        // 关闭不发送消息
+        EventBus.getDefault().post(new EventFactory.CloseMinimizeEvent());
+        // 关闭音视频界面
+        EventBus.getDefault().post(new EventFactory.CloseVideoActivityEvent());
+        NIMClient.getService(AuthService.class).logout();// 登出网易登录
         userAction.loginOut();
         EventBus.getDefault().post(new EventLoginOut(1));
 

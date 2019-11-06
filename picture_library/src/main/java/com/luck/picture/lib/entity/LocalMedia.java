@@ -28,9 +28,18 @@ public class LocalMedia implements Parcelable {
     private int width;
     private int height;
     private long size;
+    private String msg_id;
 
     public LocalMedia() {
 
+    }
+
+    public String getMsg_id() {
+        return msg_id;
+    }
+
+    public void setMsg_id(String msg_id) {
+        this.msg_id = msg_id;
     }
 
     public LocalMedia(String path, long duration, int mimeType, String pictureType) {
@@ -196,6 +205,7 @@ public class LocalMedia implements Parcelable {
         dest.writeInt(this.width);
         dest.writeInt(this.height);
         dest.writeLong(this.size);
+        dest.writeString(this.msg_id);
     }
 
     protected LocalMedia(Parcel in) {
@@ -213,6 +223,7 @@ public class LocalMedia implements Parcelable {
         this.width = in.readInt();
         this.height = in.readInt();
         this.size=in.readLong();
+        this.msg_id=in.readString();
     }
 
     public static final Parcelable.Creator<LocalMedia> CREATOR = new Parcelable.Creator<LocalMedia>() {

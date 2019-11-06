@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -43,13 +42,17 @@ public class AlertYesNo {
 
 
     //自动生成的控件事件
-    private void initEvent(String title,String msg, String y, String n) {
+    private void initEvent(String title, String msg, String y, String n) {
         if (n == null) {
             viewNo.setVisibility(View.GONE);
-        }else{
-           btnCl.setText(n);
+        } else {
+            btnCl.setText(n);
         }
-        txtAlertTitle.setText(title);
+        if (title == null) {
+            txtAlertTitle.setVisibility(View.GONE);
+        } else {
+            txtAlertTitle.setText(title);
+        }
         txtAlertMsg.setText(msg);
         btnOk.setText(y);
         btnCl.setOnClickListener(new View.OnClickListener() {
@@ -73,7 +76,7 @@ public class AlertYesNo {
         alertDialog.dismiss();
     }
 
-    public void init(AppCompatActivity activity, String title,String msg, String y, String n, Event e) {
+    public void init(Context activity, String title, String msg, String y, String n, Event e) {
         event = e;
 
         this.context = activity;
@@ -88,7 +91,7 @@ public class AlertYesNo {
         alertDialog.setView(rootView);
         findViews(rootView);
 
-        initEvent(title,msg, y, n);
+        initEvent(title, msg, y, n);
 
 
     }
@@ -100,8 +103,8 @@ public class AlertYesNo {
         Window window = alertDialog.getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         WindowManager.LayoutParams p = window.getAttributes();
-       // p.height = DensityUtil.dip2px(activity, 226);
-        p.width = DensityUtil.dip2px(context,300);
+        // p.height = DensityUtil.dip2px(activity, 226);
+        p.width = DensityUtil.dip2px(context, 300);
 
         window.setAttributes(p);
     }

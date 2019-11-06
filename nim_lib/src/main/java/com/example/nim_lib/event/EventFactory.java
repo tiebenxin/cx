@@ -1,5 +1,7 @@
 package com.example.nim_lib.event;
 
+import com.example.nim_lib.constant.CoreEnum;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -38,6 +40,12 @@ public class EventFactory {
     }
 
     /**
+     * 退出登录时关闭音视频界面
+     */
+    public static class CloseVideoActivityEvent extends BaseEvent {
+    }
+
+    /**
      * 发送一条通知
      */
     public static class SendP2PAuVideoDialMessage extends BaseEvent {
@@ -51,4 +59,25 @@ public class EventFactory {
      */
     public static class ShowVoiceMinimizeEvent extends BaseEvent {
     }
+
+    /**
+     * 网络监听
+     */
+    public static class EventNetStatus {
+        @CoreEnum.ENetStatus
+        private int status;
+
+        public EventNetStatus(@CoreEnum.ENetStatus int value) {
+            status = value;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+    }
+
 }

@@ -114,7 +114,6 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
-import com.zhaoss.weixinrecorded.activity.RecordedLocalActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.CoreEnum;
@@ -2082,6 +2081,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setSize(msgl.getImage().getSize());
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
+            lc.setMsg_id(msgid);
             selectList.add(lc);
 
         }

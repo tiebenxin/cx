@@ -13,6 +13,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -382,6 +383,13 @@ public class MainActivity extends AppActivity {
             mBtnMinimizeVoice.close(this);
         }
         super.onDestroy();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventNetStatus(EventNetStatus event) {
+        Log.i("VideoActivity","Hello1:"+event.getStatus());
+        EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
+        EventBus.getDefault().post(eventNetStatus);
     }
 
     @Override
