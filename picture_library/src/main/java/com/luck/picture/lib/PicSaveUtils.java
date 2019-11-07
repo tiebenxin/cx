@@ -3,6 +3,7 @@ package com.luck.picture.lib;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.SystemClock;
@@ -37,7 +38,6 @@ public class PicSaveUtils {
             //TODO:执行MediaStore.Images.Media.insertImage会在相册中产生两张图片
 //            MediaStore.Images.Media.insertImage(mContext.getContentResolver(), file.getAbsolutePath(), bitName, null);
             sendBroadcast(file, mContext);
-//            Toast.makeText(mContext, "保存成功至" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
             Toast.makeText(mContext, "保存成功", Toast.LENGTH_SHORT).show();
             return true;
         } catch (FileNotFoundException e) {
@@ -55,10 +55,19 @@ public class PicSaveUtils {
         context.sendBroadcast(intent);
     }
 
-    public static void sendBroadcast(String dirPath, Context context) {
-        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        Uri uri = Uri.fromFile(new File(dirPath));
-        intent.setData(uri);
-        context.sendBroadcast(intent);
+//    public static void sendBroadcast(String dirPath, Context context) {
+//        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//        Uri uri = Uri.fromFile(new File(dirPath));
+//        intent.setData(uri);
+//        context.sendBroadcast(intent);
+//    }
+
+    public static void scanFile(File file, Context context) {
+        MediaScannerConnection.scanFile(context, new String[]{file.toString()}, null, new MediaScannerConnection.OnScanCompletedListener() {
+            @Override
+            public void onScanCompleted(String path, Uri uri) {
+                System.out.println("扫描成功");
+            }
+        });
     }
 }

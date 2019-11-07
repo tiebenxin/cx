@@ -1066,9 +1066,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
-                        if (mPopupWindow != null && mPopupWindow.isShowing()) {
-                            mPopupWindow.dismiss();
-                        }
+                        dismissPop();
                         break;
 
                 }
@@ -2594,16 +2592,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
-                                    if (isGroup() && !master.equals(msgbean.getBusiness_card().getUid().toString())) {
-                                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                                .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid())
-                                                .putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
+                                    //不是自己的名片，才可以点击
+                                    if (msgbean.getBusiness_card().getUid().longValue() != UserAction.getMyId().longValue()) {
+                                        if (isGroup() && !master.equals(msgbean.getBusiness_card().getUid().toString())) {
+                                            startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                                    .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid())
+                                                    .putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
 
-                                    } else {
-                                        if (msgbean.getBusiness_card().getUid().longValue() != UserAction.getMyId().longValue()) {
+                                        } else {
+                                            startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                                    .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
                                         }
-                                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                                .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
                                     }
                                 }
                             });
@@ -3465,8 +3464,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (needRefresh) {
             needRefresh = false;
         }
-        Log.d("1212", "taskRefreshMessage()");
-        System.out.println(TAG + "--taskRefreshMessage");
+
+        dismissPop();
+//        Log.d("1212", "taskRefreshMessage()");
+//        System.out.println(TAG + "--taskRefreshMessage");
         long time = -1L;
         int length = 0;
         if (msgListData != null && msgListData.size() > 0) {
@@ -3514,6 +3515,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 });
 
+    }
+
+    private void dismissPop() {
+        if (mPopupWindow != null && mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
+        }
     }
 
     /**

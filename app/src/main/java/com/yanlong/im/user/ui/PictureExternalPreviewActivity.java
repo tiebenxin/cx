@@ -930,10 +930,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 //                        fileName, directory_path);
 //                PictureFileUtils.copyFile(path, dirPath);
                 //刷新相册的广播
-                PicSaveUtils.sendBroadcast(path, getApplicationContext());
+                PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
 //                String filenamePath = MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
-//                Log.e("TAG", "------------showLoadingImage$:saveImage " + filenamePath);
-//                ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_save_success) + "\n" + path);
                 ToastManage.s(mContext, "保存成功");
                 dismissDialog();
             } catch (Exception e) {
