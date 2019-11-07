@@ -2284,6 +2284,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
                             menus.add(new OptionMenu("删除"));
+                        } else {
+                            menus.add(new OptionMenu("删除"));
                         }
 
                         break;
@@ -2512,7 +2514,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
                     } else {
-//                        menus.add(new OptionMenu("删除"));
+                        menus.add(new OptionMenu("删除"));
                     }
                     Integer pg = null;
                     pg = UpLoadService.getProgress(msgbean.getMsg_id());
@@ -2537,8 +2539,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         holder.viewChatItem.setVideoIMGShow(true);
                         Log.e("TAG", "2");
                     } else {
-//                        menus.add(new OptionMenu("删除"));
-
+                        menus.add(new OptionMenu("删除"));
                     }
 
                     Integer pgVideo = null;
