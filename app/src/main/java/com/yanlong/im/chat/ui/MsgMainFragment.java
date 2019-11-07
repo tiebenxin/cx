@@ -714,17 +714,25 @@ public class MsgMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
             } else if (bean.getType() == 1) {//群
-
-                if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
-                    info = name + info;
-                }
                 int type = bean.getMessageType();
+                if (type == 0 || type == 1) {
+                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
+                        info = name + bean.getAtMessage();
+                    } else {
+                        info = name + info;
+
+                    }
+                } else {//草稿除外
+                    if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
+                        info = name + info;
+                    }
+                }
                 switch (type) {
                     case 0:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
                             if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[有人@你]" + bean.getAtMessage());
+                                style.append("[有人@你]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
@@ -744,7 +752,7 @@ public class MsgMainFragment extends Fragment {
                             }
                             if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[@所有人]" + bean.getAtMessage());
+                                style.append("[@所有人]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
