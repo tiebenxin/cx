@@ -132,7 +132,8 @@ public class AVChatKit {
 //                return;
 //            }
             LogUtil.getLog().i(TAG, "收到来电：" + data.getAccount());
-            AVChatProfile.getInstance().setAVChatting(true);
+//            AVChatProfile.getInstance().setAVChatting(true);
+            AVChatProfile.getInstance().setCallIng(true);
 
             if (data != null) {
                 getUserInfo(data);

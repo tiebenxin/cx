@@ -43,8 +43,6 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
-import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
@@ -291,7 +289,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 public void run() {
                     fixSendTime(bean.getMsgId(0));
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
-                        taskRefreshMessage();
+                        taskRefreshMessage(false);
 //                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
@@ -302,7 +300,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     return;
                                 }
                             }
-                            taskRefreshMessage();
+                            taskRefreshMessage(false);
 //                            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskRefreshMessage");
                         }
                     }
@@ -344,7 +342,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     //从数据库读取消息
                     if (needRefresh) {
-                        taskRefreshMessage();
+                        taskRefreshMessage(false);
                     }
                     initUnreadCount();
                 }
@@ -372,7 +370,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     ///这里写库
                     msgAllBean.setSend_data(bean.build().toByteArray());
                     DaoUtil.update(msgAllBean);
-                    taskRefreshMessage();
+                    taskRefreshMessage(false);
                 }
             });
         }
@@ -537,7 +535,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showSendObj(MsgAllBean msgAllbean) {
         //    msgListData.add(msgAllbean);
         //    notifyData2Bottom();
-        taskRefreshMessage();
+        taskRefreshMessage(false);
 
     }
 
@@ -1490,25 +1488,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 .forResult(PictureConfig.REQUEST_CAMERA);
     }
 
-    /**
-     * 收到音视频操作后向数据库插入一条音视频记录
-     *
-     * @param event
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void closevoiceMinimizeEvent(EventFactory.CloseVoiceMinimizeEvent event) {
-        if (event != null) {
-            MsgAllBean msgAllbean = null;
-            if (event.avChatType == AVChatType.AUDIO.getValue()) {
-                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
-            } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
-            }
-            showSendObj(msgAllbean);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-        }
-    }
-
     private String[] strings = new String[]{"拍照", "录制视频"};
 
     private void showDownLoadDialog() {
@@ -1585,7 +1564,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void initData() {
         if (!isLoadHistory) {
-            taskRefreshMessage();
+            taskRefreshMessage(false);
         }
         initUnreadCount();
         initPopupWindow();
@@ -1633,10 +1612,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             MessageManager.getInstance().setSessionGroup(toGid);
         } else {
             MessageManager.getInstance().setSessionSolo(toUId);
-        }
-        // 打开浮动窗口权限时，重新显示音视频浮动按钮
-        if (AVChatProfile.getInstance().isCallIng()) {
-            EventBus.getDefault().post(new EventFactory.ShowVoiceMinimizeEvent());
         }
         //刷新群资料
         taskSessionInfo();
@@ -1919,7 +1894,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void EtaskRefreshMessagevent(EventRefreshChat event) {
-        taskRefreshMessage();
+        taskRefreshMessage(event.isScrollBottom);
     }
 
 
@@ -2190,7 +2165,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
-                    taskRefreshMessage();
+                    taskRefreshMessage(false);
                 }
             } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
                 String url = reMsg.getVoiceMessage().getLocalUrl();
@@ -2227,7 +2202,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
-                    taskRefreshMessage();
+                    taskRefreshMessage(false);
 
 //                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
 //                    // upProgress.setProgress(100);
@@ -2243,7 +2218,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 DaoUtil.update(reMsg);
                 MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                 SocketUtil.getSocketUtil().sendData4Msg(bean);
-                taskRefreshMessage();
+                taskRefreshMessage(false);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -3460,7 +3435,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 获取最新的
      */
     @SuppressLint("CheckResult")
-    private void taskRefreshMessage() {
+    private void taskRefreshMessage(boolean isScrollBottom) {
         if (needRefresh) {
             needRefresh = false;
         }
@@ -3510,7 +3485,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        notifyData2Bottom(false);
+                        notifyData2Bottom(isScrollBottom);
 //                        notifyData();
                     }
                 });

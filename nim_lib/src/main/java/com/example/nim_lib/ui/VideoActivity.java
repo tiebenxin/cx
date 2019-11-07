@@ -35,7 +35,7 @@ import com.example.nim_lib.constant.AVChatExitCode;
 import com.example.nim_lib.constant.CoreEnum;
 import com.example.nim_lib.controll.AVChatController;
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.controll.AVChatSoundPlayer;
+import com.example.nim_lib.controll.PlayerManager;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.module.AVChatTimeoutObserver;
 import com.example.nim_lib.module.AVSwitchListener;
@@ -191,6 +191,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private String mRoomId; // 网易房间id
     private Long mFriend;// 通话接收人uid
     private boolean isFirstFlg = true;// 第一次发送消息标记
+    // 外放模式
+    public static final int MODE_SPEAKER = 0;
+    // 听筒模式
+    public static final int MODE_EARPIECE = 2;
 
     private ImageView imgHeadPortrait;
     private TextView txtName;
@@ -292,7 +296,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 finish();
             }
         } else if (v.getId() == R.id.img_answer) {// 接听
-            AVChatProfile.getInstance().setCallIng(false);
             if (avChatData != null) {
                 receiveInComingCall();
             }
@@ -301,12 +304,14 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         } else if (v.getId() == R.id.cb_change_voice) {// 视频切换到语音
             mAVChatController.switchVideoToAudio(avChatData.getChatId(), this);
         } else if (v.getId() == R.id.img_minimize) {// 语音最小化
+            AVChatProfile.getInstance().setAVMinimize(true);
             sendVoiceMinimizeEventBus();
             // 退到后台不显
             moveTaskToBack(true);
         } else if (v.getId() == R.id.cb_convert_camera) {// 摄像头切换
             mAVChatController.switchCamera();
         } else if (v.getId() == R.id.img_minimize_video) {// 视频最小化
+            AVChatProfile.getInstance().setAVMinimize(true);
             sendVoiceMinimizeEventBus();
             // 退到后台不显
             moveTaskToBack(true);
@@ -333,6 +338,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         this.smallRender = new AVChatSurfaceViewRenderer(this);
         this.largeRender = new AVChatSurfaceViewRenderer(this);
         mAVChatController = new AVChatController(this, mVideoAction);
+
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             avChatData = (AVChatData) bundle.getSerializable(Preferences.AVCHATDATA);
@@ -366,10 +372,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 //                initSmallSurfaceView();
 //            }
 //        }
+        PlayerManager.getManager().init(this);
         switch (mVoiceType) {
             case CoreEnum.VoiceType.WAIT:
                 layoutVoiceWait.setVisibility(View.VISIBLE);
-                AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.CONNECTING);
+                PlayerManager.getManager().play(MODE_EARPIECE);
+//                AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.CONNECTING);
                 txtWaitMsg.setText(getString(R.string.avchat_wait_recieve1));
                 if (mAVChatType == AVChatType.AUDIO.getValue()) {
                     auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.AUDIO);
@@ -385,7 +393,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 } else {
                     txtWaitMsg.setText(R.string.avchat_audio_invitation);
                 }
-                AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.PEER_REJECT);
+                PlayerManager.getManager().play(MODE_SPEAKER);
+//                AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.PEER_REJECT);
                 layoutInvitationVoice.setVisibility(View.VISIBLE);
                 layoutVoiceWait.setVisibility(View.GONE);
                 break;
@@ -433,9 +442,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AVChatSoundPlayer.instance().stop();
+        PlayerManager.getManager().stop();
+//        AVChatSoundPlayer.instance().stop();
         AVChatProfile.getInstance().setCallIng(false);
+        AVChatProfile.getInstance().setAVMinimize(false);
         AVChatManager.getInstance().disableRtc();
+        // 移除超时监听
+        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall, VideoActivity.this);
         releaseVideo();
         registerObserves(false);
         if (!isFinishing()) {
@@ -548,6 +561,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 if (mWaitTime >= WAIT_TIME) {
                     mHandler.removeCallbacks(runnableWait);
                     txtMessage.setVisibility(View.VISIBLE);
+                    txtMessageVideo.setVisibility(View.VISIBLE);
                     if (!isFinishing()) {
                         mHandler.postDelayed(runnableShowWait, TIME);
                     }
@@ -572,6 +586,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 if (mShowWaitTime >= SHOW_WAIT_TIME) {
                     mHandler.removeCallbacks(runnableShowWait);
                     txtMessage.setVisibility(View.GONE);
+                    txtMessageVideo.setVisibility(View.GONE);
                 } else {
                     if (!isFinishing()) {
                         mHandler.postDelayed(runnableShowWait, TIME);
@@ -703,7 +718,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onNetworkQuality(String user, int quality, AVChatNetworkStats stats) {
             super.onNetworkQuality(user, quality, stats);
-            Log.i(TAG, "onNetworkQuality: user:" + user+" quality:"+quality);
+            Log.i(TAG, "onNetworkQuality: user:" + user + " quality:" + quality);
         }
 
         @Override
@@ -776,8 +791,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     isFirstFlg = false;
                     sendEventBus(Preferences.HANGUP, AVChatExitCode.HANGUP);
                 }
-                // 关闭不发送消息
-                EventBus.getDefault().post(new EventFactory.CloseMinimizeEvent());
+                if (AVChatProfile.getInstance().isAVMinimize()) {
+                    // 关闭不发送消息
+                    EventBus.getDefault().post(new EventFactory.CloseMinimizeEvent());
+                }
                 // 接收方通知后端已挂断
                 if (mFriend != null && mFriend != 0) {
                     mAVChatController.auVideoHandup(mFriend, mAVChatType, mRoomId);
@@ -804,12 +821,14 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private Observer<AVChatCalleeAckEvent> callAckObserver = new Observer<AVChatCalleeAckEvent>() {
         @Override
         public void onEvent(AVChatCalleeAckEvent ackInfo) {
-            AVChatSoundPlayer.instance().stop();
-            AVChatProfile.getInstance().setCallIng(false);
+//            AVChatSoundPlayer.instance().stop();
+            PlayerManager.getManager().stop();
+
             if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_BUSY) {
                 // 对方正在忙
                 Log.i(TAG, "对方正在忙");
                 hangUpByOther(AVChatExitCode.PEER_BUSY);
+                AVChatProfile.getInstance().setCallIng(false);
             } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_REJECT) {
                 // 对方拒绝接听
                 Log.i(TAG, "对方拒绝接听");
@@ -818,10 +837,16 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     sendEventBus(Preferences.REJECT, AVChatExitCode.REJECT);
                 }
                 hangUpByOther(AVChatExitCode.REJECT);
+                AVChatProfile.getInstance().setCallIng(false);
             } else if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_AGREE) {
                 // 对方同意接听
                 Log.i(TAG, "对方同意接听" + ackInfo.getAccount());
+                isCallEstablished = true;
                 if (!isFinishing()) {
+                    // 浮动按钮显示，收到对方同意后，开启计时器
+                    if (AVChatProfile.getInstance().isAVMinimize()) {
+                        sendVoiceMinimizeEventBus();
+                    }
                     // 会收到多次同意，所以需要判断是否为第一次
                     if (mIsFistCountDown) {
                         mIsFistCountDown = false;
@@ -835,6 +860,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     } else {
                         onAudioAgree();
                     }
+
+                    mHandler.removeCallbacks(runnableWait);
+                    txtMessage.setVisibility(View.GONE);
+                    txtMessageVideo.setVisibility(View.GONE);
+
                 }
             }
         }
@@ -1105,7 +1135,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      * 对方接受后更新UI
      */
     private void onAudioAgree() {
-        AVChatSoundPlayer.instance().stop();
+//        AVChatSoundPlayer.instance().stop();
+        PlayerManager.getManager().stop();
         if (mAVChatType == AVChatType.VIDEO.getValue()) {
             layoutAudio.setVisibility(View.GONE);
             layoutInvitationVoice.setVisibility(View.GONE);

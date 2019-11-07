@@ -37,6 +37,8 @@ public class EventFactory {
      * 关闭语音最小化
      */
     public static class CloseMinimizeEvent extends BaseEvent {
+
+        public boolean isClose=true;
     }
 
     /**
@@ -58,6 +60,7 @@ public class EventFactory {
      * 语音最小化
      */
     public static class ShowVoiceMinimizeEvent extends BaseEvent {
+        public boolean isStartRunThread=true;
     }
 
     /**
