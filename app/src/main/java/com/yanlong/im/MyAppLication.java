@@ -5,7 +5,9 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
+import com.example.nim_lib.event.EventFactory;
 import com.jrmf360.tools.JrmfClient;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.LoginInfo;
@@ -246,7 +248,9 @@ public class MyAppLication extends MainApplication {
         PlatformConfig.setWeixin("wxf84321334bcb8c56", "cd084970cc54cbae19782c761bc2885f");
     }
 
-    //初始化运行状态
+    /**
+     * 初始化运行状态
+     */
     private void initRunstate() {
         AppFrontBackHelper helper = new AppFrontBackHelper();
         helper.register(this, new AppFrontBackHelper.OnAppStatusListener() {
@@ -257,6 +261,12 @@ public class MyAppLication extends MainApplication {
                 EventRunState enent = new EventRunState();
                 enent.setRun(true);
                 EventBus.getDefault().post(enent);
+                // 打开浮动窗口权限时，重新显示音视频浮动按钮
+                if (AVChatProfile.getInstance().isAVMinimize()) {
+                    EventFactory.ShowVoiceMinimizeEvent event= new EventFactory.ShowVoiceMinimizeEvent();
+                    event.isStartRunThread=false;
+                    EventBus.getDefault().post(event);
+                }
             }
 
             @Override
@@ -266,6 +276,12 @@ public class MyAppLication extends MainApplication {
                 EventRunState enent = new EventRunState();
                 enent.setRun(false);
                 EventBus.getDefault().post(enent);
+                // 隐藏音视频浮动按钮
+                if (AVChatProfile.getInstance().isAVMinimize()) {
+                    EventFactory.CloseMinimizeEvent event= new EventFactory.CloseMinimizeEvent();
+                    event.isClose= false;
+                    EventBus.getDefault().post(event);
+                }
             }
         });
     }

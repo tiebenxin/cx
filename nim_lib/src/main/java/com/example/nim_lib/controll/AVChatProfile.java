@@ -6,8 +6,8 @@ package com.example.nim_lib.controll;
 public class AVChatProfile {
 
     private final String TAG = "AVChatProfile";
-
-    private boolean isAVChatting = false; // 是否正在音视频通话
+    // 是否显示音视频浮动按钮
+    private boolean isAVMinimize = false;
     // 是否正在拨打电话
     private boolean isCallIng = false;
 
@@ -17,12 +17,12 @@ public class AVChatProfile {
         return InstanceHolder.instance;
     }
 
-    public boolean isAVChatting() {
-        return isAVChatting;
+    public boolean isAVMinimize() {
+        return isAVMinimize;
     }
 
-    public void setAVChatting(boolean chating) {
-        isAVChatting = chating;
+    public void setAVMinimize(boolean AVMinimize) {
+        isAVMinimize = AVMinimize;
     }
 
     public boolean isCallIng() {
@@ -65,14 +65,14 @@ public class AVChatProfile {
 //        handler.removeCallbacks(launchTimeout);
 //        handler.postDelayed(launchTimeout, 3000);
 //    }
-
-    private Runnable launchTimeout = new Runnable() {
-        @Override
-        public void run() {
-            // 如果未成功启动，就恢复av chatting -> false
-            setAVChatting(false);
-        }
-    };
+//
+//    private Runnable launchTimeout = new Runnable() {
+//        @Override
+//        public void run() {
+//            // 如果未成功启动，就恢复av chatting -> false
+//            setAVChatting(false);
+//        }
+//    };
 
     public static String getAccount() {
         return account;

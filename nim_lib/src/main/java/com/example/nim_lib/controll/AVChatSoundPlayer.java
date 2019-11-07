@@ -23,7 +23,8 @@ public class AVChatSoundPlayer {
         NO_RESPONSE,
         PEER_BUSY,
         PEER_REJECT,
-        RING,;
+        RING,
+        ;
     }
 
     private static Context context;
@@ -36,6 +37,7 @@ public class AVChatSoundPlayer {
     private RingerTypeEnum ringerTypeEnum;
     private boolean isRingModeRegister = false;
     private int ringMode = -1;
+    private boolean palyMode = false;
 
     private static AVChatSoundPlayer instance = null;
     private RingModeChangeReceiver ringModeChangeReceiver;
@@ -123,6 +125,8 @@ public class AVChatSoundPlayer {
             soundPool.setOnLoadCompleteListener(onLoadCompleteListener);
 
             audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);// 听筒声音
+            audioManager.setSpeakerphoneOn(false);
             ringMode = audioManager.getRingerMode();
         }
         registerVolumeReceiver(true);
