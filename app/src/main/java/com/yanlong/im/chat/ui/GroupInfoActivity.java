@@ -850,8 +850,6 @@ public class GroupInfoActivity extends AppActivity {
                     txtGroupName.setText(name);
                     msgDao.updateGroupName(gid, name);
                     isSessionChange = true;
-//                    MessageManager.getInstance().setMessageChange(true);
-//                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
                     initEvent();
                 }
             }
@@ -869,9 +867,8 @@ public class GroupInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     txtGroupNick.setText(name);
                     msgDao.updateMyGroupName(gid, name);
+                    taskGetInfo();
                     initEvent();
-
-
                 }
             }
         });

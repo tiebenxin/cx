@@ -2577,17 +2577,36 @@ public class MsgDao {
      */
     public boolean updateMyGroupName(String gid, String name) {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
+        try {
+            realm.beginTransaction();
 
-        Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
-        if (g != null) {//已经存在
-            g.setMygroupName(name);
-            realm.insertOrUpdate(g);
-        } else {//不存在
-            return false;
+            Group g = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (g != null) {//已经存在
+                g.setMygroupName(name);
+                List<MemberUser> users = g.getUsers();
+                if (users != null) {
+                    int len = users.size();
+                    for (int i = 0; i < len; i++) {
+                        MemberUser memberUser = users.get(i);
+                        if (UserAction.getMyId() != null && memberUser.getUid() == UserAction.getMyId().longValue()) {
+                            memberUser.setMembername(name);
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+                realm.insertOrUpdate(g);
+            } else {//不存在
+                return false;
+            }
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.reportException(e);
+            DaoUtil.close(realm);
         }
-        realm.commitTransaction();
-        realm.close();
+
         return true;
     }
 
