@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -58,6 +59,19 @@ public class MsgConversionBean {
         msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setFrom_group_nickname(bean.getMembername());
         msgAllBean.setGid(bean.getGid());
+        if (!TextUtils.isEmpty(bean.getGid())) {//群聊
+            if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
+                msgAllBean.setRead(true);
+            } else {
+                msgAllBean.setRead(false);
+            }
+        } else {//私聊
+            if (MessageManager.SESSION_FUID != null && MessageManager.SESSION_FUID.equals(bean.getFromUid())) {
+                msgAllBean.setRead(true);
+            } else {
+                msgAllBean.setRead(false);
+            }
+        }
         msgAllBean.setSurvival_time(bean.getSurvivalTime());
         UserDao userDao = new UserDao();
 
@@ -71,12 +85,6 @@ public class MsgConversionBean {
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());
-            UserInfo toInfo = DaoUtil.findOne(UserInfo.class, "uid", msg.getToUid());
-            if (toInfo != null) {//更新用户信息
-                //  msgAllBean.setTo_user(toInfo);
-            } else {
-                //从网路缓存
-            }
         }
 
         //这里需要处理用户信息
@@ -90,7 +98,6 @@ public class MsgConversionBean {
         }
         //---------------------
         msgAllBean.setMsg_id(bean.getMsgId());
-
 
         switch (bean.getMsgType()) {
             case CHAT:

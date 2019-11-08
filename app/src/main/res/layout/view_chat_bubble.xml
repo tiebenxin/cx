@@ -71,7 +71,7 @@
                 android:id="@+id/txt_value4"
                 style="@style/app_txt_chat_bubble"
                 android:background="@drawable/shape_chat_bubble_right"
-                android:text="删除" />
+                android:text="撤回" />
         </LinearLayout>
 
         <TextView

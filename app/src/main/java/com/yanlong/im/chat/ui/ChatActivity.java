@@ -307,7 +307,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         addSurvivalTime(msgAllBean);
                     }
                     if (bean.getRejectType() == MsgBean.RejectType.NOT_FRIENDS_OR_GROUP_MEMBER || bean.getRejectType() == MsgBean.RejectType.IN_BLACKLIST) {
-                        taskRefreshMessage();
+                        taskRefreshMessage(false);
 //                        ToastUtil.show(getContext(), "消息发送成功,但对方已拒收");
                     } else {
                         if (UpLoadService.getProgress(bean.getMsgId(0)) == null /*|| UpLoadService.getProgress(bean.getMsgId(0)) == 100*/) {//忽略图片上传的刷新,图片上传成功后
@@ -318,7 +318,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     return;
                                 }
                             }
-                            taskRefreshMessage();
+                            taskRefreshMessage(false);
 //                            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "taskRefreshMessage");
                         }
                     }
@@ -364,7 +364,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     //从数据库读取消息
                     if (needRefresh) {
-                        taskRefreshMessage();
+                        taskRefreshMessage(false);
                     }
                     initUnreadCount();
                 }
@@ -396,7 +396,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     ///这里写库
                     msgAllBean.setSend_data(bean.build().toByteArray());
                     DaoUtil.update(msgAllBean);
-                    taskRefreshMessage();
+                    taskRefreshMessage(false);
                 }
             });
         }
@@ -520,7 +520,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showSendObj(MsgAllBean msgAllbean) {
         //    msgListData.add(msgAllbean);
         //    notifyData2Bottom();
-        taskRefreshMessage();
+        taskRefreshMessage(false);
 
     }
 
@@ -759,6 +759,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onSuccess() {
                         Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
                         startActivityForResult(intent, VIDEO_RP);
+//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                        startActivityForResult(intent, VIDEO_RP);
+//                        showDownLoadDialog();
                     }
 
                     @Override
@@ -1057,9 +1060,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         } else if (isRun == 0) {
                             isRun = 1;
                         }
-                        if (mPopupWindow != null && mPopupWindow.isShowing()) {
-                            mPopupWindow.dismiss();
-                        }
+                        dismissPop();
                         break;
 
                 }
@@ -1612,7 +1613,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private void initData() {
         if (!isLoadHistory) {
-            taskRefreshMessage();
+            taskRefreshMessage(false);
         }
         initUnreadCount();
         initPopupWindow();
@@ -1963,7 +1964,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void EtaskRefreshMessagevent(EventRefreshChat event) {
-        taskRefreshMessage();
+        taskRefreshMessage(event.isScrollBottom);
     }
 
 
@@ -2126,6 +2127,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             lc.setSize(msgl.getImage().getSize());
             lc.setWidth(new Long(msgl.getImage().getWidth()).intValue());
             lc.setHeight(new Long(msgl.getImage().getHeight()).intValue());
+            lc.setMsg_id(msgid);
             selectList.add(lc);
 
         }
@@ -2236,7 +2238,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
-                    taskRefreshMessage();
+                    taskRefreshMessage(false);
                 }
             } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.VOICE) {
                 String url = reMsg.getVoiceMessage().getLocalUrl();
@@ -2273,7 +2275,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
-                    taskRefreshMessage();
+                    taskRefreshMessage(false);
 
 //                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
 //                    // upProgress.setProgress(100);
@@ -2289,7 +2291,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 DaoUtil.update(reMsg);
                 MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                 SocketUtil.getSocketUtil().sendData4Msg(bean);
-                taskRefreshMessage();
+                taskRefreshMessage(false);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -2329,6 +2331,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
+                            menus.add(new OptionMenu("删除"));
+                        } else {
                             menus.add(new OptionMenu("删除"));
                         }
 
@@ -2597,7 +2601,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         Log.e("TAG", "2");
                     } else {
                         menus.add(new OptionMenu("删除"));
-
                     }
 
                     Integer pgVideo = null;
@@ -2623,15 +2626,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                                        startActivity(intent);
 
                                     } else {
-                                        downVideo(msgbean, msgbean.getVideoMessage());
+//                                        downVideo(msgbean, msgbean.getVideoMessage());
                                         localUrl = msgbean.getVideoMessage().getUrl();
                                     }
                                 } else {
-                                    downVideo(msgbean, msgbean.getVideoMessage());
+//                                    downVideo(msgbean, msgbean.getVideoMessage());
                                     localUrl = msgbean.getVideoMessage().getUrl();
                                 }
                                 Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
                                 intent.putExtra("videopath", localUrl);
+//                                intent.putExtra("videopath", localUrl);
                                 intent.putExtra("videomsg", new Gson().toJson(msgbean));
                                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                 startActivity(intent);
@@ -2650,16 +2654,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 @Override
                                 public void onClick(View v) {
                                     // ToastUtil.show(getContext(), "添加好友需要详情页面");
-                                    if (isGroup() && !master.equals(msgbean.getBusiness_card().getUid().toString())) {
-                                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                                .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid())
-                                                .putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
+                                    //不是自己的名片，才可以点击
+                                    if (msgbean.getBusiness_card().getUid().longValue() != UserAction.getMyId().longValue()) {
+                                        if (isGroup() && !master.equals(msgbean.getBusiness_card().getUid().toString())) {
+                                            startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                                    .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid())
+                                                    .putExtra(UserInfoActivity.IS_BUSINESS_CARD, contactIntimately));
 
-                                    } else {
-                                        if (msgbean.getBusiness_card().getUid().longValue() != UserAction.getMyId().longValue()) {
+                                        } else {
+                                            startActivity(new Intent(getContext(), UserInfoActivity.class)
+                                                    .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
                                         }
-                                        startActivity(new Intent(getContext(), UserInfoActivity.class)
-                                                .putExtra(UserInfoActivity.ID, msgbean.getBusiness_card().getUid()));
                                     }
                                 }
                             });
@@ -2889,7 +2894,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
-        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+//        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
         new Thread() {
             @Override
             public void run() {
@@ -2906,7 +2911,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             bundle.putString("url", fileVideo.getAbsolutePath());
                             message.setData(bundle);
                             handler.sendMessage(message);
-//                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
 //                        msgAllBean.setVideoMessage(videoMessage);
 //                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
 //                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
@@ -2949,13 +2954,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         currentPlayBean = msgBean;
         List<MsgAllBean> list = new ArrayList<>();
         boolean isAutoPlay = false;
-        if (!msgBean.isMe() && !msgBean.isRead()) {
+        if (!msgBean.isMe() && !isVoiceRead(msgBean)) {
             list.add(msgBean);
             int length = msgListData.size();
             if (position < length - 1) {
                 for (int i = position + 1; i < length; i++) {
                     MsgAllBean bean = msgListData.get(i);
-                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !bean.isRead()) {
+                    if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !isVoiceRead(bean)) {
                         list.add(bean);
                     }
                 }
@@ -2984,7 +2989,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (start < length - 1) {
             for (int i = start + 1; i < length; i++) {
                 MsgAllBean bean = msgListData.get(i);
-                if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !bean.isRead()) {
+                if (bean.getMsg_type() == ChatEnum.EMessageType.VOICE && !bean.isMe() && !isVoiceRead(bean)) {
                     message = bean;
                     position = i;
                     break;
@@ -2995,6 +3000,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (message != null) {
             playVoice(message, true, position);
         }
+
+    }
+
+    private boolean isVoiceRead(MsgAllBean bean) {
+        VoiceMessage voice = bean.getVoiceMessage();
+        if (voice != null && voice.getPlayStatus() != ChatEnum.EPlayStatus.NO_DOWNLOADED) {
+            return true;
+        }
+        return false;
 
     }
 
@@ -3032,7 +3046,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (AudioPlayManager.getInstance().isPlay(Uri.parse(url))) {
             AudioPlayManager.getInstance().stopPlay();
         } else {
-            if (!bean.isRead() && !bean.isMe()) {
+            if (bean.getVoiceMessage().getPlayStatus() == ChatEnum.EPlayStatus.NO_DOWNLOADED && !bean.isMe()) {
                 int len = downloadList.size();
                 if (len > 0) {//有下载
                     MsgAllBean msg = downloadList.get(len - 1);
@@ -3464,6 +3478,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         } else {
             UserInfo finfo = userDao.findUserInfo(toUId);
+            if (finfo == null && toUId == 100121L) {
+                finfo = new UserInfo();
+                finfo.setUid(100121L);
+                finfo.setName("常信客服");
+            }
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
                 actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
@@ -3505,10 +3524,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * 获取最新的
      */
     @SuppressLint("CheckResult")
-    private void taskRefreshMessage() {
+    private void taskRefreshMessage(boolean isScrollBottom) {
         if (needRefresh) {
             needRefresh = false;
         }
+
+        dismissPop();
+//        Log.d("1212", "taskRefreshMessage()");
+//        System.out.println(TAG + "--taskRefreshMessage");
 
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
@@ -3566,11 +3589,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             lastOffset = 0;
                             clearScrollPosition();
                         }
-                        notifyData2Bottom(false);
+                        notifyData2Bottom(isScrollBottom);
 //                        notifyData();
                     }
                 });
 
+    }
+
+    private void dismissPop() {
+        if (mPopupWindow != null && mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
+        }
     }
 
     /**

@@ -36,6 +36,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -71,8 +72,8 @@ public class MessageManager {
     private final String TAG = MessageManager.class.getSimpleName();
 
     private static int SESSION_TYPE = 0;//无会话,1:单人;2群,3静音模式
-    private static Long SESSION_FUID;//单人会话id
-    private static String SESSION_SID;//会话id
+    public static Long SESSION_FUID;//单人会话id
+    public static String SESSION_GID;//群会话id
 
     private static MessageManager INSTANCE;
     private MsgDao msgDao = new MsgDao();
@@ -140,6 +141,7 @@ public class MessageManager {
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
 //        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
         boolean result = true;
+        boolean hasNotified = false;//已经通知刷新了
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
@@ -163,8 +165,6 @@ public class MessageManager {
             case BUSINESS_CARD://名片
             case RED_ENVELOPER://红包
             case RECEIVE_RED_ENVELOPER://领取红包
-            case CHANGE_GROUP_MASTER://转让群主
-            case OUT_GROUP://退出群聊
             case ASSISTANT://小消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
@@ -178,6 +178,8 @@ public class MessageManager {
                         bean.getP2PAuVideoMessage().setDesc(bean.getP2PAuVideoMessage().getDesc().replace("对方", ""));
                     } else if (bean.getP2PAuVideoMessage() != null && "notaccpet".equals(bean.getP2PAuVideoMessage().getOperation())) {
                         bean.getP2PAuVideoMessage().setDesc("对方已取消");
+                    } else if (bean.getP2PAuVideoMessage() != null && "interrupt".equals(bean.getP2PAuVideoMessage().getOperation())) {
+                        bean.getP2PAuVideoMessage().setDesc("通话中断");
                     }
                     result = saveMessageNew(bean, isList);
                 }
@@ -199,6 +201,20 @@ public class MessageManager {
             case REMOVE_FRIEND:
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
                 break;
+            case CHANGE_GROUP_MASTER://转让群主
+                if (bean != null) {
+                    result = saveMessageNew(bean, isList);
+                    refreshGroupInfo(bean.getGid());
+                    hasNotified = true;
+                }
+                break;
+            case OUT_GROUP://退出群聊
+                if (bean != null) {
+                    result = saveMessageNew(bean, isList);
+                    refreshGroupInfo(bean.getGid());
+                    hasNotified = true;
+                }
+                break;
             case REMOVE_GROUP_MEMBER://自己被移除群聊
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
@@ -206,17 +222,20 @@ public class MessageManager {
                     msgDao.removeGroupMember(bean.getGid(), memberUser);
                     changeGroupAvatar(bean.getGid());
                     notifyGroupChange(false);
+                    hasNotified = true;
                 }
                 break;
-            case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊
+            case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊，可能会有群主退群，涉及群主迭代
                 removeGroupMember(wrapMessage);
-                changeGroupAvatar(wrapMessage.getGid());
+                refreshGroupInfo(bean.getGid());
                 notifyGroupChange(false);
+                hasNotified = true;
                 break;
             case ACCEPT_BE_GROUP://接受入群，
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                     refreshGroupInfo(bean.getGid());
+                    hasNotified = true;
                 }
                 notifyGroupChange(true);
                 break;
@@ -272,16 +291,36 @@ public class MessageManager {
             case CANCEL://撤销消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
+                    String cancelMsgId = wrapMessage.getCancel().getMsgId();
+                    if (isList) {
+                        if (pendingMessages.containsKey(cancelMsgId)) {
+                            pendingMessages.remove(cancelMsgId);
+                        } else {
+                            String gid = wrapMessage.getGid();
+                            if (!StringUtil.isNotNull(gid)) {
+                                gid = null;
+                            }
+                            long fromUid = wrapMessage.getFromUid();
+                            updateSessionUnread(gid, fromUid, true);
+                            msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
+                        }
+                    } else {
+                        String gid = wrapMessage.getGid();
+                        if (!StringUtil.isNotNull(gid)) {
+                            gid = null;
+                        }
+                        long fromUid = wrapMessage.getFromUid();
+                        updateSessionUnread(gid, fromUid, true);
+                        msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
+                    }
+                    EventBus.getDefault().post(new EventRefreshChat());
+                    // 处理图片撤回，在预览弹出提示
+                    EventFactory.ClosePictureEvent event = new EventFactory.ClosePictureEvent();
+                    event.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    event.name = bean.getFrom_nickname();
+                    EventBus.getDefault().post(event);
+                    MessageManager.getInstance().setMessageChange(true);
                 }
-                String gid = wrapMessage.getGid();
-                if (!StringUtil.isNotNull(gid)) {
-                    gid = null;
-                }
-                long fromUid = wrapMessage.getFromUid();
-                updateSessionUnread(gid, fromUid, true);
-                msgDao.msgDel4Cancel(wrapMessage.getMsgId(), wrapMessage.getCancel().getMsgId(), "", "");
-                EventBus.getDefault().post(new EventRefreshChat());
-                MessageManager.getInstance().setMessageChange(true);
                 break;
             case RESOURCE_LOCK://资源锁定
                 updateUserLockCloudRedEnvelope(wrapMessage);
@@ -327,7 +366,7 @@ public class MessageManager {
 
         }
         //刷新单个
-        if (result && !isList && bean != null) {
+        if (result && !hasNotified && !isList && bean != null) {
             setMessageChange(true);
             notifyRefreshMsg(isGroup(wrapMessage.getFromUid(), bean.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
         }
@@ -341,6 +380,7 @@ public class MessageManager {
                 taskMsgList.addGid(gid);
             } else {
                 taskMsgList.addUid(wrapMessage.getFromUid());
+
             }
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
@@ -447,7 +487,6 @@ public class MessageManager {
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
         try {
-            msgAllBean.setRead(false);//设置未读
             msgAllBean.setTo_uid(msgAllBean.getTo_uid());
             //收到直接存表
             if (isList) {
@@ -577,7 +616,7 @@ public class MessageManager {
 //        System.out.println(TAG + "--更新Session--updateSessionUnread");
         boolean canChangeUnread = true;
         if (!TextUtils.isEmpty(gid)) {
-            if (!TextUtils.isEmpty(SESSION_SID) && SESSION_SID.equals(gid)) {
+            if (!TextUtils.isEmpty(SESSION_GID) && SESSION_GID.equals(gid)) {
                 canChangeUnread = false;
             }
         } else {
@@ -638,11 +677,17 @@ public class MessageManager {
                         count = 0;
                         pendingGroupUnread.put(gid, count);
                     } else {
-                        count++;
+                        if (TextUtils.isEmpty(SESSION_GID) || !SESSION_GID.equals(gid)) {//不是当前会话
+                            count++;
+                        }
                         pendingGroupUnread.put(gid, count);
                     }
                 } else {
-                    pendingGroupUnread.put(gid, isDisturb ? 0 : 1);
+                    int count = 0;
+                    if (TextUtils.isEmpty(SESSION_GID) || !SESSION_GID.equals(gid)) {//不是当前会话
+                        count = isDisturb ? 0 : 1;
+                    }
+                    pendingGroupUnread.put(gid, count);
 
                 }
             } else {
@@ -652,11 +697,17 @@ public class MessageManager {
                         count = 0;
                         pendingUserUnread.put(uid, count);
                     } else {
-                        count++;
+                        if (SESSION_FUID == null || !SESSION_FUID.equals(uid)) {//不是当前会话
+                            count++;
+                        }
                         pendingUserUnread.put(uid, count);
                     }
                 } else {
-                    pendingUserUnread.put(uid, isDisturb ? 0 : 1);
+                    int count = 0;
+                    if (SESSION_FUID == null || !SESSION_FUID.equals(uid)) {//不是当前会话
+                        count = isDisturb ? 0 : 1;
+                    }
+                    pendingUserUnread.put(uid, count);
                 }
             }
 
@@ -912,7 +963,7 @@ public class MessageManager {
             return;
         SESSION_TYPE = 2;
         SESSION_FUID = null;
-        SESSION_SID = sid;
+        SESSION_GID = sid;
     }
 
     /***
@@ -924,7 +975,7 @@ public class MessageManager {
             return;
         SESSION_TYPE = 1;
         SESSION_FUID = fuid;
-        SESSION_SID = null;
+        SESSION_GID = null;
     }
 
     /***
@@ -935,7 +986,7 @@ public class MessageManager {
             return;
         SESSION_TYPE = 0;
         SESSION_FUID = null;
-        SESSION_SID = null;
+        SESSION_GID = null;
     }
 
     /***
@@ -994,7 +1045,7 @@ public class MessageManager {
         if (session != null && session.getIsMute() == 1) {
             return;
         }
-        if (isGroup && SESSION_TYPE == 2 && SESSION_SID.equals(msg.getGid())) { //群
+        if (isGroup && SESSION_TYPE == 2 && SESSION_GID.equals(msg.getGid())) { //群
             //当前会话是本群不提示
 
         } else if (SESSION_TYPE == 1 && SESSION_FUID != null && SESSION_FUID.longValue() == msg.getFromUid()) {//单人
@@ -1294,6 +1345,7 @@ public class MessageManager {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 super.onResponse(call, response);
+                notifyGroupChange(false);
                 MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, gid, CoreEnum.ESessionRefreshTag.SINGLE, null);
             }
 

@@ -264,7 +264,7 @@ public class AudioPlayManager implements SensorEventListener {
                 this._mediaPlayer = new MediaPlayer();
                 this._mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     public void onCompletion(MediaPlayer mp) {
-//                        LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
+                        LogUtil.getLog().i(TAG, "onCompletion--" + (AudioPlayManager.this.voicePlayListener == null));
                         if (AudioPlayManager.this.voicePlayListener != null) {
                             AudioPlayManager.this.voicePlayListener.onComplete(bean);
                             AudioPlayManager.this._playingUri = null;

@@ -200,18 +200,18 @@
                 android:id="@+id/tv_new_versions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:textColor="@color/white"
                 android:layout_gravity="center"
-                android:textSize="10sp"
-                android:text="new"
+                android:layout_marginLeft="15dp"
                 android:background="@drawable/shape_new"
-                android:visibility="gone"/>
+                android:text="new"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -240,6 +240,27 @@
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_btn_goto" />
         </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout style="@style/app_layout_list2">
+
+        <LinearLayout
+            android:id="@+id/view_service"
+            style="@style/app_layout_list2_item">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:src="@mipmap/ic_cx_server" />
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:text="常信客服" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

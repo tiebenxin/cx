@@ -33,8 +33,12 @@ import com.luck.picture.lib.view.PopupSelectView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
+import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+import com.yanlong.im.utils.MyDiskCache;
+import com.yanlong.im.utils.MyDiskCacheUtils;
 
+import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 
@@ -70,6 +74,63 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         initView();
         initEvent();
     }
+
+    private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
+
+        final File appDir = new File(getExternalCacheDir().getAbsolutePath() + "/Mp4/");
+        if (!appDir.exists()) {
+            appDir.mkdir();
+        }
+        final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
+        final File fileVideo = new File(appDir, fileName);
+//        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+
+                    DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
+                        @Override
+                        public void onDownloadSuccess(File file) {
+//                            Intent intent = new Intent(VideoPlayActivity.this, VideoPlayActivity.class);
+//                            intent.putExtra("videopath", fileVideo.getAbsolutePath());
+//                            Message message = new Message();
+//                            Bundle bundle = new Bundle();
+//                            bundle.putString("msgid", msgAllBean.getVideoMessage().getMsgId());
+//                            bundle.putString("url", fileVideo.getAbsolutePath());
+//                            message.setData(bundle);
+//                            handler.sendMessage(message);
+                            videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
+                            MsgDao dao = new MsgDao();
+                            dao.fixVideoLocalUrl(msgAllBean.getVideoMessage().getMsgId(),fileVideo.getAbsolutePath());
+//                        msgAllBean.setVideoMessage(videoMessage);
+//                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
+//                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
+//                            startActivity(intent);
+                            MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
+                        }
+
+                        @Override
+                        public void onDownloading(int progress) {
+
+                        }
+
+                        @Override
+                        public void onDownloadFailed(Exception e) {
+
+                        }
+                    });
+
+                } catch (Exception e) {
+
+                }
+
+            }
+        }.start();
+
+    }
+
+
 
     private void initEvent() {
         findViewById(R.id.rl_video_play_con).setOnClickListener(this);
@@ -184,6 +245,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_seek=findViewById(R.id.activity_video_seek);
         activity_video_count_time=findViewById(R.id.activity_video_count_time);
         activity_video_current_time=findViewById(R.id.activity_video_current_time);
+
+        activity_video_rel_con.setVisibility(View.INVISIBLE);
     }
     private int surfaceWidth;
     private int surfaceHeight;
@@ -196,7 +259,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             mMediaPlayer.setDataSource(path);
 //            mMediaPlayer.setSurface(new Surface(surface));
             mMediaPlayer.setDisplay(surfaceHolder);
-            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+//            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             mMediaPlayer.setLooping(false);
 
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -212,8 +275,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 //                        }
 //                        finish();
 //                    }
-
-                    changeVideoSize();
+                    MsgAllBean msgAllBeanForm= new Gson().fromJson(msgAllBean,MsgAllBean.class);
+                    if (path.contains("http://")){
+                        downVideo(msgAllBeanForm,msgAllBeanForm.getVideoMessage());
+                    }
+//                    changeVideoSize();
                     if (mMediaPlayer.getDuration()/1000<10){
                         activity_video_count_time.setText("00:0"+(mMediaPlayer.getDuration()/1000)+"");
                     }else{

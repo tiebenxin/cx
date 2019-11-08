@@ -1,5 +1,7 @@
 package com.example.nim_lib.event;
 
+import com.example.nim_lib.constant.CoreEnum;
+
 /**
  * @version V1.0
  * @createAuthor （Geoff）
@@ -35,6 +37,14 @@ public class EventFactory {
      * 关闭语音最小化
      */
     public static class CloseMinimizeEvent extends BaseEvent {
+
+        public boolean isClose=true;
+    }
+
+    /**
+     * 退出登录时关闭音视频界面
+     */
+    public static class CloseVideoActivityEvent extends BaseEvent {
     }
 
     /**
@@ -50,5 +60,27 @@ public class EventFactory {
      * 语音最小化
      */
     public static class ShowVoiceMinimizeEvent extends BaseEvent {
+        public boolean isStartRunThread=true;
     }
+
+    /**
+     * 网络监听
+     */
+    public static class EventNetStatus {
+        @CoreEnum.ENetStatus
+        private int status;
+
+        public EventNetStatus(@CoreEnum.ENetStatus int value) {
+            status = value;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+        }
+    }
+
 }

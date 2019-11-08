@@ -13,11 +13,13 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.nim_lib.controll.AVChatProfile;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
@@ -52,6 +54,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventNetStatus;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
@@ -107,8 +110,7 @@ public class MainActivity extends AppActivity {
     private final int TIME = 1000;
     private TimeUtils timeUtils = new TimeUtils();
     private long mExitTime;
-    // 浮动窗口
-    private final int REQUEST_CODE = 100;
+    private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
 
     //自动寻找控件
@@ -246,6 +248,7 @@ public class MainActivity extends AppActivity {
             public void onClick() {
                 mBtnMinimizeVoice.close(MainActivity.this);
                 mHandler.removeCallbacks(runnable);
+                AVChatProfile.getInstance().setAVMinimize(false);
                 IntentUtil.gotoActivity(MainActivity.this, VideoActivity.class);
             }
         });
@@ -359,11 +362,6 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CODE) {// 6.0以上 打开浮动权限回调
-              showMinimizeVoiceView();
-            }
-        }
         if (requestCode == JPluginPlatformInterface.JPLUGIN_REQUEST_CODE) {
 
         }
@@ -382,13 +380,18 @@ public class MainActivity extends AppActivity {
         if (mNetworkReceiver != null) {
             unregisterReceiver(mNetworkReceiver);
         }
+        AVChatProfile.getInstance().setAVMinimize(false);
         EventBus.getDefault().unregister(this);
         // 关闭浮动窗口
-        if (mBtnMinimizeVoice != null) {
-            mBtnMinimizeVoice.close(this);
-        }
-        timeUtils.cancle();
+        mBtnMinimizeVoice.close(this);
+        mHandler.removeCallbacks(runnable);
         super.onDestroy();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventNetStatus(EventNetStatus event) {
+        EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
+        EventBus.getDefault().post(eventNetStatus);
     }
 
     @Override
@@ -469,27 +472,29 @@ public class MainActivity extends AppActivity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Settings.canDrawOverlays(context)) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-                startActivityForResult(intent, REQUEST_CODE);
+                startActivity(intent);
                 return;
             }
         }
-        showMinimizeVoiceView();
+        showMinimizeVoiceView(true);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void closevoiceMinimizeEvent(EventFactory.CloseVoiceMinimizeEvent event) {
         if (!isFinishing()) {
             // 判断ChatActivity是否到前端显示，不是则更新并发送音视频消息数据
-            if(mBtnMinimizeVoice.isShown()){
-                mBtnMinimizeVoice.close(this);
-                mHandler.removeCallbacks(runnable);
-                if (event != null) {
-                    if (event.avChatType == AVChatType.AUDIO.getValue()) {
-                        SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
-                    } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-                        SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
-                    }
+            mBtnMinimizeVoice.close(this);
+            mHandler.removeCallbacks(runnable);
+            if (event != null) {
+                if (event.avChatType == AVChatType.AUDIO.getValue()) {
+                    SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
+                } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
+                    SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
                 }
+                EventRefreshChat eventRefreshChat= new EventRefreshChat();
+                eventRefreshChat.isScrollBottom=true;
+                EventBus.getDefault().post(eventRefreshChat);
+//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
             }
         }
     }
@@ -497,8 +502,10 @@ public class MainActivity extends AppActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void closevoiceMinimizeEvent(EventFactory.CloseMinimizeEvent event) {
         if (!isFinishing()) {
+            if (event.isClose) {
+                mHandler.removeCallbacks(runnable);
+            }
             mBtnMinimizeVoice.close(this);
-            mHandler.removeCallbacks(runnable);
         }
     }
 
@@ -506,7 +513,7 @@ public class MainActivity extends AppActivity {
     public void restartAppEvent(net.cb.cb.library.event.EventFactory.RestartAppEvent event) {
         if (!isFinishing()) {
             // 处理APP在后台，关闭某个权限后需要重启APP
-            Intent intent=new Intent(this, SplashActivity.class);
+            Intent intent = new Intent(this, SplashActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             android.os.Process.killProcess(android.os.Process.myPid());
@@ -517,23 +524,35 @@ public class MainActivity extends AppActivity {
     public void sendP2PAuVideoDialMessageEvent(EventFactory.SendP2PAuVideoDialMessage event) {
 
         if (event.avChatType == AVChatType.AUDIO.getValue()) {
-            SocketData.send4VoiceOrVideoNotice(event.toUId, event.toGid,MsgBean.AuVideoType.Audio);
+            SocketData.send4VoiceOrVideoNotice(event.toUId, event.toGid, MsgBean.AuVideoType.Audio);
         } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-            SocketData.send4VoiceOrVideoNotice(event.toUId, event.toGid,MsgBean.AuVideoType.Vedio);
+            SocketData.send4VoiceOrVideoNotice(event.toUId, event.toGid, MsgBean.AuVideoType.Vedio);
         }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showVoiceMinimizeEvent(EventFactory.ShowVoiceMinimizeEvent event) {
-        showMinimizeVoiceView();
+        Log.i("VideoActivity", "showVoiceMinimizeEvent：" + event.isStartRunThread);
+        showMinimizeVoiceView(event.isStartRunThread);
     }
 
-    private void showMinimizeVoiceView(){
+    /**
+     * 显示浮动按钮的音视频时长
+     *
+     * @param isStartRunThread 是否需要开一个线程计时
+     */
+    private void showMinimizeVoiceView(boolean isStartRunThread) {
         if (mVoiceMinimizeEvent != null && mVoiceMinimizeEvent.isCallEstablished) {// 是否接听
             mBtnMinimizeVoice.show(MyAppLication.getInstance().getApplicationContext(), getWindow());
-            mBtnMinimizeVoice.updateCallTime(mVoiceMinimizeEvent.showTime);
-            if (!isFinishing()) {
+            if (!isFinishing() && isStartRunThread) {
+                mBtnMinimizeVoice.updateCallTime(mVoiceMinimizeEvent.showTime);
                 mHandler.postDelayed(runnable, TIME);
+            } else {
+                if (mHour > 0) {
+                    mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                } else {
+                    mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                }
             }
         } else {
             mBtnMinimizeVoice.show(MyAppLication.getInstance().getApplicationContext(), getWindow());
@@ -549,16 +568,16 @@ public class MainActivity extends AppActivity {
         @Override
         public void run() {
             mPassedTime++;
-            int hour = mPassedTime / 3600;
-            int min = mPassedTime % 3600 / 60;
-            int second = mPassedTime % 60;
+            mHour = mPassedTime / 3600;
+            mMin = mPassedTime % 3600 / 60;
+            mSecond = mPassedTime % 60;
 
             if (!isFinishing()) {
                 mHandler.postDelayed(this, TIME);
-                if (hour > 0) {
-                    mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d:%02d", hour, min, second));
+                if (mHour > 0) {
+                    mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
                 } else {
-                    mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d", min, second));
+                    mBtnMinimizeVoice.updateCallTime(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
                 }
             }
         }

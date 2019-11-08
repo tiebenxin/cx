@@ -72,7 +72,7 @@ public class VoiceView extends LinearLayout {
         } else {
             viewMeVoice.setVisibility(GONE);
             viewOtVoice.setVisibility(VISIBLE);
-            imgOtUnRead.setVisibility(isRead ? GONE : VISIBLE);
+            imgOtUnRead.setVisibility(playStatus != ChatEnum.EPlayStatus.NO_DOWNLOADED ? GONE : VISIBLE);
             imgOtUnRead.setImageResource(R.mipmap.bg_red_num_small);
         }
         txtOtVoice.setText(second + "''");
@@ -84,19 +84,19 @@ public class VoiceView extends LinearLayout {
             ((AnimationDrawable) imgMeIcon.getDrawable()).start();
             ((AnimationDrawable) imgOtIcon.getDrawable()).start();
         } else {
-            if (!isMe && isRead && playStatus == ChatEnum.EPlayStatus.NO_DOWNLOADED) {
-                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
-                ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
-                ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
-                ((AnimationDrawable) imgMeIcon.getDrawable()).start();
-                ((AnimationDrawable) imgOtIcon.getDrawable()).start();
-            } else {
-                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "终止语音动画");
-                ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
-                ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
-                ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);
-                ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
-            }
+//            if (!isMe && isRead && playStatus == ChatEnum.EPlayStatus.NO_DOWNLOADED) {
+//                LogUtil.getLog().i(VoiceView.class.getSimpleName(), "播放语音动画");
+//                ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(2);
+//                ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(2);
+//                ((AnimationDrawable) imgMeIcon.getDrawable()).start();
+//                ((AnimationDrawable) imgOtIcon.getDrawable()).start();
+//            } else {
+            LogUtil.getLog().i(VoiceView.class.getSimpleName(), "终止语音动画");
+            ((AnimationDrawable) imgMeIcon.getDrawable()).stop();
+            ((AnimationDrawable) imgOtIcon.getDrawable()).stop();
+            ((AnimationDrawable) imgMeIcon.getDrawable()).selectDrawable(0);
+            ((AnimationDrawable) imgOtIcon.getDrawable()).selectDrawable(0);
+//            }
         }
         if (!isMe && !isRead) {
             setDownloadStatus(playStatus, isRead);

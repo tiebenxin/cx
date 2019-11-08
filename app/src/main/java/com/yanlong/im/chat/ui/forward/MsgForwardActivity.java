@@ -9,9 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.view.View;
 
-import com.google.gson.Gson;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -47,7 +45,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     @CustomTabView.ETabPosition
     private int currentPager = CustomTabView.ETabPosition.LEFT;
     private String json;
-    boolean hasSendMessage = false;
+    boolean isSingleSelected = true;
 
 
     //自动寻找控件
@@ -61,6 +59,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         json = getIntent().getStringExtra(AGM_JSON);
         msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
 
+//        resetRightText();
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -69,7 +68,8 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
             @Override
             public void onRight() {
-
+                isSingleSelected = !isSingleSelected;
+//                resetRightText();
             }
         });
 
@@ -92,6 +92,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             ui.headView.setTitle("选择一个联系人");
         } else if (tab == CustomTabView.ETabPosition.LEFT) {
             ui.headView.setTitle("选择一个聊天");
+        }
+    }
+
+    private void resetRightText() {
+        if (isSingleSelected) {
+            actionbar.setTxtRight("多选");
+        } else {
+            actionbar.setTxtRight("单选");
         }
     }
 

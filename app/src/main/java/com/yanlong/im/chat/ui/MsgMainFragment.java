@@ -42,6 +42,7 @@ import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
@@ -58,12 +59,8 @@ import com.yanlong.im.utils.socket.SocketUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
-
-import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
-
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -717,17 +714,25 @@ public class MsgMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
             } else if (bean.getType() == 1) {//群
-
-                if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
-                    info = name + info;
-                }
                 int type = bean.getMessageType();
+                if (type == 0 || type == 1) {
+                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
+                        info = name + bean.getAtMessage();
+                    } else {
+                        info = name + info;
+
+                    }
+                } else {//草稿除外
+                    if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
+                        info = name + info;
+                    }
+                }
                 switch (type) {
                     case 0:
                         if (StringUtil.isNotNull(bean.getAtMessage())) {
                             if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[有人@你]" + bean.getAtMessage());
+                                style.append("[有人@你]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);
@@ -747,7 +752,7 @@ public class MsgMainFragment extends Fragment {
                             }
                             if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
                                 SpannableStringBuilder style = new SpannableStringBuilder();
-                                style.append("[@所有人]" + bean.getAtMessage());
+                                style.append("[@所有人]" + info);
                                 ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                                 style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 holder.txtInfo.setText(style);

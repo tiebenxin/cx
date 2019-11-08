@@ -76,8 +76,10 @@ public class AVChatController {
             AVChatManager.getInstance().hangUp2(chatId, new AVChatCallback<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    AVChatProfile.getInstance().setAVChatting(false);
-                    AVChatSoundPlayer.instance().stop();
+//                    AVChatProfile.getInstance().setAVChatting(false);
+                    AVChatProfile.getInstance().setCallIng(false);
+                    PlayerManager.getManager().stop();
+//                    AVChatSoundPlayer.instance().stop();
                     auVideoHandup(toUId, avChatType, getUUID());
                     if (context != null && !((Activity) context).isFinishing()) {
                         ((Activity) context).finish();

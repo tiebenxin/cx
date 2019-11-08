@@ -42,6 +42,8 @@ public class AVChatExitCode {
 
     public static final int LOCAL_CALL_BUSY = 21; // 正在进行本地通话
 
+    public static final int INTERRUPT = 22; // 通话中断
+
     public static final int CODE_201 = 201;//	客户端版本不对，需升级sdk
     public static final int CODE_301 = 301;//	被封禁
     public static final int CODE_302 = 302;//	用户名或密码错误

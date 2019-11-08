@@ -50,7 +50,7 @@ public class PictureFileUtils {
 
     public static final String POSTFIX = ".JPEG";
     public static final String POST_VIDEO = ".mp4";
-    public static final String APP_NAME = "PictureSelector";
+    public static final String APP_NAME = "changXin";
     public static final String CAMERA_PATH = "/" + APP_NAME + "/CameraImage/";
     public static final String CROP_PATH = "/" + APP_NAME + "/CropImage/";
 
@@ -478,7 +478,7 @@ public class PictureFileUtils {
             // 自定义保存目录
             path = new File(rootDir.getAbsolutePath() + directory_path);
         } else {
-            path = new File(rootDir.getAbsolutePath() + "/PictureSelector");
+            path = new File(rootDir.getAbsolutePath() + "/" + APP_NAME);
         }
         if (!path.exists())
         // 若不存在，创建目录，可以在应用启动的时候创建

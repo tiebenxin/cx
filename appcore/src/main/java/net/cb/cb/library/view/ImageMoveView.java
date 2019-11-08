@@ -7,7 +7,6 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -209,7 +208,6 @@ public class ImageMoveView extends RelativeLayout {
         // 以屏幕左上角为原点，设置x、y初始值ֵ
         params.x = (int) x;
         params.y = (int) y;
-        Log.i("1212","x:"+x+" y:"+y);
 
         // 设置悬浮窗的Touch监听
         floatingViewObj.setOnTouchListener(new OnTouchListener() {
@@ -225,17 +223,14 @@ public class ImageMoveView extends RelativeLayout {
                     case MotionEvent.ACTION_DOWN:
                         lastX = (int) event.getRawX();
                         lastY = (int) event.getRawY();
-                        Log.i("1212","lastX:"+lastX+" lastY:"+lastY);
                         paramX = params.x;
                         paramY = params.y;
                         break;
                     case MotionEvent.ACTION_MOVE:
                         int dx = (int) event.getRawX() - lastX;
                         int dy = (int) event.getRawY() - lastY;
-                        Log.i("1212","dx:"+dx+" dy:"+dy);
                         params.x = paramX + dx;
                         params.y = paramY + dy;
-                        Log.i("1212","params.x:"+params.x+" params.y:"+params.y);
                         // 更新悬浮窗位置
                         wm.updateViewLayout(floatingViewObj, params);
                         break;
