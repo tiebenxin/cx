@@ -61,14 +61,12 @@ public class MsgConversionBean {
         msgAllBean.setSurvival_time(bean.getSurvivalTime());
         UserDao userDao = new UserDao();
 
-        if(bean.getMsgType() != RED_ENVELOPER){
-            int survivalTime = userDao.getReadDestroy(bean.getFromUid(),bean.getGid());
-            if (survivalTime != 0) {
-                msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
-                msgAllBean.setSurvival_time(survivalTime);
-            }
-            LogUtil.getLog().d("MsgConversionBean",survivalTime+"---id:"+bean.getMsgId());
+        int survivalTime = userDao.getReadDestroy(bean.getFromUid(), bean.getGid());
+        if (survivalTime != 0) {
+            msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
+            msgAllBean.setSurvival_time(survivalTime);
         }
+        LogUtil.getLog().d("MsgConversionBean", survivalTime + "---id:" + bean.getMsgId());
 
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
@@ -106,11 +104,7 @@ public class MsgConversionBean {
                 ImageMessage image = new ImageMessage();
                 image.setMsgid(msgAllBean.getMsg_id());
                 // Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
-
-
                 MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
-
-
                 if (imgMsg != null) {//7.16 替换成上一次本地的图片路径
                     image.setLocalimg(imgMsg.getImage().getLocalimg());
                     Log.d("TAG", "查询到本地图" + image.getLocalimg());
@@ -417,13 +411,13 @@ public class MsgConversionBean {
                 msgAllBean.setChangeSurvivalTimeMessage(changeSurvivalTimeMessage);
                 break;
             case P2P_AU_VIDEO_DIAL:// 点对点音视频发起通知
-                P2PAuVideoDialMessage p2PAuVideoDialMessage= new P2PAuVideoDialMessage();
+                P2PAuVideoDialMessage p2PAuVideoDialMessage = new P2PAuVideoDialMessage();
                 p2PAuVideoDialMessage.setAv_type(bean.getP2PAuVideoDial().getAvTypeValue());
                 msgAllBean.setP2PAuVideoDialMessage(p2PAuVideoDialMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
-                return null;
+                 return null;
         }
 
         return msgAllBean;

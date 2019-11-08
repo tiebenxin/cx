@@ -189,7 +189,7 @@ public interface UserServer {
     @FormUrlEncoded
     Call<ReturnBean> userOpinion(@Field("opinionDescription") String opinionDescription, @Field("opinionImage") String opinionImage);
 
-    @POST("friends/set-read")
+    @POST("/friends/set-read")
     @FormUrlEncoded
     Call<ReturnBean> friendsSetRead(@Field("friend") long uid,@Field("read") int read);
 

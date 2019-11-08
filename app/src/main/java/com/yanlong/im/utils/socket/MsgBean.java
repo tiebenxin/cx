@@ -24985,7 +24985,7 @@ public final class MsgBean {
 
         /**
          * <pre>
-         *开关值
+         *开关值(0:关闭|1:打开)
          * </pre>
          *
          * <code>uint32 switch_value = 2;</code>
@@ -25100,6 +25100,14 @@ public final class MsgBean {
              * <code>VIP = 1;</code>
              */
             VIP(1),
+            /**
+             * <pre>
+             *已读总开关
+             * </pre>
+             *
+             * <code>MASTER_READ = 2;</code>
+             */
+            MASTER_READ(2),
             UNRECOGNIZED(-1),
             ;
 
@@ -25119,6 +25127,14 @@ public final class MsgBean {
              * <code>VIP = 1;</code>
              */
             public static final int VIP_VALUE = 1;
+            /**
+             * <pre>
+             *已读总开关
+             * </pre>
+             *
+             * <code>MASTER_READ = 2;</code>
+             */
+            public static final int MASTER_READ_VALUE = 2;
 
 
             public final int getNumber() {
@@ -25141,6 +25157,7 @@ public final class MsgBean {
                 switch (value) {
                     case 0: return READ;
                     case 1: return VIP;
+                    case 2: return MASTER_READ;
                     default: return null;
                 }
             }
@@ -25221,7 +25238,7 @@ public final class MsgBean {
         private int switchValue_;
         /**
          * <pre>
-         *开关值
+         *开关值(0:关闭|1:打开)
          * </pre>
          *
          * <code>uint32 switch_value = 2;</code>
@@ -25600,7 +25617,7 @@ public final class MsgBean {
             private int switchValue_ ;
             /**
              * <pre>
-             *开关值
+             *开关值(0:关闭|1:打开)
              * </pre>
              *
              * <code>uint32 switch_value = 2;</code>
@@ -25610,7 +25627,7 @@ public final class MsgBean {
             }
             /**
              * <pre>
-             *开关值
+             *开关值(0:关闭|1:打开)
              * </pre>
              *
              * <code>uint32 switch_value = 2;</code>
@@ -25623,7 +25640,7 @@ public final class MsgBean {
             }
             /**
              * <pre>
-             *开关值
+             *开关值(0:关闭|1:打开)
              * </pre>
              *
              * <code>uint32 switch_value = 2;</code>
@@ -28000,6 +28017,24 @@ public final class MsgBean {
             int getSurvivalTime();
 
             /**
+             * <pre>
+             *来源设备类型(0:mobile|1:pc)
+             * </pre>
+             *
+             * <code>uint32 device_type = 10;</code>
+             */
+            int getDeviceType();
+
+            /**
+             * <pre>
+             *消息接收人
+             * </pre>
+             *
+             * <code>uint64 to_uid = 11;</code>
+             */
+            long getToUid();
+
+            /**
              * <code>.ChatMessage chat = 10000;</code>
              */
             boolean hasChat();
@@ -28447,6 +28482,8 @@ public final class MsgBean {
                 avatar_ = "";
                 membername_ = "";
                 survivalTime_ = 0;
+                deviceType_ = 0;
+                toUid_ = 0L;
             }
 
             @java.lang.Override
@@ -28530,6 +28567,16 @@ public final class MsgBean {
                             case 72: {
 
                                 survivalTime_ = input.readSInt32();
+                                break;
+                            }
+                            case 80: {
+
+                                deviceType_ = input.readUInt32();
+                                break;
+                            }
+                            case 88: {
+
+                                toUid_ = input.readUInt64();
                                 break;
                             }
                             case 80002: {
@@ -29349,6 +29396,32 @@ public final class MsgBean {
              */
             public int getSurvivalTime() {
                 return survivalTime_;
+            }
+
+            public static final int DEVICE_TYPE_FIELD_NUMBER = 10;
+            private int deviceType_;
+            /**
+             * <pre>
+             *来源设备类型(0:mobile|1:pc)
+             * </pre>
+             *
+             * <code>uint32 device_type = 10;</code>
+             */
+            public int getDeviceType() {
+                return deviceType_;
+            }
+
+            public static final int TO_UID_FIELD_NUMBER = 11;
+            private long toUid_;
+            /**
+             * <pre>
+             *消息接收人
+             * </pre>
+             *
+             * <code>uint64 to_uid = 11;</code>
+             */
+            public long getToUid() {
+                return toUid_;
             }
 
             public static final int CHAT_FIELD_NUMBER = 10000;
@@ -30217,6 +30290,12 @@ public final class MsgBean {
                 if (survivalTime_ != 0) {
                     output.writeSInt32(9, survivalTime_);
                 }
+                if (deviceType_ != 0) {
+                    output.writeUInt32(10, deviceType_);
+                }
+                if (toUid_ != 0L) {
+                    output.writeUInt64(11, toUid_);
+                }
                 if (realMsgCase_ == 10000) {
                     output.writeMessage(10000, (com.yanlong.im.utils.socket.MsgBean.ChatMessage) realMsg_);
                 }
@@ -30348,6 +30427,14 @@ public final class MsgBean {
                 if (survivalTime_ != 0) {
                     size += com.google.protobuf.CodedOutputStream
                             .computeSInt32Size(9, survivalTime_);
+                }
+                if (deviceType_ != 0) {
+                    size += com.google.protobuf.CodedOutputStream
+                            .computeUInt32Size(10, deviceType_);
+                }
+                if (toUid_ != 0L) {
+                    size += com.google.protobuf.CodedOutputStream
+                            .computeUInt64Size(11, toUid_);
                 }
                 if (realMsgCase_ == 10000) {
                     size += com.google.protobuf.CodedOutputStream
@@ -30506,6 +30593,10 @@ public final class MsgBean {
                         .equals(other.getMembername());
                 result = result && (getSurvivalTime()
                         == other.getSurvivalTime());
+                result = result && (getDeviceType()
+                        == other.getDeviceType());
+                result = result && (getToUid()
+                        == other.getToUid());
                 result = result && getRealMsgCase().equals(
                         other.getRealMsgCase());
                 if (!result) return false;
@@ -30668,6 +30759,11 @@ public final class MsgBean {
                 hash = (53 * hash) + getMembername().hashCode();
                 hash = (37 * hash) + SURVIVAL_TIME_FIELD_NUMBER;
                 hash = (53 * hash) + getSurvivalTime();
+                hash = (37 * hash) + DEVICE_TYPE_FIELD_NUMBER;
+                hash = (53 * hash) + getDeviceType();
+                hash = (37 * hash) + TO_UID_FIELD_NUMBER;
+                hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+                        getToUid());
                 switch (realMsgCase_) {
                     case 10000:
                         hash = (37 * hash) + CHAT_FIELD_NUMBER;
@@ -30943,6 +31039,10 @@ public final class MsgBean {
 
                     survivalTime_ = 0;
 
+                    deviceType_ = 0;
+
+                    toUid_ = 0L;
+
                     realMsgCase_ = 0;
                     realMsg_ = null;
                     return this;
@@ -30976,6 +31076,8 @@ public final class MsgBean {
                     result.avatar_ = avatar_;
                     result.membername_ = membername_;
                     result.survivalTime_ = survivalTime_;
+                    result.deviceType_ = deviceType_;
+                    result.toUid_ = toUid_;
                     if (realMsgCase_ == 10000) {
                         if (chatBuilder_ == null) {
                             result.realMsg_ = realMsg_;
@@ -31266,6 +31368,12 @@ public final class MsgBean {
                     }
                     if (other.getSurvivalTime() != 0) {
                         setSurvivalTime(other.getSurvivalTime());
+                    }
+                    if (other.getDeviceType() != 0) {
+                        setDeviceType(other.getDeviceType());
+                    }
+                    if (other.getToUid() != 0L) {
+                        setToUid(other.getToUid());
                     }
                     switch (other.getRealMsgCase()) {
                         case CHAT: {
@@ -32037,6 +32145,82 @@ public final class MsgBean {
                 public Builder clearSurvivalTime() {
 
                     survivalTime_ = 0;
+                    onChanged();
+                    return this;
+                }
+
+                private int deviceType_ ;
+                /**
+                 * <pre>
+                 *来源设备类型(0:mobile|1:pc)
+                 * </pre>
+                 *
+                 * <code>uint32 device_type = 10;</code>
+                 */
+                public int getDeviceType() {
+                    return deviceType_;
+                }
+                /**
+                 * <pre>
+                 *来源设备类型(0:mobile|1:pc)
+                 * </pre>
+                 *
+                 * <code>uint32 device_type = 10;</code>
+                 */
+                public Builder setDeviceType(int value) {
+
+                    deviceType_ = value;
+                    onChanged();
+                    return this;
+                }
+                /**
+                 * <pre>
+                 *来源设备类型(0:mobile|1:pc)
+                 * </pre>
+                 *
+                 * <code>uint32 device_type = 10;</code>
+                 */
+                public Builder clearDeviceType() {
+
+                    deviceType_ = 0;
+                    onChanged();
+                    return this;
+                }
+
+                private long toUid_ ;
+                /**
+                 * <pre>
+                 *消息接收人
+                 * </pre>
+                 *
+                 * <code>uint64 to_uid = 11;</code>
+                 */
+                public long getToUid() {
+                    return toUid_;
+                }
+                /**
+                 * <pre>
+                 *消息接收人
+                 * </pre>
+                 *
+                 * <code>uint64 to_uid = 11;</code>
+                 */
+                public Builder setToUid(long value) {
+
+                    toUid_ = value;
+                    onChanged();
+                    return this;
+                }
+                /**
+                 * <pre>
+                 *消息接收人
+                 * </pre>
+                 *
+                 * <code>uint64 to_uid = 11;</code>
+                 */
+                public Builder clearToUid() {
+
+                    toUid_ = 0L;
                     onChanged();
                     return this;
                 }
@@ -37482,81 +37666,82 @@ public final class MsgBean {
                         "_type\030\001 \001(\0162%.ResourceLockMessage.Resour" +
                         "ceLockType\022\014\n\004lock\030\002 \001(\r\"(\n\020ResourceLock" +
                         "Type\022\024\n\020CLOUDREDENVELOPE\020\000\" \n\013ReadMessag" +
-                        "e\022\021\n\ttimestamp\030\001 \001(\004\"\202\001\n\023SwitchChangeMes" +
+                        "e\022\021\n\ttimestamp\030\001 \001(\004\"\223\001\n\023SwitchChangeMes" +
                         "sage\0224\n\013switch_type\030\001 \001(\0162\037.SwitchChange" +
                         "Message.SwitchType\022\024\n\014switch_value\030\002 \001(\r" +
-                        "\"\037\n\nSwitchType\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\"e\n\nAck" +
-                        "Message\022 \n\013reject_type\030\001 \001(\0162\013.RejectTyp" +
-                        "e\022\022\n\nrequest_id\030\002 \001(\t\022\016\n\006msg_id\030\003 \003(\t\022\021\n" +
-                        "\ttimestamp\030\004 \001(\004\"*\n\022AuthRequestMessage\022\024" +
-                        "\n\014access_token\030\001 \001(\t\"\'\n\023AuthResponseMess" +
-                        "age\022\020\n\010accepted\030\001 \001(\021\"\317\r\n\020UniversalMessa" +
-                        "ge\022\022\n\nrequest_id\030\001 \001(\t\022\016\n\006to_uid\030\002 \001(\004\022/" +
-                        "\n\007wrapMsg\030\221N \003(\0132\035.UniversalMessage.Wrap" +
-                        "Message\032\345\014\n\013WrapMessage\022\021\n\ttimestamp\030\001 \001" +
-                        "(\004\022\036\n\010msg_type\030\002 \001(\0162\014.MessageType\022\016\n\006ms" +
-                        "g_id\030\003 \001(\t\022\020\n\010from_uid\030\004 \001(\004\022\013\n\003gid\030\005 \001(" +
-                        "\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006avatar\030\007 \001(\t\022\022\n\nm" +
-                        "embername\030\010 \001(\t\022\025\n\rsurvival_time\030\t \001(\021\022\035" +
-                        "\n\004chat\030\220N \001(\0132\014.ChatMessageH\000\022\037\n\005image\030\221" +
-                        "N \001(\0132\r.ImageMessageH\000\022,\n\014red_envelope\030\222" +
-                        "N \001(\0132\023.RedEnvelopeMessageH\000\022;\n\024receive_" +
-                        "red_envelope\030\223N \001(\0132\032.ReceiveRedEnvelope" +
-                        "MessageH\000\022%\n\010transfer\030\224N \001(\0132\020.TransferM" +
-                        "essageH\000\022\037\n\005stamp\030\225N \001(\0132\r.StampMessageH" +
-                        "\000\022.\n\rbusiness_card\030\226N \001(\0132\024.BusinessCard" +
-                        "MessageH\000\022\037\n\005voice\030\227N \001(\0132\r.VoiceMessage" +
-                        "H\000\022\031\n\002at\030\230N \001(\0132\n.AtMessageH\000\022\'\n\tassista" +
-                        "nt\030\231N \001(\0132\021.AssistantMessageH\000\022!\n\006cancel" +
-                        "\030\232N \001(\0132\016.CancelMessageH\000\022*\n\013short_video" +
-                        "\030\233N \001(\0132\022.ShortVideoMessageH\000\0220\n\016request" +
-                        "_friend\030\364N \001(\0132\025.RequestFriendMessageH\000\022" +
-                        "5\n\021accept_be_friends\030\365N \001(\0132\027.AcceptBeFr" +
-                        "iendsMessageH\000\022.\n\rremove_friend\030\366N \001(\0132\024" +
-                        ".RemoveFriendMessageH\000\022.\n\rrequest_group\030" +
-                        "\330O \001(\0132\024.RequestGroupMessageH\000\0221\n\017accept" +
-                        "_be_group\030\331O \001(\0132\025.AcceptBeGroupMessageH" +
-                        "\000\0229\n\023remove_group_member\030\332O \001(\0132\031.Remove" +
-                        "GroupMemberMessageH\000\0229\n\023change_group_mas" +
-                        "ter\030\333O \001(\0132\031.ChangeGroupMasterMessageH\000\022" +
-                        ".\n\rdestroy_group\030\336O \001(\0132\024.DestroyGroupMe" +
-                        "ssageH\000\022;\n\024remove_group_member2\030\337O \001(\0132\032" +
-                        ".RemoveGroupMember2MessageH\000\022&\n\tout_grou" +
-                        "p\030\342O \001(\0132\020.OutGroupMessageH\000\0225\n\021change_g" +
-                        "roup_meta\030\344O \001(\0132\027.ChangeGroupMetaMessag" +
-                        "eH\000\022;\n\024change_survival_time\030\345O \001(\0132\032.Cha" +
-                        "ngeSurvivalTimeMessageH\000\022+\n\014p2p_au_video" +
-                        "\030\352O \001(\0132\022.P2PAuVideoMessageH\000\0224\n\021p2p_au_" +
-                        "video_dial\030\353O \001(\0132\026.P2PAuVideoDialMessag" +
-                        "eH\000\022\035\n\004read\030\354O \001(\0132\014.ReadMessageH\000\022.\n\rfo" +
-                        "rce_offline\030\274P \001(\0132\024.ForceOfflineMessage" +
-                        "H\000\0227\n\022active_stat_change\030\275P \001(\0132\030.Active" +
-                        "StatChangeMessageH\000\022.\n\rresource_lock\030\276P " +
-                        "\001(\0132\024.ResourceLockMessageH\000\022.\n\rswitch_ch" +
-                        "ange\030\277P \001(\0132\024.SwitchChangeMessageH\000B\n\n\010r" +
-                        "eal_msg*\310\004\n\013MessageType\022\010\n\004CHAT\020\000\022\t\n\005IMA" +
-                        "GE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n\025RECEIVE_RED_E" +
-                        "NVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t\n\005STAMP\020\005\022\021\n\rB" +
-                        "USINESS_CARD\020\006\022\t\n\005VOICE\020\007\022\006\n\002AT\020\010\022\r\n\tASS" +
-                        "ISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SHORT_VIDEO\020\013\022\022\n" +
-                        "\016REQUEST_FRIEND\020d\022\025\n\021ACCEPT_BE_FRIENDS\020e" +
-                        "\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQUEST_GROUP\020g\022\023" +
-                        "\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REMOVE_GROUP_MEMB" +
-                        "ER\020i\022\027\n\023CHANGE_GROUP_MASTER\020j\022\030\n\024REMOVE_" +
-                        "GROUP_MEMBER2\020k\022\021\n\rDESTROY_GROUP\020m\022\r\n\tOU" +
-                        "T_GROUP\020n\022\025\n\021CHANGE_GROUP_META\020p\022\030\n\024CHAN" +
-                        "GE_SURVIVAL_TIME\020q\022\020\n\014P2P_AU_VIDEO\020v\022\025\n\021" +
-                        "P2P_AU_VIDEO_DIAL\020w\022\010\n\004READ\020x\022\022\n\rFORCE_O" +
-                        "FFLINE\020\310\001\022\027\n\022ACTIVE_STAT_CHANGE\020\311\001\022\022\n\rRE" +
-                        "SOURCE_LOCK\020\312\001\022\022\n\rSWITCH_CHANGE\020\313\001*.\n\022Fo" +
-                        "rceOfflineReason\022\014\n\010CONFLICT\020\000\022\n\n\006LOCKED" +
-                        "\020\001*v\n\nRejectType\022\014\n\010ACCEPTED\020\000\022\037\n\033NOT_FR" +
-                        "IENDS_OR_GROUP_MEMBER\020\001\022\020\n\014IN_BLACKLIST\020" +
-                        "\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVICE_UNAVAILABLE" +
-                        "\020d*(\n\rJoinGroupType\022\n\n\006QRCODE\020\000\022\013\n\007PASSI" +
-                        "VE\020\001*#\n\013AuVideoType\022\t\n\005Audio\020\000\022\t\n\005Vedio\020" +
-                        "\001B&\n\033com.yanlong.im.utils.socketB\007MsgBea" +
-                        "nb\006proto3"
+                        "\"0\n\nSwitchType\022\010\n\004READ\020\000\022\007\n\003VIP\020\001\022\017\n\013MAS" +
+                        "TER_READ\020\002\"e\n\nAckMessage\022 \n\013reject_type\030" +
+                        "\001 \001(\0162\013.RejectType\022\022\n\nrequest_id\030\002 \001(\t\022\016" +
+                        "\n\006msg_id\030\003 \003(\t\022\021\n\ttimestamp\030\004 \001(\004\"*\n\022Aut" +
+                        "hRequestMessage\022\024\n\014access_token\030\001 \001(\t\"\'\n" +
+                        "\023AuthResponseMessage\022\020\n\010accepted\030\001 \001(\021\"\364" +
+                        "\r\n\020UniversalMessage\022\022\n\nrequest_id\030\001 \001(\t\022" +
+                        "\016\n\006to_uid\030\002 \001(\004\022/\n\007wrapMsg\030\221N \003(\0132\035.Univ" +
+                        "ersalMessage.WrapMessage\032\212\r\n\013WrapMessage" +
+                        "\022\021\n\ttimestamp\030\001 \001(\004\022\036\n\010msg_type\030\002 \001(\0162\014." +
+                        "MessageType\022\016\n\006msg_id\030\003 \001(\t\022\020\n\010from_uid\030" +
+                        "\004 \001(\004\022\013\n\003gid\030\005 \001(\t\022\020\n\010nickname\030\006 \001(\t\022\016\n\006" +
+                        "avatar\030\007 \001(\t\022\022\n\nmembername\030\010 \001(\t\022\025\n\rsurv" +
+                        "ival_time\030\t \001(\021\022\023\n\013device_type\030\n \001(\r\022\016\n\006" +
+                        "to_uid\030\013 \001(\004\022\035\n\004chat\030\220N \001(\0132\014.ChatMessag" +
+                        "eH\000\022\037\n\005image\030\221N \001(\0132\r.ImageMessageH\000\022,\n\014" +
+                        "red_envelope\030\222N \001(\0132\023.RedEnvelopeMessage" +
+                        "H\000\022;\n\024receive_red_envelope\030\223N \001(\0132\032.Rece" +
+                        "iveRedEnvelopeMessageH\000\022%\n\010transfer\030\224N \001" +
+                        "(\0132\020.TransferMessageH\000\022\037\n\005stamp\030\225N \001(\0132\r" +
+                        ".StampMessageH\000\022.\n\rbusiness_card\030\226N \001(\0132" +
+                        "\024.BusinessCardMessageH\000\022\037\n\005voice\030\227N \001(\0132" +
+                        "\r.VoiceMessageH\000\022\031\n\002at\030\230N \001(\0132\n.AtMessag" +
+                        "eH\000\022\'\n\tassistant\030\231N \001(\0132\021.AssistantMessa" +
+                        "geH\000\022!\n\006cancel\030\232N \001(\0132\016.CancelMessageH\000\022" +
+                        "*\n\013short_video\030\233N \001(\0132\022.ShortVideoMessag" +
+                        "eH\000\0220\n\016request_friend\030\364N \001(\0132\025.RequestFr" +
+                        "iendMessageH\000\0225\n\021accept_be_friends\030\365N \001(" +
+                        "\0132\027.AcceptBeFriendsMessageH\000\022.\n\rremove_f" +
+                        "riend\030\366N \001(\0132\024.RemoveFriendMessageH\000\022.\n\r" +
+                        "request_group\030\330O \001(\0132\024.RequestGroupMessa" +
+                        "geH\000\0221\n\017accept_be_group\030\331O \001(\0132\025.AcceptB" +
+                        "eGroupMessageH\000\0229\n\023remove_group_member\030\332" +
+                        "O \001(\0132\031.RemoveGroupMemberMessageH\000\0229\n\023ch" +
+                        "ange_group_master\030\333O \001(\0132\031.ChangeGroupMa" +
+                        "sterMessageH\000\022.\n\rdestroy_group\030\336O \001(\0132\024." +
+                        "DestroyGroupMessageH\000\022;\n\024remove_group_me" +
+                        "mber2\030\337O \001(\0132\032.RemoveGroupMember2Message" +
+                        "H\000\022&\n\tout_group\030\342O \001(\0132\020.OutGroupMessage" +
+                        "H\000\0225\n\021change_group_meta\030\344O \001(\0132\027.ChangeG" +
+                        "roupMetaMessageH\000\022;\n\024change_survival_tim" +
+                        "e\030\345O \001(\0132\032.ChangeSurvivalTimeMessageH\000\022+" +
+                        "\n\014p2p_au_video\030\352O \001(\0132\022.P2PAuVideoMessag" +
+                        "eH\000\0224\n\021p2p_au_video_dial\030\353O \001(\0132\026.P2PAuV" +
+                        "ideoDialMessageH\000\022\035\n\004read\030\354O \001(\0132\014.ReadM" +
+                        "essageH\000\022.\n\rforce_offline\030\274P \001(\0132\024.Force" +
+                        "OfflineMessageH\000\0227\n\022active_stat_change\030\275" +
+                        "P \001(\0132\030.ActiveStatChangeMessageH\000\022.\n\rres" +
+                        "ource_lock\030\276P \001(\0132\024.ResourceLockMessageH" +
+                        "\000\022.\n\rswitch_change\030\277P \001(\0132\024.SwitchChange" +
+                        "MessageH\000B\n\n\010real_msg*\310\004\n\013MessageType\022\010\n" +
+                        "\004CHAT\020\000\022\t\n\005IMAGE\020\001\022\021\n\rRED_ENVELOPER\020\002\022\031\n" +
+                        "\025RECEIVE_RED_ENVELOPER\020\003\022\014\n\010TRANSFER\020\004\022\t" +
+                        "\n\005STAMP\020\005\022\021\n\rBUSINESS_CARD\020\006\022\t\n\005VOICE\020\007\022" +
+                        "\006\n\002AT\020\010\022\r\n\tASSISTANT\020\t\022\n\n\006CANCEL\020\n\022\017\n\013SH" +
+                        "ORT_VIDEO\020\013\022\022\n\016REQUEST_FRIEND\020d\022\025\n\021ACCEP" +
+                        "T_BE_FRIENDS\020e\022\021\n\rREMOVE_FRIEND\020f\022\021\n\rREQ" +
+                        "UEST_GROUP\020g\022\023\n\017ACCEPT_BE_GROUP\020h\022\027\n\023REM" +
+                        "OVE_GROUP_MEMBER\020i\022\027\n\023CHANGE_GROUP_MASTE" +
+                        "R\020j\022\030\n\024REMOVE_GROUP_MEMBER2\020k\022\021\n\rDESTROY" +
+                        "_GROUP\020m\022\r\n\tOUT_GROUP\020n\022\025\n\021CHANGE_GROUP_" +
+                        "META\020p\022\030\n\024CHANGE_SURVIVAL_TIME\020q\022\020\n\014P2P_" +
+                        "AU_VIDEO\020v\022\025\n\021P2P_AU_VIDEO_DIAL\020w\022\010\n\004REA" +
+                        "D\020x\022\022\n\rFORCE_OFFLINE\020\310\001\022\027\n\022ACTIVE_STAT_C" +
+                        "HANGE\020\311\001\022\022\n\rRESOURCE_LOCK\020\312\001\022\022\n\rSWITCH_C" +
+                        "HANGE\020\313\001*.\n\022ForceOfflineReason\022\014\n\010CONFLI" +
+                        "CT\020\000\022\n\n\006LOCKED\020\001*v\n\nRejectType\022\014\n\010ACCEPT" +
+                        "ED\020\000\022\037\n\033NOT_FRIENDS_OR_GROUP_MEMBER\020\001\022\020\n" +
+                        "\014IN_BLACKLIST\020\002\022\016\n\nRATE_LIMIT\020c\022\027\n\023SERVI" +
+                        "CE_UNAVAILABLE\020d*(\n\rJoinGroupType\022\n\n\006QRC" +
+                        "ODE\020\000\022\013\n\007PASSIVE\020\001*#\n\013AuVideoType\022\t\n\005Aud" +
+                        "io\020\000\022\t\n\005Vedio\020\001B&\n\033com.yanlong.im.utils." +
+                        "socketB\007MsgBeanb\006proto3"
         };
         com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
                 new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -37797,7 +37982,7 @@ public final class MsgBean {
         internal_static_UniversalMessage_WrapMessage_fieldAccessorTable = new
                 com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
                 internal_static_UniversalMessage_WrapMessage_descriptor,
-                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "RealMsg", });
+                new java.lang.String[] { "Timestamp", "MsgType", "MsgId", "FromUid", "Gid", "Nickname", "Avatar", "Membername", "SurvivalTime", "DeviceType", "ToUid", "Chat", "Image", "RedEnvelope", "ReceiveRedEnvelope", "Transfer", "Stamp", "BusinessCard", "Voice", "At", "Assistant", "Cancel", "ShortVideo", "RequestFriend", "AcceptBeFriends", "RemoveFriend", "RequestGroup", "AcceptBeGroup", "RemoveGroupMember", "ChangeGroupMaster", "DestroyGroup", "RemoveGroupMember2", "OutGroup", "ChangeGroupMeta", "ChangeSurvivalTime", "P2PAuVideo", "P2PAuVideoDial", "Read", "ForceOffline", "ActiveStatChange", "ResourceLock", "SwitchChange", "RealMsg", });
     }
 
     // @@protoc_insertion_point(outer_class_scope)

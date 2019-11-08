@@ -181,8 +181,6 @@ public class MsgDao {
     }
 
 
-
-
     /**
      * 查询已读的阅后即焚消息
      */
@@ -192,32 +190,40 @@ public class MsgDao {
         RealmResults list = realm.where(MsgAllBean.class)
                 .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                 .and().beginGroup().equalTo("to_uid", userid).endGroup()
-                .and().greaterThan("read",0)
+                .and().greaterThan("read", 0)
                 .findAll();
         beans = realm.copyFromRealm(list);
         realm.close();
         return beans;
     }
-    
-    
+
+
     /**
      * 查询当前会话退出即焚消息
-     * */
+     */
     // TODO: 2019/11/5 0005 未完成 
-    public List<MsgAllBean> getMsg4SurvivalTimeAndRead(String gid,Long userid) {
+    public List<MsgAllBean> getMsg4SurvivalTimeAndExit(String gid, Long userid) {
         List<MsgAllBean> beans;
         Realm realm = DaoUtil.open();
-        RealmResults list = realm.where(MsgAllBean.class)
-                .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
-                .and().beginGroup().equalTo("to_uid", userid).endGroup()
-                .and().greaterThan("read",0)
-                .findAll();
-        beans = realm.copyFromRealm(list);
+        if (!TextUtils.isEmpty(gid)) {
+            RealmResults list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid",gid).endGroup()
+                    .and().equalTo("survival_time", -1)
+                    .findAll();
+            beans = realm.copyFromRealm(list);
+        } else {
+            RealmResults list = realm.where(MsgAllBean.class)
+                    .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
+                    .and().beginGroup().equalTo("to_uid", userid).endGroup()
+                    .and().equalTo("survival_time", -1)
+                    .findAll();
+            beans = realm.copyFromRealm(list);
+        }
         realm.close();
         return beans;
     }
-    
-    
+
+
     /**
      * 查询所有查看过的阅后即焚消息
      */
@@ -930,8 +936,6 @@ public class MsgDao {
                 msg = realm.where(MsgAllBean.class).equalTo("gid", "").equalTo("msg_type", 1)
                         .contains("chat.msg", key).beginGroup()
                         .equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
-
-
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             }
@@ -1625,6 +1629,7 @@ public class MsgDao {
                     MsgAllBean msgAllBean = list.get(i);
                     if (msgAllBean.getTimestamp() <= timestamp && msgAllBean.getRead() == 0) {
                         msgAllBean.setRead(1);
+                        msgAllBean.setReadTime(timestamp);
                     }
                 }
                 realm.insertOrUpdate(list);

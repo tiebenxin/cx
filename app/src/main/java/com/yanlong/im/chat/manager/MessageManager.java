@@ -30,6 +30,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventGroupChange;
+import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -55,12 +56,10 @@ import retrofit2.Response;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.CHAT;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_GROUP;
 import static com.yanlong.im.utils.socket.SocketData.createMsgBean;
-import static com.yanlong.im.utils.socket.SocketData.createMsgBeanOfNotice;
 import static com.yanlong.im.utils.socket.SocketData.oldMsgId;
 
 /**
@@ -176,7 +175,7 @@ public class MessageManager {
                     if (bean.getP2PAuVideoMessage() != null && "cancel".equals(bean.getP2PAuVideoMessage().getOperation())) {
                         bean.getP2PAuVideoMessage().setDesc("对方" + bean.getP2PAuVideoMessage().getDesc());
                     } else if (bean.getP2PAuVideoMessage() != null && "reject".equals(bean.getP2PAuVideoMessage().getOperation())) {
-                        bean.getP2PAuVideoMessage().setDesc(bean.getP2PAuVideoMessage().getDesc().replace("对方",""));
+                        bean.getP2PAuVideoMessage().setDesc(bean.getP2PAuVideoMessage().getDesc().replace("对方", ""));
                     } else if (bean.getP2PAuVideoMessage() != null && "notaccpet".equals(bean.getP2PAuVideoMessage().getOperation())) {
                         bean.getP2PAuVideoMessage().setDesc("对方已取消");
                     }
@@ -293,18 +292,37 @@ public class MessageManager {
                 }
                 int survivalTime = wrapMessage.getChangeSurvivalTime().getSurvivalTime();
                 if (!TextUtils.isEmpty(wrapMessage.getGid())) {
-                    userDao.updateGroupReadDestroy(wrapMessage.getGid(),survivalTime);
+                    userDao.updateGroupReadDestroy(wrapMessage.getGid(), survivalTime);
                 } else {
                     userDao.updateReadDestroy(wrapMessage.getFromUid(), survivalTime);
                 }
                 EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
                 break;
             case READ://已读消息
-                LogUtil.getLog().d(TAG,"已读消息:"+wrapMessage.getRead().getTimestamp());
                 msgDao.setUpdateRead(wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
+                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
                 break;
             case SWITCH_CHANGE: //开关变更
-                LogUtil.getLog().d(TAG,"开关变更:"+wrapMessage.getSwitchChange().getSwitchType());
+                LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
+                int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
+                int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
+                long uid = wrapMessage.getFromUid();
+                UserInfo userInfo = userDao.findUserInfo(uid);
+                switch (switchType) {
+                    case 0: // 单聊已读
+                        userInfo.setFriendRead(switchValue);
+                        userDao.updateUserinfo(userInfo);
+                        EventBus.getDefault().post(new EventIsShowRead());
+                        break;
+                    case 1: //vip
+
+                        break;
+                    case 2:  //已读总开关
+                        userInfo.setMasterRead(switchValue);
+                        userDao.updateUserinfo(userInfo);
+                        EventBus.getDefault().post(new EventIsShowRead());
+                        break;
+                }
                 break;
 
         }

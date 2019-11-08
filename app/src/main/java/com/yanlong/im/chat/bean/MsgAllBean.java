@@ -41,7 +41,37 @@ public class MsgAllBean extends RealmObject implements IChatModel {
 
     private int survival_time;
     //阅后即焚结束时间
-    private long endTime = 0;
+    private long endTime;
+
+    private long readTime; //已读时间
+
+    private long startTime;
+
+    private long serverTime; //服务器时间
+
+    public long getServerTime() {
+        return serverTime;
+    }
+
+    public void setServerTime(long serverTime) {
+        this.serverTime = serverTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getReadTime() {
+        return readTime;
+    }
+
+    public void setReadTime(long readTime) {
+        this.readTime = readTime;
+    }
 
     public long getEndTime() {
         return endTime;

@@ -230,22 +230,22 @@ public class SocketData {
 
     //6.26 消息直接存库
     public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg, int state) {
-        //普通消息
+                //普通消息
 
-        if (msg != null) {
-            //存库处理
-            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
-                    // .setMsgId(bean.getMsgIdList().get(0))
-                    //时间要和ack一起返回
-                    // .setTimestamp(System.currentTimeMillis())
-                    .build();
-            Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
-            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-            //时间戳
-            // msgAllBean.setTimestamp(bean.getTimestamp());
-            //是发送给群助手的消息直接发送成功
-            if (isNoAssistant(msgAllBean.getTo_uid(), msgAllBean.getGid())) {
+                if (msg != null) {
+                    //存库处理
+                    MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
+                            // .setMsgId(bean.getMsgIdList().get(0))
+                            //时间要和ack一起返回
+                            // .setTimestamp(System.currentTimeMillis())
+                            .build();
+                    Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
+                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
+                    msgAllBean.setMsg_id(msgAllBean.getMsg_id());
+                    //时间戳
+                    // msgAllBean.setTimestamp(bean.getTimestamp());
+                    //是发送给群助手的消息直接发送成功
+                    if (isNoAssistant(msgAllBean.getTo_uid(), msgAllBean.getGid())) {
                 msgAllBean.setSend_state(state);
             } else {
                 if (msgAllBean.getSurvival_time() == 0) {
@@ -487,8 +487,6 @@ public class SocketData {
             case UNRECOGNIZED:
                 break;
         }
-
-
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
         msg.setWrapMsg(0, wm);
         return msg;
@@ -961,7 +959,7 @@ public class SocketData {
         MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
                 .setTimestamp(timestamp)
                 .build();
-        return send4Base(toId, null, MsgBean.MessageType.READ, msg);
+        return send4Base(false,toId, null, MsgBean.MessageType.READ, msg);
     }
 
     /**

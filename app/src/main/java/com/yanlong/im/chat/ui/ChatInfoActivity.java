@@ -30,6 +30,7 @@ import com.yanlong.im.utils.ReadDestroyUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -165,11 +166,11 @@ public class ChatInfoActivity extends AppActivity {
             }
         });
 
-        ckSetRead.setChecked(fUserInfo.getRead() == 1);
+        ckSetRead.setChecked(fUserInfo.getMyRead() == 1);
         ckSetRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                fUserInfo.setRead(isChecked ? 1 : 0);
+                fUserInfo.setMyRead(isChecked ? 1 : 0);
                 taskSaveInfo();
                 taskFriendsSetRead(fuid,isChecked ? 1 : 0);
             }
@@ -404,6 +405,7 @@ public class ChatInfoActivity extends AppActivity {
                 if (response.body() == null) {
                     return;
                 }
+                EventBus.getDefault().post(new EventIsShowRead());
             }
         });
     }

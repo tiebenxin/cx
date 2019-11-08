@@ -51,17 +51,14 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
-import com.yanlong.im.chat.ui.ChatInfoActivity;
-import com.yanlong.im.chat.ui.GroupInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.view.LoadView;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.regex.Matcher;
@@ -153,12 +150,16 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewReadDestroy;
     private TextView txtReadDestroy;
     private ImageView imgReadDestroy;
-    private ImageView imgMeErrOt;
 
     private LinearLayout viewMeVoiceVideo;
     private LinearLayout viewOtVoiceVideo;
     private TextView txtMeVoiceVideo;
     private TextView txtOtVoiceVideo;
+    private LinearLayout viewRead;
+    private TextView tvRead;
+    private TextView tvReadTime;
+    private ImageView viewOtSurvivalTime;
+    private ImageView viewMeSurvivalTime;
 
 
     //自动寻找控件
@@ -259,8 +260,12 @@ public class ChatItemView extends LinearLayout {
         viewReadDestroy = rootView.findViewById(R.id.view_read_destroy);
         txtReadDestroy = rootView.findViewById(R.id.txt_read_destroy);
         imgReadDestroy = rootView.findViewById(R.id.img_read_destroy);
+        viewOtSurvivalTime = findViewById(R.id.view_ot_survival_time);
+        viewMeSurvivalTime = findViewById(R.id.view_me_survival_time);
 
-        imgMeErrOt = rootView.findViewById(R.id.img_me_err_ot);
+        viewRead = rootView.findViewById(R.id.view_read);
+        tvRead = rootView.findViewById(R.id.tv_read);
+        tvReadTime = rootView.findViewById(R.id.tv_read_time);
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -325,6 +330,9 @@ public class ChatItemView extends LinearLayout {
         viewMe8.setVisibility(GONE);
         viewOt8.setVisibility(GONE);
         viewLock.setVisibility(GONE);
+        viewRead.setVisibility(GONE);
+        viewOtSurvivalTime.setVisibility(GONE);
+        viewMeSurvivalTime.setVisibility(GONE);
         viewReadDestroy.setVisibility(GONE);
         img_me_4_play.setVisibility(View.GONE);
         img_me_4_time.setVisibility(View.GONE);
@@ -459,21 +467,33 @@ public class ChatItemView extends LinearLayout {
         txtOt1.setText(msg);
     }
 
+    //已读消息
+    public void setDataRead(long time) {
+        if (time == 0) {
+            viewRead.setVisibility(GONE);
+        } else {
+            viewRead.setVisibility(VISIBLE);
+            tvRead.setText("已读");
+            tvReadTime.setText(TimeToString.HH_MM(time) + "");
+        }
+    }
+
     /**
      * 音视频消息
+     *
      * @param msg
      */
-    public void setDataVoiceOrVideo(String msg,int type,OnClickListener onk) {
+    public void setDataVoiceOrVideo(String msg, int type, OnClickListener onk) {
         txtMeVoiceVideo.setText(msg);
         txtOtVoiceVideo.setText(msg);
         Drawable drawableVoice = getResources().getDrawable(R.drawable.svg_small_voice2);
         Drawable drawableVideo = getResources().getDrawable(R.drawable.svg_small_video2);
-        if(type == MsgBean.AuVideoType.Audio.getNumber()){
-            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo,drawableVoice,2);
-            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo,drawableVoice,0);
-        }else {
-            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo,drawableVideo,2);
-            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo,drawableVideo,0);
+        if (type == MsgBean.AuVideoType.Audio.getNumber()) {
+            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo, drawableVoice, 2);
+            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo, drawableVoice, 0);
+        } else {
+            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo, drawableVideo, 2);
+            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo, drawableVideo, 0);
         }
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
@@ -646,7 +666,7 @@ public class ChatItemView extends LinearLayout {
         SpannableString span = new SpannableString(url);
         span.setSpan(new ClickableSpan() {
             @Override
-            public void onClick(@androidx.annotation.NonNull View view) {
+            public void onClick(@NonNull View view) {
                 Intent intent = new Intent(getContext(), WebPageActivity.class);
                 intent.putExtra(WebPageActivity.AGM_URL, url);
 //                Uri uri = Uri.parse(url);
@@ -713,12 +733,12 @@ public class ChatItemView extends LinearLayout {
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
                 imgOt4.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
 
-                RelativeLayout.LayoutParams layoutParams=( RelativeLayout.LayoutParams)img_me_4_time.getLayoutParams();
-                layoutParams.setMargins(w-105,h-55,0,0);
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) img_me_4_time.getLayoutParams();
+                layoutParams.setMargins(w - 105, h - 55, 0, 0);
                 img_me_4_time.setLayoutParams(layoutParams);
 
-                RelativeLayout.LayoutParams layoutParamsOT=( RelativeLayout.LayoutParams)img_ot_4_time.getLayoutParams();
-                layoutParamsOT.setMargins(w-105,h-55,0,0);
+                RelativeLayout.LayoutParams layoutParamsOT = (RelativeLayout.LayoutParams) img_ot_4_time.getLayoutParams();
+                layoutParamsOT.setMargins(w - 105, h - 55, 0, 0);
                 img_ot_4_time.setLayoutParams(layoutParamsOT);
                 long currentTime = videoMessage.getDuration();
                 if (currentTime < 10) {
@@ -775,10 +795,10 @@ public class ChatItemView extends LinearLayout {
                 setImgageProg(null);
             }
         }
-        if (null!=pg){
-            if (pg.intValue()==100||pg.intValue()==0){
+        if (null != pg) {
+            if (pg.intValue() == 100 || pg.intValue() == 0) {
                 setVideoIMGShow(true);
-            }else{
+            } else {
                 setVideoIMGShow(false);
             }
         }
@@ -793,7 +813,9 @@ public class ChatItemView extends LinearLayout {
         }
 
     }
-    private   RequestOptions options =null;
+
+    private RequestOptions options = null;
+
     public void setData4(final ImageMessage image, final Uri uri, final EventPic eventPic, Integer pg) {
         if (uri != null) {
 
@@ -925,11 +947,11 @@ public class ChatItemView extends LinearLayout {
         }
     }
 
-    public void setVideoIMGShow(boolean show){
-        if (show){
+    public void setVideoIMGShow(boolean show) {
+        if (show) {
             img_me_4_play.setVisibility(View.VISIBLE);
             img_me_4_time.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             img_me_4_play.setVisibility(View.INVISIBLE);
             img_me_4_time.setVisibility(View.INVISIBLE);
         }
@@ -968,6 +990,7 @@ public class ChatItemView extends LinearLayout {
     }
 
     private Context mContext;
+
     public void setReadDestroy(String gid, long uid, int type, String info) {
         txtReadDestroy.setText(info);
         if (type == 0) {
@@ -980,8 +1003,8 @@ public class ChatItemView extends LinearLayout {
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext=context;
-        options=new RequestOptions().centerCrop() .transform(new RoundTransform(mContext,10));
+        mContext = context;
+        options = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View viewRoot = inflater.inflate(R.layout.view_chat_item, this);
@@ -997,7 +1020,6 @@ public class ChatItemView extends LinearLayout {
             case 0://正常
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(INVISIBLE);
-                imgMeErrOt.setVisibility(INVISIBLE);
                 break;
             case 1://失败
                 imgMeErr.clearAnimation();
@@ -1015,14 +1037,12 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.setVisibility(INVISIBLE);
                 break;
             case 3: //阅后即焚
-                LogUtil.getLog().d("setErr","设置阅后即焚消息");
-                if(isMe){
-                    imgMeErr.clearAnimation();
-                    imgMeErr.setVisibility(VISIBLE);
-                    imgMeErr.setImageResource(R.mipmap.icon_read_destroy_seting);
-                }else{
-                    imgMeErrOt.setVisibility(VISIBLE);
-                    imgMeErrOt.setImageResource(R.mipmap.icon_read_destroy_seting);
+                imgMeErr.clearAnimation();
+                imgMeErr.setVisibility(INVISIBLE);
+                if (isMe) {
+                    viewMeSurvivalTime.setVisibility(View.VISIBLE);
+                } else {
+                    viewOtSurvivalTime.setVisibility(View.VISIBLE);
                 }
                 break;
             default: // 其他状态如-1:待发送

@@ -164,7 +164,8 @@ public class ChatEnum {
      * 消息type
      * */
     @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL,
-            UNRECOGNIZED, EMessageType.MSG_VIDEO,EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK,EMessageType.CHANGE_SURVIVAL_TIME,EMessageType.READ})
+            UNRECOGNIZED, EMessageType.MSG_VIDEO,EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK,EMessageType.CHANGE_SURVIVAL_TIME,
+            EMessageType.READ,EMessageType.MSG_VOICE_VIDEO_NOTICE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别

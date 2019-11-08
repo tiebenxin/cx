@@ -113,20 +113,7 @@
                     style="@style/app_check" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/view_set_read"
-                style="@style/app_layout_list2_item">
 
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_marginRight="@dimen/app_margin_item"
-                    android:layout_weight="1"
-                    android:text="设置已读消息" />
-
-                <CheckBox
-                    android:id="@+id/ck_set_read"
-                    style="@style/app_check" />
-            </LinearLayout>
         </LinearLayout>
 
 
@@ -165,6 +152,31 @@
             android:paddingLeft="@dimen/app_margin_main"
             android:paddingRight="@dimen/app_margin_main"
             android:text="如果设置该选项,该聊天里面发送和接受消息将在阅读后指定时间内消失" />
+
+
+        <LinearLayout
+            android:id="@+id/view_set_read"
+            style="@style/app_layout_list2_item"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_weight="1"
+                android:text="开启消息已读" />
+
+            <CheckBox
+                android:id="@+id/ck_set_read"
+                style="@style/app_check" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:paddingLeft="@dimen/app_margin_main"
+            android:paddingRight="@dimen/app_margin_main"
+            android:text="查看当前会话消息已读状态,如果关闭已读回执,您也将无法查看他人的消息已读回执" />
 
 
         <LinearLayout style="@style/app_layout_list2">

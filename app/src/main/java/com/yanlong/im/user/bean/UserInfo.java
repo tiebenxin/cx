@@ -44,7 +44,10 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer displaydetail;//显示详情(0:关闭|1:打开)
     private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单|9:系统用户，如小助手)
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
-    private int read; //已读开关(0:否|1:是)
+    private int masterRead;//已读总开关(0:关闭|1:打开)
+    private int myRead;//我对100101是否开了已读(0:否|1:是)
+    private int friendRead;//100101对我是否开了已读(0:否|1:是)
+
     private boolean emptyPassword = false;// 是否未设置密码
 
     //阅后即焚
@@ -70,12 +73,28 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private boolean isChecked = false;
 
 
-    public int getRead() {
-        return read;
+    public int getMasterRead() {
+        return masterRead;
     }
 
-    public void setRead(int read) {
-        this.read = read;
+    public void setMasterRead(int masterRead) {
+        this.masterRead = masterRead;
+    }
+
+    public int getMyRead() {
+        return myRead;
+    }
+
+    public void setMyRead(int myRead) {
+        this.myRead = myRead;
+    }
+
+    public int getFriendRead() {
+        return friendRead;
+    }
+
+    public void setFriendRead(int friendRead) {
+        this.friendRead = friendRead;
     }
 
     public Integer getDestroy() {

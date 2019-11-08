@@ -48,7 +48,6 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private MsgDao msgDao;
     private LinearLayout viewSelectBackground;
     private TextView tvNewVersions;
-    private CheckBox cbRead;
 
 
     @Override
@@ -73,7 +72,6 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         cbVoice = findViewById(R.id.cb_voice);
         viewSelectBackground = findViewById(R.id.view_select_background);
         tvNewVersions = findViewById(R.id.tv_new_versions);
-        cbRead = findViewById(R.id.cb_read);
 
         SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
@@ -129,14 +127,6 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
             }
         });
 
-        //已读功能
-        // TODO: 2019/11/5 0005 已读总开关功能未完成
-        cbRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-            }
-        });
     }
 
 

@@ -146,26 +146,6 @@
         <View
             style="@style/app_line" />
 
-        <LinearLayout
-            style="@style/app_layout_list2_item">
-
-            <TextView
-                style="@style/app_txt_title_2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="消息已读" />
-
-            <CheckBox
-                android:id="@+id/cb_read"
-                style="@style/app_check" />
-
-        </LinearLayout>
-
-
-        <View
-            style="@style/app_line"
-            android:layout_marginTop="@dimen/app_margin_item_top" />
 
         <LinearLayout
             android:id="@+id/view_clear"
