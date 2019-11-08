@@ -363,7 +363,13 @@ public class GroupInfoActivity extends AppActivity {
         topListView.setAdapter(new RecyclerViewTopAdapter());
         viewGroupVerif.setVisibility(View.GONE);
         txtGroupName.setText(TextUtils.isEmpty(ginfo.getName()) ? "未设置" : ginfo.getName());
-        txtGroupNick.setText(ginfo.getMygroupName());
+        if (StringUtil.isNotNull(ginfo.getMygroupName())) {
+            txtGroupNick.setText(ginfo.getMygroupName());
+        } else {
+            if (UserAction.getMyInfo() != null) {
+                txtGroupNick.setText(UserAction.getMyInfo().getName());
+            }
+        }
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
         ckTop.setChecked(ginfo.getIsTop() == 1);
