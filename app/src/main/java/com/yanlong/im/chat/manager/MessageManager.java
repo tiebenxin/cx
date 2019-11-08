@@ -137,6 +137,9 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
 //        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
+            return true;
+        }
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
@@ -224,7 +227,7 @@ public class MessageManager {
                 break;
             case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊，可能会有群主退群，涉及群主迭代
                 removeGroupMember(wrapMessage);
-                refreshGroupInfo(bean.getGid());
+                refreshGroupInfo(wrapMessage.getGid());
                 notifyGroupChange(false);
                 hasNotified = true;
                 break;
@@ -947,7 +950,7 @@ public class MessageManager {
      * @param msg
      */
     private void updateUserAvatarAndNick(MsgBean.UniversalMessage.WrapMessage msg, boolean isList) {
-        if (msg.getMsgType().getNumber() > 100) {//通知类消息
+        if (msg.getMsgType() == MsgBean.MessageType.UNRECOGNIZED || msg.getMsgType().getNumber() > 100) {//通知类消息
             return;
         }
         if (isList) {
