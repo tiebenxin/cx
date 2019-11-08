@@ -199,7 +199,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
-                intent.putExtra(CommonSetingActivity.SETING, ginfo.getMygroupName());
+                intent.putExtra(CommonSetingActivity.SETING, txtGroupNick.getText().toString());
 
                 startActivityForResult(intent, GROUP_NICK);
             }
