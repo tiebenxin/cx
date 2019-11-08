@@ -485,8 +485,8 @@ public class MainActivity extends AppActivity {
                 } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
                     SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
                 }
-                EventRefreshChat eventRefreshChat= new EventRefreshChat();
-                eventRefreshChat.isScrollBottom=true;
+                EventRefreshChat eventRefreshChat = new EventRefreshChat();
+                eventRefreshChat.isScrollBottom = true;
                 EventBus.getDefault().post(eventRefreshChat);
 //                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
             }
@@ -530,6 +530,11 @@ public class MainActivity extends AppActivity {
         showMinimizeVoiceView(event.isStartRunThread);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void videoActivityEvent(EventFactory.VideoActivityEvent event) {
+        IntentUtil.gotoActivity(MainActivity.this, VideoActivity.class);
+    }
+
     /**
      * 显示浮动按钮的音视频时长
      *
@@ -537,7 +542,9 @@ public class MainActivity extends AppActivity {
      */
     private void showMinimizeVoiceView(boolean isStartRunThread) {
         if (mVoiceMinimizeEvent != null && mVoiceMinimizeEvent.isCallEstablished) {// 是否接听
-            mBtnMinimizeVoice.show(MyAppLication.getInstance().getApplicationContext(), getWindow());
+            if (!mBtnMinimizeVoice.isShown()) {
+                mBtnMinimizeVoice.show(MyAppLication.getInstance().getApplicationContext(), getWindow());
+            }
             if (!isFinishing() && isStartRunThread) {
                 mBtnMinimizeVoice.updateCallTime(mVoiceMinimizeEvent.showTime);
                 mHandler.postDelayed(runnable, TIME);

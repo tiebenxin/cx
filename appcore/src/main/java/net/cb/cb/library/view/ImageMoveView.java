@@ -201,7 +201,7 @@ public class ImageMoveView extends RelativeLayout {
         // 设定透明度
         params.alpha = 10;
         // 设定内部文字对齐方式
-        params.gravity = Gravity.LEFT | Gravity.TOP;
+        params.gravity = Gravity.RIGHT | Gravity.TOP;
         // 设置背景透明
         params.format= PixelFormat.RGBA_8888;
 
@@ -232,7 +232,7 @@ public class ImageMoveView extends RelativeLayout {
                         params.x = paramX + dx;
                         params.y = paramY + dy;
                         // 更新悬浮窗位置
-                        wm.updateViewLayout(floatingViewObj, params);
+//                        wm.updateViewLayout(floatingViewObj, params);
                         break;
                     case MotionEvent.ACTION_UP:
                         // 判断是否触发点击事件
