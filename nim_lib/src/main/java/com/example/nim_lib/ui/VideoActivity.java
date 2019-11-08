@@ -161,6 +161,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private TextView txtVideoTime;
     private CheckBox cbChangeVoice;
     private CheckBox cbConvertCamera;
+    private CheckBox cbHandsFree;
     private ImageView imgMinimizeVideo;
     private View touchLayout;
 
@@ -266,6 +267,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         layoutVoice = findViewById(R.id.layout_voice);
         txtLifeTime = findViewById(R.id.txt_life_time);
         cbMute = findViewById(R.id.cb_mute);
+        cbHandsFree = findViewById(R.id.cb_hands_free);
         txtMessage = findViewById(R.id.txt_message);
         txtMessageVideo = findViewById(R.id.txt_message_video);
     }
@@ -282,6 +284,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         imgMinimizeVideo.setOnClickListener(this);
         imgMinimize.setOnClickListener(this);
         cbMute.setOnClickListener(this);
+        cbHandsFree.setOnClickListener(this);
     }
 
     @Override
@@ -741,6 +744,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             if (state == AVChatType.AUDIO.getValue()) {
 //                showAudioInitLayout();
             } else {
+                PlayerManager.getManager().openSpeaker();
                 // 接通以后，自己是小屏幕显示图像，对方是大屏幕显示图像
                 initSmallSurfaceView();
 //                showVideoInitLayout();
@@ -930,24 +934,21 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
     };
 
-
+    /**
+     * 超时处理
+     * @param isSend
+     */
     public void onTimeOutBus(boolean isSend) {
-        Log.i(TAG, "来电超时，未接听 onTimeOutBus() isSend：" +isSend+" toUId："+toUId+" avChatData:"+avChatData.getChatId()+" mFriend:"+mFriend );
         AVChatProfile.getInstance().setCallIng(false);
-        // 电超时通知后端已挂断
-//            if (mFriend != null && mFriend != 0) {
-//                mAVChatController.auVideoHandup(mFriend, mAVChatType, mRoomId);
-//            }
         if (avChatData != null) {
             // toUId != null 主叫挂断不需要在发送消息
             if (isFirstFlg && toUId != null && toUId != 0) {
-                Log.i(TAG, "来电超时，未接听 toUId:" + toUId);
                 isFirstFlg = false;
                 mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
-                if(isSend){
+                if (isSend) {
                     sendEventBus(Preferences.NOTACCPET, AVChatExitCode.CANCEL);
                 }
-            }else{
+            } else {
                 isFirstFlg = false;
                 mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, mFriend);
             }
@@ -1035,6 +1036,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             AVChatManager.getInstance().disableVideo();
         }
         // 判断是否静音，扬声器是否开启，对界面相应控件进行显隐处理。
+        cbHandsFree.setChecked(PlayerManager.getManager().isOpenSpeaker());
 //        onVideoToAudio(AVChatManager.getInstance().isLocalAudioMuted(),
 //                AVChatManager.getInstance().speakerEnabled(),
 //                avChatData != null ? avChatData.getAccount() : account);

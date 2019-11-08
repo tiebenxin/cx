@@ -133,6 +133,7 @@ import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -1156,19 +1157,23 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
-                if (userDao != null) {
-                    UserInfo userInfo = userDao.findUserInfo(toUId);
-                    if (userInfo != null) {
-                        Bundle bundle = new Bundle();
-                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
-                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
-                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
-                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
-                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
-                        bundle.putString(Preferences.TOGID, toGid);
-                        bundle.putLong(Preferences.TOUID, toUId);
-                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
+                if (NetUtil.isNetworkConnected()) {
+                    if (userDao != null) {
+                        UserInfo userInfo = userDao.findUserInfo(toUId);
+                        if (userInfo != null) {
+                            Bundle bundle = new Bundle();
+                            bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                            bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                            bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
+                            bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
+                            bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
+                            bundle.putString(Preferences.TOGID, toGid);
+                            bundle.putLong(Preferences.TOUID, toUId);
+                            IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
+                        }
                     }
+                } else {
+                    showNetworkDialog();
                 }
             }
 
@@ -1186,19 +1191,23 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
-                if (userDao != null) {
-                    UserInfo userInfo = userDao.findUserInfo(toUId);
-                    if (userInfo != null) {
-                        Bundle bundle = new Bundle();
-                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
-                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
-                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
-                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
-                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
-                        bundle.putString(Preferences.TOGID, toGid);
-                        bundle.putLong(Preferences.TOUID, toUId);
-                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);
+                if (NetUtil.isNetworkConnected()) {
+                    if (userDao != null) {
+                        UserInfo userInfo = userDao.findUserInfo(toUId);
+                        if (userInfo != null) {
+                            Bundle bundle = new Bundle();
+                            bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
+                            bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                            bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
+                            bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
+                            bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
+                            bundle.putString(Preferences.TOGID, toGid);
+                            bundle.putLong(Preferences.TOUID, toUId);
+                            IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);
+                        }
                     }
+                } else {
+                    showNetworkDialog();
                 }
             }
 
@@ -1207,6 +1216,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
+    }
+
+    /**
+     * 显示网络错误提示
+     */
+    private void showNetworkDialog() {
+        AlertYesNo alertYesNo = new AlertYesNo();
+        alertYesNo.init(ChatActivity.this, null, "当前网络不可用，请检查你的网络设置", "确定", null, new AlertYesNo.Event() {
+            @Override
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes() {
+
+            }
+        });
+        alertYesNo.show();
     }
 
     private void uploadVoice(String file, final MsgAllBean bean) {
