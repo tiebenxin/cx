@@ -3,6 +3,7 @@ package com.example.nim_lib.module;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 import com.netease.nimlib.sdk.Observer;
 
@@ -13,14 +14,13 @@ import java.util.List;
  * 音视频通话时超时监听处理
  * Created by weilv on 17/9/11.
  */
-
 public class AVChatTimeoutObserver {
     private static final String TAG = "AVChatTimeoutObserver";
     private List<TimeoutObserver> timeoutObservers = new ArrayList<>();
     private List<Observer<Integer>> timeoutObserverLocal = new ArrayList<>(1); // 来电or呼出超时监听
     private Handler uiHandler;
-    private final int OUTGOING_TIME_OUT = 60 * 1000;
-    private final int INCOMING_TIME_OUT = 60 * 1000;
+    private final int OUTGOING_TIME_OUT = 59 * 1000;
+    private final int INCOMING_TIME_OUT = 59 * 1000;
 
     private static class InstanceHolder {
         public final static AVChatTimeoutObserver instance = new AVChatTimeoutObserver();
@@ -56,8 +56,10 @@ public class AVChatTimeoutObserver {
         }
 
         if (register) {
+            Log.i(TAG, "来电超时add()");
             observers.add(observer);
         } else {
+            Log.i(TAG, "来电超时 remove()");
             observers.remove(observer);
         }
     }
@@ -85,7 +87,7 @@ public class AVChatTimeoutObserver {
 
         @Override
         public void run() {
-//            LogUtil.i(TAG, "notify timeout ");
+            Log.i(TAG, "notify timeout ");
 
             notifyObservers(timeoutObserverLocal, 0);
         }
@@ -103,7 +105,7 @@ public class AVChatTimeoutObserver {
 
     private void removeAllTimeout() {
 
-//        LogUtil.i(TAG, "remove all timeout");
+        Log.i(TAG, "remove all timeout");
 
         for (TimeoutObserver observer : timeoutObservers) {
             uiHandler.removeCallbacks(observer);

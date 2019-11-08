@@ -64,6 +64,12 @@ public class EventFactory {
     }
 
     /**
+     * 开启音视频界面
+     */
+    public static class VideoActivityEvent extends BaseEvent {
+    }
+
+    /**
      * 网络监听
      */
     public static class EventNetStatus {

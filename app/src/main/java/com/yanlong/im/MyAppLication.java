@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.event.EventFactory;
+import com.example.nim_lib.ui.VideoActivity;
 import com.jrmf360.tools.JrmfClient;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.LoginInfo;
@@ -227,7 +228,6 @@ public class MyAppLication extends MainApplication {
 
     }
 
-
     private void initUPushPre() {
         UMConfigure.init(this, "5d53659c570df3d281000225",
                 "Umeng", UMConfigure.DEVICE_TYPE_PHONE,
@@ -237,12 +237,9 @@ public class MyAppLication extends MainApplication {
         //极光推送初始化
         JPushInterface.setDebugMode(true);
         JPushInterface.init(this);
-
         MiPushClient.getRegId(getApplicationContext());
 
-
     }
-
 
     private void initWeixinConfig() {
         PlatformConfig.setWeixin("wxf84321334bcb8c56", "cd084970cc54cbae19782c761bc2885f");
@@ -263,9 +260,15 @@ public class MyAppLication extends MainApplication {
                 EventBus.getDefault().post(enent);
                 // 打开浮动窗口权限时，重新显示音视频浮动按钮
                 if (AVChatProfile.getInstance().isAVMinimize()) {
-                    EventFactory.ShowVoiceMinimizeEvent event= new EventFactory.ShowVoiceMinimizeEvent();
-                    event.isStartRunThread=false;
+                    EventFactory.ShowVoiceMinimizeEvent event = new EventFactory.ShowVoiceMinimizeEvent();
+                    event.isStartRunThread = false;
                     EventBus.getDefault().post(event);
+                } else {
+                    // 音视频从后台切回前台时判断是否需要打开音视频界面
+                    if (VideoActivity.returnVideoActivity) {
+                        VideoActivity.returnVideoActivity = false;
+                        EventBus.getDefault().post(new EventFactory.VideoActivityEvent());
+                    }
                 }
             }
 
@@ -278,8 +281,8 @@ public class MyAppLication extends MainApplication {
                 EventBus.getDefault().post(enent);
                 // 隐藏音视频浮动按钮
                 if (AVChatProfile.getInstance().isAVMinimize()) {
-                    EventFactory.CloseMinimizeEvent event= new EventFactory.CloseMinimizeEvent();
-                    event.isClose= false;
+                    EventFactory.CloseMinimizeEvent event = new EventFactory.CloseMinimizeEvent();
+                    event.isClose = false;
                     EventBus.getDefault().post(event);
                 }
             }
