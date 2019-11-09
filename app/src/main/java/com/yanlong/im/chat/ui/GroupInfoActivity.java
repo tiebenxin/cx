@@ -233,6 +233,7 @@ public class GroupInfoActivity extends AppActivity {
                     if (!TextUtils.isEmpty(note)) {
                         Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
                         intent.putExtra(GroupNoteDetailActivity.NOTE, ginfo.getAnnouncement());
+                        intent.putExtra(GroupNoteDetailActivity.GID, gid);
                         intent.putExtra(GroupNoteDetailActivity.IS_OWNER, false);
                         startActivity(intent);
                     }

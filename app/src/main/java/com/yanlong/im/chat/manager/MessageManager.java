@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -854,7 +855,8 @@ public class MessageManager {
     private boolean updateAtMessage(MsgBean.UniversalMessage.WrapMessage msg) {
         boolean isAt = false;
         String gid = msg.getGid();
-        String message = msg.getAt().getMsg();
+        MsgBean.AtMessage atMessage = msg.getAt();
+        String message = atMessage.getMsg();
         int atType = msg.getAt().getAtType().getNumber();
         if (atType == 0) {
             List<Long> list = msg.getAt().getUidList();
@@ -871,6 +873,9 @@ public class MessageManager {
                 }
             }
         } else {
+            if (atMessage.getUidList() == null || atMessage.getUidList().size() == 0) {//是群公告
+                refreshGroupInfo(msg.getGid());
+            }
             Log.v(TAG, "@所有人");
             msgDao.atMessage(gid, message, atType);
             playDingDong();

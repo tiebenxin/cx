@@ -14,11 +14,16 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.ActivityGroupNoteDetailBinding;
 
+import net.cb.cb.library.bean.EventGroupChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -44,6 +49,7 @@ public class GroupNoteDetailActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_group_note_detail);
         Intent intent = getIntent();
         boolean isOwner = intent.getBooleanExtra(IS_OWNER, false);
@@ -51,21 +57,26 @@ public class GroupNoteDetailActivity extends AppActivity {
         gid = intent.getStringExtra(GID);
         note = intent.getStringExtra(NOTE);
         if (isOwner) {
-            ui.etTxt.setVisibility(View.VISIBLE);
-            ui.tvContent.setVisibility(View.GONE);
-            ui.etTxt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
-            if (!TextUtils.isEmpty(note)) {
-                ui.etTxt.setText(note);
-            } else {
-                ui.etTxt.setHint("群公告");
-            }
+//            ui.etTxt.setVisibility(View.VISIBLE);
+//            ui.tvContent.setVisibility(View.GONE);
+//            ui.etTxt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(500)});
+//            if (!TextUtils.isEmpty(note)) {
+//                ui.etTxt.setText(note);
+//            } else {
+//                ui.etTxt.setHint("群公告");
+//            }
+            initNote();
             ui.headView.getActionbar().setTxtRight("编辑");
         } else {
-            ui.etTxt.setVisibility(View.GONE);
-            ui.tvContent.setVisibility(View.VISIBLE);
-            ui.tvContent.setText(note);
+            initNote();
         }
         initEvent();
+    }
+
+    private void initNote() {
+        ui.etTxt.setVisibility(View.GONE);
+        ui.tvContent.setVisibility(View.VISIBLE);
+        ui.tvContent.setText(note);
     }
 
     private void initEvent() {
@@ -141,6 +152,22 @@ public class GroupNoteDetailActivity extends AppActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventRefreshChat(EventGroupChange event) {
+        if (!event.isNeedLoad()) {
+            Group group = new MsgDao().groupNumberGet(gid);
+            if (group != null) {
+                String note2 = group.getAnnouncement();
+                if (note2 != null && note != null) {
+                    if (!note2.equals(note)) {
+                        note = note2;
+                        initNote();
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -160,5 +187,11 @@ public class GroupNoteDetailActivity extends AppActivity {
                 finish();
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 }
