@@ -61,13 +61,21 @@ public class MsgConversionBean {
             if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
                 msgAllBean.setRead(true);
             } else {
-                msgAllBean.setRead(false);
+                if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CENCAL) {
+                    msgAllBean.setRead(true);
+                } else {
+                    msgAllBean.setRead(false);
+                }
             }
         } else {//私聊
             if (MessageManager.SESSION_FUID != null && MessageManager.SESSION_FUID.equals(bean.getFromUid())) {
                 msgAllBean.setRead(true);
             } else {
-                msgAllBean.setRead(false);
+                if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CENCAL) {
+                    msgAllBean.setRead(true);
+                } else {
+                    msgAllBean.setRead(false);
+                }
             }
         }
         if (msg != null) {

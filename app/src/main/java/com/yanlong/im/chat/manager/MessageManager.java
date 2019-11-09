@@ -296,21 +296,16 @@ public class MessageManager {
                         if (pendingMessages.containsKey(cancelMsgId)) {
                             pendingMessages.remove(cancelMsgId);
                         } else {
-                            String gid = wrapMessage.getGid();
-                            if (!StringUtil.isNotNull(gid)) {
-                                gid = null;
-                            }
-                            long fromUid = wrapMessage.getFromUid();
-                            updateSessionUnread(gid, fromUid, true);
                             msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
                         }
                     } else {
-                        String gid = wrapMessage.getGid();
-                        if (!StringUtil.isNotNull(gid)) {
-                            gid = null;
-                        }
-                        long fromUid = wrapMessage.getFromUid();
-                        updateSessionUnread(gid, fromUid, true);
+                        //TODO:saveMessageNew的有更新未读数
+//                        String gid = wrapMessage.getGid();
+//                        if (!StringUtil.isNotNull(gid)) {
+//                            gid = null;
+//                        }
+//                        long fromUid = wrapMessage.getFromUid();
+//                        updateSessionUnread(gid, fromUid, true);
                         msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
                     }
                     EventBus.getDefault().post(new EventRefreshChat());
@@ -451,16 +446,17 @@ public class MessageManager {
             } else {
                 DaoUtil.update(msgAllBean);
             }
+            boolean isCancel = msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL;
             if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
                 if (!loadGids.contains(msgAllBean.getGid())) {
                     loadGids.add(msgAllBean.getGid());
                     loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
                 } else {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
                     }
                     result = true;
                 }
@@ -472,19 +468,19 @@ public class MessageManager {
                 } else {
                     System.out.println(TAG + "--异步加载用户信息更新未读数");
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
                     }
                     result = true;
                 }
             } else {
                 if (!isList) {
-                    updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                    updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                     setMessageChange(true);
                 } else {
-                    updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                    updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
                 }
                 result = true;
             }
@@ -569,7 +565,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
-//        System.out.println(TAG + "--更新Session--updateSessionUnread");
+//        System.out.println(TAG + "--更新Session--updateSessionUnread" + "--isCancel=" + isCancel);
         boolean canChangeUnread = true;
         if (!TextUtils.isEmpty(gid)) {
             if (!TextUtils.isEmpty(SESSION_GID) && SESSION_GID.equals(gid)) {
@@ -587,7 +583,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, int count) {
-        System.out.println(TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
+//        System.out.println(TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
         msgDao.sessionReadUpdate(gid, from_uid, count);
     }
 
@@ -596,6 +592,7 @@ public class MessageManager {
      * @param isCancel 是否是撤销消息
      * */
     public synchronized void updatePendingSessionUnreadCount(String gid, Long uid, boolean isDisturb, boolean isCancel) {
+//        System.out.println(TAG + "--更新Session--updatePendingSessionUnreadCount--gid=" + gid + "--uid=" + uid + "--isCancel=" + isCancel);
         if (isCancel) {
             if (!TextUtils.isEmpty(gid)) {
                 if (pendingGroupUnread.containsKey(gid)) {
@@ -608,7 +605,7 @@ public class MessageManager {
                         pendingGroupUnread.put(gid, count);
                     }
                 } else {
-                    pendingGroupUnread.put(gid, isDisturb ? 0 : 1);
+                    pendingGroupUnread.put(gid, -1);
                 }
             } else {
                 if (pendingUserUnread.containsKey(uid)) {
@@ -621,8 +618,7 @@ public class MessageManager {
                         pendingUserUnread.put(uid, count);
                     }
                 } else {
-                    pendingUserUnread.put(uid, isDisturb ? 0 : 1);
-
+                    pendingUserUnread.put(uid, -1);
                 }
             }
         } else {
