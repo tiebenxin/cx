@@ -3,14 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical">
 
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_guidance"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <android.support.v4.view.ViewPager
             android:id="@+id/view_pager"
@@ -35,8 +36,8 @@
         android:id="@+id/iv_start"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@mipmap/bg_start_page"
         android:scaleType="fitCenter"
-        android:visibility="gone"/>
+        android:src="@mipmap/bg_start_page"
+        android:visibility="visible" />
 
 </LinearLayout>

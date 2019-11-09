@@ -1,14 +1,19 @@
 package com.example.nim_lib.bean;
 
 
+import com.example.nim_lib.util.SharedPreferencesUtil;
+
 public class TokenBean {
     private Long uid;
     private String accessToken;
     private String neteaseAccid;// 网易id
     private String neteaseToken;// 网易token
+    public long validTime;//有效时间，有效时间= token获取时间+ 有效期7天的毫秒值
+
     public void setUid(Long uid) {
         this.uid = uid;
     }
+
     public Long getUid() {
         return uid;
     }
@@ -16,6 +21,7 @@ public class TokenBean {
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
+
     public String getAccessToken() {
         return accessToken;
     }
@@ -35,4 +41,13 @@ public class TokenBean {
     public void setNeteaseToken(String neteaseToken) {
         this.neteaseToken = neteaseToken;
     }
+
+    public long getValidTime() {
+        return validTime;
+    }
+
+    public void setValidTime(long validTime) {
+        this.validTime = validTime;
+    }
+
 }

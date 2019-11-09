@@ -2104,18 +2104,23 @@ public class MsgDao {
      */
     public void msgSendStateToFail() {
         Realm realm = DaoUtil.open();
-        realm.beginTransaction();
-
-        RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class).equalTo("send_state", ChatEnum.ESendStatus.SENDING).or().equalTo("send_state", ChatEnum.ESendStatus.PRE_SEND).findAll();
-        if (list != null) {
-            for (MsgAllBean ls : list) {
-                ls.setSend_state(ChatEnum.ESendStatus.ERROR);
+        try {
+            realm.beginTransaction();
+            RealmResults<MsgAllBean> list = realm.where(MsgAllBean.class).equalTo("send_state", ChatEnum.ESendStatus.SENDING).or().equalTo("send_state", ChatEnum.ESendStatus.PRE_SEND).findAll();
+            if (list != null) {
+                for (MsgAllBean ls : list) {
+                    ls.setSend_state(ChatEnum.ESendStatus.ERROR);
+                }
+                realm.insertOrUpdate(list);
             }
-            realm.insertOrUpdate(list);
+            realm.commitTransaction();
+            realm.close();
+        }catch (Exception e){
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
         }
 
-        realm.commitTransaction();
-        realm.close();
     }
 
     //是否存在该消息,getChat=null 需要删除旧消息

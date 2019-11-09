@@ -6,6 +6,8 @@ public class TokenBean {
     private String accessToken;
     private String neteaseAccid;// 网易id
     private String neteaseToken;// 网易token
+    public long validTime;//有效时间，有效时间= token获取时间+ 有效期7天的毫秒值
+
     public void setUid(Long uid) {
         this.uid = uid;
     }
@@ -34,5 +36,24 @@ public class TokenBean {
 
     public void setNeteaseToken(String neteaseToken) {
         this.neteaseToken = neteaseToken;
+    }
+
+    public long getValidTime() {
+        return validTime;
+    }
+
+    public void setValidTime(long validTime) {
+        this.validTime = validTime;
+    }
+
+    /**
+     * token是否有效
+     */
+    public boolean isTokenValid() {
+        boolean isValid = false;
+        if (System.currentTimeMillis() < this.validTime) {
+            isValid = true;
+        }
+        return isValid;
     }
 }

@@ -37,6 +37,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
@@ -196,7 +197,6 @@ public class UserAction {
     }
 
 
-
     /***
      * 拉取服务器的自己的信息到数据库
      */
@@ -348,9 +348,11 @@ public class UserAction {
 
 
     /***
-     * 应用和保存token
+     * 应用和保存token,添加到http请求头
      */
     private void setToken(TokenBean token) {
+        long validTime = System.currentTimeMillis() + TimeToString.DAY * 7;
+        token.setValidTime(validTime);
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
     }
@@ -801,7 +803,7 @@ public class UserAction {
                 new RequestCallback<LoginInfo>() {
                     @Override
                     public void onSuccess(LoginInfo param) {
-                        if(param!=null){
+                        if (param != null) {
                             AVChatProfile.setAccount(param.getAccount());
                         }
                         LogUtil.getLog().d("UserAction", "onSuccess");
