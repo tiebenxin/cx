@@ -16,7 +16,8 @@ import java.lang.reflect.Type;
  */
 
 public class SharedPreferencesUtil {
-    private static final String TAG="SharedPreferencesUtil";
+    private static final String TAG = "SharedPreferencesUtil";
+
     //有时间抽个接口出来吧,利于模块管理
     public enum SPName {
         //这里定义xml的名字,统一管理
@@ -29,10 +30,12 @@ public class SharedPreferencesUtil {
         FIRST_TIME("first_time"),
         PHONE("phone"),
         IMAGE_HEAD("image_head"),
-        DEV_ID("uid"),
+        DEV_ID("uid"),//设备id
         SCROLL("scroll"),
         NOTIFICATION("notification"),
-        NEW_VESRSION("new_vesrsion");
+        NEW_VESRSION("new_vesrsion"),
+        UID("login_uid"),//当前登录用户uid
+        IM_ID("im_id");//当前登录用户IM_id及常信号
 
         private String name;
 
@@ -88,7 +91,7 @@ public class SharedPreferencesUtil {
      * @param name 配置名
      */
     public void save2Json(Object obj, String name) {
-        Log.i(TAG,"save2Json>>"+name);
+        Log.i(TAG, "save2Json>>" + name);
         String json = gson.toJson(obj);
         spEdit.putString(name, json);
         spEdit.commit();
@@ -118,10 +121,10 @@ public class SharedPreferencesUtil {
     public <T> T get4Json(Type typeOfT, String name) {
         String json = sharedPreferences.getString(name, "");
 
-        return gson.fromJson(json,typeOfT);
+        return gson.fromJson(json, typeOfT);
     }
 
-    public void clear(){
+    public void clear() {
         spEdit.clear().commit();
     }
 

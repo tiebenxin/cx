@@ -208,6 +208,7 @@ public class UserAction {
                     UserInfo userInfo = response.body().getData();
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
+                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
                     updateUserinfo2DB(userInfo);
                     MessageManager.getInstance().notifyRefreshUser(userInfo);

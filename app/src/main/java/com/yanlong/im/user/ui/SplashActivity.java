@@ -209,8 +209,10 @@ public class SplashActivity extends AppActivity {
     private void goActivity(boolean isFlast) {
         //同步使用友盟设备号,如果同步失败使用自己设备号
         TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+        Long uid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).get4Json(Long.class);
+//        String imId = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
         if (token != null) {
-            if (!token.isTokenValid() && NetUtil.isNetworkConnected()) {
+            if (!token.isTokenValid(uid) && NetUtil.isNetworkConnected()) {
                 updateToken(isFlast);
             } else {
                 userAction.login4tokenNotNet(token);

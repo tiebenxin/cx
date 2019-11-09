@@ -11,6 +11,7 @@ public class TokenBean {
     public void setUid(Long uid) {
         this.uid = uid;
     }
+
     public Long getUid() {
         return uid;
     }
@@ -18,6 +19,7 @@ public class TokenBean {
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
+
     public String getAccessToken() {
         return accessToken;
     }
@@ -47,13 +49,16 @@ public class TokenBean {
     }
 
     /**
-     * token是否有效
+     * token是否有效,备注：imId登录问题，未兼容
      */
-    public boolean isTokenValid() {
+    public boolean isTokenValid(Long uid) {
         boolean isValid = false;
-        if (System.currentTimeMillis() < this.validTime) {
-            isValid = true;
+        if (uid != null && uid.equals(this.uid)) {
+            if (System.currentTimeMillis() < this.validTime) {
+                isValid = true;
+            }
         }
+
         return isValid;
     }
 }
