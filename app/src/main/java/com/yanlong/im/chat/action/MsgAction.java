@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupJoinBean;
 import com.yanlong.im.chat.bean.GroupUserInfo;
+import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 
 import com.yanlong.im.chat.bean.MsgNotice;
@@ -218,8 +219,12 @@ public class MsgAction {
                         Group group = DaoUtil.findOne(Group.class, "gid", gid);
                         if (group != null && group.getUsers() != null) {
                             if (MessageManager.getInstance().isGroupValid(group)) {//在群中，才更新
-                                dao.groupNumberSave(newGroup);
-                                MessageManager.getInstance().updateCacheGroup(group);
+                                if (MessageManager.getInstance().isGroupValid(newGroup)) {
+                                    dao.groupNumberSave(newGroup);
+                                    MessageManager.getInstance().updateCacheGroup(group);
+                                } else {
+                                    dao.removeGroupMember(group.getGid(), UserAction.getMyId());
+                                }
                             } else {
                                 if (MessageManager.getInstance().isGroupValid(newGroup)) {//重新被拉进群，更新
                                     dao.groupNumberSave(newGroup);

@@ -98,14 +98,14 @@ public class GroupNoteDetailActivity extends AppActivity {
 //                    }
 //                    changeGroupAnnouncement(gid, content, groupNick);
 //                }
-                Intent intent =new Intent(GroupNoteDetailActivity.this,GroupNoteDetailEditActivity.class);
+                Intent intent = new Intent(GroupNoteDetailActivity.this, GroupNoteDetailEditActivity.class);
 //                groupNick = intent.getStringExtra(GROUP_NICK);
 //                gid = intent.getStringExtra(GID);
 //                note = intent.getStringExtra(NOTE);
-                intent.putExtra(GROUP_NICK,groupNick);
-                intent.putExtra(GID,gid);
-                intent.putExtra(NOTE,note);
-                startActivityForResult(intent,419);
+                intent.putExtra(GROUP_NICK, groupNick);
+                intent.putExtra(GID, gid);
+                intent.putExtra(NOTE, note);
+                startActivityForResult(intent, 419);
             }
         });
     }
@@ -144,13 +144,21 @@ public class GroupNoteDetailActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (null!=data){
-            String note= data.getExtras().getString(CONTENT);
-            Intent intent = new Intent();
-            intent.putExtra(CONTENT, note);
-            setResult(RESULT_OK, intent);
-//            onBackPressed();
-            finish();
+        if (null != data) {
+            if (resultCode == RESULT_OK) {
+                String note = data.getExtras().getString(CONTENT);
+                if (note == null) {
+                    return;
+                }
+                Intent intent = new Intent();
+                intent.putExtra(CONTENT, note);
+                setResult(RESULT_OK, intent);
+                finish();
+            } else if (resultCode == RESULT_CANCELED) {
+                Intent intent = new Intent();
+                setResult(RESULT_CANCELED, intent);
+                finish();
+            }
         }
     }
 }

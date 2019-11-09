@@ -2115,7 +2115,7 @@ public class MsgDao {
             }
             realm.commitTransaction();
             realm.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
@@ -2776,6 +2776,27 @@ public class MsgDao {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
                     list.remove(user);
+                }
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+    }
+
+    //移出群成员
+    public void removeGroupMember(String gid, long uid) {
+        Realm realm = DaoUtil.open();
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group != null) {
+                RealmList<MemberUser> list = group.getUsers();
+                MemberUser memberUser = list.where().equalTo("uid", uid).findFirst();
+                if (memberUser != null) {
+                    list.remove(memberUser);
                 }
             }
             realm.commitTransaction();
