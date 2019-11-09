@@ -199,7 +199,7 @@ public class GroupInfoActivity extends AppActivity {
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
-                intent.putExtra(CommonSetingActivity.SETING, ginfo.getMygroupName());
+                intent.putExtra(CommonSetingActivity.SETING, txtGroupNick.getText().toString());
 
                 startActivityForResult(intent, GROUP_NICK);
             }
@@ -363,7 +363,13 @@ public class GroupInfoActivity extends AppActivity {
         topListView.setAdapter(new RecyclerViewTopAdapter());
         viewGroupVerif.setVisibility(View.GONE);
         txtGroupName.setText(TextUtils.isEmpty(ginfo.getName()) ? "未设置" : ginfo.getName());
-        txtGroupNick.setText(ginfo.getMygroupName());
+        if (StringUtil.isNotNull(ginfo.getMygroupName())) {
+            txtGroupNick.setText(ginfo.getMygroupName());
+        } else {
+            if (UserAction.getMyInfo() != null) {
+                txtGroupNick.setText(UserAction.getMyInfo().getName());
+            }
+        }
         ckDisturb.setChecked(ginfo.getNotNotify() == 1);
         ckGroupSave.setChecked(ginfo.getSaved() == 1);
         ckTop.setChecked(ginfo.getIsTop() == 1);
