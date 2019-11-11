@@ -518,7 +518,7 @@
         </receiver>
 
         <activity
-            android:name=".user.ui.PictureExternalPreviewActivity"
+            android:name=".user.ui.image.PictureExternalPreviewActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
             <intent-filter>

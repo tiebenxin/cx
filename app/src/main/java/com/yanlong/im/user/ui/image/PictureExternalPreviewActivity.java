@@ -1,4 +1,4 @@
-package com.yanlong.im.user.ui;
+package com.yanlong.im.user.ui.image;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -331,6 +331,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         tv_title.setText(position + 1 + "/" + images.size());
         adapter = new SimpleFragmentAdapter();
         viewPager.setAdapter(adapter);
+//        AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
+//        mAdapter.bindData(images);
+//        viewPager.setAdapter(mAdapter);
         viewPager.setCurrentItem(position);
         indexPath = images.get(position).getPath();
 

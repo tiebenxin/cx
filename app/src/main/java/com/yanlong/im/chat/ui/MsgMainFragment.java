@@ -337,7 +337,7 @@ public class MsgMainFragment extends Fragment {
             case CoreEnum.ENetStatus.ERROR_ON_NET:
 //                viewNetwork.setVisibility(View.VISIBLE);
                 if (viewNetwork.getVisibility() == View.GONE) {
-                    viewNetwork.postDelayed(showRunnable, 3 * 1000);
+                    viewNetwork.postDelayed(showRunnable, 15 * 1000);
                 }
                 break;
             case CoreEnum.ENetStatus.SUCCESS_ON_NET:
