@@ -1290,6 +1290,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (mAVChatType == AVChatType.VIDEO.getValue()) {
             surfaceViewFixBefore43(smallSizePreviewLayout, largeSizePreviewLayout);
         }
+        mAVChatController.taskClearNotification(this);
     }
 
     @Override
