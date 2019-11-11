@@ -40,7 +40,7 @@ import android.widget.OverScroller;
  */
 public class PhotoViewAttacher implements View.OnTouchListener,
         View.OnLayoutChangeListener {
-    private static String TAG="PhotoViewAttacher-----------";
+    private static String TAG="PhotoViewAttacher2-----------";
 
     private static float DEFAULT_MAX_SCALE = 3.0f;
     private static float DEFAULT_MID_SCALE = 1.75f;

@@ -18,9 +18,10 @@ package com.luck.picture.lib.photoview;
 import android.annotation.TargetApi;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import android.view.MotionEvent;
 import android.view.View;
 
-class Compat {
+public class Compat {
 
     private static final int SIXTY_FPS_INTERVAL = 1000 / 60;
 
@@ -36,4 +37,23 @@ class Compat {
     private static void postOnAnimationJellyBean(View view, Runnable runnable) {
         view.postOnAnimation(runnable);
     }
+
+    public static int getPointerIndex(int action) {
+        if (VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB)
+            return getPointerIndexHoneyComb(action);
+        else
+            return getPointerIndexEclair(action);
+    }
+
+    @SuppressWarnings("deprecation")
+    @TargetApi(VERSION_CODES.ECLAIR)
+    private static int getPointerIndexEclair(int action) {
+        return (action & MotionEvent.ACTION_POINTER_ID_MASK) >> MotionEvent.ACTION_POINTER_ID_SHIFT;
+    }
+
+    @TargetApi(VERSION_CODES.HONEYCOMB)
+    private static int getPointerIndexHoneyComb(int action) {
+        return (action & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+    }
+
 }

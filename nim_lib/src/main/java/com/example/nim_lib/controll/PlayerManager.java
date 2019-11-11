@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 
 import com.example.nim_lib.R;
 
@@ -78,14 +79,84 @@ public class PlayerManager {
         if (mediaPlayer != null) {
             if (MODE_EARPIECE == mode) {
                 audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);// 把模式调成听筒放音模式
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);// 把模式调成听筒放音模式
+                } else {
+                    audioManager.setMode(AudioManager.MODE_IN_CALL);// 把模式调成听筒放音模式
+                }
                 audioManager.setSpeakerphoneOn(false);
             } else {
                 audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                audioManager.setMode(AudioManager.MODE_IN_CALL);
+                audioManager.setMode(AudioManager.MODE_RINGTONE);// 铃声:MODE_RINGTONE    普通:MODE_NORMAL
                 audioManager.setSpeakerphoneOn(true);// 把模式调成外放模式
             }
             mediaPlayer.start();
+        }
+    }
+
+    public void setMode(int mode) {
+        if (AudioManager.MODE_NORMAL == mode) {
+
+        } else if (AudioManager.MODE_IN_COMMUNICATION == mode) {
+
+        }
+    }
+
+    private static int currVolume = 0;
+
+    /**
+     * 打开扬声器
+     */
+    public void openSpeaker() {
+        try {
+            //判断扬声器是否在打开
+            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setMode(AudioManager.ROUTE_SPEAKER);
+            //获取当前通话音量
+            currVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+            if (!audioManager.isSpeakerphoneOn()) {
+                audioManager.setSpeakerphoneOn(true);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                        audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
+                        AudioManager.STREAM_VOICE_CALL);
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    /**
+     * 是否打开声声器
+     * @return
+     */
+    public boolean isOpenSpeaker() {
+        boolean isOpen = false;
+        try {
+            //判断扬声器是否在打开
+            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setMode(AudioManager.ROUTE_SPEAKER);
+            //获取当前通话音量
+            currVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+            isOpen = audioManager.isSpeakerphoneOn();
+        } catch (Exception e) {
+
+        }
+        return isOpen;
+    }
+
+    /**
+     * 关闭扬声器
+     */
+    public void closeSpeaker() {
+        try {
+            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager != null) {
+                if (audioManager.isSpeakerphoneOn()) {
+                    audioManager.setSpeakerphoneOn(false);
+                    audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, currVolume, AudioManager.STREAM_VOICE_CALL);
+                }
+            }
+        } catch (Exception e) {
         }
     }
 

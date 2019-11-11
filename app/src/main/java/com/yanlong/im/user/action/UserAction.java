@@ -37,6 +37,7 @@ import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.VersionUtil;
 import net.cb.cb.library.utils.encrypt.MD5;
 
@@ -207,6 +208,7 @@ public class UserAction {
                     UserInfo userInfo = response.body().getData();
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
+                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
                     updateUserinfo2DB(userInfo);
                     MessageManager.getInstance().notifyRefreshUser(userInfo);
@@ -347,9 +349,11 @@ public class UserAction {
 
 
     /***
-     * 应用和保存token
+     * 应用和保存token,添加到http请求头
      */
     private void setToken(TokenBean token) {
+        long validTime = System.currentTimeMillis() + TimeToString.DAY * 7;
+        token.setValidTime(validTime);
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
     }

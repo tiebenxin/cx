@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -140,6 +141,9 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
 //        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
+        if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
+            return true;
+        }
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
@@ -227,7 +231,7 @@ public class MessageManager {
                 break;
             case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊，可能会有群主退群，涉及群主迭代
                 removeGroupMember(wrapMessage);
-                refreshGroupInfo(bean.getGid());
+                refreshGroupInfo(wrapMessage.getGid());
                 notifyGroupChange(false);
                 hasNotified = true;
                 break;
@@ -296,21 +300,16 @@ public class MessageManager {
                         if (pendingMessages.containsKey(cancelMsgId)) {
                             pendingMessages.remove(cancelMsgId);
                         } else {
-                            String gid = wrapMessage.getGid();
-                            if (!StringUtil.isNotNull(gid)) {
-                                gid = null;
-                            }
-                            long fromUid = wrapMessage.getFromUid();
-                            updateSessionUnread(gid, fromUid, true);
                             msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
                         }
                     } else {
-                        String gid = wrapMessage.getGid();
-                        if (!StringUtil.isNotNull(gid)) {
-                            gid = null;
-                        }
-                        long fromUid = wrapMessage.getFromUid();
-                        updateSessionUnread(gid, fromUid, true);
+                        //TODO:saveMessageNew的有更新未读数
+//                        String gid = wrapMessage.getGid();
+//                        if (!StringUtil.isNotNull(gid)) {
+//                            gid = null;
+//                        }
+//                        long fromUid = wrapMessage.getFromUid();
+//                        updateSessionUnread(gid, fromUid, true);
                         msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
                     }
                     EventBus.getDefault().post(new EventRefreshChat());
@@ -499,16 +498,17 @@ public class MessageManager {
             } else {
                 DaoUtil.update(msgAllBean);
             }
+            boolean isCancel = msgAllBean.getMsg_type() == ChatEnum.EMessageType.MSG_CENCAL;
             if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid())) {
                 if (!loadGids.contains(msgAllBean.getGid())) {
                     loadGids.add(msgAllBean.getGid());
                     loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
                 } else {
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
                     }
                     result = true;
                 }
@@ -520,19 +520,19 @@ public class MessageManager {
                 } else {
                     System.out.println(TAG + "--异步加载用户信息更新未读数");
                     if (!isList) {
-                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                        updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                         setMessageChange(true);
                     } else {
-                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
                     }
                     result = true;
                 }
             } else {
                 if (!isList) {
-                    updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
+                    updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                     setMessageChange(true);
                 } else {
-                    updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, false);
+                    updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
                 }
                 result = true;
             }
@@ -613,7 +613,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
-//        System.out.println(TAG + "--更新Session--updateSessionUnread");
+//        System.out.println(TAG + "--更新Session--updateSessionUnread" + "--isCancel=" + isCancel);
         boolean canChangeUnread = true;
         if (!TextUtils.isEmpty(gid)) {
             if (!TextUtils.isEmpty(SESSION_GID) && SESSION_GID.equals(gid)) {
@@ -631,7 +631,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, int count) {
-        System.out.println(TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
+//        System.out.println(TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
         msgDao.sessionReadUpdate(gid, from_uid, count);
     }
 
@@ -640,6 +640,7 @@ public class MessageManager {
      * @param isCancel 是否是撤销消息
      * */
     public synchronized void updatePendingSessionUnreadCount(String gid, Long uid, boolean isDisturb, boolean isCancel) {
+//        System.out.println(TAG + "--更新Session--updatePendingSessionUnreadCount--gid=" + gid + "--uid=" + uid + "--isCancel=" + isCancel);
         if (isCancel) {
             if (!TextUtils.isEmpty(gid)) {
                 if (pendingGroupUnread.containsKey(gid)) {
@@ -652,7 +653,7 @@ public class MessageManager {
                         pendingGroupUnread.put(gid, count);
                     }
                 } else {
-                    pendingGroupUnread.put(gid, isDisturb ? 0 : 1);
+                    pendingGroupUnread.put(gid, -1);
                 }
             } else {
                 if (pendingUserUnread.containsKey(uid)) {
@@ -665,8 +666,7 @@ public class MessageManager {
                         pendingUserUnread.put(uid, count);
                     }
                 } else {
-                    pendingUserUnread.put(uid, isDisturb ? 0 : 1);
-
+                    pendingUserUnread.put(uid, -1);
                 }
             }
         } else {
@@ -902,7 +902,8 @@ public class MessageManager {
     private boolean updateAtMessage(MsgBean.UniversalMessage.WrapMessage msg) {
         boolean isAt = false;
         String gid = msg.getGid();
-        String message = msg.getAt().getMsg();
+        MsgBean.AtMessage atMessage = msg.getAt();
+        String message = atMessage.getMsg();
         int atType = msg.getAt().getAtType().getNumber();
         if (atType == 0) {
             List<Long> list = msg.getAt().getUidList();
@@ -919,6 +920,9 @@ public class MessageManager {
                 }
             }
         } else {
+            if (atMessage.getUidList() == null || atMessage.getUidList().size() == 0) {//是群公告
+                refreshGroupInfo(msg.getGid());
+            }
             Log.v(TAG, "@所有人");
             msgDao.atMessage(gid, message, atType);
             playDingDong();
@@ -994,7 +998,7 @@ public class MessageManager {
      * @param msg
      */
     private void updateUserAvatarAndNick(MsgBean.UniversalMessage.WrapMessage msg, boolean isList) {
-        if (msg.getMsgType().getNumber() > 100) {//通知类消息
+        if (msg.getMsgType() == MsgBean.MessageType.UNRECOGNIZED || msg.getMsgType().getNumber() > 100) {//通知类消息
             return;
         }
         if (isList) {

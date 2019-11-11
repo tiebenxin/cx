@@ -8,11 +8,15 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.ActivityGroupNoteDetailBinding;
 import com.yanlong.im.databinding.ActivityGroupNoteDetailEditBinding;
+import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -46,7 +50,7 @@ public class GroupNoteDetailEditActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_group_note_detail_edit);
         Intent intent = getIntent();
-        boolean isOwner =true;
+        boolean isOwner = true;
         groupNick = intent.getStringExtra(GROUP_NICK);
         gid = intent.getStringExtra(GID);
         note = intent.getStringExtra(NOTE);
@@ -116,21 +120,34 @@ public class GroupNoteDetailEditActivity extends AppActivity {
                 }
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-                    updateAndGetGroup();
+                    updateAndGetGroup(announcement);
+//                    createAndSaveMsg();
                     Intent intent = new Intent();
                     intent.putExtra(CONTENT, announcement);
-                    setResult(418, intent);
+                    setResult(RESULT_OK, intent);
                     finish();
                 }
             }
         });
     }
 
-    private void updateAndGetGroup() {
+    private void updateAndGetGroup(String note) {
         if (!TextUtils.isEmpty(gid)) {
             MsgDao dao = new MsgDao();
             Group group = dao.groupNumberGet(gid);
+            group.setAnnouncement(note);
             dao.groupNumberSave(group);
+        }
+    }
+
+    private void createAndSaveMsg() {
+        if (TextUtils.isEmpty(gid)) {
+            return;
+        }
+        AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + note, ChatEnum.EAtType.ALL);
+        MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
+        if (bean != null) {
+            SocketData.saveMessage(bean);
         }
     }
 }

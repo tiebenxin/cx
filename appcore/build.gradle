@@ -144,12 +144,12 @@ dependencies {
 
     api 'org.jsoup:jsoup:1.12.1'
     //极光推送
-    api 'cn.jiguang.sdk:jpush:3.3.6'
+    api 'cn.jiguang.sdk:jpush:3.3.8'
     api 'cn.jiguang.sdk:jcore:2.1.4'
-    api 'cn.jiguang.sdk.plugin:xiaomi:3.3.6'// 小米
-    api 'cn.jiguang.sdk.plugin:huawei:3.3.6'//华为
-    api 'cn.jiguang.sdk.plugin:meizu:3.3.6'//魅族
-    api 'cn.jiguang.sdk.plugin:oppo:3.3.6'// oppo
-    api 'cn.jiguang.sdk.plugin:vivo:3.3.6' //vivo
+    api 'cn.jiguang.sdk.plugin:xiaomi:3.3.8'// 小米
+    api 'cn.jiguang.sdk.plugin:huawei:3.3.8'//华为
+    api 'cn.jiguang.sdk.plugin:meizu:3.3.8'//魅族
+    api 'cn.jiguang.sdk.plugin:oppo:3.3.8'// oppo
+    api 'cn.jiguang.sdk.plugin:vivo:3.3.8' //vivo
 
 }

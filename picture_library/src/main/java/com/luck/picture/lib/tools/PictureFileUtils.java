@@ -2,6 +2,7 @@ package com.luck.picture.lib.tools;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -485,7 +486,6 @@ public class PictureFileUtils {
         {
             path.mkdirs();
         }
-
         return path + "/" + filename;
     }
 

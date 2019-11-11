@@ -37,7 +37,6 @@ import com.example.nim_lib.controll.AVChatController;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.PlayerManager;
 import com.example.nim_lib.event.EventFactory;
-import com.example.nim_lib.module.AVChatTimeoutObserver;
 import com.example.nim_lib.module.AVSwitchListener;
 import com.example.nim_lib.module.SimpleAVChatStateObserver;
 import com.example.nim_lib.net.CallBack;
@@ -145,6 +144,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private boolean isReleasedVideo = false;
 
     /**
+     * singleInstance 模式下，用于退回后台， 最小化后，在进入APP默认会进入LAUNCHER的activity所处在的栈，没有的话则会重新启动LAUNCHER，
+     * 此时在LAUNCHER的MainAcitity 的onStart()方法判断是否需要跳转到VideoActivity
+     */
+    public static boolean returnVideoActivity;
+
+    /**
      * surface view
      */
     private LinearLayout largeSizePreviewLayout;
@@ -156,6 +161,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private TextView txtVideoTime;
     private CheckBox cbChangeVoice;
     private CheckBox cbConvertCamera;
+    private CheckBox cbHandsFree;
     private ImageView imgMinimizeVideo;
     private View touchLayout;
 
@@ -174,11 +180,17 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private int mPassedTime = 0;
     // 等待时间
     private int mWaitTime = 0;
+    // 收到等待时间
+    private int mOutWaitTime = 0;
     // 显示等待消息时间
     private int mShowWaitTime = 0;
     Handler mHandler = new Handler();
     // 设置28秒没接弹出提示
     private final int WAIT_TIME = 28;
+    // 设置超时时间28+10+22秒
+    private final int INCOMING_TIME_OUT = 22;
+    // 收到音视频消息多久没收时主动挂断
+    private final int OUTCOMING_TIME_OUT = 60;
     // 设置提示消息多少秒后消失
     private final int SHOW_WAIT_TIME = 10;
     // 1秒刷新
@@ -255,6 +267,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         layoutVoice = findViewById(R.id.layout_voice);
         txtLifeTime = findViewById(R.id.txt_life_time);
         cbMute = findViewById(R.id.cb_mute);
+        cbHandsFree = findViewById(R.id.cb_hands_free);
         txtMessage = findViewById(R.id.txt_message);
         txtMessageVideo = findViewById(R.id.txt_message_video);
     }
@@ -271,6 +284,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         imgMinimizeVideo.setOnClickListener(this);
         imgMinimize.setOnClickListener(this);
         cbMute.setOnClickListener(this);
+        cbHandsFree.setOnClickListener(this);
     }
 
     @Override
@@ -282,8 +296,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (v.getId() == R.id.img_cancle || v.getId() == R.id.img_hand_up
                 || v.getId() == R.id.img_refuse || v.getId() == R.id.img_hand_up2) {
             AVChatProfile.getInstance().setCallIng(false);
-            // 移除超时监听
-            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall, VideoActivity.this);
             if (avChatData != null) {
                 mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
                 if (v.getId() == R.id.img_cancle) {
@@ -394,6 +406,10 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                     txtWaitMsg.setText(R.string.avchat_audio_invitation);
                 }
                 PlayerManager.getManager().play(MODE_SPEAKER);
+                //  开始记录等待时间 60秒没接，主动挂断
+                if (!isFinishing()) {
+                    mHandler.postDelayed(runnableOutWait, TIME);
+                }
 //                AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.PEER_REJECT);
                 layoutInvitationVoice.setVisibility(View.VISIBLE);
                 layoutVoiceWait.setVisibility(View.GONE);
@@ -435,26 +451,26 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         AVChatManager.getInstance().observeHangUpNotification(callHangupObserver, register);
         AVChatManager.getInstance().observeControlNotification(callControlObserver, register);
         AVChatManager.getInstance().observeCalleeAckNotification(callAckObserver, register);
-        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, register, this);
+//        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, register, mIsInComingCall, this);
         PhoneCallStateObserver.getInstance().observeAutoHangUpForLocalPhone(autoHangUpForLocalPhoneObserver, register);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "onDestroy");
+        returnVideoActivity = false;
         PlayerManager.getManager().stop();
-//        AVChatSoundPlayer.instance().stop();
         AVChatProfile.getInstance().setCallIng(false);
         AVChatProfile.getInstance().setAVMinimize(false);
         AVChatManager.getInstance().disableRtc();
-        // 移除超时监听
-        AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall, VideoActivity.this);
         releaseVideo();
         registerObserves(false);
         if (!isFinishing()) {
             mHandler.removeCallbacks(runnable);
             mHandler.removeCallbacks(runnableWait);
             mHandler.removeCallbacks(runnableShowWait);
+            mHandler.removeCallbacks(runnableOutWait);
             if (EventBus.getDefault().isRegistered(this)) {
                 EventBus.getDefault().unregister(this);
             }
@@ -470,7 +486,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventNetStatus(EventFactory.EventNetStatus event) {
-        Log.i(TAG, "Hello:" + event.getStatus());
         resetNetWorkView(event.getStatus());
     }
 
@@ -526,7 +541,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void run() {
             mPassedTime++;
-            Log.d("1212", "" + mPassedTime);
             int hour = mPassedTime / 3600;
             int min = mPassedTime % 3600 / 60;
             int second = mPassedTime % 60;
@@ -582,9 +596,19 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void run() {
             mShowWaitTime++;
+            Log.i(TAG, "显示等待消息计时 mShowWaitTime:" + mShowWaitTime);
             if (!isCallEstablished) {
                 if (mShowWaitTime >= SHOW_WAIT_TIME) {
-                    mHandler.removeCallbacks(runnableShowWait);
+                    if (mShowWaitTime >= INCOMING_TIME_OUT) {
+                        if (!isFinishing()) {
+                            mHandler.removeCallbacks(runnableShowWait);
+                        }
+                        // 超时后挂断音视频
+                        onTimeOutBus(true);
+                    }
+                    if (!isFinishing()) {
+                        mHandler.postDelayed(runnableShowWait, TIME);
+                    }
                     txtMessage.setVisibility(View.GONE);
                     txtMessageVideo.setVisibility(View.GONE);
                 } else {
@@ -597,12 +621,34 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     };
 
     /**
+     * 收到音视频消息等待计时
+     */
+    Runnable runnableOutWait = new Runnable() {
+
+        @Override
+        public void run() {
+            mOutWaitTime++;
+            if (!isCallEstablished) {
+                if (mOutWaitTime >= OUTCOMING_TIME_OUT) {
+                    mHandler.removeCallbacks(runnableOutWait);
+                    // 收到音视频消息60秒没收，主动挂断
+                    onTimeOutBus(false);
+                } else {
+                    if (!isFinishing()) {
+                        mHandler.postDelayed(runnableOutWait, TIME);
+                    }
+                }
+            }
+        }
+    };
+
+    /**
      * ****************************** 通话过程状态监听 监听器 **********************************
      */
     private SimpleAVChatStateObserver avchatStateObserver = new SimpleAVChatStateObserver() {
         @Override
         public void onAVRecordingCompletion(String account, String filePath) {
-            Log.d(TAG, "onAVRecordingCompletion -> " + account);
+            Log.i(TAG, "onAVRecordingCompletion -> " + account);
 //            if (account != null && filePath != null && filePath.length() > 0) {
 //                String msg = "音视频录制已结束, " + "账号：" + account + " 录制文件已保存至：" + filePath;
 //                Toast.makeText(AVChatActivity.this, msg, Toast.LENGTH_SHORT).show();
@@ -618,7 +664,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void onAudioRecordingCompletion(String filePath) {
-            Log.d(TAG, "onAudioRecordingCompletion -> " + filePath);
+            Log.i(TAG, "onAudioRecordingCompletion -> " + filePath);
 //            if (filePath != null && filePath.length() > 0) {
 //                String msg = "音频录制已结束, 录制文件已保存至：" + filePath;
 //                Toast.makeText(AVChatActivity.this, msg, Toast.LENGTH_SHORT).show();
@@ -634,7 +680,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void onLowStorageSpaceWarning(long availableSize) {
-            Log.d(TAG, "onLowStorageSpaceWarning -> " + availableSize);
+            Log.i(TAG, "onLowStorageSpaceWarning -> " + availableSize);
 //            if (state == AVChatType.VIDEO.getValue()) {
 //                avChatVideoUI.showRecordWarning();
 //            } else {
@@ -644,14 +690,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void onJoinedChannel(int code, String audioFile, String videoFile, int i) {
-            Log.d(TAG, "audioFile -> " + audioFile + " videoFile -> " + videoFile);
+            Log.i(TAG, "audioFile -> " + audioFile + " videoFile -> " + videoFile);
             handleWithConnectServerResult(code);
         }
 
         @Override
         public void onUserJoined(String account) {
-            Log.d(TAG, "onUserJoin -> " + account);
-//            Log.d("1212", "onUserJoin:" + account);
+            Log.i(TAG, "onUserJoin -> " + account);
             mIsInComingCall = true;
 //            if (state == AVChatType.VIDEO.getValue()) {
             if (mAVChatType == AVChatType.VIDEO.getValue()) {
@@ -670,7 +715,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
          */
         @Override
         public void onUserLeave(String account, int event) {
-            Log.d(TAG, "onUserLeave -> " + account);
+            Log.i(TAG, "onUserLeave -> " + account);
             manualHangUp(AVChatExitCode.INTERRUPT);
             // 异常中断后需要挂断
             if (avChatData != null) {
@@ -684,15 +729,22 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void onCallEstablished() {
-            Log.d(TAG, "onCallEstablished");
-//            // 移除超时监听
-            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall, VideoActivity.this);
+            Log.i(TAG, "onCallEstablished");
+            // 移除超时监听
+            if (!isFinishing()) {
+                mHandler.removeCallbacks(runnableShowWait);
+                mHandler.removeCallbacks(runnableOutWait);
+            }
+//            AVChatTimeoutObserver.getInstance().observeTimeoutNotification(timeoutObserver, false, mIsInComingCall, VideoActivity.this);
+
+
 //            if (avChatController.getTimeBase() == 0)
 //                avChatController.setTimeBase(SystemClock.elapsedRealtime());
 
             if (state == AVChatType.AUDIO.getValue()) {
 //                showAudioInitLayout();
             } else {
+                PlayerManager.getManager().openSpeaker();
                 // 接通以后，自己是小屏幕显示图像，对方是大屏幕显示图像
                 initSmallSurfaceView();
 //                showVideoInitLayout();
@@ -718,7 +770,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onNetworkQuality(String user, int quality, AVChatNetworkStats stats) {
             super.onNetworkQuality(user, quality, stats);
-            Log.i(TAG, "onNetworkQuality: user:" + user + " quality:" + quality);
+//            Log.i(TAG, "onNetworkQuality: user:" + user + " quality:" + quality);
         }
 
         @Override
@@ -883,30 +935,35 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     };
 
     /**
+     * 超时处理
+     * @param isSend
+     */
+    public void onTimeOutBus(boolean isSend) {
+        AVChatProfile.getInstance().setCallIng(false);
+        if (avChatData != null) {
+            // toUId != null 主叫挂断不需要在发送消息
+            if (isFirstFlg && toUId != null && toUId != 0) {
+                isFirstFlg = false;
+                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
+                if (isSend) {
+                    sendEventBus(Preferences.NOTACCPET, AVChatExitCode.CANCEL);
+                }
+            } else {
+                isFirstFlg = false;
+                mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, mFriend);
+            }
+        } else {
+            manualHangUp(AVChatExitCode.CANCEL);
+        }
+    }
+
+    /**
      * 来电超时，未接听
      */
     Observer<Integer> timeoutObserver = new Observer<Integer>() {
         @Override
         public void onEvent(Integer integer) {
-            AVChatProfile.getInstance().setCallIng(false);
-            // 电超时通知后端已挂断
-//            if (mFriend != null && mFriend != 0) {
-//                mAVChatController.auVideoHandup(mFriend, mAVChatType, mRoomId);
-//            }
-            if (avChatData != null) {
-                // toUId != null 主叫挂断不需要在发送消息
-                if (isFirstFlg && toUId != null && toUId != 0) {
-                    isFirstFlg = false;
-                    mAVChatController.hangUp2(avChatData.getChatId(), AVChatExitCode.HANGUP, mAVChatType, toUId);
-                    sendEventBus(Preferences.NOTACCPET, AVChatExitCode.CANCEL);
-                }
-            } else {
-                manualHangUp(AVChatExitCode.CANCEL);
-            }
-            // 来电超时，自己未接听
-            if (mIsInComingCall) {
-//                activeMissCallNotifier();
-            }
+            onTimeOutBus(true);
         }
     };
 
@@ -979,6 +1036,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             AVChatManager.getInstance().disableVideo();
         }
         // 判断是否静音，扬声器是否开启，对界面相应控件进行显隐处理。
+        cbHandsFree.setChecked(PlayerManager.getManager().isOpenSpeaker());
 //        onVideoToAudio(AVChatManager.getInstance().isLocalAudioMuted(),
 //                AVChatManager.getInstance().speakerEnabled(),
 //                avChatData != null ? avChatData.getAccount() : account);
@@ -1156,7 +1214,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      * @param largeAccount
      */
     public void onAudioToVideoAgree(String largeAccount) {
-        Log.d(TAG, "对方账号" + largeAccount);
+        Log.i(TAG, "对方账号" + largeAccount);
 //        showVideoInitLayout();
         findSurfaceView();
         account = largeAccount;
@@ -1215,7 +1273,17 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onResume() {
         super.onResume();
-        surfaceViewFixBefore43(smallSizePreviewLayout, largeSizePreviewLayout);
+        Log.i(TAG, "onResume");
+        if (mAVChatType == AVChatType.VIDEO.getValue()) {
+            surfaceViewFixBefore43(smallSizePreviewLayout, largeSizePreviewLayout);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        returnVideoActivity = true;
+        Log.i(TAG, "onStart");
     }
 
     private void surfaceViewFixBefore43(ViewGroup front, ViewGroup back) {
