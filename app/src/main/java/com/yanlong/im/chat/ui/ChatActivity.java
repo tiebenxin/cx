@@ -4286,8 +4286,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0) {
             long date = DateUtils.getSystemTime();
-            LogUtil.getLog().d("ssss", (date + msgbean.getSurvival_time() * 1000) + "");
-            LogUtil.getLog().d("ssss", msgbean.getMsg_id() + "");
             msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000),date, msgbean.getMsg_id());
             msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
             msgbean.setStartTime(date);
@@ -4302,8 +4300,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         if (msgbean.getSurvival_time() > 0 && msgbean.getEndTime() == 0 && msgbean.getRead() == 1) {
             long date = DateUtils.getSystemTime();
-            LogUtil.getLog().d("ssss", (date + msgbean.getSurvival_time() * 1000) + "");
-            LogUtil.getLog().d("ssss", msgbean.getMsg_id() + "");
             msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000),date, msgbean.getMsg_id());
             msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
             msgbean.setStartTime(date);
