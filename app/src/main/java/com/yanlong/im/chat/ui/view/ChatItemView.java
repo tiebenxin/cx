@@ -52,8 +52,10 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.view.CountDownView;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -158,8 +160,8 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewRead;
     private TextView tvRead;
     private TextView tvReadTime;
-    private ImageView viewOtSurvivalTime;
-    private ImageView viewMeSurvivalTime;
+    private CountDownView viewOtSurvivalTime;
+    private CountDownView viewMeSurvivalTime;
 
 
     //自动寻找控件
@@ -477,6 +479,26 @@ public class ChatItemView extends LinearLayout {
             tvReadTime.setText(TimeToString.HH_MM(time) + "");
         }
     }
+
+    //阅后即焚倒计时
+    public void setDataSt(long startTime, long endTime) {
+        if (isMe) {
+            viewMeSurvivalTime.setRunTimer(startTime, endTime);
+        } else {
+            viewOtSurvivalTime.setRunTimer(startTime, endTime);
+        }
+
+    }
+
+    //阅后即焚倒计时销毁
+    public void timerCancel() {
+        if (isMe) {
+            viewMeSurvivalTime.timerStop();
+        } else {
+            viewOtSurvivalTime.timerStop();
+        }
+    }
+
 
     /**
      * 音视频消息
@@ -867,8 +889,6 @@ public class ChatItemView extends LinearLayout {
                     imgOt4.post(new Runnable() {
                         @Override
                         public void run() {
-//                            Glide.with(getContext()).asBitmap().load(model).into(imgOt4);
-//                            Glide.with(getContext()).asBitmap().load(model).into(imgMe4);
                             Glide.with(getContext()).asBitmap().load(options).into(imgOt4);
                             Glide.with(getContext()).asBitmap().load(options).into(imgMe4);
                         }
@@ -991,8 +1011,17 @@ public class ChatItemView extends LinearLayout {
 
     private Context mContext;
 
-    public void setReadDestroy(String gid, long uid, int type, String info) {
-        txtReadDestroy.setText(info);
+    public void setReadDestroy(String gid, long uid, int type,String content) {
+//        String info;
+//        if (type == -1) {
+//            info = "" + "设置了退出即焚";
+//        } else if (type== 0) {
+//            info = type + "取消了阅后即焚";
+//        } else {
+//            info = type + "设置了消息" + new ReadDestroyUtil().getDestroyTimeContent(type) + "后消失";
+//        }
+        txtReadDestroy.setText(content);
+
         if (type == 0) {
             imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
         } else {

@@ -210,9 +210,11 @@ public class ChatInfoActivity extends AppActivity {
             public void onClick(View v) {
                 DestroyTimeView destroyTimeView = new DestroyTimeView(ChatInfoActivity.this);
                 destroyTimeView.initView();
+                destroyTimeView.setPostion(destroyTime);
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
+                        destroyTime = survivaltime;
                         tvDestroyTime.setText(content);
                         taskSurvivalTime(fuid, survivaltime);
                     }

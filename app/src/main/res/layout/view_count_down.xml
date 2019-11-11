@@ -8,6 +8,6 @@
         android:id="@+id/im_count_down"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tool:src="@mipmap/icon"/>
+        tool:src="@mipmap/icon_st_1"/>
 
 </android.support.constraint.ConstraintLayout>

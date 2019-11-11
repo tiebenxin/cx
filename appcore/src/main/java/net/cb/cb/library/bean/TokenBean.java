@@ -2,6 +2,7 @@ package net.cb.cb.library.bean;
 
 import com.google.gson.annotations.SerializedName;
 
+
 /***
  * @author jyj
  * @date 2016/12/22

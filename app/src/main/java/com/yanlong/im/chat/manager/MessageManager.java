@@ -327,7 +327,7 @@ public class MessageManager {
                 break;
             case CHANGE_SURVIVAL_TIME: //阅后即焚
                 if (bean != null) {
-                    result = saveMessage(bean, isList);
+                    result = saveMessageNew(bean, isList);
                 }
                 int survivalTime = wrapMessage.getChangeSurvivalTime().getSurvivalTime();
                 if (!TextUtils.isEmpty(wrapMessage.getGid())) {
@@ -484,6 +484,11 @@ public class MessageManager {
      * @param msgAllBean 消息
      * @isList 是否是批量消息
      * */
+    /*
+    /**
+     * 网络加载用户信息,只能接受来自好友的信息
+     */
+
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
         try {
@@ -538,11 +543,6 @@ public class MessageManager {
 //        System.out.println(TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         return result;
     }
-
-    /*
-    /**
-     * 网络加载用户信息,只能接受来自好友的信息
-     */
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
         if (UserAction.getMyId() != null && uid.equals(UserAction.getMyId())) {
             return;

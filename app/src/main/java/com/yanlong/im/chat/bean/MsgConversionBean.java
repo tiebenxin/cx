@@ -10,6 +10,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.utils.LogUtil;
@@ -401,21 +402,38 @@ public class MsgConversionBean {
                 break;
             case CHANGE_SURVIVAL_TIME:
                 String survivaNotice = "";
-                Log.v("CHANGE_SURVIVAL_TIME", msgAllBean.getMsg_id());
-                msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
-                    survivaNotice = bean.getNickname() + "设置了退出即焚";
+                    if(TextUtils.isEmpty(bean.getGid())){
+                        survivaNotice = bean.getNickname() + "设置了退出即焚";
+                    }else{
+                        survivaNotice = "群主设置了退出即焚";
+                    }
                 } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
-                    survivaNotice = bean.getNickname() + "取消了阅后即焚";
+                    if(TextUtils.isEmpty(bean.getGid())){
+                        survivaNotice = bean.getNickname() + "取消了阅后即焚";
+                    }else{
+                        survivaNotice = "群主取消了阅后即焚";
+                    }
                 } else {
-                    survivaNotice = bean.getNickname() + "设置了消息" + formatDateTime(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
+                    if(TextUtils.isEmpty(bean.getGid())){
+                        survivaNotice = bean.getNickname() + "设置了消息" +
+                                new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
+                    }else{
+                        survivaNotice = "群主设置了消息" +
+                                new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
+                    }
                 }
                 MsgCancel survivaMsgCel = new MsgCancel();
+                survivaMsgCel.setMsgid(bean.getMsgId());
                 survivaMsgCel.setNote(survivaNotice);
                 msgAllBean.setMsgCancel(survivaMsgCel);
+
                 ChangeSurvivalTimeMessage changeSurvivalTimeMessage = new ChangeSurvivalTimeMessage();
                 changeSurvivalTimeMessage.setSurvival_time(bean.getChangeSurvivalTime().getSurvivalTime());
+                changeSurvivalTimeMessage.setMsgid(bean.getMsgId());
                 msgAllBean.setChangeSurvivalTimeMessage(changeSurvivalTimeMessage);
+
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
                 break;
             case P2P_AU_VIDEO_DIAL:// 点对点音视频发起通知
                 P2PAuVideoDialMessage p2PAuVideoDialMessage = new P2PAuVideoDialMessage();
@@ -428,28 +446,6 @@ public class MsgConversionBean {
         }
 
         return msgAllBean;
-    }
-
-    public static String formatDateTime(int mss) {
-        String DateTimes = null;
-        int week = mss / (60 * 60 * 24 * 7);
-        int days = mss / (60 * 60 * 24);
-        int hours = (mss % (60 * 60 * 24)) / (60 * 60);
-        int minutes = (mss % (60 * 60)) / 60;
-        int seconds = mss % 60;
-        if (week > 0) {
-            DateTimes = "一个星期";
-        } else if (days > 0) {
-            DateTimes = days + "天";
-        } else if (hours > 0) {
-            DateTimes = hours + "小时";
-        } else if (minutes > 0) {
-            DateTimes = minutes + "分钟";
-        } else {
-            DateTimes = seconds + "秒";
-        }
-
-        return DateTimes;
     }
 
 }

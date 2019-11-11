@@ -240,15 +240,16 @@ public class MsgDao {
 
 
     /**
-     * 设置阅后即焚销毁时间
+     * 设置阅后即焚销毁时间 和开始时间
      */
-    public void setMsgEndTime(long time, String msgid) {
+    public void setMsgEndTime(long time,long startTime, String msgid) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class)
                 .equalTo("msg_id", msgid).findFirst();
         if (msgAllBean != null) {
             msgAllBean.setEndTime(time);
+            msgAllBean.setStartTime(startTime);
         }
         realm.insertOrUpdate(msgAllBean);
         realm.commitTransaction();
