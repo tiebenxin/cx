@@ -79,7 +79,7 @@ public class AVChatController {
 //                    AVChatProfile.getInstance().setAVChatting(false);
                     AVChatProfile.getInstance().setCallIng(false);
                     PlayerManager.getManager().stop();
-//                    AVChatSoundPlayer.instance().stop();
+                    AVChatSoundPlayer.instance().stop();
                     auVideoHandup(toUId, avChatType, getUUID());
                     if (context != null && !((Activity) context).isFinishing()) {
                         ((Activity) context).finish();

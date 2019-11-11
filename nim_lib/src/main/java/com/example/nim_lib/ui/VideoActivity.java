@@ -35,6 +35,7 @@ import com.example.nim_lib.constant.AVChatExitCode;
 import com.example.nim_lib.constant.CoreEnum;
 import com.example.nim_lib.controll.AVChatController;
 import com.example.nim_lib.controll.AVChatProfile;
+import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.controll.PlayerManager;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.module.AVSwitchListener;
@@ -388,7 +389,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         switch (mVoiceType) {
             case CoreEnum.VoiceType.WAIT:
                 layoutVoiceWait.setVisibility(View.VISIBLE);
-                PlayerManager.getManager().play(MODE_EARPIECE);
+                PlayerManager.getManager().play(MODE_SPEAKER);
 //                AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.CONNECTING);
                 txtWaitMsg.setText(getString(R.string.avchat_wait_recieve1));
                 if (mAVChatType == AVChatType.AUDIO.getValue()) {
@@ -405,12 +406,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 } else {
                     txtWaitMsg.setText(R.string.avchat_audio_invitation);
                 }
-                PlayerManager.getManager().play(MODE_SPEAKER);
+//                PlayerManager.getManager().play(MODE_SPEAKER);
+//                PlayerManager.getManager().openSpeaker();
                 //  开始记录等待时间 60秒没接，主动挂断
                 if (!isFinishing()) {
                     mHandler.postDelayed(runnableOutWait, TIME);
                 }
-//                AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.PEER_REJECT);
+                AVChatSoundPlayer.instance().play(AVChatSoundPlayer.RingerTypeEnum.PEER_REJECT);
                 layoutInvitationVoice.setVisibility(View.VISIBLE);
                 layoutVoiceWait.setVisibility(View.GONE);
                 break;
@@ -460,7 +462,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         super.onDestroy();
         Log.i(TAG, "onDestroy");
         returnVideoActivity = false;
-        PlayerManager.getManager().stop();
+        stopPlayer();
         AVChatProfile.getInstance().setCallIng(false);
         AVChatProfile.getInstance().setAVMinimize(false);
         AVChatManager.getInstance().disableRtc();
@@ -837,7 +839,12 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             Log.i(TAG, "对方挂断电话");
             AVChatProfile.getInstance().setCallIng(false);
             if (avChatData != null && avChatData.getChatId() == avChatHangUpInfo.getChatId()) {
-                hangUpByOther(AVChatExitCode.HANGUP);
+                // 电话是否接通
+                if(isCallEstablished){
+                    hangUpByOther(AVChatExitCode.HANGUP);
+                }else{
+                    hangUpByOther(AVChatExitCode.OTHER_CANCEL);
+                }
                 // toUId != null 主叫挂断不需要在发送消息
                 if (isFirstFlg && toUId != null && toUId != 0) {
                     isFirstFlg = false;
@@ -873,8 +880,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private Observer<AVChatCalleeAckEvent> callAckObserver = new Observer<AVChatCalleeAckEvent>() {
         @Override
         public void onEvent(AVChatCalleeAckEvent ackInfo) {
-//            AVChatSoundPlayer.instance().stop();
-            PlayerManager.getManager().stop();
+            stopPlayer();
 
             if (ackInfo.getEvent() == AVChatEventType.CALLEE_ACK_BUSY) {
                 // 对方正在忙
@@ -933,6 +939,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             handleCallControl(netCallControlNotification);
         }
     };
+
+    private void stopPlayer(){
+        AVChatSoundPlayer.instance().stop();
+        PlayerManager.getManager().stop();
+    }
 
     /**
      * 超时处理
@@ -1174,6 +1185,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             case AVChatExitCode.CANCEL:
                 Toast.makeText(VideoActivity.this, R.string.avchat_no_pickup_call, Toast.LENGTH_LONG).show();
                 break;
+            case AVChatExitCode.OTHER_CANCEL:
+                Toast.makeText(VideoActivity.this, R.string.avchat_call_cancle, Toast.LENGTH_LONG).show();
+                break;
             case AVChatExitCode.INTERRUPT:
                 Toast.makeText(VideoActivity.this, R.string.avchat_peer_break, Toast.LENGTH_LONG).show();
                 break;
@@ -1193,8 +1207,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
      * 对方接受后更新UI
      */
     private void onAudioAgree() {
-//        AVChatSoundPlayer.instance().stop();
-        PlayerManager.getManager().stop();
+        stopPlayer();
         if (mAVChatType == AVChatType.VIDEO.getValue()) {
             layoutAudio.setVisibility(View.GONE);
             layoutInvitationVoice.setVisibility(View.GONE);

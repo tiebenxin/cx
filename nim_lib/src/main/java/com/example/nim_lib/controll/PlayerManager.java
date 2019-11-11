@@ -87,8 +87,8 @@ public class PlayerManager {
                 audioManager.setSpeakerphoneOn(false);
             } else {
                 audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                audioManager.setMode(AudioManager.MODE_RINGTONE);// 铃声:MODE_RINGTONE    普通:MODE_NORMAL
-                audioManager.setSpeakerphoneOn(true);// 把模式调成外放模式
+//                audioManager.setMode(AudioManager.MODE_NORMAL);// 铃声:MODE_RINGTONE    普通:MODE_NORMAL
+                audioManager.setSpeakerphoneOn(false);// 把模式调成外放模式
             }
             mediaPlayer.start();
         }
