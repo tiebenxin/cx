@@ -24,4 +24,11 @@ public class EventFactory extends BaseEvent {
         public String msg_id;
         public String name;
     }
+
+    /**
+     * 撤回消息关闭语音播放
+     */
+    public static class StopVoiceeEvent extends BaseEvent {
+        public String msg_id;
+    }
 }

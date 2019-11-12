@@ -43,6 +43,7 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
 import com.jrmf360.rplib.JrmfRpClient;
@@ -112,7 +113,6 @@ import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
-import com.zhaoss.weixinrecorded.activity.RecordedLocalActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
 import net.cb.cb.library.CoreEnum;
@@ -767,7 +767,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
 
-
+        // 拍摄
         viewCamera.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -781,10 +781,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                                .compress(true)
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
 
-                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
-                        startActivityForResult(intent, VIDEO_RP);
-//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
 //                        startActivityForResult(intent, VIDEO_RP);
+                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                        startActivityForResult(intent, VIDEO_RP);
 //                        showDownLoadDialog();
                     }
 
@@ -797,6 +797,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         });
+        // 相册
         viewPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1161,6 +1162,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (userDao != null) {
                         UserInfo userInfo = userDao.findUserInfo(toUId);
                         if (userInfo != null) {
+                            EventFactory.CloseMinimizeEvent event = new EventFactory.CloseMinimizeEvent();
+                            event.isClose = true;
+                            EventBus.getDefault().post(event);
                             Bundle bundle = new Bundle();
                             bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
                             bundle.putString(Preferences.USER_NAME, userInfo.getName());
@@ -1195,6 +1199,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (userDao != null) {
                         UserInfo userInfo = userDao.findUserInfo(toUId);
                         if (userInfo != null) {
+                            EventFactory.CloseMinimizeEvent event = new EventFactory.CloseMinimizeEvent();
+                            event.isClose = true;
+                            EventBus.getDefault().post(event);
                             Bundle bundle = new Bundle();
                             bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
                             bundle.putString(Preferences.USER_NAME, userInfo.getName());
@@ -1925,7 +1932,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         taskRefreshMessage(event.isScrollBottom);
     }
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void taskUpImgEvevt(EventUpImgLoadEvent event) {
 //        Log.d("tag", "taskUpImgEvevt state: ===============>" + event.getState() + "--msgId==" + event.getMsgid() );
@@ -1947,6 +1953,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             replaceListDataAndNotify(msgAllbean);
         } else {
             //  Log.d("tag", "taskUpImgEvevt 2: ===============>"+event.getMsgId());
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void stopVoiceeEvent(net.cb.cb.library.event.EventFactory.StopVoiceeEvent event) {
+        // 对方撤回时，停止语音播放
+        if(event!=null){
+            if(event.msg_id.equals(AudioPlayManager.getInstance().msg_id)){
+                AudioPlayManager.getInstance().stopPlay();
+            }
         }
     }
 
@@ -1990,7 +2006,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
     }
-
 
     /***
      * 替换listData中的某条消息并且刷新

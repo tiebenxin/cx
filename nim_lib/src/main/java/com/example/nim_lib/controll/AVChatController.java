@@ -1,6 +1,7 @@
 package com.example.nim_lib.controll;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.util.Log;
 
@@ -79,7 +80,7 @@ public class AVChatController {
 //                    AVChatProfile.getInstance().setAVChatting(false);
                     AVChatProfile.getInstance().setCallIng(false);
                     PlayerManager.getManager().stop();
-//                    AVChatSoundPlayer.instance().stop();
+                    AVChatSoundPlayer.instance().stop();
                     auVideoHandup(toUId, avChatType, getUUID());
                     if (context != null && !((Activity) context).isFinishing()) {
                         ((Activity) context).finish();
@@ -311,6 +312,15 @@ public class AVChatController {
 
     public static String getUUID() {
         return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    /***
+     * 清理通知栏
+     */
+    public void taskClearNotification(Context context) {
+        Log.i("VideoActivity","taskClearNotification");
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancelAll();
     }
 
 }
