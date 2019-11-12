@@ -32,7 +32,9 @@
             style="@style/app_txt_content_2"
             android:text="关闭后,手机将不再接收新消息的通知." />
 
-        <LinearLayout style="@style/app_layout_list2_item">
+        <LinearLayout
+            style="@style/app_layout_list2_item"
+            android:visibility="gone">
 
             <TextView
                 style="@style/app_txt_title_2"
@@ -49,7 +51,8 @@
 
         <TextView
             style="@style/app_txt_content_2"
-            android:text="若关闭,当收到消息时，通知提示将不显示发信人和内容摘要." />
+            android:text="若关闭,当收到消息时，通知提示将不显示发信人和内容摘要."
+            android:visibility="gone" />
 
         <LinearLayout style="@style/app_layout_list2_item">
 

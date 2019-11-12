@@ -36,6 +36,7 @@ import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -58,8 +59,6 @@ import static android.app.Activity.RESULT_OK;
  * 我
  */
 public class MyFragment extends Fragment {
-    private final long CX888_UID = 100121L;
-
     private View rootView;
     private LinearLayout viewHead;
     private ImageView imgHead;
@@ -195,11 +194,11 @@ public class MyFragment extends Fragment {
     }
 
     private void checkCxService() {
-        UserInfo userInfo = new UserDao().findUserInfo(CX888_UID);
+        UserInfo userInfo = new UserDao().findUserInfo(Constants.CX888_UID);
         if (userInfo != null && userInfo.getuType() == ChatEnum.EUserType.FRIEND) {
             toChatActivity();
         } else {
-            taskAddFriend(CX888_UID);
+            taskAddFriend(Constants.CX888_UID);
         }
     }
 
@@ -367,7 +366,7 @@ public class MyFragment extends Fragment {
 
     private void toChatActivity() {
         //CX888 uid=100121
-        startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOUID, CX888_UID));
+        startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOUID, Constants.CX888_UID));
     }
 
 }
