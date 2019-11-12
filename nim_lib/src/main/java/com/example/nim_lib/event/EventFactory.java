@@ -70,6 +70,12 @@ public class EventFactory {
     }
 
     /**
+     * 停止极光推送铃声
+     */
+    public static class StopJPushResumeEvent extends BaseEvent {
+    }
+
+    /**
      * 网络监听
      */
     public static class EventNetStatus {

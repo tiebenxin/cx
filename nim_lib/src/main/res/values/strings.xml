@@ -38,6 +38,8 @@
     <string name="avchat_invalid_channel_id">对方已挂断</string>
     <string name="avchat_local_call_busy">本地通话中，无法使用易信进行通话。</string>
     <string name="avchat_peer_busy">对方正在通话中，请稍后再拨。</string>
+    <string name="avchat_peer_busy_video">正在视频通话，请稍后再试</string>
+    <string name="avchat_peer_busy_voice">正在语音通话，请稍后再试</string>
     <string name="avchat_wait_recieve1">正在等待对方接受邀请</string>
     <string name="avchat_audio_call_request">请求通话</string>
     <string name="avchat_connecting">连接中…</string>

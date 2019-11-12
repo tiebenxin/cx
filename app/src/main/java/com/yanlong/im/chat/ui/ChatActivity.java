@@ -43,6 +43,7 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 import com.example.nim_lib.config.Preferences;
+import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
@@ -783,8 +784,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 //                        Intent intent = new Intent(ChatActivity.this, RecordedLocalActivity.class);
 //                        startActivityForResult(intent, VIDEO_RP);
-                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-                        startActivityForResult(intent, VIDEO_RP);
+                        // 判断是否正在音视频通话
+                        if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
+                            if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
+                                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
+                            } else {
+                                ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
+                            }
+                        } else {
+                            Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+                            startActivityForResult(intent, VIDEO_RP);
+                        }
 //                        showDownLoadDialog();
                     }
 
@@ -2558,7 +2568,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         public void onClick(String uri) {
                             //  ToastUtil.show(getContext(), "大图:" + uri);
 //                            showBigPic(msgbean.getMsg_id(), uri);
-                            if (clickAble) {
+                            // 判断是否正在音视频通话
+                            if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
+                                if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
+                                    ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
+                                } else {
+                                    ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
+                                }
+                            } else if (clickAble) {
                                 clickAble = false;
                                 String localUrl = msgbean.getVideoMessage().getLocalUrl();
                                 if (StringUtil.isNotNull(localUrl)) {
@@ -2645,7 +2662,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     holder.viewChatItem.setData7(vm.getTime(), msgbean.isRead(), AudioPlayManager.getInstance().isPlay(Uri.parse(url)), vm.getPlayStatus(), new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
-                            playVoice(msgbean, position);
+                            // 判断是否正在音视频通话
+                            if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
+                                if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
+                                    ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_video));
+                                } else {
+                                    ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
+                                }
+                            } else {
+                                playVoice(msgbean, position);
+                            }
                         }
                     });
 
