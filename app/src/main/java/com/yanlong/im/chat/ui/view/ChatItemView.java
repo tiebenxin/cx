@@ -91,12 +91,12 @@ public class ChatItemView extends LinearLayout {
     private ImageView imgMeRbState;
     private TextView txtMeRbTitle;
     private TextView txtMeRbInfo;
-//    private TextView txtMeRpBt;
-    private TextView txtMeRpBt,img_me_4_time,img_ot_4_time;
+    //    private TextView txtMeRpBt;
+    private TextView txtMeRpBt, img_me_4_time, img_ot_4_time;
     private ImageView imgMeRbIcon;
     private ImageView imgMeErr;
-//    private ImageView imgMeHead,img_ot_4_play;
-    private ImageView imgMeHead,img_me_4_play,img_ot_4_play;
+    //    private ImageView imgMeHead,img_ot_4_play;
+    private ImageView imgMeHead, img_me_4_play, img_ot_4_play;
 
     private LinearLayout viewMe4;
     private ProgressBar imgMeUp;
@@ -441,19 +441,20 @@ public class ChatItemView extends LinearLayout {
 
     /**
      * 音视频消息
+     *
      * @param msg
      */
-    public void setDataVoiceOrVideo(String msg,int type,OnClickListener onk) {
+    public void setDataVoiceOrVideo(String msg, int type, OnClickListener onk) {
         txtMeVoiceVideo.setText(msg);
         txtOtVoiceVideo.setText(msg);
         Drawable drawableVoice = getResources().getDrawable(R.drawable.svg_small_voice2);
         Drawable drawableVideo = getResources().getDrawable(R.drawable.svg_small_video2);
-        if(type == MsgBean.AuVideoType.Audio.getNumber()){
-            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo,drawableVoice,2);
-            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo,drawableVoice,0);
-        }else {
-            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo,drawableVideo,2);
-            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo,drawableVideo,0);
+        if (type == MsgBean.AuVideoType.Audio.getNumber()) {
+            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo, drawableVoice, 2);
+            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo, drawableVoice, 0);
+        } else {
+            StringUtils.modifyTextViewDrawable(txtMeVoiceVideo, drawableVideo, 2);
+            StringUtils.modifyTextViewDrawable(txtOtVoiceVideo, drawableVideo, 0);
         }
         viewMeTouch.setOnClickListener(onk);
         viewOtTouch.setOnClickListener(onk);
@@ -691,29 +692,29 @@ public class ChatItemView extends LinearLayout {
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
                 imgOt4.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
 
-                RelativeLayout.LayoutParams layoutParams=( RelativeLayout.LayoutParams)img_me_4_time.getLayoutParams();
-                layoutParams.setMargins(w-105,h-55,0,0);
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) img_me_4_time.getLayoutParams();
+                layoutParams.setMargins(w - 105, h - 55, 0, 0);
                 img_me_4_time.setLayoutParams(layoutParams);
 
-                RelativeLayout.LayoutParams layoutParamsOT=( RelativeLayout.LayoutParams)img_ot_4_time.getLayoutParams();
-                layoutParamsOT.setMargins(w-105,h-55,0,0);
+                RelativeLayout.LayoutParams layoutParamsOT = (RelativeLayout.LayoutParams) img_ot_4_time.getLayoutParams();
+                layoutParamsOT.setMargins(w - 105, h - 55, 0, 0);
                 img_ot_4_time.setLayoutParams(layoutParamsOT);
-                long currentTime= videoMessage.getDuration();
-                if (currentTime<10){
-                    img_me_4_time.setText("00:0"+currentTime);
-                    img_ot_4_time.setText("00:0"+currentTime);
+                long currentTime = videoMessage.getDuration();
+                if (currentTime < 10) {
+                    img_me_4_time.setText("00:0" + currentTime);
+                    img_ot_4_time.setText("00:0" + currentTime);
 
-                }else{
-                    img_me_4_time.setText("00:"+currentTime);
-                    img_ot_4_time.setText("00:"+currentTime);
+                } else {
+                    img_me_4_time.setText("00:" + currentTime);
+                    img_ot_4_time.setText("00:" + currentTime);
                 }
-                if (currentTime*1000> RecordedActivity.MAX_VIDEO_TIME){
-                    if (currentTime/1000<10){
-                        img_me_4_time.setText("00:0"+currentTime/1000);
-                        img_ot_4_time.setText("00:0"+currentTime/1000);
-                    }else{
-                        img_me_4_time.setText("00:"+currentTime/1000);
-                        img_ot_4_time.setText("00:"+currentTime/1000);
+                if (currentTime * 1000 > RecordedActivity.MAX_VIDEO_TIME) {
+                    if (currentTime / 1000 < 10) {
+                        img_me_4_time.setText("00:0" + currentTime / 1000);
+                        img_ot_4_time.setText("00:0" + currentTime / 1000);
+                    } else {
+                        img_me_4_time.setText("00:" + currentTime / 1000);
+                        img_ot_4_time.setText("00:" + currentTime / 1000);
                     }
                 }
                 lp.width = w;
@@ -745,18 +746,18 @@ public class ChatItemView extends LinearLayout {
         Glide.with(this).load(videoMessage.getBg_url()).apply(options).into(imgMe4);
 
         if (pg != null) {
-            setImgageProg(pg);
+            setImageProgress(pg);
         } else {
             if (netState == -1) {
-                setImgageProg(0);
+                setImageProgress(0);
             } else {
-                setImgageProg(null);
+                setImageProgress(null);
             }
         }
-        if (null!=pg){
-            if (pg.intValue()==100||pg.intValue()==0){
+        if (null != pg) {
+            if (pg.intValue() == 100 || pg.intValue() == 0) {
                 setVideoIMGShow(true);
-            }else{
+            } else {
                 setVideoIMGShow(false);
             }
         }
@@ -771,7 +772,9 @@ public class ChatItemView extends LinearLayout {
         }
 
     }
-    private   RequestOptions options =null;
+
+    private RequestOptions options = null;
+
     public void setData4(final ImageMessage image, final Uri uri, final EventPic eventPic, Integer pg) {
         if (uri != null) {
 
@@ -864,12 +867,12 @@ public class ChatItemView extends LinearLayout {
             rb.into(imgMe4);
             rb.into(imgOt4);
             if (pg != null) {
-                setImgageProg(pg);
+                setImageProgress(pg);
             } else {
                 if (netState == -1) {
-                    setImgageProg(0);
+                    setImageProgress(0);
                 } else {
-                    setImgageProg(null);
+                    setImageProgress(null);
                 }
             }
         }
@@ -887,27 +890,21 @@ public class ChatItemView extends LinearLayout {
 
     }
 
-    public void setImgageProg(Integer pg) {
-        if (pg != null && pg != 100) {
-
-
+    public void setImageProgress(Integer pg) {
+        if (pg != null && pg != 100 && pg != 0) {
             viewMeUp.setVisibility(VISIBLE);
             txtMeUp.setText(pg + "%");
-
-
             imgMeErr.setVisibility(GONE);
         } else {
             viewMeUp.setVisibility(GONE);
-
-
         }
     }
 
-    public void setVideoIMGShow(boolean show){
-        if (show){
+    public void setVideoIMGShow(boolean show) {
+        if (show) {
             img_me_4_play.setVisibility(View.VISIBLE);
             img_me_4_time.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             img_me_4_play.setVisibility(View.INVISIBLE);
             img_me_4_time.setVisibility(View.INVISIBLE);
         }
@@ -946,10 +943,11 @@ public class ChatItemView extends LinearLayout {
     }
 
     private Context mContext;
+
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext=context;
-        options=new RequestOptions().centerCrop() .transform(new RoundTransform(mContext,10));
+        mContext = context;
+        options = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View viewRoot = inflater.inflate(R.layout.view_chat_item, this);
@@ -970,25 +968,29 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(VISIBLE);
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
+                if (viewMeUp != null && viewMeUp.getVisibility() == VISIBLE) {//隐藏进度
+                    viewMeUp.setVisibility(GONE);
+                }
                 break;
-            case 2://等待,发送中
+            case 2://发送中
                 imgMeErr.setImageResource(R.mipmap.ic_net_load);
                 Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
                 imgMeErr.startAnimation(rotateAnimation);
                 imgMeErr.setVisibility(VISIBLE);
-
-
                 break;
             case -1://图片待发送
-                imgMeErr.clearAnimation();
-                imgMeErr.setVisibility(INVISIBLE);
+//                imgMeErr.clearAnimation();
+//                imgMeErr.setVisibility(INVISIBLE);
+                imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                imgMeErr.startAnimation(animation);
+                imgMeErr.setVisibility(VISIBLE);
                 break;
             default: // 其他状态如-1:待发送
 
                 break;
         }
     }
-
 
     public void setOnErr(OnClickListener onk) {
         imgMeErr.setOnClickListener(onk);

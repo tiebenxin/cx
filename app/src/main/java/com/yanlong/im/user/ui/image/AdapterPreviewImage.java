@@ -199,7 +199,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 public void run() {
                     ToastUtil.show(context, "保存成功");
                 }
-            },100);
+            }, 100);
         }
 
     }
@@ -224,7 +224,11 @@ public class AdapterPreviewImage extends PagerAdapter {
         } else {
             tvViewOrigin.setVisibility(View.GONE);
             ivDownload.setVisibility(View.VISIBLE);
-            loadImage(media.getPath(), ivZoom);
+            if (!TextUtils.isEmpty(media.getPath())) {
+                loadImage(media.getPath(), ivZoom);
+            } else {
+                loadImage(media.getCompressPath(), ivZoom);
+            }
         }
     }
 

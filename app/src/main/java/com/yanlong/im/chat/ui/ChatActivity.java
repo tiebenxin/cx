@@ -1959,8 +1959,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void stopVoiceeEvent(net.cb.cb.library.event.EventFactory.StopVoiceeEvent event) {
         // 对方撤回时，停止语音播放
-        if(event!=null){
-            if(event.msg_id.equals(AudioPlayManager.getInstance().msg_id)){
+        if (event != null) {
+            if (event.msg_id.equals(AudioPlayManager.getInstance().msg_id)) {
                 AudioPlayManager.getInstance().stopPlay();
             }
         }
@@ -2040,9 +2040,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         int position = msgListData.indexOf(msgAllbean);
         if (position >= 0 && position < msgListData.size()) {
-            msgListData.get(position).setSend_state(ChatEnum.ESendStatus.NORMAL);
-            ((ChatItemView) mtListView.getListView().getChildAt(position)).setErr(ChatEnum.ESendStatus.NORMAL);
-//            setErr;
             if (!isNewAdapter) {
                 msgListData.set(position, msgAllbean);
             } else {
@@ -2050,12 +2047,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             Log.i(TAG, "replaceListDataAndNotify: 只刷新" + position);
             mtListView.getListView().getAdapter().notifyItemChanged(position, position);
-
-//            if (loose){
-//                ChatItemView itemView=(ChatItemView) mtListView.getListView().getChildAt(position);
-//                itemView.setVideoIMGShow(true);
-//            }
-//            LogUtil.getLog().i("replaceListDataAndNotify", "position=" + position);
         }
     }
 
@@ -2068,13 +2059,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             return;
         for (int i = 0; i < msgListData.size(); i++) {
             if (msgListData.get(i).getMsg_id().equals(msgid)) {
-                // Log.d("xxxx", "taskRefreshImage: "+msgid);
                 mtListView.getListView().getAdapter().notifyItemChanged(i, i);
-
-
             }
         }
-
     }
 
     //显示大图
@@ -2188,9 +2175,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     //重新发送消息
     private void resendMessage(MsgAllBean msgBean) {
+//        if (!NetUtil.isNetworkConnected()) {
+//            return;
+//        }
         //从数据拉出来,然后再发送
         MsgAllBean reMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgBean.getMsg_id());
-
         try {
             LogUtil.getLog().d(TAG, "点击重复发送" + reMsg.getMsg_id() + "--" + reMsg.getTimestamp());
             if (reMsg.getMsg_type() == ChatEnum.EMessageType.IMAGE) {//图片重发处理7.31
@@ -2296,8 +2285,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         pg = UpLoadService.getProgress(msgbean.getMsg_id());
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pg);
 
+                        holder.viewChatItem.setImageProgress(pg);
                         holder.viewChatItem.setErr(msgbean.getSend_state());
-                        holder.viewChatItem.setImgageProg(pg);
+//                        holder.viewChatItem.updateSendStatusAndProgress(msgbean.getSend_state(), pg);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
@@ -2322,7 +2312,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
                         holder.viewChatItem.setErr(msgbean.getSend_state());
-                        holder.viewChatItem.setImgageProg(pgVideo);
+                        holder.viewChatItem.setImageProgress(pgVideo);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                             menus.add(new OptionMenu("转发"));
@@ -2545,7 +2535,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             showBigPic(msgbean.getMsg_id(), uri);
                         }
                     }, pg);
-                    // holder.viewChatItem.setImgageProg(pg);
+                    // holder.viewChatItem.setImageProgress(pg);
                     break;
 
                 case ChatEnum.EMessageType.MSG_VIDEO:
@@ -2600,7 +2590,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             }
                         }
                     }, pgVideo);
-                    // holder.viewChatItem.setImgageProg(pg);
+                    // holder.viewChatItem.setImageProgress(pg);
                     break;
                 case ChatEnum.EMessageType.BUSINESS_CARD:
 
