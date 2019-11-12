@@ -86,7 +86,6 @@ public class MsgConversionBean {
 
         int survivalTime = userDao.getReadDestroy(bean.getFromUid(), bean.getGid());
         if (survivalTime != 0) {
-            msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
             msgAllBean.setSurvival_time(survivalTime);
         }
         LogUtil.getLog().d("MsgConversionBean", survivalTime + "---id:" + bean.getMsgId());
@@ -99,7 +98,7 @@ public class MsgConversionBean {
         //这里需要处理用户信息
         UserInfo userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
         if (userInfo != null) {//更新用户信息
-            //   msgAllBean.setFrom_user(userInfo);
+               //msgAllBean.setFrom_user(userInfo);
         } else {
             //从网路缓存
             bean.getAvatar();

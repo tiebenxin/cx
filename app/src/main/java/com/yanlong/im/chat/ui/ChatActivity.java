@@ -2486,7 +2486,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             //显示数据集
 
             if (msgbean.isMe()) {
-                // headico =
                 holder.viewChatItem.setOnHead(null);
 
             } else {
@@ -2515,8 +2514,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             holder.viewChatItem.timerCancel();
             if(msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0){
+                LogUtil.getLog().e("aaaaaaa","kkkkkkkkkkkkk");
+
                 holder.viewChatItem.setDataSt(msgbean.getStartTime(),msgbean.getEndTime());
             }
+
+            //设置阅后即焚图标显示
+            holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
 
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();

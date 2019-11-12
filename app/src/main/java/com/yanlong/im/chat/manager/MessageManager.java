@@ -543,6 +543,7 @@ public class MessageManager {
 //        System.out.println(TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         return result;
     }
+
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
         if (UserAction.getMyId() != null && uid.equals(UserAction.getMyId())) {
             return;

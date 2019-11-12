@@ -201,11 +201,6 @@ public class SocketData {
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             msgAllBean.setTimestamp(bean.getTimestamp());
 
-            if (wmsg.getSurvivalTime() == 0) {
-                msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
-            } else {
-                msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
-            }
             //7.16 如果是收到先自己发图图片的消息
 
             //移除旧消息
@@ -230,29 +225,23 @@ public class SocketData {
 
     //6.26 消息直接存库
     public static void msgSave4Me(MsgBean.UniversalMessage.Builder msg, int state) {
-                //普通消息
+        //普通消息
 
-                if (msg != null) {
-                    //存库处理
-                    MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
-                            // .setMsgId(bean.getMsgIdList().get(0))
-                            //时间要和ack一起返回
-                            // .setTimestamp(System.currentTimeMillis())
-                            .build();
-                    Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
-                    MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
-                    msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-                    //时间戳
-                    // msgAllBean.setTimestamp(bean.getTimestamp());
-                    //是发送给群助手的消息直接发送成功
-                    if (isNoAssistant(msgAllBean.getTo_uid(), msgAllBean.getGid())) {
+        if (msg != null) {
+            //存库处理
+            MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
+                    // .setMsgId(bean.getMsgIdList().get(0))
+                    //时间要和ack一起返回
+                    // .setTimestamp(System.currentTimeMillis())
+                    .build();
+            Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
+            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
+            msgAllBean.setMsg_id(msgAllBean.getMsg_id());
+            //时间戳
+            // msgAllBean.setTimestamp(bean.getTimestamp());
+            //是发送给群助手的消息直接发送成功
+            if (isNoAssistant(msgAllBean.getTo_uid(), msgAllBean.getGid())) {
                 msgAllBean.setSend_state(state);
-            } else {
-                if (msgAllBean.getSurvival_time() == 0) {
-                    msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
-                } else {
-                    msgAllBean.setSend_state(ChatEnum.ESendStatus.SURVIVAL_TIME);
-                }
             }
             msgAllBean.setSend_data(msg.build().toByteArray());
 
@@ -464,7 +453,7 @@ public class SocketData {
                 wmsg.setRequestFriend((MsgBean.RequestFriendMessage) value);
                 break;
             case VOICE:
-                 wmsg.setVoice((MsgBean.VoiceMessage) value);
+                wmsg.setVoice((MsgBean.VoiceMessage) value);
                 break;
             case AT:
                 wmsg.setAt((MsgBean.AtMessage) value);
@@ -954,12 +943,12 @@ public class SocketData {
 
     /**
      * 已读消息
-     * */
-    public static MsgAllBean send4Read(Long toId,long timestamp){
+     */
+    public static MsgAllBean send4Read(Long toId, long timestamp) {
         MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
                 .setTimestamp(timestamp)
                 .build();
-        return send4Base(false,toId, null, MsgBean.MessageType.READ, msg);
+        return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
     }
 
     /**

@@ -59,6 +59,7 @@ import com.yanlong.im.view.CountDownView;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
@@ -479,6 +480,32 @@ public class ChatItemView extends LinearLayout {
             tvReadTime.setText(TimeToString.HH_MM(time) + "");
         }
     }
+
+    //设置阅后即焚消息显示
+    public void setDataSurvivalTimeShow(int type){
+
+        if(isMe){
+            LogUtil.getLog().e("aaaaaaa",type+"----me");
+            if(type == -1){
+                viewMeSurvivalTime.setVisibility(View.VISIBLE);
+            }else if(type == 0){
+                viewMeSurvivalTime.setVisibility(View.GONE);
+            }else{
+                viewMeSurvivalTime.setVisibility(View.VISIBLE);
+            }
+        }else{
+            LogUtil.getLog().e("aaaaaaa",type+"----ot");
+            if(type == -1){
+                viewOtSurvivalTime.setVisibility(View.VISIBLE);
+            }else if(type == 0){
+                viewOtSurvivalTime.setVisibility(View.GONE);
+            }else{
+                viewOtSurvivalTime.setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
+
 
     //阅后即焚倒计时
     public void setDataSt(long startTime, long endTime) {
@@ -1012,14 +1039,6 @@ public class ChatItemView extends LinearLayout {
     private Context mContext;
 
     public void setReadDestroy(String gid, long uid, int type,String content) {
-//        String info;
-//        if (type == -1) {
-//            info = "" + "设置了退出即焚";
-//        } else if (type== 0) {
-//            info = type + "取消了阅后即焚";
-//        } else {
-//            info = type + "设置了消息" + new ReadDestroyUtil().getDestroyTimeContent(type) + "后消失";
-//        }
         txtReadDestroy.setText(content);
 
         if (type == 0) {
@@ -1064,15 +1083,6 @@ public class ChatItemView extends LinearLayout {
             case -1://图片待发送
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(INVISIBLE);
-                break;
-            case 3: //阅后即焚
-                imgMeErr.clearAnimation();
-                imgMeErr.setVisibility(INVISIBLE);
-                if (isMe) {
-                    viewMeSurvivalTime.setVisibility(View.VISIBLE);
-                } else {
-                    viewOtSurvivalTime.setVisibility(View.VISIBLE);
-                }
                 break;
             default: // 其他状态如-1:待发送
 

@@ -2,6 +2,7 @@ package com.yanlong.im.user.action;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
@@ -342,7 +343,7 @@ public class UserAction {
      * 清理信息
      */
     public void cleanInfo() {
-        //Log.v("ssss","cleanInfo");
+        Log.v("ssss","cleanInfo");
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
     }
