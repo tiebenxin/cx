@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -318,6 +317,10 @@ public class MessageManager {
                     event.msg_id = bean.getMsgCancel().getMsgidCancel();
                     event.name = bean.getFrom_nickname();
                     EventBus.getDefault().post(event);
+                    // 处理语音撤回，对方在播放时停止播放
+                    EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
+                    eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    EventBus.getDefault().post(eventVoice);
                     MessageManager.getInstance().setMessageChange(true);
                 }
                 break;
@@ -363,6 +366,8 @@ public class MessageManager {
                 }
                 break;
 
+            case P2P_AU_VIDEO_DIAL:// 音视频通知
+                return false;
         }
         //刷新单个
         if (result && !hasNotified && !isList && bean != null) {

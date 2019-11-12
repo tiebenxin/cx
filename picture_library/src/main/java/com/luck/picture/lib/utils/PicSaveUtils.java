@@ -45,16 +45,19 @@ public class PicSaveUtils {
             fos.close();
             Log.e("TAG", file.getAbsolutePath());
             //TODO:执行MediaStore.Images.Media.insertImage会在相册中产生两张图片
-            if (DeviceUtils.isViVoAndOppo()) {
-                String dirPath = PictureFileUtils.createDir(mContext,
-                        fileName, "/Pictures");
-                PictureFileUtils.copyFile(file.getAbsolutePath(), dirPath);
-                System.out.println("DeviceUtils" + "--insert图片到相册--" + dirPath);
-                sendBroadcast(new File(dirPath), mContext);
-            } else {
-                sendBroadcast(file, mContext);
-            }
-            Toast.makeText(mContext, "保存成功", Toast.LENGTH_SHORT).show();
+//            if (DeviceUtils.isViVoAndOppo()) {
+//                String dirPath = PictureFileUtils.createDir(mContext,
+//                        fileName, "/Pictures");
+//                PictureFileUtils.copyFile(file.getAbsolutePath(), dirPath);
+//                System.out.println("DeviceUtils" + "--insert图片到相册--" + dirPath);
+//                sendBroadcast(new File(dirPath), mContext);
+//            } else {
+//                sendBroadcast(file, mContext);
+//            }
+            System.out.println("DeviceUtils" + "--insert图片到相册--" + file);
+            sendBroadcast(file, mContext);
+
+//            Toast.makeText(mContext, "保存成功", Toast.LENGTH_SHORT).show();
             return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
