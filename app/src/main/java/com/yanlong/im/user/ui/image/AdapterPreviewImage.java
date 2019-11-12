@@ -3,6 +3,7 @@ package com.yanlong.im.user.ui.image;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,6 +32,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.photoview.OnViewTapListener;
 import com.luck.picture.lib.photoview.PhotoViewAttacher2;
 import com.luck.picture.lib.photoview.ZoomImageView;
+import com.luck.picture.lib.utils.PicSaveUtils;
 import com.luck.picture.lib.view.bigImg.LargeImageView;
 import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
 import com.yalantis.ucrop.util.FileUtils;
@@ -41,6 +43,7 @@ import com.yanlong.im.utils.MyDiskCacheUtils;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 import java.io.File;
 import java.util.List;
@@ -187,7 +190,17 @@ public class AdapterPreviewImage extends PagerAdapter {
      * 保存图片到本地
      * */
     private void saveImageToLocal(ZoomImageView ivZoom, LocalMedia media, boolean isGif, boolean isHttp, boolean isOriginal) {
-
+        Drawable drawable = ivZoom.getDrawable();
+        if (drawable instanceof BitmapDrawable) {
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            PicSaveUtils.saveImgLoc(context, bitmap, "");
+            ivZoom.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ToastUtil.show(context, "保存成功");
+                }
+            },100);
+        }
 
     }
 
@@ -206,6 +219,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             } else {
                 tvViewOrigin.setVisibility(View.GONE);
                 ivDownload.setVisibility(View.VISIBLE);
+                loadImage(media.getCompressPath(), ivZoom);
             }
         } else {
             tvViewOrigin.setVisibility(View.GONE);
@@ -322,7 +336,7 @@ public class AdapterPreviewImage extends PagerAdapter {
 
                     @Override
                     public void onDownloading(final int progress) {
-                        Log.d(TAG, "onDownloading: " + progress);
+//                        Log.d(TAG, "onDownloading: " + progress);
                         ((Activity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
