@@ -360,6 +360,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             mUserHeadSculpture = bundle.getString(Preferences.USER_HEAD_SCULPTURE);
             mVoiceType = bundle.getInt(Preferences.VOICE_TYPE);
             mAVChatType = bundle.getInt(Preferences.AVCHA_TTYPE);
+            AVChatProfile.getInstance().setChatType(mAVChatType);
             toUId = bundle.getLong(Preferences.TOUID);
             toGid = bundle.getString(Preferences.TOGID);
 
@@ -462,7 +463,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         super.onDestroy();
         Log.i(TAG, "onDestroy");
         returnVideoActivity = false;
+        isCallEstablished=false;
         stopPlayer();
+        AVChatProfile.getInstance().setCallEstablished(false);
         AVChatProfile.getInstance().setCallIng(false);
         AVChatProfile.getInstance().setAVMinimize(false);
         AVChatManager.getInstance().disableRtc();
@@ -753,6 +756,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 findSurfaceView();
             }
             isCallEstablished = true;
+            AVChatProfile.getInstance().setCallEstablished(true);
         }
 
         @Override
@@ -900,6 +904,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 // 对方同意接听
                 Log.i(TAG, "对方同意接听" + ackInfo.getAccount());
                 isCallEstablished = true;
+                AVChatProfile.getInstance().setCallEstablished(true);
                 if (!isFinishing()) {
                     // 浮动按钮显示，收到对方同意后，开启计时器
                     if (AVChatProfile.getInstance().isAVMinimize()) {
@@ -1024,6 +1029,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onVideoToAudio() {
         state = AVChatType.AUDIO.getValue();
+        AVChatProfile.getInstance().setChatType(state);
         layoutVoiceWait.setVisibility(View.GONE);
         layoutInvitationVoice.setVisibility(View.GONE);
         txtWaitMsg.setVisibility(View.GONE);
@@ -1290,6 +1296,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (mAVChatType == AVChatType.VIDEO.getValue()) {
             surfaceViewFixBefore43(smallSizePreviewLayout, largeSizePreviewLayout);
         }
+        EventBus.getDefault().post(new EventFactory.StopJPushResumeEvent());
         mAVChatController.taskClearNotification(this);
     }
 
