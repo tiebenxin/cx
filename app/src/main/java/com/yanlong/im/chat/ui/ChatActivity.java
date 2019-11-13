@@ -26,7 +26,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -181,6 +180,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public final static int MIN_TEXT = 1000;//
     private final int RELINQUISH_TIME = 5;// 5分钟内显示重新编辑
     private final String REST_EDIT = "重新编辑";
+    private final String IS_VIP = "1";// (0:普通|1:vip)
 
     //返回需要刷新的 8.19 取消自动刷新
     // public static final int REQ_REFRESH = 7779;
@@ -798,6 +798,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             if (!checkNetConnectStatus()) {
                                 return;
                             }
+//                            Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
+//                            startActivityForResult(intent, VIDEO_RP);
                             Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                             startActivityForResult(intent, VIDEO_RP);
                         }
@@ -824,6 +826,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .previewImage(false)// 是否可预览图片 true or false
                         .isCamera(false)// 是否显示拍照按钮 ture or false
+                        .maxVideoSelectNum(1)
                         .compress(true)// 是否压缩 true or false
                         .isGif(true)
                         .selectArtworkMaster(true)
@@ -1600,7 +1603,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         findViews();
         initEvent();
     }
@@ -1623,10 +1628,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         initPopupWindow();
 
         // 只有Vip才显示视频通话
-//        UserInfo userInfo = UserAction.getMyInfo();
-//        if (userInfo != null && !"1".equals(userInfo.getVip())) {
-//            viewFunc.removeView(llChatVideoCall);
-//        }
+        UserInfo userInfo = UserAction.getMyInfo();
+        if (userInfo != null && !IS_VIP.equals(userInfo.getVip())) {
+            viewFunc.removeView(llChatVideoCall);
+        }
     }
 
     private void initUnreadCount() {
@@ -1799,6 +1804,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         final boolean isArtworkMaster = requestCode == PictureConfig.REQUEST_CAMERA ? true : data.getBooleanExtra(PictureConfig.IS_ARTWORK_MASTER, false);
                         final String imgMsgId = SocketData.getUUID();
                         VideoMessage videoMessage = new VideoMessage();
+                        videoMessage.setHeight(height);
                         videoMessage.setHeight(height);
                         videoMessage.setWidth(width);
                         videoMessage.setDuration(time);
@@ -2571,6 +2577,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.MSG_VIDEO:
                     if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
 //                        holder.viewChatItem.setVideoIMGShow(false);
+                        menus.add(new OptionMenu("删除"));
                     } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
                         menus.add(new OptionMenu("转发"));
                         menus.add(new OptionMenu("删除"));
@@ -2621,6 +2628,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 intent.putExtra("videopath", localUrl);
 //                                intent.putExtra("videopath", localUrl);
                                 intent.putExtra("videomsg", new Gson().toJson(msgbean));
+                                intent.putExtra("msg_id", msgbean.getMsg_id());
                                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                 startActivity(intent);
 
@@ -2712,10 +2720,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                         @Override
                         public void onClick(View v) {
-                            if (msgbean.getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Audio.getNumber()) {
-                                gotoVoiceActivity();
-                            } else {
-                                gotoVideoActivity();
+                            // 只有Vip才可以视频通话
+                            UserInfo userInfo = UserAction.getMyInfo();
+                            if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
+                                if (msgbean.getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Audio.getNumber()) {
+                                    gotoVoiceActivity();
+                                } else {
+                                    gotoVideoActivity();
+                                }
                             }
                         }
                     });
