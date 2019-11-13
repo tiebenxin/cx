@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -55,6 +54,7 @@ import retrofit2.Response;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.P2P_AU_VIDEO_DIAL;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_GROUP;
@@ -135,6 +135,7 @@ public class MessageManager {
      * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
      * @param wrapMessage 接收到的消息
      * @param isList 是否是批量消息
+     * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
 //        LogUtil.getLog().d("a=", TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
@@ -315,15 +316,21 @@ public class MessageManager {
                     event.msg_id = bean.getMsgCancel().getMsgidCancel();
                     event.name = bean.getFrom_nickname();
                     EventBus.getDefault().post(event);
+                    // 处理语音撤回，对方在播放时停止播放
+                    EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
+                    eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    EventBus.getDefault().post(eventVoice);
                     MessageManager.getInstance().setMessageChange(true);
                 }
                 break;
             case RESOURCE_LOCK://资源锁定
                 updateUserLockCloudRedEnvelope(wrapMessage);
                 break;
+            case P2P_AU_VIDEO_DIAL:// 音视频通知
+                break;
         }
-        //刷新单个
-        if (result && !hasNotified && !isList && bean != null) {
+        //刷新单个,接收到音视频通话消息不需要刷新
+        if (result && !hasNotified && !isList && bean != null && wrapMessage.getMsgType() != P2P_AU_VIDEO_DIAL) {
             setMessageChange(true);
             notifyRefreshMsg(isGroup(wrapMessage.getFromUid(), bean.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
         }

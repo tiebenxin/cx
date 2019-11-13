@@ -125,7 +125,6 @@ public class AVChatSoundPlayer {
             soundPool.setOnLoadCompleteListener(onLoadCompleteListener);
 
             audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);// 听筒声音
             audioManager.setSpeakerphoneOn(false);
             ringMode = audioManager.getRingerMode();
         }

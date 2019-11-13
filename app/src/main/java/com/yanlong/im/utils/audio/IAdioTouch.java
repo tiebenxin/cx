@@ -1,15 +1,20 @@
 package com.yanlong.im.utils.audio;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.example.nim_lib.controll.AVChatProfile;
+import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.yanlong.im.R;
+
+import net.cb.cb.library.utils.ToastUtil;
 
 public class IAdioTouch implements View.OnTouchListener {
     private Context context;
     private MTouchListener listener;
 
-    public IAdioTouch(Context context,MTouchListener listener) {
+    public IAdioTouch(Context context, MTouchListener listener) {
         this.context = context;
         this.listener = listener;
     }
@@ -17,11 +22,21 @@ public class IAdioTouch implements View.OnTouchListener {
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         //LogUtil.getLog().d("-------", "_______onTouch: "+event.getAction());
+        // 判断是否正在音视频通话
+        if (AVChatProfile.getInstance().isCallIng() || AVChatProfile.getInstance().isCallEstablished()) {
+            if (AVChatProfile.getInstance().isChatType() == AVChatType.VIDEO.getValue()) {
+                ToastUtil.show(context, context.getString(R.string.avchat_peer_busy_video));
+            } else {
+                ToastUtil.show(context, context.getString(R.string.avchat_peer_busy_voice));
+            }
+            return true;
+        }
+        //Log.d("-------", "_______onTouch: "+event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 AudioPlayManager.getInstance().stopPlay();
                 AudioRecordManager.getInstance(context).startRecord();
-                if(listener != null){
+                if (listener != null) {
                     listener.onDown();
                 }
                 break;
@@ -31,7 +46,7 @@ public class IAdioTouch implements View.OnTouchListener {
                 } else {
                     AudioRecordManager.getInstance(context).continueRecord();
                 }
-                if(listener != null){
+                if (listener != null) {
                     listener.onMove();
                 }
                 break;
@@ -39,7 +54,7 @@ public class IAdioTouch implements View.OnTouchListener {
             case MotionEvent.ACTION_UP:
                 AudioRecordManager.getInstance(context).stopRecord();
                 AudioRecordManager.getInstance(context).destroyRecord();
-                if(listener != null){
+                if (listener != null) {
                     listener.onUp();
                 }
                 break;
@@ -58,7 +73,7 @@ public class IAdioTouch implements View.OnTouchListener {
     }
 
 
-    public interface MTouchListener{
+    public interface MTouchListener {
         void onDown();
 
         void onMove();

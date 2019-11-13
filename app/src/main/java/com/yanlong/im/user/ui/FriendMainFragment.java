@@ -33,6 +33,7 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
@@ -234,11 +235,16 @@ public class FriendMainFragment extends Fragment {
                         .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
 
                 hd.txtName.setText(bean.getName4Show());
-                if (bean.getLastonline() > 0) {
-                    hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
-                    hd.txtTime.setVisibility(View.VISIBLE);
-                } else {
+
+                if (bean.getUid().equals(Constants.CX888_UID)) {
                     hd.txtTime.setVisibility(View.GONE);
+                } else {
+                    if (bean.getLastonline() > 0) {
+                        hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
+                        hd.txtTime.setVisibility(View.VISIBLE);
+                    } else {
+                        hd.txtTime.setVisibility(View.GONE);
+                    }
                 }
 
 
@@ -346,7 +352,7 @@ public class FriendMainFragment extends Fragment {
                         listData = userDao.getAllUserInBook();
                         if (listData != null) {
                             // 升序
-                            Collections.sort(listData,new Comparator<UserInfo>() {
+                            Collections.sort(listData, new Comparator<UserInfo>() {
                                 @Override
                                 public int compare(UserInfo o1, UserInfo o2) {
                                     return o1.getTag().hashCode() - o2.getTag().hashCode();

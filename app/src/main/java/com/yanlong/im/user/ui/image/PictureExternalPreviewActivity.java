@@ -1,4 +1,4 @@
-package com.yanlong.im.user.ui;
+package com.yanlong.im.user.ui.image;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -132,11 +132,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         left_back = (ImageButton) findViewById(com.luck.picture.lib.R.id.left_back);
         viewPager = (PreviewViewPager) findViewById(com.luck.picture.lib.R.id.preview_pager);
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
-        if (DeviceUtils.isViVoAndOppo()) {
-            directory_path = "/Pictures/";
-        } else {
-            directory_path = "/DCIM/Camera/";
-        }
+//        if (DeviceUtils.isViVoAndOppo()) {
+//            directory_path = "/Pictures/";
+//        } else {
+//            directory_path = "/DCIM/Camera/";
+//        }
+        directory_path = "/DCIM/Camera/";
+
         images = (List<LocalMedia>) getIntent().getSerializableExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
         left_back.setOnClickListener(this);
         initAndPermissions();
@@ -330,8 +332,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     private void initViewPageAdapterData() {
         tv_title.setText(position + 1 + "/" + images.size());
-        adapter = new SimpleFragmentAdapter();
-        viewPager.setAdapter(adapter);
+//        adapter = new SimpleFragmentAdapter();
+//        viewPager.setAdapter(adapter);
+        AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
+        mAdapter.bindData(images);
+        viewPager.setAdapter(mAdapter);
         viewPager.setCurrentItem(position);
         indexPath = images.get(position).getPath();
 
@@ -605,15 +610,25 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                                 public void run() {
                                     try {
                                         PicSaveUtils.saveFileLocl(new URL(imgPath), path);
-                                        if (DeviceUtils.isViVoAndOppo()) {
-                                            String dirPath = PictureFileUtils.createDir(mContext,
-                                                    fileName, "/Pictures");
+//                                        if (DeviceUtils.isViVoAndOppo()) {
+//                                            String dirPath = PictureFileUtils.createDir(mContext,
+//                                                    fileName, "/Pictures");
 //                                    PictureFileUtils.copyFile(file.getAbsolutePath(), dirPath);
+<<<<<<< HEAD:app/src/main/java/com/yanlong/im/user/ui/PictureExternalPreviewActivity.java
                                             LogUtil.getLog().d("a=", "DeviceUtils" + "--保存图片到相册--" + dirPath);
                                             PicSaveUtils.sendBroadcast(new File(dirPath), mContext);
                                         } else {
                                             PicSaveUtils.sendBroadcast(new File(path), mContext);
                                         }
+=======
+//                                            System.out.println("DeviceUtils" + "--保存图片到相册--" + dirPath);
+//                                            PicSaveUtils.sendBroadcast(new File(dirPath), mContext);
+//                                        } else {
+//                                            PicSaveUtils.sendBroadcast(new File(path), mContext);
+//                                        }
+                                        PicSaveUtils.sendBroadcast(new File(path), mContext);
+
+>>>>>>> b233479b2486345a8cf418d39d24b034a535f416:app/src/main/java/com/yanlong/im/user/ui/image/PictureExternalPreviewActivity.java
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                         ToastUtil.show(PictureExternalPreviewActivity.this, "保存失败");
@@ -1007,16 +1022,26 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 LogUtil.getLog().e("TAG", "------------showLoadingImage$:saveImage__path__" + fileName);
                 //TODO:为什么要copy到相册？相册更新可以是自定义文件路径，执行MediaStore.Images.Media.insertImage会在相册中产生两张图片
                 //刷新相册的广播
-                if (DeviceUtils.isViVoAndOppo()) {
-                    String dirPath = PictureFileUtils.createDir(mContext, fileName, "/Pictures");
-                    PictureFileUtils.copyFile(fileName, dirPath);
+//                if (DeviceUtils.isViVoAndOppo()) {
+//                    String dirPath = PictureFileUtils.createDir(mContext, fileName, "/Pictures");
+//                    PictureFileUtils.copyFile(fileName, dirPath);
 //                    MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
+<<<<<<< HEAD:app/src/main/java/com/yanlong/im/user/ui/PictureExternalPreviewActivity.java
                     LogUtil.getLog().d("a=", "DeviceUtils" + "--保存图片到相册--" + dirPath);
                     PicSaveUtils.sendBroadcast(new File(dirPath), getApplicationContext());
                 } else {
                     PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
                     LogUtil.getLog().d("a=", "" + "--保存图片到相册--" + path);
                 }
+=======
+//                    System.out.println("DeviceUtils" + "--保存图片到相册--" + dirPath);
+//                    PicSaveUtils.sendBroadcast(new File(dirPath), getApplicationContext());
+//                } else {
+//                    PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
+//                    System.out.println("" + "--保存图片到相册--" + path);
+//                }
+                PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
+>>>>>>> b233479b2486345a8cf418d39d24b034a535f416:app/src/main/java/com/yanlong/im/user/ui/image/PictureExternalPreviewActivity.java
                 ToastManage.s(mContext, "保存成功");
                 dismissDialog();
             } catch (Exception e) {

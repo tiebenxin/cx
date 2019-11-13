@@ -80,6 +80,7 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.jpush.android.api.JPluginPlatformInterface;
+import cn.jpush.android.api.JPushInterface;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -471,6 +472,13 @@ public class MainActivity extends AppActivity {
             }
         }
         showMinimizeVoiceView(true);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void stopJPushResumeEvent(EventFactory.StopJPushResumeEvent event) {
+        // TODO 处理部分手机收到音视频消息后，多个铃声在播放问题
+        JPushInterface.stopPush(this);
+        JPushInterface.resumePush(this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

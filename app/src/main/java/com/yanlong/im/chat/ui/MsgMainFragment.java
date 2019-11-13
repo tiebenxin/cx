@@ -338,7 +338,7 @@ public class MsgMainFragment extends Fragment {
             case CoreEnum.ENetStatus.ERROR_ON_NET:
 //                viewNetwork.setVisibility(View.VISIBLE);
                 if (viewNetwork.getVisibility() == View.GONE) {
-                    viewNetwork.postDelayed(showRunnable, 3 * 1000);
+                    viewNetwork.postDelayed(showRunnable, 15 * 1000);
                 }
                 break;
             case CoreEnum.ENetStatus.SUCCESS_ON_NET:
@@ -815,18 +815,7 @@ public class MsgMainFragment extends Fragment {
 
 
             holder.txtName.setText(title);
-            holder.sb.setButtonBackground(R.color.transparent);
-            holder.sb.setNum(bean.getUnread_count(), false);
-            if (bean.getIsMute() == 1) {
-                if (msginfo != null && !msginfo.isRead()) {
-                    holder.iv_disturb_unread.setVisibility(View.VISIBLE);
-                    holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
-                } else {
-                    holder.iv_disturb_unread.setVisibility(View.GONE);
-                }
-            } else {
-                holder.iv_disturb_unread.setVisibility(View.GONE);
-            }
+            setUnreadCountOrDisturb(holder, bean, msginfo);
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
 
@@ -855,6 +844,22 @@ public class MsgMainFragment extends Fragment {
             holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
             holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
 
+        }
+
+        private void setUnreadCountOrDisturb(RCViewHolder holder, Session bean, MsgAllBean msg) {
+            holder.sb.setButtonBackground(R.color.transparent);
+            if (bean.getIsMute() == 1) {
+                if (msg != null && !msg.isRead()) {
+                    holder.iv_disturb_unread.setVisibility(View.VISIBLE);
+                    holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
+                } else {
+                    holder.iv_disturb_unread.setVisibility(View.GONE);
+                    holder.sb.setNum(bean.getUnread_count(), false);
+                }
+            } else {
+                holder.iv_disturb_unread.setVisibility(View.GONE);
+                holder.sb.setNum(bean.getUnread_count(), false);
+            }
         }
 
         private void creatAndSaveImg(Session bean, ImageView imgHead) {

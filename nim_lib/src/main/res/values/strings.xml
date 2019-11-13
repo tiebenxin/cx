@@ -32,11 +32,14 @@
     <string name="avchat_net_error_then_quit">网络异常，通话结束</string>
     <string name="avchat_call_finish">通话结束</string>
     <string name="avchat_call_reject">对方已拒绝</string>
+    <string name="avchat_call_cancle">对方已取消</string>
     <string name="avchat_peer_protocol_low_version">对方版本过低，请提示对方升级</string>
     <string name="avchat_local_protocol_low_version">版本过低，请升级后使用</string>
     <string name="avchat_invalid_channel_id">对方已挂断</string>
     <string name="avchat_local_call_busy">本地通话中，无法使用易信进行通话。</string>
     <string name="avchat_peer_busy">对方正在通话中，请稍后再拨。</string>
+    <string name="avchat_peer_busy_video">正在视频通话，请稍后再试</string>
+    <string name="avchat_peer_busy_voice">正在语音通话，请稍后再试</string>
     <string name="avchat_wait_recieve1">正在等待对方接受邀请</string>
     <string name="avchat_audio_call_request">请求通话</string>
     <string name="avchat_connecting">连接中…</string>

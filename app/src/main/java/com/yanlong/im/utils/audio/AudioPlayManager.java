@@ -51,6 +51,7 @@ public class AudioPlayManager implements SensorEventListener {
     private boolean isCanAutoPlay = false;
     private int currentPosition;
     private MsgAllBean currentDownBean;
+    public String msg_id;// 当前播放的语音ID
 
     public AudioPlayManager() {
     }
@@ -211,6 +212,7 @@ public class AudioPlayManager implements SensorEventListener {
             if (this.voicePlayListener != null && this.currentPlayingMsg != null) {
                 this.voicePlayListener.onStop(currentPlayingMsg);
             }
+            msg_id = bean.getMsg_id();
             currentPlayingMsg = bean;
             currentPosition = position;
             isCanAutoPlay = canAutoPlay;
