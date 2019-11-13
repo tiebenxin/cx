@@ -386,7 +386,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 //                initSmallSurfaceView();
 //            }
 //        }
-        PlayerManager.getManager().init(this);
+        PlayerManager.getManager().init(this, PlayerManager.VOICE_TYPE);
         switch (mVoiceType) {
             case CoreEnum.VoiceType.WAIT:
                 layoutVoiceWait.setVisibility(View.VISIBLE);
@@ -463,7 +463,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         super.onDestroy();
         Log.i(TAG, "onDestroy");
         returnVideoActivity = false;
-        isCallEstablished=false;
+        isCallEstablished = false;
         stopPlayer();
         AVChatProfile.getInstance().setCallEstablished(false);
         AVChatProfile.getInstance().setCallIng(false);
@@ -844,9 +844,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             AVChatProfile.getInstance().setCallIng(false);
             if (avChatData != null && avChatData.getChatId() == avChatHangUpInfo.getChatId()) {
                 // 电话是否接通
-                if(isCallEstablished){
+                if (isCallEstablished) {
                     hangUpByOther(AVChatExitCode.HANGUP);
-                }else{
+                } else {
                     hangUpByOther(AVChatExitCode.OTHER_CANCEL);
                 }
                 // toUId != null 主叫挂断不需要在发送消息
@@ -945,13 +945,14 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
     };
 
-    private void stopPlayer(){
+    private void stopPlayer() {
         AVChatSoundPlayer.instance().stop();
         PlayerManager.getManager().stop();
     }
 
     /**
      * 超时处理
+     *
      * @param isSend
      */
     public void onTimeOutBus(boolean isSend) {
@@ -1734,6 +1735,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                                 outGoingCalling(AVChatType.AUDIO, friend, roomId);
                             }
                         } else {
+                            finish();
                             ToastUtil.show(VideoActivity.this, response.body().getMsg());
                         }
                     }

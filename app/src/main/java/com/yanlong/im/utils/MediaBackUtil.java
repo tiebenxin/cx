@@ -39,7 +39,8 @@ public class MediaBackUtil {
         Ringtone r = RingtoneManager.getRingtone(context, notification);
         r.play();
 
+//        PlayerManager.getManager().init(context, PlayerManager.MESSAGE_TYPE);
+//        PlayerManager.getManager().play(PlayerManager.MODE_SPEAKER);
+
     }
-
-
 }

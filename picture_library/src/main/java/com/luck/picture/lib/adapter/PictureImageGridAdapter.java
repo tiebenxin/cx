@@ -21,7 +21,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.luck.picture.lib.OnPhotoSelectChangedListener;
-import com.luck.picture.lib.PictureSelectorActivity;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.anim.OptAnimationLoader;
 import com.luck.picture.lib.config.PictureConfig;
@@ -50,6 +49,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
     private boolean showCamera = true;
     private OnPhotoSelectChangedListener imageSelectChangedListener;
     private int maxSelectNum;
+    private int maxVideoSelectNum;
     private List<LocalMedia> images = new ArrayList<LocalMedia>();
     private List<LocalMedia> selectImages = new ArrayList<LocalMedia>();
     private boolean enablePreview;
@@ -75,6 +75,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
         this.selectMode = config.selectionMode;
         this.showCamera = config.isCamera;
         this.maxSelectNum = config.maxSelectNum;
+        this.maxVideoSelectNum = config.maxVideoSelectNum;
         this.enablePreview = config.enablePreview;
         this.enablePreviewVideo = config.enPreviewVideo;
         this.enablePreviewAudio = config.enablePreviewAudio;
@@ -327,6 +328,12 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             boolean eqImg = pictureType.startsWith(PictureConfig.IMAGE);
             @SuppressLint("StringFormatMatches") String str = eqImg ? context.getString(R.string.picture_message_max_num, maxSelectNum)
                     : context.getString(R.string.picture_message_video_max_num, maxSelectNum);
+            ToastManage.s(context, str);
+            return;
+        }
+
+        if (selectImages.size() >= maxVideoSelectNum && !isChecked && pictureType.startsWith(PictureConfig.VIDEO)) {
+            @SuppressLint("StringFormatMatches") String str = context.getString(R.string.picture_message_video_max_num, maxVideoSelectNum);
             ToastManage.s(context, str);
             return;
         }

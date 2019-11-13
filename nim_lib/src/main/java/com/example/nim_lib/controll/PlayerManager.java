@@ -1,6 +1,5 @@
 package com.example.nim_lib.controll;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
@@ -29,6 +28,12 @@ public class PlayerManager {
      * 听筒模式
      */
     public static final int MODE_EARPIECE = 2;
+    // 1 音视频铃声  2消息铃声
+    public int mType;
+
+    public static final int VOICE_TYPE = 1;
+
+    public static final int MESSAGE_TYPE = 2;
 
     private static PlayerManager playerManager;
 
@@ -47,8 +52,9 @@ public class PlayerManager {
         return playerManager;
     }
 
-    public void init(Context context) {
+    public void init(Context context, int type) {
         this.context = context;
+        this.mType = type;
         initBeepSound();
     }
 
@@ -58,13 +64,22 @@ public class PlayerManager {
         // The volume on STREAM_SYSTEM is not adjustable, and users found it
         // too loud,
         // so we now play on the music stream.
-        ((Activity) context).setVolumeControlStream(AudioManager.STREAM_MUSIC);
+//        ((Activity) context).setVolumeControlStream(AudioManager.STREAM_MUSIC);
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.setLooping(true);
+        if (mType == PlayerManager.VOICE_TYPE) {
+            mediaPlayer.setLooping(true);
+        } else {
+            mediaPlayer.setLooping(false);
+        }
         mediaPlayer.setOnCompletionListener(beepListener);
 
-        AssetFileDescriptor file = context.getResources().openRawResourceFd(R.raw.audio_video_hint);
+        AssetFileDescriptor file;
+        if (mType == PlayerManager.VOICE_TYPE) {
+            file = context.getResources().openRawResourceFd(R.raw.audio_video_hint);
+        } else {
+            file = context.getResources().openRawResourceFd(R.raw.receive_news);
+        }
         try {
             mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
             file.close();
@@ -127,6 +142,7 @@ public class PlayerManager {
 
     /**
      * 是否打开声声器
+     *
      * @return
      */
     public boolean isOpenSpeaker() {

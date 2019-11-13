@@ -31,4 +31,11 @@ public class EventFactory extends BaseEvent {
     public static class StopVoiceeEvent extends BaseEvent {
         public String msg_id;
     }
+
+    /**
+     * 撤回视频
+     */
+    public static class StopVideoEvent extends BaseEvent {
+        public String msg_id;
+    }
 }
