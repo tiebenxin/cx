@@ -614,21 +614,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 //                                            String dirPath = PictureFileUtils.createDir(mContext,
 //                                                    fileName, "/Pictures");
 //                                    PictureFileUtils.copyFile(file.getAbsolutePath(), dirPath);
-<<<<<<< HEAD:app/src/main/java/com/yanlong/im/user/ui/PictureExternalPreviewActivity.java
-                                            LogUtil.getLog().d("a=", "DeviceUtils" + "--保存图片到相册--" + dirPath);
-                                            PicSaveUtils.sendBroadcast(new File(dirPath), mContext);
-                                        } else {
-                                            PicSaveUtils.sendBroadcast(new File(path), mContext);
-                                        }
-=======
-//                                            System.out.println("DeviceUtils" + "--保存图片到相册--" + dirPath);
+//                                            LogUtil.getLog().d("a=", "DeviceUtils" + "--保存图片到相册--" + dirPath);
 //                                            PicSaveUtils.sendBroadcast(new File(dirPath), mContext);
 //                                        } else {
 //                                            PicSaveUtils.sendBroadcast(new File(path), mContext);
 //                                        }
                                         PicSaveUtils.sendBroadcast(new File(path), mContext);
 
->>>>>>> b233479b2486345a8cf418d39d24b034a535f416:app/src/main/java/com/yanlong/im/user/ui/image/PictureExternalPreviewActivity.java
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                         ToastUtil.show(PictureExternalPreviewActivity.this, "保存失败");
@@ -1026,22 +1018,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 //                    String dirPath = PictureFileUtils.createDir(mContext, fileName, "/Pictures");
 //                    PictureFileUtils.copyFile(fileName, dirPath);
 //                    MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
-<<<<<<< HEAD:app/src/main/java/com/yanlong/im/user/ui/PictureExternalPreviewActivity.java
-                    LogUtil.getLog().d("a=", "DeviceUtils" + "--保存图片到相册--" + dirPath);
-                    PicSaveUtils.sendBroadcast(new File(dirPath), getApplicationContext());
-                } else {
-                    PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
-                    LogUtil.getLog().d("a=", "" + "--保存图片到相册--" + path);
-                }
-=======
-//                    System.out.println("DeviceUtils" + "--保存图片到相册--" + dirPath);
+//                    LogUtil.getLog().d("a=", "DeviceUtils" + "--保存图片到相册--" + dirPath);
 //                    PicSaveUtils.sendBroadcast(new File(dirPath), getApplicationContext());
 //                } else {
 //                    PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
-//                    System.out.println("" + "--保存图片到相册--" + path);
+//                    LogUtil.getLog().d("a=", "" + "--保存图片到相册--" + path);
 //                }
                 PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
->>>>>>> b233479b2486345a8cf418d39d24b034a535f416:app/src/main/java/com/yanlong/im/user/ui/image/PictureExternalPreviewActivity.java
                 ToastManage.s(mContext, "保存成功");
                 dismissDialog();
             } catch (Exception e) {
