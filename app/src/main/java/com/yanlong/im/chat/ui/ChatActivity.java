@@ -603,6 +603,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkNetConnectStatus()) {
+                    return;
+                }
                 //test 8.
                 String text = edtChat.getText().toString().trim();
                 if (TextUtils.isEmpty(text)) {
@@ -710,7 +713,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 if (viewFunc.getVisibility() == View.VISIBLE) {
-                    hideBt();
+//                    hideBt();
                 } else {
                     showBtType(0);
                 }
@@ -792,6 +795,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 ToastUtil.show(ChatActivity.this, getString(R.string.avchat_peer_busy_voice));
                             }
                         } else {
+                            if (!checkNetConnectStatus()) {
+                                return;
+                            }
                             Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                             startActivityForResult(intent, VIDEO_RP);
                         }
@@ -886,6 +892,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
+                        if (!checkNetConnectStatus()) {
+                            return;
+                        }
                         startVoice(null);
                     }
 
@@ -934,6 +943,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
             public void completeRecord(String file, int duration) {
+                if (!checkNetConnectStatus()) {
+                    return;
+                }
                 VoiceMessage voice = SocketData.createVoiceMessage(SocketData.getUUID(), file, duration);
                 MsgAllBean msg = SocketData.sendFileUploadMessagePre(voice.getMsgId(), toUId, toGid, SocketData.getFixTime(), voice, ChatEnum.EMessageType.VOICE);
                 msgListData.add(msg);
@@ -969,14 +981,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
                     @Override
                     public void onSuccess() {
-//                        Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-//                        startActivityForResult(intent, VIDEO_RP);
 
-
-//                        PictureSelector.create(ChatActivity.this)
-//                                .openCamera(PictureMimeType.ofVideo())
-//                                .compress(true)
-//                                .forResult(PictureConfig.REQUEST_CAMERA);
                     }
 
                     //                  @Override
@@ -992,6 +997,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         llChatVideoCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!checkNetConnectStatus()) {
+                    return;
+                }
                 hideBt();
                 DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
                     @Override
@@ -1781,6 +1789,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
                     MsgAllBean videoMsgBean = null;
                     if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
+                        if (!checkNetConnectStatus()) {
+                            return;
+                        }
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
@@ -1805,6 +1816,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         startService(new Intent(getContext(), UpLoadService.class));
 
                     } else if (dataType == RecordedActivity.RESULT_TYPE_PHOTO) {
+                        if (!checkNetConnectStatus()) {
+                            return;
+                        }
                         String photoPath = data.getStringExtra(RecordedActivity.INTENT_PATH);
                         String file = photoPath;
 
@@ -1831,6 +1845,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 case PictureConfig.REQUEST_CAMERA:
                 case PictureConfig.CHOOSE_REQUEST:
+                    if (!checkNetConnectStatus()) {
+                        return;
+                    }
                     // 图片选择结果回调
                     List<LocalMedia> obt = PictureSelector.obtainMultipleResult(data);
                     MsgAllBean imgMsgBean = null;
@@ -1888,6 +1905,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     break;
                 case REQ_RP://红包
+                    if (!checkNetConnectStatus()) {
+                        return;
+                    }
                     EnvelopeBean envelopeInfo = JrmfRpClient.getEnvelopeInfo(data);
                     if (envelopeInfo != null) {
                         //  ToastUtil.show(getContext(), "红包的回调" + envelopeInfo.toString());
@@ -1915,16 +1935,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
             }
         } else if (resultCode == SelectUserActivity.RET_CODE_SELECTUSR) {//选择通讯录中的某个人
+            if (!checkNetConnectStatus()) {
+                return;
+            }
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
-
             MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), userInfo.getImid());
             showSendObj(msgAllbean);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-        }/* else if (resultCode == REQ_REFRESH) {//刷新返回时需要刷新聊天列表数据
-            mks.clear();
-            taskRefreshMessage();
-        }*/
+        }
     }
 
 
@@ -3887,7 +3906,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         JrmfRpClient.openGroupRp(ChatActivity.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead(), rbid, callBack);
                     } else {
-
                         UserInfo minfo = UserAction.getMyInfo();
                         JrmfRpClient.openSingleRp(ChatActivity.this, "" + minfo.getUid(), token,
                                 minfo.getName(), minfo.getHead(), rbid, callBack);
@@ -4127,6 +4145,24 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 DaoUtil.update(msg);
             }
         }
+    }
+
+    /*
+     * 发送消息前，需要检测网络连接状态，网络不可用，不能发送
+     * 每条消息发送前，需要检测，语音和小视频录制之前，仍需要检测
+     * */
+    public boolean checkNetConnectStatus() {
+        boolean isOk;
+        if (!NetUtil.isNetworkConnected()) {
+            ToastUtil.show(this, "网络连接不可用，请稍后重试");
+            isOk = false;
+        } else {
+            isOk = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.CONN_STATUS).get4Json(Boolean.class);
+            if (!isOk) {
+                ToastUtil.show(this, "连接已断开，请稍后再试");
+            }
+        }
+        return isOk;
     }
 
 

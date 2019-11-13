@@ -71,7 +71,6 @@ public class AdapterPreviewImage extends PagerAdapter {
     public AdapterPreviewImage(Context c) {
         context = c;
         inflater = LayoutInflater.from(c);
-
     }
 
     public void bindData(List<LocalMedia> l) {
@@ -123,13 +122,10 @@ public class AdapterPreviewImage extends PagerAdapter {
         boolean isGif = FileUtils.isGif(path);//是否是gif图片
         boolean isOriginal = StringUtil.isNotNull(originUrl);//是否有原图
         boolean isHttp = PictureMimeType.isHttp(path);
-//        final boolean isLong = PictureMimeType.isLongImg(media);
         boolean hasRead = false;
         if (!TextUtils.isEmpty(originUrl)) {
             hasRead = msgDao.ImgReadStatGet(originUrl);
-
         }
-
         if (isGif && !media.isCompressed()) {
             if (!media.getCutPath().equals(media.getCompressPath())) {
                 Glide.with(context).load(media.getCutPath()).listener(new RequestListener<Drawable>() {
@@ -158,6 +154,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ivDownload.setEnabled(true);
                 if (isOriginal) {
                     if (finalHasRead) {
                         saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
@@ -174,12 +171,16 @@ public class AdapterPreviewImage extends PagerAdapter {
         tvViewOrigin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                tvViewOrigin.setEnabled(true);
                 downloadOriginImage(media.getPath(), tvViewOrigin, ivDownload, ivZoom, false);
             }
         });
         ivZoom.setOnViewTapListener(new PhotoViewAttacher2.OnViewTapListener() {
             @Override
             public void onViewTap(View view, float x, float y) {
+                if (download != null) {//取消当前请求
+                    download.cancel();
+                }
                 ((Activity) context).finish();
                 ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
             }
@@ -246,14 +247,6 @@ public class AdapterPreviewImage extends PagerAdapter {
 
 
         }
-    }
-
-    /*
-     * 保存图片到本地
-     * */
-    private void saveImageToLocal(File file) {
-
-
     }
 
     private void showImage(ZoomImageView ivZoom, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp) {

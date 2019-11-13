@@ -35,7 +35,8 @@ public class SharedPreferencesUtil {
         NOTIFICATION("notification"),
         NEW_VESRSION("new_vesrsion"),
         UID("login_uid"),//当前登录用户uid
-        IM_ID("im_id");//当前登录用户IM_id及常信号
+        IM_ID("im_id"),//当前登录用户IM_id及常信号
+        CONN_STATUS("connect_status");//当前登录用户IM_id及常信号
 
         private String name;
 

@@ -251,6 +251,9 @@ public class SocketData {
             //  LogUtil.getLog().d(TAG, "msgSave4Me2: msg" + msg.toString());
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
+            if (msgAllBean == null) {
+                return;
+            }
             msgAllBean.setRead(true);//自己发送的消息是已读
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
