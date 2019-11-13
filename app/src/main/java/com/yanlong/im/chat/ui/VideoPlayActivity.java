@@ -39,6 +39,7 @@ import com.yanlong.im.utils.MyDiskCache;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.utils.DownloadUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
 
@@ -453,7 +454,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         if (mFile.exists()){
             result = true;
         }
-        Log.e("TAG", "文件不存在 path = " + filePath);
+        LogUtil.getLog().e("TAG", "文件不存在 path = " + filePath);
         return result;
     }
 

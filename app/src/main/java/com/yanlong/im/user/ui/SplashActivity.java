@@ -163,7 +163,7 @@ public class SplashActivity extends AppActivity {
 
     private void updateToken(final boolean isFlast) {
 //        LogUtil.getLog().i("youmeng", "SplashActivity------->getDevId");
-        System.out.println(SplashActivity.class.getSimpleName() + "--更新token");
+        LogUtil.getLog().d("a=", SplashActivity.class.getSimpleName() + "--更新token");
         new RunUtils(new RunUtils.Enent() {
             String devId;
 
@@ -282,13 +282,13 @@ public class SplashActivity extends AppActivity {
         new CheckPermission2Util().requestPermissions(this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
-                System.out.println("Splash请求权限成功");
+                LogUtil.getLog().d("a=", "Splash请求权限成功");
                 startTimer();
             }
 
             @Override
             public void onFail() {
-                System.out.println("Splash请求权限失败");
+                LogUtil.getLog().d("a=", "Splash请求权限失败");
                 startTimer();
             }
         }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE});
@@ -332,7 +332,7 @@ public class SplashActivity extends AppActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        System.out.println("Splash请求权限失败");
+        LogUtil.getLog().d("a=", "Splash请求权限失败");
         startTimer();
     }
 }

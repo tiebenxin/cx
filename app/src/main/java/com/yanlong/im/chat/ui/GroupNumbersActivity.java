@@ -32,6 +32,7 @@ import com.yanlong.im.utils.UserUtil;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.utils.TouchUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -303,7 +304,7 @@ public class GroupNumbersActivity extends AppActivity {
             return;
         }
         isClickble = 1;
-        Log.v("GroupNumbersActivity","taskOption");
+        LogUtil.getLog().e("GroupNumbersActivity","taskOption");
         CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {

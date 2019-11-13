@@ -4,6 +4,7 @@ package net.cb.cb.library.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 
 import net.cb.cb.library.AppConfig;
@@ -40,7 +41,22 @@ public class NetUtil {
         builder.writeTimeout(6, TimeUnit.SECONDS);//设置写入超时时间
         builder.addInterceptor(new NetIntrtceptor());
         if (AppConfig.DEBUG) {
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor(
+                    new HttpLoggingInterceptor.Logger() {
+                        @Override
+                        public void log(String message) {
+                            if (AppConfig.DEBUG) {
+//                            Log.e("h===","收到响应1: " + message);
+                                if(message!=null){
+                                    if(message.contains("http")||message.contains("data")||message.contains("Data")
+                                            ||message.contains("=")||message.contains("{")){
+                                        Log.e("h===","收到响应2==="+message);
+                                    }
+                                }
+                            }
+                        }
+                    }
+            );
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
             builder.addInterceptor(logging);
         } else {

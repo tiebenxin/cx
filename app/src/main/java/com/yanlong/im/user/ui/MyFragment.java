@@ -38,6 +38,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.IntentUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SpUtil;
@@ -118,7 +119,7 @@ public class MyFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void refreshUser(EventRefreshUser event) {
-        System.out.println(MyFragment.class.getSimpleName() + "刷新用户信息");
+        LogUtil.getLog().d("a=", MyFragment.class.getSimpleName() + "刷新用户信息");
         if (event.getInfo() != null) {
             initData(event.getInfo());
         }
@@ -216,7 +217,7 @@ public class MyFragment extends Fragment {
                 mTvInfo.setText("常信号: " + userInfo.getImid() + "");
             }
         } else {
-//            System.out.println(MyFragment.class.getSimpleName() + "刷新用户信息失败");
+//            LogUtil.getLog().d("a=", MyFragment.class.getSimpleName() + "刷新用户信息失败");
 //            taskGetUserInfo4Id();
 
         }

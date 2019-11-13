@@ -9,6 +9,8 @@ import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.MsgServer;
 import com.yanlong.im.chat.server.UpLoadService;
 
+import net.cb.cb.library.utils.LogUtil;
+
 
 public class MyException implements Thread.UncaughtExceptionHandler {
     private static MyException mInstance;
@@ -30,7 +32,7 @@ public class MyException implements Thread.UncaughtExceptionHandler {
     }
     @Override
     public void uncaughtException(Thread t, Throwable ex) {
-        Log.e("TAG","捕获到异常"+ex.getMessage());
+        LogUtil.getLog().e("TAG","捕获到异常"+ex.getMessage());
        // ToastUtil.show(mContext,"程序异常!即将退出");
        try{
            // Thread.sleep(3000);

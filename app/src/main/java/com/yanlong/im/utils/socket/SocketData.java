@@ -248,7 +248,7 @@ public class SocketData {
                     //时间要和ack一起返回
                     .setTimestamp(getSysTime())
                     .build();
-            //  Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
+            //  LogUtil.getLog().d(TAG, "msgSave4Me2: msg" + msg.toString());
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
             msgAllBean.setRead(true);//自己发送的消息是已读
@@ -294,7 +294,7 @@ public class SocketData {
                     //时间要和ack一起返回
                     // .setTimestamp(System.currentTimeMillis())
                     .build();
-            Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
+            LogUtil.getLog().d(TAG, "msgSave4Me1: msg" + msg.toString());
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
 
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
@@ -846,7 +846,7 @@ public class SocketData {
         msgAllBean.setGid(toGid == null ? "" : toGid);
         msgAllBean.setSend_state(ChatEnum.ESendStatus.PRE_SEND);
 
-        Log.d(TAG, "sendFileUploadMessagePre: msgId" + msgId);
+        LogUtil.getLog().d(TAG, "sendFileUploadMessagePre: msgId" + msgId);
 
         DaoUtil.update(msgAllBean);
         msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());

@@ -526,7 +526,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showVoiceMinimizeEvent(EventFactory.ShowVoiceMinimizeEvent event) {
-        Log.i("VideoActivity", "showVoiceMinimizeEvent：" + event.isStartRunThread);
+        LogUtil.getLog().i("VideoActivity", "showVoiceMinimizeEvent：" + event.isStartRunThread);
         showMinimizeVoiceView(event.isStartRunThread);
     }
 

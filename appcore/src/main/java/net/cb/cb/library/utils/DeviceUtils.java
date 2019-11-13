@@ -42,7 +42,7 @@ public class DeviceUtils {
     }
 
     public static boolean isViVoAndOppo() {
-        System.out.println(DeviceUtils.class.getSimpleName() + "--手机品牌名=" + getBrand());
+        LogUtil.getLog().d("a=", DeviceUtils.class.getSimpleName() + "--手机品牌名=" + getBrand());
         if (getBrand().equals(VIVO) || getBrand().equals(OPPO)) {
             return true;
         }

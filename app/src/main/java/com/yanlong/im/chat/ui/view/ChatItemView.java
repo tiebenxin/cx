@@ -57,6 +57,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
@@ -850,7 +851,7 @@ public class ChatItemView extends LinearLayout {
 
             RequestBuilder rb;
             if (uri.getPath().toLowerCase().endsWith(".gif")) {
-                Log.e("gif", "setData4: isgif");
+                LogUtil.getLog().e("gif", "setData4: isgif");
                 rb = in.asGif();
                 rOptions.priority(Priority.LOW).diskCacheStrategy(DiskCacheStrategy.ALL);
             } else {

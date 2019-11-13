@@ -7,6 +7,8 @@ import android.webkit.JavascriptInterface;
 
 import com.yanlong.im.user.ui.FeedbackActivity;
 
+import net.cb.cb.library.utils.LogUtil;
+
 public class JSInterface {
     private Context mContext;
     public JSInterface(Context context){
@@ -15,7 +17,7 @@ public class JSInterface {
 
     @JavascriptInterface
     public void callAndroidMethod(){
-        Log.e("TAG","callMETHOD"+"");
+        LogUtil.getLog().e("TAG","callMETHOD"+"");
         mContext.startActivity(new Intent(mContext, FeedbackActivity.class));
     }
 }

@@ -75,7 +75,7 @@ public class PhoneListUtil {
                     String note = noteCursor.getString(noteCursor
                             .getColumnIndex(ContactsContract.CommonDataKinds.Nickname.NAME));
                     //   temp.note = note;
-                    // Log.i("note:", note);
+                    // LogUtil.getLog().i("note:", note);
                 } while (noteCursor.moveToNext());
             }
             contacts.add(temp);
@@ -161,7 +161,7 @@ public class PhoneListUtil {
 
             @Override
             public void onFail() {
-                Log.d("xxx", "onFail: ");
+                LogUtil.getLog().d("xxx", "onFail: ");
 
             }
         }, activity.getApplicationContext(), permission, grantResults);

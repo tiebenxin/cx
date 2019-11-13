@@ -18,57 +18,68 @@ package com.luck.picture.lib.photoview;
 import android.util.Log;
 
 /**
- * Helper class to redirect {@link LogManager#logger} to {@link Log}
+ * Helper class to redirect {@link LogManager#} to {@link Log}
  */
 public class LoggerDefault implements Logger {
+    public static String Tag="a===";
 
     @Override
     public int v(String tag, String msg) {
+        tag=Tag+tag;
         return Log.v(tag, msg);
     }
 
     @Override
     public int v(String tag, String msg, Throwable tr) {
+        tag=Tag+tag;
         return Log.v(tag, msg, tr);
     }
 
     @Override
     public int d(String tag, String msg) {
+        tag=Tag+tag;
         return Log.d(tag, msg);
     }
 
     @Override
     public int d(String tag, String msg, Throwable tr) {
+        tag=Tag+tag;
         return Log.d(tag, msg, tr);
     }
 
     @Override
     public int i(String tag, String msg) {
+        tag=Tag+tag;
         return Log.i(tag, msg);
     }
 
     @Override
     public int i(String tag, String msg, Throwable tr) {
+        tag=Tag+tag;
         return Log.i(tag, msg, tr);
     }
 
     @Override
     public int w(String tag, String msg) {
+        tag=Tag+tag;
         return Log.w(tag, msg);
     }
 
     @Override
     public int w(String tag, String msg, Throwable tr) {
+        tag=Tag+tag;
         return Log.w(tag, msg, tr);
     }
 
     @Override
     public int e(String tag, String msg) {
+        tag=Tag+tag;
         return Log.e(tag, msg);
     }
 
     @Override
     public int e(String tag, String msg, Throwable tr) {
+        tag=Tag+tag;
         return Log.e(tag, msg, tr);
     }
 

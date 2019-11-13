@@ -25,6 +25,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.photoview.LogManager;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -383,7 +384,7 @@ public class PictureFileUtils {
         //旋转图片 动作
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        System.out.println("angle2=" + angle);
+        LogManager.getLogger().i("a===","angle2=" + angle);
         // 创建新的图片
         Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
                 bitmap.getWidth(), bitmap.getHeight(), matrix, true);

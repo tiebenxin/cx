@@ -16,7 +16,7 @@ public class IAdioTouch implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        //Log.d("-------", "_______onTouch: "+event.getAction());
+        //LogUtil.getLog().d("-------", "_______onTouch: "+event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 AudioPlayManager.getInstance().stopPlay();

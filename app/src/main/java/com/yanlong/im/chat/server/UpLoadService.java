@@ -45,7 +45,7 @@ public class UpLoadService extends Service {
     public static Integer getProgress(String msgId) {
         if (pgms.containsKey(msgId)) {
             int pg = pgms.get(msgId);
-//            Log.d("getProgress", "getProgress: " + msgId + "  val:" + pg);
+//            LogUtil.getLog().d("getProgress", "getProgress: " + msgId + "  val:" + pg);
             return pg;
         }
 
@@ -69,11 +69,11 @@ public class UpLoadService extends Service {
             public void run() {
                 while (queue.size() > 0) {
                     UpProgress upProgress = queue.poll();
-                    Log.d("ChatActivity--上传", "上传: " + upProgress.getId());
+                    LogUtil.getLog().d("ChatActivity--上传", "上传: " + upProgress.getId());
                     upFileAction.upFileSyn(UpFileAction.PATH.IMG, getApplicationContext(), upProgress.getCallback(), upProgress.getFile());
                 }
                 stopSelf();
-                Log.d("ChatActivity-上传", "上传结束");
+                LogUtil.getLog().d("ChatActivity-上传", "上传结束");
             }
         }).start();
 
@@ -90,8 +90,8 @@ public class UpLoadService extends Service {
         upProgress.setFile(file);
         updateProgress(id, 0);
         final ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(file);
-        // Log.d("TAG", "----------onAdd: "+img.getSizeStr());
-        //Log.d("TAG", "----------: "+img.getWidth());
+        // LogUtil.getLog().d("TAG", "----------onAdd: "+img.getSizeStr());
+        //LogUtil.getLog().d("TAG", "----------: "+img.getWidth());
         upProgress.setCallback(new UpFileUtil.OssUpCallback() {
 
             @Override
@@ -112,7 +112,7 @@ public class UpLoadService extends Service {
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
-                // Log.d("tag", "success : ===============>"+id);
+                // LogUtil.getLog().d("tag", "success : ===============>"+id);
                 //  myback.success(url);
 
             }
@@ -120,7 +120,7 @@ public class UpLoadService extends Service {
             @Override
             public void fail() {
                 EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                //  Log.d("tag", "fail : ===============>"+id);
+                //  LogUtil.getLog().d("tag", "fail : ===============>"+id);
                 //alert.dismiss();
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
@@ -145,7 +145,7 @@ public class UpLoadService extends Service {
                     return;
                 }
                 EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                // Log.d("tag", "inProgress : ===============>"+id);
+                // LogUtil.getLog().d("tag", "inProgress : ===============>"+id);
                 oldUptime = System.currentTimeMillis();
 
                 int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
@@ -207,7 +207,7 @@ public class UpLoadService extends Service {
 //                alert.dismiss();
 //                ToastUtil.show(getContext(), "上传失败!");
                         EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                        //  Log.d("tag", "fail : ===============>"+id);
+                        //  LogUtil.getLog().d("tag", "fail : ===============>"+id);
                         //alert.dismiss();
                         // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
@@ -227,7 +227,7 @@ public class UpLoadService extends Service {
                             return;
                         }
                         EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                        // Log.d("tag", "inProgress : ===============>"+id);
+                        // LogUtil.getLog().d("tag", "inProgress : ===============>"+id);
                         oldUptime = System.currentTimeMillis();
 
                         int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
@@ -245,7 +245,7 @@ public class UpLoadService extends Service {
             @Override
             public void fail() {
                 EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                //  Log.d("tag", "fail : ===============>"+id);
+                //  LogUtil.getLog().d("tag", "fail : ===============>"+id);
                 //alert.dismiss();
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
 
@@ -292,7 +292,7 @@ public class UpLoadService extends Service {
 
             @Override
             public void inProgress(long progress, long zong) {
-                Log.e("TAG",progress+"---------"+zong);
+                LogUtil.getLog().e("TAG",progress+"---------"+zong);
 
 
             }
@@ -308,8 +308,8 @@ public class UpLoadService extends Service {
         upProgress.setFile(file);
         updateProgress(id, 0);
         long img = ImgSizeUtil.getVideoSize(file);
-        // Log.d("TAG", "----------onAdd: "+img.getSizeStr());
-        //Log.d("TAG", "----------: "+img.getWidth());
+        // LogUtil.getLog().d("TAG", "----------onAdd: "+img.getSizeStr());
+        //LogUtil.getLog().d("TAG", "----------: "+img.getWidth());
         upProgress.setCallback(new UpFileUtil.OssUpCallback() {
 
             @Override
@@ -325,13 +325,13 @@ public class UpLoadService extends Service {
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);
-                // Log.d("tag", "success : ===============>"+id);
+                // LogUtil.getLog().d("tag", "success : ===============>"+id);
                 //  myback.success(url);
             }
             @Override
             public void fail() {
                 EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                //  Log.d("tag", "fail : ===============>"+id);
+                //  LogUtil.getLog().d("tag", "fail : ===============>"+id);
                 //alert.dismiss();
                 // ToastUtil.show(getContext(), "上传失败,请稍候重试");
                 //  upProgress.setProgress(100);
@@ -351,7 +351,7 @@ public class UpLoadService extends Service {
                     return;
                 }
                 EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-                // Log.d("tag", "inProgress : ===============>"+id);
+                // LogUtil.getLog().d("tag", "inProgress : ===============>"+id);
                 oldUptime = System.currentTimeMillis();
 
                 int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();

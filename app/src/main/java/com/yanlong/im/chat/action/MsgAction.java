@@ -22,6 +22,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 
@@ -210,7 +211,7 @@ public class MsgAction {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null) {
-                        System.out.println("MessageManager--加载群信息后的失败 response=null--gid=" + gid);
+                        LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败 response=null--gid=" + gid);
                         return;
                     }
                     if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
@@ -239,7 +240,7 @@ public class MsgAction {
                         //8.8 取消从数据库里读取群成员信息
                         callback.onResponse(call, response);
                     } else {
-                        System.out.println("MessageManager--加载群信息后的失败--gid=" + gid);
+                        LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
                         MessageManager.getInstance().removeLoadGids(gid);
                         callback.onFailure(call, new Throwable());
                     }
@@ -248,7 +249,7 @@ public class MsgAction {
                 @Override
                 public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
                     super.onFailure(call, t);
-                    System.out.println("MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
+                    LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
 //                    t.printStackTrace();
                     MessageManager.getInstance().removeLoadGids(gid);
                     callback.onFailure(call, new Throwable());
@@ -271,7 +272,7 @@ public class MsgAction {
                 @Override
                 public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                     if (response.body() == null) {
-                        System.out.println("MessageManager--加载群信息后的失败 response=null--gid=" + gid);
+                        LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败 response=null--gid=" + gid);
                         return;
                     }
                     if (response.body().isOk() && response.body().getData() != null) {//保存群友信息到数据库
@@ -283,7 +284,7 @@ public class MsgAction {
                         MessageManager.getInstance().doImgHeadChange(gid, newGroup);
                         callback.onResponse(call, response);
                     } else {
-                        System.out.println("MessageManager--加载群信息后的失败--gid=" + gid);
+                        LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid);
                         MessageManager.getInstance().removeLoadGids(gid);
                         callback.onFailure(call, new Throwable());
                     }
@@ -292,7 +293,7 @@ public class MsgAction {
                 @Override
                 public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
                     super.onFailure(call, t);
-                    System.out.println("MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
+                    LogUtil.getLog().d("a=", "MessageManager--加载群信息后的失败--gid=" + gid + t.getMessage());
 //                    t.printStackTrace();
 //                    MessageManager.getInstance().removeLoadGids(gid);
                     callback.onFailure(call, new Throwable());

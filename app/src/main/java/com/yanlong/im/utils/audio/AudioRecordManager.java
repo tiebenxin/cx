@@ -15,6 +15,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import net.cb.cb.library.utils.LogUtil;
+
 import java.io.File;
 
 public class AudioRecordManager implements Handler.Callback {
@@ -87,7 +89,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     public final boolean handleMessage(Message msg) {
-        Log.i(TAG, "handleMessage " + msg.what);
+        LogUtil.getLog().i(TAG, "handleMessage " + msg.what);
         AudioStateMessage m;
         switch (msg.what) {
             case 2:
@@ -134,7 +136,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     private void destroyView() {
-        Log.d(TAG, "destroyTipView");
+        LogUtil.getLog().d(TAG, "destroyTipView");
         this.mHandler.removeMessages(7);
         this.mHandler.removeMessages(8);
         this.mHandler.removeMessages(2);
@@ -169,7 +171,7 @@ public class AudioRecordManager implements Handler.Callback {
 
         this.mAfChangeListener = new AudioManager.OnAudioFocusChangeListener() {
             public void onAudioFocusChange(int focusChange) {
-                Log.d(TAG, "OnAudioFocusChangeListener " + focusChange);
+                LogUtil.getLog().d(TAG, "OnAudioFocusChangeListener " + focusChange);
                 if (focusChange == -1) {
                    AudioRecordManager.this.mAudioManager.abandonAudioFocus(AudioRecordManager.this.mAfChangeListener);
                     AudioRecordManager.this.mAfChangeListener = null;
@@ -214,7 +216,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     private void startRec() {
-        Log.d(TAG, "startRec");
+        LogUtil.getLog().d(TAG, "startRec");
 
         try {
             this.muteAudioFocus(this.mAudioManager, true);
@@ -255,7 +257,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     private void stopRec() {
-        Log.d(TAG, "stopRec");
+        LogUtil.getLog().d(TAG, "stopRec");
 
         try {
             this.muteAudioFocus(this.mAudioManager, false);
@@ -271,7 +273,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     private void deleteAudioFile() {
-        Log.d(TAG, "deleteAudioFile");
+        LogUtil.getLog().d(TAG, "deleteAudioFile");
         if (this.mAudioPath != null) {
             File file = new File(this.mAudioPath.getPath());
             if (file.exists()) {
@@ -282,7 +284,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     private void finishRecord() {
-        Log.d(TAG, "finishRecord path = " + this.mAudioPath);
+        LogUtil.getLog().d(TAG, "finishRecord path = " + this.mAudioPath);
         if (mAudioRecordListener != null) {
             int duration = (int) (SystemClock.elapsedRealtime() - this.smStartRecTime) / 1000;
             mAudioRecordListener.onFinish(this.mAudioPath, duration);
@@ -301,7 +303,7 @@ public class AudioRecordManager implements Handler.Callback {
 
     private void muteAudioFocus(AudioManager audioManager, boolean bMute) {
         if (Build.VERSION.SDK_INT < 8) {
-            Log.d(TAG, "muteAudioFocus Android 2.1 and below can not stop music");
+            LogUtil.getLog().d(TAG, "muteAudioFocus Android 2.1 and below can not stop music");
         } else {
             if (bMute) {
                 audioManager.requestAudioFocus(this.mAfChangeListener, 3, 2);
@@ -318,7 +320,7 @@ public class AudioRecordManager implements Handler.Callback {
         }
 
         void handleMessage(AudioStateMessage msg) {
-            Log.d(TAG, this.getClass().getSimpleName() + " handleMessage : " + msg.what);
+            LogUtil.getLog().d(TAG, this.getClass().getSimpleName() + " handleMessage : " + msg.what);
             switch (msg.what) {
                 case 3:
                     AudioRecordManager.this.setCancelView();
@@ -372,7 +374,7 @@ public class AudioRecordManager implements Handler.Callback {
         }
 
         void handleMessage(AudioStateMessage msg) {
-            Log.d(TAG, this.getClass().getSimpleName() + " handleMessage : " + msg.what);
+            LogUtil.getLog().d(TAG, this.getClass().getSimpleName() + " handleMessage : " + msg.what);
             switch (msg.what) {
                 case 1:
                 case 2:
@@ -420,7 +422,7 @@ public class AudioRecordManager implements Handler.Callback {
         }
 
         void handleMessage(AudioStateMessage message) {
-            Log.d(TAG, "SendingState handleMessage " + message.what);
+            LogUtil.getLog().d(TAG, "SendingState handleMessage " + message.what);
             switch (message.what) {
                 case 9:
                     AudioRecordManager.this.stopRec();
@@ -440,7 +442,7 @@ public class AudioRecordManager implements Handler.Callback {
         }
 
         void handleMessage(AudioStateMessage msg) {
-            Log.d(TAG, this.getClass().getSimpleName() + " handleMessage : " + msg.what);
+            LogUtil.getLog().d(TAG, this.getClass().getSimpleName() + " handleMessage : " + msg.what);
             switch (msg.what) {
                 case 2:
                     AudioRecordManager.this.audioDBChanged();
@@ -519,7 +521,7 @@ public class AudioRecordManager implements Handler.Callback {
 
     class IdleState extends IAudioState {
         public IdleState() {
-            Log.d(TAG, "IdleState");
+            LogUtil.getLog().d(TAG, "IdleState");
         }
 
         void enter() {
@@ -533,7 +535,7 @@ public class AudioRecordManager implements Handler.Callback {
         }
 
         void handleMessage(AudioStateMessage msg) {
-            Log.d(TAG, "IdleState handleMessage : " + msg.what);
+            LogUtil.getLog().d(TAG, "IdleState handleMessage : " + msg.what);
             switch (msg.what) {
                 case 1:
                     AudioRecordManager.this.initView();

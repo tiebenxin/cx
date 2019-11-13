@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 
+import com.luck.picture.lib.photoview.LogManager;
 import com.luck.picture.lib.tools.PictureFileUtils;
 
 import java.io.BufferedInputStream;
@@ -49,7 +50,7 @@ public class PicSaveUtils {
                 String dirPath = PictureFileUtils.createDir(mContext,
                         fileName, "/Pictures");
                 PictureFileUtils.copyFile(file.getAbsolutePath(), dirPath);
-                System.out.println("DeviceUtils" + "--insert图片到相册--" + dirPath);
+                LogManager.getLogger().i("a===","DeviceUtils" + "--insert图片到相册--" + dirPath);
                 sendBroadcast(new File(dirPath), mContext);
             } else {
                 sendBroadcast(file, mContext);
@@ -133,7 +134,7 @@ public class PicSaveUtils {
         MediaScannerConnection.scanFile(context, new String[]{file.toString()}, null, new MediaScannerConnection.OnScanCompletedListener() {
             @Override
             public void onScanCompleted(String path, Uri uri) {
-                System.out.println("扫描成功");
+                LogManager.getLogger().i("a===","扫描成功");
             }
         });
     }

@@ -90,11 +90,11 @@ public class AudioPlayManager implements SensorEventListener {
                         String path = context.getExternalCacheDir().getAbsolutePath();
                         File file = new File(path, getFileName(this._playingUri.toString()));
                         if (file.exists()) {
-//                            Log.v(TAG, "本地播放" + file.getPath());
+//                            LogUtil.getLog().v(TAG, "本地播放" + file.getPath());
 
                             this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
                         } else {
-//                            Log.v(TAG, "在线播放--" + this._playingUri);
+//                            LogUtil.getLog().v(TAG, "在线播放--" + this._playingUri);
 //                            this._mediaPlayer.setDataSource(context, this._playingUri);
 //                            downloadAudio(context, this._playingUri.toString());
                         }
@@ -161,7 +161,7 @@ public class AudioPlayManager implements SensorEventListener {
             if (Build.VERSION.SDK_INT >= 21) {
                 this._wakeLock = this._powerManager.newWakeLock(32, "AudioPlayManager");
             } else {
-                Log.e(TAG, "Does not support on level " + Build.VERSION.SDK_INT);
+                LogUtil.getLog().e(TAG, "Does not support on level " + Build.VERSION.SDK_INT);
             }
         }
 
@@ -228,7 +228,7 @@ public class AudioPlayManager implements SensorEventListener {
             this.resetMediaPlayer();
             this.afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
                 public void onAudioFocusChange(int focusChange) {
-                    Log.d(TAG, "OnAudioFocusChangeListener " + focusChange);
+                    LogUtil.getLog().d(TAG, "OnAudioFocusChangeListener " + focusChange);
                     if (AudioPlayManager.this._audioManager != null && focusChange == -1) {
                         AudioPlayManager.this._audioManager.abandonAudioFocus(AudioPlayManager.this.afChangeListener);
                         AudioPlayManager.this.afChangeListener = null;
@@ -283,10 +283,10 @@ public class AudioPlayManager implements SensorEventListener {
                 String path = context.getExternalCacheDir().getAbsolutePath();
                 File file = new File(path, getFileName(audioUri.toString()));
                 if (file.exists()) {
-//                    Log.v(TAG, "本地播放" + file.getPath());
+//                    LogUtil.getLog().v(TAG, "本地播放" + file.getPath());
                     this._mediaPlayer.setDataSource(context, Uri.parse(file.getPath()));
                 } else {
-//                    Log.v(TAG, "在线播放--" + bean.getVoiceMessage().getUrl());
+//                    LogUtil.getLog().v(TAG, "在线播放--" + bean.getVoiceMessage().getUrl());
 //                    this._mediaPlayer.setDataSource(context, audioUri);
 //                    downloadAudio(context, audioUri.toString());
                 }
@@ -307,7 +307,7 @@ public class AudioPlayManager implements SensorEventListener {
             }
 
         } else {
-            Log.e(TAG, "startPlay context or audioUri is null.");
+            LogUtil.getLog().e(TAG, "startPlay context or audioUri is null.");
         }
     }
 
@@ -317,7 +317,7 @@ public class AudioPlayManager implements SensorEventListener {
      */
     public static void changeToSpeaker() {
         if (_audioManager != null) {
-            Log.v(TAG, "扬声器播放");
+            LogUtil.getLog().e(TAG, "扬声器播放");
             _audioManager.setMode(AudioManager.MODE_NORMAL);
             _audioManager.setSpeakerphoneOn(true);
         }
@@ -328,7 +328,7 @@ public class AudioPlayManager implements SensorEventListener {
      */
     public static void changeToHeadset() {
         if (_audioManager != null) {
-            Log.v(TAG, "耳机播放");
+            LogUtil.getLog().e(TAG, "耳机播放");
             _audioManager.setSpeakerphoneOn(false);
         }
     }
@@ -338,7 +338,7 @@ public class AudioPlayManager implements SensorEventListener {
      */
     public static void changeToReceiver() {
         if (_audioManager != null) {
-            Log.v(TAG, "听筒播放");
+            LogUtil.getLog().e(TAG, "听筒播放");
             _audioManager.setSpeakerphoneOn(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 _audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
@@ -473,9 +473,9 @@ public class AudioPlayManager implements SensorEventListener {
         boolean isPlay = false;
         if (_playingUri.equals(url)) {
             isPlay = true;
-//            Log.d(TAG, "isPlay: " + isPlay /*+ "--isPlaying=" + isPlaying*/ + "--url=" + url);
+//            LogUtil.getLog().d(TAG, "isPlay: " + isPlay /*+ "--isPlaying=" + isPlaying*/ + "--url=" + url);
         }
-//        Log.d(TAG, "isPlay: " + isPlay + "--url=" + url);
+//        LogUtil.getLog().d(TAG, "isPlay: " + isPlay + "--url=" + url);
         return isPlay;
     }
 
@@ -486,7 +486,7 @@ public class AudioPlayManager implements SensorEventListener {
     @TargetApi(8)
     private void muteAudioFocus(AudioManager audioManager, boolean bMute) {
         if (Build.VERSION.SDK_INT < 8) {
-            Log.d(TAG, "muteAudioFocus Android 2.1 and below can not stop music");
+            LogUtil.getLog().d(TAG, "muteAudioFocus Android 2.1 and below can not stop music");
         } else {
             if (bMute) {
                 audioManager.requestAudioFocus(this.afChangeListener, 3, 2);

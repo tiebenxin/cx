@@ -61,6 +61,7 @@ import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
@@ -223,7 +224,7 @@ public class MsgMainFragment extends Fragment {
                 getActivityMe().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("tyad", "run: state" + state);
+                        LogUtil.getLog().d("tyad", "run: state=" + state);
                         actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                         // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
                         actionBar.setTitle(state ? "消息" : "消息");
@@ -332,7 +333,7 @@ public class MsgMainFragment extends Fragment {
 
 
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
-//        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+        LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
         switch (status) {
             case CoreEnum.ENetStatus.ERROR_ON_NET:
 //                viewNetwork.setVisibility(View.VISIBLE);
@@ -429,13 +430,13 @@ public class MsgMainFragment extends Fragment {
             MessageManager.getInstance().setMessageChange(false);
             int refreshTag = event.getRefreshTag();
             if (refreshTag == CoreEnum.ESessionRefreshTag.ALL) {
-                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
+                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-ALL");
                 taskListData();
             } else if (refreshTag == CoreEnum.ESessionRefreshTag.SINGLE) {
                 refreshPosition(event.getGid(), event.getUid(), event.getMsgAllBean(), event.getSession(), event.isRefreshTop());
-                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
+                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-SINGLE");
             } else if (refreshTag == CoreEnum.ESessionRefreshTag.DELETE) {
-                System.out.println(MsgMainFragment.class.getSimpleName() + "-- 刷新Session-DELETE");
+                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "-- 刷新Session-DELETE");
                 taskDelSession(event.getUid(), event.getGid());
             }
         }
@@ -482,7 +483,7 @@ public class MsgMainFragment extends Fragment {
                                         listData.remove(index);
                                         listData.add(0, session);//放在首位
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
-                                        System.out.println(MsgMainFragment.class.getSimpleName() + "置顶刷新--session=" + session.getSid());
+                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "置顶刷新--session=" + session.getSid());
                                     } else {//取消置顶
                                         listData.set(index, session);
                                         sortSession(index == 0);
@@ -490,26 +491,26 @@ public class MsgMainFragment extends Fragment {
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);////范围刷新,刷新旧位置和新位置之间即可
-                                        System.out.println(MsgMainFragment.class.getSimpleName() + "取消置顶刷新--session=" + session.getSid());
+                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "取消置顶刷新--session=" + session.getSid());
 
                                     }
                                 } else {
                                     listData.set(index, session);
                                     if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
                                         mtListView.getListView().getAdapter().notifyItemChanged(index, index);
-                                        System.out.println(MsgMainFragment.class.getSimpleName() + "时间未更新--session=" + session.getSid());
+                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间未更新--session=" + session.getSid());
                                     } else {//有时间更新,需要重排
                                         sortSession(index == 0);
                                         int newIndex = listData.indexOf(session);
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
                                         mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);//范围刷新
-                                        System.out.println(MsgMainFragment.class.getSimpleName() + "时间更新重排--session=" + session.getSid());
+                                        LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间更新重排--session=" + session.getSid());
                                     }
                                 }
                             } else {
                                 int position = insertSession(session);
-                                System.out.println(MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
+                                LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
                                 if (position == 0) {
                                     mtListView.notifyDataSetChange();
                                 } else {
@@ -519,7 +520,7 @@ public class MsgMainFragment extends Fragment {
                             }
                         } else {
                             int position = insertSession(session);
-                            System.out.println(MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
+                            LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "新session--session=" + session.getSid());
                             if (position == 0) {
                                 mtListView.notifyDataSetChange();
                             } else {
@@ -794,7 +795,7 @@ public class MsgMainFragment extends Fragment {
                             creatAndSaveImg(bean, holder.imgHead);
                         }
 
-//                        Log.e("TAG", "----------" + imgUrl.toString());
+//                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
                         if (StringUtil.isNotNull(imgUrl)) {
                             Glide.with(getActivity()).load(imgUrl)
                                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
@@ -956,15 +957,15 @@ public class MsgMainFragment extends Fragment {
         if (isSearchMode) {
             return;
         }
-//        System.out.println("MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
+//        LogUtil.getLog().d("a=", "MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
         Observable.just(0)
                 .map(new Function<Integer, List<Session>>() {
                     @Override
                     public List<Session> apply(Integer integer) throws Exception {
                         listData = msgDao.sessionGetAll(true);
-//                        System.out.println("MsgMainFragment --结束获取session数据" + System.currentTimeMillis());
+//                        LogUtil.getLog().d("a=", "MsgMainFragment --结束获取session数据" + System.currentTimeMillis());
                         doListDataSort();
-//                        System.out.println("MsgMainFragment --结束准备session数据" + System.currentTimeMillis());
+//                        LogUtil.getLog().d("a=", "MsgMainFragment --结束准备session数据" + System.currentTimeMillis());
                         return listData;
                     }
                 }).subscribeOn(Schedulers.io())
@@ -974,7 +975,7 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void accept(List<Session> list) throws Exception {
                         mtListView.notifyDataSetChange();
-//                        System.out.println("MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
+//                        LogUtil.getLog().d("a=", "MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
                     }
                 });
 

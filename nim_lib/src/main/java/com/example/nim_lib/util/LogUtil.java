@@ -38,6 +38,7 @@ public class LogUtil {
     }
 
     private void p(String TAG,String msg,int state){
+        TAG="a==="+TAG;
         switch (state){
             case 0:
                 Log.i(TAG,msg);

@@ -87,7 +87,7 @@ public class UserAction {
      * @return
      */
     public static Long getMyId() {
-        // Log.v("ssss","getMyId");
+        // LogUtil.getLog().v("ssss","getMyId");
         if (getMyInfo() == null) {
             return null;
         }
@@ -342,7 +342,7 @@ public class UserAction {
      * 清理信息
      */
     public void cleanInfo() {
-        //Log.v("ssss","cleanInfo");
+        //LogUtil.getLog().v("ssss","cleanInfo");
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
     }

@@ -10,6 +10,7 @@ import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.jrmf360.tools.JrmfClient;
+import com.lansosdk.box.LSLog;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.netease.nimlib.sdk.util.NIMUtil;
@@ -84,7 +85,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.UP_PATH = "development";
                 break;
             case "release"://正式服
-                AppConfig.DEBUG = false;
+                AppConfig.DEBUG = false; // false true
                 //---------------------------
                 AppConfig.SOCKET_IP = "im-app.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
@@ -94,6 +95,21 @@ public class MyAppLication extends MainApplication {
         }
         //初始化日志
         LogUtil.getLog().init(AppConfig.DEBUG);
+        LSLog.TAG="a==="+LSLog.TAG;
+//        建议统一使用LogUtil.getLog().d这个 和
+//        建议统一使用LogUtil.getLog().e这个
+//        现在各种格式都有
+//        LogUtil
+//        Log.e()
+//        LSLog
+//        system.out等
+//        app日志结构LogUtil.getLog
+//        appcore日志结构LogUtil.getLog
+//        nim_lib日志结构LogUtil.getLog
+//        picture_library日志结构LogManager.getLogger和Log.
+//        ucrop日志结构Log.
+//        weiXinRecorded日志结构LSLog
+
         //初始化数据库
         Realm.init(getApplicationContext());
 
