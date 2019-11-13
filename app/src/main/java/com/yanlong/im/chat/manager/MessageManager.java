@@ -320,6 +320,10 @@ public class MessageManager {
                     EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
                     eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
                     EventBus.getDefault().post(eventVoice);
+                    // 处理视频撤回，对方在播放时停止播放
+                    EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
+                    eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    EventBus.getDefault().post(eventVideo);
                     MessageManager.getInstance().setMessageChange(true);
                 }
                 break;
@@ -328,6 +332,12 @@ public class MessageManager {
                 break;
             case P2P_AU_VIDEO_DIAL:// 音视频通知
                 break;
+//            case P2P_AU_VIDEO_DIAL:// 开关变更
+//                     //  更新用户信息
+//                if(bean!=null){
+//
+//                }
+//                break;
         }
         //刷新单个,接收到音视频通话消息不需要刷新
         if (result && !hasNotified && !isList && bean != null && wrapMessage.getMsgType() != P2P_AU_VIDEO_DIAL) {

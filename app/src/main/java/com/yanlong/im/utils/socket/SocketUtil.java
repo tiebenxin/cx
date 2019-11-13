@@ -11,6 +11,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -96,6 +97,8 @@ public class SocketUtil {
         @Override
         public void onLine(boolean state) {
             LogUtil.getLog().e(TAG, ">>>>>在线状态" + state);
+            //保存连接状态到本地
+            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.CONN_STATUS).save2Json(state);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onLine(state);

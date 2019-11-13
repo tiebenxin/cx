@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.user.ui.CommonSetingActivity;
 import com.yanlong.im.user.ui.GroupAddActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -20,7 +19,6 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
@@ -186,6 +184,7 @@ public class GroupManageActivity extends AppActivity {
                 }
                 ToastUtil.show(context,response.body().getMsg());
                 if(response.body().isOk()){
+                    setResult(RESULT_OK);
                     finish();
                 }
             }

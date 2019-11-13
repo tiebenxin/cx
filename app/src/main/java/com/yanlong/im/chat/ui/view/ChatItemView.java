@@ -54,13 +54,13 @@ import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 public class ChatItemView extends LinearLayout {
@@ -153,6 +153,7 @@ public class ChatItemView extends LinearLayout {
     private TextView txtMeVoiceVideo;
     private TextView txtOtVoiceVideo;
 
+    private int mHour, mMin, mSecond;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -701,22 +702,18 @@ public class ChatItemView extends LinearLayout {
                 layoutParamsOT.setMargins(w - 105, h - 55, 0, 0);
                 img_ot_4_time.setLayoutParams(layoutParamsOT);
                 long currentTime = videoMessage.getDuration();
-                if (currentTime < 10) {
-                    img_me_4_time.setText("00:0" + currentTime);
-                    img_ot_4_time.setText("00:0" + currentTime);
+                // 转成秒
+                currentTime = currentTime / 1000;
+                mHour = (int) currentTime / 3600;
+                mMin = (int) currentTime % 3600 / 60;
+                mSecond = (int) currentTime % 60;
 
+                if (mHour > 0) {
+                    img_me_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                    img_ot_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
                 } else {
-                    img_me_4_time.setText("00:" + currentTime);
-                    img_ot_4_time.setText("00:" + currentTime);
-                }
-                if (currentTime * 1000 > RecordedActivity.MAX_VIDEO_TIME) {
-                    if (currentTime / 1000 < 10) {
-                        img_me_4_time.setText("00:0" + currentTime / 1000);
-                        img_ot_4_time.setText("00:0" + currentTime / 1000);
-                    } else {
-                        img_me_4_time.setText("00:" + currentTime / 1000);
-                        img_ot_4_time.setText("00:" + currentTime / 1000);
-                    }
+                    img_me_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                    img_ot_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
                 }
                 lp.width = w;
                 lp.height = h;
