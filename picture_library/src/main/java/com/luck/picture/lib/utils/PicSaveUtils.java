@@ -16,6 +16,7 @@ import com.luck.picture.lib.tools.PictureFileUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,19 +46,7 @@ public class PicSaveUtils {
             fos.close();
             Log.e("TAG", file.getAbsolutePath());
             //TODO:执行MediaStore.Images.Media.insertImage会在相册中产生两张图片
-//            if (DeviceUtils.isViVoAndOppo()) {
-//                String dirPath = PictureFileUtils.createDir(mContext,
-//                        fileName, "/Pictures");
-//                PictureFileUtils.copyFile(file.getAbsolutePath(), dirPath);
-//                System.out.println("DeviceUtils" + "--insert图片到相册--" + dirPath);
-//                sendBroadcast(new File(dirPath), mContext);
-//            } else {
-//                sendBroadcast(file, mContext);
-//            }
-            System.out.println("DeviceUtils" + "--insert图片到相册--" + file);
             sendBroadcast(file, mContext);
-
-//            Toast.makeText(mContext, "保存成功", Toast.LENGTH_SHORT).show();
             return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -67,9 +56,48 @@ public class PicSaveUtils {
         return false;
     }
 
-    public static void saveOriginImage(String url) {
-
+    //有缓存的
+    public static boolean saveOriginImage(Context context, String filePath) {
+        boolean result = false;
+        File fileSrc = new File(filePath);//源文件
+        if (fileSrc.exists()) {
+            String fileName = PictureFileUtils.getFileName(filePath);
+            String path = PictureFileUtils.createDir(context, fileName, null);
+            File fileDest = new File(path);//目标文件
+            FileInputStream fis = null;
+            FileOutputStream fos = null;
+            try {
+                fis = new FileInputStream(fileSrc);
+                fos = new FileOutputStream(fileDest);
+                byte[] buf = new byte[1024];
+                int bytes;
+                while ((bytes = fis.read(buf)) != -1) {
+                    fos.write(buf, 0, bytes);
+                }
+                sendBroadcast(fileDest, context);
+                result = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return result;
     }
+
 
     /***
      * 文件保存本地,需要网络

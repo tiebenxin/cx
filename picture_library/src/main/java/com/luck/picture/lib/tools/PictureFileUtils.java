@@ -660,4 +660,33 @@ public class PictureFileUtils {
         }
         return cachePath;
     }
+
+    //获取保存图片地址的文件名
+    public static String getFileName(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return "";
+        }
+        return url.substring(url.lastIndexOf("/") + 1);
+    }
+
+    //获取保存图片全路径
+    public static String getFilePathOfImage(String url, Context context) {
+        String fileName = getFileName(url);
+        String filePath = context.getExternalCacheDir().getAbsolutePath() + "/Image/";
+        return filePath + fileName;
+    }
+
+    //检测图片是否有缓存
+    public static boolean hasImageCache(String filePath, long size) {
+        if (!TextUtils.isEmpty(filePath)) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                long fileSize = file.length();
+                if (size == fileSize) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

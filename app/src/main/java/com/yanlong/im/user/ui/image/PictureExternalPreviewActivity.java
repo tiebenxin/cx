@@ -1177,43 +1177,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             EventBus.getDefault().unregister(this);
         }
     }
-
-    @SuppressLint("CheckResult")
-    private void getFileCache(final String url) {
-        Observable.just(0)
-                .map(new Function<Integer, File>() {
-                    @Override
-                    public File apply(Integer integer) throws Exception {
-                        try {
-                            return Glide.with(PictureExternalPreviewActivity.this).asFile()
-                                    .apply(RequestOptions.priorityOf(Priority.HIGH).onlyRetrieveFromCache(true))
-                                    .load(url)
-                                    .submit().get();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        return null;
-                    }
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .onErrorResumeNext(Observable.<File>empty())
-                .subscribe(new Consumer<File>() {
-                    @Override
-                    public void accept(File file) throws Exception {
-                        if (file != null) {
-
-                        } else {
-                            showPleaseDialog();
-                            loadDataThread = new LoadDataThread(url, 0, null);
-                            loadDataThread.start();
-                        }
-                    }
-                });
-
-    }
-
     private void downloadAndSaveImage(String url, TextView tvLookOrigin, ImageView ivDownLoad) {
         final String filePath = getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = url.substring(url.lastIndexOf("/") + 1);
