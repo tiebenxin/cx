@@ -852,12 +852,15 @@ public class MsgMainFragment extends Fragment {
                 if (msg != null && !msg.isRead()) {
                     holder.iv_disturb_unread.setVisibility(View.VISIBLE);
                     holder.iv_disturb_unread.setBackgroundResource(R.drawable.shape_disturb_unread_bg);
+                    holder.sb.setVisibility(View.GONE);
                 } else {
                     holder.iv_disturb_unread.setVisibility(View.GONE);
+                    holder.sb.setVisibility(View.VISIBLE);
                     holder.sb.setNum(bean.getUnread_count(), false);
                 }
             } else {
                 holder.iv_disturb_unread.setVisibility(View.GONE);
+                holder.sb.setVisibility(View.VISIBLE);
                 holder.sb.setNum(bean.getUnread_count(), false);
             }
         }
