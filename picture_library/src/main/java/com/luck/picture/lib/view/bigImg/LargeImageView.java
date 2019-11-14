@@ -41,6 +41,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
+import com.luck.picture.lib.photoview.LogManager;
 import com.luck.picture.lib.view.bigImg.factory.BitmapDecoderFactory;
 
 import java.util.ArrayList;
@@ -173,6 +174,7 @@ public class LargeImageView extends View implements BlockImageLoader.OnImageLoad
      */
     @Override
     public void setImage(Bitmap bm) {
+        LogManager.getLogger().d(TAG, "setImage-Bitmap");
         setImageDrawable(new BitmapDrawable(getResources(), bm));
     }
 
@@ -206,6 +208,7 @@ public class LargeImageView extends View implements BlockImageLoader.OnImageLoad
 
     @Override
     public void setImage(BitmapDecoderFactory factory) {
+        LogManager.getLogger().d(TAG, "setImage-BitmapDecoderFactory");
         setImage(factory, null);
     }
 
@@ -886,6 +889,7 @@ public class LargeImageView extends View implements BlockImageLoader.OnImageLoad
         overScrollByCompat(dx, dy, sX, sY, getScrollRangeX(), getScrollRangeY(), 0, 0, false);
         notifyInvalidate();
     }
+
     public void setScaleMe(float scale, int centerX, int centerY) {
         if (!hasLoad()) {
             return;

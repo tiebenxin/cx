@@ -955,7 +955,7 @@ public class ChatItemView extends LinearLayout {
 
     private int netState;
 
-    public void setErr(int state) {
+    public void setErr(int state,boolean isShowLoad) {
         this.netState = state;
         switch (state) {
             case 0://正常
@@ -971,18 +971,26 @@ public class ChatItemView extends LinearLayout {
                 }
                 break;
             case 2://发送中
-                imgMeErr.setImageResource(R.mipmap.ic_net_load);
-                Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
-                imgMeErr.startAnimation(rotateAnimation);
-                imgMeErr.setVisibility(VISIBLE);
+                if (isShowLoad) {
+                    imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                    Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    imgMeErr.startAnimation(rotateAnimation);
+                    imgMeErr.setVisibility(VISIBLE);
+                }else {
+                    imgMeErr.clearAnimation();
+                    imgMeErr.setVisibility(INVISIBLE);
+                }
                 break;
             case -1://图片待发送
-//                imgMeErr.clearAnimation();
-//                imgMeErr.setVisibility(INVISIBLE);
-                imgMeErr.setImageResource(R.mipmap.ic_net_load);
-                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
-                imgMeErr.startAnimation(animation);
-                imgMeErr.setVisibility(VISIBLE);
+                if (isShowLoad) {
+                    imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                    Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    imgMeErr.startAnimation(animation);
+                    imgMeErr.setVisibility(VISIBLE);
+                }else {
+                    imgMeErr.clearAnimation();
+                    imgMeErr.setVisibility(INVISIBLE);
+                }
                 break;
             default: // 其他状态如-1:待发送
 

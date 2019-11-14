@@ -877,6 +877,7 @@ public class SocketData {
         ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
         image.setWidth(img.getWidth());
         image.setHeight(img.getHeight());
+        image.setSize(img.getSize());
         if (isOriginal) {
             image.setOrigin(url);
         }
@@ -884,7 +885,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static ImageMessage createImageMessage(String msgId, String url, String previewUrl, String thumUrl, long width, long height, boolean isOriginal, boolean isOriginRead) {
+    public static ImageMessage createImageMessage(String msgId, String url, String previewUrl, String thumUrl, long width, long height, boolean isOriginal, boolean isOriginRead, long size) {
         ImageMessage image = new ImageMessage();
         image.setLocalimg(url);
         image.setPreview(previewUrl);
@@ -892,6 +893,7 @@ public class SocketData {
         image.setMsgid(msgId);
         image.setWidth(width);
         image.setHeight(height);
+        image.setSize(size);
         if (isOriginal) {
             image.setOrigin(url);
         }
