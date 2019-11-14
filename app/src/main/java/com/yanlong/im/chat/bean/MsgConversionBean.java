@@ -84,11 +84,13 @@ public class MsgConversionBean {
         msgAllBean.setSurvival_time(bean.getSurvivalTime());
         UserDao userDao = new UserDao();
 
+
+
         int survivalTime = userDao.getReadDestroy(bean.getFromUid(), bean.getGid());
         if (survivalTime != 0) {
             msgAllBean.setSurvival_time(survivalTime);
         }
-        LogUtil.getLog().d("MsgConversionBean", survivalTime + "---id:" + bean.getMsgId());
+        LogUtil.getLog().d("SurvivalTime", "消息转换ToBean:  阅后即焚状态-"+survivalTime + "---id:" + bean.getMsgId());
 
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());

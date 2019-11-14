@@ -139,7 +139,6 @@ public class MessageManager {
      * @param isList 是否是批量消息
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
-//        System.out.println(TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
@@ -952,7 +951,7 @@ public class MessageManager {
             return;
         }
         fetchTimeDiff(message.getTimestamp());
-        userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
+        userDao. updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
         MessageManager.getInstance().updateCacheUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
     }
 

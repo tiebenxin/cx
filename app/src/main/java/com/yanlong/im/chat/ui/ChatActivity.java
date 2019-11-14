@@ -2516,7 +2516,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             //发送状态处理
             holder.viewChatItem.setErr(msgbean.getSend_state());
-            LogUtil.getLog().d("getSend_state", msgbean.getSend_state() + "----" + msgbean.getMsg_id());
+
 
             //设置已读
             if (msgbean.getRead() == 1 && checkIsRead() && msgbean.isMe()) {
@@ -2524,14 +2524,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
 
             holder.viewChatItem.timerCancel();
+            holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
+
             if(msgbean.getSurvival_time() > 0 && msgbean.getStartTime() > 0 && msgbean.getEndTime() > 0){
-                LogUtil.getLog().e("aaaaaaa","kkkkkkkkkkkkk");
+                LogUtil.getLog().i("CountDownView",msgbean.getMsg_id()+"---");
 
                 holder.viewChatItem.setDataSt(msgbean.getStartTime(),msgbean.getEndTime());
             }
-
+            LogUtil.getLog().d("getSend_state", msgbean.getSurvival_time() + "----" + msgbean.getMsg_id());
             //设置阅后即焚图标显示
-            holder.viewChatItem.setDataSurvivalTimeShow(msgbean.getSurvival_time());
+
 
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();
@@ -3953,10 +3955,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void taskPayRbGet(final MsgAllBean msgbean, final Long toUId, final String rbid) {
         //红包开记录 test
-
         //  MsgAllBean msgAllbean = SocketData.send4RbRev(toUId, toGid, rbid);
         //    showSendObj(msgAllbean);
-
         //test over
         payAction.SignatureBean(new CallBack<ReturnBean<SignatureBean>>() {
             @Override

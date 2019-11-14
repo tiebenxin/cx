@@ -919,26 +919,6 @@ public class MsgMainFragment extends Fragment {
 
     }
 
-//    private String creatAndSaveImg(String gid) {
-//        Group gginfo = msgDao.getGroup4Id(gid);
-//        int i = gginfo.getUsers().size();
-//        i = i > 9 ? 9 : i;
-//        //头像地址
-//        String url[] = new String[i];
-//        for (int j = 0; j < i; j++) {
-//            UserInfo userInfo = gginfo.getUsers().get(j);
-////            if (j == i - 1) {
-////                name += userInfo.getName();
-////            } else {
-////                name += userInfo.getName() + "、";
-////            }
-//            url[j] = userInfo.getHead();
-//        }
-//        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-//        MsgDao msgDao = new MsgDao();
-//        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-//        return file.getAbsolutePath();
-//    }
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();

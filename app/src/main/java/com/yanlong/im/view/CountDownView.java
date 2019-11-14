@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import com.luck.picture.lib.tools.DateUtils;
 import com.yanlong.im.R;
 
+import net.cb.cb.library.utils.LogUtil;
+
 /**
  * @创建人 shenxin
  * @创建时间 2019/11/5 0005 13:48
@@ -42,6 +44,7 @@ public class CountDownView extends LinearLayout {
 
     //这是倒计时执行方法
     public void setRunTimer(long startTime, long endTime) {
+        LogUtil.getLog().i("CountDownView","setRunTimer");
         timer = new CountDownTimer(endTime - startTime,1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -57,6 +60,7 @@ public class CountDownView extends LinearLayout {
 
 
     public void timerStop(){
+        imCountDown.setImageResource(R.mipmap.icon_st_1);
         if(timer != null){
             timer.cancel();
         }
@@ -68,11 +72,9 @@ public class CountDownView extends LinearLayout {
         this.context = context;
         view = LayoutInflater.from(context).inflate(R.layout.view_count_down, this);
         imCountDown = view.findViewById(R.id.im_count_down);
-//        if(isMe){
-//            imCountDown.setImageResource(R.mipmap.icon_me_1);
-//        }else {
-//            imCountDown.setImageResource(R.mipmap.icon_other_1);
-//        }
+        imCountDown.setImageResource(R.mipmap.icon_st_1);
+
+        LogUtil.getLog().i("CountDownView","initView");
     }
 
 
@@ -120,6 +122,9 @@ public class CountDownView extends LinearLayout {
                 break;
             case 1:
                 imCountDown.setImageResource(R.mipmap.icon_st_12);
+                break;
+            case 0:
+                imCountDown.setImageResource(R.mipmap.icon_st_1);
                 break;
             default:
                 imCountDown.setImageResource(R.mipmap.icon_st_1);

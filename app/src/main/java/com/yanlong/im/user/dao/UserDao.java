@@ -1,9 +1,7 @@
 package com.yanlong.im.user.dao;
 
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.bumptech.glide.gifdecoder.GifDecoder;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.user.bean.UserInfo;
@@ -11,7 +9,7 @@ import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
-import net.cb.cb.library.utils.LogUtil;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -271,6 +269,7 @@ public class UserDao {
     public void friendMeUpdate(List<UserInfo> list) {
         Realm realm = DaoUtil.open();
         try {
+            UserInfo myUserInfo = myInfo();
             realm.beginTransaction();
             RealmResults<UserInfo> ls = realm.where(UserInfo.class).beginGroup().equalTo("uType", 2).or().equalTo("stat", 9).endGroup().findAll();
             for (UserInfo u : ls) {
@@ -291,7 +290,14 @@ public class UserDao {
                         if (u.getLastonline() != null && userInfo != null && userInfo.getLastonline() < u.getLastonline()) {
                             userInfo.setLastonline(u.getLastonline());
                         }
-                        realm.copyToRealmOrUpdate(userInfo);
+
+                        //如果是自己只更新在线状态
+                        if(userInfo.getUid().equals(myUserInfo.getUid())){
+                            myUserInfo.setActiveType(userInfo.getActiveType());
+                            realm.copyToRealmOrUpdate(myUserInfo);
+                        }else{
+                            realm.copyToRealmOrUpdate(userInfo);
+                        }
                     }
                 }
                 if (!isExt) {//不在好友列表中了,身份改成普通人
@@ -316,7 +322,14 @@ public class UserDao {
                     } else {
                         userInfo.setuType(ChatEnum.EUserType.FRIEND);
                     }
-                    realm.insertOrUpdate(userInfo);
+
+                    //如果是自己只更新在线状态
+                    if(userInfo.getUid().equals(myUserInfo.getUid())){
+                        myUserInfo.setActiveType(userInfo.getActiveType());
+                        realm.insertOrUpdate(myUserInfo);
+                    }else{
+                        realm.insertOrUpdate(userInfo);
+                    }
                 }
             }
             realm.commitTransaction();

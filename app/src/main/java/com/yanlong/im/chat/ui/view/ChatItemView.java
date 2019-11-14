@@ -334,8 +334,8 @@ public class ChatItemView extends LinearLayout {
         viewOt8.setVisibility(GONE);
         viewLock.setVisibility(GONE);
         viewRead.setVisibility(GONE);
-        viewOtSurvivalTime.setVisibility(GONE);
-        viewMeSurvivalTime.setVisibility(GONE);
+//        viewOtSurvivalTime.setVisibility(GONE);
+//        viewMeSurvivalTime.setVisibility(GONE);
         viewReadDestroy.setVisibility(GONE);
         img_me_4_play.setVisibility(View.GONE);
         img_me_4_time.setVisibility(View.GONE);
@@ -483,9 +483,8 @@ public class ChatItemView extends LinearLayout {
 
     //设置阅后即焚消息显示
     public void setDataSurvivalTimeShow(int type){
-
+     //   timerCancel();
         if(isMe){
-            LogUtil.getLog().e("aaaaaaa",type+"----me");
             if(type == -1){
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
             }else if(type == 0){
@@ -494,7 +493,6 @@ public class ChatItemView extends LinearLayout {
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
             }
         }else{
-            LogUtil.getLog().e("aaaaaaa",type+"----ot");
             if(type == -1){
                 viewOtSurvivalTime.setVisibility(View.VISIBLE);
             }else if(type == 0){
@@ -1041,11 +1039,11 @@ public class ChatItemView extends LinearLayout {
     public void setReadDestroy(String gid, long uid, int type,String content) {
         txtReadDestroy.setText(content);
 
-        if (type == 0) {
-            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
-        } else {
-            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_seting);
-        }
+//        if (type == 0) {
+//            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
+//        } else {
+//            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_seting);
+//        }
     }
 
 

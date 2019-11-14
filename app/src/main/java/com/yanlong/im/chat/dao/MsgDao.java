@@ -1,6 +1,7 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
@@ -80,8 +81,6 @@ public class MsgDao {
             } else {//不存在
                 realm.insertOrUpdate(group);
             }
-
-
             realm.commitTransaction();
             realm.close();
         } catch (Exception e) {
@@ -201,21 +200,23 @@ public class MsgDao {
     /**
      * 查询当前会话退出即焚消息
      */
-    // TODO: 2019/11/5 0005 未完成 
     public List<MsgAllBean> getMsg4SurvivalTimeAndExit(String gid, Long userid) {
         List<MsgAllBean> beans;
         Realm realm = DaoUtil.open();
         if (!TextUtils.isEmpty(gid)) {
             RealmResults list = realm.where(MsgAllBean.class)
-                    .beginGroup().equalTo("gid",gid).endGroup()
-                    .and().equalTo("survival_time", -1)
+                    .beginGroup().equalTo("gid", gid).endGroup()
+                    .and()
+                    .beginGroup().lessThan("survival_time", -1).endGroup()
                     .findAll();
             beans = realm.copyFromRealm(list);
         } else {
             RealmResults list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
-                    .and().beginGroup().equalTo("to_uid", userid).endGroup()
-                    .and().equalTo("survival_time", -1)
+                    .and()
+                    .beginGroup().equalTo("to_uid", userid).or().equalTo("from_uid", userid).endGroup()
+                    .and()
+                    .beginGroup().lessThan("survival_time", -1).endGroup()
                     .findAll();
             beans = realm.copyFromRealm(list);
         }
@@ -242,7 +243,7 @@ public class MsgDao {
     /**
      * 设置阅后即焚销毁时间 和开始时间
      */
-    public void setMsgEndTime(long time,long startTime, String msgid) {
+    public void setMsgEndTime(long time, long startTime, String msgid) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
         MsgAllBean msgAllBean = realm.where(MsgAllBean.class)

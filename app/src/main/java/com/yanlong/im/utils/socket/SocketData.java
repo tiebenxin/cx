@@ -195,9 +195,11 @@ public class SocketData {
             //  Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
+
+            if (msgAllBean == null) {
+                return;
+            }
             msgAllBean.setRead(true);//自己发送的消息是已读
-
-
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             msgAllBean.setTimestamp(bean.getTimestamp());
 
@@ -363,6 +365,7 @@ public class SocketData {
     private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
+
         if (isSave && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
         }
@@ -407,6 +410,8 @@ public class SocketData {
 
         //添加阅后即焚状态
         int survivalTime = new UserDao().getReadDestroy(toId, toGid);
+        LogUtil.getLog().i("SurvivalTime", "消息构建: 阅后即焚状态---->" + survivalTime + "------");
+
         wmsg.setSurvivalTime(survivalTime);
 
         wmsg.setTimestamp(time);
@@ -1049,6 +1054,12 @@ public class SocketData {
                 msg.setTimestamp(bean.getTimestamp() + 1);
             } else {
                 msg.setTimestamp(time);
+            }
+
+            if (type == ChatEnum.ENoticeType.BLACK_ERROR) {
+                int survivalTime = new UserDao().getReadDestroy(bean.getTo_uid(), null);
+                msg.setSurvival_time(survivalTime);
+                msg.setRead(1);
             }
             msg.setTo_uid(bean.getTo_uid());
             msg.setGid(bean.getGid());
