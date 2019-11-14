@@ -11,6 +11,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.SharedPreferencesUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -73,7 +74,7 @@ public class SocketUtil {
             LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
 //            SocketData.magSaveAndACK(bean);
-            System.out.println("MessageManager--接收消息size=" + bean.getWrapMsgList().size() + "当前时间--" + System.currentTimeMillis());
+            LogUtil.getLog().d(TAG, "MessageManager--接收消息size=" + bean.getWrapMsgList().size() + "当前时间--" + System.currentTimeMillis());
             MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
@@ -96,6 +97,8 @@ public class SocketUtil {
         @Override
         public void onLine(boolean state) {
             LogUtil.getLog().e(TAG, ">>>>>在线状态" + state);
+            //保存连接状态到本地
+            new SharedPreferencesUtil(SharedPreferencesUtil.SPName.CONN_STATUS).save2Json(state);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
                     ev.onLine(state);
@@ -391,7 +394,7 @@ public class SocketUtil {
      */
     public void endSocket() {
         isStart = false;
-        //    System.out.println(">>>endSocket:isRun"+isRun);
+        //    LogUtil.getLog().d(TAG, ">>>endSocket:isRun"+isRun);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -399,7 +402,7 @@ public class SocketUtil {
             }
         }).start();
 
-        //    System.out.println(">>>endSocket:isRun"+isRun);
+        //    LogUtil.getLog().d(TAG, ">>>endSocket:isRun"+isRun);
 
     }
 
@@ -477,20 +480,20 @@ public class SocketUtil {
         LogUtil.getLog().d(TAG, "\n\n>>>>socket===============>>>" + AppConfig.SOCKET_IP + ":" + AppConfig.SOCKET_PORT + "\n\n");
         if (!socketChannel.connect(new InetSocketAddress(AppConfig.SOCKET_IP, AppConfig.SOCKET_PORT))) {
             //不断地轮询连接状态，直到完成连
-            System.out.println(">>>链接中");
+            LogUtil.getLog().d(TAG, ">>>链接中");
             long ttime = System.currentTimeMillis();
             while (!socketChannel.finishConnect()) {
 
                 //在等待连接的时间里
                 Thread.sleep(200);
-                System.out.println(">>>链接进行" + (System.currentTimeMillis() - ttime));
+                LogUtil.getLog().d(TAG, ">>>链接进行" + (System.currentTimeMillis() - ttime));
                 if (System.currentTimeMillis() - ttime > 2 * 1000) {
                     System.out.print(">>>链接中超时");
                     break;
                 }
 
             }
-            System.out.println(">>>链接执行完毕");
+            LogUtil.getLog().d(TAG, ">>>链接执行完毕");
             if (!socketChannel.isConnected()) {
                 LogUtil.getLog().e(TAG, "\n>>>>链接失败:链接不上,线程ver" + threadVer);
                 throw new NetworkErrorException();

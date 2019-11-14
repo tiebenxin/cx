@@ -149,7 +149,7 @@ public class GroupHeadImageUtil {
 //                DiskLruCache.Value value = diskLruCache.get(safeKey);
             DiskLruCache.Value value;
             if (CustomGlideModule.hasPermission(context)) {
-//            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
+//            LogUtil.getLog().d("a=", "Glide缓存位置：/com.yanlong.cll/cache/image");
                 if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 //                //SD卡已装入
                     File storageDirectory = Environment.getExternalStorageDirectory();
@@ -164,7 +164,7 @@ public class GroupHeadImageUtil {
                 }
             } else {
 //                //设置内存缓存大小,默认缓存位置
-////            System.out.println("Glide缓存位置：默认应用内");
+////            LogUtil.getLog().d("a=", "Glide缓存位置：默认应用内");
                 DiskLruCache diskLruCache = DiskLruCache.open(new File(context.getCacheDir(), DiskCache.Factory.DEFAULT_DISK_CACHE_DIR), 1, 1, cacheSize);
                 value = diskLruCache.get(safeKey);
             }

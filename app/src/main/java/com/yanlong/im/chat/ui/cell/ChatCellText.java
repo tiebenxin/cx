@@ -68,7 +68,7 @@ public class ChatCellText extends ChatCellBase {
             int len = msg.length();
             SpannableStringBuilder builder = new SpannableStringBuilder();
             while (matcher.find()) {
-                System.out.println();
+                LogUtil.getLog().d("a=","====" );
                 int groupCount = matcher.groupCount();
                 if (groupCount >= 0) {
                     int start = matcher.start();

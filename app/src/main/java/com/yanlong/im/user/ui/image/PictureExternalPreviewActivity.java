@@ -73,6 +73,7 @@ import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.DeviceUtils;
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
@@ -222,7 +223,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                                         imgLarge.setVisibility(View.VISIBLE);
                                         setDownloadProgress(tvLookOrigin, 100);
                                         btnDown.setEnabled(true);
-                                        Log.d("showBigImage", "showBigImage: " + path);
+                                        LogUtil.getLog().d("showBigImage", "showBigImage: " + path);
                                         imgLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
                                         //暂时先不处理放大后的位置
                                     /*  float scale=  imageView.getScale();
@@ -239,7 +240,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
                             @Override
                             public void onDownloading(final int progress) {
-                                Log.d(TAG, "onDownloading: " + progress);
+                                LogUtil.getLog().d(TAG, "onDownloading: " + progress);
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -286,7 +287,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 imgLarge.setVisibility(View.VISIBLE);
                 setDownloadProgress(tvLookOrigin, 100);
                 btnDown.setEnabled(true);
-                Log.d("showBigImage", "showBigImage: " + path);
+                LogUtil.getLog().d("showBigImage", "showBigImage: " + path);
 //                imgLarge.setImage(new FileBitmapDecoderFactory(path));
                 loadImage(imgLarge, path);
                 //这边要改成已读
@@ -508,7 +509,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             imgEvent(imageView, longImg, path);
             //2.是否是原图
             final String imgpath = media.getPath();
-            Log.d("atg", "----:imgpath " + imgpath);
+            LogUtil.getLog().d("atg", "----:imgpath " + imgpath);
             imgLarge.setTag(imgpath);
             boolean isOriginal = false;//原图
             isOriginal = StringUtil.isNotNull(imgpath);
@@ -602,7 +603,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                             String fileName = getFileExt(imgPath);
                             String path = PictureFileUtils.createDir(PictureExternalPreviewActivity.this,
                                     fileName, null);
-                            Log.d(TAG, "showLoadingImage path: " + path);
+                            LogUtil.getLog().d(TAG, "showLoadingImage path: " + path);
 
                             new Thread(new Runnable() {
                                 @Override
@@ -613,7 +614,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 //                                            String dirPath = PictureFileUtils.createDir(mContext,
 //                                                    fileName, "/Pictures");
 //                                    PictureFileUtils.copyFile(file.getAbsolutePath(), dirPath);
-//                                            System.out.println("DeviceUtils" + "--保存图片到相册--" + dirPath);
+//                                            LogUtil.getLog().d("a=", "DeviceUtils" + "--保存图片到相册--" + dirPath);
 //                                            PicSaveUtils.sendBroadcast(new File(dirPath), mContext);
 //                                        } else {
 //                                            PicSaveUtils.sendBroadcast(new File(path), mContext);
@@ -733,7 +734,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         private void showImg(final PhotoView imageView, final SubsamplingScaleImageView longImg, final String path, final boolean eqLongImg) {
             RequestOptions options = new RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.ALL);
-            Log.v("Glide", "显示普通图" + path + "eqLongImg" + eqLongImg);
+            LogUtil.getLog().e("Glide", "显示普通图" + path + "eqLongImg" + eqLongImg);
             Glide.with(PictureExternalPreviewActivity.this)
                     .asBitmap()
                     .load(path)
@@ -762,7 +763,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
         //显示gif图片
         private void showGif(final PhotoView imageView, TextView txtBig, String path) {
-            Log.v("Glide", "显示gif图");
+            LogUtil.getLog().e("Glide", "显示gif图");
             txtBig.setVisibility(View.GONE);
             RequestOptions gifOptions = new RequestOptions()
                     .priority(Priority.LOW)
@@ -866,7 +867,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
      * @param longImg
      */
     private void displayLongPic(Bitmap bmp, SubsamplingScaleImageView longImg) {
-        Log.i(TAG, "displayLongPic: 显示长图");
+        LogUtil.getLog().i(TAG, "displayLongPic: 显示长图");
 
         if (bmp.getHeight() > 4000 || bmp.getWidth() > 4000) {
             if (bmp.getHeight() > bmp.getWidth()) {
@@ -917,14 +918,14 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             loadDataThread = new LoadDataThread(path, 1, null);
             loadDataThread.start();
         } else {
-            Log.d(TAG, "scanningQrImage: path" + path);
+            LogUtil.getLog().d(TAG, "scanningQrImage: path" + path);
             // 有可能本地图片
             try {
                 if (path.toLowerCase().startsWith("file://")) {
                     path = path.replace("file://", "");
                 }
 
-                // Log.d(TAG, "scanningQrImage: dirPath"+dirPath);
+                // LogUtil.getLog().d(TAG, "scanningQrImage: dirPath"+dirPath);
                 Result result = scanningImage(path);
                 QRCodeManage.toZhifubao(this, result);
             } catch (Exception e) {
@@ -980,11 +981,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
     private void saveImage(String path) {
-        Log.e("TAG", "------------showLoadingImage$:saveImage " + path);
+        LogUtil.getLog().e("TAG", "------------showLoadingImage$:saveImage " + path);
 
         boolean isHttp = PictureMimeType.isHttp(path);
         if (isHttp) {
-            Log.e("TAG", "------------showLoadingImage$:saveImage " + "http");
+            LogUtil.getLog().e("TAG", "------------showLoadingImage$:saveImage " + "http");
             showPleaseDialog();
             loadDataThread = new LoadDataThread(path, 0, null);
             loadDataThread.start();
@@ -1003,25 +1004,25 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     file.renameTo(new File(spiltPath));
                     path = spiltPath;
                 }
-                Log.e("TAG", "------------showLoadingImage$:saveImage__path__" + path + "--------" + spiltPath);
+                LogUtil.getLog().e("TAG", "------------showLoadingImage$:saveImage__path__" + path + "--------" + spiltPath);
                 String fileName = getFileExt(path);
                 String spiltFileName = null;
                 if (fileName.contains("_below")) {
                     paths = path.split("_below");
                     spiltFileName = paths[0];
                 }
-                Log.e("TAG", "------------showLoadingImage$:saveImage__path__" + fileName);
+                LogUtil.getLog().e("TAG", "------------showLoadingImage$:saveImage__path__" + fileName);
                 //TODO:为什么要copy到相册？相册更新可以是自定义文件路径，执行MediaStore.Images.Media.insertImage会在相册中产生两张图片
                 //刷新相册的广播
 //                if (DeviceUtils.isViVoAndOppo()) {
 //                    String dirPath = PictureFileUtils.createDir(mContext, fileName, "/Pictures");
 //                    PictureFileUtils.copyFile(fileName, dirPath);
 //                    MediaStore.Images.Media.insertImage(mContext.getContentResolver(), path, fileName, null);
-//                    System.out.println("DeviceUtils" + "--保存图片到相册--" + dirPath);
+//                    LogUtil.getLog().d("a=", "DeviceUtils" + "--保存图片到相册--" + dirPath);
 //                    PicSaveUtils.sendBroadcast(new File(dirPath), getApplicationContext());
 //                } else {
 //                    PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
-//                    System.out.println("" + "--保存图片到相册--" + path);
+//                    LogUtil.getLog().d("a=", "" + "--保存图片到相册--" + path);
 //                }
                 PicSaveUtils.sendBroadcast(new File(path), getApplicationContext());
                 ToastManage.s(mContext, "保存成功");
@@ -1036,7 +1037,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     }
 
     private void saveImageImg(String path, ImageView imageView, ImageView ivDownload) {
-        Log.d("TAG", "------------showLoadingImage$:saveImage " + path);
+        LogUtil.getLog().d("TAG", "------------showLoadingImage$:saveImage " + path);
         Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
         if (null != bitmap) {
             boolean isSuccess = PicSaveUtils.saveImgLoc(this, bitmap, path);
@@ -1054,7 +1055,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
         public LoadDataThread(String path, int type, Object obj) {
             super();
-            Log.d("TAG", "------------LoadDataThread: " + obj);
+            LogUtil.getLog().d("TAG", "------------LoadDataThread: " + obj);
             this.path = path;
             this.type = type;
             this.obj = obj;
@@ -1073,7 +1074,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     // 下载图片保存至手机
     public void showLoadingImage(String urlPath, int type, Object obj) {
         try {
-            Log.d(TAG, "showLoadingImage: " + urlPath);
+            LogUtil.getLog().d(TAG, "showLoadingImage: " + urlPath);
             URL u = new URL(urlPath);
 //            //网路图片本地化
             String fileName = PicSaveUtils.getFileExt(urlPath);
@@ -1177,43 +1178,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             EventBus.getDefault().unregister(this);
         }
     }
-
-    @SuppressLint("CheckResult")
-    private void getFileCache(final String url) {
-        Observable.just(0)
-                .map(new Function<Integer, File>() {
-                    @Override
-                    public File apply(Integer integer) throws Exception {
-                        try {
-                            return Glide.with(PictureExternalPreviewActivity.this).asFile()
-                                    .apply(RequestOptions.priorityOf(Priority.HIGH).onlyRetrieveFromCache(true))
-                                    .load(url)
-                                    .submit().get();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        return null;
-                    }
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .onErrorResumeNext(Observable.<File>empty())
-                .subscribe(new Consumer<File>() {
-                    @Override
-                    public void accept(File file) throws Exception {
-                        if (file != null) {
-
-                        } else {
-                            showPleaseDialog();
-                            loadDataThread = new LoadDataThread(url, 0, null);
-                            loadDataThread.start();
-                        }
-                    }
-                });
-
-    }
-
     private void downloadAndSaveImage(String url, TextView tvLookOrigin, ImageView ivDownLoad) {
         final String filePath = getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = url.substring(url.lastIndexOf("/") + 1);
@@ -1246,7 +1210,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 //                                imgLarge.setVisibility(View.VISIBLE);
                                     setDownloadProgress(tvLookOrigin, 100);
                                     ivDownLoad.setEnabled(true);
-                                    Log.d("showBigImage", "showBigImage: " + url);
+                                    LogUtil.getLog().d("showBigImage", "showBigImage: " + url);
 //                                imgLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
                                     MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
                                     //这边要改成已读
@@ -1258,7 +1222,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
                         @Override
                         public void onDownloading(final int progress) {
-                            Log.d(TAG, "onDownloading: " + progress);
+                            LogUtil.getLog().d(TAG, "onDownloading: " + progress);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

@@ -7,13 +7,10 @@ import android.support.annotation.IntRange;
 import android.support.annotation.StyleRes;
 import android.support.v4.app.Fragment;
 
-import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DoubleUtils;
 
-import java.io.Serializable;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,6 +166,15 @@ public class PictureSelectionModel {
      */
     public PictureSelectionModel minSelectNum(int minSelectNum) {
         selectionConfig.minSelectNum = minSelectNum;
+        return this;
+    }
+
+    /**
+     * @param maxVideoSelectNum PictureSelector max selection
+     * @return
+     */
+    public PictureSelectionModel maxVideoSelectNum(int maxVideoSelectNum) {
+        selectionConfig.maxVideoSelectNum = maxVideoSelectNum;
         return this;
     }
 

@@ -113,7 +113,7 @@ public class ChatServer extends Service {
 
     /***
      * 单人
-     * @param fuid
+     * @param
      */
 //    public static void setSessionSolo(Long fuid) {
 //        if (SESSION_TYPE == 3)
@@ -145,7 +145,7 @@ public class ChatServer extends Service {
                     MsgAllBean msgAllBean = cancelList.get(msgid);
                     msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel(),msgAllBean.getChat().getMsg(),msgAllBean.getChat().getMsgId());// getMsgId存放的是撤回的消息类型
 
-                    Log.i(TAG, "onACK: 收到取消回执,手动刷新列表");
+                    LogUtil.getLog().i(TAG, "onACK: 收到取消回执,手动刷新列表");
                     EventBus.getDefault().post(new EventRefreshChat());
                     cancelList.remove(msgid);
                 }
@@ -224,7 +224,7 @@ public class ChatServer extends Service {
                     // ToastUtil.show(getApplicationContext(), "转让群");
                     return;
                 case REMOVE_GROUP_MEMBER2:
-//                    Log.e("TAG","remove"+"---------"+ msg.getGid()+"----------"+    msg.getRemoveGroupMember2().getUid(0));
+//                    LogUtil.getLog().e("TAG","remove"+"---------"+ msg.getGid()+"----------"+    msg.getRemoveGroupMember2().getUid(0));
 //                    String ggid=msg.getGid();
 //                    Group gginfo = msgDao.getGroup4Id(ggid);
 //                    List<UserInfo> list=gginfo.getUsers();
@@ -247,7 +247,7 @@ public class ChatServer extends Service {
 //                            UserInfo userInfo = gginfo.getUsers().get(j);
 //                            url[j] = userInfo.getHead();
 //                        }
-//                        Log.e("TAG","remove"+"---------"+ url.length);
+//                        LogUtil.getLog().e("TAG","remove"+"---------"+ url.length);
 //                        File file = GroupHeadImageUtil.synthesis(getContext(), url);
 //                        MsgDao msgDao = new MsgDao();
 //                        msgDao.groupHeadImgUpdate(ggid , file.getAbsolutePath());
@@ -409,7 +409,7 @@ public class ChatServer extends Service {
 
     /***
      * 更新用户头像等资料
-     * @param msg
+     * @param
      */
    /* private void taskUpUserinfo(MsgBean.UniversalMessage.WrapMessage msg) {
         if (msg.getMsgType().getNumber() > 100) {//通知类消息
@@ -444,14 +444,14 @@ public class ChatServer extends Service {
 //            Long uid = UserAction.getMyId();
 //            for (int i = 0; i < list.size(); i++) {
 //                if (uid.equals(list.get(i))) {
-//                    Log.v(TAG, "有人@我" + uid);
+//                    LogUtil.getLog().v(TAG, "有人@我" + uid);
 //                    msgDao.atMessage(gid, message, atType);
 //                    palydingdong();
 //                    isAt = true;
 //                }
 //            }
 //        } else {
-//            Log.v(TAG, "@所有人");
+//            LogUtil.getLog().v(TAG, "@所有人");
 //            msgDao.atMessage(gid, message, atType);
 //            palydingdong();
 //            isAt = true;

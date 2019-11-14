@@ -42,7 +42,7 @@ public class NetIntrtceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         if (AppConfig.DEBUG)
-            Log.i(TAG, "<<进入拦截器");
+            LogUtil.getLog().i(TAG, "<<进入拦截器");
         Request request = chain.request().newBuilder()
                   .headers(headers)
                 .build();
@@ -115,7 +115,7 @@ public class NetIntrtceptor implements Interceptor {
 
                 break;
             case 401:
-                Log.e(TAG, "<<拦截器:401 url:" + resp.request().url().url().toString());
+                LogUtil.getLog().e(TAG, "<<拦截器:401 url:" + resp.request().url().url().toString());
 
                 EventBus.getDefault().post(new EventLoginOut());
               /*  if(token==null||token.getToken()==null){//没登录,在当前页面弹登录
@@ -129,15 +129,15 @@ public class NetIntrtceptor implements Interceptor {
                 break;
 
             case 403:
-                Log.e(TAG, "<<拦截器:403 url:" + resp.request().url().url().toString());
+                LogUtil.getLog().e(TAG, "<<拦截器:403 url:" + resp.request().url().url().toString());
 
                 EventBus.getDefault().post(new EventLoginOut());
                 break;
             case 404:
-                Log.e(TAG, "<<拦截器:404 url:" + resp.request().url().url().toString());
+                LogUtil.getLog().e(TAG, "<<拦截器:404 url:" + resp.request().url().url().toString());
                 break;
             case 500:
-                Log.e(TAG, "<<拦截器:500 url:" + resp.request().url().url().toString());
+                LogUtil.getLog().e(TAG, "<<拦截器:500 url:" + resp.request().url().url().toString());
                 break;
         }
 

@@ -1114,7 +1114,7 @@ public class MsgDao {
                 if (session.getIsMute() == 1) {//免打扰
                     session.setUnread_count(0);
                 } else {
-                    session.setUnread_count(count);
+                    session.setUnread_count(count < 0 ? 0 : count);
                 }
             } else {
                 if (session.getIsMute() != 1) {//免打扰
@@ -1142,7 +1142,7 @@ public class MsgDao {
                 if (session.getIsMute() == 1) {//免打扰
                     session.setUnread_count(0);
                 } else {
-                    session.setUnread_count(count);
+                    session.setUnread_count(count < 0 ? 0 : count);
                 }
 
             } else {

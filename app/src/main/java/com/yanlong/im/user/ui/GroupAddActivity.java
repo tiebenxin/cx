@@ -13,6 +13,7 @@ import com.yanlong.im.user.action.UserAction;
 
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
@@ -60,12 +61,12 @@ public class GroupAddActivity extends AppActivity {
                     return;
                 }
                 alert.show();
-                Log.e("TAG",getIntent().getStringExtra("gid")+"---------------"+UserAction.getMyInfo().getPhone());
+                LogUtil.getLog().e("TAG",getIntent().getStringExtra("gid")+"---------------"+UserAction.getMyInfo().getPhone());
                 new MsgAction().changeGroupLimit(getIntent().getStringExtra("gid"), textContetn, UserAction.getMyInfo().getPhone(), new CallBack<ReturnBean>() {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         alert.dismiss();
-                        Log.e("TAG",response.body().getMsg().toString());
+                        LogUtil.getLog().e("TAG",response.body().getMsg().toString());
                         if (response.body() == null) {
                             return;
                         }
@@ -76,7 +77,7 @@ public class GroupAddActivity extends AppActivity {
                     @Override
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         alert.dismiss();
-                        Log.e("TAG",t.getMessage());
+                        LogUtil.getLog().e("TAG",t.getMessage());
 //                super.onFailure(call, t);
                     }
                 });

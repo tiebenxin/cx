@@ -10,8 +10,11 @@ public class AVChatProfile {
     private boolean isAVMinimize = false;
     // 是否正在拨打电话
     private boolean isCallIng = false;
-
+    // 电话是否接通
+    private boolean isCallEstablished = false;
     private static String account;
+    // 通话类型
+    private int chatType;
 
     public static AVChatProfile getInstance() {
         return InstanceHolder.instance;
@@ -37,7 +40,22 @@ public class AVChatProfile {
         public final static AVChatProfile instance = new AVChatProfile();
     }
 
-//    public void launchActivity(final AVChatData data, final String displayName, final int source) {
+    public boolean isCallEstablished() {
+        return isCallEstablished;
+    }
+
+    public void setCallEstablished(boolean callEstablished) {
+        isCallEstablished = callEstablished;
+    }
+
+    public int isChatType() {
+        return chatType;
+    }
+
+    public void setChatType(int chatType) {
+        this.chatType = chatType;
+    }
+    //    public void launchActivity(final AVChatData data, final String displayName, final int source) {
 //        Runnable runnable = new Runnable() {
 //            @Override
 //            public void run() {

@@ -80,7 +80,7 @@ public class TimerUtil {
 					}
 				}, 0, 1000);
 			}/* else {
-				System.out.println("已经启动过了");
+				LogUtil.getLog().d("a=", "已经启动过了");
 			}*/
 		}
 	}

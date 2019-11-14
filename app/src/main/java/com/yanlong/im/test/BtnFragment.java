@@ -13,6 +13,7 @@ import com.yanlong.im.R;
 import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.bean.QRCodeBean;
+import net.cb.cb.library.utils.LogUtil;
 
 
 public class BtnFragment extends Fragment {
@@ -50,8 +51,8 @@ public class BtnFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivity(),"YLIM://ADDGROUP?id=xxx&kk=10111");
-                Log.v("test","head"+bean.getHead()+"-----"+"function"+bean.getFunction()+"-----"+bean.getParameterValue(QRCodeManage.ID));
-                Log.v("test",QRCodeManage.getQRcodeStr(bean));
+                LogUtil.getLog().e("test","head"+bean.getHead()+"-----"+"function"+bean.getFunction()+"-----"+bean.getParameterValue(QRCodeManage.ID));
+                LogUtil.getLog().e("test",QRCodeManage.getQRcodeStr(bean));
             }
         });
 

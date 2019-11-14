@@ -72,7 +72,7 @@ public class IAudioRecord implements IAudioRecordListener {
 //                @Override
 //                public void success(String url) {
 //                    if (callback != null) {
-//                        Log.v("AudioUploadPath", url + "");
+//                        LogUtil.getLog().e("AudioUploadPath", url + "");
 //                        callback.getUrl(url, duration);
 //                    }
 //                }

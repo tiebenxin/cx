@@ -57,6 +57,7 @@ import retrofit2.Response;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.P2P_AU_VIDEO_DIAL;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_GROUP;
@@ -137,8 +138,10 @@ public class MessageManager {
      * 分两类处理，一类是需要产生本地消息记录的，一类是相关指令，无需产生消息记录
      * @param wrapMessage 接收到的消息
      * @param isList 是否是批量消息
+     * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
+//        LogUtil.getLog().d("a=", TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
@@ -320,6 +323,10 @@ public class MessageManager {
                     EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
                     eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
                     EventBus.getDefault().post(eventVoice);
+                    // 处理视频撤回，对方在播放时停止播放
+                    EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
+                    eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    EventBus.getDefault().post(eventVideo);
                     MessageManager.getInstance().setMessageChange(true);
                 }
                 break;
@@ -366,10 +373,10 @@ public class MessageManager {
                 break;
 
             case P2P_AU_VIDEO_DIAL:// 音视频通知
-                return false;
+                break;
         }
-        //刷新单个
-        if (result && !hasNotified && !isList && bean != null) {
+        //刷新单个,接收到音视频通话消息不需要刷新
+        if (result && !hasNotified && !isList && bean != null && wrapMessage.getMsgType() != P2P_AU_VIDEO_DIAL) {
             setMessageChange(true);
             notifyRefreshMsg(isGroup(wrapMessage.getFromUid(), bean.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
         }
@@ -436,10 +443,6 @@ public class MessageManager {
      * @param msgAllBean 消息
      * @isList 是否是批量消息
      * */
-    /*
-     * 网络加载用户信息
-     * */
-
     private boolean saveMessage(MsgAllBean msgAllBean, boolean isList) {
         msgAllBean.setRead(false);//设置未读
         msgAllBean.setTo_uid(msgAllBean.getTo_uid());
@@ -450,7 +453,7 @@ public class MessageManager {
             if (!loadGids.contains(msgAllBean.getGid())) {
                 loadGids.add(msgAllBean.getGid());
                 loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
-                System.out.println(TAG + "--需要加载群信息");
+                LogUtil.getLog().d("a=", TAG + "--需要加载群信息");
             } else {
                 updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
                 if (isList) {
@@ -462,10 +465,10 @@ public class MessageManager {
             if (!loadUids.contains(msgAllBean.getFrom_uid())) {
                 loadUids.add(msgAllBean.getFrom_uid());
                 loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
-                System.out.println(TAG + "--需要加载用户信息");
+                LogUtil.getLog().d("a=", TAG + "--需要加载用户信息");
 
             } else {
-                System.out.println(TAG + "--异步加载用户信息更新未读数");
+                LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
                 updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
                 if (isList) {
                     setMessageChange(true);
@@ -487,11 +490,6 @@ public class MessageManager {
      * @param msgAllBean 消息
      * @isList 是否是批量消息
      * */
-    /*
-    /**
-     * 网络加载用户信息,只能接受来自好友的信息
-     */
-
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
         try {
@@ -520,9 +518,9 @@ public class MessageManager {
                 if (!loadUids.contains(msgAllBean.getFrom_uid())) {
                     loadUids.add(msgAllBean.getFrom_uid());
                     loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
-                    System.out.println(TAG + "--需要加载用户信息");
+                    LogUtil.getLog().d("a=", TAG + "--需要加载用户信息");
                 } else {
-                    System.out.println(TAG + "--异步加载用户信息更新未读数");
+                    LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
                     if (!isList) {
                         updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                         setMessageChange(true);
@@ -542,12 +540,15 @@ public class MessageManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
+            LogUtil.getLog().d("a=", TAG + "--消息存储失败--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         }
-//        System.out.println(TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
+//        LogUtil.getLog().d("a=", TAG + "--消息存储成功--msgId=" + msgAllBean.getMsg_id() + "--msgType=" + msgAllBean.getMsg_type());
         return result;
     }
 
+    /*
+     * 网络加载用户信息,只能接受来自好友的信息
+     * */
     private synchronized void loadUserInfo(final String gid, final Long uid, boolean isList, MsgAllBean bean) {
         if (UserAction.getMyId() != null && uid.equals(UserAction.getMyId())) {
             return;
@@ -618,7 +619,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, boolean isCancel) {
-//        System.out.println(TAG + "--更新Session--updateSessionUnread" + "--isCancel=" + isCancel);
+//        LogUtil.getLog().d("a=", TAG + "--更新Session--updateSessionUnread" + "--isCancel=" + isCancel);
         boolean canChangeUnread = true;
         if (!TextUtils.isEmpty(gid)) {
             if (!TextUtils.isEmpty(SESSION_GID) && SESSION_GID.equals(gid)) {
@@ -636,7 +637,7 @@ public class MessageManager {
      * 更新session未读数
      * */
     public synchronized void updateSessionUnread(String gid, Long from_uid, int count) {
-//        System.out.println(TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
+//        LogUtil.getLog().d("a=", TAG + "--更新Session--updateSessionUnread--gid=" + gid + "--uid=" + from_uid + "--count=" + count);
         msgDao.sessionReadUpdate(gid, from_uid, count);
     }
 
@@ -645,7 +646,7 @@ public class MessageManager {
      * @param isCancel 是否是撤销消息
      * */
     public synchronized void updatePendingSessionUnreadCount(String gid, Long uid, boolean isDisturb, boolean isCancel) {
-//        System.out.println(TAG + "--更新Session--updatePendingSessionUnreadCount--gid=" + gid + "--uid=" + uid + "--isCancel=" + isCancel);
+//        LogUtil.getLog().d("a=", TAG + "--更新Session--updatePendingSessionUnreadCount--gid=" + gid + "--uid=" + uid + "--isCancel=" + isCancel);
         if (isCancel) {
             if (!TextUtils.isEmpty(gid)) {
                 if (pendingGroupUnread.containsKey(gid)) {
@@ -918,7 +919,7 @@ public class MessageManager {
             Long uid = UserAction.getMyId();
             for (int i = 0; i < list.size(); i++) {
                 if (uid.equals(list.get(i))) {
-                    Log.v(TAG, "有人@我" + uid);
+                    LogUtil.getLog().e(TAG, "有人@我" + uid);
                     msgDao.atMessage(gid, message, atType);
                     playDingDong();
                     isAt = true;
@@ -928,7 +929,7 @@ public class MessageManager {
             if (atMessage.getUidList() == null || atMessage.getUidList().size() == 0) {//是群公告
                 refreshGroupInfo(msg.getGid());
             }
-            Log.v(TAG, "@所有人");
+            LogUtil.getLog().e(TAG, "@所有人");
             msgDao.atMessage(gid, message, atType);
             playDingDong();
             isAt = true;

@@ -192,10 +192,9 @@ public class SocketData {
                     //时间要和ack一起返回
                     .setTimestamp(getSysTime())
                     .build();
-            //  Log.d(TAG, "msgSave4Me2: msg" + msg.toString());
+            //  LogUtil.getLog().d(TAG, "msgSave4Me2: msg" + msg.toString());
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
-
             if (msgAllBean == null) {
                 return;
             }
@@ -236,7 +235,7 @@ public class SocketData {
                     //时间要和ack一起返回
                     // .setTimestamp(System.currentTimeMillis())
                     .build();
-            Log.d(TAG, "msgSave4Me1: msg" + msg.toString());
+            LogUtil.getLog().d(TAG, "msgSave4Me1: msg" + msg.toString());
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
@@ -427,7 +426,9 @@ public class SocketData {
                     wmsg.setMembername(name);
                 }
             }
+
         }
+
         wmsg.setMsgType(type);
         switch (type) {
             case CHAT:
@@ -596,6 +597,7 @@ public class SocketData {
         MsgBean.StampMessage action = MsgBean.StampMessage.newBuilder()
                 .setComment(txt)
                 .build();
+
         return send4Base(toId, toGid, MsgBean.MessageType.STAMP, action);
 
     }
@@ -636,7 +638,9 @@ public class SocketData {
         } else {
             msgb = msg.build();
         }
-        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, msg);
+
+
+        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, msgb);
     }
 
     /***
@@ -714,7 +718,7 @@ public class SocketData {
 //        }
 
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
-        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
+        return send4BaseById(msgId, toId, toGid, -1, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
     public static MsgAllBean 转发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
@@ -741,6 +745,8 @@ public class SocketData {
                 .setHeight(h)
                 .setSize(size)
                 .build();
+
+
         return send4Base(toId, toGid, MsgBean.MessageType.IMAGE, msg);
     }
 
@@ -782,7 +788,7 @@ public class SocketData {
         msgAllBean.setGid(toGid == null ? "" : toGid);
         msgAllBean.setSend_state(ChatEnum.ESendStatus.PRE_SEND);
 
-        Log.d(TAG, "sendFileUploadMessagePre: msgId" + msgId);
+        LogUtil.getLog().d(TAG, "sendFileUploadMessagePre: msgId" + msgId);
 
         DaoUtil.update(msgAllBean);
         msgDao.sessionCreate(msgAllBean.getGid(), msgAllBean.getTo_uid());
@@ -859,6 +865,21 @@ public class SocketData {
 
     }
 
+    /***
+     * 发送语音
+     * @param toId
+     * @param toGid
+     * @param url
+     * @param time
+     * @return
+     */
+    public static MsgAllBean send4Voice(Long toId, String toGid, String url, int time) {
+        MsgBean.VoiceMessage msg = MsgBean.VoiceMessage.newBuilder()
+                .setUrl(url)
+                .setDuration(time)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.VOICE, msg);
+    }
 
     /****
      * 发送名片
@@ -1411,7 +1432,6 @@ public class SocketData {
         msgDao.sessionCreate(bean.getGid(), bean.getTo_uid());
         MessageManager.getInstance().setMessageChange(true);
     }
-
 
     public static MsgAllBean createMessageLock(String gid, Long uid) {
         MsgAllBean bean = new MsgAllBean();

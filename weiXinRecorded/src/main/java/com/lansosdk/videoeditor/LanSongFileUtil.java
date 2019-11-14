@@ -472,9 +472,9 @@ public class LanSongFileUtil {
     public static void deleteEmptyDir(String dir) {
         boolean success = (new File(dir)).delete();
         if (success) {
-            System.out.println("Successfully deleted empty directory: " + dir);
+            LSLog.e("Successfully deleted empty directory: " + dir);
         } else {
-            System.out.println("Failed to delete empty directory: " + dir);
+            LSLog.e("Failed to delete empty directory: " + dir);
         }
     }
 
@@ -635,9 +635,9 @@ public class LanSongFileUtil {
      String newDir2 = "new_dir2";
      boolean success = deleteDir(new File(newDir2));
      if (success) {
-     System.out.println("Successfully deleted populated directory: " + newDir2);
+     LSLog.e("Successfully deleted populated directory: " + newDir2);
      } else {
-     System.out.println("Failed to delete populated directory: " + newDir2);
+     LSLog.e("Failed to delete populated directory: " + newDir2);
      }
      } */
 }

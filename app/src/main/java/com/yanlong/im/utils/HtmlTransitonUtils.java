@@ -19,6 +19,7 @@ import com.yanlong.im.chat.bean.HtmlBeanList;
 import com.yanlong.im.dialog.LockDialog;
 import com.yanlong.im.user.ui.UserInfoActivity;
 
+import net.cb.cb.library.utils.LogUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,7 +38,7 @@ public class HtmlTransitonUtils {
 
     public SpannableStringBuilder getSpannableString(Context context, String html, int type) {
         SpannableStringBuilder style = new SpannableStringBuilder();
-        Log.v(TAG, "html---------------->" + html);
+        LogUtil.getLog().e(TAG, "html---------------->" + html);
         if (!TextUtils.isEmpty(html)) {
             HtmlBean bean = htmlTransition(html);
             switch (type) {
@@ -477,13 +478,13 @@ public class HtmlTransitonUtils {
             HtmlBeanList bean = new HtmlBeanList();
             String id = element.id();
             if (!TextUtils.isEmpty(element.id())) {
-                Log.v(TAG, "id------------>" + element.id());
+                LogUtil.getLog().e(TAG, "id------------>" + element.id());
                 bean.setId(id);
             }
             String name = element.text();
             if (!TextUtils.isEmpty(element.val())) {
                 bean.setType(Integer.valueOf(element.val()));
-                Log.v(TAG, "type------------>" + element.val());
+                LogUtil.getLog().e(TAG, "type------------>" + element.val());
             }
             bean.setId(id);
             bean.setName(name);
@@ -493,7 +494,7 @@ public class HtmlTransitonUtils {
         Elements divs = doc.select("div");
         if (divs != null && divs.size() > 0) {
             for (int i = 0; i < divs.size(); i++) {
-                Log.v(TAG, "gid------------>" + divs.get(i).id());
+                LogUtil.getLog().e(TAG, "gid------------>" + divs.get(i).id());
                 htmlBean.setGid(divs.get(i).id());
             }
         }

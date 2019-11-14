@@ -83,6 +83,7 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.jpush.android.api.JPluginPlatformInterface;
+import cn.jpush.android.api.JPushInterface;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -480,6 +481,20 @@ public class MainActivity extends AppActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void stopJPushResumeEvent(EventFactory.StopJPushResumeEvent event) {
+        // TODO 处理部分手机收到音视频消息后，多个铃声在播放问题
+        JPushInterface.stopPush(this);
+        if(!isFinishing()){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    JPushInterface.resumePush(MainActivity.this);
+                }
+            },500);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void closevoiceMinimizeEvent(EventFactory.CloseVoiceMinimizeEvent event) {
         if (!isFinishing()) {
             // 判断ChatActivity是否到前端显示，不是则更新并发送音视频消息数据
@@ -532,7 +547,7 @@ public class MainActivity extends AppActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showVoiceMinimizeEvent(EventFactory.ShowVoiceMinimizeEvent event) {
-        Log.i("VideoActivity", "showVoiceMinimizeEvent：" + event.isStartRunThread);
+        LogUtil.getLog().i("VideoActivity", "showVoiceMinimizeEvent：" + event.isStartRunThread);
         showMinimizeVoiceView(event.isStartRunThread);
     }
 

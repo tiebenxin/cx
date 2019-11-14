@@ -120,11 +120,10 @@ public class MsgConversionBean {
             case IMAGE:
                 ImageMessage image = new ImageMessage();
                 image.setMsgid(msgAllBean.getMsg_id());
-                // Log.d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
                 MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
                 if (imgMsg != null) {//7.16 替换成上一次本地的图片路径
                     image.setLocalimg(imgMsg.getImage().getLocalimg());
-                    Log.d("TAG", "查询到本地图" + image.getLocalimg());
+                    LogUtil.getLog().d("TAG", "查询到本地图" + image.getLocalimg());
 
                 }
 
@@ -456,5 +455,6 @@ public class MsgConversionBean {
 
         return msgAllBean;
     }
+
 
 }

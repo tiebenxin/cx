@@ -188,7 +188,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
                 for (String msgId : bean.getMsgIdList()) {
                     //撤回消息不做刷新
                     if (ChatServer.getCancelList().containsKey(msgId)) {
-                        Log.i(TAG, "onACK: 收到取消回执,等待刷新列表2");
+                        LogUtil.getLog().i(TAG, "onACK: 收到取消回执,等待刷新列表2");
                         return;
                     }
                 }
@@ -320,7 +320,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         new UpFileAction().upFile(UpFileAction.PATH.VOICE, context, new UpFileUtil.OssUpCallback() {
             @Override
             public void success(String url) {
-                Log.v(ChatActivity3.class.getSimpleName(), "上传语音成功--" + url);
+                LogUtil.getLog().e(ChatActivity3.class.getSimpleName(), "上传语音成功--" + url);
                 VoiceMessage voice = bean.getVoiceMessage();
                 voice.setUrl(url);
                 SocketData.sendAndSaveMessage(bean);

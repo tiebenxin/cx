@@ -35,6 +35,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.StrikeButton;
@@ -158,7 +159,7 @@ public class SessionAdapter extends AbstractRecyclerAdapter<Session> {
 
                     }
                 } else {
-                    Log.e("taf", "11来消息的时候没有创建群");
+                    LogUtil.getLog().e("taf", "11来消息的时候没有创建群");
                 }
 
                 int type = bean.getMessageType();
@@ -211,7 +212,7 @@ public class SessionAdapter extends AbstractRecyclerAdapter<Session> {
                         break;
                 }
 
-                Log.e("TAG", icon.toString());
+                LogUtil.getLog().e("TAG", icon.toString());
                 if (StringUtil.isNotNull(icon)) {
                     Glide.with(getContext()).load(icon)
                             .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);

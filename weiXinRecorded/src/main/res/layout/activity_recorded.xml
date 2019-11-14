@@ -103,7 +103,7 @@
         android:text="编辑视屏"
         android:gravity="center"
         android:textColor="@color/color1"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:textSize="14sp"
         android:background="#32b053"
         />

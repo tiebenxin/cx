@@ -25,6 +25,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.photoview.LogManager;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -383,7 +384,7 @@ public class PictureFileUtils {
         //旋转图片 动作
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        System.out.println("angle2=" + angle);
+        LogManager.getLogger().i("a===","angle2=" + angle);
         // 创建新的图片
         Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
                 bitmap.getWidth(), bitmap.getHeight(), matrix, true);
@@ -659,5 +660,34 @@ public class PictureFileUtils {
             cachePath = context.getCacheDir().getPath();
         }
         return cachePath;
+    }
+
+    //获取保存图片地址的文件名
+    public static String getFileName(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return "";
+        }
+        return url.substring(url.lastIndexOf("/") + 1);
+    }
+
+    //获取保存图片全路径
+    public static String getFilePathOfImage(String url, Context context) {
+        String fileName = getFileName(url);
+        String filePath = context.getExternalCacheDir().getAbsolutePath() + "/Image/";
+        return filePath + fileName;
+    }
+
+    //检测图片是否有缓存
+    public static boolean hasImageCache(String filePath, long size) {
+        if (!TextUtils.isEmpty(filePath)) {
+            File file = new File(filePath);
+            if (file.exists()) {
+                long fileSize = file.length();
+                if (size == fileSize) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

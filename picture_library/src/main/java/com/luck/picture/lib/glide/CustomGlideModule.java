@@ -31,7 +31,7 @@ public class CustomGlideModule extends AppGlideModule {
         //有外部内存写入权限，将缓存设置在外部存储卡中，否则是应用内缓存
 //        builder.setMemoryCache(new LruResourceCache(memoryCacheSizeBytes));
         if (hasPermission(context)) {
-//            System.out.println("Glide缓存位置：/com.yanlong.cll/cache/image");
+//            LogManager.getLogger().i("a===","Glide缓存位置：/com.yanlong.cll/cache/image");
             if (Environment.isExternalStorageEmulated()) {
                 File storageDirectory = Environment.getExternalStorageDirectory();
                 String cachePath = storageDirectory + "/changliaoliao/cache/image/";

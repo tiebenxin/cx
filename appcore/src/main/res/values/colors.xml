@@ -63,6 +63,10 @@
     <color name="black_33">#333333</color>
     <color name="gray_dad">#dadbdd</color>
     <color name="black_3e">#3e3e3e</color>
+    <!--版本更新-->
+    <color name="c_0fa6ea">#0fa6ea</color>
+    <color name="c_969696">#969696</color>
+    <color name="c_5acd54">#5acd54</color>
 
 
 </resources>

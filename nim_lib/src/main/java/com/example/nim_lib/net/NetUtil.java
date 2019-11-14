@@ -4,6 +4,7 @@ package com.example.nim_lib.net;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import com.example.nim_lib.config.AppConfig;
 
@@ -30,7 +31,22 @@ public class NetUtil {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.addInterceptor(new NetIntrtceptor());
         if (AppConfig.DEBUG) {
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor(
+                    new HttpLoggingInterceptor.Logger() {
+                        @Override
+                        public void log(String message) {
+                            if (AppConfig.DEBUG) {
+//                            Log.e("h===","收到响应1: " + message);
+                                if(message!=null){
+                                    if(message.contains("http")||message.contains("data")||message.contains("Data")
+                                            ||message.contains("=")||message.contains("{")){
+                                        Log.e("h===","收到响应2==="+message);
+                                    }
+                                }
+                            }
+                        }
+                    }
+            );
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
             builder.addInterceptor(logging);
         } else {

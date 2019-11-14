@@ -11,6 +11,8 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import net.cb.cb.library.utils.LogUtil;
+
 public class LogcatHelper {
     private static final String TAG = "LogcatHelper";
     private static LogcatHelper INSTANCE = null;
@@ -47,7 +49,7 @@ public class LogcatHelper {
     }
 
     public void start() {
-        Log.d(TAG, "onCreate");
+        LogUtil.getLog().d(TAG, "onCreate");
         if (mLogDumper == null) {
             mLogDumper = new LogDumper(String.valueOf(mPId), PATH_LOGCAT);
         }
@@ -73,7 +75,7 @@ public class LogcatHelper {
         public LogDumper(String pid, String dir) {
             mPID = pid;
             try {
-                Log.d(TAG, PATH_LOGCAT + File.separator + "123.txt");
+                LogUtil.getLog().d(TAG, PATH_LOGCAT + File.separator + "123.txt");
                 File file = new File(PATH_LOGCAT + File.separator + "123.txt");
                 if (!file.exists()) {
                     file.createNewFile();

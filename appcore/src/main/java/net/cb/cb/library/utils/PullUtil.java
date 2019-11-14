@@ -122,7 +122,7 @@ public class PullUtil {
 			
 					load(objChild);
 
-					System.out.println("list>>" + name + "->" + lbean);
+					LogUtil.getLog().d("a=", "list>>" + name + "->" + lbean);
 					List list = new ArrayList<>();
 					for (int i = 0; i < new Random().nextInt(5); i++) {
 
@@ -136,7 +136,7 @@ public class PullUtil {
 				break;
 
 			default:
-				System.out.println("obj>>" + name + "->" + field.getType());
+				LogUtil.getLog().d("a=", "obj>>" + name + "->" + field.getType());
 
 				
 				

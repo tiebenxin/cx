@@ -109,7 +109,7 @@
 //            getPlayingProgress();
 //        } catch (IOException e) {
 //            e.printStackTrace();
-//            Log.e(TEXTUREVIDEO_TAG , e.toString());
+//            LogUtil.getLog().e(TEXTUREVIDEO_TAG , e.toString());
 //        }
 //
 //    }
@@ -160,7 +160,7 @@
 //
 //    @Override
 //    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-//        Log.e(TEXTUREVIDEO_TAG,"onsurfacetexture available");
+//        LogUtil.getLog().e(TEXTUREVIDEO_TAG,"onsurfacetexture available");
 //
 //        if (mMediaPlayer==null){
 //            mMediaPlayer = new MediaPlayer();
@@ -183,7 +183,7 @@
 //                @Override
 //                public void onBufferingUpdate(MediaPlayer mp, int percent) {
 //                    //此方法获取的是缓冲的状态
-//                    Log.e(TEXTUREVIDEO_TAG,"缓冲中:"+percent);
+//                    LogUtil.getLog().e(TEXTUREVIDEO_TAG,"缓冲中:"+percent);
 //                }
 //            });
 //

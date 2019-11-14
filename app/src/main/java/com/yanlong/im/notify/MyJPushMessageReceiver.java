@@ -43,7 +43,7 @@ public class MyJPushMessageReceiver extends JPushMessageReceiver {
     public void onNotifyMessageArrived(Context context, NotificationMessage notificationMessage) {
         super.onNotifyMessageArrived(context, notificationMessage);
 //        String title = notificationMessage.notificationTitle;
-//        Log.v("MyJPushMessageReceiver",title+"");
+//        LogUtil.getLog().v("MyJPushMessageReceiver",title+"");
 //
 //        KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
 //        String text = km.inKeyguardRestrictedInputMode() ? "锁屏了" : "屏幕亮着的";

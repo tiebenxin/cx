@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.user.ui.CommonSetingActivity;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.ui.GroupAddActivity;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -20,7 +20,6 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
@@ -32,7 +31,7 @@ public class GroupManageActivity extends AppActivity {
     public static final String AGM_GID = "AGM_GID";
     public static final String PERCENTAGE = "percentage";
     private HeadView mHeadView;
-    private LinearLayout mViewGroupTransfer,view_group_add;
+    private LinearLayout mViewGroupTransfer, view_group_add;
     private LinearLayout viewGroupRobot;
     private TextView txtGroupRobot;
     private CheckBox mCkGroupVerif;
@@ -49,7 +48,9 @@ public class GroupManageActivity extends AppActivity {
         initView();
         initData();
     }
+
     private boolean isPercentage;
+
     private void initView() {
 
         msgAction = new MsgAction();
@@ -61,13 +62,13 @@ public class GroupManageActivity extends AppActivity {
         mCkGroupIntimately = findViewById(R.id.ck_group_intimately);
         viewGroupRobot = findViewById(R.id.view_group_robot);
         txtGroupRobot = findViewById(R.id.txt_group_robot);
-        isPercentage=getIntent().getBooleanExtra(PERCENTAGE,false);
-        if (!isPercentage){
+        isPercentage = getIntent().getBooleanExtra(PERCENTAGE, false);
+        if (!isPercentage) {
             view_group_add.setVisibility(View.GONE);
         }
     }
 
-    private void initEvent(){
+    private void initEvent() {
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -97,15 +98,15 @@ public class GroupManageActivity extends AppActivity {
         mViewGroupTransfer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(GroupManageActivity.this,GroupSelectUserActivity.class);
-                intent.putExtra(GroupSelectUserActivity.GID,gid);
-                startActivityForResult(intent,GroupSelectUserActivity.RET_CODE_SELECTUSR);
+                Intent intent = new Intent(GroupManageActivity.this, GroupSelectUserActivity.class);
+                intent.putExtra(GroupSelectUserActivity.GID, gid);
+                startActivityForResult(intent, GroupSelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
         view_group_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(GroupManageActivity.this, GroupAddActivity.class).putExtra("gid",gid);
+                Intent intent = new Intent(GroupManageActivity.this, GroupAddActivity.class).putExtra("gid", gid);
                 startActivity(intent);
             }
         });
@@ -114,8 +115,7 @@ public class GroupManageActivity extends AppActivity {
     }
 
 
-
-    private void initData(){
+    private void initData() {
         taskGetInfo();
     }
 
@@ -126,8 +126,8 @@ public class GroupManageActivity extends AppActivity {
                 if (response.body().isOk()) {
                     ginfo = response.body().getData();
                     //群机器人
-                    String rname=ginfo.getRobotname();
-                    rname= StringUtil.isNotNull(rname)?rname:"未配置";
+                    String rname = ginfo.getRobotname();
+                    rname = StringUtil.isNotNull(rname) ? rname : "未配置";
                     txtGroupRobot.setText(rname);
                     viewGroupRobot.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -139,13 +139,12 @@ public class GroupManageActivity extends AppActivity {
                     });
                     //群验证
                     mCkGroupVerif.setChecked(ginfo.getNeedVerification() == 1);
-                    mCkGroupIntimately.setChecked(ginfo.getContactIntimately()==1);
+                    mCkGroupIntimately.setChecked(ginfo.getContactIntimately() == 1);
                     initEvent();
                 }
             }
         });
     }
-
 
 
     private void taskSetState(String gid, Integer isTop, Integer notNotify, Integer saved, Integer needVerification) {
@@ -161,6 +160,7 @@ public class GroupManageActivity extends AppActivity {
             }
         });
     }
+
     private void taskSetIntimatelyState(String gid, int i) {
         msgAction.groupSwitchIntimately(gid, i, new CallBack<ReturnBean>() {
             @Override
@@ -176,16 +176,18 @@ public class GroupManageActivity extends AppActivity {
     }
 
 
-    private void changeMaster(String gid,String uid,String membername){
-        msgAction.changeMaster(gid, uid,membername, new CallBack<ReturnBean>() {
+    private void changeMaster(String gid, String uid, String membername) {
+        msgAction.changeMaster(gid, uid, membername, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if(response.body() == null){
-                    ToastUtil.show(context,"转让失败");
+                if (response.body() == null) {
+                    ToastUtil.show(context, "转让失败");
                     return;
                 }
-                ToastUtil.show(context,response.body().getMsg());
-                if(response.body().isOk()){
+                ToastUtil.show(context, response.body().getMsg());
+                if (response.body().isOk()) {
+                    MessageManager.getInstance().notifyGroupChange(true);
+                    setResult(RESULT_OK);
                     finish();
                 }
             }
@@ -196,13 +198,13 @@ public class GroupManageActivity extends AppActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == GroupSelectUserActivity.RET_CODE_SELECTUSR){
-            if(data==null)
+        if (requestCode == GroupSelectUserActivity.RET_CODE_SELECTUSR) {
+            if (data == null)
                 return;
             String uid = data.getStringExtra(GroupSelectUserActivity.UID);
-            if(StringUtil.isNotNull(uid)){
+            if (StringUtil.isNotNull(uid)) {
                 String membername = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
-                changeMaster(gid,uid,membername);
+                changeMaster(gid, uid, membername);
             }
 
         }

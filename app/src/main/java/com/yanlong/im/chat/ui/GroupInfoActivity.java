@@ -69,9 +69,10 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class GroupInfoActivity extends AppActivity {
-    public static final int GROUP_NAME = 1000;
-    public static final int GROUP_NICK = 2000;
-    public static final int GROUP_NOTE = 3000;
+    public static final int GROUP_NAME = 1;
+    public static final int GROUP_NICK = 1 << 1;
+    public static final int GROUP_NOTE = 1 << 2;
+    public static final int GROUP_MANAGER = 1 << 3;
     public static final String AGM_GID = "gid";
     private String gid;
     private static final int IMAGE_HEAD = 4000;
@@ -265,8 +266,8 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupManage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), GroupManageActivity.class)
-                        .putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE, isPercentage));
+                startActivityForResult(new Intent(getContext(), GroupManageActivity.class)
+                        .putExtra(GroupManageActivity.AGM_GID, gid).putExtra(GroupManageActivity.PERCENTAGE, isPercentage), GROUP_MANAGER);
             }
         });
 
@@ -545,8 +546,10 @@ public class GroupInfoActivity extends AppActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            String content = data.getStringExtra(CommonSetingActivity.CONTENT);
-
+            String content = "";
+            if (data != null) {
+                content = data.getStringExtra(CommonSetingActivity.CONTENT);
+            }
             switch (requestCode) {
                 case GROUP_NAME:
                     if (TextUtils.isEmpty(content)) {
@@ -564,6 +567,9 @@ public class GroupInfoActivity extends AppActivity {
                     setGroupNote(ginfo.getAnnouncement());
                     createAndSaveMsg();
                     isBackValue = true;
+                    break;
+                case GROUP_MANAGER:
+                    finish();
                     break;
             }
         }

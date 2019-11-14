@@ -64,6 +64,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 public class ChatItemView extends LinearLayout {
@@ -164,6 +165,7 @@ public class ChatItemView extends LinearLayout {
     private CountDownView viewOtSurvivalTime;
     private CountDownView viewMeSurvivalTime;
 
+    private int mHour, mMin, mSecond;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -788,22 +790,18 @@ public class ChatItemView extends LinearLayout {
                 layoutParamsOT.setMargins(w - 105, h - 55, 0, 0);
                 img_ot_4_time.setLayoutParams(layoutParamsOT);
                 long currentTime = videoMessage.getDuration();
-                if (currentTime < 10) {
-                    img_me_4_time.setText("00:0" + currentTime);
-                    img_ot_4_time.setText("00:0" + currentTime);
+                // 转成秒
+                currentTime = currentTime / 1000;
+                mHour = (int) currentTime / 3600;
+                mMin = (int) currentTime % 3600 / 60;
+                mSecond = (int) currentTime % 60;
 
+                if (mHour > 0) {
+                    img_me_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                    img_ot_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
                 } else {
-                    img_me_4_time.setText("00:" + currentTime);
-                    img_ot_4_time.setText("00:" + currentTime);
-                }
-                if (currentTime * 1000 > RecordedActivity.MAX_VIDEO_TIME) {
-                    if (currentTime / 1000 < 10) {
-                        img_me_4_time.setText("00:0" + currentTime / 1000);
-                        img_ot_4_time.setText("00:0" + currentTime / 1000);
-                    } else {
-                        img_me_4_time.setText("00:" + currentTime / 1000);
-                        img_ot_4_time.setText("00:" + currentTime / 1000);
-                    }
+                    img_me_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                    img_ot_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
                 }
                 lp.width = w;
                 lp.height = h;
@@ -834,12 +832,12 @@ public class ChatItemView extends LinearLayout {
         Glide.with(this).load(videoMessage.getBg_url()).apply(options).into(imgMe4);
 
         if (pg != null) {
-            setImgageProg(pg);
+            setImageProgress(pg);
         } else {
             if (netState == -1) {
-                setImgageProg(0);
+                setImageProgress(0);
             } else {
-                setImgageProg(null);
+                setImageProgress(null);
             }
         }
         if (null != pg) {
@@ -939,7 +937,7 @@ public class ChatItemView extends LinearLayout {
 
             RequestBuilder rb;
             if (uri.getPath().toLowerCase().endsWith(".gif")) {
-                Log.e("gif", "setData4: isgif");
+                LogUtil.getLog().e("gif", "setData4: isgif");
                 rb = in.asGif();
                 rOptions.priority(Priority.LOW).diskCacheStrategy(DiskCacheStrategy.ALL);
             } else {
@@ -953,12 +951,12 @@ public class ChatItemView extends LinearLayout {
             rb.into(imgMe4);
             rb.into(imgOt4);
             if (pg != null) {
-                setImgageProg(pg);
+                setImageProgress(pg);
             } else {
                 if (netState == -1) {
-                    setImgageProg(0);
+                    setImageProgress(0);
                 } else {
-                    setImgageProg(null);
+                    setImageProgress(null);
                 }
             }
         }
@@ -976,19 +974,13 @@ public class ChatItemView extends LinearLayout {
 
     }
 
-    public void setImgageProg(Integer pg) {
-        if (pg != null && pg != 100) {
-
-
+    public void setImageProgress(Integer pg) {
+        if (pg != null && pg != 100 && pg != 0) {
             viewMeUp.setVisibility(VISIBLE);
             txtMeUp.setText(pg + "%");
-
-
             imgMeErr.setVisibility(GONE);
         } else {
             viewMeUp.setVisibility(GONE);
-
-
         }
     }
 
@@ -1036,6 +1028,7 @@ public class ChatItemView extends LinearLayout {
 
     private Context mContext;
 
+
     public void setReadDestroy(String gid, long uid, int type,String content) {
         txtReadDestroy.setText(content);
 
@@ -1071,23 +1064,29 @@ public class ChatItemView extends LinearLayout {
                 imgMeErr.clearAnimation();
                 imgMeErr.setVisibility(VISIBLE);
                 imgMeErr.setImageResource(R.mipmap.ic_net_err);
+                if (viewMeUp != null && viewMeUp.getVisibility() == VISIBLE) {//隐藏进度
+                    viewMeUp.setVisibility(GONE);
+                }
                 break;
-            case 2://等待,发送中
+            case 2://发送中
                 imgMeErr.setImageResource(R.mipmap.ic_net_load);
                 Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
                 imgMeErr.startAnimation(rotateAnimation);
                 imgMeErr.setVisibility(VISIBLE);
                 break;
             case -1://图片待发送
-                imgMeErr.clearAnimation();
-                imgMeErr.setVisibility(INVISIBLE);
+//                imgMeErr.clearAnimation();
+//                imgMeErr.setVisibility(INVISIBLE);
+                imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                imgMeErr.startAnimation(animation);
+                imgMeErr.setVisibility(VISIBLE);
                 break;
             default: // 其他状态如-1:待发送
 
                 break;
         }
     }
-
 
     public void setOnErr(OnClickListener onk) {
         imgMeErr.setOnClickListener(onk);
