@@ -45,6 +45,10 @@ public class DaoMigration implements RealmMigration {
                 updateV8(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 8) {
+                updateV9(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -148,6 +152,13 @@ public class DaoMigration implements RealmMigration {
         schema.get("MsgAllBean")
                 .addRealmObjectField("p2PAuVideoDialMessage", schema.get("P2PAuVideoDialMessage"));
     }
+
+    private void updateV9(RealmSchema schema) {
+        schema.get("MsgCancel")
+                .addField("cancelContent", String.class)
+                .addField("cancelContentType", Integer.class);
+    }
+
 
     @Override
     public boolean equals(@Nullable Object obj) {

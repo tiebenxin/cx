@@ -14,13 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.zhaoss.weixinrecorded.R;
+import com.zhaoss.weixinrecorded.util.ViewUtils;
 
 public class RecordView extends View {
 
-    private Paint paint,progressPaint;
+    private Paint paint, progressPaint;
     private OnGestureListener mOnGestureListener;
 
-    private int downColor,progress_green;
+    private int downColor, progress_green;
     private int upColor;
 
     private float slideDis;
@@ -62,7 +63,7 @@ public class RecordView extends View {
         currentStrokeWidth = getResources().getDimension(R.dimen.dp6);
         paint.setStrokeWidth(currentStrokeWidth);//设置画笔粗细
 
-        progressPaint=new Paint();
+        progressPaint = new Paint();
 
         progressPaint.setAntiAlias(true);//抗锯齿
         progressPaint.setStyle(Paint.Style.STROKE);//画笔属性是空心圆
@@ -72,26 +73,26 @@ public class RecordView extends View {
 
         slideDis = getResources().getDimension(R.dimen.dp10);
         radiusDis = getResources().getDimension(R.dimen.dp3);
-        strokeWidthDis =  getResources().getDimension(R.dimen.dp1)/4;
+        strokeWidthDis = getResources().getDimension(R.dimen.dp1) / 4;
 
         minStrokeWidth = currentStrokeWidth;
-        maxStrokeWidth = currentStrokeWidth*2;
+        maxStrokeWidth = currentStrokeWidth * 2;
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        if(downRadius == 0){
-            downRadius = getWidth()*0.5f-currentStrokeWidth;
-            upRadius = getWidth()*0.3f-currentStrokeWidth;
+        if (downRadius == 0) {
+            downRadius = getWidth() * 0.5f - currentStrokeWidth;
+            upRadius = getWidth() * 0.3f - currentStrokeWidth;
         }
     }
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if(mOnGestureListener != null) {
+            if (mOnGestureListener != null) {
                 down = true;
                 invalidate();
                 mOnGestureListener.onDown();
@@ -99,17 +100,18 @@ public class RecordView extends View {
         }
     };
 
-    public boolean isDown(){
+    public boolean isDown() {
         return down;
     }
 
     private boolean down;
     private float downX;
     private float downY;
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        switch (event.getAction()){
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 ViewGroup parent = (ViewGroup) getParent();
                 parent.requestDisallowInterceptTouchEvent(true);
@@ -125,15 +127,17 @@ public class RecordView extends View {
                 parent1.requestDisallowInterceptTouchEvent(false);
                 float upX = event.getRawX();
                 float upY = event.getRawY();
-                if(mHandler.hasMessages(0)){
+                if (mHandler.hasMessages(0)) {
                     mHandler.removeMessages(0);
                     if (Math.abs(upX - downX) < slideDis && Math.abs(upY - downY) < slideDis) {
-                        if(mOnGestureListener != null) {
-                            mOnGestureListener.onClick();
+                        if (mOnGestureListener != null) {
+                            if (!ViewUtils.isFastDoubleClick()) {
+                                mOnGestureListener.onClick();
+                            }
                         }
                     }
-                }else{
-                    if(mOnGestureListener != null) {
+                } else {
+                    if (mOnGestureListener != null) {
                         mOnGestureListener.onUp();
                     }
                 }
@@ -143,34 +147,41 @@ public class RecordView extends View {
         return true;
     }
 
-    public void initState(){
+    public void initState() {
         down = false;
+        currentProgress = 0;
+        currentRadius = 0;
         mHandler.removeMessages(0);
         invalidate();
     }
 
-    public void setOnGestureListener(OnGestureListener listener){
+    public void setOnGestureListener(OnGestureListener listener) {
         this.mOnGestureListener = listener;
     }
-    private float currentProgress=0;
-    public void updateProgress(float progress){
-        currentProgress=progress;
+
+    private float currentProgress = 0;
+
+    public void updateProgress(float progress) {
+        currentProgress = progress;
         invalidate();
     }
 
-    public interface OnGestureListener{
+    public interface OnGestureListener {
         void onDown();
+
         void onUp();
+
         void onClick();
     }
 
     boolean changeStrokeWidth;
     boolean isAdd;
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(down){
+        if (down) {
 //            paint.setColor(ContextCompat.getColor(getContext(), downColor));
 //            if(changeStrokeWidth){
 //                if (isAdd) {
@@ -192,26 +203,26 @@ public class RecordView extends View {
 //                }
 //            }
 //            canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
-            currentRadius = getWidth()*0.5f-currentStrokeWidth*3;
+            currentRadius = getWidth() * 0.5f - currentStrokeWidth * 3;
             canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
             RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
-            canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
-        }else {
+            canvas.drawArc(oval, -90, currentProgress, false, progressPaint);
+        } else {
             changeStrokeWidth = false;
             currentStrokeWidth = minStrokeWidth;
             paint.setStrokeWidth(currentStrokeWidth);
             paint.setColor(ContextCompat.getColor(getContext(), upColor));
-            if(currentRadius > upRadius){
+            if (currentRadius > upRadius) {
                 currentRadius -= radiusDis;
                 invalidate();
-            }else if(currentRadius < upRadius){
+            } else {
                 currentRadius = upRadius;
                 invalidate();
             }
             canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, currentRadius, paint);
 
             RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
-            canvas.drawArc(oval,-90,currentProgress,false,progressPaint);
+            canvas.drawArc(oval, -90, currentProgress, false, progressPaint);
 
 //        RectF oval = new RectF(getWidth() / 2 - currentRadius, getHeight() / 2 - currentRadius, getWidth() / 2 + currentRadius, getHeight() / 2 + currentRadius);
 //        canvas.drawArc(oval,-90,currentProgress,false,progressPaint);

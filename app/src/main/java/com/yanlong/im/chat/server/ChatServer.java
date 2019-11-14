@@ -5,47 +5,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.IBinder;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.yanlong.im.chat.bean.MsgAllBean;
-import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.ChatActionActivity;
-import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserInfo;
-import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.utils.DaoUtil;
-import com.yanlong.im.utils.MediaBackUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
 
-import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
-import net.cb.cb.library.bean.EventRefreshFriend;
-import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
-import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.StringUtil;
-import net.cb.cb.library.utils.TimeToString;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_GROUP;
 
 /***
  * 聊天服务
@@ -140,7 +115,7 @@ public class ChatServer extends Service {
                 //处理撤回消息
                 if (cancelList.containsKey(msgid)) {
                     MsgAllBean msgAllBean = cancelList.get(msgid);
-                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel(),msgAllBean.getChat().getMsg(),msgAllBean.getChat().getMsgId());// getMsgId存放的是撤回的消息类型
+                    msgDao.msgDel4Cancel(msgid, msgAllBean.getMsgCancel().getMsgidCancel());
 
                     LogUtil.getLog().i(TAG, "onACK: 收到取消回执,手动刷新列表");
                     EventBus.getDefault().post(new EventRefreshChat());

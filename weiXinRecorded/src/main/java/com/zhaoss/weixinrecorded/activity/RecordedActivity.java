@@ -61,6 +61,7 @@ public class RecordedActivity extends BaseActivity {
     private TextView iv_recorded_edit;
     private TextView editorTextView;
     private TextView tv_hint;
+    private View view_back;
 
     private ArrayList<String> segmentList = new ArrayList<>();//分段视频地址
     private ArrayList<String> aacList = new ArrayList<>();//分段音频地址
@@ -107,6 +108,7 @@ public class RecordedActivity extends BaseActivity {
         tv_hint = findViewById(R.id.tv_hint);
         iv_flash_video = findViewById(R.id.iv_flash_video);
         iv_delete_back = findViewById(R.id.iv_delete_back);
+        view_back = findViewById(R.id.layout_back);
 
         surfaceView.post(new Runnable() {
             @Override
@@ -132,6 +134,7 @@ public class RecordedActivity extends BaseActivity {
         mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
+//                Log.i("1212", "onPreviewFrame");
                 if (isShotPhoto.get()) {
                     isShotPhoto.set(false);
                     shotPhoto(data);
@@ -173,7 +176,7 @@ public class RecordedActivity extends BaseActivity {
                 mCameraHelp.callFocusMode();
             }
         });
-        iv_delete_back.setOnClickListener(new View.OnClickListener() {
+        view_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                finishVideo(2);
@@ -253,24 +256,30 @@ public class RecordedActivity extends BaseActivity {
         });
     }
 
+    private static long lastClickTime;
+
     private void initData() {
 
         lineProgressView.setMinProgress(MIN_VIDEO_TIME / MAX_VIDEO_TIME);
         recordView.setOnGestureListener(new RecordView.OnGestureListener() {
             @Override
             public void onDown() {
+                lastClickTime = System.currentTimeMillis();
                 //长按录像
                 isRecordVideo.set(true);
                 startRecord();
                 goneRecordLayout();
+
             }
 
             @Override
             public void onUp() {
+                if ((System.currentTimeMillis() - lastClickTime) < MIN_VIDEO_TIME) {
+                    isShotPhoto.set(true);
+                }
                 if (isRecordVideo.get()) {
                     isRecordVideo.set(false);
                     upEvent();
-                    recordView.setVisibility(View.GONE);
                 }
             }
 
@@ -278,7 +287,6 @@ public class RecordedActivity extends BaseActivity {
             public void onClick() {
                 if (segmentList.size() == 0) {
                     isShotPhoto.set(true);
-//                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -541,7 +549,7 @@ public class RecordedActivity extends BaseActivity {
                 segmentList.add(videoPath);
                 aacList.add(audioPath);
                 timeList.add(videoDuration);
-                initRecorderState();
+                initRecorderState(false);
             }
 
             @Override
@@ -557,7 +565,7 @@ public class RecordedActivity extends BaseActivity {
             recordUtil.stop();
             recordUtil = null;
         }
-        initRecorderState();
+        initRecorderState(false);
     }
 
     private void deleteSegment() {
@@ -582,21 +590,13 @@ public class RecordedActivity extends BaseActivity {
     /**
      * 初始化视频拍摄状态
      */
-    private void initRecorderState() {
-
-        if (segmentList.size() > 0) {
-//            tv_hint.setText("长按录像");
+    private void initRecorderState(boolean isShow) {
+        if (isShow) {
+            tv_hint.setVisibility(View.VISIBLE);
+            recordView.setVisibility(View.VISIBLE);
         } else {
-//            tv_hint.setText("长按录像 点击拍照");
+            tv_hint.setVisibility(View.GONE);
         }
-        tv_hint.setText("长按继续录制");
-        tv_hint.setVisibility(View.GONE);
-
-//        if (lineProgressView.getSplitCount() > 0) {
-//            iv_delete.setVisibility(View.VISIBLE);
-//        }else{
-//            iv_delete.setVisibility(View.GONE);
-//        }
 
         if (lineProgressView.getProgress() * MAX_VIDEO_TIME < MIN_VIDEO_TIME) {
             iv_next.setVisibility(View.GONE);
@@ -604,6 +604,7 @@ public class RecordedActivity extends BaseActivity {
             iv_recorded_edit.setVisibility(View.GONE);
             iv_delete_back.setVisibility(View.VISIBLE);
         } else {
+            recordView.setVisibility(View.GONE);
             iv_next.setVisibility(View.VISIBLE);
             iv_delete.setVisibility(View.VISIBLE);
             iv_recorded_edit.setVisibility(View.GONE);
@@ -665,11 +666,14 @@ public class RecordedActivity extends BaseActivity {
                     intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
                     setResult(RESULT_OK, intent);
                     finish();
+                } else {
+                    cleanRecord();
+                    initRecorderState(true);
                 }
             }
         } else {
             cleanRecord();
-            initRecorderState();
+            initRecorderState(true);
         }
     }
 }
