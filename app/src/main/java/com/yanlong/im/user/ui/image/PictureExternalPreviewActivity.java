@@ -530,12 +530,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 tvLookOrigin.setTag(media.getSize());
                 //3.是否已读原图
                 boolean readStat = msgDao.ImgReadStatGet(imgpath);
-                imgLargeEvent(imageView, tvLookOrigin, ivDownload, imgLarge, imgpath, media);
-
                 if (readStat) {//原图已读,就显示
                     tvLookOrigin.setVisibility(View.GONE);
                     tvLookOrigin.callOnClick();
                     imgDownloadEvent(ivDownload, null, imgpath, imageView, isOriginal, readStat);
+                    imgLargeEvent(imageView, tvLookOrigin, ivDownload, imgLarge, imgpath, media);
+
                 } else {
                     imgDownloadEvent(ivDownload, tvLookOrigin, imgpath, imageView, isOriginal, readStat);
                     tvLookOrigin.setVisibility(View.VISIBLE);
