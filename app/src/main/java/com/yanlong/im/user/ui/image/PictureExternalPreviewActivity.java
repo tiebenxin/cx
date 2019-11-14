@@ -2,6 +2,7 @@ package com.yanlong.im.user.ui.image;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -37,6 +38,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.gson.Gson;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
@@ -65,7 +67,9 @@ import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.QRCodeManage;
 
@@ -118,7 +122,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private LayoutInflater inflater;
     private RxPermissions rxPermissions;
     private LoadDataThread loadDataThread;
-    private String[] strings = {"识别二维码", "保存图片", "取消"};
+    //    private String[] strings = {"识别二维码", "保存图片", "取消"};
+    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +149,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         left_back.setOnClickListener(this);
         initAndPermissions();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //检测是否有权限
     }
 
     //权限申请和初始化
@@ -288,8 +300,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 setDownloadProgress(tvLookOrigin, 100);
                 btnDown.setEnabled(true);
                 LogUtil.getLog().d("showBigImage", "showBigImage: " + path);
-//                imgLarge.setImage(new FileBitmapDecoderFactory(path));
-                loadImage(imgLarge, path);
+                imgLarge.setImage(new FileBitmapDecoderFactory(path));
+//                loadImage(imgLarge, path);
                 //这边要改成已读
                 msgDao.ImgReadStatSet(path, true);
 
@@ -332,11 +344,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     private void initViewPageAdapterData() {
         tv_title.setText(position + 1 + "/" + images.size());
-//        adapter = new SimpleFragmentAdapter();
-//        viewPager.setAdapter(adapter);
-        AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
-        mAdapter.bindData(images);
-        viewPager.setAdapter(mAdapter);
+        adapter = new SimpleFragmentAdapter();
+        viewPager.setAdapter(adapter);
+//        AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
+//        mAdapter.bindData(images);
+//        viewPager.setAdapter(mAdapter);
         viewPager.setCurrentItem(position);
         indexPath = images.get(position).getPath();
 
@@ -506,7 +518,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
 //                showImage(imageView, longImg, imgLarge, tvLookOrigin, ivDownload, media);
             }
-            imgEvent(imageView, longImg, path);
+            imgEvent(imageView, longImg, path, media);
             //2.是否是原图
             final String imgpath = media.getPath();
             LogUtil.getLog().d("atg", "----:imgpath " + imgpath);
@@ -518,7 +530,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 tvLookOrigin.setTag(media.getSize());
                 //3.是否已读原图
                 boolean readStat = msgDao.ImgReadStatGet(imgpath);
-                imgLargeEvent(imageView, tvLookOrigin, ivDownload, imgLarge, imgpath);
+                imgLargeEvent(imageView, tvLookOrigin, ivDownload, imgLarge, imgpath, media);
 
                 if (readStat) {//原图已读,就显示
                     tvLookOrigin.setVisibility(View.GONE);
@@ -569,21 +581,21 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     tvLookOrigin.setVisibility(View.GONE);
                     tvLookOrigin.callOnClick();
                     imgDownloadEvent(ivDownload, null, originUrl, imageView, isOriginal, readStat);
-                    imgLargeEvent(imageView, tvLookOrigin, ivDownload, imgLarge, originUrl);//显示原图
+                    imgLargeEvent(imageView, tvLookOrigin, ivDownload, imgLarge, originUrl, media);//显示原图
                     showImg(imageView, longImg, imgUrl, isLongImage);//先加载缩略图
                     showBigImage(imageView, tvLookOrigin, ivDownload, imgLarge, originUrl);
                 } else {
                     tvLookOrigin.setVisibility(View.VISIBLE);
                     tvLookOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(images.get(position).getSize()) + ")");
                     imgDownloadEvent(ivDownload, tvLookOrigin, originUrl, imageView, isOriginal, readStat);
-                    imgEvent(imageView, longImg, imgUrl);
+                    imgEvent(imageView, longImg, imgUrl, media);
                     initLookOriginEvent(imageView, imgLarge, tvLookOrigin, ivDownload, originUrl);
                     showImg(imageView, longImg, imgUrl, isLongImage);
                 }
             } else {
                 tvLookOrigin.setVisibility(View.GONE);
                 ivDownload.setVisibility(View.VISIBLE);
-                imgEvent(imageView, longImg, imgUrl);
+                imgEvent(imageView, longImg, imgUrl, media);
                 imgDownloadEvent(ivDownload, null, imgUrl, imageView, isOriginal, false);
                 showImg(imageView, longImg, imgUrl, isLongImage);
             }
@@ -640,7 +652,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         }
 
         //图片事件
-        private void imgEvent(PhotoView imageView, SubsamplingScaleImageView longImg, String path) {
+        private void imgEvent(PhotoView imageView, SubsamplingScaleImageView longImg, String path, LocalMedia media) {
             imageView.setOnViewTapListener(new OnViewTapListener() {
                 @Override
                 public void onViewTap(View view, float x, float y) {
@@ -655,7 +667,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
                 }
             });
-            imageView.setOnLongClickListener(onLongClick(path));
+            imageView.setOnLongClickListener(onLongClick(path, media));
 
         }
 
@@ -676,7 +688,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
 
         //大图事件
-        private void imgLargeEvent(final PhotoView imageView, final TextView tvLookOrigin, final View btnDown, final LargeImageView imgLarge, final String imgpath) {
+        private void imgLargeEvent(final PhotoView imageView, final TextView tvLookOrigin, final View btnDown, final LargeImageView imgLarge, final String imgpath, LocalMedia media) {
             tvLookOrigin.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -727,7 +739,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     dismissDialog();
                 }
             });
-            imgLarge.setOnLongClickListener(onLongClick(imgpath));
+            imgLarge.setOnLongClickListener(onLongClick(imgpath, media));
         }
 
         //显示普通图片
@@ -801,7 +813,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     }
 
-    private View.OnLongClickListener onLongClick(final String path) {
+    private View.OnLongClickListener onLongClick(final String path, LocalMedia media) {
 
         return new View.OnLongClickListener() {
             @Override
@@ -818,7 +830,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                             @Override
                             public void onNext(Boolean aBoolean) {
                                 if (aBoolean) {
-                                    showDownLoadDialog(path);
+                                    showDownLoadDialog(path, media);
                                 } else {
                                     ToastManage.s(mContext, getString(com.luck.picture.lib.R.string.picture_jurisdiction));
                                 }
@@ -893,15 +905,28 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     /**
      * 下载图片提示
      */
-    private void showDownLoadDialog(final String path) {
+    private void showDownLoadDialog(final String path, LocalMedia media) {
         final PopupSelectView popupSelectView = new PopupSelectView(this, strings);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
-                if (postsion == 0) {
-                    scanningQrImage(path);
-                } else if (postsion == 1) {
+                if (postsion == 0) {//转发
+                    String msgId = media.getMsg_id();
+                    if (!TextUtils.isEmpty(msgId)) {
+                        MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+                        if (msgAllBean != null) {
+                            startActivity(new Intent(PictureExternalPreviewActivity.this, MsgForwardActivity.class)
+                                    .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+                        }
+                    } else {
+                        //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
+
+                    }
+
+                } else if (postsion == 1) {//保存
                     saveImage(path);
+                } else if (postsion == 2) {//识别二维码
+                    scanningQrImage(path);
                 }
                 popupSelectView.dismiss();
 
@@ -1043,6 +1068,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             boolean isSuccess = PicSaveUtils.saveImgLoc(this, bitmap, path);
             if (isSuccess) {
                 ivDownload.setEnabled(true);
+                ivDownload.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.show(PictureExternalPreviewActivity.this, "保存成功");
+                    }
+                }, 100);
+
             }
         }
     }
@@ -1178,6 +1210,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             EventBus.getDefault().unregister(this);
         }
     }
+
     private void downloadAndSaveImage(String url, TextView tvLookOrigin, ImageView ivDownLoad) {
         final String filePath = getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = url.substring(url.lastIndexOf("/") + 1);

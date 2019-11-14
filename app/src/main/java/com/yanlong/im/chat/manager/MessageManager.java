@@ -288,7 +288,7 @@ public class MessageManager {
             case ACTIVE_STAT_CHANGE://在线状态改变
                 updateUserOnlineStatus(wrapMessage);
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
-                EventBus.getDefault().post(new EventUserOnlineChange());
+                notifyOnlineChange(wrapMessage.getFromUid());
                 break;
             case CANCEL://撤销消息
                 if (bean != null) {
@@ -359,6 +359,12 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    private void notifyOnlineChange(long uid) {
+        EventUserOnlineChange event = new EventUserOnlineChange();
+        event.setUid(uid);
+        EventBus.getDefault().post(event);
     }
 
     //重新生成群头像

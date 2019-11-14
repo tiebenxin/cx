@@ -325,6 +325,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     needRefresh = false;
                     for (MsgBean.UniversalMessage.WrapMessage msg : msgBean.getWrapMsgList()) {
+                        if (msg.getMsgType() == MsgBean.MessageType.ACTIVE_STAT_CHANGE) {//
+                            continue;
+                        }
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
                             if (isGroup()) {
@@ -1528,7 +1531,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventUserOnlineChange event) {
-        updateUserOnlineStatus();
+        if (!isGroup() && event.getUid() == toUId) {
+            updateUserOnlineStatus();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -2322,7 +2327,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pg);
 
                         holder.viewChatItem.setImageProgress(pg);
-                        holder.viewChatItem.setErr(msgbean.getSend_state());
+                        holder.viewChatItem.setErr(msgbean.getSend_state(), false);
 //                        holder.viewChatItem.updateSendStatusAndProgress(msgbean.getSend_state(), pg);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
@@ -2347,7 +2352,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         Integer pgVideo = null;
                         pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
-                        holder.viewChatItem.setErr(msgbean.getSend_state());
+                        holder.viewChatItem.setErr(msgbean.getSend_state(), true);
                         holder.viewChatItem.setImageProgress(pgVideo);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
@@ -2455,7 +2460,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             //发送状态处理
-            holder.viewChatItem.setErr(msgbean.getSend_state());//
+            holder.viewChatItem.setErr(msgbean.getSend_state(), true);//
 
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();

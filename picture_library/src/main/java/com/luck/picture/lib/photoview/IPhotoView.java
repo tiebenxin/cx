@@ -25,8 +25,11 @@ import android.widget.ImageView;
 
 public interface IPhotoView {
 
-    float DEFAULT_MAX_SCALE = 3.0f;
-    float DEFAULT_MID_SCALE = 1.75f;
+    /*
+     * 修改缩放比 mid从1.75扩大到17.5， max 从3扩大到30
+     * */
+    float DEFAULT_MAX_SCALE = 30f;
+    float DEFAULT_MID_SCALE = 17.5f;
     float DEFAULT_MIN_SCALE = 1.0f;
     int DEFAULT_ZOOM_DURATION = 200;
 
@@ -269,8 +272,8 @@ public interface IPhotoView {
 
 
     /*
-    * 是否是原图
-    * */
+     * 是否是原图
+     * */
     void setIsOrigin(boolean b);
 
     void setIsGif(boolean b);
