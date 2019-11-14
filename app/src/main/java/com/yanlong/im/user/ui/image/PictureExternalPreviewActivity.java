@@ -344,11 +344,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
     private void initViewPageAdapterData() {
         tv_title.setText(position + 1 + "/" + images.size());
-        adapter = new SimpleFragmentAdapter();
-        viewPager.setAdapter(adapter);
-//        AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
-//        mAdapter.bindData(images);
-//        viewPager.setAdapter(mAdapter);
+//        adapter = new SimpleFragmentAdapter();
+//        viewPager.setAdapter(adapter);
+        AdapterPreviewImage mAdapter = new AdapterPreviewImage(this);
+        mAdapter.setPopParentView(tv_title);
+        mAdapter.bindData(images);
+        viewPager.setAdapter(mAdapter);
         viewPager.setCurrentItem(position);
         indexPath = images.get(position).getPath();
 
@@ -535,11 +536,11 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     tvLookOrigin.callOnClick();
                     imgDownloadEvent(ivDownload, null, imgpath, imageView, isOriginal, readStat);
                     imgLargeEvent(imageView, tvLookOrigin, ivDownload, imgLarge, imgpath, media);
-
                 } else {
                     imgDownloadEvent(ivDownload, tvLookOrigin, imgpath, imageView, isOriginal, readStat);
                     tvLookOrigin.setVisibility(View.VISIBLE);
                     tvLookOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(images.get(position).getSize()) + ")");
+                    initLookOriginEvent(imageView, imgLarge, tvLookOrigin, ivDownload, imgpath);
                 }
             } else {
                 tvLookOrigin.setVisibility(View.GONE);

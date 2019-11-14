@@ -2,6 +2,7 @@ package com.yanlong.im.user.ui.image;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -29,6 +30,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.gson.Gson;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;
 import com.google.zxing.DecodeHintType;
@@ -44,12 +46,15 @@ import com.luck.picture.lib.photoview.ZoomImageView;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.utils.PicSaveUtils;
 import com.luck.picture.lib.view.PopupSelectView;
+import com.luck.picture.lib.view.bigImg.BlockImageLoader;
 import com.luck.picture.lib.view.bigImg.LargeImageView;
 import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.utils.DownloadUtil;
@@ -79,6 +84,7 @@ public class AdapterPreviewImage extends PagerAdapter {
     private Call download;
     //    private IPreviewImageListener listener;
     private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+    private View parentView;
 
 
     public AdapterPreviewImage(Context c) {
@@ -202,8 +208,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivZoom.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                showDownLoadDialog(media);
-
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal);
                 return true;
             }
         });
@@ -216,6 +221,48 @@ public class AdapterPreviewImage extends PagerAdapter {
                 }
                 ((Activity) context).finish();
                 ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
+            }
+        });
+
+        ivLarge.setOnLoadStateChangeListener(new BlockImageLoader.OnLoadStateChangeListener() {
+            @Override
+            public void onLoadStart(int loadType, Object param) {
+
+            }
+
+            @Override
+            public void onLoadFinished(int loadType, Object param, boolean success, Throwable throwable) {
+
+
+            }
+        });
+        ivLarge.setOnImageLoadListener(new BlockImageLoader.OnImageLoadListener() {
+            @Override
+            public void onBlockImageLoadFinished() {
+
+                ivLarge.setAlpha(1);
+//                dismissDialog();
+                setDownloadProgress(tvViewOrigin, 100);
+                // ToastUtil.show(getApplicationContext(),"加载完成");
+            }
+
+            @Override
+            public void onLoadImageSize(int imageWidth, int imageHeight) {
+
+            }
+
+            @Override
+            public void onLoadFail(Exception e) {
+                ToastUtil.show(context, "加载失败,请重试");
+//                dismissDialog();
+            }
+        });
+
+        ivLarge.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal);
+                return false;
             }
         });
 
@@ -291,7 +338,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                     String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
                     if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
                         loadImage(media.getCompressPath(), ivZoom, false);
-                        loadLargeImage(cachePath, ivLarge);
+//                        loadLargeImage(cachePath, ivLarge);
+                        ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
                     } else {
                         loadImage(media.getCompressPath(), ivZoom, true);
                         loadLargeImage(media.getPath(), ivLarge);
@@ -510,23 +558,33 @@ public class AdapterPreviewImage extends PagerAdapter {
     /**
      * 长按弹窗提示
      */
-    private void showDownLoadDialog(final LocalMedia media) {
+    private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp, boolean isOriginal) {
         final PopupSelectView popupSelectView = new PopupSelectView(context, strings);
         popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
             @Override
             public void onItem(String string, int postsion) {
                 if (postsion == 0) {//转发
+                    String msgId = media.getMsg_id();
+                    if (!TextUtils.isEmpty(msgId)) {
+                        MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+                        if (msgAllBean != null) {
+                            context.startActivity(new Intent(context, MsgForwardActivity.class)
+                                    .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+                        }
+                    } else {
+                        //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
 
+                    }
                 } else if (postsion == 1) {//保存
-//                    saveImage(path);
+                    saveImageToLocal(ivZoom, media, false, isHttp, isOriginal);
                 } else if (postsion == 2) {//识别二维码
-//                    scanningQrImage(path);
+                    scanningImage(media.getPath());
                 }
                 popupSelectView.dismiss();
 
             }
         });
-        popupSelectView.showAtLocation(null, Gravity.BOTTOM, 0, 0);
+        popupSelectView.showAtLocation(parentView, Gravity.BOTTOM, 0, 0);
 
     }
 
@@ -573,6 +631,10 @@ public class AdapterPreviewImage extends PagerAdapter {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void setPopParentView(View view){
+        parentView = view;
     }
 
 }

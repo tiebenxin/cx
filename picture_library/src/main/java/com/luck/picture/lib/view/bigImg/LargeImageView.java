@@ -838,6 +838,7 @@ public class LargeImageView extends View implements BlockImageLoader.OnImageLoad
     private ScaleGestureDetector.OnScaleGestureListener onScaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+//            LogManager.getLogger().e(TAG,"onScale");
             if (!isEnabled()) {
                 return false;
             }
