@@ -38,4 +38,11 @@ public class EventFactory extends BaseEvent {
     public static class StopVideoEvent extends BaseEvent {
         public String msg_id;
     }
+
+    /**
+     * 刷新用户信息
+     */
+    public static class FreshUserStateEvent extends BaseEvent {
+        public String vip;// (0:普通|1:vip)
+    }
 }
