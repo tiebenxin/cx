@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.dao.MsgDao;
@@ -381,10 +380,16 @@ public class MsgConversionBean {
                     rname = "\"<font color='#276baa' id='" + bean.getFromUid() + "'>" + msgDao.getUsername4Show(bean.getGid(), bean.getFromUid()) + "</font>\"" + "<div id='" + bean.getGid() + "'></div>";
                 }
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
-
                 msgCel.setMsgid(msgAllBean.getMsg_id());
                 msgCel.setNote(rname + "撤回了一条消息");
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
+                // 查出本地数据库的消息
+                MsgAllBean msgAllBean1 = msgDao.getMsgById(bean.getMsgId());
+                if(msgAllBean1!=null){
+                    msgCel.setCancelContent(msgAllBean1.getMsgCancel().getCancelContent());
+                    msgCel.setCancelContentType(msgAllBean1.getMsgCancel().getCancelContentType());
+                }
+
                 msgAllBean.setMsgCancel(msgCel);
 
                 break;

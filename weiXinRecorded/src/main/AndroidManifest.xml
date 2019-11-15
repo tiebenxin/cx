@@ -25,7 +25,8 @@
         <activity android:name=".activity.CutTimeActivity"
             android:screenOrientation="portrait"
             />
-        <activity android:name=".activity.ImageShowActivity"/>
+        <activity android:name=".activity.ImageShowActivity"
+            android:screenOrientation="portrait"/>
 
 
     </application>

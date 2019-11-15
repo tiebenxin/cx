@@ -2,7 +2,6 @@ package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -288,7 +287,7 @@ public class MessageManager {
             case ACTIVE_STAT_CHANGE://在线状态改变
                 updateUserOnlineStatus(wrapMessage);
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
-                EventBus.getDefault().post(new EventUserOnlineChange());
+                notifyOnlineChange(wrapMessage.getFromUid());
                 break;
             case CANCEL://撤销消息
                 if (bean != null) {
@@ -298,7 +297,7 @@ public class MessageManager {
                         if (pendingMessages.containsKey(cancelMsgId)) {
                             pendingMessages.remove(cancelMsgId);
                         } else {
-                            msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
+                            msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId);
                         }
                     } else {
                         //TODO:saveMessageNew的有更新未读数
@@ -308,7 +307,7 @@ public class MessageManager {
 //                        }
 //                        long fromUid = wrapMessage.getFromUid();
 //                        updateSessionUnread(gid, fromUid, true);
-                        msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
+                        msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId);
                     }
                     EventBus.getDefault().post(new EventRefreshChat());
                     // 处理图片撤回，在预览弹出提示
@@ -320,6 +319,10 @@ public class MessageManager {
                     EventFactory.StopVoiceeEvent eventVoice = new EventFactory.StopVoiceeEvent();
                     eventVoice.msg_id = bean.getMsgCancel().getMsgidCancel();
                     EventBus.getDefault().post(eventVoice);
+                    // 处理视频撤回，对方在播放时停止播放
+                    EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
+                    eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    EventBus.getDefault().post(eventVideo);
                     MessageManager.getInstance().setMessageChange(true);
                 }
                 break;
@@ -327,6 +330,20 @@ public class MessageManager {
                 updateUserLockCloudRedEnvelope(wrapMessage);
                 break;
             case P2P_AU_VIDEO_DIAL:// 音视频通知
+                break;
+            case SWITCH_CHANGE:// 开关变更
+                //  更新用户信息
+                UserInfo userInfo = UserAction.getMyInfo();
+                UserDao userDao = new UserDao();
+                // 等于Vip更新用户信息 更新数据库
+                if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.VIP) {
+                    userInfo.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
+                    userDao.updateUserinfo(userInfo);
+                    // 刷新用户信息
+                    EventFactory.FreshUserStateEvent event = new EventFactory.FreshUserStateEvent();
+                    event.vip = wrapMessage.getSwitchChange().getSwitchValue() + "";
+                    EventBus.getDefault().post(event);
+                }
                 break;
         }
         //刷新单个,接收到音视频通话消息不需要刷新
@@ -349,6 +366,12 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    private void notifyOnlineChange(long uid) {
+        EventUserOnlineChange event = new EventUserOnlineChange();
+        event.setUid(uid);
+        EventBus.getDefault().post(event);
     }
 
     //重新生成群头像

@@ -478,7 +478,14 @@ public class MainActivity extends AppActivity {
     public void stopJPushResumeEvent(EventFactory.StopJPushResumeEvent event) {
         // TODO 处理部分手机收到音视频消息后，多个铃声在播放问题
         JPushInterface.stopPush(this);
-        JPushInterface.resumePush(this);
+        if(!isFinishing()){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    JPushInterface.resumePush(MainActivity.this);
+                }
+            },500);
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

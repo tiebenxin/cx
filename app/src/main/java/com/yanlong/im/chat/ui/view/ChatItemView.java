@@ -54,16 +54,19 @@ import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
-import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.WebPageActivity;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 public class ChatItemView extends LinearLayout {
+    private final int DEFAULT_W = 120;
+    private final int DEFAULT_H = 180;
+
     private TextView txtOtName;
     private TextView txtMeName;
     private TextView txtTime;
@@ -153,6 +156,7 @@ public class ChatItemView extends LinearLayout {
     private TextView txtMeVoiceVideo;
     private TextView txtOtVoiceVideo;
 
+    private int mHour, mMin, mSecond;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -666,8 +670,8 @@ public class ChatItemView extends LinearLayout {
     //视频消息
     public void setDataVideo(VideoMessage videoMessage, final String url, final EventPic eventPic, Integer pg) {
         if (url != null) {
-            final int width = DensityUtil.dip2px(getContext(), 150);
-            final int height = DensityUtil.dip2px(getContext(), 180);
+            final int width = DensityUtil.dip2px(getContext(), DEFAULT_W);
+            final int height = DensityUtil.dip2px(getContext(), DEFAULT_H);
 
             //设定大小
             ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
@@ -701,22 +705,18 @@ public class ChatItemView extends LinearLayout {
                 layoutParamsOT.setMargins(w - 105, h - 55, 0, 0);
                 img_ot_4_time.setLayoutParams(layoutParamsOT);
                 long currentTime = videoMessage.getDuration();
-                if (currentTime < 10) {
-                    img_me_4_time.setText("00:0" + currentTime);
-                    img_ot_4_time.setText("00:0" + currentTime);
+                // 转成秒
+                currentTime = currentTime / 1000;
+                mHour = (int) currentTime / 3600;
+                mMin = (int) currentTime % 3600 / 60;
+                mSecond = (int) currentTime % 60;
 
+                if (mHour > 0) {
+                    img_me_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                    img_ot_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
                 } else {
-                    img_me_4_time.setText("00:" + currentTime);
-                    img_ot_4_time.setText("00:" + currentTime);
-                }
-                if (currentTime * 1000 > RecordedActivity.MAX_VIDEO_TIME) {
-                    if (currentTime / 1000 < 10) {
-                        img_me_4_time.setText("00:0" + currentTime / 1000);
-                        img_ot_4_time.setText("00:0" + currentTime / 1000);
-                    } else {
-                        img_me_4_time.setText("00:" + currentTime / 1000);
-                        img_ot_4_time.setText("00:" + currentTime / 1000);
-                    }
+                    img_me_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                    img_ot_4_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
                 }
                 lp.width = w;
                 lp.height = h;
@@ -780,29 +780,37 @@ public class ChatItemView extends LinearLayout {
         if (uri != null) {
 
 
-            final int width = DensityUtil.dip2px(getContext(), 150);
-            final int height = DensityUtil.dip2px(getContext(), 180);
+            final int width = DensityUtil.dip2px(getContext(), DEFAULT_W);
+            final int height = DensityUtil.dip2px(getContext(), DEFAULT_H);
 
             //设定大小
             ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
             if (image != null) {
                 double mh = image.getHeight();
                 double mw = image.getWidth();
-                if (mh == 0) {
-                    mh = height;
-                }
-                if (mw == 0) {
-                    mw = width;
-                }
-
-                double cp = 1;
-                if (mh > mw) {
-                    cp = height / mh;
+                double rate = mw * 1.00 / mh;
+                int w = 0;
+                int h = 0;
+                if (rate < 0.2) {
+                    w = width;
+                    h = height;
                 } else {
-                    cp = width / mw;
+                    if (mh == 0) {
+                        mh = height;
+                    }
+                    if (mw == 0) {
+                        mw = width;
+                    }
+                    double cp = 1;
+                    if (mh > mw) {
+                        cp = height / mh;
+                    } else {
+                        cp = width / mw;
+                    }
+
+                    w = new Double(mw * cp).intValue();
+                    h = new Double(mh * cp).intValue();
                 }
-                int w = new Double(mw * cp).intValue();
-                int h = new Double(mh * cp).intValue();
 
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
 
@@ -811,6 +819,7 @@ public class ChatItemView extends LinearLayout {
 
                 lp.width = w;
                 lp.height = h;
+                LogUtil.getLog().e(ChatItemView.class.getSimpleName(), "w=" + w + "--h=" + h);
 
             } else {
                 lp.width = width;
@@ -958,7 +967,7 @@ public class ChatItemView extends LinearLayout {
 
     private int netState;
 
-    public void setErr(int state) {
+    public void setErr(int state, boolean isShowLoad) {
         this.netState = state;
         switch (state) {
             case 0://正常
@@ -974,18 +983,26 @@ public class ChatItemView extends LinearLayout {
                 }
                 break;
             case 2://发送中
-                imgMeErr.setImageResource(R.mipmap.ic_net_load);
-                Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
-                imgMeErr.startAnimation(rotateAnimation);
-                imgMeErr.setVisibility(VISIBLE);
+                if (isShowLoad) {
+                    imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                    Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    imgMeErr.startAnimation(rotateAnimation);
+                    imgMeErr.setVisibility(VISIBLE);
+                } else {
+                    imgMeErr.clearAnimation();
+                    imgMeErr.setVisibility(INVISIBLE);
+                }
                 break;
             case -1://图片待发送
-//                imgMeErr.clearAnimation();
-//                imgMeErr.setVisibility(INVISIBLE);
-                imgMeErr.setImageResource(R.mipmap.ic_net_load);
-                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
-                imgMeErr.startAnimation(animation);
-                imgMeErr.setVisibility(VISIBLE);
+                if (isShowLoad) {
+                    imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                    Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    imgMeErr.startAnimation(animation);
+                    imgMeErr.setVisibility(VISIBLE);
+                } else {
+                    imgMeErr.clearAnimation();
+                    imgMeErr.setVisibility(INVISIBLE);
+                }
                 break;
             default: // 其他状态如-1:待发送
 

@@ -90,7 +90,7 @@ public class UpdateManage {
         if (check(versions)) {
             final long startsPoint = getFileStart();
             dialog = new UpdateAppDialog();
-            dialog.init(activity, "更新", content, new UpdateAppDialog.Event() {
+            dialog.init(activity, versions, content, new UpdateAppDialog.Event() {
                 @Override
                 public void onON() {
                     if (call != null) {

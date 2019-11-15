@@ -20,7 +20,6 @@ import com.lansosdk.videoeditor.VideoEditor;
 import com.lansosdk.videoeditor.onVideoEditorProgressListener;
 import com.libyuv.LibyuvUtil;
 import com.zhaoss.weixinrecorded.R;
-import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 import com.zhaoss.weixinrecorded.util.CameraHelp;
 import com.zhaoss.weixinrecorded.util.MyVideoEditor;
 import com.zhaoss.weixinrecorded.util.RecordUtil;
@@ -28,8 +27,6 @@ import com.zhaoss.weixinrecorded.util.RxJavaUtil;
 import com.zhaoss.weixinrecorded.util.Utils;
 import com.zhaoss.weixinrecorded.view.LineProgressView;
 import com.zhaoss.weixinrecorded.view.RecordView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RecordedActivity extends BaseActivity {
 
     public static final String INTENT_PATH = "intent_path";
-    public static final String INTENT_VIDEO_WIDTH= "intent_width";
+    public static final String INTENT_VIDEO_WIDTH = "intent_width";
     public static final String INTENT_PATH_HEIGHT = "intent_height";
     public static final String INTENT_PATH_TIME = "intent_time";
     public static final String INTENT_DATA_TYPE = "result_data_type";
@@ -51,8 +48,8 @@ public class RecordedActivity extends BaseActivity {
 
     public static final int REQUEST_CODE_KEY = 100;
 
-    public static final float MAX_VIDEO_TIME = 18f*1000;  //最大录制时间
-    public static final float MIN_VIDEO_TIME = 1f*1000;  //最小录制时间
+    public static final float MAX_VIDEO_TIME = 18f * 1000;  //最大录制时间
+    public static final float MIN_VIDEO_TIME = 1f * 1000;  //最小录制时间
 
     private SurfaceView surfaceView;
     private RecordView recordView;
@@ -60,10 +57,11 @@ public class RecordedActivity extends BaseActivity {
     private ImageView iv_next;
     private ImageView iv_change_camera;
     private LineProgressView lineProgressView;
-    private ImageView iv_flash_video,iv_delete_back;
+    private ImageView iv_flash_video, iv_delete_back;
     private TextView iv_recorded_edit;
     private TextView editorTextView;
     private TextView tv_hint;
+    private View view_back;
 
     private ArrayList<String> segmentList = new ArrayList<>();//分段视频地址
     private ArrayList<String> aacList = new ArrayList<>();//分段音频地址
@@ -90,7 +88,7 @@ public class RecordedActivity extends BaseActivity {
         setContentView(R.layout.activity_recorded);
 
         LanSoEditor.initSDK(this, null);
-        LanSongFileUtil.setFileDir("/sdcard/WeiXinRecorded/"+System.currentTimeMillis()+"/");
+        LanSongFileUtil.setFileDir("/sdcard/WeiXinRecorded/" + System.currentTimeMillis() + "/");
         LibyuvUtil.loadLibrary();
 
         initUI();
@@ -106,24 +104,25 @@ public class RecordedActivity extends BaseActivity {
         iv_next = findViewById(R.id.iv_next);
         iv_recorded_edit = findViewById(R.id.iv_recorded_edit);
         iv_change_camera = findViewById(R.id.iv_camera_mode);
-        lineProgressView =  findViewById(R.id.lineProgressView);
+        lineProgressView = findViewById(R.id.lineProgressView);
         tv_hint = findViewById(R.id.tv_hint);
         iv_flash_video = findViewById(R.id.iv_flash_video);
         iv_delete_back = findViewById(R.id.iv_delete_back);
+        view_back = findViewById(R.id.layout_back);
 
         surfaceView.post(new Runnable() {
             @Override
             public void run() {
                 int width = surfaceView.getWidth();
                 int height = surfaceView.getHeight();
-                float viewRatio = width*1f/height;
-                float videoRatio = 9f/16f;
+                float viewRatio = width * 1f / height;
+                float videoRatio = 9f / 16f;
                 ViewGroup.LayoutParams layoutParams = surfaceView.getLayoutParams();
-                if(viewRatio > videoRatio){
+                if (viewRatio > videoRatio) {
                     layoutParams.width = width;
-                    layoutParams.height = (int) (width/viewRatio);
-                }else{
-                    layoutParams.width = (int) (height*viewRatio);
+                    layoutParams.height = (int) (width / viewRatio);
+                } else {
+                    layoutParams.width = (int) (height * viewRatio);
                     layoutParams.height = height;
                 }
                 surfaceView.setLayoutParams(layoutParams);
@@ -135,7 +134,8 @@ public class RecordedActivity extends BaseActivity {
         mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
-                if(isShotPhoto.get()){
+//                Log.i("1212", "onPreviewFrame");
+                if (isShotPhoto.get()) {
                     isShotPhoto.set(false);
                     shotPhoto(data);
 //                        PictureSelector.create(ChatActivity.this)
@@ -144,8 +144,8 @@ public class RecordedActivity extends BaseActivity {
 //                                .forResult(PictureConfig.REQUEST_CAMERA);
 //                    EventBus.getDefault().post(new ActivityForwordEvent());
 //                    finish();
-                }else{
-                    if(isRecordVideo.get() && mOnPreviewFrameListener!=null){
+                } else {
+                    if (isRecordVideo.get() && mOnPreviewFrameListener != null) {
                         mOnPreviewFrameListener.onPreviewFrame(data);
                     }
                 }
@@ -158,10 +158,12 @@ public class RecordedActivity extends BaseActivity {
                 mSurfaceHolder = holder;
                 mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
             }
+
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
             }
+
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 mCameraHelp.release();
@@ -174,7 +176,7 @@ public class RecordedActivity extends BaseActivity {
                 mCameraHelp.callFocusMode();
             }
         });
-        iv_delete_back.setOnClickListener(new View.OnClickListener() {
+        view_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                finishVideo(2);
@@ -184,16 +186,16 @@ public class RecordedActivity extends BaseActivity {
         mVideoEditor.setOnProgessListener(new onVideoEditorProgressListener() {
             @Override
             public void onProgress(VideoEditor v, int percent) {
-                if(percent==100){
+                if (percent == 100) {
                     executeProgress++;
                 }
-                int pro = (int) (executeProgress/executeCount*100);
-                editorTextView.setText("视频编辑中"+pro+"%");
+                int pro = (int) (executeProgress / executeCount * 100);
+                editorTextView.setText("视频编辑中" + pro + "%");
             }
         });
     }
 
-    private void shotPhoto(final byte[] nv21){
+    private void shotPhoto(final byte[] nv21) {
 
 //        TextView textView = showProgressDialog();
 //        textView.setText("图片截取中");
@@ -201,19 +203,19 @@ public class RecordedActivity extends BaseActivity {
             @Override
             public String doInBackground() throws Throwable {
 
-                boolean isFrontCamera = mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT;
+                boolean isFrontCamera = mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_FRONT;
                 int rotation;
-                if(isFrontCamera){
+                if (isFrontCamera) {
                     rotation = 270;
-                }else{
+                } else {
                     rotation = 90;
                 }
 
                 byte[] yuvI420 = new byte[nv21.length];
                 byte[] tempYuvI420 = new byte[nv21.length];
 
-                int videoWidth =  mCameraHelp.getHeight();
-                int videoHeight =  mCameraHelp.getWidth();
+                int videoWidth = mCameraHelp.getHeight();
+                int videoHeight = mCameraHelp.getWidth();
 
                 LibyuvUtil.convertNV21ToI420(nv21, yuvI420, mCameraHelp.getWidth(), mCameraHelp.getHeight());
                 LibyuvUtil.compressI420(yuvI420, mCameraHelp.getWidth(), mCameraHelp.getHeight(), tempYuvI420,
@@ -223,13 +225,14 @@ public class RecordedActivity extends BaseActivity {
 
                 LibyuvUtil.convertI420ToBitmap(tempYuvI420, bitmap, videoWidth, videoHeight);
 
-                String photoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".jpeg";
+                String photoPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".jpeg";
                 FileOutputStream fos = new FileOutputStream(photoPath);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                 fos.close();
 
                 return photoPath;
             }
+
             @Override
             public void onFinish(String result) {
                 closeProgressDialog();
@@ -239,10 +242,11 @@ public class RecordedActivity extends BaseActivity {
 //                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
 //                setResult(RESULT_OK, intent);
 //                finish();
-                Intent intent =new Intent(RecordedActivity.this,ImageShowActivity.class);
-                intent.putExtra("imgpath",result);
-                startActivityForResult(intent,90);
+                Intent intent = new Intent(RecordedActivity.this, ImageShowActivity.class);
+                intent.putExtra("imgpath", result);
+                startActivityForResult(intent, 90);
             }
+
             @Override
             public void onError(Throwable e) {
                 closeProgressDialog();
@@ -252,29 +256,37 @@ public class RecordedActivity extends BaseActivity {
         });
     }
 
+    private static long lastClickTime;
+
     private void initData() {
 
         lineProgressView.setMinProgress(MIN_VIDEO_TIME / MAX_VIDEO_TIME);
         recordView.setOnGestureListener(new RecordView.OnGestureListener() {
             @Override
             public void onDown() {
+                lastClickTime = System.currentTimeMillis();
                 //长按录像
                 isRecordVideo.set(true);
                 startRecord();
                 goneRecordLayout();
+
             }
+
             @Override
             public void onUp() {
-                if(isRecordVideo.get()){
+                if ((System.currentTimeMillis() - lastClickTime) < MIN_VIDEO_TIME) {
+                    isShotPhoto.set(true);
+                }
+                if (isRecordVideo.get()) {
                     isRecordVideo.set(false);
                     upEvent();
                 }
             }
+
             @Override
             public void onClick() {
-                if(segmentList.size() == 0){
+                if (segmentList.size() == 0) {
                     isShotPhoto.set(true);
-//                    Toast.makeText(RecordedActivity.this,"长按录制",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -283,7 +295,7 @@ public class RecordedActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 editorTextView = showProgressDialog();
-                executeCount = segmentList.size()+4;
+                executeCount = segmentList.size() + 4;
                 finishVideo(2);
             }
         });
@@ -292,7 +304,7 @@ public class RecordedActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 editorTextView = showProgressDialog();
-                executeCount = segmentList.size()+4;
+                executeCount = segmentList.size() + 4;
                 finishVideo(1);
             }
         });
@@ -317,60 +329,63 @@ public class RecordedActivity extends BaseActivity {
         iv_change_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK){
+                if (mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK) {
                     mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_FRONT, mSurfaceHolder);
-                }else{
+                } else {
                     mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
                 }
 //                iv_flash_video.setImageResource(R.mipmap.video_flash_close);
             }
         });
     }
+
     private String aacPath;
-    public void finishVideo(final int type){
+
+    public void finishVideo(final int type) {
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<String>() {
             @Override
-            public String doInBackground()throws Exception{
+            public String doInBackground() throws Exception {
                 //合并h264
-                String h264Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
+                String h264Path = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".h264";
                 Utils.mergeFile(segmentList.toArray(new String[]{}), h264Path);
                 //h264转mp4
-                String mp4Path = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".mp4";
-                boolean isH264ToMp4= mVideoEditor.h264ToMp4(h264Path, mp4Path);
-                if (!isH264ToMp4){
+                String mp4Path = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
+                boolean isH264ToMp4 = mVideoEditor.h264ToMp4(h264Path, mp4Path);
+                if (!isH264ToMp4) {
                     return null;
                 }
                 //合成音频
-                aacPath= mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
+                aacPath = mVideoEditor.executePcmEncodeAac(syntPcm(), RecordUtil.sampleRateInHz, RecordUtil.channelCount);
                 //音视频混合
                 mp4Path = mVideoEditor.executeVideoMergeAudio(mp4Path, aacPath);
                 return mp4Path;
             }
+
             @Override
             public void onFinish(String result) {
                 closeProgressDialog();
                 //todo 删除合成钱原始音视频文件
-                if (null!=aacPath){
-                   File file=new File(aacPath);
-                   if (file.exists()){
-                       file.delete();
-                   }
+                if (null != aacPath) {
+                    File file = new File(aacPath);
+                    if (file.exists()) {
+                        file.delete();
+                    }
                 }
 //                Intent intent = new Intent(mContext, EditVideoActivity.class);
 //                intent.putExtra(INTENT_PATH, result);
 //                startActivityForResult(intent, REQUEST_CODE_KEY);
-                if (null==result){
+                if (null == result) {
                     Toast.makeText(getApplicationContext(), "视频编辑失败!退出界面重试", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                switch (type){
+                switch (type) {
                     case 1:
                         Intent intentMas = new Intent();
                         intentMas.putExtra(INTENT_PATH, result);
-                        intentMas.putExtra(INTENT_VIDEO_WIDTH,mCameraHelp.getHeight() );
-                        intentMas.putExtra(INTENT_PATH_HEIGHT,mCameraHelp.getWidth() );
+                        intentMas.putExtra(INTENT_VIDEO_WIDTH, mCameraHelp.getHeight());
+                        intentMas.putExtra(INTENT_PATH_HEIGHT, mCameraHelp.getWidth());
 //                        intentMas.putExtra(INTENT_PATH_TIME,(int)countTime);
-                        intentMas.putExtra(INTENT_PATH_TIME,(int)Long.parseLong(getVideoAtt(result)));
+                        intentMas.putExtra(INTENT_PATH_TIME, (int) Long.parseLong(getVideoAtt(result)));
                         intentMas.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                         setResult(RESULT_OK, intentMas);
                         finish();
@@ -384,7 +399,6 @@ public class RecordedActivity extends BaseActivity {
                 clearProgress();
 
             }
-
 
 
             @Override
@@ -429,17 +443,17 @@ public class RecordedActivity extends BaseActivity {
         recordView.updateProgress(0);
     }
 
-    private String syntPcm() throws Exception{
+    private String syntPcm() throws Exception {
 
-        String pcmPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
+        String pcmPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".pcm";
         File file = new File(pcmPath);
         file.createNewFile();
         FileOutputStream out = new FileOutputStream(file);
-        for (int x=0; x<aacList.size(); x++){
+        for (int x = 0; x < aacList.size(); x++) {
             FileInputStream in = new FileInputStream(aacList.get(x));
             byte[] buf = new byte[4096];
-            int len=0;
-            while ((len=in.read(buf))>0){
+            int len = 0;
+            while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
                 out.flush();
             }
@@ -449,7 +463,7 @@ public class RecordedActivity extends BaseActivity {
         return pcmPath;
     }
 
-    private void goneRecordLayout(){
+    private void goneRecordLayout() {
 
 //        tv_hint.setVisibility(View.GONE);
         iv_delete.setVisibility(View.GONE);
@@ -460,75 +474,84 @@ public class RecordedActivity extends BaseActivity {
     private long videoDuration;
     private long recordTime;
     private String videoPath;
-    private void startRecord(){
+
+    private void startRecord() {
 
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Boolean>() {
             @Override
             public Boolean doInBackground() throws Throwable {
-                videoPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".h264";
-                audioPath = LanSongFileUtil.DEFAULT_DIR+System.currentTimeMillis()+".pcm";
-                final boolean isFrontCamera = mCameraHelp.getCameraId()== Camera.CameraInfo.CAMERA_FACING_FRONT;
+                videoPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".h264";
+                audioPath = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".pcm";
+                final boolean isFrontCamera = mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_FRONT;
                 final int rotation;
-                if(isFrontCamera){
+                if (isFrontCamera) {
                     rotation = 270;
-                }else{
+                } else {
                     rotation = 90;
                 }
                 recordUtil = new RecordUtil(videoPath, audioPath, mCameraHelp.getWidth(), mCameraHelp.getHeight(), rotation, isFrontCamera);
                 return true;
             }
+
             @Override
             public void onFinish(Boolean result) {
-                if(recordView.isDown()){
+                if (recordView.isDown()) {
                     mOnPreviewFrameListener = recordUtil.start();
                     videoDuration = 0;
                     lineProgressView.setSplit();
                     recordTime = System.currentTimeMillis();
                     runLoopPro();
-                }else{
+                } else {
                     recordUtil.release();
                     recordUtil = null;
                 }
             }
+
             @Override
             public void onError(Throwable e) {
 
             }
         });
     }
+
     private long countTime;
-    private void runLoopPro(){
+
+    private void runLoopPro() {
 
         RxJavaUtil.loop(20, new RxJavaUtil.OnRxLoopListener() {
             @Override
-            public Boolean takeWhile(){
-                return recordUtil!=null && recordUtil.isRecording();
+            public Boolean takeWhile() {
+                return recordUtil != null && recordUtil.isRecording();
             }
+
             @Override
             public void onExecute() {
                 long currentTime = System.currentTimeMillis();
                 videoDuration += currentTime - recordTime;
                 recordTime = currentTime;
-                countTime= videoDuration;
+                countTime = videoDuration;
                 for (long time : timeList) {
                     countTime += time;
                 }
                 if (countTime <= MAX_VIDEO_TIME) {
-                    lineProgressView.setProgress(countTime/ MAX_VIDEO_TIME);
-                    recordView.updateProgress(countTime/MAX_VIDEO_TIME*360);
-                    tv_hint.setText(countTime/1000+"秒");
-                }else{
+                    lineProgressView.setProgress(countTime / MAX_VIDEO_TIME);
+                    recordView.updateProgress(countTime / MAX_VIDEO_TIME * 360);
+//                  tv_hint.setText(countTime/1000+"秒");
+                    tv_hint.setVisibility(View.GONE);
+                } else {
                     upEvent();
                     iv_next.callOnClick();
                 }
             }
+
             @Override
             public void onFinish() {
                 segmentList.add(videoPath);
                 aacList.add(audioPath);
                 timeList.add(videoDuration);
-                initRecorderState();
+                initRecorderState(false);
             }
+
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
@@ -537,15 +560,15 @@ public class RecordedActivity extends BaseActivity {
         });
     }
 
-    private void upEvent(){
-        if(recordUtil != null) {
+    private void upEvent() {
+        if (recordUtil != null) {
             recordUtil.stop();
             recordUtil = null;
         }
-        initRecorderState();
+        initRecorderState(false);
     }
 
-    private void deleteSegment(){
+    private void deleteSegment() {
         finish();
 //        showConfirm("确认删除上一段视频?", new View.OnClickListener() {
 //            @Override
@@ -567,31 +590,24 @@ public class RecordedActivity extends BaseActivity {
     /**
      * 初始化视频拍摄状态
      */
-    private void initRecorderState(){
-
-        if(segmentList.size() > 0){
-//            tv_hint.setText("长按录像");
-        }else{
-//            tv_hint.setText("长按录像 点击拍照");
+    private void initRecorderState(boolean isShow) {
+        if (isShow) {
+            tv_hint.setVisibility(View.VISIBLE);
+            recordView.setVisibility(View.VISIBLE);
+        } else {
+            tv_hint.setVisibility(View.GONE);
         }
-        tv_hint.setText("长按继续录制");
-        tv_hint.setVisibility(View.VISIBLE);
 
-//        if (lineProgressView.getSplitCount() > 0) {
-//            iv_delete.setVisibility(View.VISIBLE);
-//        }else{
-//            iv_delete.setVisibility(View.GONE);
-//        }
-
-        if (lineProgressView.getProgress()* MAX_VIDEO_TIME < MIN_VIDEO_TIME) {
+        if (lineProgressView.getProgress() * MAX_VIDEO_TIME < MIN_VIDEO_TIME) {
             iv_next.setVisibility(View.GONE);
             iv_delete.setVisibility(View.GONE);
             iv_recorded_edit.setVisibility(View.GONE);
             iv_delete_back.setVisibility(View.VISIBLE);
         } else {
+            recordView.setVisibility(View.GONE);
             iv_next.setVisibility(View.VISIBLE);
             iv_delete.setVisibility(View.VISIBLE);
-            iv_recorded_edit.setVisibility(View.VISIBLE);
+            iv_recorded_edit.setVisibility(View.GONE);
             iv_delete_back.setVisibility(View.GONE);
 
         }
@@ -600,7 +616,7 @@ public class RecordedActivity extends BaseActivity {
     /**
      * 清除录制信息
      */
-    private void cleanRecord(){
+    private void cleanRecord() {
 
         recordView.initState();
         lineProgressView.cleanSplit();
@@ -622,39 +638,42 @@ public class RecordedActivity extends BaseActivity {
         super.onDestroy();
 
         cleanRecord();
-        if(mCameraHelp != null){
+        if (mCameraHelp != null) {
             mCameraHelp.release();
         }
-        if(recordUtil != null) {
+        if (recordUtil != null) {
             recordUtil.stop();
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode==RESULT_OK && data!=null){
-            if(requestCode == REQUEST_CODE_KEY){
+        if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == REQUEST_CODE_KEY) {
                 Intent intent = new Intent();
                 intent.putExtra(INTENT_PATH, data.getStringExtra(INTENT_PATH));
-                intent.putExtra(INTENT_VIDEO_WIDTH, data.getIntExtra(INTENT_VIDEO_WIDTH,720));
-                intent.putExtra(INTENT_PATH_HEIGHT, data.getIntExtra(INTENT_PATH_HEIGHT,1080));
-                intent.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME,10));
+                intent.putExtra(INTENT_VIDEO_WIDTH, data.getIntExtra(INTENT_VIDEO_WIDTH, 720));
+                intent.putExtra(INTENT_PATH_HEIGHT, data.getIntExtra(INTENT_PATH_HEIGHT, 1080));
+                intent.putExtra(INTENT_PATH_TIME, data.getIntExtra(INTENT_PATH_TIME, 10));
                 intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_VIDEO);
                 setResult(RESULT_OK, intent);
                 finish();
-            }else if(requestCode==90){
-                boolean result=data.getBooleanExtra("showResult",false);
-                if (result){
+            } else if (requestCode == 90) {
+                boolean result = data.getBooleanExtra("showResult", false);
+                if (result) {
                     Intent intent = new Intent();
-                intent.putExtra(INTENT_PATH, data.getStringExtra("showPath"));
-                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
-                setResult(RESULT_OK, intent);
-                finish();
+                    intent.putExtra(INTENT_PATH, data.getStringExtra("showPath"));
+                    intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                } else {
+                    cleanRecord();
+                    initRecorderState(true);
                 }
             }
-        }else{
+        } else {
             cleanRecord();
-            initRecorderState();
+            initRecorderState(true);
         }
     }
 }

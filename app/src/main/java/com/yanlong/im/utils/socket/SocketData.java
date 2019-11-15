@@ -2,7 +2,6 @@ package com.yanlong.im.utils.socket;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.ChatEnum;
@@ -251,6 +250,9 @@ public class SocketData {
             //  LogUtil.getLog().d(TAG, "msgSave4Me2: msg" + msg.toString());
 
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
+            if (msgAllBean == null) {
+                return;
+            }
             msgAllBean.setRead(true);//自己发送的消息是已读
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
@@ -313,6 +315,11 @@ public class SocketData {
             // DaoUtil.deleteOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
             if (msgAllBean.getVideoMessage() != null) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
+            }
+            // 撤消内容 与内容类型写入数据库
+            if(msgAllBean.getMsgCancel()!=null){
+                msgAllBean.getMsgCancel().setCancelContent(mCancelContent);
+                msgAllBean.getMsgCancel().setCancelContentType(mCancelContentType);
             }
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
@@ -556,12 +563,9 @@ public class SocketData {
      * @return false 需要忽略
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
-        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.CANCEL
-                || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL) {
+        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL) {
             return false;
         }
-
-
         return true;
 
     }
@@ -873,6 +877,7 @@ public class SocketData {
         ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
         image.setWidth(img.getWidth());
         image.setHeight(img.getHeight());
+        image.setSize(img.getSize());
         if (isOriginal) {
             image.setOrigin(url);
         }
@@ -880,7 +885,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static ImageMessage createImageMessage(String msgId, String url, String previewUrl, String thumUrl, long width, long height, boolean isOriginal, boolean isOriginRead) {
+    public static ImageMessage createImageMessage(String msgId, String url, String previewUrl, String thumUrl, long width, long height, boolean isOriginal, boolean isOriginRead, long size) {
         ImageMessage image = new ImageMessage();
         image.setLocalimg(url);
         image.setPreview(previewUrl);
@@ -888,6 +893,7 @@ public class SocketData {
         image.setMsgid(msgId);
         image.setWidth(width);
         image.setHeight(height);
+        image.setSize(size);
         if (isOriginal) {
             image.setOrigin(url);
         }
@@ -1027,6 +1033,9 @@ public class SocketData {
         return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
     }
 
+    private static String mCancelContent;// 撤回内容
+    private static Integer mCancelContentType;// 撤回内容类型
+
     /**
      * 撤回消息
      *
@@ -1043,12 +1052,15 @@ public class SocketData {
                 .setMsgId(msgId)
                 .build();
 
+        mCancelContent = msgContent;
+        mCancelContentType = msgType;
+
         String id = getUUID();
-        MsgAllBean msgAllBean = send4Base(false, true, id, toId, toGid, -1, MsgBean.MessageType.CANCEL, msg);
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setMsg(msgContent);
-        chatMessage.setMsgid(msgType + "");// 暂时用来存放撤回的消息类型
-        msgAllBean.setChat(chatMessage);
+        MsgAllBean msgAllBean = send4Base(true, true, id, toId, toGid, -1, MsgBean.MessageType.CANCEL, msg);
+//        ChatMessage chatMessage = new ChatMessage();
+//        chatMessage.setMsg(msgContent);
+//        chatMessage.setMsgid(msgType + "");// 暂时用来存放撤回的消息类型
+//        msgAllBean.setChat(chatMessage);
         ChatServer.addCanceLsit(id, msgAllBean);
 
         return msgAllBean;

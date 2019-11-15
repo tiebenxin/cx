@@ -2,14 +2,16 @@ package com.yanlong.im.user.ui.image;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,18 +30,31 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.gson.Gson;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ChecksumException;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.FormatException;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.qrcode.QRCodeReader;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.photoview.OnViewTapListener;
 import com.luck.picture.lib.photoview.PhotoViewAttacher2;
 import com.luck.picture.lib.photoview.ZoomImageView;
 import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.utils.PicSaveUtils;
+import com.luck.picture.lib.view.PopupSelectView;
+import com.luck.picture.lib.view.bigImg.BlockImageLoader;
 import com.luck.picture.lib.view.bigImg.LargeImageView;
 import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
+import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.utils.DownloadUtil;
@@ -48,6 +63,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
 import java.io.File;
+import java.util.Hashtable;
 import java.util.List;
 
 import okhttp3.Call;
@@ -66,12 +82,14 @@ public class AdapterPreviewImage extends PagerAdapter {
     private LayoutInflater inflater;
     private MsgDao msgDao = new MsgDao();
     private Call download;
+    //    private IPreviewImageListener listener;
+    private String[] strings = {"发送给朋友", "保存图片", "识别二维码", "取消"};
+    private View parentView;
 
 
     public AdapterPreviewImage(Context c) {
         context = c;
         inflater = LayoutInflater.from(c);
-
     }
 
     public void bindData(List<LocalMedia> l) {
@@ -106,30 +124,27 @@ public class AdapterPreviewImage extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         View contentView = inflater.inflate(com.luck.picture.lib.R.layout.item_preview_picture, container, false);
+        //TODO:当前ZoomView算法不够强大，处理不了高分辨率图片（15M），所以要用LargeImageView来补充显示大图，待优化
         final ZoomImageView ivZoom = contentView.findViewById(R.id.iv_image);
+        final LargeImageView ivLarge = contentView.findViewById(R.id.iv_image_large);
         final TextView tvViewOrigin = contentView.findViewById(R.id.tv_view_origin);
         ImageView ivDownload = contentView.findViewById(R.id.iv_download);
         LocalMedia media = datas.get(position);
-        loadAndShowImage(media, ivZoom, ivDownload, tvViewOrigin);
-
+        loadAndShowImage(media, ivZoom, ivLarge, ivDownload, tvViewOrigin);
         (container).addView(contentView, 0);
-
         return contentView;
     }
 
-    private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, ImageView ivDownload, TextView tvViewOrigin) {
+    private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, LargeImageView ivLarge, ImageView ivDownload, TextView tvViewOrigin) {
         String path = media.getCompressPath();//缩略图路径
         String originUrl = media.getPath();//原图路径
         boolean isGif = FileUtils.isGif(path);//是否是gif图片
         boolean isOriginal = StringUtil.isNotNull(originUrl);//是否有原图
         boolean isHttp = PictureMimeType.isHttp(path);
-//        final boolean isLong = PictureMimeType.isLongImg(media);
         boolean hasRead = false;
         if (!TextUtils.isEmpty(originUrl)) {
             hasRead = msgDao.ImgReadStatGet(originUrl);
-
         }
-
         if (isGif && !media.isCompressed()) {
             if (!media.getCutPath().equals(media.getCompressPath())) {
                 Glide.with(context).load(media.getCutPath()).listener(new RequestListener<Drawable>() {
@@ -150,7 +165,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             }
 
         } else {
-            showImage(ivZoom, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp);
+            showImage(ivZoom, ivLarge, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp);
         }
 
         //下载
@@ -158,11 +173,12 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ivDownload.setEnabled(true);
                 if (isOriginal) {
                     if (finalHasRead) {
                         saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
                     } else {
-                        downloadOriginImage(originUrl, tvViewOrigin, ivDownload, ivZoom, true);
+                        downloadOriginImage(originUrl, tvViewOrigin, ivDownload, ivZoom, ivLarge, true);
                     }
                 } else {
                     saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
@@ -174,14 +190,79 @@ public class AdapterPreviewImage extends PagerAdapter {
         tvViewOrigin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                downloadOriginImage(media.getPath(), tvViewOrigin, ivDownload, ivZoom, false);
+                tvViewOrigin.setEnabled(true);
+                downloadOriginImage(media.getPath(), tvViewOrigin, ivDownload, ivZoom, ivLarge, false);
             }
         });
         ivZoom.setOnViewTapListener(new PhotoViewAttacher2.OnViewTapListener() {
             @Override
             public void onViewTap(View view, float x, float y) {
+                if (download != null) {//取消当前请求
+                    download.cancel();
+                }
                 ((Activity) context).finish();
                 ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
+            }
+        });
+
+        ivZoom.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal);
+                return true;
+            }
+        });
+
+        ivLarge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (download != null) {//取消当前请求
+                    download.cancel();
+                }
+                ((Activity) context).finish();
+                ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
+            }
+        });
+
+        ivLarge.setOnLoadStateChangeListener(new BlockImageLoader.OnLoadStateChangeListener() {
+            @Override
+            public void onLoadStart(int loadType, Object param) {
+
+            }
+
+            @Override
+            public void onLoadFinished(int loadType, Object param, boolean success, Throwable throwable) {
+
+
+            }
+        });
+        ivLarge.setOnImageLoadListener(new BlockImageLoader.OnImageLoadListener() {
+            @Override
+            public void onBlockImageLoadFinished() {
+
+                ivLarge.setAlpha(1);
+//                dismissDialog();
+                setDownloadProgress(tvViewOrigin, 100);
+                // ToastUtil.show(getApplicationContext(),"加载完成");
+            }
+
+            @Override
+            public void onLoadImageSize(int imageWidth, int imageHeight) {
+
+            }
+
+            @Override
+            public void onLoadFail(Exception e) {
+                ToastUtil.show(context, "加载失败,请重试");
+//                dismissDialog();
+            }
+        });
+
+        ivLarge.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal);
+                return false;
             }
         });
 
@@ -248,15 +329,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
     }
 
-    /*
-     * 保存图片到本地
-     * */
-    private void saveImageToLocal(File file) {
-
-
-    }
-
-    private void showImage(ZoomImageView ivZoom, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp) {
+    private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp) {
         tvViewOrigin.setTag(media.getSize());
         if (isHttp) {
             if (isOrigin) {
@@ -264,14 +337,20 @@ public class AdapterPreviewImage extends PagerAdapter {
                     tvViewOrigin.setVisibility(View.GONE);
                     String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
                     if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
-                        loadImage(cachePath, ivZoom, true);
+                        loadImage(media.getCompressPath(), ivZoom, false);
+                        ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
                     } else {
-                        loadImage(media.getPath(), ivZoom, true);
+                        loadImage(media.getCompressPath(), ivZoom, true);
+                        loadLargeImage(media.getPath(), ivLarge);
                     }
                 } else {
                     tvViewOrigin.setVisibility(View.VISIBLE);
                     tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(media.getSize()) + ")");
-                    loadImage(media.getCompressPath(), ivZoom, false);
+                    if (!TextUtils.isEmpty(media.getCutPath()) && (media.getWidth() > 1080 || media.getHeight() > 1920)) {
+                        loadImage(media.getCutPath(), ivZoom, false);
+                    } else {
+                        loadImage(media.getCompressPath(), ivZoom, false);
+                    }
                 }
             } else {
                 tvViewOrigin.setVisibility(View.GONE);
@@ -283,6 +362,9 @@ public class AdapterPreviewImage extends PagerAdapter {
             ivDownload.setVisibility(View.VISIBLE);
             if (!TextUtils.isEmpty(media.getPath())) {
                 loadImage(media.getPath(), ivZoom, true);
+//                loadLargeImage(media.getPath(), ivLarge);
+                ivLarge.setImage(new FileBitmapDecoderFactory(media.getPath()));
+
             } else {
                 loadImage(media.getCompressPath(), ivZoom, false);
             }
@@ -373,10 +455,36 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
     }
 
+    private void loadLargeImage(String url, LargeImageView iv) {
+        iv.setAlpha(0);
+        iv.setVisibility(View.GONE);
+        RequestOptions options = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.ALL);
+        Glide.with(context)
+                .asBitmap()
+                .load(url)
+                .apply(options)  //480     800
+                .into(new SimpleTarget<Bitmap>(800, 800) {
+                    /* .into(new SimpleTarget<Bitmap>(ScreenUtils.getScreenWidth(PictureExternalPreviewActivity.this),
+                             ScreenUtils.getScreenHeight(PictureExternalPreviewActivity.this)) {*/
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        super.onLoadFailed(errorDrawable);
+//                        dismissDialog();
+                    }
+
+                    @Override
+                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+//                        dismissDialog();
+                        iv.setImage(resource);
+                    }
+                });
+    }
+
     /*
      * 下载原图
      * */
-    private void downloadOriginImage(String originUrl, TextView tvViewOrigin, ImageView ivDownload, ZoomImageView ivZoom, boolean needSave) {
+    private void downloadOriginImage(String originUrl, TextView tvViewOrigin, ImageView ivDownload, ZoomImageView ivZoom, LargeImageView ivLarge, boolean needSave) {
         final String filePath = context.getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = originUrl.substring(originUrl.lastIndexOf("/") + 1);
         File fileSave = new File(filePath + "/" + fileName);//原图保存路径
@@ -401,9 +509,12 @@ public class AdapterPreviewImage extends PagerAdapter {
                         ((Activity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                ivLarge.setAlpha(0);
+                                ivLarge.setVisibility(View.VISIBLE);
                                 setDownloadProgress(tvViewOrigin, 100);
                                 ivDownload.setEnabled(true);
-                                loadImage(file.getAbsolutePath(), ivZoom, true);
+                                ivLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
+//                                loadLargeImage(file.getAbsolutePath(), ivLarge);
                                 MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
                                 //这边要改成已读
                                 msgDao.ImgReadStatSet(originUrl, true);
@@ -448,4 +559,87 @@ public class AdapterPreviewImage extends PagerAdapter {
             tvViewOrigin.setVisibility(View.GONE);
         }
     }
+
+    /**
+     * 长按弹窗提示
+     */
+    private void showDownLoadDialog(final LocalMedia media, ZoomImageView ivZoom, boolean isHttp, boolean isOriginal) {
+        final PopupSelectView popupSelectView = new PopupSelectView(context, strings);
+        popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
+            @Override
+            public void onItem(String string, int postsion) {
+                if (postsion == 0) {//转发
+                    String msgId = media.getMsg_id();
+                    if (!TextUtils.isEmpty(msgId)) {
+                        MsgAllBean msgAllBean = msgDao.getMsgById(msgId);
+                        if (msgAllBean != null) {
+                            context.startActivity(new Intent(context, MsgForwardActivity.class)
+                                    .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgAllBean)));
+                        }
+                    } else {
+                        //TODO:无消息id，要不要自己新建一条消息记录，然后发出去？
+
+                    }
+                } else if (postsion == 1) {//保存
+                    saveImageToLocal(ivZoom, media, false, isHttp, isOriginal);
+                } else if (postsion == 2) {//识别二维码
+                    scanningImage(media.getPath());
+                }
+                popupSelectView.dismiss();
+
+            }
+        });
+        popupSelectView.showAtLocation(parentView, Gravity.BOTTOM, 0, 0);
+
+    }
+
+//    private void setClickListener(IPreviewImageListener l) {
+//        listener = l;
+//    }
+//
+//    public interface IPreviewImageListener {
+//        void onLongClick(LocalMedia media);
+//    }
+
+    /**
+     * 扫描二维码图片的方法
+     *
+     * @param path
+     * @return
+     */
+    public Result scanningImage(String path) {
+        if (TextUtils.isEmpty(path)) {
+            return null;
+        }
+        Hashtable<DecodeHintType, String> hints = new Hashtable<>();
+        hints.put(DecodeHintType.CHARACTER_SET, "UTF8"); //设置二维码内容的编码
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true; // 先获取原大小
+        Bitmap scan = BitmapFactory.decodeFile(path, options);
+        options.inJustDecodeBounds = false; // 获取新的大小
+//        int sampleSize = (int) (options.outHeight / (float) 200);
+//        if (sampleSize <= 0)
+//            sampleSize = 1;
+        //  options.inSampleSize = sampleSize;
+        Bitmap scanBitmap = BitmapFactory.decodeFile(path, options);
+        RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap);
+        BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
+        QRCodeReader reader = new QRCodeReader();
+        try {
+            return reader.decode(bitmap1, hints);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        } catch (ChecksumException e) {
+            e.printStackTrace();
+        } catch (FormatException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void setPopParentView(View view) {
+        parentView = view;
+    }
+
 }
