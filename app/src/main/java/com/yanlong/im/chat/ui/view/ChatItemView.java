@@ -64,6 +64,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 
 public class ChatItemView extends LinearLayout {
+    private final int DEFAULT_W = 120;
+    private final int DEFAULT_H = 180;
+
     private TextView txtOtName;
     private TextView txtMeName;
     private TextView txtTime;
@@ -667,8 +670,8 @@ public class ChatItemView extends LinearLayout {
     //视频消息
     public void setDataVideo(VideoMessage videoMessage, final String url, final EventPic eventPic, Integer pg) {
         if (url != null) {
-            final int width = DensityUtil.dip2px(getContext(), 100);
-            final int height = DensityUtil.dip2px(getContext(), 150);
+            final int width = DensityUtil.dip2px(getContext(), DEFAULT_W);
+            final int height = DensityUtil.dip2px(getContext(), DEFAULT_H);
 
             //设定大小
             ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
@@ -777,8 +780,8 @@ public class ChatItemView extends LinearLayout {
         if (uri != null) {
 
 
-            final int width = DensityUtil.dip2px(getContext(), 100);
-            final int height = DensityUtil.dip2px(getContext(), 150);
+            final int width = DensityUtil.dip2px(getContext(), DEFAULT_W);
+            final int height = DensityUtil.dip2px(getContext(), DEFAULT_H);
 
             //设定大小
             ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
