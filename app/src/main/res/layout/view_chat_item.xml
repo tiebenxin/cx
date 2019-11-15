@@ -702,9 +702,10 @@
                                 android:layout_width="150dp"
                                 android:layout_height="180dp"
                                 />
+
                             <LinearLayout
                                 android:id="@+id/view_me_up"
-                                android:layout_width="wrap_content"
+                                android:layout_width="27dp"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:background="@color/black_a_20"
@@ -713,8 +714,8 @@
 
                                 <ProgressBar
                                     android:id="@+id/img_me_up"
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
+                                    android:layout_width="27dp"
+                                    android:layout_height="25dp"
                                     android:indeterminateBehavior="repeat"
                                     android:indeterminateDrawable="@drawable/anim_load" />
 

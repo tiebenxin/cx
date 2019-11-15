@@ -96,8 +96,8 @@ public class MyAppLication extends MainApplication {
         //初始化日志
         LogUtil.getLog().init(AppConfig.DEBUG);
         LSLog.TAG="a==="+LSLog.TAG;
-//        建议统一使用LogUtil.getLog().d这个 和
-//        建议统一使用LogUtil.getLog().e这个
+//        建议统一使用LogUtil.getLog().d标注频繁日志(如 socket，视频播放，通话，每秒都会有日志)
+//        建议统一使用LogUtil.getLog().e标注一般日志(如 打印个人信息，打印某个参数等)
 //        现在各种格式都有
 //        LogUtil
 //        Log.e()

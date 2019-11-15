@@ -28,6 +28,8 @@
         <activity android:name=".activity.ImageShowActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".activity.VideoPreviewActivity"
+            android:screenOrientation="portrait"/>
 
     </application>
 

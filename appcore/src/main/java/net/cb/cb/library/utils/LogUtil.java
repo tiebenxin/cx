@@ -56,6 +56,9 @@ public class LogUtil {
     public void e(String tag, String msg) {
         sp(tag, msg,2);
     }
+    public void e(String msg) {
+        sp("=", msg,2);
+    }
     public void d(String tag, String msg) {
         sp(tag, msg,1);
     }
