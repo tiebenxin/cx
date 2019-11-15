@@ -2459,8 +2459,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             //发送状态处理
-            holder.viewChatItem.setErr(msgbean.getSend_state(), true);//
-
+            if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type()) {
+                holder.viewChatItem.setErr(msgbean.getSend_state(), false);
+            } else {
+                holder.viewChatItem.setErr(msgbean.getSend_state(), true);
+            }
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();
             switch (msgbean.getMsg_type()) {
