@@ -17,12 +17,15 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.ToastUtil;
 
 /**
  * @anthor Liszt
  * @data 2019/8/10
  * Description
+ *  消息转发 最近聊天
  */
 public class AdapterForwardSession extends AbstractRecyclerAdapter {
 
@@ -57,7 +60,7 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
     //自动生成ViewHold
     class RCViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout viewIt;
-        private ImageView imgHead;
+        private ImageView imgHead,ivSelect;
         private TextView txtName;
 
         //自动寻找ViewHold
@@ -66,6 +69,7 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
             viewIt = convertView.findViewById(R.id.view_it);
             imgHead = convertView.findViewById(R.id.img_head);
             txtName = convertView.findViewById(R.id.txt_name);
+            ivSelect = convertView.findViewById(R.id.iv_select);
         }
 
         public void bindData(final com.yanlong.im.chat.bean.Session bean) {
@@ -111,12 +115,48 @@ public class AdapterForwardSession extends AbstractRecyclerAdapter {
             viewIt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (listener != null) {
-                        listener.onForward(finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
+                    if(MsgForwardActivity.isSingleSelected){
+                        if (listener != null) {
+                            listener.onForward(finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
+                        }
+                    }else {
+                        if(bean.getSelect()){
+                            bean.setSelect(false);
+                            ivSelect.setSelected(false);
+
+                            MsgForwardActivity.addOrDelectMoreSessionBeanList(false,finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
+                        }else {
+
+                            if(MsgForwardActivity.moreSessionBeanList.size()>=MsgForwardActivity.maxNumb){
+                                ToastUtil.show(context, "最多选择"+MsgForwardActivity.maxNumb+"个");
+                                return;
+                            }
+
+                            bean.setSelect(true);
+                            ivSelect.setSelected(true);
+                            MsgForwardActivity.addOrDelectMoreSessionBeanList(true,finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid(), finalIcon, finalTitle);
+                        }
+
+//                        LogUtil.getLog().e(getAdapterPosition()+"=信息==="+(finalIsGroup? -1L : bean.getFrom_uid())+"==0=="+ bean.getGid()+ "==0="+finalIcon+"=0===="+ finalTitle);
                     }
                 }
             });
 
+            if(MsgForwardActivity.isSingleSelected){
+                ivSelect.setVisibility(View.GONE);
+            }else {
+                ivSelect.setVisibility(View.VISIBLE);
+
+                boolean hasSelect=MsgForwardActivity.findMoreSessionBeanList(finalIsGroup ? -1L : bean.getFrom_uid(), bean.getGid());
+//                LogUtil.getLog().e(getAdapterPosition()+"======hasSelect=="+hasSelect);
+                if(hasSelect){
+                    bean.setSelect(true);
+                    ivSelect.setSelected(true);
+                }else {
+                    bean.setSelect(false);
+                    ivSelect.setSelected(false);
+                }
+            }
         }
 
     }

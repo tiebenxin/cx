@@ -7,16 +7,18 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.databinding.FragmentForwardSessionBinding;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-
 import net.cb.cb.library.base.BaseMvpFragment;
+import net.cb.cb.library.utils.LogUtil;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import java.util.List;
 
 /**
@@ -36,8 +38,8 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ui = DataBindingUtil.inflate(inflater, R.layout.fragment_forward_session, container, false);
+        EventBus.getDefault().register(this);
         return ui.getRoot();
-
     }
 
     @Override
@@ -47,6 +49,12 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
         if (presenter != null) {
             presenter.loadAndSetData(true);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     private void initAdapter() {
@@ -89,4 +97,10 @@ public class ForwardSessionFragment extends BaseMvpFragment<ForwardModel, Forwar
     public void setForwardListener(IForwardListener l) {
         listener = l;
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(SingleOrMoreEvent event) {
+        ui.listView.init(adapter);
+    }
+
 }
