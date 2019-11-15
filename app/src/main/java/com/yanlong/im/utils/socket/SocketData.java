@@ -317,7 +317,7 @@ public class SocketData {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
             // 撤消内容 与内容类型写入数据库
-            if(msgAllBean.getMsgCancel()!=null){
+            if (msgAllBean.getMsgCancel() != null) {
                 msgAllBean.getMsgCancel().setCancelContent(mCancelContent);
                 msgAllBean.getMsgCancel().setCancelContentType(mCancelContentType);
             }
@@ -1108,6 +1108,13 @@ public class SocketData {
                 videoBuilder.setBgUrl(video.getBg_url()).setDuration((int) video.getDuration()).setUrl(video.getUrl()).setWidth((int) video.getWidth()).setHeight((int) video.getHeight());
                 value = videoBuilder.build();
                 type = MsgBean.MessageType.SHORT_VIDEO;
+                break;
+            case ChatEnum.EMessageType.AT:
+                AtMessage at = bean.getAtMessage();
+                MsgBean.AtMessage.Builder atBuilder = MsgBean.AtMessage.newBuilder();
+                atBuilder.setAtTypeValue(at.getAt_type()).setMsg(at.getMsg()).addAllUid(at.getUid());
+                value = atBuilder.build();
+                type = MsgBean.MessageType.AT;
                 break;
         }
 

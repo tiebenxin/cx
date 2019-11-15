@@ -80,6 +80,9 @@ public class MessageManager {
     private static List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
     private static List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
 
+    private static Map<String, MsgAllBean> sequenceMap = new HashMap<>();//消息发送队列
+
+
     //缓存
     private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
     private static Map<String, Group> cacheGroups = new HashMap<>();//群信息缓存
@@ -1348,5 +1351,7 @@ public class MessageManager {
         eventRefreshUser.setInfo(info);
         EventBus.getDefault().post(eventRefreshUser);
     }
+
+
 
 }

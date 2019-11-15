@@ -173,7 +173,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         ivDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ivDownload.setEnabled(true);
+                ivDownload.setEnabled(false);
                 if (isOriginal) {
                     if (finalHasRead) {
                         saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
@@ -190,7 +190,8 @@ public class AdapterPreviewImage extends PagerAdapter {
         tvViewOrigin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tvViewOrigin.setEnabled(true);
+                tvViewOrigin.setEnabled(false);
+                tvViewOrigin.setClickable(false);
                 downloadOriginImage(media.getPath(), tvViewOrigin, ivDownload, ivZoom, ivLarge, false);
             }
         });

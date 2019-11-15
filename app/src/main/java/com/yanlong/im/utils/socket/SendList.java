@@ -1,9 +1,10 @@
 package com.yanlong.im.utils.socket;
 
-import android.util.Log;
+import com.yanlong.im.chat.bean.MsgAllBean;
 
 import net.cb.cb.library.utils.LogUtil;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,6 +20,7 @@ public class SendList {
     private static long SEND_RE_TIME = 3 * 1000;
 
     public static Map<String, SendListBean> SEND_LIST = new ConcurrentHashMap<>();
+    public static Map<String, MsgAllBean> sendSequence = new ConcurrentHashMap<>();
 
     public static MsgBean.UniversalMessage.Builder findMsgById(String keyId) {
         if (SEND_LIST.containsKey(keyId)) {
@@ -34,7 +36,7 @@ public class SendList {
      */
     public static void addSendList(String keyId, MsgBean.UniversalMessage.Builder msg) {
 
-        LogUtil.getLog().d(TAG,"添加发送队列rid:"+keyId);
+        LogUtil.getLog().d(TAG, "添加发送队列rid:" + keyId);
 
         if (SEND_LIST.containsKey(keyId)) {//已经在发送队列中了
             SendListBean sl = SEND_LIST.get(keyId);
@@ -49,7 +51,7 @@ public class SendList {
             sl.setReSendNum(1);
             SEND_LIST.put(keyId, sl);
             //5.28 如果非在线发送,直接失败
-            if(!SocketUtil.getSocketUtil().getOnLineState()){
+            if (!SocketUtil.getSocketUtil().getOnLineState()) {
                 removeSendList(keyId);
             }
         }
@@ -62,10 +64,10 @@ public class SendList {
      * @param keyId
      */
     public static void removeSendList(String keyId) {
-        LogUtil.getLog().d(TAG,"移除发送队列rid:"+keyId);
+        LogUtil.getLog().d(TAG, "移除发送队列rid:" + keyId);
         if (!SEND_LIST.containsKey(keyId))
             return;
-        LogUtil.getLog().e(TAG,"SocketUtil$移除队列[返回失败]"+keyId);
+        LogUtil.getLog().e(TAG, "SocketUtil$移除队列[返回失败]" + keyId);
         SocketUtil.getSocketUtil().getEvent().onSendMsgFailure(SEND_LIST.get(keyId).getMsg());
         SEND_LIST.remove(keyId);
     }
@@ -77,7 +79,7 @@ public class SendList {
     public static void removeSendListJust(String keyId) {
         if (!SEND_LIST.containsKey(keyId))
             return;
-        LogUtil.getLog().i(TAG,"SocketUtil$移除队列"+keyId);
+        LogUtil.getLog().i(TAG, "SocketUtil$移除队列" + keyId);
         SEND_LIST.remove(keyId);
     }
 
@@ -97,7 +99,7 @@ public class SendList {
                 if (now > (bean.getFirstTimeSent() + bean.getReSendNum() * SEND_RE_TIME)) {
                     LogUtil.getLog().e(TAG, ">>>>符合发送条件" + kid);
                     SocketUtil.getSocketUtil().sendData4Msg(bean.getMsg());
-                }else {
+                } else {
                     LogUtil.getLog().e(TAG, ">>>>符合重发条件但时间不满足" + kid);
                 }
             } else {//超过发送次数,取消队列,返回失败
@@ -130,5 +132,43 @@ public class SendList {
         }
     }
 
+    /*
+     * 将消息添加到发送队列
+     * */
+    public void addMsgToSendSequence(MsgAllBean msg) {
+        if (sendSequence == null) {
+            sendSequence = new HashMap<>();
+        }
+        sendSequence.put(msg.getMsg_id(), msg);
+    }
+
+    /*
+     * 从发送队列获取消息
+     * */
+    public MsgAllBean getMsgFromSendSequence(String msgId) {
+        if (sendSequence != null) {
+            return sendSequence.get(msgId);
+        }
+        return null;
+    }
+
+    /*
+     * 从发送队列移出
+     * */
+    public static void removeMsgFromSendSequence(String msgId) {
+        if (sendSequence != null) {
+            sendSequence.remove(msgId);
+        }
+    }
+
+    public static void clearSendSequence() {
+        if (sendSequence != null) {
+            sendSequence.clear();
+        }
+    }
+
+    public static Map<String, MsgAllBean> getSendSequence() {
+        return sendSequence;
+    }
 
 }
