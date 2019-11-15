@@ -338,7 +338,6 @@ public class AdapterPreviewImage extends PagerAdapter {
                     String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
                     if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
                         loadImage(media.getCompressPath(), ivZoom, false);
-//                        loadLargeImage(cachePath, ivLarge);
                         ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
                     } else {
                         loadImage(media.getCompressPath(), ivZoom, true);
@@ -347,7 +346,11 @@ public class AdapterPreviewImage extends PagerAdapter {
                 } else {
                     tvViewOrigin.setVisibility(View.VISIBLE);
                     tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(media.getSize()) + ")");
-                    loadImage(media.getCompressPath(), ivZoom, false);
+                    if (!TextUtils.isEmpty(media.getCutPath()) && (media.getWidth() > 1080 || media.getHeight() > 1920)) {
+                        loadImage(media.getCutPath(), ivZoom, false);
+                    } else {
+                        loadImage(media.getCompressPath(), ivZoom, false);
+                    }
                 }
             } else {
                 tvViewOrigin.setVisibility(View.GONE);
@@ -359,7 +362,9 @@ public class AdapterPreviewImage extends PagerAdapter {
             ivDownload.setVisibility(View.VISIBLE);
             if (!TextUtils.isEmpty(media.getPath())) {
                 loadImage(media.getPath(), ivZoom, true);
-                loadLargeImage(media.getPath(), ivLarge);
+//                loadLargeImage(media.getPath(), ivLarge);
+                ivLarge.setImage(new FileBitmapDecoderFactory(media.getPath()));
+
             } else {
                 loadImage(media.getCompressPath(), ivZoom, false);
             }
@@ -633,7 +638,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         return null;
     }
 
-    public void setPopParentView(View view){
+    public void setPopParentView(View view) {
         parentView = view;
     }
 
