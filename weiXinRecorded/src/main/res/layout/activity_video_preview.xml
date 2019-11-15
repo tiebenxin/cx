@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <SurfaceView
+                android:id="@+id/surfaceView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_record_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="120dp">
+
+            <ImageView
+                android:id="@+id/iv_delete"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginLeft="39dp"
+                android:layout_centerVertical="true"
+                android:scaleType="fitXY"
+                android:background="@mipmap/activity_video_back_round"/>
+            <ImageView
+                android:id="@+id/iv_next"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="39dp"
+                android:layout_alignParentRight="true"
+                android:background="@mipmap/activity_video_sure"/>
+        </RelativeLayout>
+    </RelativeLayout>
+</layout>
