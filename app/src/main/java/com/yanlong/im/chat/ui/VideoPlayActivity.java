@@ -48,6 +48,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -64,6 +65,11 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private ImageView activity_video_img_con, activity_video_big_con, activity_video_img_close;
     private TextView activity_video_count_time, activity_video_current_time;
     private SeekBar activity_video_seek;
+    private int surfaceWidth;
+    private int surfaceHeight;
+    private MediaPlayer mMediaPlayer;
+    private int mHour, mMin, mSecond;
+    private int tempTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -234,10 +240,16 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             DecimalFormat df = new DecimalFormat("0.00");
             String result = df.format((double) currentTime / mMediaPlayer.getDuration());
             activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
-            if (currentTime / 1000 < 10) {
-                activity_video_current_time.setText("00:0" + currentTime / 1000);
+
+            currentTime = currentTime / 1000;
+            mHour = currentTime / 3600;
+            mMin = currentTime % 3600 / 60;
+            mSecond = currentTime % 60;
+
+            if (mHour > 0) {
+                activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
             } else {
-                activity_video_current_time.setText("00:" + currentTime / 1000);
+                activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
             }
         }
     };
@@ -280,16 +292,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_rel_con.setVisibility(View.INVISIBLE);
     }
 
-    private int surfaceWidth;
-    private int surfaceHeight;
-    private MediaPlayer mMediaPlayer;
-
     //    private void initMediaPlay(SurfaceTexture surface){
     private void initMediaPlay(SurfaceHolder surfaceHolder) {
 
         try {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(path);
+            Log.i("1212", "path:" + path);
 //            mMediaPlayer.setSurface(new Surface(surface));
             mMediaPlayer.setDisplay(surfaceHolder);
 //            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
@@ -312,11 +321,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     if (path.contains("http://")) {
                         downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
                     }
-//                    changeVideoSize();
-                    if (mMediaPlayer.getDuration() / 1000 < 10) {
-                        activity_video_count_time.setText("00:0" + (mMediaPlayer.getDuration() / 1000) + "");
+                    // 转成秒
+                    tempTime = mMediaPlayer.getDuration() / 1000;
+                    mHour = tempTime / 3600;
+                    mMin = tempTime % 3600 / 60;
+                    mSecond = tempTime % 60;
+                    if (mHour > 0) {
+                        activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
                     } else {
-                        activity_video_count_time.setText("00:" + (mMediaPlayer.getDuration() / 1000) + "");
+                        activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
                     }
 
                     getProgress();

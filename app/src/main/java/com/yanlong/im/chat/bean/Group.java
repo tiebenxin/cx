@@ -42,6 +42,10 @@ public class Group extends RealmObject {
     //名称
     private String robotname;
 
+
+
+    @Ignore
+    private  boolean isSelect=false;//本地字段
     @Ignore
     private MemberUser keyUser;//符合搜索条件key的群成员
 
@@ -197,6 +201,14 @@ public class Group extends RealmObject {
 
     public void setKeyUser(MemberUser keyUser) {
         this.keyUser = keyUser;
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void setSelect(boolean select) {
+        isSelect = select;
     }
 
     @Override

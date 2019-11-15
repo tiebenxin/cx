@@ -33,6 +33,9 @@ public class Session extends RealmObject implements Comparable<Session> {
     private String atMessage;
 
     @Ignore
+    private Boolean isSelect=false;//本地字段
+
+    @Ignore
     private String name; //session名字，群聊即群名，私聊即好友备注或昵称
     @Ignore
     private String avatar;//头像
@@ -186,8 +189,15 @@ public class Session extends RealmObject implements Comparable<Session> {
         this.senderName = senderName;
     }
 
+    public Boolean getSelect() {
+        return isSelect;
+    }
 
-//    public void setHasInitTop(boolean hasInitTop) {
+    public void setSelect(Boolean select) {
+        isSelect = select;
+    }
+
+    //    public void setHasInitTop(boolean hasInitTop) {
 //        this.hasInitTop = hasInitTop;
 //    }
 //

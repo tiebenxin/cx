@@ -20,14 +20,12 @@ import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.zhaoss.weixinrecorded.R;
 import com.zhaoss.weixinrecorded.util.DimenUtils;
@@ -39,8 +37,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import static java.security.AccessController.getContext;
 
 public class ImageShowActivity  extends BaseActivity {
     private ImageView activity_img_show_img,iv_show_next,iv_show_delete;
@@ -116,10 +112,10 @@ public class ImageShowActivity  extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                Bitmap bitmap= loadBitmapFromView(activity_show_rl_big);
-                String savePath= saveImage(bitmap,100);
+//                Bitmap bitmap= loadBitmapFromView(activity_show_rl_big);
+//                String savePath= saveImage(bitmap,100);
                 intent.putExtra("showResult", true);
-                intent.putExtra("showPath", savePath);
+                intent.putExtra("showPath", path);
                 setResult(RESULT_OK, intent);
                 finish();
             }

@@ -15,6 +15,10 @@ import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.base.BaseMvpFragment;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
 /**
@@ -32,6 +36,7 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ui = DataBindingUtil.inflate(inflater, R.layout.fragment_forward_session, container, false);
+        EventBus.getDefault().register(this);
         return ui.getRoot();
 
     }
@@ -44,6 +49,12 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
             presenter.loadAndSetData(false);
         }
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     private void initAdapter() {
@@ -84,5 +95,10 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
             return;
         }
         adapter.bindData(list);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(SingleOrMoreEvent event) {
+        ui.listView.init(adapter);
     }
 }
