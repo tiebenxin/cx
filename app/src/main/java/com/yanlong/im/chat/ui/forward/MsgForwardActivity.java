@@ -84,11 +84,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             @Override
             public void onRight() {
                 if(!isSingleSelected&&moreSessionBeanList.size()>0){
-                    LogUtil.getLog().e("=======正在发送数据=");
-//                    for (int i = 0; i < moreSessionBeanList.size(); i++) {
-//                        MoreSessionBean bean=moreSessionBeanList.get(i);
-//                        onForward(bean.getUid(),bean.getGid(),bean.getAvatar(),bean.getNick());
-//                    }
                     onForward(0L,"","","");//仅仅是唤起弹窗
                 }else {
                     isSingleSelected = !isSingleSelected;
@@ -313,7 +308,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
                     if(isSingleSelected){
                         ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
-                        MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                        MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid,ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                         if (allBean != null) {
                             SocketData.sendAndSaveMessage(allBean);
                             sendMesage = allBean;
@@ -325,7 +320,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             MoreSessionBean bean = moreSessionBeanList.get(i);
 
                             ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgAllBean.getAtMessage().getMsg());
-                            MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+                            MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
                             if (allBean != null) {
                                 SocketData.sendAndSaveMessage(allBean);
                                 sendMesage = allBean;

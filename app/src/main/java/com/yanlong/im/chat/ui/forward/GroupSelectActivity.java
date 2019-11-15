@@ -260,7 +260,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 //            SocketData.send4Chat(msgUid, msgGid, comments);
 //        }
         ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgMsg);
-        MsgAllBean allBean = SocketData.createMessageBean(msgUid, msgGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+        MsgAllBean allBean = SocketData.createMessageBean(msgUid, msgGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
         if (allBean != null) {
             SocketData.sendAndSaveMessage(allBean);
             sendMesage = allBean;
