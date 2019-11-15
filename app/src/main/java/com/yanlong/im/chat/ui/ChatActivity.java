@@ -389,6 +389,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //离线就禁止发送之类的
                     // ToastUtil.show(getContext(), "离线就禁止发送之类的");
                     //  btnSend.setEnabled(state);
+                    actionbar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                 }
             });
         }

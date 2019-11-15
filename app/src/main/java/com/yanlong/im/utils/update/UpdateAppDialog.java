@@ -29,7 +29,6 @@ public class UpdateAppDialog {
     private Button btnUpdate;
     private ProgressBar mProgressNum;
     private Button btnInstall;
-    private String newVersionNum;//发现新版本号
 
     //自动寻找控件
     private void findViews(View rootview) {
@@ -45,7 +44,6 @@ public class UpdateAppDialog {
 
     //自动生成的控件事件
     private void initEvent(String newVersionNum, String msg) {
-        this.newVersionNum = newVersionNum;
         txtAlertMsg.setText(msg);
         //显示绿色版本号
         if(!TextUtils.isEmpty(newVersionNum)){
