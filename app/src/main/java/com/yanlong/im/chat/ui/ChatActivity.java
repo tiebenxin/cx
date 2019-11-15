@@ -2364,7 +2364,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         Integer pgVideo = null;
                         pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
                         LogUtil.getLog().i(TAG, "更新进度--msgId=" + msgbean.getMsg_id() + "--progress=" + pgVideo);
-                        holder.viewChatItem.setErr(msgbean.getSend_state(), true);
+                        holder.viewChatItem.setErr(msgbean.getSend_state(), false);
                         holder.viewChatItem.setImageProgress(pgVideo);
 
                         if (msgbean.getSend_state() == ChatEnum.ESendStatus.NORMAL) {
