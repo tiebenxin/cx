@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -30,6 +31,7 @@ public class VideoPreviewActivity extends BaseActivity implements SurfaceHolder.
     ActivityVideoPreviewBinding binding;
     private MediaPlayer mMediaPlayer;
     private String mPath;
+    private String bgUrl;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
