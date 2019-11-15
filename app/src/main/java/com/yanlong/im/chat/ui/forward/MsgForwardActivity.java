@@ -262,7 +262,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                         if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                             imagesrc.setReadOrigin(true);
                         }
-                        ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), false, imagesrc.isReadOrigin());
+                        ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
                         MsgAllBean allBean = SocketData.createMessageBean(toUid, toGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
                         if (allBean != null) {
                             SocketData.sendAndSaveMessage(allBean);
@@ -281,7 +281,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                             if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                                 imagesrc.setReadOrigin(true);
                             }
-                            ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), false, imagesrc.isReadOrigin());
+                            ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
                             MsgAllBean allBean = SocketData.createMessageBean(bean.getUid(), bean.getGid(), msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
                             if (allBean != null) {
                                 SocketData.sendAndSaveMessage(allBean);
