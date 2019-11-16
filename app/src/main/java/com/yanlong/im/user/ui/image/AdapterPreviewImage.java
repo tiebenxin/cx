@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -49,6 +51,9 @@ import com.luck.picture.lib.view.PopupSelectView;
 import com.luck.picture.lib.view.bigImg.BlockImageLoader;
 import com.luck.picture.lib.view.bigImg.LargeImageView;
 import com.luck.picture.lib.view.bigImg.factory.FileBitmapDecoderFactory;
+import com.luck.picture.lib.widget.longimage.ImageSource;
+import com.luck.picture.lib.widget.longimage.ImageViewState;
+import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
 import com.luck.picture.lib.zxing.decoding.RGBLuminanceSource;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
@@ -59,6 +64,7 @@ import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
@@ -127,20 +133,22 @@ public class AdapterPreviewImage extends PagerAdapter {
         //TODO:当前ZoomView算法不够强大，处理不了高分辨率图片（15M），所以要用LargeImageView来补充显示大图，待优化
         final ZoomImageView ivZoom = contentView.findViewById(R.id.iv_image);
         final LargeImageView ivLarge = contentView.findViewById(R.id.iv_image_large);
+        final SubsamplingScaleImageView ivLong = contentView.findViewById(R.id.iv_long);
         final TextView tvViewOrigin = contentView.findViewById(R.id.tv_view_origin);
         ImageView ivDownload = contentView.findViewById(R.id.iv_download);
         LocalMedia media = datas.get(position);
-        loadAndShowImage(media, ivZoom, ivLarge, ivDownload, tvViewOrigin);
+        loadAndShowImage(media, ivZoom, ivLarge, ivLong, ivDownload, tvViewOrigin);
         (container).addView(contentView, 0);
         return contentView;
     }
 
-    private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, LargeImageView ivLarge, ImageView ivDownload, TextView tvViewOrigin) {
+    private void loadAndShowImage(LocalMedia media, ZoomImageView ivZoom, LargeImageView ivLarge, SubsamplingScaleImageView ivLong, ImageView ivDownload, TextView tvViewOrigin) {
         String path = media.getCompressPath();//缩略图路径
         String originUrl = media.getPath();//原图路径
         boolean isGif = FileUtils.isGif(path);//是否是gif图片
         boolean isOriginal = StringUtil.isNotNull(originUrl);//是否有原图
         boolean isHttp = PictureMimeType.isHttp(path);
+        boolean isLong = PictureMimeType.isLongImg(media);
         boolean hasRead = false;
         if (!TextUtils.isEmpty(originUrl)) {
             hasRead = msgDao.ImgReadStatGet(originUrl);
@@ -165,7 +173,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             }
 
         } else {
-            showImage(ivZoom, ivLarge, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp);
+            showImage(ivZoom, ivLarge, ivLong, tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp, isLong);
         }
 
         //下载
@@ -330,46 +338,76 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
     }
 
-    private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp) {
+    private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, SubsamplingScaleImageView ivLong, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong) {
         tvViewOrigin.setTag(media.getSize());
+        ivZoom.setVisibility(isLong ? View.GONE : View.VISIBLE);
+        ivLong.setVisibility(isLong ? View.VISIBLE : View.GONE);
+        showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin);
         if (isHttp) {
-            if (isOrigin) {
-                if (hasRead) {//原图已读,就显示
-                    tvViewOrigin.setVisibility(View.GONE);
-                    String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
-                    if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
-                        loadImage(media.getCompressPath(), ivZoom, false);
-                        ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
-                    } else {
-                        loadImage(media.getCompressPath(), ivZoom, true);
-                        loadLargeImage(media.getPath(), ivLarge);
-                    }
+            if (isLong) {
+                if (isOrigin) {
+                    loadImageLong(media.getPath(), ivLong, false);
                 } else {
-                    tvViewOrigin.setVisibility(View.VISIBLE);
-                    tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(media.getSize()) + ")");
-                    if (!TextUtils.isEmpty(media.getCutPath()) && (media.getWidth() > 1080 || media.getHeight() > 1920)) {
-                        loadImage(media.getCutPath(), ivZoom, false);
-                    } else {
-                        loadImage(media.getCompressPath(), ivZoom, false);
-                    }
+                    loadImageLong(media.getCompressPath(), ivLong, false);
                 }
             } else {
-                tvViewOrigin.setVisibility(View.GONE);
-                ivDownload.setVisibility(View.VISIBLE);
-                loadImage(media.getCompressPath(), ivZoom, false);
+                if (isOrigin) {
+                    if (hasRead) {//原图已读,就显示
+                        String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
+                        if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
+                            loadImage(media.getCompressPath(), ivZoom, false);
+                            ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
+                        } else {
+                            loadImage(media.getCompressPath(), ivZoom, true);
+                            loadLargeImage(media.getPath(), ivLarge);
+                        }
+                    } else {
+                        tvViewOrigin.setVisibility(View.VISIBLE);
+                        tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(media.getSize()) + ")");
+                        if (!TextUtils.isEmpty(media.getCutPath()) && (media.getWidth() > 1080 || media.getHeight() > 1920)) {
+                            loadImage(media.getCutPath(), ivZoom, false);
+                        } else {
+                            loadImage(media.getCompressPath(), ivZoom, false);
+                        }
+                    }
+                } else {
+                    ivDownload.setVisibility(View.VISIBLE);
+                    loadImage(media.getCompressPath(), ivZoom, false);
+                }
             }
         } else {
-            tvViewOrigin.setVisibility(View.GONE);
             ivDownload.setVisibility(View.VISIBLE);
-            if (!TextUtils.isEmpty(media.getPath())) {
-                loadImage(media.getPath(), ivZoom, true);
-//                loadLargeImage(media.getPath(), ivLarge);
-                ivLarge.setImage(new FileBitmapDecoderFactory(media.getPath()));
-
+            if (isLong) {
+                if (!TextUtils.isEmpty(media.getPath())) {
+                    loadImageLong(media.getPath(), ivLong, false);
+                } else {
+                    loadImageLong(media.getCompressPath(), ivLong, false);
+                }
             } else {
-                loadImage(media.getCompressPath(), ivZoom, false);
+                if (!TextUtils.isEmpty(media.getPath())) {
+                    loadImage(media.getPath(), ivZoom, true);
+                    ivLarge.setImage(new FileBitmapDecoderFactory(media.getPath()));
+                } else {
+                    loadImage(media.getCompressPath(), ivZoom, false);
+                }
             }
         }
+    }
+
+    private void showViewOrigin(boolean isHttp, boolean isOrigin, boolean hasRead, TextView tvViewOrigin) {
+        if (isHttp && isOrigin && !hasRead) {
+            tvViewOrigin.setVisibility(View.VISIBLE);
+        } else {
+            tvViewOrigin.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean isLongImage(int w, int h) {
+        double rate = w * 1.00 / h;
+        if (rate < 0.2) {
+            return true;
+        }
+        return false;
     }
 
     private void showGif(ZoomImageView ivZoom, TextView tvViewOrigin, String path) {
@@ -451,6 +489,55 @@ public class AdapterPreviewImage extends PagerAdapter {
                         public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
 //                        dismissDialog();
                             ivZoom.setImageBitmap(resource);
+                        }
+                    });
+        }
+    }
+
+    /*
+     * 加载长图片
+     * */
+    private void loadImageLong(String url, SubsamplingScaleImageView ivLong, boolean isOrigin) {
+        if (!isOrigin) {
+            RequestOptions options = new RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .format(DecodeFormat.PREFER_RGB_565);
+            Glide.with(ivLong.getContext())
+                    .asBitmap()
+                    .load(url)
+                    .apply(options)  //480     800
+                    .into(new SimpleTarget<Bitmap>(800, 800) {
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
+//                        dismissDialog();
+                        }
+
+                        @Override
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+//                        dismissDialog();
+                            displayLongPic(resource, ivLong);
+                        }
+                    });
+        } else {
+            RequestOptions options = new RequestOptions()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .format(DecodeFormat.PREFER_ARGB_8888);
+            Glide.with(ivLong.getContext())
+                    .asBitmap()
+                    .load(url)
+                    .apply(options)  //480     800
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            super.onLoadFailed(errorDrawable);
+//                        dismissDialog();
+                        }
+
+                        @Override
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+//                        dismissDialog();
+                            displayLongPic(resource, ivLong);
                         }
                     });
         }
@@ -642,5 +729,59 @@ public class AdapterPreviewImage extends PagerAdapter {
     public void setPopParentView(View view) {
         parentView = view;
     }
+
+    /**
+     * 加载长图
+     *
+     * @param bmp
+     * @param longImg
+     */
+    private void displayLongPic(Bitmap bmp, SubsamplingScaleImageView longImg) {
+        LogUtil.getLog().i(TAG, "displayLongPic: 显示长图");
+
+        if (bmp.getHeight() > 4000 || bmp.getWidth() > 4000) {
+            if (bmp.getHeight() > bmp.getWidth()) {
+
+                float sp = 4000.0f / bmp.getHeight();
+                bmp = scaleBitmap(bmp, sp);
+            } else {
+                float sp = 4000.0f / bmp.getWidth();
+                bmp = scaleBitmap(bmp, sp);
+            }
+        }
+
+
+        longImg.setQuickScaleEnabled(true);
+        longImg.setZoomEnabled(true);
+        longImg.setPanEnabled(true);
+        longImg.setDoubleTapZoomDuration(100);
+        longImg.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_CROP);
+        longImg.setDoubleTapZoomDpi(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
+        longImg.setImage(ImageSource.cachedBitmap(bmp), new ImageViewState(0, new PointF(0, 0), 0));
+    }
+
+    /**
+     * 缩放
+     *
+     * @param origin
+     * @param ratio
+     * @return
+     */
+    private Bitmap scaleBitmap(Bitmap origin, float ratio) {
+        if (origin == null) {
+            return null;
+        }
+        int width = origin.getWidth();
+        int height = origin.getHeight();
+        Matrix matrix = new Matrix();
+        matrix.preScale(ratio, ratio);
+        Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
+        if (newBM.equals(origin)) {
+            return newBM;
+        }
+        // origin.recycle();
+        return newBM;
+    }
+
 
 }
