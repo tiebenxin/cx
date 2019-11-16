@@ -221,7 +221,8 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onLine(final boolean state) {
-                if (getActivityMe().isActivityStop()) {
+                //离线 且 不在当前界面，就停止继续执行，节约性能消耗
+                if (!state && getActivityMe().isActivityStop()) {
 //                    System.out.println(MsgMainFragment.class.getSimpleName() + "--MainActivity当前是stop");
                     return;
                 }
@@ -353,7 +354,7 @@ public class MsgMainFragment extends Fragment {
                 break;
             case CoreEnum.ENetStatus.ERROR_ON_SERVER:
                 if (viewNetwork.getVisibility() == View.GONE) {
-                    viewNetwork.postDelayed(runnable, 10 * 1000);
+                    viewNetwork.postDelayed(showRunnable, 10 * 1000);
                 }
                 break;
             case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
