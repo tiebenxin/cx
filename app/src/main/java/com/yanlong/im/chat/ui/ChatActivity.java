@@ -214,12 +214,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public static final String AGM_TOUID = "toUId";
     public static final String AGM_TOGID = "toGId";
     public static final String GROUP_CREAT = "creat";
+    public static final String ONLINE_STATE = "if_online";
 
     private Gson gson = new Gson();
     private CheckPermission2Util permission2Util = new CheckPermission2Util();
 
     private Long toUId = null;
     private String toGid = null;
+    private boolean onlineState = false;//判断网络状态 true在线 false离线
     //当前页
     //private int indexPage = 0;
     private List<MsgAllBean> msgListData = new ArrayList<>();
@@ -551,6 +553,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void initEvent() {
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
+        onlineState = getIntent().getBooleanExtra(ONLINE_STATE, false);
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
@@ -569,7 +572,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                viewChatBottom.setVisibility(View.VISIBLE);
 //            }
         }
-
+        //预先网络监听
+        actionbar.getLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -600,7 +604,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //设置字体大小
         font_size = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.FONT_CHAT).get4Json(Integer.class);
-
         //注册消息监听
         SocketUtil.getSocketUtil().addEvent(msgEvent);
         //发送普通消息
