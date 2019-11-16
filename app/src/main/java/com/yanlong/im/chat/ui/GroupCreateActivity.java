@@ -89,6 +89,7 @@ public class GroupCreateActivity extends AppActivity {
             public void onClick(View v) {
                 alert.show();
                 actionbar.getViewRight().setEnabled(false);
+                actionbar.getViewRight().setClickable(false);
                 taskCreate();
             }
         });

@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 import com.yanlong.im.R;
 
 import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.LogUtil;
 
 public class UpdateAppDialog {
 
@@ -29,6 +32,7 @@ public class UpdateAppDialog {
     private Button btnUpdate;
     private ProgressBar mProgressNum;
     private Button btnInstall;
+    private TextView tvUpdatePercent;//进度条上方百分比图标
 
     //自动寻找控件
     private void findViews(View rootview) {
@@ -39,6 +43,7 @@ public class UpdateAppDialog {
         mProgressNum =  rootview.findViewById(R.id.progress_num);
         btnInstall = rootview.findViewById(R.id.btn_install);
         tvVersionNumber = rootview.findViewById(R.id.tv_version_number);
+        tvUpdatePercent = rootview.findViewById(R.id.tv_update_percent);
     }
 
 
@@ -98,6 +103,7 @@ public class UpdateAppDialog {
 
     public void updateStart(){
         mProgressNum.setVisibility(View.VISIBLE);
+        tvUpdatePercent.setVisibility(View.VISIBLE);
         btnUpdate.setVisibility(View.GONE);
         btnUpdate.setClickable(false);
         btnCl.setBackgroundResource(R.drawable.shape_18radius_0fa6ea);
@@ -107,18 +113,19 @@ public class UpdateAppDialog {
 
     public void updateStop(){
         mProgressNum.setVisibility(View.GONE);
+        tvUpdatePercent.setVisibility(View.GONE);
         btnUpdate.setClickable(true);
     }
 
 
     public void downloadComplete(){
-//        txtAlertTitle.setText("下载完成");
         btnCl.setText("取消");
         btnCl.setBackgroundResource(R.color.white);
         btnCl.setTextColor(context.getResources().getColor(R.color.c_969696));
         txtAlertMsg.setText("下载完成，是否安装?");
         txtAlertMsg.setVisibility(View.VISIBLE);
         mProgressNum.setVisibility(View.GONE);
+        tvUpdatePercent.setVisibility(View.GONE);
         btnUpdate.setVisibility(View.GONE);
         btnInstall.setVisibility(View.VISIBLE);
 
@@ -127,6 +134,8 @@ public class UpdateAppDialog {
 
     public void updateProgress(int progress){
         mProgressNum.setProgress(progress);
+        tvUpdatePercent.setText(progress+"%");
+        setPos();
     }
 
 
@@ -143,6 +152,20 @@ public class UpdateAppDialog {
         p.height = DensityUtil.dip2px(context, 363);
         alertDialog.getWindow().setAttributes(p);
         alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    }
+
+
+    /**
+     * 设置顶部进度图标显示在对应的位置
+     */
+    public void setPos() {
+        int w = DensityUtil.dip2px(context, 200);
+        LogUtil.getLog().i("w=====", "" + w);
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvUpdatePercent.getLayoutParams();
+        int pro = mProgressNum.getProgress();
+        //左侧距离： 进度滑动距离 + 左侧margin距离 (由于下标稍远，减5像素拼凑效果)
+        params.leftMargin = (w * pro / 100) + DensityUtil.dip2px(context,15)/2 - 5;
+        tvUpdatePercent.setLayoutParams(params);
     }
 
 

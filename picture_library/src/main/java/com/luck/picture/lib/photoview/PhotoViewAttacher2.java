@@ -946,45 +946,47 @@ public class PhotoViewAttacher2 implements IPhotoView, View.OnTouchListener,
             RectF mTempDst;
 
             double rate = drawableWidth * 1.00 / drawableHeight;
-            if (rate < 0.2) {
-                mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
-                mTempDst = new RectF(0, 0, viewWidth, (float) (viewWidth / rate));
-            } else {
-                mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
-                mTempDst = new RectF(0, 0, viewWidth, viewHeight);
-            }
-            if ((int) mBaseRotation % 180 != 0) {
-                mTempSrc = new RectF(0, 0, drawableHeight, drawableWidth);
-            }
-
-//            if (isOrigin) {
-//                if (rate < 0.2) {
-//                    mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
-//                    mTempDst = new RectF(0, 0, viewWidth, (float) (viewWidth / rate));
-//                } else {
-//                    mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
-//                    mTempDst = new RectF(0, 0, viewWidth, viewHeight);
-//                }
-//                if ((int) mBaseRotation % 180 != 0) {
-//                    mTempSrc = new RectF(0, 0, drawableHeight, drawableWidth);
-//                }
+            System.out.println(PhotoViewAttacher2.class.getSimpleName() + "--view=" + viewWidth + "--" + viewHeight + "--drawable=" + drawableWidth + "--" + drawableHeight);
+//            if (rate < 0.2) {
+//                mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
+//                mTempDst = new RectF(0, 0, viewWidth, (float) (viewWidth / rate));
 //            } else {
-//                if (rate < 0.2) {
-//                    mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
-//                    mTempDst = new RectF(0, 0, viewWidth, (float) (viewWidth / rate));
-//                } else {
-//                    mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
-//                    mTempDst = new RectF(0, 0, viewWidth, viewHeight);
-//                }
-//                if ((int) mBaseRotation % 180 != 0) {
-//                    mTempSrc = new RectF(0, 0, drawableHeight, drawableWidth);
-//                }
+//                mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
+//                mTempDst = new RectF(0, 0, viewWidth, viewHeight);
 //            }
+//            if ((int) mBaseRotation % 180 != 0) {
+//                mTempSrc = new RectF(0, 0, drawableHeight, drawableWidth);
+//            }
+
+            if (isOrigin) {
+                if (rate < 0.2) {
+                    mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
+                    mTempDst = new RectF(0, 0, viewWidth, (float) (viewWidth / rate));
+                } else {
+                    mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
+                    mTempDst = new RectF(0, 0, viewWidth, viewHeight);
+                }
+                if ((int) mBaseRotation % 180 != 0) {
+                    mTempSrc = new RectF(0, 0, drawableHeight, drawableWidth);
+                }
+            } else {
+                if (rate < 0.2) {
+                    mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
+                    mTempDst = new RectF(0, 0, viewWidth, (float) (viewWidth / rate));
+                } else {
+                    mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
+                    mTempDst = new RectF(0, 0, viewWidth, viewHeight);
+                }
+                if ((int) mBaseRotation % 180 != 0) {
+                    mTempSrc = new RectF(0, 0, drawableHeight, drawableWidth);
+                }
+            }
+            System.out.println(PhotoViewAttacher2.class.getSimpleName() + "--mTempSrc=" + (mTempSrc.right - mTempSrc.left) + "--" + (mTempSrc.bottom - mTempSrc.top) + "--mTempDst=" + (mTempDst.right - mTempDst.left) + "--" + (mTempDst.bottom - mTempDst.top));
+
 
             switch (mScaleType) {
                 case FIT_CENTER:
-                    mBaseMatrix
-                            .setRectToRect(mTempSrc, mTempDst, ScaleToFit.CENTER);
+                    mBaseMatrix.setRectToRect(mTempSrc, mTempDst, ScaleToFit.CENTER);
                     break;
 
                 case FIT_START:

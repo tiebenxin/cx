@@ -2460,8 +2460,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
             //发送状态处理
-            holder.viewChatItem.setErr(msgbean.getSend_state(), true);//
-
+            if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type()) {
+                holder.viewChatItem.setErr(msgbean.getSend_state(), false);
+            } else {
+                holder.viewChatItem.setErr(msgbean.getSend_state(), true);
+            }
             //菜单
             final List<OptionMenu> menus = new ArrayList<>();
             switch (msgbean.getMsg_type()) {
@@ -2606,28 +2609,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 String localUrl = msgbean.getVideoMessage().getLocalUrl();
                                 if (StringUtil.isNotNull(localUrl)) {
                                     File file = new File(localUrl);
-                                    if (file.exists()) {
-//                                        downVideo(msgbean, msgbean.getVideoMessage());
-                                        LogUtil.getLog().e("TAG", file.getAbsolutePath());
-//                                        Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
-//                                        intent.putExtra("videopath", localUrl);
-//                                        intent.putExtra("videomsg", new Gson().toJson(msgbean));
-//                                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-//                                        startActivity(intent);
-
-                                    } else {
-//                                        downVideo(msgbean, msgbean.getVideoMessage());
+                                    if (!file.exists()) {
                                         localUrl = msgbean.getVideoMessage().getUrl();
                                     }
                                 } else {
-//                                    downVideo(msgbean, msgbean.getVideoMessage());
                                     localUrl = msgbean.getVideoMessage().getUrl();
                                 }
                                 Intent intent = new Intent(ChatActivity.this, VideoPlayActivity.class);
                                 intent.putExtra("videopath", localUrl);
-//                                intent.putExtra("videopath", localUrl);
                                 intent.putExtra("videomsg", new Gson().toJson(msgbean));
                                 intent.putExtra("msg_id", msgbean.getMsg_id());
+                                intent.putExtra("bg_url", msgbean.getVideoMessage().getBg_url());
                                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                 startActivity(intent);
 

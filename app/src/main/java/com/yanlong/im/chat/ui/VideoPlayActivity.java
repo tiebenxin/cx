@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
@@ -24,6 +25,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.example.nim_lib.util.GlideUtil;
 import com.google.gson.Gson;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.yanlong.im.R;
@@ -48,6 +51,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -57,13 +61,20 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private InputMethodManager manager;
     private SurfaceView textureView;
     private SurfaceTexture surfaceTexture;
+    private ImageView img_bg;
     private String path;
+    private String bgUrl;
     private String msg_id;
     private String msgAllBean;
     private RelativeLayout activity_video_rel_con;
     private ImageView activity_video_img_con, activity_video_big_con, activity_video_img_close;
     private TextView activity_video_count_time, activity_video_current_time;
     private SeekBar activity_video_seek;
+    private int surfaceWidth;
+    private int surfaceHeight;
+    private MediaPlayer mMediaPlayer;
+    private int mHour, mMin, mSecond;
+    private int tempTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +89,12 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         path = getIntent().getExtras().getString("videopath");
         msgAllBean = (String) getIntent().getExtras().get("videomsg");
         msg_id = getIntent().getExtras().getString("msg_id");
+        bgUrl = getIntent().getExtras().getString("bg_url");
         initView();
         initEvent();
+        if (!TextUtils.isEmpty(bgUrl)) {
+            Glide.with(this).load(bgUrl).apply(GlideUtil.headImageOptions()).into(img_bg);
+        }
     }
 
     private void downVideo(final MsgAllBean msgAllBean, final VideoMessage videoMessage) {
@@ -140,13 +155,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void stopVideoEvent(EventFactory.StopVideoEvent event) {
         if (event.msg_id.equals(msg_id)) {
-            showDialog();
+            showDialog(event.name);
         }
     }
 
-    private void showDialog() {
+    private void showDialog(String name) {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(VideoPlayActivity.this, null, "撤回了一条消息",
+        alertYesNo.init(VideoPlayActivity.this, null, "\""+name+"\""+"撤回了一条消息",
                 "确定", null, new AlertYesNo.Event() {
                     @Override
                     public void onON() {
@@ -234,10 +249,16 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             DecimalFormat df = new DecimalFormat("0.00");
             String result = df.format((double) currentTime / mMediaPlayer.getDuration());
             activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
-            if (currentTime / 1000 < 10) {
-                activity_video_current_time.setText("00:0" + currentTime / 1000);
+
+            currentTime = currentTime / 1000;
+            mHour = currentTime / 3600;
+            mMin = currentTime % 3600 / 60;
+            mSecond = currentTime % 60;
+
+            if (mHour > 0) {
+                activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
             } else {
-                activity_video_current_time.setText("00:" + currentTime / 1000);
+                activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
             }
         }
     };
@@ -276,13 +297,10 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_seek = findViewById(R.id.activity_video_seek);
         activity_video_count_time = findViewById(R.id.activity_video_count_time);
         activity_video_current_time = findViewById(R.id.activity_video_current_time);
+        img_bg = findViewById(R.id.img_bg);
 
         activity_video_rel_con.setVisibility(View.INVISIBLE);
     }
-
-    private int surfaceWidth;
-    private int surfaceHeight;
-    private MediaPlayer mMediaPlayer;
 
     //    private void initMediaPlay(SurfaceTexture surface){
     private void initMediaPlay(SurfaceHolder surfaceHolder) {
@@ -290,6 +308,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         try {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(path);
+            Log.i("1212", "path:" + path);
 //            mMediaPlayer.setSurface(new Surface(surface));
             mMediaPlayer.setDisplay(surfaceHolder);
 //            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
@@ -312,14 +331,28 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                     if (path.contains("http://")) {
                         downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
                     }
-//                    changeVideoSize();
-                    if (mMediaPlayer.getDuration() / 1000 < 10) {
-                        activity_video_count_time.setText("00:0" + (mMediaPlayer.getDuration() / 1000) + "");
+                    // 转成秒
+                    tempTime = mMediaPlayer.getDuration() / 1000;
+                    mHour = tempTime / 3600;
+                    mMin = tempTime % 3600 / 60;
+                    mSecond = tempTime % 60;
+                    if (mHour > 0) {
+                        activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
                     } else {
-                        activity_video_count_time.setText("00:" + (mMediaPlayer.getDuration() / 1000) + "");
+                        activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
                     }
 
                     getProgress();
+                }
+            });
+            mMediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                @Override
+                public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                    if (what == mp.MEDIA_INFO_VIDEO_RENDERING_START) {
+                        //隐藏缩略图
+                        img_bg.setVisibility(View.GONE);
+                    }
+                    return false;
                 }
             });
             mMediaPlayer.prepareAsync();

@@ -44,6 +44,7 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.chat.ui.chat.ChatActivity3;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -106,16 +107,15 @@ public class MsgMainFragment extends Fragment {
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            viewNetwork.setVisibility(SocketUtil.getSocketUtil().getOnLineState() ? View.GONE : View.VISIBLE);
-
+            viewNetwork.setVisibility(View.GONE);
         }
     };
 
     Runnable showRunnable = new Runnable() {
         @Override
         public void run() {
+//            System.out.println(MsgMainFragment.class.getSimpleName() + "--显示无网络连接");
             viewNetwork.setVisibility(View.VISIBLE);
-
         }
     };
 
@@ -220,6 +220,10 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onLine(final boolean state) {
+                if (getActivityMe().isActivityStop()) {
+//                    System.out.println(MsgMainFragment.class.getSimpleName() + "--MainActivity当前是stop");
+                    return;
+                }
 
                 getActivityMe().runOnUiThread(new Runnable() {
                     @Override
