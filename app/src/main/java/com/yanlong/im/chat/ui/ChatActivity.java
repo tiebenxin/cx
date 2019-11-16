@@ -56,6 +56,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
@@ -1614,6 +1615,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+//        TranslucentNavigationUtils.assistActivity(this);
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
@@ -1805,9 +1807,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     int dataType = data.getIntExtra(RecordedActivity.INTENT_DATA_TYPE, RecordedActivity.RESULT_TYPE_VIDEO);
                     MsgAllBean videoMsgBean = null;
                     if (dataType == RecordedActivity.RESULT_TYPE_VIDEO) {
-                        if (!checkNetConnectStatus()) {
-                            return;
-                        }
+//                        if (!checkNetConnectStatus()) {
+//                            return;
+//                        }
                         String file = data.getStringExtra(RecordedActivity.INTENT_PATH);
                         int height = data.getIntExtra(RecordedActivity.INTENT_PATH_HEIGHT, 0);
                         int width = data.getIntExtra(RecordedActivity.INTENT_VIDEO_WIDTH, 0);
@@ -2222,7 +2224,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
-    //跳转UserInfoActivity
+    /**
+     * 跳转UserInfoActivity
+     * @param message
+     */
     private void toUserInfoActivity(MsgAllBean message) {
         startActivity(new Intent(getContext(), UserInfoActivity.class)
                 .putExtra(UserInfoActivity.ID, message.getFrom_uid())
@@ -2231,7 +2236,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 .putExtra(UserInfoActivity.MUC_NICK, message.getFrom_nickname()));
     }
 
-    //重新发送消息
+    /**
+     * 重新发送消息
+     * @param msgBean
+     */
     private void resendMessage(MsgAllBean msgBean) {
 //        if (!NetUtil.isNetworkConnected()) {
 //            return;
@@ -2275,8 +2283,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             } else if (reMsg.getMsg_type() == ChatEnum.EMessageType.MSG_VIDEO) {
                 //todo 重新上传视频
                 String url = reMsg.getVideoMessage().getLocalUrl();
+                reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                 if (!TextUtils.isEmpty(url)) {
-
                     VideoMessage videoMessage = reMsg.getVideoMessage();
                     LogUtil.getLog().e("TAG", videoMessage.toString() + videoMessage.getHeight() + "----" + videoMessage.getWidth() + "----" + videoMessage.getDuration() + "----" + videoMessage.getBg_url() + "----");
                     VideoMessage videoMessageSD = SocketData.createVideoMessage(reMsg.getMsg_id(), "file://" + url, videoMessage.getBg_url(), false, videoMessage.getDuration(), videoMessage.getWidth(), videoMessage.getHeight(), url);
@@ -2288,7 +2296,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                 } else {
                     //点击发送的时候如果要改变成发送中的状态
-                    reMsg.setSend_state(ChatEnum.ESendStatus.SENDING);
                     DaoUtil.update(reMsg);
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
@@ -2376,7 +2383,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             holder.viewChatItem.setVideoIMGShow(true);
                         } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
                             holder.viewChatItem.setVideoIMGShow(false);
-
+                        }else if(msgbean.getSend_state() == ChatEnum.ESendStatus.ERROR){
+                            holder.viewChatItem.setVideoIMGShow(true);
                         }
                         menus.add(new OptionMenu("删除"));
                         break;
@@ -2736,9 +2744,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             holder.viewChatItem.setOnErr(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    //从数据拉出来,然后再发送
-                    resendMessage(msgbean);
+                    if(!DoubleUtils.isFastDoubleClick()){
+                        //从数据拉出来,然后再发送
+                        resendMessage(msgbean);
+                    }
                 }
             });
             itemLongClick(holder, msgbean, menus);

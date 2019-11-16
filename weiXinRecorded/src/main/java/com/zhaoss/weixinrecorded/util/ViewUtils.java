@@ -120,7 +120,6 @@ public class ViewUtils {
     public static boolean isFastPhoto() {
         long time = System.currentTimeMillis();
         long timeD = time - lastClickTime;
-        Log.i("1212", "timeD:"+timeD);
         if (1000 < timeD) {
             lastClickTime = time;
             return false;

@@ -552,7 +552,7 @@
         <activity android:name=".user.ui.FriendVerifyActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".chat.ui.VideoPlayActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
 
 
