@@ -115,7 +115,6 @@ public class MsgMainFragment extends Fragment {
     Runnable showRunnable = new Runnable() {
         @Override
         public void run() {
-//            System.out.println(MsgMainFragment.class.getSimpleName() + "--显示无网络连接");
             viewNetwork.setVisibility(View.VISIBLE);
         }
     };
@@ -195,9 +194,6 @@ public class MsgMainFragment extends Fragment {
         };
 
         viewSearch.post(uiRun);
-
-        //-------------------------------
-
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
@@ -222,7 +218,6 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onLine(final boolean state) {
                 if (getActivityMe().isActivityStop()) {
-//                    System.out.println(MsgMainFragment.class.getSimpleName() + "--MainActivity当前是stop");
                     return;
                 }
 
