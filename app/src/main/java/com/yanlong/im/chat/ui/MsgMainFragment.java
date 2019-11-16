@@ -221,7 +221,7 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onLine(final boolean state) {
                 if (getActivityMe().isActivityStop()) {
-                    System.out.println(MsgMainFragment.class.getSimpleName() + "--MainActivity当前是stop");
+//                    System.out.println(MsgMainFragment.class.getSimpleName() + "--MainActivity当前是stop");
                     return;
                 }
 
