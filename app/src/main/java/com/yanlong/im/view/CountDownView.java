@@ -73,8 +73,6 @@ public class CountDownView extends LinearLayout {
         view = LayoutInflater.from(context).inflate(R.layout.view_count_down, this);
         imCountDown = view.findViewById(R.id.im_count_down);
         imCountDown.setImageResource(R.mipmap.icon_st_1);
-
-        LogUtil.getLog().i("CountDownView","initView");
     }
 
 
@@ -91,7 +89,7 @@ public class CountDownView extends LinearLayout {
                 imCountDown.setImageResource(R.mipmap.icon_st_1);
                 break;
             case 11:
-                imCountDown.setImageResource(R.mipmap.icon_st_2);
+                imCountDown.setImageResource(R.mipmap.icon_st_1);
                 break;
             case 10:
                 imCountDown.setImageResource(R.mipmap.icon_st_3);
@@ -126,9 +124,9 @@ public class CountDownView extends LinearLayout {
             case 0:
                 imCountDown.setImageResource(R.mipmap.icon_st_1);
                 break;
-            default:
-                imCountDown.setImageResource(R.mipmap.icon_st_1);
-                break;
+//            default:
+//                imCountDown.setImageResource(R.mipmap.icon_st_1);
+//                break;
         }
     }
 

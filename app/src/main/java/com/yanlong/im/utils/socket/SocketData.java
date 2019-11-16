@@ -186,6 +186,9 @@ public class SocketData {
         //6.25 排除通知存库
 
         if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
+            //6.25 移除重发列队
+            SendList.removeSendListJust(bean.getRequestId());
+
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
@@ -218,10 +221,6 @@ public class SocketData {
             MessageManager.getInstance().setMessageChange(true);
 
         }
-        //6.25 移除重发列队
-        SendList.removeSendListJust(bean.getRequestId());
-
-
     }
 
     //6.26 消息直接存库
@@ -1186,6 +1185,9 @@ public class SocketData {
         msg.setFrom_uid(UserAction.getMyId());
         msg.setFrom_avatar(UserAction.getMyInfo().getHead());
         msg.setFrom_nickname(UserAction.getMyInfo().getName());
+        int survivaltime = new UserDao().getReadDestroy(uid,gid);
+        msg.setSurvival_time(survivaltime);
+
         msg.setRead(true);//已读
         if (isGroup) {
             Group group = msgDao.getGroup4Id(gid);
@@ -1315,6 +1317,9 @@ public class SocketData {
         msg.setGid(wrap.getGid());
         msg.setSend_state(sendStatus);
         msg.setRead(false);
+        int survivaltime = new UserDao().getReadDestroy(wrap.getFromUid(),wrap.getGid());
+        msg.setSurvival_time(survivaltime);
+
         if (isGroup) {
             Group group = msgDao.getGroup4Id(wrap.getGid());
             if (group != null) {

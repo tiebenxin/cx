@@ -84,8 +84,6 @@ public class MsgConversionBean {
         msgAllBean.setSurvival_time(bean.getSurvivalTime());
         UserDao userDao = new UserDao();
 
-
-
         int survivalTime = userDao.getReadDestroy(bean.getFromUid(), bean.getGid());
         if (survivalTime != 0) {
             msgAllBean.setSurvival_time(survivalTime);
@@ -397,6 +395,8 @@ public class MsgConversionBean {
                 msgCel.setNote(rname + "撤回了一条消息");
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
                 msgAllBean.setMsgCancel(msgCel);
+                msgAllBean.setRead(1);
+                LogUtil.getLog().i("撤回消息",bean.getMsgId()+"------"+bean.getSurvivalTime()+"-----");
 
                 break;
             case P2P_AU_VIDEO:// 音视频消息

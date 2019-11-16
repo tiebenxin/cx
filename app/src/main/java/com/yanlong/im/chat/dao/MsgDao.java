@@ -31,6 +31,7 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
@@ -207,7 +208,7 @@ public class MsgDao {
             RealmResults list = realm.where(MsgAllBean.class)
                     .beginGroup().equalTo("gid", gid).endGroup()
                     .and()
-                    .beginGroup().lessThan("survival_time", -1).endGroup()
+                    .beginGroup().lessThan("survival_time", 0).endGroup()
                     .findAll();
             beans = realm.copyFromRealm(list);
         } else {
@@ -216,7 +217,7 @@ public class MsgDao {
                     .and()
                     .beginGroup().equalTo("to_uid", userid).or().equalTo("from_uid", userid).endGroup()
                     .and()
-                    .beginGroup().lessThan("survival_time", -1).endGroup()
+                    .beginGroup().lessThan("survival_time", 0).endGroup()
                     .findAll();
             beans = realm.copyFromRealm(list);
         }
@@ -251,8 +252,8 @@ public class MsgDao {
         if (msgAllBean != null) {
             msgAllBean.setEndTime(time);
             msgAllBean.setStartTime(startTime);
+            realm.insertOrUpdate(msgAllBean);
         }
-        realm.insertOrUpdate(msgAllBean);
         realm.commitTransaction();
         realm.close();
     }
@@ -710,10 +711,12 @@ public class MsgDao {
                     stampMessage.setMsgid(msgType);
                     cancel.setStamp(stampMessage);
                 }
+                int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(),bean.getGid());
                 MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgid);
                 msgCel.setNote("你撤回了一条消息");
                 msgCel.setMsgidCancel(msgCancelId);
+                cancel.setSurvival_time(survivaltime);
                 cancel.setMsgCancel(msgCel);
             }
 
@@ -2214,6 +2217,9 @@ public class MsgDao {
 
         }
 
+       int survivaltime = new UserDao().getReadDestroy(toUid,gid);
+
+        msgAllBean.setSurvival_time(survivaltime);
         msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
         msgAllBean.setMsgNotice(note);
         msgAllBean.setTimestamp(new Date().getTime());

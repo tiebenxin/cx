@@ -386,6 +386,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
+        timeUtils.cancle();
         super.onDestroy();
     }
 
