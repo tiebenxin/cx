@@ -103,7 +103,7 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopQr;
     private LinearLayout viewPopHelp;
     private View viewNetwork;
-    private boolean onlineState = false;//判断网络状态 true在线 false离线
+    private boolean onlineState = true;//判断网络状态 true在线 false离线
 
     Runnable runnable = new Runnable() {
         @Override
