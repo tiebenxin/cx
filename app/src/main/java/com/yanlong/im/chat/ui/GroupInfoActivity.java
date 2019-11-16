@@ -14,6 +14,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -25,6 +26,7 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
+import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
@@ -35,8 +37,10 @@ import com.yanlong.im.user.ui.ComplaintActivity;
 import com.yanlong.im.user.ui.ImageHeadActivity;
 import com.yanlong.im.user.ui.MyselfQRCodeActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
+import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
@@ -75,8 +79,6 @@ public class GroupInfoActivity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private android.support.v7.widget.RecyclerView topListView;
-    //  private ImageView btnAdd;
-    //  private ImageView btnRm;
     private LinearLayout viewGroupName, viewGroupImg;
     private LinearLayout viewGroupMore;
     private TextView txtGroupName;
@@ -101,6 +103,11 @@ public class GroupInfoActivity extends AppActivity {
     private Gson gson = new Gson();
     private Group ginfo;
     private boolean isSessionChange = false;
+
+    private int destroyTime;
+    private LinearLayout viewDestroyTime;
+    private TextView tvDestroyTime;
+    private ReadDestroyUtil readDestroyUtil;
 
     //自动寻找控件
     private void findViews() {
@@ -131,6 +138,11 @@ public class GroupInfoActivity extends AppActivity {
         ckGroupSave = findViewById(R.id.ck_group_save);
         btnDel = findViewById(R.id.btn_del);
         viewClearChatRecord = findViewById(R.id.view_clear_chat_record);
+
+        viewDestroyTime = findViewById(R.id.view_destroy_time);
+        tvDestroyTime = findViewById(R.id.tv_destroy_time);
+        readDestroyUtil = new ReadDestroyUtil();
+
     }
 
     @Override
@@ -209,18 +221,6 @@ public class GroupInfoActivity extends AppActivity {
         viewGroupNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (!isAdmin()) {
-//                    ToastUtil.show(getContext(), "非群主无法修改");
-//                    return;
-//                }
-//                Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
-//                intent.putExtra(CommonSetingActivity.TITLE, "修改群公告");
-//                intent.putExtra(CommonSetingActivity.REMMARK, "发布后将以通知全体群成员");
-//                intent.putExtra(CommonSetingActivity.HINT, "修改群公告");
-//                intent.putExtra(CommonSetingActivity.TYPE_LINE, 1);
-//                intent.putExtra(CommonSetingActivity.SIZE, 500);
-//                intent.putExtra(CommonSetingActivity.SETING, ginfo.getAnnouncement());
-//                startActivityForResult(intent, GROUP_NOTE);
                 ginfo.getMaster();
                 if (isAdmin()) {
                     Intent intent = new Intent(GroupInfoActivity.this, GroupNoteDetailActivity.class);
@@ -318,13 +318,38 @@ public class GroupInfoActivity extends AppActivity {
             }
         });
 
+
+        viewDestroyTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isAdmin()){
+                    ToastUtil.show(context,"只有群主才能修改该选项");
+                    return;
+                }
+                DestroyTimeView destroyTimeView = new DestroyTimeView(GroupInfoActivity.this);
+                destroyTimeView.initView();
+                destroyTimeView.setPostion(destroyTime);
+                destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
+                    @Override
+                    public void onClickItem(String content, int survivaltime) {
+                        destroyTime = survivaltime;
+                        tvDestroyTime.setText(content);
+                        changeSurvivalTime(gid,survivaltime);
+                    }
+                });
+            }
+        });
+
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        //  setResult(ChatActivity.REQ_REFRESH);
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setingReadDestroy(ReadDestroyBean bean) {
+
+
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -332,7 +357,6 @@ public class GroupInfoActivity extends AppActivity {
         setContentView(R.layout.activity_group_info);
         EventBus.getDefault().register(this);
         findViews();
-
     }
 
     @Override
@@ -350,6 +374,7 @@ public class GroupInfoActivity extends AppActivity {
         EventBus.getDefault().unregister(this);
 
     }
+
 
     public boolean isPercentage = true;
 
@@ -415,6 +440,11 @@ public class GroupInfoActivity extends AppActivity {
                 );
             }
         });
+
+
+        destroyTime = ginfo.getSurvivaltime();
+        String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+        tvDestroyTime.setText(content);
     }
 
     private List<MemberUser> listDataTop = new ArrayList<>();
@@ -506,9 +536,7 @@ public class GroupInfoActivity extends AppActivity {
                 imgHead = convertView.findViewById(R.id.img_head);
                 imgGroup = convertView.findViewById(R.id.img_group);
                 txtName = convertView.findViewById(R.id.txt_name);
-
             }
-
         }
     }
 
@@ -588,16 +616,7 @@ public class GroupInfoActivity extends AppActivity {
                 }
             }
         };
-
-        msgAction.groupQuit(gid, UserAction.getMyInfo().getName(), callBack);
-
-//        if (isAdmin()) {//群主解散
-//            msgAction.groupDestroy(gid, callBack);
-//        } else {//成员退出
-//
-//        }
-
-
+        msgAction.groupQuit(gid,UserAction.getMyInfo().getName(), callBack);
     }
 
     private boolean isAdmin() {
@@ -615,14 +634,6 @@ public class GroupInfoActivity extends AppActivity {
                     if (ginfo == null) {
                         return;
                     }
-
-
-                    //8.8 如果是有群昵称显示自己群昵称
-//                    for (MemberUser number : ginfo.getUsers()) {
-//                        if (StringUtil.isNotNull(number.getMembername())) {
-//                            number.setName(number.getMembername());
-//                        }
-//                    }
                     actionbar.setTitle("群聊信息(" + ginfo.getUsers().size() + ")");
                     setGroupNote(ginfo.getAnnouncement());
                     listDataTop.clear();
@@ -661,7 +672,6 @@ public class GroupInfoActivity extends AppActivity {
             }
         };
         msgAction.groupInfo4Db(gid, callBack);
-//        msgAction.groupInfo(gid, callBack);
     }
 
     //设置群公告
@@ -882,6 +892,21 @@ public class GroupInfoActivity extends AppActivity {
                     msgDao.updateMyGroupName(gid, name);
                     taskGetInfo();
                     initEvent();
+                }
+            }
+        });
+    }
+
+    private void changeSurvivalTime(String gid, int survivalTime) {
+        msgAction.changeSurvivalTime(gid, survivalTime, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    userDao.updateGroupReadDestroy(gid, survivalTime);
                 }
             }
         });

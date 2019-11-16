@@ -10,6 +10,7 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpImgLoadEvent;

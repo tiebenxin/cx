@@ -168,7 +168,6 @@ public class UserInfoActivity extends AppActivity {
             btnMsg.setVisibility(View.VISIBLE);
             viewIntroduce.setVisibility(View.GONE);
             viewComplaint.setVisibility(View.VISIBLE);
-            // mBtnAdd.setVisibility(View.VISIBLE);
         }
     }
 

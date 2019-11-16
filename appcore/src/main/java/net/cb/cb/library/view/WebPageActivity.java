@@ -41,16 +41,17 @@ public class WebPageActivity extends AppActivity {
     private ActionbarView actionbar;
     private HeadView headView;
     private WebView webView;
-private ProgressBar progressBar;
+    private ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webpage);
-        headView= findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         webView = findViewById(R.id.webView);
-        progressBar=findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         initEvent();
         initData();
     }
@@ -87,7 +88,7 @@ private ProgressBar progressBar;
         webView.getSettings().setJavaScriptEnabled(true);
         webView.addJavascriptInterface(new JavascriptInterface(this), "imagelistner");
         webView.setWebViewClient(new MyWebViewClient());
-        webView.setWebChromeClient(new WebChromeClient(){
+        webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
@@ -114,7 +115,7 @@ private ProgressBar progressBar;
     private class MyWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-           // return super.shouldOverrideUrlLoading(view, url);
+            // return super.shouldOverrideUrlLoading(view, url);
             if (url.startsWith("tel:")) {
                 Intent intent = new Intent(Intent.ACTION_VIEW,
                         Uri.parse(url));
@@ -132,7 +133,7 @@ private ProgressBar progressBar;
             super.onPageFinished(view, url);
             String title = view.getTitle();
             actionbar.setTitle(title);
-          //  addImageClickListner(view);
+            //  addImageClickListner(view);
         }
 
         @Override

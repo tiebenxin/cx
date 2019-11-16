@@ -2,6 +2,7 @@ package com.yanlong.im.user.action;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
@@ -87,7 +88,6 @@ public class UserAction {
      * @return
      */
     public static Long getMyId() {
-        // LogUtil.getLog().v("ssss","getMyId");
         if (getMyInfo() == null) {
             return null;
         }
@@ -342,7 +342,6 @@ public class UserAction {
      * 清理信息
      */
     public void cleanInfo() {
-        //LogUtil.getLog().v("ssss","cleanInfo");
         myInfo = null;
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).clear();
     }
@@ -824,4 +823,13 @@ public class UserAction {
         NIMClient.getService(AuthService.class).login(info)
                 .setCallback(callback);
     }
+
+
+    /**
+     * 设置已读开关
+     */
+    public void friendsSetRead(long uid, int read, CallBack<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.friendsSetRead(uid, read), callback);
+    }
+
 }

@@ -34,10 +34,68 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private Long to_uid;
     //   private UserInfo to_user;
     private String gid;
+    private int read = 0; //已读
 
     @ChatEnum.EMessageType
     private Integer msg_type;
 
+    private int survival_time;
+    //阅后即焚结束时间
+    private long endTime;
+
+    private long readTime; //已读时间
+
+    private long startTime;
+
+    private long serverTime; //服务器时间
+
+    public long getServerTime() {
+        return serverTime;
+    }
+
+    public void setServerTime(long serverTime) {
+        this.serverTime = serverTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getReadTime() {
+        return readTime;
+    }
+
+    public void setReadTime(long readTime) {
+        this.readTime = readTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getSurvival_time() {
+        return survival_time;
+    }
+
+    public int getRead() {
+        return read;
+    }
+
+    public void setRead(int read) {
+        this.read = read;
+    }
+
+    public void setSurvival_time(int survival_time) {
+        this.survival_time = survival_time;
+    }
 
     private ChatMessage chat;
 
@@ -70,6 +128,16 @@ public class MsgAllBean extends RealmObject implements IChatModel {
     private AtMessage atMessage;
 
     private AssistantMessage assistantMessage;
+
+    private ChangeSurvivalTimeMessage changeSurvivalTimeMessage;
+
+    public ChangeSurvivalTimeMessage getChangeSurvivalTimeMessage() {
+        return changeSurvivalTimeMessage;
+    }
+
+    public void setChangeSurvivalTimeMessage(ChangeSurvivalTimeMessage changeSurvivalTimeMessage) {
+        this.changeSurvivalTimeMessage = changeSurvivalTimeMessage;
+    }
 
     private P2PAuVideoMessage p2PAuVideoMessage;
 

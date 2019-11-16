@@ -20,11 +20,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
+import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
+import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.NotificationConfig;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
@@ -45,6 +47,7 @@ import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
+import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.CoreEnum;
@@ -106,6 +109,7 @@ public class MainActivity extends AppActivity {
     // 通话时间
     private int mPassedTime = 0;
     private final int TIME = 1000;
+    private TimeUtils timeUtils = new TimeUtils();
     private long mExitTime;
     private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
@@ -115,6 +119,7 @@ public class MainActivity extends AppActivity {
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
         bottomTab = findViewById(R.id.bottom_tab);
+        timeUtils.RunTimer();
         mBtnMinimizeVoice = findViewById(R.id.btn_minimize_voice);
     }
 
@@ -264,6 +269,7 @@ public class MainActivity extends AppActivity {
         findViews();
         initEvent();
         uploadApp();
+        getSurvivalTimeData();
         checkRosters();
         doRegisterNetReceiver();
     }
@@ -382,6 +388,7 @@ public class MainActivity extends AppActivity {
         // 关闭浮动窗口
         mBtnMinimizeVoice.close(this);
         mHandler.removeCallbacks(runnable);
+        timeUtils.cancle();
         super.onDestroy();
     }
 
@@ -763,6 +770,29 @@ public class MainActivity extends AppActivity {
 
     public boolean isActivityStop() {
         return isActivityStop;
+    }
+
+
+    private void getSurvivalTimeData(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //查询所有阅后即焚消息加入定时器
+                List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
+                if(list != null){
+                    timeUtils.addMsgAllBeans(list);
+                }
+            }
+        }).start();
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd){
+        if(survivalTimeAdd.msgAllBean != null){
+            timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
+        }else if(survivalTimeAdd.list != null){
+            timeUtils.addMsgAllBeans(survivalTimeAdd.list);
+        }
     }
 
 

@@ -163,7 +163,9 @@ public class ChatEnum {
     /*
      * 消息type
      * */
-    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL, UNRECOGNIZED, EMessageType.MSG_VIDEO,EMessageType.MSG_VOICE_VIDEO,EMessageType.MSG_VOICE_VIDEO_NOTICE,EMessageType.LOCK})
+    @IntDef({NOTICE, TEXT, STAMP, RED_ENVELOPE, IMAGE, BUSINESS_CARD, TRANSFER, VOICE, AT, EMessageType.ASSISTANT, EMessageType.MSG_CENCAL,
+            UNRECOGNIZED, EMessageType.MSG_VIDEO,EMessageType.MSG_VOICE_VIDEO, EMessageType.LOCK,EMessageType.CHANGE_SURVIVAL_TIME,
+            EMessageType.READ,EMessageType.MSG_VOICE_VIDEO_NOTICE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EMessageType {
         int UNRECOGNIZED = -1; //未识别
@@ -181,12 +183,15 @@ public class ChatEnum {
         int MSG_VIDEO = 11; //短视频消息
         int MSG_VOICE_VIDEO = 12; //音视频消息
         int MSG_VOICE_VIDEO_NOTICE = 13; //音视频消息通知
+        int CHANGE_SURVIVAL_TIME = 113;//阅后即焚
+        int READ = 120;//已读消息
+
         int LOCK = 100; //端到端加密提示消息,本地自定义消息
     }
 
     /*
      * 发送状态
-     * 0:正常,1:错误,2:发送中 -1 预发送
+     * 0:正常,1:错误,2:发送中 -1 预发送 3阅读即焚
      * */
     @IntDef({PRE_SEND, NORMAL, ERROR, SENDING})
     @Retention(RetentionPolicy.SOURCE)

@@ -43,10 +43,16 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 7) {
                 updateV8(schema);
+                updateV9(schema);
                 oldVersion++;
             }
             if (newVersion > oldVersion && oldVersion == 8) {
                 updateV9(schema);
+                oldVersion++;
+            }
+
+            if (newVersion > oldVersion && oldVersion == 9) {
+                updateV10(schema);
                 oldVersion++;
             }
         }
@@ -151,6 +157,25 @@ public class DaoMigration implements RealmMigration {
                 .addField("av_type", int.class);
         schema.get("MsgAllBean")
                 .addRealmObjectField("p2PAuVideoDialMessage", schema.get("P2PAuVideoDialMessage"));
+    }
+
+    //新增群阅后即焚
+    private void updateV10(RealmSchema schema) {
+        schema.get("Group")
+                .addField("survivaltime", int.class);
+
+        schema.get("MsgAllBean")
+                .addField("survival_time", int.class)
+                .addField("serverTime",long.class)
+                .addField("endTime", long.class)
+                .addField("readTime",long.class)
+                .addField("startTime",long.class)
+                .addField("read",int.class);
+
+        schema.get("UserInfo")
+                .addField("masterRead", int.class)
+                .addField("myRead", int.class)
+                .addField("friendRead", int.class);
     }
 
     private void updateV9(RealmSchema schema) {

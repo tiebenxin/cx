@@ -434,16 +434,16 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         }
 
         if(isAdd&&!has){
-                MoreSessionBean bean=new MoreSessionBean();
-                bean.setUid(uid);
-                bean.setGid(gid);
-                bean.setAvatar(avatar);
-                bean.setNick(nick);
+            MoreSessionBean bean=new MoreSessionBean();
+            bean.setUid(uid);
+            bean.setGid(gid);
+            bean.setAvatar(avatar);
+            bean.setNick(nick);
 
-                moreSessionBeanList.add(bean);
+            moreSessionBeanList.add(bean);
 //                LogUtil.getLog().e("======add==");
         }else if(!isAdd&&hasInt>-1){
-                moreSessionBeanList.remove(hasInt);
+            moreSessionBeanList.remove(hasInt);
 //                LogUtil.getLog().e("======delete==");
         }
 

@@ -92,6 +92,32 @@
             style="@style/app_txt_content_2"
             android:text="设置登录密码后,可以使用密码登录." />
 
+
+
+        <View
+            style="@style/app_line"/>
+
+
+        <LinearLayout
+            android:id="@+id/view_set_read"
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_marginRight="@dimen/app_margin_item"
+                android:layout_weight="1"
+                android:text="已读回执" />
+
+            <CheckBox
+                android:id="@+id/ck_set_read"
+                style="@style/app_check" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/app_txt_content_2"
+            android:text="查看所有会话消息已读状态,如果关闭已读回执,您也将无法查看所有人的消息已读回执" />
+
+
         <LinearLayout
             android:id="@+id/view_blacklist"
             style="@style/app_layout_list2_item">

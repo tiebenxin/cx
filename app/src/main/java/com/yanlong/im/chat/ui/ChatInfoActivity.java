@@ -10,20 +10,27 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
+import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
+import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -31,11 +38,11 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.HeadView;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -44,9 +51,9 @@ public class ChatInfoActivity extends AppActivity {
     public static final String AGM_FUID = "fuid";
     private Long fuid;
 
-    private net.cb.cb.library.view.HeadView headView;
+    private HeadView headView;
     private ActionbarView actionbar;
-    private android.support.v7.widget.RecyclerView topListView;
+    private RecyclerView topListView;
     private LinearLayout viewLog;
     private LinearLayout viewTop;
     private CheckBox ckTop;
@@ -57,18 +64,62 @@ public class ChatInfoActivity extends AppActivity {
     private UserInfo fUserInfo;
     boolean isSessionChange = false;
 
+    private int destroyTime;
+
+    private ReadDestroyUtil readDestroyUtil = new ReadDestroyUtil();
+    private LinearLayout viewDestroyTime;
+    private TextView tvDestroyTime;
+    private CheckBox ckSetRead;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat_info);
+        findViews();
+        initEvent();
+        initData();
+        EventBus.getDefault().register(this);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setingReadDestroy(ReadDestroyBean bean) {
+        if (bean.uid == fuid) {
+            destroyTime = bean.survivaltime;
+            String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+            tvDestroyTime.setText(content);
+        }
+    }
+
 
     //自动寻找控件
     private void findViews() {
-        headView = (net.cb.cb.library.view.HeadView) findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        topListView = (android.support.v7.widget.RecyclerView) findViewById(R.id.topListView);
-        viewLog = (LinearLayout) findViewById(R.id.view_log);
-        viewTop = (LinearLayout) findViewById(R.id.view_top);
-        ckTop = (CheckBox) findViewById(R.id.ck_top);
-        viewDisturb = (LinearLayout) findViewById(R.id.view_disturb);
-        ckDisturb = (CheckBox) findViewById(R.id.ck_disturb);
-        viewLogClean = (LinearLayout) findViewById(R.id.view_log_clean);
+        topListView = findViewById(R.id.topListView);
+        viewLog = findViewById(R.id.view_log);
+        viewTop = findViewById(R.id.view_top);
+        ckTop = findViewById(R.id.ck_top);
+        viewDisturb = findViewById(R.id.view_disturb);
+        ckDisturb = findViewById(R.id.ck_disturb);
+        viewLogClean = findViewById(R.id.view_log_clean);
+        topListView = findViewById(R.id.topListView);
+        viewLog = findViewById(R.id.view_log);
+        viewTop = findViewById(R.id.view_top);
+        ckTop = findViewById(R.id.ck_top);
+        viewDisturb = findViewById(R.id.view_disturb);
+        ckDisturb = findViewById(R.id.ck_disturb);
+        viewLogClean = findViewById(R.id.view_log_clean);
+        viewDestroyTime = findViewById(R.id.view_destroy_time);
+        tvDestroyTime = findViewById(R.id.tv_destroy_time);
+        ckSetRead = findViewById(R.id.ck_set_read);
     }
 
 
@@ -89,7 +140,6 @@ public class ChatInfoActivity extends AppActivity {
             }
         });
 
-
         //顶部处理
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -105,6 +155,7 @@ public class ChatInfoActivity extends AppActivity {
                 taskUpSwitch(null, fUserInfo.getIstop());
             }
         });
+
         ckDisturb.setChecked(fUserInfo.getDisturb() == 1);
         ckDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -114,6 +165,17 @@ public class ChatInfoActivity extends AppActivity {
                 taskUpSwitch(fUserInfo.getDisturb(), null);
             }
         });
+
+        ckSetRead.setChecked(fUserInfo.getMyRead() == 1);
+        ckSetRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                fUserInfo.setMyRead(isChecked ? 1 : 0);
+                taskSaveInfo();
+                taskFriendsSetRead(fuid,isChecked ? 1 : 0);
+            }
+        });
+
         viewLogClean.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,7 +205,22 @@ public class ChatInfoActivity extends AppActivity {
             }
         });
 
-
+        viewDestroyTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DestroyTimeView destroyTimeView = new DestroyTimeView(ChatInfoActivity.this);
+                destroyTimeView.initView();
+                destroyTimeView.setPostion(destroyTime);
+                destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
+                    @Override
+                    public void onClickItem(String content, int survivaltime) {
+                        destroyTime = survivaltime;
+                        tvDestroyTime.setText(content);
+                        taskSurvivalTime(fuid, survivaltime);
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -152,22 +229,15 @@ public class ChatInfoActivity extends AppActivity {
 //        setResult(ChatActivity.REQ_REFRESH);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_info);
-        findViews();
-        initEvent();
-        initData();
-    }
 
     private void initData() {
-
-
+        readDestroyUtil = new ReadDestroyUtil();
+        UserInfo userInfo = userDao.findUserInfo(fuid);
+        destroyTime = userInfo.getDestroy();
+        String content = readDestroyUtil.getDestroyTimeContent(destroyTime);
+        tvDestroyTime.setText(content);
     }
 
-
-    private List<String> listDataTop = new ArrayList<>();
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewTopAdapter extends RecyclerView.Adapter<RecyclerViewTopAdapter.RCViewTopHolder> {
@@ -186,6 +256,7 @@ public class ChatInfoActivity extends AppActivity {
             switch (position) {
                 case 0:
                     userInfo = fUserInfo;
+
 
                     // holder.imgHead.setImageURI(Uri.parse("" + userInfo.getHead()));
                     Glide.with(context).load(userInfo.getHead())
@@ -243,6 +314,7 @@ public class ChatInfoActivity extends AppActivity {
 
     private MsgDao msgDao = new MsgDao();
     private MsgAction msgAction = new MsgAction();
+    private UserDao userDao = new UserDao();
 
     //获取会话和对方信息
     private void taskGetInfo() {
@@ -302,10 +374,42 @@ public class ChatInfoActivity extends AppActivity {
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session, true);
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
+
                 }
             }
         });
     }
 
+    private void taskSurvivalTime(long friend, int survivalTime) {
+        msgAction.setSurvivalTime(friend, survivalTime, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                if (response.body().isOk()) {
+                    userDao.updateReadDestroy(fuid, survivalTime);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * 设置已读
+     * */
+    private void taskFriendsSetRead(long uid, int read){
+        new UserAction().friendsSetRead(uid, read, new CallBack<ReturnBean>() {
+            @Override
+            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                super.onResponse(call, response);
+                if (response.body() == null) {
+                    return;
+                }
+                EventBus.getDefault().post(new EventIsShowRead());
+            }
+        });
+    }
 
 }

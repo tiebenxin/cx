@@ -49,6 +49,15 @@ public class Group extends RealmObject {
     @Ignore
     private MemberUser keyUser;//符合搜索条件key的群成员
 
+    private int survivaltime;  // 阅后即焚时间
+
+    public int getSurvivaltime() {
+        return survivaltime;
+    }
+
+    public void setSurvivaltime(int survivaltime) {
+        this.survivaltime = survivaltime;
+    }
 
     public String getRobotname() {
         return robotname == null ? "" : robotname;

@@ -9,12 +9,15 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import io.realm.RealmList;
+
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.RED_ENVELOPER;
 
 /***
  * 消息转换类
@@ -30,7 +33,6 @@ public class MsgConversionBean {
     public static MsgAllBean ToBean(MsgBean.UniversalMessage.WrapMessage bean) {
         return ToBean(bean, null, false);
     }
-
 
     /*
      * @param isError是否是发送失败消息
@@ -50,12 +52,13 @@ public class MsgConversionBean {
             } else {
                 msgAllBean.setTimestamp(bean.getTimestamp());
             }
-
         }
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setFrom_avatar(bean.getAvatar());
         msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setFrom_group_nickname(bean.getMembername());
+        msgAllBean.setTo_uid(bean.getToUid());
+
         msgAllBean.setGid(bean.getGid());
         if (!TextUtils.isEmpty(bean.getGid())) {//群聊
             if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
@@ -78,10 +81,32 @@ public class MsgConversionBean {
                 }
             }
         }
+        msgAllBean.setSurvival_time(bean.getSurvivalTime());
+        UserDao userDao = new UserDao();
+
+        int survivalTime = userDao.getReadDestroy(bean.getFromUid(), bean.getGid());
+        if (survivalTime != 0) {
+            msgAllBean.setSurvival_time(survivalTime);
+        }
+        LogUtil.getLog().d("SurvivalTime", "消息转换ToBean:  阅后即焚状态-"+survivalTime + "---id:" + bean.getMsgId());
+
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());
+        } else {
+            msgAllBean.setTo_uid(bean.getToUid());
         }
+
+        //这里需要处理用户信息
+        UserInfo userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
+        if (userInfo != null) {//更新用户信息
+               //msgAllBean.setFrom_user(userInfo);
+        } else {
+            //从网路缓存
+            bean.getAvatar();
+            bean.getNickname();
+        }
+        //---------------------
         msgAllBean.setMsg_id(bean.getMsgId());
 
         switch (bean.getMsgType()) {
@@ -95,12 +120,7 @@ public class MsgConversionBean {
             case IMAGE:
                 ImageMessage image = new ImageMessage();
                 image.setMsgid(msgAllBean.getMsg_id());
-                // LogUtil.getLog().d("TAG", "查询到本地图msgid"+msgAllBean.getMsg_id());
-
-
                 MsgAllBean imgMsg = DaoUtil.findOne(MsgAllBean.class, "msg_id", msgAllBean.getMsg_id());
-
-
                 if (imgMsg != null) {//7.16 替换成上一次本地的图片路径
                     image.setLocalimg(imgMsg.getImage().getLocalimg());
                     LogUtil.getLog().d("TAG", "查询到本地图" + image.getLocalimg());
@@ -173,7 +193,7 @@ public class MsgConversionBean {
                 msgAllBean.setBusiness_card(businessCard);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.BUSINESS_CARD);
                 break;
-            case RED_ENVELOPER:
+            case RED_ENVELOPER: //红包消息
                 RedEnvelopeMessage envelopeMessage = new RedEnvelopeMessage();
                 envelopeMessage.setMsgid(msgAllBean.getMsg_id());
                 envelopeMessage.setComment(bean.getRedEnvelope().getComment());
@@ -313,7 +333,6 @@ public class MsgConversionBean {
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
                 String name = bean.getNickname();
-                UserDao userDao = new UserDao();
                 UserInfo user = userDao.findUserInfo(bean.getFromUid());
                 if (user != null && !TextUtils.isEmpty(user.getMkName())) {
                     name = user.getMkName();
@@ -345,13 +364,6 @@ public class MsgConversionBean {
                 }
 
                 break;
-//            case CHANGE_GROUP_ANNOUNCEMENT:
-//                msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
-//                MsgNotice ani = new MsgNotice();
-//                ani.setMsgid(msgAllBean.getMsg_id());
-//                ani.setNote("群公告:" + bean.getChangeGroupAnnouncement().getAnnouncement());
-//                msgAllBean.setMsgNotice(ani);
-//                break;
             case AT:
                 RealmList<Long> realmList = new RealmList<>();
                 realmList.addAll(bean.getAt().getUidList());
@@ -385,12 +397,14 @@ public class MsgConversionBean {
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
                 // 查出本地数据库的消息
                 MsgAllBean msgAllBean1 = msgDao.getMsgById(bean.getMsgId());
-                if(msgAllBean1!=null){
+                if (msgAllBean1 != null) {
                     msgCel.setCancelContent(msgAllBean1.getMsgCancel().getCancelContent());
                     msgCel.setCancelContentType(msgAllBean1.getMsgCancel().getCancelContentType());
                 }
 
                 msgAllBean.setMsgCancel(msgCel);
+                msgAllBean.setRead(1);
+                LogUtil.getLog().i("撤回消息",bean.getMsgId()+"------"+bean.getSurvivalTime()+"-----");
 
                 break;
             case P2P_AU_VIDEO:// 音视频消息
@@ -402,6 +416,41 @@ public class MsgConversionBean {
                 msgAllBean.setP2PAuVideoMessage(p2PAuVideoMessage);
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO);
                 break;
+            case CHANGE_SURVIVAL_TIME:
+                String survivaNotice = "";
+                if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
+                    if(TextUtils.isEmpty(bean.getGid())){
+                        survivaNotice = bean.getNickname() + "设置了退出即焚";
+                    }else{
+                        survivaNotice = "群主设置了退出即焚";
+                    }
+                } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
+                    if(TextUtils.isEmpty(bean.getGid())){
+                        survivaNotice = bean.getNickname() + "取消了阅后即焚";
+                    }else{
+                        survivaNotice = "群主取消了阅后即焚";
+                    }
+                } else {
+                    if(TextUtils.isEmpty(bean.getGid())){
+                        survivaNotice = bean.getNickname() + "设置了消息" +
+                                new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
+                    }else{
+                        survivaNotice = "群主设置了消息" +
+                                new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
+                    }
+                }
+                MsgCancel survivaMsgCel = new MsgCancel();
+                survivaMsgCel.setMsgid(bean.getMsgId());
+                survivaMsgCel.setNote(survivaNotice);
+                msgAllBean.setMsgCancel(survivaMsgCel);
+
+                ChangeSurvivalTimeMessage changeSurvivalTimeMessage = new ChangeSurvivalTimeMessage();
+                changeSurvivalTimeMessage.setSurvival_time(bean.getChangeSurvivalTime().getSurvivalTime());
+                changeSurvivalTimeMessage.setMsgid(bean.getMsgId());
+                msgAllBean.setChangeSurvivalTimeMessage(changeSurvivalTimeMessage);
+
+                msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
+                break;
             case P2P_AU_VIDEO_DIAL:// 点对点音视频发起通知
                 P2PAuVideoDialMessage p2PAuVideoDialMessage = new P2PAuVideoDialMessage();
                 p2PAuVideoDialMessage.setAv_type(bean.getP2PAuVideoDial().getAvTypeValue());
@@ -409,7 +458,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
-                return null;
+                 return null;
         }
 
         return msgAllBean;

@@ -240,7 +240,6 @@ public class RecordedActivity extends BaseActivity {
 
                 return photoPath;
             }
-
             @Override
             public void onFinish(String result) {
                 closeProgressDialog();
@@ -643,3 +642,4 @@ public class RecordedActivity extends BaseActivity {
         }
     }
 }
+

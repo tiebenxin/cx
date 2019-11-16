@@ -10,6 +10,7 @@ import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.MsgConversionBean;
+import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
@@ -28,6 +29,7 @@ import com.yanlong.im.utils.socket.SocketData;
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventGroupChange;
+import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
@@ -39,6 +41,7 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -148,6 +151,7 @@ public class MessageManager {
         }
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
+        boolean isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
@@ -339,27 +343,62 @@ public class MessageManager {
             case RESOURCE_LOCK://资源锁定
                 updateUserLockCloudRedEnvelope(wrapMessage);
                 break;
-            case P2P_AU_VIDEO_DIAL:// 音视频通知
-                break;
-            case SWITCH_CHANGE:// 开关变更
-                //  更新用户信息
-                UserInfo userInfo = UserAction.getMyInfo();
-                UserDao userDao = new UserDao();
-                // 等于Vip更新用户信息 更新数据库
-                if (wrapMessage.getSwitchChange().getSwitchType() == MsgBean.SwitchChangeMessage.SwitchType.VIP) {
-                    userInfo.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
-                    userDao.updateUserinfo(userInfo);
-                    // 刷新用户信息
-                    EventFactory.FreshUserStateEvent event = new EventFactory.FreshUserStateEvent();
-                    event.vip = wrapMessage.getSwitchChange().getSwitchValue() + "";
-                    EventBus.getDefault().post(event);
+            case CHANGE_SURVIVAL_TIME: //阅后即焚
+                if (bean != null) {
+                    result = saveMessageNew(bean, isList);
                 }
+                int survivalTime = wrapMessage.getChangeSurvivalTime().getSurvivalTime();
+                if (!TextUtils.isEmpty(wrapMessage.getGid())) {
+                    userDao.updateGroupReadDestroy(wrapMessage.getGid(), survivalTime);
+                } else {
+                    userDao.updateReadDestroy(wrapMessage.getFromUid(), survivalTime);
+                }
+                EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
+                break;
+            case READ://已读消息
+                msgDao.setUpdateRead(wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
+                LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
+                break;
+            case SWITCH_CHANGE: //开关变更
+                LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
+                int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
+                int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
+                long uid = wrapMessage.getFromUid();
+                UserInfo userInfo = userDao.findUserInfo(uid);
+                switch (switchType) {
+                    case 0: // 单聊已读
+                        userInfo.setFriendRead(switchValue);
+                        userDao.updateUserinfo(userInfo);
+                        EventBus.getDefault().post(new EventIsShowRead());
+                        break;
+                    case 1: //vip
+                        userInfo.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
+                        userDao.updateUserinfo(userInfo);
+                        // 刷新用户信息
+                        EventFactory.FreshUserStateEvent event = new EventFactory.FreshUserStateEvent();
+                        event.vip = wrapMessage.getSwitchChange().getSwitchValue() + "";
+                        EventBus.getDefault().post(event);
+                        break;
+                    case 2:  //已读总开关
+                        userInfo.setMasterRead(switchValue);
+                        userDao.updateUserinfo(userInfo);
+                        EventBus.getDefault().post(new EventIsShowRead());
+                        break;
+                }
+                break;
+
+            case P2P_AU_VIDEO_DIAL:// 音视频通知
                 break;
         }
         //刷新单个,接收到音视频通话消息不需要刷新
         if (result && !hasNotified && !isList && bean != null && wrapMessage.getMsgType() != P2P_AU_VIDEO_DIAL) {
             setMessageChange(true);
-            notifyRefreshMsg(isGroup(wrapMessage.getFromUid(), bean.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
+            boolean isGroup = isGroup(wrapMessage.getFromUid(), bean.getGid());
+            long chatterId = wrapMessage.getFromUid();
+            if (!isGroup && isFromSelf) {
+                chatterId = wrapMessage.getToUid();
+            }
+            notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, chatterId, bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
         }
         //记录批量信息来源
         if (isList && taskMsgList != null) {
@@ -479,6 +518,8 @@ public class MessageManager {
      * */
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
+        boolean isFromSelf = msgAllBean.getFrom_uid() == UserAction.getMyId().intValue();
+
         try {
             msgAllBean.setTo_uid(msgAllBean.getTo_uid());
             //收到直接存表
@@ -502,26 +543,42 @@ public class MessageManager {
                     result = true;
                 }
             } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
-                if (!loadUids.contains(msgAllBean.getFrom_uid())) {
-                    loadUids.add(msgAllBean.getFrom_uid());
-                    loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                long chatterId = -1;//对方的Id
+                if (isFromSelf) {
+                    chatterId = msgAllBean.getTo_uid();
+                } else {
+                    chatterId = msgAllBean.getFrom_uid();
+                }
+                if (!loadUids.contains(chatterId)) {
+                    loadUids.add(chatterId);
+                    loadUserInfo(msgAllBean.getGid(), chatterId, isList, msgAllBean);
                     LogUtil.getLog().d("a=", TAG + "--需要加载用户信息");
                 } else {
                     LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
+                    if (!isList) {
+                        updateSessionUnread(msgAllBean.getGid(), chatterId, isCancel);
+                        setMessageChange(true);
+                    } else {
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel);
+                    }
+                    result = true;
+                }
+            } else {
+                if (!TextUtils.isEmpty(msgAllBean.getGid())) {
                     if (!isList) {
                         updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
                     }
-                    result = true;
-                }
-            } else {
-                if (!isList) {
-                    updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
-                    setMessageChange(true);
                 } else {
-                    updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
+                    long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
+                    if (!isList) {
+                        updateSessionUnread(msgAllBean.getGid(), chatterId, isCancel);
+                        setMessageChange(true);
+                    } else {
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel);
+                    }
                 }
                 result = true;
             }
@@ -939,7 +996,7 @@ public class MessageManager {
             return;
         }
         fetchTimeDiff(message.getTimestamp());
-        userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
+        userDao. updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
         MessageManager.getInstance().updateCacheUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
     }
 

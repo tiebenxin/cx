@@ -44,7 +44,16 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private Integer displaydetail;//显示详情(0:关闭|1:打开)
     private Integer stat; //好友状态(0:正常|1:待同意|2:黑名单|9:系统用户，如小助手)
     private Integer authStat; //身份验证状态(0:未认证|1:已认证未上传证件照|2:已认证已上传证件照)
+    private int masterRead;//已读总开关(0:关闭|1:打开)
+    private int myRead;//我对100101是否开了已读(0:否|1:是)
+    private int friendRead;//100101对我是否开了已读(0:否|1:是)
+
     private boolean emptyPassword = false;// 是否未设置密码
+
+    //阅后即焚
+//    private Integer destroy = 1;
+//    private Long destroyTime = 30L;
+
     @Ignore
     private String membername;//群的昵称
     private String sayHi;//待同意好友招呼语
@@ -53,7 +62,8 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private int activeType; //是否在线（0：离线|1：在线）
     private String describe; //用户描述
     private int lockCloudRedEnvelope; //1锁定红包，0不锁定
-    private int destroy; //销毁开关
+    @SerializedName("survivaltime")
+    private int destroy = 0; //销毁开关
     private long destroyTime; //销毁时间
     private int joinType;
     private String joinTime;
@@ -61,6 +71,47 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
     private String inviterName;
     @Ignore
     private boolean isChecked = false;
+
+
+    public int getMasterRead() {
+        return masterRead;
+    }
+
+    public void setMasterRead(int masterRead) {
+        this.masterRead = masterRead;
+    }
+
+    public int getMyRead() {
+        return myRead;
+    }
+
+    public void setMyRead(int myRead) {
+        this.myRead = myRead;
+    }
+
+    public int getFriendRead() {
+        return friendRead;
+    }
+
+    public void setFriendRead(int friendRead) {
+        this.friendRead = friendRead;
+    }
+
+    public Integer getDestroy() {
+        return destroy;
+    }
+
+    public void setDestroy(Integer destroy) {
+        this.destroy = destroy;
+    }
+
+    public Long getDestroyTime() {
+        return destroyTime;
+    }
+
+    public void setDestroyTime(Long destroyTime) {
+        this.destroyTime = destroyTime;
+    }
 
     public String getVip() {
         return vip;

@@ -343,7 +343,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
         getView().replaceListDataAndNotify(bean);
     }
 
-    public void doSendText(MsgEditText edtChat, boolean isGroup) {
+    public void doSendText(MsgEditText edtChat, boolean isGroup,int survivalTime) {
         String txt = edtChat.getText().toString();
         if (txt.startsWith("@000")) {
             int count = Integer.parseInt(txt.split("_")[1]);
@@ -510,7 +510,7 @@ public class ChatPresenter extends BasePresenter<ChatModel, ChatView> implements
     }
 
     //戳一下
-    public void doStamp() {
+    public void doStamp(int survivalTime) {
         AlertTouch alertTouch = new AlertTouch();
         alertTouch.init((Activity) context, "请输入戳一下消息", "确定", R.mipmap.ic_chat_actionme, new AlertTouch.Event() {
             @Override

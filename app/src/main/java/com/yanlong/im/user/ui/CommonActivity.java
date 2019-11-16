@@ -84,6 +84,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 tvNewVersions.setVisibility(View.GONE);
             }
         }
+
     }
 
     private void initEvent() {
@@ -127,6 +128,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 }
             }
         });
+
     }
 
 

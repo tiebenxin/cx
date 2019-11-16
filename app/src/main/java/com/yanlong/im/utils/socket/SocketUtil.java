@@ -37,7 +37,7 @@ public class SocketUtil {
         @Override
         public void onACK(MsgBean.AckMessage bean) {
             SocketData.setPreServerAckTime(bean.getTimestamp());
-            if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
+            if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED ) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
                 SocketData.msgSave4Me(bean);
             } else {
@@ -674,7 +674,6 @@ public class SocketUtil {
                         heartbeatThread();
                         //开始启动消息重发队列
                         sendListThread();
-
 
                     }
 

@@ -133,6 +133,13 @@ public class ChatServer extends Service {
 //            }
 //            //通知界面刷新
 //            MessageManager.getInstance().notifyRefreshMsg();
+            //   MsgBean.UniversalMessage.WrapMessage msg = bean.getWrapMsg(bean.getWrapMsgCount() - 1);
+//            for (MsgBean.UniversalMessage.WrapMessage msg : bean.getWrapMsgList()) {
+//                onMsgbranch(msg);
+//
+//            }
+//            //通知界面刷新
+//            MessageManager.getInstance().notifyRefreshMsg();
 
         }
 
@@ -294,6 +301,22 @@ public class ChatServer extends Service {
                     updateUserLockCloudRedEnvelope(msg);
                     return;
                 case SHORT_VIDEO:
+                    return;
+                case CHANGE_SURVIVAL_TIME: //阅后即焚
+                    int survivalTime = msg.getChangeSurvivalTime().getSurvivalTime();
+
+    //                msgDao.msgSurvivalTime(msg.getMsgId(),null,msg.getFromUid(),msg.getNickname(),msg.getAvatar(),msg.getChangeSurvivalTime().getSurvivalTime());
+
+                    if(!TextUtils.isEmpty(msg.getGid())){
+                        msg.getMsgId();
+
+                    }else{
+                        userDao.updateReadDestroy(msg.getFromUid(),survivalTime);
+                    }
+
+                    EventBus.getDefault().post(new ReadDestroyBean(survivalTime,msg.getGid(),msg.getFromUid()));
+
+
                     return;
             }
 

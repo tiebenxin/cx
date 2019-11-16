@@ -27,6 +27,7 @@ import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
+import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.utils.ImgSizeUtil;
@@ -159,63 +160,6 @@ public class SocketData {
     //6.6 为后端擦屁股
     public static CopyOnWriteArrayList<String> oldMsgId = new CopyOnWriteArrayList<>();
 
-    /***
-     * 保存接收到的消息及发送消息回执
-     */
-    /*public static void magSaveAndACK(MsgBean.UniversalMessage bean) {
-        List<MsgBean.UniversalMessage.WrapMessage> msgList = bean.getWrapMsgList();
-
-
-        List<String> msgIds = new ArrayList<>();
-        //1.先进行数据分割
-        for (MsgBean.UniversalMessage.WrapMessage wmsg : msgList) {
-            checkDoubleMessage(wmsg);
-            //2.存库:1.存消息表,存会话表
-            MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg);
-            //5.28 如果为空就不保存这类消息
-            if (msgAllBean != null) {
-                if (!oldMsgId.contains(wmsg.getMsgId())) {//不是重复消息才更新
-                    msgAllBean.setRead(false);//设置未读
-                    msgAllBean.setTo_uid(bean.getToUid());
-                    LogUtil.getLog().d(TAG, ">>>>>magSaveAndACK: " + wmsg.getMsgId());
-                    //收到直接存表
-                    DaoUtil.update(msgAllBean);
-
-                    //6.6 为后端擦屁股
-                    if (oldMsgId.size() >= 500)
-                        oldMsgId.remove(0);
-                    oldMsgId.add(wmsg.getMsgId());
-                    if (!TextUtils.isEmpty(msgAllBean.getGid()) && !msgDao.isGroupExist(msgAllBean.getGid()) && !loadGids.contains(msgAllBean.getGid())) {
-                        loadGids.add(msgAllBean.getGid());
-                        loadGroupInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-//                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-//                        MessageManager.getInstance().setMessageChange(true);
-                    } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !loadUids.contains(msgAllBean.getFrom_uid())) {
-                        loadUids.add(msgAllBean.getFrom_uid());
-                        loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid());
-                    } else {
-                        MessageManager.getInstance().updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false);
-                        MessageManager.getInstance().setMessageChange(true);
-                    }
-                    LogUtil.getLog().e(TAG, ">>>>>累计 ");
-                } else {
-                    LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wmsg.getMsgId());
-                }
-                msgIds.add(wmsg.getMsgId());
-            } else {
-                LogUtil.getLog().e(TAG, ">>>>>忽略保存消息: " + wmsg.getMsgId());
-            }
-
-
-        }
-
-
-        //3.发送回执
-        LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
-//        SocketUtil.getSocketUtil().sendData(msg4ACK(bean.getRequestId(), msgIds), null);
-
-
-    }*/
 
     //检测是否是双重消息，及一条消息需要产生两条本地消息记录,回执在通知消息中发送
     private static void checkDoubleMessage(MsgBean.UniversalMessage.WrapMessage wmsg) {
@@ -241,6 +185,9 @@ public class SocketData {
         //6.25 排除通知存库
 
         if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
+            //6.25 移除重发列队
+            SendList.removeSendListJust(bean.getRequestId());
+
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
@@ -255,14 +202,8 @@ public class SocketData {
             }
             msgAllBean.setRead(true);//自己发送的消息是已读
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
-            //时间戳
-            /*if(wmsg.getTimestamp()!=0){
-                msgAllBean.setTimestamp(wmsg.getTimestamp());
-            }else{*/
             msgAllBean.setTimestamp(bean.getTimestamp());
-            /*}*/
 
-            msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
             //7.16 如果是收到先自己发图图片的消息
 
             //移除旧消息
@@ -279,10 +220,6 @@ public class SocketData {
             MessageManager.getInstance().setMessageChange(true);
 
         }
-        //6.25 移除重发列队
-        SendList.removeSendListJust(bean.getRequestId());
-
-
     }
 
     //6.26 消息直接存库
@@ -298,15 +235,12 @@ public class SocketData {
                     .build();
             LogUtil.getLog().d(TAG, "msgSave4Me1: msg" + msg.toString());
             MsgAllBean msgAllBean = MsgConversionBean.ToBean(wmsg, msg, false);
-
             msgAllBean.setMsg_id(msgAllBean.getMsg_id());
             //时间戳
             // msgAllBean.setTimestamp(bean.getTimestamp());
             //是发送给群助手的消息直接发送成功
             if (isNoAssistant(msgAllBean.getTo_uid(), msgAllBean.getGid())) {
                 msgAllBean.setSend_state(state);
-            } else {
-                msgAllBean.setSend_state(ChatEnum.ESendStatus.NORMAL);
             }
             msgAllBean.setSend_data(msg.build().toByteArray());
 
@@ -433,6 +367,7 @@ public class SocketData {
     private static MsgAllBean send4Base(boolean isSave, boolean isSend, String msgId, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + toId + "--gid" + toGid);
         MsgBean.UniversalMessage.Builder msg = toMsgBuilder(msgId, toId, toGid, time > 0 ? time : getFixTime(), type, value);
+
         if (isSave && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
             msgSave4MeSendFront(msg); //5.27 发送前先保存到库,
         }
@@ -467,27 +402,24 @@ public class SocketData {
      */
     private static MsgBean.UniversalMessage.Builder toMsgBuilder(String msgid, Long toId, String toGid, long time, MsgBean.MessageType type, Object value) {
         MsgBean.UniversalMessage.Builder msg = SocketData.getMsgBuild();
-        if (toId != null && toId > 0) {//给个人发
-            msg.setToUid(toId);
-        }
-
-
         MsgBean.UniversalMessage.WrapMessage.Builder wmsg = msg.getWrapMsgBuilder(0);
         UserInfo userInfo = UserAction.getMyInfo();
         wmsg.setFromUid(userInfo.getUid());
         wmsg.setAvatar(userInfo.getHead());
-
-
         wmsg.setNickname(userInfo.getName());
-
         //自动生成uuid
-
         wmsg.setMsgId(msgid == null ? getUUID() : msgid);
 
+        //添加阅后即焚状态
+        int survivalTime = new UserDao().getReadDestroy(toId, toGid);
+        LogUtil.getLog().i("SurvivalTime", "消息构建: 阅后即焚状态---->" + survivalTime + "------");
 
-//        wmsg.setTimestamp(getSysTime());
+        wmsg.setSurvivalTime(survivalTime);
+
         wmsg.setTimestamp(time);
-
+        if (toId != null && toId > 0) {//给个人发
+            msg.setToUid(toId);
+        }
         if (toGid != null && toGid.length() > 0) {//给群发
             wmsg.setGid(toGid);
             Group group = msgDao.getGroup4Id(toGid);
@@ -547,12 +479,12 @@ public class SocketData {
             case P2P_AU_VIDEO_DIAL:
                 wmsg.setP2PAuVideoDial((MsgBean.P2PAuVideoDialMessage) value);
                 break;
+            case READ:
+                wmsg.setRead((MsgBean.ReadMessage) value);
+                break;
             case UNRECOGNIZED:
                 break;
-
         }
-
-
         MsgBean.UniversalMessage.WrapMessage wm = wmsg.build();
         msg.setWrapMsg(0, wm);
         return msg;
@@ -577,13 +509,25 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4Chat(Long toId, String toGid, String txt) {
-
-
         MsgBean.ChatMessage chat = MsgBean.ChatMessage.newBuilder()
                 .setMsg(txt)
                 .build();
-
         return send4Base(toId, toGid, MsgBean.MessageType.CHAT, chat);
+
+    }
+
+    /**
+     * 阅后即焚消息
+     */
+    public static MsgAllBean send4ChatSurvivalTime(Long toId, String toGid, String txt, int survivalTime) {
+        MsgBean.ChatMessage chat = MsgBean.ChatMessage.newBuilder()
+                .setMsg(txt)
+                .build();
+        MsgBean.UniversalMessage.WrapMessage wrapMessage = MsgBean.UniversalMessage.WrapMessage.newBuilder()
+                .setSurvivalTime(survivalTime)
+                .setChat(chat)
+                .build();
+        return send4Base(toId, toGid, MsgBean.MessageType.CHAT, wrapMessage);
 
     }
 
@@ -653,8 +597,6 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4action(Long toId, String toGid, String txt) {
-
-
         MsgBean.StampMessage action = MsgBean.StampMessage.newBuilder()
                 .setComment(txt)
                 .build();
@@ -972,7 +914,6 @@ public class SocketData {
                 .setAvatar(iconUrl)
                 .setNickname(nkName)
                 .setComment(info)
-                //uid
                 .setUid(uid)
                 .build();
         return send4Base(toId, toGid, MsgBean.MessageType.BUSINESS_CARD, msg);
@@ -988,7 +929,6 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4Rb(Long toId, String toGid, String rid, String info, MsgBean.RedEnvelopeMessage.RedEnvelopeStyle style) {
-
         MsgBean.RedEnvelopeMessage msg = MsgBean.RedEnvelopeMessage.newBuilder()
                 .setId(rid)
                 .setComment(info)
@@ -1037,13 +977,23 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4Trans(Long toId, String rid, String info, String money) {
-
         MsgBean.TransferMessage msg = MsgBean.TransferMessage.newBuilder()
                 .setId(rid)
                 .setComment(info)
                 .setTransactionAmount(money)
                 .build();
         return send4Base(toId, null, MsgBean.MessageType.TRANSFER, msg);
+    }
+
+
+    /**
+     * 已读消息
+     */
+    public static MsgAllBean send4Read(Long toId, long timestamp) {
+        MsgBean.ReadMessage msg = MsgBean.ReadMessage.newBuilder()
+                .setTimestamp(timestamp)
+                .build();
+        return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
     }
 
     private static String mCancelContent;// 撤回内容
@@ -1060,7 +1010,7 @@ public class SocketData {
      * @return
      */
     public static MsgAllBean send4CancelMsg(Long toId, String toGid, String msgId, String msgContent, Integer msgType) {
-
+        int survivalTime = new UserDao().getReadDestroy(toId, toGid);
         MsgBean.CancelMessage msg = MsgBean.CancelMessage.newBuilder()
                 .setMsgId(msgId)
                 .build();
@@ -1074,14 +1024,15 @@ public class SocketData {
 //        chatMessage.setMsg(msgContent);
 //        chatMessage.setMsgid(msgType + "");// 暂时用来存放撤回的消息类型
 //        msgAllBean.setChat(chatMessage);
+        msgAllBean.setSurvival_time(survivalTime);
         ChatServer.addCanceLsit(id, msgAllBean);
 
         return msgAllBean;
     }
-
     /*
      * 发送及保存消息
      * */
+
     public static void sendAndSaveMessage(MsgAllBean bean) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + bean.getTo_uid() + "--gid" + bean.getGid());
         int msgType = bean.getMsg_type();
@@ -1156,6 +1107,12 @@ public class SocketData {
                 msg.setTimestamp(bean.getTimestamp() + 1);
             } else {
                 msg.setTimestamp(time);
+            }
+
+            if (type == ChatEnum.ENoticeType.BLACK_ERROR) {
+                int survivalTime = new UserDao().getReadDestroy(bean.getTo_uid(), null);
+                msg.setSurvival_time(survivalTime);
+                msg.setRead(1);
             }
             msg.setTo_uid(bean.getTo_uid());
             msg.setGid(bean.getGid());
@@ -1261,6 +1218,9 @@ public class SocketData {
         msg.setFrom_uid(UserAction.getMyId());
         msg.setFrom_avatar(UserAction.getMyInfo().getHead());
         msg.setFrom_nickname(UserAction.getMyInfo().getName());
+        int survivaltime = new UserDao().getReadDestroy(uid,gid);
+        msg.setSurvival_time(survivaltime);
+
         msg.setRead(true);//已读
         if (isGroup) {
             Group group = msgDao.getGroup4Id(gid);
@@ -1390,6 +1350,9 @@ public class SocketData {
         msg.setGid(wrap.getGid());
         msg.setSend_state(sendStatus);
         msg.setRead(false);
+        int survivaltime = new UserDao().getReadDestroy(wrap.getFromUid(),wrap.getGid());
+        msg.setSurvival_time(survivaltime);
+
         if (isGroup) {
             Group group = msgDao.getGroup4Id(wrap.getGid());
             if (group != null) {

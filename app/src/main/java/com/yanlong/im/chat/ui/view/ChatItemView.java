@@ -52,12 +52,16 @@ import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
+import com.yanlong.im.view.CountDownView;
+import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
+import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.Locale;
@@ -77,9 +81,9 @@ public class ChatItemView extends LinearLayout {
     private LinearLayout viewOt;
     private ImageView imgOtHead;
     private LinearLayout viewOt1;
-    private android.support.v7.widget.AppCompatTextView txtOt1;
+    private AppCompatTextView txtOt1;
     private LinearLayout viewOt2;
-    private android.support.v7.widget.AppCompatTextView txtOt2;
+    private AppCompatTextView txtOt2;
     private LinearLayout viewOt3;
     private ImageView imgOtRbState;
     private TextView txtOtRbTitle;
@@ -88,9 +92,9 @@ public class ChatItemView extends LinearLayout {
     private ImageView imgOtRbIcon;
     private LinearLayout viewMe;
     private LinearLayout viewMe1;
-    private android.support.v7.widget.AppCompatTextView txtMe1;
+    private AppCompatTextView txtMe1;
     private LinearLayout viewMe2;
-    private android.support.v7.widget.AppCompatTextView txtMe2;
+    private AppCompatTextView txtMe2;
     private LinearLayout viewMe3;
     private ImageView imgMeRbState;
     private TextView txtMeRbTitle;
@@ -150,11 +154,19 @@ public class ChatItemView extends LinearLayout {
     private AppCompatTextView txtMe8;
     private View viewLock;
     private TextView tvLock;
+    private LinearLayout viewReadDestroy;
+    private TextView txtReadDestroy;
+    private ImageView imgReadDestroy;
 
     private LinearLayout viewMeVoiceVideo;
     private LinearLayout viewOtVoiceVideo;
     private TextView txtMeVoiceVideo;
     private TextView txtOtVoiceVideo;
+    private LinearLayout viewRead;
+    private TextView tvRead;
+    private TextView tvReadTime;
+    private CountDownView viewOtSurvivalTime;
+    private CountDownView viewMeSurvivalTime;
 
     private int mHour, mMin, mSecond;
 
@@ -252,6 +264,16 @@ public class ChatItemView extends LinearLayout {
         viewOtVoiceVideo = rootView.findViewById(R.id.view_ot_voice_video);
         txtMeVoiceVideo = rootView.findViewById(R.id.txt_me_voice_video);
         txtOtVoiceVideo = rootView.findViewById(R.id.txt_ot_voice_video);
+        //阅后即焚
+        viewReadDestroy = rootView.findViewById(R.id.view_read_destroy);
+        txtReadDestroy = rootView.findViewById(R.id.txt_read_destroy);
+        imgReadDestroy = rootView.findViewById(R.id.img_read_destroy);
+        viewOtSurvivalTime = findViewById(R.id.view_ot_survival_time);
+        viewMeSurvivalTime = findViewById(R.id.view_me_survival_time);
+
+        viewRead = rootView.findViewById(R.id.view_read);
+        tvRead = rootView.findViewById(R.id.tv_read);
+        tvReadTime = rootView.findViewById(R.id.tv_read_time);
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -316,6 +338,10 @@ public class ChatItemView extends LinearLayout {
         viewMe8.setVisibility(GONE);
         viewOt8.setVisibility(GONE);
         viewLock.setVisibility(GONE);
+        viewRead.setVisibility(GONE);
+//        viewOtSurvivalTime.setVisibility(GONE);
+//        viewMeSurvivalTime.setVisibility(GONE);
+        viewReadDestroy.setVisibility(GONE);
         img_me_4_play.setVisibility(View.GONE);
         img_me_4_time.setVisibility(View.GONE);
         img_ot_4_time.setVisibility(View.GONE);
@@ -367,6 +393,11 @@ public class ChatItemView extends LinearLayout {
                 break;
             case ChatEnum.EMessageType.LOCK:
                 viewLock.setVisibility(VISIBLE);
+                viewMe.setVisibility(GONE);
+                viewOt.setVisibility(GONE);
+                break;
+            case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
+                viewReadDestroy.setVisibility(VISIBLE);
                 viewMe.setVisibility(GONE);
                 viewOt.setVisibility(GONE);
                 break;
@@ -444,6 +475,62 @@ public class ChatItemView extends LinearLayout {
         txtOt1.setText(msg);
     }
 
+    //已读消息
+    public void setDataRead(long time) {
+        if (time == 0) {
+            viewRead.setVisibility(GONE);
+        } else {
+            viewRead.setVisibility(VISIBLE);
+            tvRead.setText("已读");
+            tvReadTime.setText(TimeToString.HH_MM(time) + "");
+        }
+    }
+
+    //设置阅后即焚消息显示
+    public void setDataSurvivalTimeShow(int type){
+        LogUtil.getLog().d("CountDownView",type+"");
+     //   timerCancel();
+        if(isMe){
+            if(type == -1){
+                viewMeSurvivalTime.setVisibility(View.VISIBLE);
+            }else if(type == 0){
+                viewMeSurvivalTime.setVisibility(View.GONE);
+            }else{
+                viewMeSurvivalTime.setVisibility(View.VISIBLE);
+            }
+        }else{
+            if(type == -1){
+                viewOtSurvivalTime.setVisibility(View.VISIBLE);
+            }else if(type == 0){
+                viewOtSurvivalTime.setVisibility(View.GONE);
+            }else{
+                viewOtSurvivalTime.setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
+
+
+    //阅后即焚倒计时
+    public void setDataSt(long startTime, long endTime) {
+        if (isMe) {
+            viewMeSurvivalTime.setRunTimer(startTime, endTime);
+        } else {
+            viewOtSurvivalTime.setRunTimer(startTime, endTime);
+        }
+
+    }
+
+    //阅后即焚倒计时销毁
+    public void timerCancel() {
+        if (isMe) {
+            viewMeSurvivalTime.timerStop();
+        } else {
+            viewOtSurvivalTime.timerStop();
+        }
+    }
+
+
     /**
      * 音视频消息
      *
@@ -519,6 +606,7 @@ public class ChatItemView extends LinearLayout {
             imgMeRbIcon.setImageResource(typeIconRes);
             imgOtRbIcon.setImageResource(typeIconRes);
         }
+
 
     }
 
@@ -631,7 +719,7 @@ public class ChatItemView extends LinearLayout {
         SpannableString span = new SpannableString(url);
         span.setSpan(new ClickableSpan() {
             @Override
-            public void onClick(@androidx.annotation.NonNull View view) {
+            public void onClick(@NonNull View view) {
                 Intent intent = new Intent(getContext(), WebPageActivity.class);
                 intent.putExtra(WebPageActivity.AGM_URL, url);
 //                Uri uri = Uri.parse(url);
@@ -662,6 +750,7 @@ public class ChatItemView extends LinearLayout {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
         txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
     }
+
 
     public interface EventRP {
         void onClick(boolean isInvalid);
@@ -836,8 +925,6 @@ public class ChatItemView extends LinearLayout {
                     imgOt4.post(new Runnable() {
                         @Override
                         public void run() {
-//                            Glide.with(getContext()).asBitmap().load(model).into(imgOt4);
-//                            Glide.with(getContext()).asBitmap().load(model).into(imgMe4);
                             Glide.with(getContext()).asBitmap().load(options).into(imgOt4);
                             Glide.with(getContext()).asBitmap().load(options).into(imgMe4);
                         }
@@ -953,6 +1040,18 @@ public class ChatItemView extends LinearLayout {
     }
 
     private Context mContext;
+
+
+    public void setReadDestroy(String gid, long uid, int type,String content) {
+        txtReadDestroy.setText(content);
+
+//        if (type == 0) {
+//            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_cancel);
+//        } else {
+//            imgReadDestroy.setImageResource(R.mipmap.icon_read_destroy_seting);
+//        }
+    }
+
 
     public ChatItemView(Context context, AttributeSet attrs) {
         super(context, attrs);

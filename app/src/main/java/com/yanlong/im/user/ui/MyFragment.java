@@ -22,7 +22,6 @@ import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.eventbus.EventRefreshUser;
-import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;

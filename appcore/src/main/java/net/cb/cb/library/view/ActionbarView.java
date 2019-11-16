@@ -47,6 +47,9 @@ public class ActionbarView extends LinearLayout {
     private Context context;
     private ListenEvent listenEvent;
     private ImageView iv_disturb;
+    private LinearLayout actionRightRight;
+    private TextView txtRightRight;
+    private ImageView btnIconRightRight;
 
     public void setOnListenEvent(ListenEvent listenEvent) {
         this.listenEvent = listenEvent;
@@ -110,7 +113,7 @@ public class ActionbarView extends LinearLayout {
         txtLeft.setBackgroundResource(drawableId);
         if (size > 0) {
             txtLeft.setTextSize(size);
-            LinearLayout.LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             if (txt.contains("+")) {
                 params.width = DensityUtil.dip2px(getContext(), 35);
             } else {
@@ -188,6 +191,19 @@ public class ActionbarView extends LinearLayout {
     }
 
     /**
+     * 阅后即焚图标
+     * */
+    public void setImageShow(int image){
+        actionRightRight.setVisibility(View.VISIBLE);
+        btnIconRightRight.setImageResource(image);
+    }
+
+    public ImageView getRightImage(){
+        return btnIconRightRight;
+    }
+
+
+    /**
      * 根据给进来的颜色值设置文本颜色
      *
      * @param color
@@ -224,8 +240,11 @@ public class ActionbarView extends LinearLayout {
         btnRight = rootView.findViewById(R.id.btn_icon_right);
         ViewLeft = rootView.findViewById(R.id.action_left);
         ViewRight = rootView.findViewById(R.id.action_right);
-        loadBar = (ProgressBar) rootView.findViewById(R.id.load_bar);
+        loadBar = rootView.findViewById(R.id.load_bar);
         iv_disturb = rootView.findViewById(R.id.iv_disturb);
+        actionRightRight = rootView.findViewById(R.id.action_right_right);
+        txtRightRight = rootView.findViewById(R.id.txt_right_right);
+        btnIconRightRight = rootView.findViewById(R.id.btn_icon_right_right);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ActionbarView);
         // 左图标
@@ -343,6 +362,7 @@ public class ActionbarView extends LinearLayout {
         Log.i("ActionbarView", "#onCreate background = " + value);
 
     }
+
 
     /***
      * 监听事件

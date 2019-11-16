@@ -641,12 +641,25 @@ public class MsgAction {
         NetUtil.getNet().exec(server.changeMaster(gid, uid, membername), callback);
     }
 
-
     /**
      * 通过群id批量获取群信息
      */
     public void getGroupsByIds(String gids, Callback<ReturnBean<List<Group>>> callback) {
         NetUtil.getNet().exec(server.getGroupsByIds(gids), callback);
+    }
+
+    /**
+     * 设置单聊阅后即焚
+     */
+    public void setSurvivalTime(long friend, int survivalTime, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.setSurvivalTime(friend, survivalTime), callback);
+    }
+
+    /**
+     * 设置群聊阅后即焚
+     */
+    public void changeSurvivalTime(String gid, int survivalTime, Callback<ReturnBean> callback) {
+        NetUtil.getNet().exec(server.changeSurvivalTime(gid, survivalTime), callback);
     }
 
 
