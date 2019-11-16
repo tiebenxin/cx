@@ -1,7 +1,6 @@
 package com.yanlong.im.chat.dao;
 
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.AssistantMessage;
