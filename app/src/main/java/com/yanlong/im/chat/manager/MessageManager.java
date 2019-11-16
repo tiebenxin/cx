@@ -122,8 +122,10 @@ public class MessageManager {
                     dealWithMsg(wrapMessage, false, true);
 
                 } else {//收到多条消息（如离线）
+//                    LogUtil.getLog().d("a=", "--总任务数="  + "--当前时间-3=" + System.currentTimeMillis());
                     taskMsgList = new TaskDealWithMsgList(msgList);
                     taskMsgList.execute();
+//                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数="  + "--当前时间-4=" + System.currentTimeMillis());
                 }
             }
         }

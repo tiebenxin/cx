@@ -74,7 +74,7 @@ public class SocketUtil {
             LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
             SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
 //            SocketData.magSaveAndACK(bean);
-            LogUtil.getLog().d(TAG, "MessageManager--接收消息size=" + bean.getWrapMsgList().size() + "当前时间--" + System.currentTimeMillis());
+            LogUtil.getLog().d(TAG, "MessageManager--接收消息size=" + bean.getWrapMsgList().size() + "-当前时间-0-" + System.currentTimeMillis());
             MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
@@ -537,7 +537,7 @@ public class SocketUtil {
                 try {
 
                     //8.6先加大接收容量
-                    ByteBuffer readBuf = ByteBuffer.allocate(1024);
+                    ByteBuffer readBuf = ByteBuffer.allocate(1024*8);//最大 65536 ，65536/1024=64kb，倍数小于64
                     int data_size = 0;
                     List<byte[]> temp = new ArrayList<>();
                     while (isRun() && (indexVer == threadVer)) {
