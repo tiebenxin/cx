@@ -229,7 +229,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private Long toUId = null;
     private String toGid = null;
-    private boolean onlineState = false;//判断网络状态 true在线 false离线
+    private boolean onlineState = true;//判断网络状态 true在线 false离线
     //当前页
     //private int indexPage = 0;
     private List<MsgAllBean> msgListData = new ArrayList<>();
@@ -538,7 +538,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void initEvent() {
         toGid = getIntent().getStringExtra(AGM_TOGID);
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
-        onlineState = getIntent().getBooleanExtra(ONLINE_STATE, false);
+        onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
+        //预先网络监听
+        actionbar.getLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
@@ -552,8 +554,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             actionbar.getBtnRight().setVisibility(View.VISIBLE);
             viewChatBottom.setVisibility(View.VISIBLE);
         }
-        //预先网络监听
-        actionbar.getLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {

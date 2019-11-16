@@ -103,7 +103,7 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopQr;
     private LinearLayout viewPopHelp;
     private View viewNetwork;
-    private boolean onlineState = false;//判断网络状态 true在线 false离线
+    private boolean onlineState = true;//判断网络状态 true在线 false离线
 
     Runnable runnable = new Runnable() {
         @Override
@@ -217,7 +217,9 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onLine(final boolean state) {
-                if (getActivityMe().isActivityStop()) {
+                //离线 且 不在当前界面，就停止继续执行，节约性能消耗
+                if (!state && getActivityMe().isActivityStop()) {
+//                    System.out.println(MsgMainFragment.class.getSimpleName() + "--MainActivity当前是stop");
                     return;
                 }
 
@@ -348,7 +350,7 @@ public class MsgMainFragment extends Fragment {
                 break;
             case CoreEnum.ENetStatus.ERROR_ON_SERVER:
                 if (viewNetwork.getVisibility() == View.GONE) {
-                    viewNetwork.postDelayed(runnable, 10 * 1000);
+                    viewNetwork.postDelayed(showRunnable, 10 * 1000);
                 }
                 break;
             case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
@@ -928,6 +930,26 @@ public class MsgMainFragment extends Fragment {
 
     }
 
+//    private String creatAndSaveImg(String gid) {
+//        Group gginfo = msgDao.getGroup4Id(gid);
+//        int i = gginfo.getUsers().size();
+//        i = i > 9 ? 9 : i;
+//        //头像地址
+//        String url[] = new String[i];
+//        for (int j = 0; j < i; j++) {
+//            UserInfo userInfo = gginfo.getUsers().get(j);
+////            if (j == i - 1) {
+////                name += userInfo.getName();
+////            } else {
+////                name += userInfo.getName() + "、";
+////            }
+//            url[j] = userInfo.getHead();
+//        }
+//        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+//        MsgDao msgDao = new MsgDao();
+//        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+//        return file.getAbsolutePath();
+//    }
 
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
