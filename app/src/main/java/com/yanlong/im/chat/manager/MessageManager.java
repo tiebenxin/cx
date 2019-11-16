@@ -296,12 +296,12 @@ public class MessageManager {
                 break;
             case CANCEL://撤销消息
                 if (bean != null) {
+                    String cancelMsgId = wrapMessage.getCancel().getMsgId();
                     // 判断消息是否存在，不存在则不保存
-                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsg_id());
+                    MsgAllBean msgAllBean = msgDao.getMsgById(cancelMsgId);
                     if (msgAllBean != null) {
                         result = saveMessageNew(bean, isList);
                     }
-                    String cancelMsgId = wrapMessage.getCancel().getMsgId();
                     if (isList) {
                         if (pendingMessages.containsKey(cancelMsgId)) {
                             pendingMessages.remove(cancelMsgId);
