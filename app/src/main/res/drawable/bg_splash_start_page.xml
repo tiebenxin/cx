@@ -5,7 +5,8 @@
             <solid android:color="@color/white" />
         </shape>
     </item>
-    <item>
+
+    <item android:top="0dp">
         <bitmap
             android:gravity="center"
             android:src="@mipmap/bg_start_page" />
