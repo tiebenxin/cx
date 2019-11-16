@@ -125,8 +125,10 @@ public class MessageManager {
                     dealWithMsg(wrapMessage, false, true);
 
                 } else {//收到多条消息（如离线）
+//                    LogUtil.getLog().d("a=", "--总任务数="  + "--当前时间-3=" + System.currentTimeMillis());
                     taskMsgList = new TaskDealWithMsgList(msgList);
                     taskMsgList.execute();
+//                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数="  + "--当前时间-4=" + System.currentTimeMillis());
                 }
             }
         }
@@ -294,12 +296,12 @@ public class MessageManager {
                 break;
             case CANCEL://撤销消息
                 if (bean != null) {
+                    String cancelMsgId = wrapMessage.getCancel().getMsgId();
                     // 判断消息是否存在，不存在则不保存
-                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsg_id());
+                    MsgAllBean msgAllBean = msgDao.getMsgById(cancelMsgId);
                     if (msgAllBean != null) {
                         result = saveMessageNew(bean, isList);
                     }
-                    String cancelMsgId = wrapMessage.getCancel().getMsgId();
                     if (isList) {
                         if (pendingMessages.containsKey(cancelMsgId)) {
                             pendingMessages.remove(cancelMsgId);

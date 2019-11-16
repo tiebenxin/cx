@@ -308,7 +308,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         try {
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(path);
-            Log.i("1212", "path:" + path);
 //            mMediaPlayer.setSurface(new Surface(surface));
             mMediaPlayer.setDisplay(surfaceHolder);
 //            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
@@ -396,12 +395,19 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     @Override
     protected void onRestart() {
         super.onRestart();
+        activity_video_big_con.setVisibility(View.INVISIBLE);
+        activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
 //        if (null!=mMediaPlayer){
 //            mMediaPlayer.start();
 //        }
 //        if (null!=timer){
 //            timer.purge();
 //        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @Override
