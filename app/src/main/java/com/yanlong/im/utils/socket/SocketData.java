@@ -547,6 +547,7 @@ public class SocketData {
                 .setOperation(operation)
                 .setDesc(txt)
                 .build();
+
         return send4Base(toId, toGid, MsgBean.MessageType.P2P_AU_VIDEO, chat);
 
     }
@@ -645,39 +646,40 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.IMAGE, msgb);
     }
 
-    /***
-     * 发送视频
-     * @param toId
-     * @param toGid
-     * @param videoMessage
-     * @return
-     */
-    public static MsgAllBean 发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage) {
-        String bg_URL = videoMessage.getBg_url();
-        long time = videoMessage.getDuration();
-        String url = videoMessage.getUrl();
-        long width = videoMessage.getWidth();
-        long height = videoMessage.getHeight();
-        String msgId = videoMessage.getMsgId();
-
-
-        MsgBean.ShortVideoMessage msg;
-        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int) width).setHeight((int) height).build();
-        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
-    }
-
-    public static MsgAllBean 转发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage) {
-        String bg_URL = videoMessage.getBg_url();
-        long time = videoMessage.getDuration();
-        String url = videoMessage.getUrl();
-        long width = videoMessage.getWidth();
-        long height = videoMessage.getHeight();
-        String msgId = videoMessage.getMsgId();
-
-        MsgBean.ShortVideoMessage msg;
-        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int) width).setHeight((int) height).build();
-        return send4Base(toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
-    }
+//    /***
+//     * 发送视频
+//     * @param toId
+//     * @param toGid
+//     * @param videoMessage
+//     * @return
+//     */
+//    public static MsgAllBean 发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage) {
+//        String bg_URL = videoMessage.getBg_url();
+//        long time = videoMessage.getDuration();
+//        String url = videoMessage.getUrl();
+//        long width = videoMessage.getWidth();
+//        long height = videoMessage.getHeight();
+//        String msgId = videoMessage.getMsgId();
+//
+//
+//        MsgBean.ShortVideoMessage msg;
+//        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int) width).setHeight((int) height).build();
+//        return send4BaseById(msgId, toId, toGid, time, MsgBean.MessageType.SHORT_VIDEO, msg);
+//    }
+//
+//    public static MsgAllBean 转发送视频整体信息(Long toId, String toGid, VideoMessage videoMessage) {
+//        String bg_URL = videoMessage.getBg_url();
+//        long time = videoMessage.getDuration();
+//        String url = videoMessage.getUrl();
+//        long width = videoMessage.getWidth();
+//        long height = videoMessage.getHeight();
+//        String msgId = videoMessage.getMsgId();
+//
+//
+//        MsgBean.ShortVideoMessage msg;
+//        msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth((int) width).setHeight((int) height).build();
+//        return send4Base(toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);
+//    }
 
     /***
      * 发送视频
@@ -688,7 +690,7 @@ public class SocketData {
      */
     private static String videoLocalUrl = null;
 
-    public static MsgAllBean 发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height, String videoLocalPath) {
+    public static MsgAllBean sendVideo(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height, String videoLocalPath) {
         MsgBean.ShortVideoMessage msg;
         videoLocalUrl = videoLocalPath;
 //        String extTh = "/below-20k";
@@ -723,7 +725,20 @@ public class SocketData {
         return send4BaseById(msgId, toId, toGid, -1, MsgBean.MessageType.SHORT_VIDEO, msg);
     }
 
-    public static MsgAllBean 转发送视频信息(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
+    /**
+     *  转发送视频信息
+     * @param msgId
+     * @param toId
+     * @param toGid
+     * @param url
+     * @param bg_URL
+     * @param isOriginal
+     * @param time
+     * @param width
+     * @param height
+     * @return
+     */
+    public static MsgAllBean forwardingVideo(String msgId, Long toId, String toGid, String url, String bg_URL, boolean isOriginal, long time, int width, int height) {
         MsgBean.ShortVideoMessage msg;
         msg = MsgBean.ShortVideoMessage.newBuilder().setBgUrl(bg_URL).setDuration((int) time).setUrl(url).setWidth(width).setHeight(height).build();
         return send4Base(toId, toGid, MsgBean.MessageType.SHORT_VIDEO, msg);

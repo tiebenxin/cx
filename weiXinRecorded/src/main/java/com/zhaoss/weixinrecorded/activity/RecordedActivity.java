@@ -143,7 +143,6 @@ public class RecordedActivity extends BaseActivity {
         mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
-//                Log.i("1212", "onPreviewFrame");
                 if (isShotPhoto.get()) {
                     isShotPhoto.set(false);
                     shotPhoto(data);
@@ -250,7 +249,6 @@ public class RecordedActivity extends BaseActivity {
 //                intent.putExtra(INTENT_DATA_TYPE, RESULT_TYPE_PHOTO);
 //                setResult(RESULT_OK, intent);
 //                finish();
-                Log.i("1212", "result:" + result);
                 Intent intent = new Intent(RecordedActivity.this, ImageShowActivity.class);
                 intent.putExtra("imgpath", result);
                 startActivityForResult(intent, 90);
@@ -528,8 +526,10 @@ public class RecordedActivity extends BaseActivity {
                 aacList.add(audioPath);
                 timeList.add(videoDuration);
                 initRecorderState(false);
-                // 录制完成后进入预览视频
-                iv_next.callOnClick();
+                if(!isShotPhoto.get()){
+                    // 录制完成后进入预览视频
+                    iv_next.callOnClick();
+                }
             }
 
             @Override

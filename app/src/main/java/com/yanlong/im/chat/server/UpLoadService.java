@@ -191,7 +191,7 @@ public class UpLoadService extends Service {
                         eventUpImgLoadEvent.setState(1);
                         eventUpImgLoadEvent.setUrl(url);
                         eventUpImgLoadEvent.setOriginal(isOriginal);
-                        Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url, netBgUrl, isOriginal, time, (int) videoMessage.getWidth(), (int) videoMessage.getHeight(), videoMessage.getLocalUrl());
+                        Object msgbean = SocketData.sendVideo(id, toUId, toGid, url, netBgUrl, isOriginal, time, (int) videoMessage.getWidth(), (int) videoMessage.getHeight(), videoMessage.getLocalUrl());
                         ((MsgAllBean) msgbean).getVideoMessage().setLocalUrl(videoMessage.getLocalUrl());
 //                        MsgDao dao = new MsgDao();
 //                        dao.fixVideoLocalUrl(id, videoMessage.getLocalUrl());
@@ -323,7 +323,7 @@ public class UpLoadService extends Service {
                 eventUpImgLoadEvent.setState(1);
                 eventUpImgLoadEvent.setUrl(url);
                 eventUpImgLoadEvent.setOriginal(isOriginal);
-                Object msgbean = SocketData.发送视频信息(id, toUId, toGid, url, video_bg, isOriginal, time, (int) videoMessage.getWidth(), (int) videoMessage.getHeight(), videoMessage.getLocalUrl());
+                Object msgbean = SocketData.sendVideo(id, toUId, toGid, url, video_bg, isOriginal, time, (int) videoMessage.getWidth(), (int) videoMessage.getHeight(), videoMessage.getLocalUrl());
 
                 eventUpImgLoadEvent.setMsgAllBean(msgbean);
                 EventBus.getDefault().post(eventUpImgLoadEvent);

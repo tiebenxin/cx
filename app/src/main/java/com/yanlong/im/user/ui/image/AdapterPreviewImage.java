@@ -275,7 +275,23 @@ public class AdapterPreviewImage extends PagerAdapter {
             }
         });
 
-
+        ivLong.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showDownLoadDialog(media, ivZoom, isHttp, isOriginal);
+                return false;
+            }
+        });
+        ivLong.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (download != null) {//取消当前请求
+                    download.cancel();
+                }
+                ((Activity) context).finish();
+                ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
+            }
+        });
     }
 
     /*
@@ -341,8 +357,8 @@ public class AdapterPreviewImage extends PagerAdapter {
     private void showImage(ZoomImageView ivZoom, LargeImageView ivLarge, SubsamplingScaleImageView ivLong, TextView tvViewOrigin, ImageView ivDownload, LocalMedia media, boolean isOrigin, boolean hasRead, boolean isHttp, boolean isLong) {
         tvViewOrigin.setTag(media.getSize());
         ivZoom.setVisibility(isLong ? View.GONE : View.VISIBLE);
-        ivLong.setVisibility(isLong ? View.VISIBLE : View.GONE);
-        showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin);
+        ivLarge.setVisibility(isLong ? View.VISIBLE : View.GONE);
+        showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize());
         if (isHttp) {
             if (isLong) {
                 if (isOrigin) {
@@ -356,14 +372,15 @@ public class AdapterPreviewImage extends PagerAdapter {
                         String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
                         if (PictureFileUtils.hasImageCache(cachePath, media.getSize())) {
                             loadImage(media.getCompressPath(), ivZoom, false);
+                            //TODO:不设置Alpha 和 visible 就不能响应手势
+                            ivLarge.setAlpha(0);
+                            ivLarge.setVisibility(View.VISIBLE);
                             ivLarge.setImage(new FileBitmapDecoderFactory(cachePath));
                         } else {
                             loadImage(media.getCompressPath(), ivZoom, true);
                             loadLargeImage(media.getPath(), ivLarge);
                         }
                     } else {
-                        tvViewOrigin.setVisibility(View.VISIBLE);
-                        tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(media.getSize()) + ")");
                         if (!TextUtils.isEmpty(media.getCutPath()) && (media.getWidth() > 1080 || media.getHeight() > 1920)) {
                             loadImage(media.getCutPath(), ivZoom, false);
                         } else {
@@ -386,6 +403,8 @@ public class AdapterPreviewImage extends PagerAdapter {
             } else {
                 if (!TextUtils.isEmpty(media.getPath())) {
                     loadImage(media.getPath(), ivZoom, true);
+                    ivLarge.setAlpha(0);
+                    ivLarge.setVisibility(View.VISIBLE);
                     ivLarge.setImage(new FileBitmapDecoderFactory(media.getPath()));
                 } else {
                     loadImage(media.getCompressPath(), ivZoom, false);
@@ -394,9 +413,10 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
     }
 
-    private void showViewOrigin(boolean isHttp, boolean isOrigin, boolean hasRead, TextView tvViewOrigin) {
+    private void showViewOrigin(boolean isHttp, boolean isOrigin, boolean hasRead, TextView tvViewOrigin, long size) {
         if (isHttp && isOrigin && !hasRead) {
             tvViewOrigin.setVisibility(View.VISIBLE);
+            tvViewOrigin.setText("查看原图(" + ImgSizeUtil.formatFileSize(size) + ")");
         } else {
             tvViewOrigin.setVisibility(View.GONE);
         }
@@ -545,7 +565,7 @@ public class AdapterPreviewImage extends PagerAdapter {
 
     private void loadLargeImage(String url, LargeImageView iv) {
         iv.setAlpha(0);
-        iv.setVisibility(View.GONE);
+        iv.setVisibility(View.VISIBLE);
         RequestOptions options = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL);
         Glide.with(context)

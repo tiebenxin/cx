@@ -25,6 +25,7 @@
         <item name="colorAccent">@color/green_600</item>
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:statusBarColor">@color/transparent</item>
+<!--        <item name="android:windowTranslucentNavigation">true</item>-->
     </style>
 
     <style name="RedAppThrme" parent="MainAppThrme">

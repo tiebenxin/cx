@@ -103,6 +103,7 @@ public class MsgMainFragment extends Fragment {
     private LinearLayout viewPopQr;
     private LinearLayout viewPopHelp;
     private View viewNetwork;
+    private boolean onlineState = false;//判断网络状态 true在线 false离线
 
     Runnable runnable = new Runnable() {
         @Override
@@ -233,8 +234,7 @@ public class MsgMainFragment extends Fragment {
                         // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
                         actionBar.setTitle(state ? "消息" : "消息");
                         resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
-
-
+                        onlineState = state;
                     }
                 });
 
@@ -830,6 +830,7 @@ public class MsgMainFragment extends Fragment {
                     startActivity(new Intent(getContext(), ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
+                            .putExtra(ChatActivity.ONLINE_STATE,onlineState)
                     );
 //                    if (bean.getUnread_count() > 0) {
 //                        MessageManager.getInstance().setMessageChange(true);

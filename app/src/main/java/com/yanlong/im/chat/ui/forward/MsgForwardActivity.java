@@ -200,9 +200,15 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         if (msgAllBean == null){
             return;
         }
+
+        String btm="发送";
+        if(!isSingleSelected&&moreSessionBeanList.size()>0){
+            btm="发送("+moreSessionBeanList.size()+")";
+        }
+
         AlertForward alertForward = new AlertForward();
         if (msgAllBean.getChat() != null) {//转换文字
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getChat().getMsg(), null, "发送", new AlertForward.Event() {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getChat().getMsg(), null, btm, new AlertForward.Event() {
 
 
                 @Override
@@ -244,7 +250,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             });
         } else if (msgAllBean.getImage() != null) {
 
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getImage().getThumbnail(), "发送", new AlertForward.Event() {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getImage().getThumbnail(), btm, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -293,7 +299,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             });
 
         } else if (msgAllBean.getAtMessage() != null) {
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getAtMessage().getMsg(), null, "发送", new AlertForward.Event() {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, msgAllBean.getAtMessage().getMsg(), null, btm, new AlertForward.Event() {
                 @Override
                 public void onON() {
 
@@ -335,7 +341,7 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 }
             });
         } else if (msgAllBean.getVideoMessage() != null) {
-            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getVideoMessage().getBg_url(), "发送", new AlertForward.Event() {
+            alertForward.init(MsgForwardActivity.this, mIcon, mName, null, msgAllBean.getVideoMessage().getBg_url(), btm, new AlertForward.Event() {
                 @Override
                 public void onON() {
 

@@ -122,7 +122,7 @@ public class CountDownView extends LinearLayout {
                 imCountDown.setImageResource(R.mipmap.icon_st_12);
                 break;
             case 0:
-                imCountDown.setImageResource(R.mipmap.icon_st_1);
+                imCountDown.setImageResource(R.mipmap.icon_st_12);
                 break;
 //            default:
 //                imCountDown.setImageResource(R.mipmap.icon_st_1);
