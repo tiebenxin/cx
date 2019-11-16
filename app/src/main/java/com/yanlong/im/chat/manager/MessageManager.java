@@ -151,6 +151,7 @@ public class MessageManager {
         }
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
+        boolean isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
                 LogUtil.getLog().e(TAG, ">>>>>重复消息: " + wrapMessage.getMsgId());
@@ -392,7 +393,12 @@ public class MessageManager {
         //刷新单个,接收到音视频通话消息不需要刷新
         if (result && !hasNotified && !isList && bean != null && wrapMessage.getMsgType() != P2P_AU_VIDEO_DIAL) {
             setMessageChange(true);
-            notifyRefreshMsg(isGroup(wrapMessage.getFromUid(), bean.getGid()) ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, wrapMessage.getFromUid(), bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
+            boolean isGroup = isGroup(wrapMessage.getFromUid(), bean.getGid());
+            long chatterId = wrapMessage.getFromUid();
+            if (!isGroup && isFromSelf) {
+                chatterId = wrapMessage.getToUid();
+            }
+            notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, chatterId, bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
         }
         //记录批量信息来源
         if (isList && taskMsgList != null) {
@@ -512,6 +518,8 @@ public class MessageManager {
      * */
     private boolean saveMessageNew(MsgAllBean msgAllBean, boolean isList) {
         boolean result = false;
+        boolean isFromSelf = msgAllBean.getFrom_uid() == UserAction.getMyId().intValue();
+
         try {
             msgAllBean.setTo_uid(msgAllBean.getTo_uid());
             //收到直接存表
@@ -535,26 +543,42 @@ public class MessageManager {
                     result = true;
                 }
             } else if (TextUtils.isEmpty(msgAllBean.getGid()) && msgAllBean.getFrom_uid() != null && msgAllBean.getFrom_uid() > 0 && !userDao.isUserExist(msgAllBean.getFrom_uid())) {
-                if (!loadUids.contains(msgAllBean.getFrom_uid())) {
-                    loadUids.add(msgAllBean.getFrom_uid());
-                    loadUserInfo(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isList, msgAllBean);
+                long chatterId = -1;//对方的Id
+                if (isFromSelf) {
+                    chatterId = msgAllBean.getTo_uid();
+                } else {
+                    chatterId = msgAllBean.getFrom_uid();
+                }
+                if (!loadUids.contains(chatterId)) {
+                    loadUids.add(chatterId);
+                    loadUserInfo(msgAllBean.getGid(), chatterId, isList, msgAllBean);
                     LogUtil.getLog().d("a=", TAG + "--需要加载用户信息");
                 } else {
                     LogUtil.getLog().d("a=", TAG + "--异步加载用户信息更新未读数");
+                    if (!isList) {
+                        updateSessionUnread(msgAllBean.getGid(), chatterId, isCancel);
+                        setMessageChange(true);
+                    } else {
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel);
+                    }
+                    result = true;
+                }
+            } else {
+                if (!TextUtils.isEmpty(msgAllBean.getGid())) {
                     if (!isList) {
                         updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
                         setMessageChange(true);
                     } else {
                         updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
                     }
-                    result = true;
-                }
-            } else {
-                if (!isList) {
-                    updateSessionUnread(msgAllBean.getGid(), msgAllBean.getFrom_uid(), isCancel);
-                    setMessageChange(true);
                 } else {
-                    updatePendingSessionUnreadCount(msgAllBean.getGid(), msgAllBean.getFrom_uid(), false, isCancel);
+                    long chatterId = isFromSelf ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
+                    if (!isList) {
+                        updateSessionUnread(msgAllBean.getGid(), chatterId, isCancel);
+                        setMessageChange(true);
+                    } else {
+                        updatePendingSessionUnreadCount(msgAllBean.getGid(), chatterId, false, isCancel);
+                    }
                 }
                 result = true;
             }

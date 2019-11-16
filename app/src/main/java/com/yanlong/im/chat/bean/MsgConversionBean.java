@@ -52,12 +52,13 @@ public class MsgConversionBean {
             } else {
                 msgAllBean.setTimestamp(bean.getTimestamp());
             }
-
         }
         msgAllBean.setFrom_uid(bean.getFromUid());
         msgAllBean.setFrom_avatar(bean.getAvatar());
         msgAllBean.setFrom_nickname(bean.getNickname());
         msgAllBean.setFrom_group_nickname(bean.getMembername());
+        msgAllBean.setTo_uid(bean.getToUid());
+
         msgAllBean.setGid(bean.getGid());
         if (!TextUtils.isEmpty(bean.getGid())) {//群聊
             if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
@@ -92,6 +93,8 @@ public class MsgConversionBean {
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
             msgAllBean.setTo_uid(msg.getToUid());
+        } else {
+            msgAllBean.setTo_uid(bean.getToUid());
         }
 
         //这里需要处理用户信息
@@ -394,7 +397,7 @@ public class MsgConversionBean {
                 msgCel.setMsgidCancel(bean.getCancel().getMsgId());
                 // 查出本地数据库的消息
                 MsgAllBean msgAllBean1 = msgDao.getMsgById(bean.getMsgId());
-                if(msgAllBean1!=null){
+                if (msgAllBean1 != null) {
                     msgCel.setCancelContent(msgAllBean1.getMsgCancel().getCancelContent());
                     msgCel.setCancelContentType(msgAllBean1.getMsgCancel().getCancelContentType());
                 }
