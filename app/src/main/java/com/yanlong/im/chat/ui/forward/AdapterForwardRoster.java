@@ -16,11 +16,13 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
 
 /**
  * @anthor Liszt
  * @data 2019/8/12
  * Description
+ *  消息转发 通讯录
  */
 public class AdapterForwardRoster extends AbstractRecyclerAdapter {
     private Context context;
@@ -74,7 +76,7 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
     //自动生成ViewHold
     public class RCViewHolder extends RecyclerView.ViewHolder {
         private TextView txtType;
-        private ImageView imgHead;
+        private ImageView imgHead,ivSelect;
         private TextView txtName;
         private TextView txtTime;
         private View viewType;
@@ -87,7 +89,7 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
             txtName = convertView.findViewById(R.id.txt_name);
             txtTime = convertView.findViewById(R.id.txt_time);
             viewType = convertView.findViewById(R.id.view_type);
-
+            ivSelect = convertView.findViewById(R.id.iv_select);
         }
 
         public void bindData(final UserInfo bean, final int position) {
@@ -123,10 +125,49 @@ public class AdapterForwardRoster extends AbstractRecyclerAdapter {
                     if (listener == null) {
                         return;
                     }
-                    listener.onForward(bean.getUid(), "", bean.getHead(), bean.getName4Show());
 
+                    if(MsgForwardActivity.isSingleSelected){
+                        if (listener != null) {
+                            listener.onForward(bean.getUid(), "", bean.getHead(), bean.getName4Show());
+                        }
+                    }else {
+                        if(bean.isChecked()){
+                            bean.setChecked(false);
+                            ivSelect.setSelected(false);
+
+                            MsgForwardActivity.addOrDelectMoreSessionBeanList(false,bean.getUid(), "", bean.getHead(), bean.getName4Show());
+                        }else {
+
+                            if(MsgForwardActivity.moreSessionBeanList.size()>=MsgForwardActivity.maxNumb){
+                                ToastUtil.show(context, "最多选择"+MsgForwardActivity.maxNumb+"个");
+                                return;
+                            }
+
+                            bean.setChecked(true);
+                            ivSelect.setSelected(true);
+                            MsgForwardActivity.addOrDelectMoreSessionBeanList(true,bean.getUid(), "", bean.getHead(), bean.getName4Show());
+                        }
+
+//                        LogUtil.getLog().e(getAdapterPosition()+"=信息==="+(finalIsGroup? -1L : bean.getFrom_uid())+"==0=="+ bean.getGid()+ "==0="+finalIcon+"=0===="+ finalTitle);
+                    }
                 }
             });
+
+            if(MsgForwardActivity.isSingleSelected){
+                ivSelect.setVisibility(View.GONE);
+            }else {
+                ivSelect.setVisibility(View.VISIBLE);
+
+                boolean hasSelect=MsgForwardActivity.findMoreSessionBeanList(bean.getUid(), "");
+//                LogUtil.getLog().e(getAdapterPosition()+"======hasSelect=="+hasSelect);
+                if(hasSelect){
+                    bean.setChecked(true);
+                    ivSelect.setSelected(true);
+                }else {
+                    bean.setChecked(false);
+                    ivSelect.setSelected(false);
+                }
+            }
         }
 
     }

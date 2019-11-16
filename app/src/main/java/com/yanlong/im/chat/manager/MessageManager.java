@@ -2,7 +2,6 @@ package com.yanlong.im.chat.manager;
 
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
@@ -83,6 +82,9 @@ public class MessageManager {
 
     private static List<String> loadGids = new ArrayList<>();//需要异步加载群数据的群id
     private static List<Long> loadUids = new ArrayList<>();//需要异步记载用户数据的用户id
+
+    private static Map<String, MsgAllBean> sequenceMap = new HashMap<>();//消息发送队列
+
 
     //缓存
     private static Map<Long, UserInfo> cacheUsers = new HashMap<>();//用户信息缓存
@@ -291,17 +293,21 @@ public class MessageManager {
             case ACTIVE_STAT_CHANGE://在线状态改变
                 updateUserOnlineStatus(wrapMessage);
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
-                EventBus.getDefault().post(new EventUserOnlineChange());
+                notifyOnlineChange(wrapMessage.getFromUid());
                 break;
             case CANCEL://撤销消息
                 if (bean != null) {
-                    result = saveMessageNew(bean, isList);
+                    // 判断消息是否存在，不存在则不保存
+                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsg_id());
+                    if (msgAllBean != null) {
+                        result = saveMessageNew(bean, isList);
+                    }
                     String cancelMsgId = wrapMessage.getCancel().getMsgId();
                     if (isList) {
                         if (pendingMessages.containsKey(cancelMsgId)) {
                             pendingMessages.remove(cancelMsgId);
                         } else {
-                            msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
+                            msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId);
                         }
                     } else {
                         //TODO:saveMessageNew的有更新未读数
@@ -311,7 +317,7 @@ public class MessageManager {
 //                        }
 //                        long fromUid = wrapMessage.getFromUid();
 //                        updateSessionUnread(gid, fromUid, true);
-                        msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId, "", "");
+                        msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId);
                     }
                     EventBus.getDefault().post(new EventRefreshChat());
                     // 处理图片撤回，在预览弹出提示
@@ -326,6 +332,7 @@ public class MessageManager {
                     // 处理视频撤回，对方在播放时停止播放
                     EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
                     eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    eventVideo.name = bean.getFrom_nickname();
                     EventBus.getDefault().post(eventVideo);
                     MessageManager.getInstance().setMessageChange(true);
                 }
@@ -362,7 +369,12 @@ public class MessageManager {
                         EventBus.getDefault().post(new EventIsShowRead());
                         break;
                     case 1: //vip
-
+                        userInfo.setVip(wrapMessage.getSwitchChange().getSwitchValue() + "");
+                        userDao.updateUserinfo(userInfo);
+                        // 刷新用户信息
+                        EventFactory.FreshUserStateEvent event = new EventFactory.FreshUserStateEvent();
+                        event.vip = wrapMessage.getSwitchChange().getSwitchValue() + "";
+                        EventBus.getDefault().post(event);
                         break;
                     case 2:  //已读总开关
                         userInfo.setMasterRead(switchValue);
@@ -395,6 +407,12 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    private void notifyOnlineChange(long uid) {
+        EventUserOnlineChange event = new EventUserOnlineChange();
+        event.setUid(uid);
+        EventBus.getDefault().post(event);
     }
 
     //重新生成群头像
@@ -1371,5 +1389,6 @@ public class MessageManager {
         eventRefreshUser.setInfo(info);
         EventBus.getDefault().post(eventRefreshUser);
     }
+
 
 }

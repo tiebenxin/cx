@@ -113,6 +113,7 @@ public class MainActivity extends AppActivity {
     private long mExitTime;
     private int mHour, mMin, mSecond;
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
+    private boolean isActivityStop;
 
     //自动寻找控件
     private void findViews() {
@@ -358,6 +359,7 @@ public class MainActivity extends AppActivity {
     protected void onStop() {
         super.onStop();
         updateNetStatus();
+        isActivityStop = true;
     }
 
     @Override
@@ -399,6 +401,7 @@ public class MainActivity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        isActivityStop = false;
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
@@ -485,13 +488,13 @@ public class MainActivity extends AppActivity {
     public void stopJPushResumeEvent(EventFactory.StopJPushResumeEvent event) {
         // TODO 处理部分手机收到音视频消息后，多个铃声在播放问题
         JPushInterface.stopPush(this);
-        if(!isFinishing()){
+        if (!isFinishing()) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     JPushInterface.resumePush(MainActivity.this);
                 }
-            },500);
+            }, 500);
         }
     }
 
@@ -763,6 +766,10 @@ public class MainActivity extends AppActivity {
         LogUtil.getLog().i(MainActivity.class.getSimpleName(), VersionUtil.getVerName(this));
         SharedPreferencesUtil sp = new SharedPreferencesUtil(NOTIFICATION);
         sp.save2Json(config, "notify_config");
+    }
+
+    public boolean isActivityStop() {
+        return isActivityStop;
     }
 
 

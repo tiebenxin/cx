@@ -181,7 +181,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                     if (msgAllBean.getFrom_uid() == UserAction.getMyId().longValue()) {
                         imagesrc.setReadOrigin(true);
                     }
-                    ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), false, imagesrc.isReadOrigin());
+                    ImageMessage imageMessage = SocketData.createImageMessage(SocketData.getUUID(), imagesrc.getOrigin(), imagesrc.getPreview(), imagesrc.getThumbnail(), imagesrc.getWidth(), imagesrc.getHeight(), !TextUtils.isEmpty(imagesrc.getOrigin()), imagesrc.isReadOrigin(), imagesrc.getSize());
                     MsgAllBean allBean = SocketData.createMessageBean(uid, gid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), imageMessage);
                     if (allBean != null) {
                         SocketData.sendAndSaveMessage(allBean);
@@ -260,7 +260,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 //            SocketData.send4Chat(msgUid, msgGid, comments);
 //        }
         ChatMessage chatMessage = SocketData.createChatMessage(SocketData.getUUID(), msgMsg);
-        MsgAllBean allBean = SocketData.createMessageBean(msgUid, msgGid, msgAllBean.getMsg_type(), ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
+        MsgAllBean allBean = SocketData.createMessageBean(msgUid, msgGid, ChatEnum.EMessageType.TEXT, ChatEnum.ESendStatus.SENDING, SocketData.getFixTime(), chatMessage);
         if (allBean != null) {
             SocketData.sendAndSaveMessage(allBean);
             sendMesage = allBean;
@@ -310,7 +310,31 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 //                    Intent intent = new Intent();
 //                    intent.putExtra(GROUP_JSON, GsonUtils.optObject(groupInfoBean));
 //                    setResult(RESULT_OK, intent);
-                    onForward(-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), /*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
+
+
+
+                    if(MsgForwardActivity.isSingleSelected){
+                        onForward(-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), /*groupInfoBean.getName()*/msgDao.getGroupName(groupInfoBean.getGid()));
+                    }else {
+                        if(groupInfoBean.isSelect()){
+                            groupInfoBeans.get(position).setSelect(false);
+                            holder.ivSelect.setSelected(false);
+
+                            MsgForwardActivity.addOrDelectMoreSessionBeanList(false,-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
+                        }else {
+
+                            if(MsgForwardActivity.moreSessionBeanList.size()>=MsgForwardActivity.maxNumb){
+                                ToastUtil.show(context, "最多选择"+MsgForwardActivity.maxNumb+"个");
+                                return;
+                            }
+
+                            groupInfoBeans.get(position).setSelect(true);
+                            holder.ivSelect.setSelected(true);
+                            MsgForwardActivity.addOrDelectMoreSessionBeanList(true,-1L, groupInfoBean.getGid(), groupInfoBean.getAvatar(), msgDao.getGroupName(groupInfoBean.getGid()));
+                        }
+
+//                        LogUtil.getLog().e(getAdapterPosition()+"=信息==="+(finalIsGroup? -1L : bean.getFrom_uid())+"==0=="+ bean.getGid()+ "==0="+finalIcon+"=0===="+ finalTitle);
+                    }
                 }
             });
 
@@ -320,6 +344,23 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 holder.txtNum.setVisibility(View.VISIBLE);
             } else {
                 holder.txtNum.setVisibility(View.GONE);
+            }
+
+
+            if(MsgForwardActivity.isSingleSelected){
+                holder.ivSelect.setVisibility(View.GONE);
+            }else {
+                holder.ivSelect.setVisibility(View.VISIBLE);
+
+                boolean hasSelect=MsgForwardActivity.findMoreSessionBeanList(-1L, groupInfoBean.getGid());
+//                LogUtil.getLog().e(getAdapterPosition()+"======hasSelect=="+hasSelect);
+                if(hasSelect){
+                    groupInfoBeans.get(position).setSelect(true);
+                    holder.ivSelect.setSelected(true);
+                }else {
+                    groupInfoBeans.get(position).setSelect(false);
+                    holder.ivSelect.setSelected(false);
+                }
             }
         }
 
@@ -334,7 +375,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
 
         //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private ImageView imgHead;
+            private ImageView imgHead,ivSelect;
             private TextView txtName;
             private TextView txtNum;
 
@@ -344,6 +385,7 @@ public class GroupSelectActivity extends AppActivity implements IForwardListener
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
                 txtNum = convertView.findViewById(R.id.txt_num);
+                ivSelect = convertView.findViewById(R.id.iv_select);
             }
 
         }

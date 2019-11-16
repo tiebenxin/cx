@@ -327,7 +327,7 @@ public class UserAction {
      */
     public void loginOut() {
         cleanInfo();
-        NetUtil.getNet().exec(server.loginOut(), new CallBack<ReturnBean>() {
+        NetUtil.getNet().exec(server.loginOut("android"), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {

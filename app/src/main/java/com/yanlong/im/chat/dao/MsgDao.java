@@ -680,10 +680,8 @@ public class MsgDao {
      *
      * @param msgid       消息ID
      * @param msgCancelId
-     * @param content     撤回内容
-     * @param msgType     撤回的消息类型
      */
-    public void msgDel4Cancel(String msgid, String msgCancelId, String content, String msgType) {
+    public void msgDel4Cancel(String msgid, String msgCancelId) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -704,13 +702,7 @@ public class MsgDao {
                 cancel.setTo_uid(UserAction.getMyId());
                 cancel.setGid(bean.getGid());
                 cancel.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
-                // 保存临时消息，用于重新编辑
-                if (StringUtil.isNotNull(content)) {
-                    StampMessage stampMessage = new StampMessage();
-                    stampMessage.setComment(content);
-                    stampMessage.setMsgid(msgType);
-                    cancel.setStamp(stampMessage);
-                }
+
                 int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(),bean.getGid());
                 MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgid);

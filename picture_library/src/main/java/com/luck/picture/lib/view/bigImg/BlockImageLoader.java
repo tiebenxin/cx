@@ -43,7 +43,7 @@ public class BlockImageLoader {
     private Context context;
 
     public static boolean DEBUG = false;
-    static final String TAG = "Loader";
+    static final String TAG = BlockImageLoader.class.getSimpleName();
     private static Pools.SynchronizedPool<Bitmap> bitmapPool = new Pools.SynchronizedPool<>(6);
     private Pools.SimplePool<BlockData> blockDataPool = new Pools.SimplePool<>(64);
     private Pools.SimplePool<DrawData> drawDataPool = new Pools.SimplePool<>(64);
@@ -108,7 +108,6 @@ public class BlockImageLoader {
         recycleMap(loadData.smallDataMap);
         recycleMap(loadData.currentScaleDataMap);
     }
-
 
 
     public void stopLoad() {
@@ -369,8 +368,8 @@ public class BlockImageLoader {
             loadData.currentScaleDataMap = new HashMap<>();
         }
         /*
-        * 找出该scale所有存在的图片切块，和记录所有不存在的position
-		*/
+         * 找出该scale所有存在的图片切块，和记录所有不存在的position
+         */
         Position positionKey = new Position();
         List<DrawData> currentDrawCaches = new ArrayList<>();
         Map<Position, BlockData> tempCurrentDataMap = loadData.currentScaleDataMap;
@@ -879,7 +878,7 @@ public class BlockImageLoader {
         @Override
         protected void doInBackground() {
             if (DEBUG) {
-                Log.d(TAG,"doInBackground："+Thread.currentThread()+" "+Thread.currentThread().getId());
+                Log.d(TAG, "doInBackground：" + Thread.currentThread() + " " + Thread.currentThread().getId());
             }
             int imageBlockSize = BASE_BLOCKSIZE * scale;
             int left = imageBlockSize * position.col;
@@ -1002,19 +1001,19 @@ public class BlockImageLoader {
         protected void doInBackground() {
             BitmapFactory.Options decodingOptions = new BitmapFactory.Options();
             decodingOptions.inSampleSize = scale;
-          //  decodingOptions.inMutable = true;
-           // decodingOptions.inBitmap
+            //  decodingOptions.inMutable = true;
+            // decodingOptions.inBitmap
             /*if(bitmap!=null){
                 Log.d(TAG,">>>>>>>>>>>>>>>图片：清理了");
                 bitmap.recycle();
             }*/
 
             try {
-                Log.d(TAG,">>>>>>>>>>>>>>>图片：decodeRegion"+imageWidth+"--"+imageHeight);
+                Log.d(TAG, ">>>>>>>>>>>>>>>图片：decodeRegion--" + imageWidth + "--" + imageHeight + "-scale=" + scale);
                 bitmap = decoder.decodeRegion(new Rect(0, 0, imageWidth, imageHeight),
                         decodingOptions);
-                if(bitmap==null){
-                    Log.d(TAG,">>>>>>>>>>>>>>>图片：bitmapnull"+imageWidth+"--"+imageHeight);
+                if (bitmap == null) {
+                    Log.d(TAG, ">>>>>>>>>>>>>>>图片：bitmapnull" + imageWidth + "--" + imageHeight);
                 }
             } catch (OutOfMemoryError e) {
                 e.printStackTrace();

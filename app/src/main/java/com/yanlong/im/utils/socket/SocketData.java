@@ -2,7 +2,6 @@ package com.yanlong.im.utils.socket;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanlong.im.chat.ChatEnum;
@@ -251,6 +250,11 @@ public class SocketData {
             if (msgAllBean.getVideoMessage() != null) {
                 msgAllBean.getVideoMessage().setLocalUrl(videoLocalUrl);
             }
+            // 撤消内容 与内容类型写入数据库
+            if (msgAllBean.getMsgCancel() != null) {
+                msgAllBean.getMsgCancel().setCancelContent(mCancelContent);
+                msgAllBean.getMsgCancel().setCancelContentType(mCancelContentType);
+            }
             //收到直接存表,创建会话
             DaoUtil.update(msgAllBean);
             MsgDao msgDao = new MsgDao();
@@ -491,8 +495,7 @@ public class SocketData {
      * @return false 需要忽略
      */
     private static boolean msgSendSave4filter(MsgBean.UniversalMessage.WrapMessage.Builder wmsg) {
-        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.CANCEL
-                || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL) {
+        if (wmsg.getMsgType() == MsgBean.MessageType.RECEIVE_RED_ENVELOPER || wmsg.getMsgType() == MsgBean.MessageType.P2P_AU_VIDEO_DIAL) {
             return false;
         }
         return true;
@@ -814,6 +817,7 @@ public class SocketData {
         ImgSizeUtil.ImageSize img = ImgSizeUtil.getAttribute(url);
         image.setWidth(img.getWidth());
         image.setHeight(img.getHeight());
+        image.setSize(img.getSize());
         if (isOriginal) {
             image.setOrigin(url);
         }
@@ -821,7 +825,7 @@ public class SocketData {
     }
 
     @NonNull
-    public static ImageMessage createImageMessage(String msgId, String url, String previewUrl, String thumUrl, long width, long height, boolean isOriginal, boolean isOriginRead) {
+    public static ImageMessage createImageMessage(String msgId, String url, String previewUrl, String thumUrl, long width, long height, boolean isOriginal, boolean isOriginRead, long size) {
         ImageMessage image = new ImageMessage();
         image.setLocalimg(url);
         image.setPreview(previewUrl);
@@ -829,6 +833,7 @@ public class SocketData {
         image.setMsgid(msgId);
         image.setWidth(width);
         image.setHeight(height);
+        image.setSize(size);
         if (isOriginal) {
             image.setOrigin(url);
         }
@@ -976,6 +981,9 @@ public class SocketData {
         return send4Base(false, toId, null, MsgBean.MessageType.READ, msg);
     }
 
+    private static String mCancelContent;// 撤回内容
+    private static Integer mCancelContentType;// 撤回内容类型
+
     /**
      * 撤回消息
      *
@@ -992,21 +1000,24 @@ public class SocketData {
                 .setMsgId(msgId)
                 .build();
 
+        mCancelContent = msgContent;
+        mCancelContentType = msgType;
+
         String id = getUUID();
-        MsgAllBean msgAllBean = send4Base(false, true, id, toId, toGid, -1, MsgBean.MessageType.CANCEL, msg);
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setMsg(msgContent);
-        chatMessage.setMsgid(msgType + "");// 暂时用来存放撤回的消息类型
-        msgAllBean.setChat(chatMessage);
+        MsgAllBean msgAllBean = send4Base(true, true, id, toId, toGid, -1, MsgBean.MessageType.CANCEL, msg);
+//        ChatMessage chatMessage = new ChatMessage();
+//        chatMessage.setMsg(msgContent);
+//        chatMessage.setMsgid(msgType + "");// 暂时用来存放撤回的消息类型
+//        msgAllBean.setChat(chatMessage);
         msgAllBean.setSurvival_time(survivalTime);
         ChatServer.addCanceLsit(id, msgAllBean);
 
         return msgAllBean;
     }
-
     /*
      * 发送及保存消息
      * */
+
     public static void sendAndSaveMessage(MsgAllBean bean) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + bean.getTo_uid() + "--gid" + bean.getGid());
         int msgType = bean.getMsg_type();
@@ -1046,6 +1057,13 @@ public class SocketData {
                 videoBuilder.setBgUrl(video.getBg_url()).setDuration((int) video.getDuration()).setUrl(video.getUrl()).setWidth((int) video.getWidth()).setHeight((int) video.getHeight());
                 value = videoBuilder.build();
                 type = MsgBean.MessageType.SHORT_VIDEO;
+                break;
+            case ChatEnum.EMessageType.AT:
+                AtMessage at = bean.getAtMessage();
+                MsgBean.AtMessage.Builder atBuilder = MsgBean.AtMessage.newBuilder();
+                atBuilder.setAtTypeValue(at.getAt_type()).setMsg(at.getMsg()).addAllUid(at.getUid());
+                value = atBuilder.build();
+                type = MsgBean.MessageType.AT;
                 break;
         }
 

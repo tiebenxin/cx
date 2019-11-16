@@ -54,7 +54,8 @@ public interface UserServer {
     Call<ReturnBean<UserInfo>> getUserInfo(@Field("uid") Long uid);
 
     @POST("/user/logout")
-    Call<ReturnBean> loginOut();
+    @FormUrlEncoded
+    Call<ReturnBean> loginOut(@Field("platform") String platform);
 
     @POST("/friends/set-friend-stat")
     @FormUrlEncoded

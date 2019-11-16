@@ -46,6 +46,15 @@ public class DaoMigration implements RealmMigration {
                 updateV9(schema);
                 oldVersion++;
             }
+            if (newVersion > oldVersion && oldVersion == 8) {
+                updateV9(schema);
+                oldVersion++;
+            }
+
+            if (newVersion > oldVersion && oldVersion == 9) {
+                updateV10(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -151,7 +160,7 @@ public class DaoMigration implements RealmMigration {
     }
 
     //新增群阅后即焚
-    private void updateV9(RealmSchema schema) {
+    private void updateV10(RealmSchema schema) {
         schema.get("Group")
                 .addField("survivaltime", int.class);
 
@@ -168,6 +177,13 @@ public class DaoMigration implements RealmMigration {
                 .addField("myRead", int.class)
                 .addField("friendRead", int.class);
     }
+
+    private void updateV9(RealmSchema schema) {
+        schema.get("MsgCancel")
+                .addField("cancelContent", String.class)
+                .addField("cancelContentType", Integer.class);
+    }
+
 
     @Override
     public boolean equals(@Nullable Object obj) {

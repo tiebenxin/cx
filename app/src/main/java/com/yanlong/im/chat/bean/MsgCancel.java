@@ -10,6 +10,8 @@ public class MsgCancel extends RealmObject implements IMsgContent {
     private Long uid;
     private String note;
     private String msgidCancel;
+    private String cancelContent;// 撤回内容
+    private Integer cancelContentType;// 撤回内容类型
     private Integer msgType = MSG_TYPE_DEFAULT;
 
     public Integer getMsgType() {
@@ -18,6 +20,22 @@ public class MsgCancel extends RealmObject implements IMsgContent {
 
     public void setMsgType(Integer msgType) {
         this.msgType = msgType;
+    }
+
+    public String getCancelContent() {
+        return cancelContent;
+    }
+
+    public void setCancelContent(String cancelContent) {
+        this.cancelContent = cancelContent;
+    }
+
+    public Integer getCancelContentType() {
+        return cancelContentType;
+    }
+
+    public void setCancelContentType(Integer cancelContentType) {
+        this.cancelContentType = cancelContentType;
     }
 
     public String getMsgidCancel() {

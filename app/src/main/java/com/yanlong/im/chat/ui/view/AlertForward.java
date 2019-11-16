@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,10 +20,16 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
+import com.yanlong.im.chat.ui.forward.ForwardListAdapter;
+import com.yanlong.im.chat.ui.forward.MoreSessionBean;
+import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /***
  * 对话框
@@ -39,6 +48,7 @@ public class AlertForward {
     private LinearLayout viewNo;
     private Button btnCl;
     private Button btnOk;
+    private RecyclerView recyclerview;
 
 
 
@@ -52,6 +62,7 @@ public class AlertForward {
         viewNo =  rootView.findViewById(R.id.view_no);
         btnCl =  rootView.findViewById(R.id.btn_cl);
         btnOk =  rootView.findViewById(R.id.btn_ok);
+        recyclerview =  rootView.findViewById(R.id.recyclerview);
     }
 
 
@@ -76,10 +87,31 @@ public class AlertForward {
     private void initEvent(String head,String name,String txt,String imgurl, String y) {
 
         //imgHead.setImageURI(Uri.parse(head));
-        Glide.with(context).load(head)
-                .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
-        txtName.setText(name);
+        if(MsgForwardActivity.isSingleSelected){
+            imgHead.setVisibility(View.VISIBLE);
+            txtName.setVisibility(View.VISIBLE);
+            recyclerview.setVisibility(View.GONE);
+
+            Glide.with(context).load(head)
+                    .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+
+            txtName.setText(name);
+        }else if(!MsgForwardActivity.isSingleSelected&&MsgForwardActivity.moreSessionBeanList.size()>0){
+            imgHead.setVisibility(View.GONE);
+            txtName.setVisibility(View.GONE);
+            recyclerview.setVisibility(View.VISIBLE);
+
+//            List<MoreSessionBean> moreSessionBeanList= new ArrayList<>();
+//            LinearLayoutManager manager = new LinearLayoutManager(context);
+//            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+//            recyclerview.setLayoutManager(manager);
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 5);
+            recyclerview.setLayoutManager(gridLayoutManager);
+            ForwardListAdapter forwardListAdapter = new ForwardListAdapter(context, MsgForwardActivity.moreSessionBeanList);
+            recyclerview.setAdapter(forwardListAdapter);
+        }
+
 
         if(StringUtil.isNotNull(txt)){
             txtMsg.setText(txt);

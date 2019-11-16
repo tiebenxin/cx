@@ -68,6 +68,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 
 public class ChatItemView extends LinearLayout {
+    private final int DEFAULT_W = 120;
+    private final int DEFAULT_H = 180;
+
     private TextView txtOtName;
     private TextView txtMeName;
     private TextView txtTime;
@@ -756,8 +759,8 @@ public class ChatItemView extends LinearLayout {
     //视频消息
     public void setDataVideo(VideoMessage videoMessage, final String url, final EventPic eventPic, Integer pg) {
         if (url != null) {
-            final int width = DensityUtil.dip2px(getContext(), 150);
-            final int height = DensityUtil.dip2px(getContext(), 180);
+            final int width = DensityUtil.dip2px(getContext(), DEFAULT_W);
+            final int height = DensityUtil.dip2px(getContext(), DEFAULT_H);
 
             //设定大小
             ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
@@ -866,29 +869,37 @@ public class ChatItemView extends LinearLayout {
         if (uri != null) {
 
 
-            final int width = DensityUtil.dip2px(getContext(), 150);
-            final int height = DensityUtil.dip2px(getContext(), 180);
+            final int width = DensityUtil.dip2px(getContext(), DEFAULT_W);
+            final int height = DensityUtil.dip2px(getContext(), DEFAULT_H);
 
             //设定大小
             ViewGroup.LayoutParams lp = viewMeUp.getLayoutParams();
             if (image != null) {
                 double mh = image.getHeight();
                 double mw = image.getWidth();
-                if (mh == 0) {
-                    mh = height;
-                }
-                if (mw == 0) {
-                    mw = width;
-                }
-
-                double cp = 1;
-                if (mh > mw) {
-                    cp = height / mh;
+                double rate = mw * 1.00 / mh;
+                int w = 0;
+                int h = 0;
+                if (rate < 0.2) {
+                    w = width;
+                    h = height;
                 } else {
-                    cp = width / mw;
+                    if (mh == 0) {
+                        mh = height;
+                    }
+                    if (mw == 0) {
+                        mw = width;
+                    }
+                    double cp = 1;
+                    if (mh > mw) {
+                        cp = height / mh;
+                    } else {
+                        cp = width / mw;
+                    }
+
+                    w = new Double(mw * cp).intValue();
+                    h = new Double(mh * cp).intValue();
                 }
-                int w = new Double(mw * cp).intValue();
-                int h = new Double(mh * cp).intValue();
 
                 imgMe4.setLayoutParams(new FrameLayout.LayoutParams(w, h));
 
@@ -897,6 +908,7 @@ public class ChatItemView extends LinearLayout {
 
                 lp.width = w;
                 lp.height = h;
+                LogUtil.getLog().e(ChatItemView.class.getSimpleName(), "w=" + w + "--h=" + h);
 
             } else {
                 lp.width = width;
@@ -1054,7 +1066,7 @@ public class ChatItemView extends LinearLayout {
 
     private int netState;
 
-    public void setErr(int state) {
+    public void setErr(int state, boolean isShowLoad) {
         this.netState = state;
         switch (state) {
             case 0://正常
@@ -1070,18 +1082,26 @@ public class ChatItemView extends LinearLayout {
                 }
                 break;
             case 2://发送中
-                imgMeErr.setImageResource(R.mipmap.ic_net_load);
-                Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
-                imgMeErr.startAnimation(rotateAnimation);
-                imgMeErr.setVisibility(VISIBLE);
+                if (isShowLoad) {
+                    imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                    Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    imgMeErr.startAnimation(rotateAnimation);
+                    imgMeErr.setVisibility(VISIBLE);
+                } else {
+                    imgMeErr.clearAnimation();
+                    imgMeErr.setVisibility(INVISIBLE);
+                }
                 break;
             case -1://图片待发送
-//                imgMeErr.clearAnimation();
-//                imgMeErr.setVisibility(INVISIBLE);
-                imgMeErr.setImageResource(R.mipmap.ic_net_load);
-                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
-                imgMeErr.startAnimation(animation);
-                imgMeErr.setVisibility(VISIBLE);
+                if (isShowLoad) {
+                    imgMeErr.setImageResource(R.mipmap.ic_net_load);
+                    Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+                    imgMeErr.startAnimation(animation);
+                    imgMeErr.setVisibility(VISIBLE);
+                } else {
+                    imgMeErr.clearAnimation();
+                    imgMeErr.setVisibility(INVISIBLE);
+                }
                 break;
             default: // 其他状态如-1:待发送
 

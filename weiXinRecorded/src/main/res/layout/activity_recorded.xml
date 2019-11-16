@@ -141,15 +141,21 @@
         />
 
 
-    <ImageView
-        android:id="@+id/iv_delete_back"
-        android:layout_width="21dp"
-        android:layout_height="13dp"
+    <RelativeLayout
+        android:id="@+id/layout_back"
+        android:layout_width="wrap_content"
         android:layout_marginLeft="67dp"
         android:layout_centerVertical="true"
-        android:scaleType="fitXY"
+        android:padding="10dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="62dp"
-        android:background="@mipmap/activity_video_back"/>
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/iv_delete_back"
+            android:layout_width="21dp"
+            android:layout_height="13dp"
+            android:scaleType="fitXY"
+            android:background="@mipmap/activity_video_back"/>
+    </RelativeLayout>
 
 </RelativeLayout>
