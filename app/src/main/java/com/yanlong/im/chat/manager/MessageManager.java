@@ -294,7 +294,11 @@ public class MessageManager {
                 break;
             case CANCEL://撤销消息
                 if (bean != null) {
-                    result = saveMessageNew(bean, isList);
+                    // 判断消息是否存在，不存在则不保存
+                    MsgAllBean msgAllBean = msgDao.getMsgById(bean.getMsg_id());
+                    if (msgAllBean != null) {
+                        result = saveMessageNew(bean, isList);
+                    }
                     String cancelMsgId = wrapMessage.getCancel().getMsgId();
                     if (isList) {
                         if (pendingMessages.containsKey(cancelMsgId)) {
@@ -325,6 +329,7 @@ public class MessageManager {
                     // 处理视频撤回，对方在播放时停止播放
                     EventFactory.StopVideoEvent eventVideo = new EventFactory.StopVideoEvent();
                     eventVideo.msg_id = bean.getMsgCancel().getMsgidCancel();
+                    eventVideo.name = bean.getFrom_nickname();
                     EventBus.getDefault().post(eventVideo);
                     MessageManager.getInstance().setMessageChange(true);
                 }
@@ -1351,7 +1356,6 @@ public class MessageManager {
         eventRefreshUser.setInfo(info);
         EventBus.getDefault().post(eventRefreshUser);
     }
-
 
 
 }

@@ -37,6 +37,7 @@ public class EventFactory extends BaseEvent {
      */
     public static class StopVideoEvent extends BaseEvent {
         public String msg_id;
+        public String name;
     }
 
     /**

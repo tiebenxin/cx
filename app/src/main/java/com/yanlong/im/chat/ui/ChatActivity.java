@@ -2618,6 +2618,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 intent.putExtra("videopath", localUrl);
                                 intent.putExtra("videomsg", new Gson().toJson(msgbean));
                                 intent.putExtra("msg_id", msgbean.getMsg_id());
+                                intent.putExtra("bg_url", msgbean.getVideoMessage().getBg_url());
                                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                 startActivity(intent);
 
