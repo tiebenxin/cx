@@ -537,7 +537,7 @@ public class AdapterPreviewImage extends PagerAdapter {
         System.out.println(TAG + "--loadImageThumbnail");
         RequestOptions options = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .override(768, 1080)
+                .override(384, 540)
                 .format(DecodeFormat.PREFER_RGB_565);
         Glide.with(ivZoom.getContext())
                 .asBitmap()
@@ -674,6 +674,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                                 setDownloadProgress(tvViewOrigin, 100);
                                 ivDownload.setEnabled(true);
                                 ivLarge.setImage(new FileBitmapDecoderFactory(file.getAbsolutePath()));
+                                hideZoomImageView(ivZoom);
 //                                loadLargeImage(file.getAbsolutePath(), ivLarge);
                                 MyDiskCacheUtils.getInstance().putFileNmae(filePath, fileSave.getAbsolutePath());
                                 //这边要改成已读
