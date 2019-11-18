@@ -115,7 +115,7 @@ public class MsgMainFragment extends Fragment {
     Runnable showRunnable = new Runnable() {
         @Override
         public void run() {
-            //加上判断->解决断网后又马上连网造成的提示显示异常问题
+            //解决断网后又马上连网造成的提示显示异常问题
             if(!NetUtil.isNetworkConnected()){
                 viewNetwork.setVisibility(View.VISIBLE);
             }
