@@ -376,19 +376,6 @@ public class AdapterPreviewImage extends PagerAdapter {
 //        ivLong.setVisibility(isLong ? View.GONE : View.GONE);
         showViewOrigin(isHttp, isOrigin, hasRead, tvViewOrigin, media.getSize());
         if (isHttp) {
-//            if (isLong) {
-//                if (isOrigin) {
-////                    loadImageLong(media.getPath(), ivLong, false);
-//                    ivLong.setVisibility(View.GONE);
-//                    ivZoom.setVisibility(View.VISIBLE);
-//                    loadImage(media.getPath(), ivZoom, false);
-//                } else {
-////                    loadImageLong(media.getCompressPath(), ivLong, false);
-//                    ivLong.setVisibility(View.GONE);
-//                    ivZoom.setVisibility(View.VISIBLE);
-//                    loadImage(media.getPath(), ivZoom, false);
-//                }
-//            } else {
             if (isOrigin) {
                 if (hasRead) {//原图已读,就显示
                     String cachePath = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
@@ -416,27 +403,29 @@ public class AdapterPreviewImage extends PagerAdapter {
                 ivDownload.setVisibility(View.VISIBLE);
                 loadImage(media.getCompressPath(), ivZoom, false);
             }
-//            }
         } else {
             ivDownload.setVisibility(View.VISIBLE);
-//            if (isLong) {
-//                if (!TextUtils.isEmpty(media.getPath())) {
-//                    loadImageLong(media.getPath(), ivLong, false);
-//                } else {
-//                    loadImageLong(media.getCompressPath(), ivLong, false);
-//                }
-//            } else {
+            boolean hasLoadThumbnail = false;
+            if ((media.getWidth() > 1080 || media.getHeight() > 1920)) {
+                String url = !TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath();
+                loadImageThumbnail(url, ivZoom);
+                hasLoadThumbnail = true;
+            }
+            if (!hasLoadThumbnail) {//没加载过缩略图，先隐藏ivZoom
+                hideZoomImageView(ivZoom);
+            }
             if (!TextUtils.isEmpty(media.getPath())) {
-                loadImage(media.getPath(), ivZoom, true);
                 ivLarge.setAlpha(0);
                 ivLarge.setVisibility(View.VISIBLE);
                 ivLarge.setImage(new FileBitmapDecoderFactory(media.getPath()));
-                hideZoomImageView(ivZoom);
             } else {
-                hideLargeImageView(ivLarge);
-                loadImage(media.getCompressPath(), ivZoom, false);
+                ivLarge.setAlpha(0);
+                ivLarge.setVisibility(View.VISIBLE);
+                ivLarge.setImage(new FileBitmapDecoderFactory(media.getPath()));
             }
-//            }
+            if (hasLoadThumbnail) {//加载过缩略图，后隐藏ivZoom
+                hideZoomImageView(ivZoom);
+            }
         }
     }
 
@@ -542,6 +531,33 @@ public class AdapterPreviewImage extends PagerAdapter {
                         }
                     });
         }
+    }
+
+    private void loadImageThumbnail(String url, ZoomImageView ivZoom) {
+        System.out.println(TAG + "--loadImageThumbnail");
+        RequestOptions options = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .override(768, 1080)
+                .format(DecodeFormat.PREFER_RGB_565);
+        Glide.with(ivZoom.getContext())
+                .asBitmap()
+                .load(url)
+                .apply(options)  //480     800
+                .thumbnail(0.1f)
+                .into(new SimpleTarget<Bitmap>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        super.onLoadFailed(errorDrawable);
+//                        dismissDialog();
+                    }
+
+                    @Override
+                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+//                        dismissDialog();
+                        System.out.println(TAG + "-loadImageThumbnail-ivZoom=" + resource.getWidth() + "--" + resource.getHeight());
+                        ivZoom.setImageBitmap(resource);
+                    }
+                });
     }
 
     /*
