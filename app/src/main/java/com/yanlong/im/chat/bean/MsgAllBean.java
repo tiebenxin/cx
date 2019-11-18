@@ -322,6 +322,8 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             }else{
                 str = "[语音通话]";
             }
+        }else if(msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME){//阅后即焚
+            str = getMsgNotice().getNote();
         }
 
         return str;

@@ -58,6 +58,7 @@ public class MsgAction {
 //            MemberUser memberUser = MessageManager.getInstance().memberToUser(info);
 //            memberUsers.add(memberUser);
 
+
         }
         NetUtil.getNet().exec(server.groupCreate(nickname, name, avatar, gson.toJson(listDataTop2)), new CallBack<ReturnBean<Group>>() {
             @Override

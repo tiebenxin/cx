@@ -189,6 +189,7 @@ public class MsgDao {
         RealmResults list = realm.where(MsgAllBean.class)
                 .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                 .and().beginGroup().equalTo("to_uid", userid).endGroup()
+                .and().greaterThan("survival_time",0)
                 .and().greaterThan("read", 0)
                 .findAll();
         beans = realm.copyFromRealm(list);
