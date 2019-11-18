@@ -10,3 +10,5 @@ local.properties
 .gitignore
 sd.jar
 send.bat
+.gradle
+.idea
