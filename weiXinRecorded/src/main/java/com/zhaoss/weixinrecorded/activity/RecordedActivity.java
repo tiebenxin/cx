@@ -308,7 +308,6 @@ public class RecordedActivity extends BaseActivity {
         iv_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "onClick");
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
@@ -357,8 +356,6 @@ public class RecordedActivity extends BaseActivity {
                 //合并h264
                 String h264Path = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".h264";
 
-
-                Log.i(TAG, "finishVideo  " + segmentList.size() + "  " + segmentList.get(0));
                 Utils.mergeFile(segmentList.toArray(new String[]{}), h264Path);
                 //h264转mp4
                 String mp4Path = LanSongFileUtil.DEFAULT_DIR + System.currentTimeMillis() + ".mp4";
@@ -514,7 +511,6 @@ public class RecordedActivity extends BaseActivity {
 //                  tv_hint.setText(countTime/1000+"秒");
                     tv_hint.setVisibility(View.GONE);
                 } else {
-                    Log.i(TAG, "onExecute");
                     upEvent();
 //                    iv_next.callOnClick();
                 }
