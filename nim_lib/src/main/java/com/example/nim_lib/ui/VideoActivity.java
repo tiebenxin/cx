@@ -1038,16 +1038,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         layoutVoice.setVisibility(View.VISIBLE);
         layoutAudio.setVisibility(View.VISIBLE);
         layoutVoiceIng.setVisibility(View.VISIBLE);
+        imgMinimize.setVisibility(View.VISIBLE);
 
         layoutVideoRoot.setVisibility(View.GONE);
-//        showAudioInitLayout();
-//
-//        muteToggle.toggle(muteOn ? ToggleState.ON : ToggleState.OFF);
-//        speakerToggle.toggle(speakerOn ? ToggleState.ON : ToggleState.OFF);
-//        recordToggle.setSelected(avChatController.isRecording());
-//
-//        showRecordView(avChatController.isRecording(), isRecordWarning);
-
         //关闭视频
         if (AVChatManager.getInstance().isAutoPublishVideo()) {
             AVChatManager.getInstance().stopVideoPreview();
@@ -1055,9 +1048,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
         // 判断是否静音，扬声器是否开启，对界面相应控件进行显隐处理。
         cbHandsFree.setChecked(PlayerManager.getManager().isOpenSpeaker());
-//        onVideoToAudio(AVChatManager.getInstance().isLocalAudioMuted(),
-//                AVChatManager.getInstance().speakerEnabled(),
-//                avChatData != null ? avChatData.getAccount() : account);
     }
 
     @Override

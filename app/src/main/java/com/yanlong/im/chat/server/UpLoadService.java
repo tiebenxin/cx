@@ -25,6 +25,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
 
 
 public class UpLoadService extends Service {
@@ -172,6 +173,8 @@ public class UpLoadService extends Service {
     private static String netBgUrl;
 
     public static void onAddVideo(final Context mContext, final String id, final String file, String bgUrl, final Boolean isOriginal, final Long toUId, final String toGid, final long time, final VideoMessage videoMessage) {
+        // 上传预览图时，默认给1-5的上传进度，解决一开始上传不显示进度问题
+        updateProgress(id, new Random().nextInt(5)+1);
         uploadImageOfVideo(mContext, bgUrl, new UpLoadCallback() {
             @Override
             public void success(String url) {
@@ -184,6 +187,7 @@ public class UpLoadService extends Service {
                         //                String gid = getIntent().getExtras().getString("gid");
                         //                taskGroupInfoSet(gid, url, null, null);
 //                        doUpVideoPro(id,url,netBgUrl,isOriginal,toUId,toGid,time,videoMessage);
+                        Log.i("1212","url:"+url);
                         EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
                         // upProgress.setProgress(100);
                         updateProgress(id, 100);
@@ -230,7 +234,7 @@ public class UpLoadService extends Service {
                         oldUptime = System.currentTimeMillis();
 
                         int pg = new Double(progress / (zong + 0.0f) * 100.0).intValue();
-
+                        Log.i("ChatActivity","pg:"+pg);
                         // upProgress.setProgress(new Double(pg);
                         updateProgress(id, pg);
                         eventUpImgLoadEvent.setMsgid(id);

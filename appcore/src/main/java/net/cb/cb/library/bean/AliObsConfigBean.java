@@ -5,7 +5,7 @@ public class AliObsConfigBean {
     private String securityToken;
     // private Date expiration;
     private String accessKeySecret;
-
+    private String cdnEndpoint;
     private String bucket;
 
     private String endpoint;
@@ -28,6 +28,14 @@ public class AliObsConfigBean {
 
     public void setAccessKeyId(String accessKeyId) {
         this.accessKeyId = accessKeyId;
+    }
+
+    public String getCdnEndpoint() {
+        return cdnEndpoint;
+    }
+
+    public void setCdnEndpoint(String cdnEndpoint) {
+        this.cdnEndpoint = cdnEndpoint;
     }
 
     public String getAccessKeyId() {
