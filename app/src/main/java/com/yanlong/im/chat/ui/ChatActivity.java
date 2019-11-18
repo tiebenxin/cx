@@ -2306,6 +2306,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /**
      * 跳转UserInfoActivity
+     *
      * @param message
      */
     private void toUserInfoActivity(MsgAllBean message) {
@@ -2318,6 +2319,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /**
      * 重新发送消息
+     *
      * @param msgBean
      */
     private void resendMessage(MsgAllBean msgBean) {
@@ -2434,8 +2436,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     addSurvivalTime(msgbean);
                 }
 
-                if (msgbean.getRead() == 1 && checkIsRead() && msgbean.isMe()) {
-                    holder.viewChatItem.setDataRead(msgbean.getReadTime());
+                //如果是群聊不打开阅读
+                if(!isGroup()){
+                    if (msgbean.getRead() == 1 && checkIsRead() && msgbean.isMe()) {
+                        holder.viewChatItem.setDataRead(msgbean.getReadTime());
+                    }
                 }
 
                 holder.viewChatItem.timerCancel();
@@ -2486,7 +2491,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             holder.viewChatItem.setVideoIMGShow(true);
                         } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.SENDING) {
                             holder.viewChatItem.setVideoIMGShow(false);
-                        }else if(msgbean.getSend_state() == ChatEnum.ESendStatus.ERROR){
+                        } else if (msgbean.getSend_state() == ChatEnum.ESendStatus.ERROR) {
                             holder.viewChatItem.setVideoIMGShow(true);
                         }
                         menus.add(new OptionMenu("删除"));
@@ -2603,8 +2608,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
 
             //设置已读
-            if (msgbean.getRead() == 1 && checkIsRead() && msgbean.isMe()) {
-                holder.viewChatItem.setDataRead(msgbean.getReadTime());
+            if(!isGroup()){
+                if (msgbean.getRead() == 1 && checkIsRead() && msgbean.isMe()) {
+                    holder.viewChatItem.setDataRead(msgbean.getReadTime());
+                }
             }
 
             holder.viewChatItem.timerCancel();
@@ -2890,7 +2897,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             holder.viewChatItem.setOnErr(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!DoubleUtils.isFastDoubleClick()){
+                    if (!DoubleUtils.isFastDoubleClick()) {
                         //从数据拉出来,然后再发送
                         resendMessage(msgbean);
                     }
@@ -4325,6 +4332,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private boolean checkIsRead() {
         UserInfo userInfo = userDao.findUserInfo(toUId);
+        if (userInfo == null) {
+            return false;
+        }
         int friendMasterRead = userInfo.getMasterRead();
         int friendRead = userInfo.getFriendRead();
         int myRead = userInfo.getMyRead();

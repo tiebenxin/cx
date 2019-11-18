@@ -120,13 +120,25 @@ public class UserDao {
      * */
     public int getReadDestroy(Long uid, String gid) {
         Realm realm = DaoUtil.open();
+        int survivaltime;
         try {
             if (TextUtils.isEmpty(gid)) {
                 UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-                return userInfo.getDestroy();
+                if(userInfo == null){
+                    return 0;
+                }else{
+                    survivaltime = userInfo.getDestroy();
+
+                    return survivaltime;
+                }
             } else {
                 Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-                return group.getSurvivaltime();
+                if(group == null){
+                    return 0;
+                }else{
+                    survivaltime = group.getSurvivaltime();
+                    return survivaltime;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

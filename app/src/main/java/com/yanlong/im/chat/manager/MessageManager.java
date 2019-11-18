@@ -365,6 +365,9 @@ public class MessageManager {
                 int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
                 long uid = wrapMessage.getFromUid();
                 UserInfo userInfo = userDao.findUserInfo(uid);
+                if(userInfo == null){
+                    break;
+                }
                 switch (switchType) {
                     case 0: // 单聊已读
                         userInfo.setFriendRead(switchValue);
