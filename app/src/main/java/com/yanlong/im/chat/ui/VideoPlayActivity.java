@@ -93,7 +93,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         initView();
         initEvent();
         if (!TextUtils.isEmpty(bgUrl)) {
-            Glide.with(this).load(bgUrl).apply(GlideUtil.headImageOptions()).into(img_bg);
+            Glide.with(this).load(bgUrl).apply(GlideUtil.imageOptions()).into(img_bg);
         }
     }
 

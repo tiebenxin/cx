@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -984,34 +985,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 DialogHelper.getInstance().createSelectDialog(ChatActivity.this, new ICustomerItemClick() {
                     @Override
                     public void onClickItemVideo() {// 视频
-                        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
-                            @Override
-                            public void onSuccess() {
-                                if (userDao != null) {
-                                    UserInfo userInfo = userDao.findUserInfo(toUId);
-                                    if (userInfo != null) {
-                                        Bundle bundle = new Bundle();
-                                        bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
-                                        bundle.putString(Preferences.USER_NAME, userInfo.getName());
-                                        bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
-                                        bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
-                                        bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
-                                        IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFail() {
-
-                            }
-                        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
-                        gotoVideoActivity();
+                        gotoVideoActivity(AVChatType.VIDEO.getValue());
                     }
 
                     @Override
                     public void onClickItemVoice() {// 语音
-                        gotoVoiceActivity();
+                        gotoVideoActivity(AVChatType.AUDIO.getValue());
                     }
 
                     @Override
@@ -1203,11 +1182,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         return super.onKeyDown(keyCode, event);
     }
-
     /**
-     * 进入视频通话
+     * 进入音视频通话
+     * @param  aVChatType
      */
-    private void gotoVideoActivity() {
+    private void gotoVideoActivity(int aVChatType) {
         permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
             @Override
             public void onSuccess() {
@@ -1223,44 +1202,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             bundle.putString(Preferences.USER_NAME, userInfo.getName());
                             bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
                             bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
-                            bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.VIDEO.getValue());
-                            bundle.putString(Preferences.TOGID, toGid);
-                            bundle.putLong(Preferences.TOUID, toUId);
-                            IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);// TODO bundle
-                        }
-                    }
-                } else {
-                    showNetworkDialog();
-                }
-            }
-
-            @Override
-            public void onFail() {
-
-            }
-        }, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
-    }
-
-    /**
-     * 进入语音通话
-     */
-    private void gotoVoiceActivity() {
-        permission2Util.requestPermissions(ChatActivity.this, new CheckPermission2Util.Event() {
-            @Override
-            public void onSuccess() {
-                if (NetUtil.isNetworkConnected()) {
-                    if (userDao != null) {
-                        UserInfo userInfo = userDao.findUserInfo(toUId);
-                        if (userInfo != null) {
-                            EventFactory.CloseMinimizeEvent event = new EventFactory.CloseMinimizeEvent();
-                            event.isClose = true;
-                            EventBus.getDefault().post(event);
-                            Bundle bundle = new Bundle();
-                            bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
-                            bundle.putString(Preferences.USER_NAME, userInfo.getName());
-                            bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
-                            bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
-                            bundle.putInt(Preferences.AVCHA_TTYPE, AVChatType.AUDIO.getValue());
+                            bundle.putInt(Preferences.AVCHA_TTYPE, aVChatType);
                             bundle.putString(Preferences.TOGID, toGid);
                             bundle.putLong(Preferences.TOUID, toUId);
                             IntentUtil.gotoActivity(ChatActivity.this, VideoActivity.class, bundle);
@@ -1596,25 +1538,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
-    /**
-     * 收到音视频操作后向数据库插入一条音视频记录
-     *
-     * @param event
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void closevoiceMinimizeEvent(EventFactory.CloseVoiceMinimizeEvent event) {
-        if (event != null) {
-            MsgAllBean msgAllbean = null;
-            if (event.avChatType == AVChatType.AUDIO.getValue()) {
-                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
-            } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-                msgAllbean = SocketData.send4VoiceOrVideo(toUId, toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
-            }
-            showSendObj(msgAllbean);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-        }
-    }
-
     private String[] strings = new String[]{"拍照", "录制视频"};
 
     private void showDownLoadDialog() {
@@ -1692,6 +1615,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (!msgDao.isMsgLockExist(toGid, toUId)) {
             msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
         }
+        Log.i(TAG,"onStart");
         initData();
 
     }
@@ -1879,6 +1803,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.i(TAG,"onActivityResult");
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case VIDEO_RP:
@@ -2079,8 +2004,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else if (event.getState() == -1) {
             //处理失败的情况
 //            LogUtil.getLog().d("tag", "taskUpImgEvevt -1: ===============>" + event.getMsgId());
-            MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
-            replaceListDataAndNotify(msgAllbean, true);
+            if(!isFinishing()){
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
+                        replaceListDataAndNotify(msgAllbean, true);
+                    }
+                },800);
+            }
         } else if (event.getState() == 1) {
             //  LogUtil.getLog().d("tag", "taskUpImgEvevt 1: ===============>"+event.getMsgId());
             MsgAllBean msgAllbean = (MsgAllBean) event.getMsgAllBean();
@@ -2866,9 +2798,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             UserInfo userInfo = UserAction.getMyInfo();
                             if (userInfo != null && IS_VIP.equals(userInfo.getVip())) {
                                 if (msgbean.getP2PAuVideoMessage().getAv_type() == MsgBean.AuVideoType.Audio.getNumber()) {
-                                    gotoVoiceActivity();
+                                    gotoVideoActivity(AVChatType.AUDIO.getValue());
                                 } else {
-                                    gotoVideoActivity();
+                                    gotoVideoActivity(AVChatType.VIDEO.getValue());
                                 }
                             }
                         }
