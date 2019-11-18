@@ -420,7 +420,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 } else {
                     ivLarge.setAlpha(0);
                     ivLarge.setVisibility(View.VISIBLE);
-                    ivLarge.setImage(new FileBitmapDecoderFactory(media.getPath()));
+                    ivLarge.setImage(new FileBitmapDecoderFactory(media.getCompressPath()));
                 }
             } else {
                 hideLargeImageView(ivLarge);
