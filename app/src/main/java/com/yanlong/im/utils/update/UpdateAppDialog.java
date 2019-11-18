@@ -163,9 +163,11 @@ public class UpdateAppDialog {
         LogUtil.getLog().i("w=====", "" + w);
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvUpdatePercent.getLayoutParams();
         int pro = mProgressNum.getProgress();
-        //左侧距离： 进度滑动距离 + 左侧margin距离 (由于下标稍远，减5像素拼凑效果)
-        params.leftMargin = (w * pro / 100) + DensityUtil.dip2px(context,15)/2 - 5;
-        tvUpdatePercent.setLayoutParams(params);
+        if(pro>=0 && pro<=100){
+            //左侧距离： 进度滑动距离 + 左侧margin距离 (由于下标稍远，减5像素拼凑效果)
+            params.leftMargin = (w * pro / 100) + DensityUtil.dip2px(context,15)/2 - 5;
+            tvUpdatePercent.setLayoutParams(params);
+        }
     }
 
 
