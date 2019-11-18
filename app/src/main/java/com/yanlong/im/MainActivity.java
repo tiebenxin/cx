@@ -519,7 +519,7 @@ public class MainActivity extends AppActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void closevoiceMinimizeEvent(EventFactory.CloseMinimizeEvent event) {
+    public void closeMinimizeEvent(EventFactory.CloseMinimizeEvent event) {
         if (!isFinishing()) {
             if (event.isClose) {
                 mHandler.removeCallbacks(runnable);
