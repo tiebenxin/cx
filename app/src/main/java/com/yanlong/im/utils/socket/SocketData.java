@@ -183,11 +183,10 @@ public class SocketData {
         //普通消息
         MsgBean.UniversalMessage.Builder msg = SendList.findMsgById(bean.getRequestId());
         //6.25 排除通知存库
+        //6.25 移除重发列队
+        SendList.removeSendListJust(bean.getRequestId());
 
         if (msg != null && msgSendSave4filter(msg.getWrapMsg(0).toBuilder())) {
-            //6.25 移除重发列队
-            SendList.removeSendListJust(bean.getRequestId());
-
             //存库处理
             MsgBean.UniversalMessage.WrapMessage wmsg = msg.getWrapMsgBuilder(0)
                     .setMsgId(bean.getMsgIdList().get(0))
