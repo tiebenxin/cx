@@ -20,9 +20,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.RequiresApi;
-
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
@@ -33,15 +31,16 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.GlideOptionsUtil;
-
+import com.yanlong.im.utils.GroupHeadImageUtil;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -197,6 +196,16 @@ public class SearchFriendGroupActivity extends AppActivity {
                         final Group group = listDataGroup.get(p);
 //                    name = group.getName();
                         url = group.getAvatar();
+                        if(!StringUtil.isNotNull(url)){
+                            MsgDao msgDao = new MsgDao();
+                            String localUrl = msgDao.groupHeadImgGet(group.getGid());
+                            if (StringUtil.isNotNull(url)) {
+                                url=localUrl;
+                            } else {
+                                url=creatAndSaveImg(group);
+                            }
+                        }
+//                        LogUtil.getLog().e(position+"=======getAvatar==="+url);
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -452,6 +461,25 @@ public class SearchFriendGroupActivity extends AppActivity {
             }
         });
 
+    }
+
+
+    private String creatAndSaveImg(Group bean) {
+        Group gginfo = bean;
+        int i = gginfo.getUsers().size();
+        i = i > 9 ? 9 : i;
+        //头像地址
+        String url[] = new String[i];
+        for (int j = 0; j < i; j++) {
+            MemberUser userInfo = gginfo.getUsers().get(j);
+            url[j] = userInfo.getHead();
+        }
+        File file = GroupHeadImageUtil.synthesis(getContext(), url);
+
+        MsgDao msgDao = new MsgDao();
+        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+
+        return file.getAbsolutePath();
     }
 
 }
