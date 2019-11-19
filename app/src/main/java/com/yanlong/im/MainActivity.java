@@ -89,6 +89,7 @@ import retrofit2.Response;
 
 import static net.cb.cb.library.utils.SharedPreferencesUtil.SPName.NOTIFICATION;
 
+
 public class MainActivity extends AppActivity {
     public final static String IS_LOGIN = "is_from_login";
     private ViewPagerSlide viewPage;

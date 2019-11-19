@@ -110,7 +110,7 @@
             android:layout_alignParentRight="true"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingLeft="@dimen/app_margin_main"
+            android:paddingLeft="2dp"
             android:paddingRight="@dimen/app_margin_main"
             android:visibility="visible">
 
@@ -119,13 +119,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@drawable/txt_actionbar"
+                android:text="确定"
                 android:textSize="15sp" />
 
             <ImageView
                 android:id="@+id/btn_icon_right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="visible" />
+                android:visibility="gone" />
         </LinearLayout>
 
 
