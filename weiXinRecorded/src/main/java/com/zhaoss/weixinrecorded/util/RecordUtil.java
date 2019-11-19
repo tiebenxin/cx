@@ -21,7 +21,7 @@ public class RecordUtil {
 
     public final static int TIMEOUT_USEC = 10000;
     public final static int frameRate = 60;
-    public final static int frameTime = 1000/frameRate;
+    public final static int frameTime = 1000 / frameRate;
     public final static int sampleRateInHz = 44100;
     public final static int channelConfig = AudioFormat.CHANNEL_IN_MONO;
     public final static int channelCount = 1;
@@ -39,7 +39,7 @@ public class RecordUtil {
     private int rotation;
     private boolean isFrontCamera;
 
-    public RecordUtil(String videoPath, String audioPath, int videoWidth, int videoHeight, int rotation, boolean isFrontCamera){
+    public RecordUtil(String videoPath, String audioPath, int videoWidth, int videoHeight, int rotation, boolean isFrontCamera) {
 
         this.videoWidth = videoWidth;
         this.videoHeight = videoHeight;
@@ -51,14 +51,14 @@ public class RecordUtil {
             initAudioRecord();
 
             File videoFile = new File(videoPath);
-            if(videoFile.exists()){
+            if (videoFile.exists()) {
                 videoFile.delete();
             }
             videoFile.createNewFile();
             videoOut = new FileOutputStream(videoFile);
 
             File audioFile = new File(audioPath);
-            if(audioFile.exists()){
+            if (audioFile.exists()) {
                 audioFile.delete();
             }
             audioFile.createNewFile();
@@ -68,18 +68,26 @@ public class RecordUtil {
         }
     }
 
-    private void initVideoMediaCodec()throws Exception{
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
+    }
+
+    private void initVideoMediaCodec() throws Exception {
         MediaFormat mediaFormat;
-        if(rotation==90 || rotation==270){
+        if (rotation == 90 || rotation == 270) {
             //设置视频宽高
             mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, videoHeight, videoWidth);
-        }else{
+        } else {
             mediaFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, videoWidth, videoHeight);
         }
-        //图像数据格式 YUV420
-        mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar);
+        /**
+         * 图像数据格式 YUV420 （COLOR_FormatYUV420SemiPlanar：魅族note3无法获取缓冲流 COLOR_FormatYUV420Planar：魅族note3正常，华为无法获取缓冲流）
+         * API 21加入的COLOR_FormatYUV420Flexible格式，MediaCodec的所有硬件解码都支持这种格式。但这样解码后得到的YUV420的具体格式又会因设备而异，
+         * 如YUV420Planar，YUV420SemiPlanar，YUV420PackedSemiPlanar等
+         */
+        mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible);
         //码率
-        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, videoWidth*videoHeight*3);
+        mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, videoWidth * videoHeight * 3);
         //每秒30帧
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, frameRate);
         //1秒一个关键帧
@@ -89,12 +97,12 @@ public class RecordUtil {
         videoMediaCodec.start();
     }
 
-    private void initAudioRecord(){
+    private void initAudioRecord() {
         audioBufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT);
         audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig, AudioFormat.ENCODING_PCM_16BIT, audioBufferSize);
     }
 
-    public OnPreviewFrameListener start(){
+    public OnPreviewFrameListener start() {
         isRecording.set(true);
         startRecordAudio();
         startWhile();
@@ -110,11 +118,11 @@ public class RecordUtil {
         }
     };
 
-    public interface OnPreviewFrameListener{
+    public interface OnPreviewFrameListener {
         void onPreviewFrame(byte[] data);
     }
 
-    private void startRecordAudio(){
+    private void startRecordAudio() {
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Boolean>() {
             @Override
             public Boolean doInBackground() throws Throwable {
@@ -127,9 +135,11 @@ public class RecordUtil {
                 }
                 return true;
             }
+
             @Override
             public void onFinish(Boolean result) {
             }
+
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
@@ -137,24 +147,26 @@ public class RecordUtil {
         });
     }
 
-    private void startWhile(){
+    private void startWhile() {
         RxJavaUtil.run(new RxJavaUtil.OnRxAndroidListener<Boolean>() {
             @Override
             public Boolean doInBackground() throws Throwable {
 
                 startTime = System.currentTimeMillis();
-                while (isRecording.get() || videoQueue.size()>0) {
+                while (isRecording.get() || videoQueue.size() > 0) {
                     byte[] videoData = videoQueue.poll();
-                    if(videoData != null){
+                    if (videoData != null) {
                         encodeVideo(videoData);
                     }
                 }
                 return true;
             }
+
             @Override
             public void onFinish(Boolean result) {
                 release();
             }
+
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
@@ -164,12 +176,13 @@ public class RecordUtil {
     }
 
     private byte[] configByte;
-    private void encodeVideo(byte[] nv21)throws IOException {
+
+    private void encodeVideo(byte[] nv21) throws IOException {
 
         currFrame++;
-        if(checkMaxFrame()){
+        if (checkMaxFrame()) {
             currFrame--;
-            return ;
+            return;
         }
 
         byte[] nv12 = new byte[nv21.length];
@@ -182,14 +195,14 @@ public class RecordUtil {
 
         //得到编码器的输入和输出流, 输入流写入源数据 输出流读取编码后的数据
         //得到要使用的缓存序列角标
-        int inputIndex = videoMediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
+        int inputIndex = videoMediaCodec.dequeueInputBuffer(0);// TIMEOUT_USEC
         if (inputIndex >= 0) {
             ByteBuffer inputBuffer = videoMediaCodec.getInputBuffer(inputIndex);
             inputBuffer.clear();
             //把要编码的数据添加进去
             inputBuffer.put(nv12);
             //塞到编码序列中, 等待MediaCodec编码
-            videoMediaCodec.queueInputBuffer(inputIndex, 0, nv12.length,  System.nanoTime()/1000, 0);
+            videoMediaCodec.queueInputBuffer(inputIndex, 0, nv12.length, System.nanoTime() / 1000, 0);
         }
 
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
@@ -204,7 +217,7 @@ public class RecordUtil {
                 case MediaCodec.BUFFER_FLAG_CODEC_CONFIG://视频信息
                     configByte = new byte[bufferInfo.size];
                     configByte = h264;
-                    Log.i("Log.i", configByte.length+"   aaa");
+                    Log.i("Log.i", configByte.length + "   aaa");
                     break;
                 case MediaCodec.BUFFER_FLAG_KEY_FRAME://关键帧
                     videoOut.write(configByte, 0, configByte.length);
@@ -224,12 +237,13 @@ public class RecordUtil {
 
     private long startTime = 0;
     private int currFrame = 0;
-    private boolean checkMaxFrame(){
 
-        int rightFrame = (int) ((System.currentTimeMillis()-startTime)/frameTime);
+    private boolean checkMaxFrame() {
+
+        int rightFrame = (int) ((System.currentTimeMillis() - startTime) / frameTime);
         if (currFrame > rightFrame) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -242,7 +256,7 @@ public class RecordUtil {
         return isRecording.get();
     }
 
-    public void release(){
+    public void release() {
         try {
             audioRecord.stop();
             audioRecord.release();
@@ -256,10 +270,10 @@ public class RecordUtil {
             e.printStackTrace();
         }
         try {
-            if(audioOut!=null){
+            if (audioOut != null) {
                 audioOut.close();
             }
-            if(videoOut!=null){
+            if (videoOut != null) {
                 videoOut.close();
             }
         } catch (Exception e) {

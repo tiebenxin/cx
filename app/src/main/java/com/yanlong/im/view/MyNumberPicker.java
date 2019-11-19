@@ -262,7 +262,7 @@ public class MyNumberPicker extends NumberPicker {
     protected void onDraw(Canvas canvas) {
 //  super.onDraw(canvas);
         getMyValue();
-        mSelectorWheelPaint.setColor(Color.BLUE);
+        mSelectorWheelPaint.setColor(Color.BLACK);
 
         if (!mHasSelectorWheel) {
             super.onDraw(canvas);
@@ -271,21 +271,6 @@ public class MyNumberPicker extends NumberPicker {
         final boolean showSelectorWheel = mHideWheelUntilFocused ? hasFocus() : true;
         float x = (mRight - mLeft) / 2;
         float y = mCurrentScrollOffset;
-
-//  if (showSelectorWheel && mVirtualButtonPressedDrawable != null
-//    && mScrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-//   if (mDecrementVirtualButtonPressed) {
-//    mVirtualButtonPressedDrawable.setState(View.PRESSED_STATE_SET);
-//    mVirtualButtonPressedDrawable.setBounds(0, 0, mRight, mTopSelectionDividerTop);
-//    mVirtualButtonPressedDrawable.draw(canvas);
-//   }
-//   if (mIncrementVirtualButtonPressed) {
-//    mVirtualButtonPressedDrawable.setState(PRESSED_STATE_SET);
-//    mVirtualButtonPressedDrawable.setBounds(0, mBottomSelectionDividerBottom, mRight,
-//      mBottom);
-//    mVirtualButtonPressedDrawable.draw(canvas);
-//   }
-//  }
 
         int[] selectorIndices = mSelectorIndices;
         for (int i = 0; i < selectorIndices.length; i++) {
@@ -310,12 +295,13 @@ public class MyNumberPicker extends NumberPicker {
 
         // draw the selection dividers
         if (showSelectorWheel && mSelectionDivider != null) {
-            mSelectionDivider = new ColorDrawable(Color.parseColor("#a0c4c4c4"));//滚轴线的颜色
+            mSelectionDivider = new ColorDrawable(Color.parseColor("#dcdddd"));//滚轴线的颜色
             // draw the top divider
             int topOfTopDivider = mTopSelectionDividerTop;
             int bottomOfTopDivider = topOfTopDivider + 2;
             mSelectionDivider.setBounds(0, topOfTopDivider, mRight, bottomOfTopDivider);
             mSelectionDivider.draw(canvas);
+
 
             // draw the bottom divider
             int bottomOfBottomDivider = mBottomSelectionDividerBottom;
