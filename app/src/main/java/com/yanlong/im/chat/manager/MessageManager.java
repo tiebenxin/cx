@@ -56,6 +56,7 @@ import retrofit2.Response;
 
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACTIVE_STAT_CHANGE;
+import static com.yanlong.im.utils.socket.MsgBean.MessageType.CANCEL;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.P2P_AU_VIDEO_DIAL;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REMOVE_FRIEND;
 import static com.yanlong.im.utils.socket.MsgBean.MessageType.REQUEST_FRIEND;
@@ -97,6 +98,7 @@ public class MessageManager {
 
     //批量消息待处理
     private static Map<String, MsgAllBean> pendingMessages = new HashMap<>();//批量接收到的消息，待保存到数据库
+    private static Map<String, MsgAllBean> pendingCancelMessages = new HashMap<>();//批量接收到的撤销消息，待保存到数据库
     private static Map<Long, UserInfo> pendingUsers = new HashMap<>();//批量用户信息（头像和昵称），待保存到数据库
     //    private static Map<String, Group> pendingGroups = new HashMap<>();//批量群信息（头像和群名），待保存到数据库
     private static Map<String, Integer> pendingGroupUnread = new HashMap<>();//批量群session未读数，待保存到数据库
@@ -145,12 +147,13 @@ public class MessageManager {
      * @return 返回结果，不需要处理逻辑的消息，默认处理成功
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
-//        LogUtil.getLog().d("a=", TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
+        LogUtil.getLog().d("a=", TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
         boolean result = true;
         boolean hasNotified = false;//已经通知刷新了
+        boolean isCancelValid = false;//是否是有效撤销信息
         boolean isFromSelf = wrapMessage.getFromUid() == UserAction.getMyId().intValue();
         if (!TextUtils.isEmpty(wrapMessage.getMsgId())) {
             if (oldMsgId.contains(wrapMessage.getMsgId())) {
@@ -301,26 +304,28 @@ public class MessageManager {
             case CANCEL://撤销消息
                 if (bean != null) {
                     String cancelMsgId = wrapMessage.getCancel().getMsgId();
-                    // 判断消息是否存在，不存在则不保存
-                    MsgAllBean msgAllBean = msgDao.getMsgById(cancelMsgId);
-                    if (msgAllBean != null) {
-                        result = saveMessageNew(bean, isList);
-                    }
                     if (isList) {
                         if (pendingMessages.containsKey(cancelMsgId)) {
-                            pendingMessages.remove(cancelMsgId);
+                            result = saveMessageNew(bean, isList);
+                            pendingCancelMessages.put(bean.getMsg_id(), bean);
+                            isCancelValid = true;
                         } else {
-                            msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId);
+                            MsgAllBean msgAllBean = msgDao.getMsgById(cancelMsgId);
+                            if (msgAllBean != null) {
+                                result = saveMessageNew(bean, isList);
+                                pendingCancelMessages.put(bean.getMsg_id(), bean);
+                                isCancelValid = true;
+                            }
                         }
                     } else {
                         //TODO:saveMessageNew的有更新未读数
-//                        String gid = wrapMessage.getGid();
-//                        if (!StringUtil.isNotNull(gid)) {
-//                            gid = null;
-//                        }
-//                        long fromUid = wrapMessage.getFromUid();
-//                        updateSessionUnread(gid, fromUid, true);
-                        msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId);
+                        // 判断消息是否存在，不存在则不保存
+                        MsgAllBean msgAllBean = msgDao.getMsgById(cancelMsgId);
+                        if (msgAllBean != null) {
+                            result = saveMessageNew(bean, isList);
+                            msgDao.msgDel4Cancel(wrapMessage.getMsgId(), cancelMsgId);
+                            isCancelValid = true;
+                        }
                     }
                     EventBus.getDefault().post(new EventRefreshChat());
                     // 处理图片撤回，在预览弹出提示
@@ -365,7 +370,7 @@ public class MessageManager {
                 int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
                 long uid = wrapMessage.getFromUid();
                 UserInfo userInfo = userDao.findUserInfo(uid);
-                if(userInfo == null){
+                if (userInfo == null) {
                     break;
                 }
                 switch (switchType) {
@@ -401,7 +406,13 @@ public class MessageManager {
             if (!isGroup && isFromSelf) {
                 chatterId = wrapMessage.getToUid();
             }
-            notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, chatterId, bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
+            if (wrapMessage.getMsgType() == CANCEL) {//撤销消息不能传值，因为撤销消息不一定是当前会话最后一条消息
+                if (isCancelValid) {
+                    notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, chatterId, bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, null);
+                }
+            } else {
+                notifyRefreshMsg(isGroup ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, chatterId, bean.getGid(), CoreEnum.ESessionRefreshTag.SINGLE, bean);
+            }
         }
         //记录批量信息来源
         if (isList && taskMsgList != null) {
@@ -418,6 +429,10 @@ public class MessageManager {
         }
         checkNotifyVoice(wrapMessage, isList, canNotify);
         return result;
+    }
+
+    private boolean isCancelValid(MsgBean.MessageType type, boolean isValid) {
+        return type == MsgBean.MessageType.CANCEL && isValid;
     }
 
     private void notifyOnlineChange(long uid) {
@@ -999,7 +1014,7 @@ public class MessageManager {
             return;
         }
         fetchTimeDiff(message.getTimestamp());
-        userDao. updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
+        userDao.updateUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
         MessageManager.getInstance().updateCacheUserOnlineStatus(fromUid, message.getActiveTypeValue(), message.getTimestamp());
     }
 
@@ -1300,6 +1315,11 @@ public class MessageManager {
         return pendingUserUnread;
     }
 
+    //获取私聊未读map
+    public Map<String, MsgAllBean> getPendingCancelMap() {
+        return pendingCancelMessages;
+    }
+
     //获取群聊未读map
     public Map<String, Integer> getPendingGroupUnreadMap() {
         return pendingGroupUnread;
@@ -1323,6 +1343,10 @@ public class MessageManager {
 
         if (pendingGroupUnread != null) {
             pendingGroupUnread.clear();
+        }
+
+        if (pendingCancelMessages != null) {
+            pendingCancelMessages.clear();
         }
     }
 
