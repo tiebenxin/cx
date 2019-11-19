@@ -8,8 +8,8 @@
         android:id="@+id/view_func"
         android:layout_width="match_parent"
         android:layout_height="240dp"
-
         android:columnCount="4"
+        android:rowCount="4"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
 
@@ -17,11 +17,10 @@
 
         <LinearLayout
             android:id="@+id/view_pic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
@@ -39,11 +38,10 @@
 
         <LinearLayout
             android:id="@+id/view_camera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
@@ -60,11 +58,10 @@
 
         <LinearLayout
             android:id="@+id/view_rb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
@@ -81,11 +78,10 @@
 
         <LinearLayout
             android:id="@+id/view_rb_zfb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
@@ -102,11 +98,10 @@
 
         <LinearLayout
             android:id="@+id/view_action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
@@ -123,11 +118,10 @@
 
         <LinearLayout
             android:id="@+id/view_transfer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
-            android:gravity="center"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
@@ -144,11 +138,10 @@
 
         <LinearLayout
             android:id="@+id/view_card"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
@@ -165,11 +158,10 @@
 
         <LinearLayout
             android:id="@+id/view_chat_robot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <ImageView
@@ -186,11 +178,10 @@
 
         <LinearLayout
             android:id="@+id/ll_chat_video_call"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:visibility="visible"
             android:orientation="vertical">
 
@@ -210,11 +201,10 @@
 
         <LinearLayout
             android:id="@+id/ll_part_chat_video"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:gravity="center_horizontal"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical"
             android:visibility="gone"
             >

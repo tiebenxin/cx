@@ -92,7 +92,6 @@ public class UpFileUtil {
 
         oss = new OSSClient(context, endpoint, credentialProvider);
 
-
         if (simpleDateFormat == null) {
 
             simpleDateFormat = new SimpleDateFormat("yyyyMMdd");

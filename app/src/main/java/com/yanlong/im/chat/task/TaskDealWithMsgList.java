@@ -25,6 +25,7 @@ import java.util.Map;
  * 风险：当请求用户数据和群数据失败的时候，可能导致任务无法正常处理完
  */
 public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
+    private final String TAG = TaskDealWithMsgList.class.getSimpleName();
     private MsgDao msgDao = new MsgDao();
     List<MsgBean.UniversalMessage.WrapMessage> messages;
     List<String> gids = new ArrayList<>();//批量消息接受到群聊id
@@ -178,6 +179,13 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         List<MsgAllBean> msgList = MessageManager.getInstance().getPendingMsgList();
         if (msgList != null) {
             msgDao.insertOrUpdateMsgList(msgList);
+        }
+        Map<String, MsgAllBean> mapCancel = MessageManager.getInstance().getPendingCancelMap();
+        if (mapCancel != null && mapCancel.size() > 0) {
+            for (Map.Entry<String, MsgAllBean> entry : mapCancel.entrySet()) {
+                MsgAllBean bean = entry.getValue();
+                msgDao.msgDel4Cancel(bean.getMsg_id(), bean.getMsgCancel().getMsgidCancel());
+            }
         }
         MessageManager.getInstance().clearPendingList();
     }

@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.nim_lib.util.GlideUtil;
 import com.google.gson.Gson;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -93,7 +94,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         initView();
         initEvent();
         if (!TextUtils.isEmpty(bgUrl)) {
-            Glide.with(this).load(bgUrl).apply(GlideUtil.imageOptions()).into(img_bg);
+            Glide.with(this).load(bgUrl).into(img_bg);
         }
     }
 
@@ -429,6 +430,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
+        if(DoubleUtils.isFastDoubleClick()){
+            return;
+        }
         switch (v.getId()) {
             case R.id.rl_video_play_con:
                 activity_video_rel_con.setVisibility(View.VISIBLE);
