@@ -212,6 +212,13 @@
             android:screenOrientation="portrait">
 
         </activity>
+        <!--消息搜索跳转-->
+        <activity
+            android:name=".chat.ui.MsgSearchActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+        </activity>
 
 
         <!--聊天戳一下界面-->

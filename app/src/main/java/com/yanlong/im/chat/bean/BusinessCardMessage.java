@@ -1,10 +1,12 @@
 package com.yanlong.im.chat.bean;
 
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class BusinessCardMessage extends RealmObject implements IMsgContent {
+public class BusinessCardMessage extends RealmObject implements IMsgContent, Serializable {
     @PrimaryKey
     private String msgid;
     private String avatar; // 头像地址
