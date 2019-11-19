@@ -102,10 +102,10 @@ public class VoiceView extends LinearLayout {
             setDownloadStatus(playStatus, isRead);
         }
 
-
+        //语音部分宽度太宽，会造成未读红点不能正常显示，所以增大了x, 60-->84
         int s = second > 60 ? 60 : second;
         int wsum = getScreenWidth() - DensityUtil.dip2px(getContext(), 74) * 2;//-DensityUtil.dip2px(getContext(),35);
-        float x = DensityUtil.dip2px(getContext(), 60);//viewOtP.getX();
+        float x = DensityUtil.dip2px(getContext(), 84);//viewOtP.getX();//原始值60
         int w = new Float((wsum - x) / 60 * (s)).intValue();
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) viewMeP.getLayoutParams();
         lp.width = w;

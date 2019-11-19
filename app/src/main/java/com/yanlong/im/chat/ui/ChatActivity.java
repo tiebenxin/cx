@@ -279,7 +279,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private View mViewLine1;
     private View mViewLine2;
     private View mViewLine3;
-    private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
+//    private Map<String, String> mTempImgPath = new HashMap<>();// 用于存放本次会话发送的本地图片路径
     private MsgAllBean currentPlayBean;
     private Session session;
     private boolean isLoadHistory = false;//是否是搜索历史信息
@@ -1855,8 +1855,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         // alert.show();
                         final String imgMsgId = SocketData.getUUID();
                         // 记录本次上传图片的ID跟本地路径
-                        mTempImgPath.put(imgMsgId, "file://" + file);
-                        ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
+//                        mTempImgPath.put(imgMsgId, "file://" + file);
+                        ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" + */file, isArtworkMaster);
                         videoMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                         msgListData.add(videoMsgBean);
                         UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
@@ -1887,8 +1887,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             // alert.show();
                             final String imgMsgId = SocketData.getUUID();
                             // 记录本次上传图片的ID跟本地路径
-                            mTempImgPath.put(imgMsgId, "file://" + file);
-                            ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, "file://" + file, isArtworkMaster);
+//                            mTempImgPath.put(imgMsgId, "file://" + file);
+                            ImageMessage imageMessage = SocketData.createImageMessage(imgMsgId, /*"file://" +*/ file, isArtworkMaster);//TODO:使用file://路径会使得检测本地路径不存在
                             imgMsgBean = SocketData.sendFileUploadMessagePre(imgMsgId, toUId, toGid, SocketData.getFixTime(), imageMessage, ChatEnum.EMessageType.IMAGE);
                             msgListData.add(imgMsgBean);
                             UpLoadService.onAdd(imgMsgId, file, isArtworkMaster, toUId, toGid, -1);
@@ -3668,7 +3668,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void accept(List<MsgAllBean> list) throws Exception {
                         msgListData = list;
                         //单聊发送已读消息
-                        onBusPicture();
+//                        onBusPicture();
                         int len = list.size();
                         if (len == 0 && lastPosition > len - 1) {//历史数据被清除了
                             lastPosition = 0;
@@ -3692,17 +3692,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * TODO 当本次有本地发送图片时，用本地图片路径展示，是为了解决发图片之后，在发内容第一次会闪一下重新加载问题，
      * TODO 问题原因是第一次加载本地路径，图片上传成功后加载的是服务器路径
      */
-    private void onBusPicture() {
-        if (mTempImgPath != null && mTempImgPath.size() > 0 && msgListData != null) {
-            for (MsgAllBean bean : msgListData) {
-                for (String key : mTempImgPath.keySet()) {
-                    if (bean.getMsg_id().equals(key)) {
-                        bean.getImage().setThumbnail(mTempImgPath.get(key));
-                    }
-                }
-            }
-        }
-    }
+//    private void onBusPicture() {
+//        if (mTempImgPath != null && mTempImgPath.size() > 0 && msgListData != null) {
+//            for (MsgAllBean bean : msgListData) {
+//                for (String key : mTempImgPath.keySet()) {
+//                    if (bean.getMsg_id().equals(key)) {
+//                        bean.getImage().setLocalimg(mTempImgPath.get(key));
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     /***
      * 查询历史
@@ -3735,7 +3735,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         addItem = msgListData.size() - addItem;
         taskMkName(msgListData);
-        onBusPicture();
+//        onBusPicture();
         notifyData();
 //        LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "size=" + msgListData.size());
 
