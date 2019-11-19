@@ -1,6 +1,5 @@
 package net.cb.cb.library.utils;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;

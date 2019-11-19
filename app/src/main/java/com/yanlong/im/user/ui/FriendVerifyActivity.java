@@ -53,6 +53,10 @@ public class FriendVerifyActivity extends AppActivity {
 
             @Override
             public void onRight() {
+                String t = ui.etTxt.getText().toString();
+                if (!TextUtils.isEmpty(t)) {
+                    content = t;
+                }
                 taskAddFriend(userId, content);
             }
         });

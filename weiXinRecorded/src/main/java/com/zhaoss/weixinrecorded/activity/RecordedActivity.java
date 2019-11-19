@@ -339,8 +339,10 @@ public class RecordedActivity extends BaseActivity {
             public void onClick(View v) {
                 if (mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK) {
                     mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_FRONT, mSurfaceHolder);
+                    recordUtil.setRotation(270);
                 } else {
                     mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
+                    recordUtil.setRotation(90);
                 }
 //                iv_flash_video.setImageResource(R.mipmap.video_flash_close);
             }

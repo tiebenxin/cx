@@ -305,9 +305,16 @@ public class GroupNumbersActivity extends AppActivity {
         }
         isClickble = 1;
         LogUtil.getLog().e("GroupNumbersActivity","taskOption");
+        alert.show();
         CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                try {
+                    Thread.sleep(1000);
+                    alert.dismiss();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 GroupHeadImageUtil.creatAndSaveImg(GroupNumbersActivity.this, gid);
                 if (response.body() == null){
                     isClickble = 0;
@@ -324,6 +331,12 @@ public class GroupNumbersActivity extends AppActivity {
                     finish();
                 }
 
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean> call, Throwable t) {
+                super.onFailure(call, t);
+                alert.dismiss();
             }
         };
         MsgDao dao=new MsgDao();

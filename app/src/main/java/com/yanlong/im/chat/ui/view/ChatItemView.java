@@ -487,23 +487,23 @@ public class ChatItemView extends LinearLayout {
     }
 
     //设置阅后即焚消息显示
-    public void setDataSurvivalTimeShow(int type){
-        LogUtil.getLog().d("CountDownView",type+"");
-     //   timerCancel();
-        if(isMe){
-            if(type == -1){
+    public void setDataSurvivalTimeShow(int type) {
+        LogUtil.getLog().d("CountDownView", type + "");
+        //   timerCancel();
+        if (isMe) {
+            if (type == -1) {
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
-            }else if(type == 0){
+            } else if (type == 0) {
                 viewMeSurvivalTime.setVisibility(View.GONE);
-            }else{
+            } else {
                 viewMeSurvivalTime.setVisibility(View.VISIBLE);
             }
-        }else{
-            if(type == -1){
+        } else {
+            if (type == -1) {
                 viewOtSurvivalTime.setVisibility(View.VISIBLE);
-            }else if(type == 0){
+            } else if (type == 0) {
                 viewOtSurvivalTime.setVisibility(View.GONE);
-            }else{
+            } else {
                 viewOtSurvivalTime.setVisibility(View.VISIBLE);
             }
         }
@@ -858,17 +858,15 @@ public class ChatItemView extends LinearLayout {
     public void setData4(ImageMessage image, String url, final EventPic eventPic, Integer pg) {
         if (url != null) {
             setData4(image, Uri.parse(url), eventPic, pg);
-
         }
 
     }
 
     private RequestOptions options = null;
 
+    //uri不再使用
     public void setData4(final ImageMessage image, final Uri uri, final EventPic eventPic, Integer pg) {
         if (uri != null) {
-
-
             final int width = DensityUtil.dip2px(getContext(), DEFAULT_W);
             final int height = DensityUtil.dip2px(getContext(), DEFAULT_H);
 
@@ -949,7 +947,7 @@ public class ChatItemView extends LinearLayout {
             RequestManager in = Glide.with(getContext());
 
             RequestBuilder rb;
-            if (uri.getPath().toLowerCase().endsWith(".gif")) {
+            if (image.getThumbnailShow().toLowerCase().endsWith(".gif")) {
                 LogUtil.getLog().e("gif", "setData4: isgif");
                 rb = in.asGif();
                 rOptions.priority(Priority.LOW).diskCacheStrategy(DiskCacheStrategy.ALL);
@@ -960,7 +958,7 @@ public class ChatItemView extends LinearLayout {
             }
 
 //            rb.apply(rOptions).listener(requestListener).load(uri);
-            rb.apply(options).listener(requestListener).load(uri);
+            rb.apply(options).listener(requestListener).load(image.getThumbnailShow());
             rb.into(imgMe4);
             rb.into(imgOt4);
             if (pg != null) {
@@ -979,7 +977,7 @@ public class ChatItemView extends LinearLayout {
             viewMeTouch.setOnClickListener(onk = new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    eventPic.onClick(uri.toString());
+                    eventPic.onClick(image.getThumbnailShow());
                 }
             });
             viewOtTouch.setOnClickListener(onk);
@@ -1042,7 +1040,7 @@ public class ChatItemView extends LinearLayout {
     private Context mContext;
 
 
-    public void setReadDestroy(String gid, long uid, int type,String content) {
+    public void setReadDestroy(String gid, long uid, int type, String content) {
         txtReadDestroy.setText(content);
 
 //        if (type == 0) {

@@ -184,7 +184,6 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         if (mapCancel != null && mapCancel.size() > 0) {
             for (Map.Entry<String, MsgAllBean> entry : mapCancel.entrySet()) {
                 MsgAllBean bean = entry.getValue();
-                System.out.println(TAG + "--" + bean.getMsg_id() + "-- cancelId=" + bean.getMsgCancel().getMsgidCancel());
                 msgDao.msgDel4Cancel(bean.getMsg_id(), bean.getMsgCancel().getMsgidCancel());
             }
         }
