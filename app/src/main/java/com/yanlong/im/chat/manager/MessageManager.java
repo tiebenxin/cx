@@ -148,6 +148,7 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
         LogUtil.getLog().d("a=", TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
+//        System.out.println("a=" + TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
@@ -222,10 +223,12 @@ public class MessageManager {
                 }
                 break;
             case OUT_GROUP://退出群聊
-                if (bean != null) {
-                    result = saveMessageNew(bean, isList);
-                    refreshGroupInfo(bean.getGid());
-                    hasNotified = true;
+                if (wrapMessage.getFromUid() != UserAction.getMyId()) {//不是自己退群，才更新（自己退群，session信息已经被删除）
+                    if (bean != null) {
+                        result = saveMessageNew(bean, isList);
+                        refreshGroupInfo(bean.getGid());
+                        hasNotified = true;
+                    }
                 }
                 break;
             case REMOVE_GROUP_MEMBER://自己被移除群聊
