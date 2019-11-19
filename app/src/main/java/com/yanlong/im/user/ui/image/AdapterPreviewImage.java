@@ -64,7 +64,6 @@ import com.yanlong.im.utils.MyDiskCacheUtils;
 
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
-import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 
@@ -154,24 +153,7 @@ public class AdapterPreviewImage extends PagerAdapter {
             hasRead = msgDao.ImgReadStatGet(originUrl);
         }
         if (isGif && !media.isCompressed()) {
-            if (!media.getCutPath().equals(media.getCompressPath())) {
-                Glide.with(context).load(media.getCutPath()).listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        showGif(ivZoom, tvViewOrigin, path);
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        showGif(ivZoom, tvViewOrigin, path);
-                        return false;
-                    }
-                }).into(ivZoom);
-            } else {
-                showGif(ivZoom, tvViewOrigin, path);
-            }
-
+            showGif(media, ivZoom, tvViewOrigin);
         } else {
             showImage(ivZoom, ivLarge, /*ivLong,*/ tvViewOrigin, ivDownload, media, isOriginal, hasRead, isHttp, isLong);
         }
@@ -306,6 +288,26 @@ public class AdapterPreviewImage extends PagerAdapter {
 //                ((Activity) context).overridePendingTransition(0, com.luck.picture.lib.R.anim.a3);
 //            }
 //        });
+    }
+
+    private void showGif(LocalMedia media, ZoomImageView ivZoom, TextView tvViewOrigin) {
+        if (!media.getCutPath().equals(media.getCompressPath())) {
+            Glide.with(context).load(media.getCutPath()).error(Glide.with(context).load(media.getCompressPath())).listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+//                    showGif(ivZoom, tvViewOrigin, media.getCompressPath());
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+//                    showGif(ivZoom, tvViewOrigin, media.getCompressPath());
+                    return false;
+                }
+            }).into(ivZoom);
+        } else {
+            showGif(ivZoom, tvViewOrigin, media.getCompressPath());
+        }
     }
 
     /*
