@@ -1,9 +1,11 @@
 package com.yanlong.im.chat.bean;
 
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 
-public class ReceiveRedEnvelopeMessage extends RealmObject {
+public class ReceiveRedEnvelopeMessage extends RealmObject implements Serializable {
 
 
     private String id;

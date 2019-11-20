@@ -390,6 +390,7 @@ public class ChatInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateReadDestroy(fuid, survivalTime);
+                    msgDao.noteMsgAddSurvivaltime(fuid,null);
                 }
             }
         });

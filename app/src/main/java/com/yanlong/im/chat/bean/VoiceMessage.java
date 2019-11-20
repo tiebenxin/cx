@@ -1,9 +1,11 @@
 package com.yanlong.im.chat.bean;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class VoiceMessage extends RealmObject implements IMsgContent {
+public class VoiceMessage extends RealmObject implements IMsgContent, Serializable {
     @PrimaryKey
     private String msgid;
     private String url;//上传成功后网络路径

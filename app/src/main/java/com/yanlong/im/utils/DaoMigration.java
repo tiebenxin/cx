@@ -164,13 +164,18 @@ public class DaoMigration implements RealmMigration {
         schema.get("Group")
                 .addField("survivaltime", int.class);
 
+        schema.create("ChangeSurvivalTimeMessage")
+                .addField("msgid",String.class,FieldAttribute.PRIMARY_KEY)
+                .addField("survival_time",int.class);
+
         schema.get("MsgAllBean")
                 .addField("survival_time", int.class)
                 .addField("serverTime",long.class)
                 .addField("endTime", long.class)
                 .addField("readTime",long.class)
                 .addField("startTime",long.class)
-                .addField("read",int.class);
+                .addField("read",int.class)
+                .addRealmObjectField("changeSurvivalTimeMessage", schema.get("ChangeSurvivalTimeMessage"));
 
         schema.get("UserInfo")
                 .addField("masterRead", int.class)
@@ -183,6 +188,7 @@ public class DaoMigration implements RealmMigration {
                 .addField("cancelContent", String.class)
                 .addField("cancelContentType", Integer.class);
     }
+
 
 
     @Override

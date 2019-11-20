@@ -62,6 +62,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
+import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.EmojiAdapter;
@@ -158,8 +159,6 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
-
-import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -420,7 +419,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //离线就禁止发送之类的
                     // ToastUtil.show(getContext(), "离线就禁止发送之类的");
                     //  btnSend.setEnabled(state);
-                    actionbar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+                    if(isGroup()){ //群聊离线加载条改为标题底部显示，其他聊天保持不变
+                        actionbar.getGroupLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+                    }else {
+                        actionbar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+                    }
                 }
             });
         }
@@ -543,7 +546,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
         //预先网络监听
-        actionbar.getLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
+        if(isGroup()){ //群聊离线加载条改为标题底部显示，其他聊天保持不变
+            actionbar.getGroupLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
+        }else {
+            actionbar.getLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
+        }
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
@@ -2483,16 +2490,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             String nikeName = null;
             String headico = msgbean.getFrom_avatar();
             if (isGroup()) {//群聊显示昵称
-
-                //6.14 这里有性能问题
-                if (StringUtil.isNotNull(msgbean.getFrom_group_nickname())) {
-                    nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_group_nickname();
-                } else {
-                    nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
-                }
-
-            } else {//单聊不显示昵称
-                nikeName = null;
                 nikeName = msgbean.getFrom_nickname();
             }
             //----------------------------------------
@@ -2545,7 +2542,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 });
             }
-            holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
+            holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time,isGroup());
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type()) {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), false);
@@ -2834,8 +2831,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
                     LogUtil.getLog().d("CHANGE_SURVIVAL_TIME", msgbean.getMsg_id() + "------" + msgbean.getChangeSurvivalTimeMessage().getSurvival_time());
                     if (msgbean.getMsgCancel() != null) {
-                        holder.viewChatItem.setReadDestroy(toGid, msgbean.getFrom_uid(),
-                                msgbean.getChangeSurvivalTimeMessage().getSurvival_time(), msgbean.getMsgCancel().getNote());
+                        holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
                     }
                     break;
             }
@@ -3564,7 +3560,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     memberCount = groupInfo.getUsers().size();
                 }
                 if (memberCount > 0) {
-                    title = title + "(" + memberCount + ")";
+                    actionbar.setNumber(memberCount,true);
+//                    title = title + "(" + memberCount + ")";
+                }else {
+                    actionbar.setNumber(0,false);//消息数为0则不显示
                 }
 
                 //如果自己不在群里面
@@ -4310,6 +4309,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (response.body().isOk()) {
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateReadDestroy(friend, survivalTime);
+                    msgDao.noteMsgAddSurvivaltime(toUId,null);
                 }
             }
         });
@@ -4329,6 +4329,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (response.body().isOk()) {
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
+                    msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(),gid);
                 }
             }
         });

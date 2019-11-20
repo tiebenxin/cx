@@ -38,7 +38,7 @@ public class SocketUtil {
         @Override
         public void onACK(MsgBean.AckMessage bean) {
             SocketData.setPreServerAckTime(bean.getTimestamp());
-            if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED ) {//接收到发送的消息了
+            if (bean.getRejectType() == MsgBean.RejectType.ACCEPTED) {//接收到发送的消息了
                 LogUtil.getLog().d(TAG, ">>>>>保存[发送]的消息到数据库 ");
                 SocketData.msgSave4Me(bean);
             } else {
@@ -71,11 +71,15 @@ public class SocketUtil {
         public void onMsg(MsgBean.UniversalMessage bean) {
             //保存消息和处理回执
             LogUtil.getLog().d(TAG, ">>>>>保存[收到]的消息到数据库 " + bean.getToUid());
-            //发送回执
-            LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
-            SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
+            //在线离线消息不需要发送回执
+            if (bean.getWrapMsg(0).getMsgType() != MsgBean.MessageType.ACTIVE_STAT_CHANGE) {
+                LogUtil.getLog().d(TAG, ">>>>>发送回执: " + bean.getRequestId());
+                SocketUtil.getSocketUtil().sendData(SocketData.msg4ACK(bean.getRequestId(), null), null);
+            } /*else {
+                LogUtil.getLog().d(TAG, ">>>>>在线离线消息不需要发送回执: " + bean.getRequestId());
+            }*/
 //            SocketData.magSaveAndACK(bean);
-            LogUtil.getLog().d(TAG, "MessageManager--接收消息size=" + bean.getWrapMsgList().size() + "-当前时间-0-" + System.currentTimeMillis());
+//            LogUtil.getLog().d(TAG, "MessageManager--接收消息size=" + bean.getWrapMsgList().size() + "-当前时间-0-" + System.currentTimeMillis());
             MessageManager.getInstance().onReceive(bean);
             for (SocketEvent ev : eventLists) {
                 if (ev != null) {
@@ -538,7 +542,7 @@ public class SocketUtil {
                 try {
 
                     //8.6先加大接收容量
-                    ByteBuffer readBuf = ByteBuffer.allocate(1024*8);//最大 65536 ，65536/1024=64kb，倍数小于64
+                    ByteBuffer readBuf = ByteBuffer.allocate(1024 * 8);//最大 65536 ，65536/1024=64kb，倍数小于64
                     int data_size = 0;
                     List<byte[]> temp = new ArrayList<>();
                     while (isRun() && (indexVer == threadVer)) {

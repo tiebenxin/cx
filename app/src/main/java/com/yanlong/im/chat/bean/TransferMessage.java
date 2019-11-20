@@ -1,10 +1,12 @@
 package com.yanlong.im.chat.bean;
 
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class TransferMessage extends RealmObject implements IMsgContent {
+public class TransferMessage extends RealmObject implements IMsgContent, Serializable {
     @PrimaryKey
     private String msgid;
     private String id; // 转账流水号

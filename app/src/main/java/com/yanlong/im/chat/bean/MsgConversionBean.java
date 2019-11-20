@@ -46,10 +46,18 @@ public class MsgConversionBean {
         MsgAllBean msgAllBean = new MsgAllBean();
         if (isError) {
             msgAllBean.setTimestamp(bean.getTimestamp());
+            UserDao userDao = new UserDao();
+            int survivalTime = userDao.getReadDestroy(bean.getFromUid(), bean.getGid());
+            if (survivalTime != 0) {
+                msgAllBean.setSurvival_time(survivalTime);
+            }
         } else {
             if (msg != null) {
                 msgAllBean.setTimestamp(msg.getWrapMsg(0).getTimestamp());
+                msgAllBean.setSurvival_time(msg.getWrapMsg(0).getSurvivalTime());
+
             } else {
+                msgAllBean.setSurvival_time(bean.getSurvivalTime());
                 msgAllBean.setTimestamp(bean.getTimestamp());
             }
         }
@@ -81,14 +89,13 @@ public class MsgConversionBean {
                 }
             }
         }
-        msgAllBean.setSurvival_time(bean.getSurvivalTime());
-        UserDao userDao = new UserDao();
 
-        int survivalTime = userDao.getReadDestroy(bean.getFromUid(), bean.getGid());
-        if (survivalTime != 0) {
-            msgAllBean.setSurvival_time(survivalTime);
-        }
-        LogUtil.getLog().d("SurvivalTime", "消息转换ToBean:  阅后即焚状态-"+survivalTime + "---id:" + bean.getMsgId());
+//        msgAllBean.setSurvival_time(bean.getSurvivalTime());
+//        UserDao userDao = new UserDao();
+//        int survivalTime = userDao.getReadDestroy(bean.getFromUid(), bean.getGid());
+//        if (survivalTime != 0) {
+//            msgAllBean.setSurvival_time(survivalTime);
+//        }
 
         if (msg != null) {
             msgAllBean.setRequest_id(msg.getRequestId());
@@ -100,7 +107,7 @@ public class MsgConversionBean {
         //这里需要处理用户信息
         UserInfo userInfo = DaoUtil.findOne(UserInfo.class, "uid", bean.getFromUid());
         if (userInfo != null) {//更新用户信息
-               //msgAllBean.setFrom_user(userInfo);
+            //msgAllBean.setFrom_user(userInfo);
         } else {
             //从网路缓存
             bean.getAvatar();
@@ -333,7 +340,7 @@ public class MsgConversionBean {
                 goutNotice.setMsgid(msgAllBean.getMsg_id());
                 goutNotice.setMsgType(6);
                 String name = bean.getNickname();
-                UserInfo user = userDao.findUserInfo(bean.getFromUid());
+                UserInfo user = new UserDao().findUserInfo(bean.getFromUid());
                 if (user != null && !TextUtils.isEmpty(user.getMkName())) {
                     name = user.getMkName();
                 }
@@ -404,7 +411,7 @@ public class MsgConversionBean {
 
                 msgAllBean.setMsgCancel(msgCel);
                 msgAllBean.setRead(1);
-                LogUtil.getLog().i("撤回消息",bean.getMsgId()+"------"+bean.getSurvivalTime()+"-----");
+                LogUtil.getLog().i("撤回消息", bean.getMsgId() + "------" + bean.getSurvivalTime() + "-----");
 
                 break;
             case P2P_AU_VIDEO:// 音视频消息
@@ -419,23 +426,23 @@ public class MsgConversionBean {
             case CHANGE_SURVIVAL_TIME:
                 String survivaNotice = "";
                 if (bean.getChangeSurvivalTime().getSurvivalTime() == -1) {
-                    if(TextUtils.isEmpty(bean.getGid())){
-                        survivaNotice = bean.getNickname() + "设置了退出即焚";
-                    }else{
-                        survivaNotice = "群主设置了退出即焚";
+                    if (TextUtils.isEmpty(bean.getGid())) {
+                        survivaNotice = "\""+bean.getNickname()+"\""+ "设置了退出即焚";
+                    } else {
+                        survivaNotice = "\"群主\"设置了退出即焚";
                     }
                 } else if (bean.getChangeSurvivalTime().getSurvivalTime() == 0) {
-                    if(TextUtils.isEmpty(bean.getGid())){
-                        survivaNotice = bean.getNickname() + "取消了阅后即焚";
-                    }else{
-                        survivaNotice = "群主取消了阅后即焚";
+                    if (TextUtils.isEmpty(bean.getGid())) {
+                        survivaNotice = "\""+bean.getNickname()+"\""+ "取消了阅后即焚";
+                    } else {
+                        survivaNotice = "\"群主\"取消了阅后即焚";
                     }
                 } else {
-                    if(TextUtils.isEmpty(bean.getGid())){
-                        survivaNotice = bean.getNickname() + "设置了消息" +
+                    if (TextUtils.isEmpty(bean.getGid())) {
+                        survivaNotice = "\""+bean.getNickname()+"\"" + "设置了消息" +
                                 new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
-                    }else{
-                        survivaNotice = "群主设置了消息" +
+                    } else {
+                        survivaNotice = "\"群主\"设置了消息" +
                                 new ReadDestroyUtil().getDestroyTimeContent(bean.getChangeSurvivalTime().getSurvivalTime()) + "后消失";
                     }
                 }
@@ -458,7 +465,7 @@ public class MsgConversionBean {
                 msgAllBean.setMsg_type(ChatEnum.EMessageType.MSG_VOICE_VIDEO_NOTICE);
                 break;
             default://普通操作通知，不产生本地消息记录，直接return null
-                 return null;
+                return null;
         }
 
         return msgAllBean;

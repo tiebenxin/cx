@@ -12,10 +12,12 @@ import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.utils.StringUtil;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class MsgAllBean extends RealmObject implements IChatModel {
+public class MsgAllBean extends RealmObject implements IChatModel, Serializable {
     @PrimaryKey
     private String msg_id;
     private Long timestamp;
@@ -322,10 +324,9 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             }else{
                 str = "[语音通话]";
             }
+        } else if(msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME){//阅后即焚
+            str = getMsgCancel().getNote();
         }
-//        else if(msg_type == ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME){//阅后即焚
-//            str = getMsgNotice().getNote();
-//        }
 
         return str;
     }

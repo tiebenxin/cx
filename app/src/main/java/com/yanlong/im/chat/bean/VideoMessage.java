@@ -2,10 +2,12 @@ package com.yanlong.im.chat.bean;
 
 import android.text.TextUtils;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class VideoMessage extends RealmObject implements IMsgContent {
+public class VideoMessage extends RealmObject implements IMsgContent, Serializable {
     @PrimaryKey
     private String msgId;
     private long duration;

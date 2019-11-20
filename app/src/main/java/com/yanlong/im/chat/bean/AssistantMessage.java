@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -8,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
  * @data 2019/8/6
  * Description 小助手消息
  */
-public class AssistantMessage extends RealmObject implements IMsgContent{
+public class AssistantMessage extends RealmObject implements IMsgContent, Serializable {
     @PrimaryKey
     private String msgId;
     private String msg;
