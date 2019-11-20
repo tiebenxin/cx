@@ -1040,7 +1040,7 @@ public class ChatItemView extends LinearLayout {
     private Context mContext;
 
 
-    public void setReadDestroy(String gid, long uid, int type, String content) {
+    public void setReadDestroy(String content) {
         txtReadDestroy.setText(content);
 
 //        if (type == 0) {

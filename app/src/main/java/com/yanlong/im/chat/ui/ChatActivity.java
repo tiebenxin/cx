@@ -2476,16 +2476,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             String nikeName = null;
             String headico = msgbean.getFrom_avatar();
             if (isGroup()) {//群聊显示昵称
-
-                //6.14 这里有性能问题
-                if (StringUtil.isNotNull(msgbean.getFrom_group_nickname())) {
-                    nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_group_nickname();
-                } else {
-                    nikeName = StringUtil.isNotNull(nikeName) ? nikeName : msgbean.getFrom_nickname();
-                }
-
-            } else {//单聊不显示昵称
-                nikeName = null;
                 nikeName = msgbean.getFrom_nickname();
             }
             //----------------------------------------
@@ -2827,8 +2817,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
                     LogUtil.getLog().d("CHANGE_SURVIVAL_TIME", msgbean.getMsg_id() + "------" + msgbean.getChangeSurvivalTimeMessage().getSurvival_time());
                     if (msgbean.getMsgCancel() != null) {
-                        holder.viewChatItem.setReadDestroy(toGid, msgbean.getFrom_uid(),
-                                msgbean.getChangeSurvivalTimeMessage().getSurvival_time(), msgbean.getMsgCancel().getNote());
+                        holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
                     }
                     break;
             }
@@ -4306,6 +4295,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (response.body().isOk()) {
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateReadDestroy(friend, survivalTime);
+                    msgDao.noteMsgAddSurvivaltime(toUId,null);
                 }
             }
         });
@@ -4325,6 +4315,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (response.body().isOk()) {
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
+                    msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(),gid);
                 }
             }
         });

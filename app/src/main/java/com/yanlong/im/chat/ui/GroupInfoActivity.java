@@ -907,6 +907,7 @@ public class GroupInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateGroupReadDestroy(gid, survivalTime);
+                    msgDao.noteMsgAddSurvivaltime(ginfo.getUsers().get(0).getUid(),gid);
                 }
             }
         });
