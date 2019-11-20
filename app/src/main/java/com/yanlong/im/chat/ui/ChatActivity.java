@@ -33,6 +33,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -1607,7 +1609,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-//        TranslucentNavigationUtils.assistActivity(this);
+
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        //标题栏
+        window.setStatusBarColor(getResources().getColor(R.color.blue_title));
+        //底部导航栏
+//        window.setNavigationBarColor(getResources().getColor(R.color.red_100));
+
+
+
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
@@ -2453,6 +2464,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "onBindViewHolder--position=" + position);
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
+            if(msgbean!=null&&msgbean.getChat()!=null){
+                LogUtil.getLog().e(position+"======getMsg="+msgbean.getChat().getMsg());
+            }
 
             if (!isGroup()) {
                 if (msgbean.isMe()) {

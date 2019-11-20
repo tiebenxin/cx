@@ -50,6 +50,8 @@
     <!--连接颜色-->
     <color name="blue_600">#374882</color>
     <color name="blue_500">#3972a1</color>
+    <color name="blue_title">#517DA2</color>
+
 
     <!--红包按钮-->
     <color name="red_100">#fccac9</color>
