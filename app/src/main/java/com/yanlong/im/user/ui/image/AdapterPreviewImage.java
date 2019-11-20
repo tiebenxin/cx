@@ -170,7 +170,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                             saveImageFromCacheFile(cacheFile, ivZoom);
                         } else {
-                            downloadOriginImage(!TextUtils.isEmpty(originUrl)?originUrl:path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
+                            downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
                         }
                     } else {
                         if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())) {
@@ -186,7 +186,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         if (finalHasRead) {
                             saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
                         } else {
-                            downloadOriginImage(originUrl, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
+                            downloadOriginImage(!TextUtils.isEmpty(originUrl) ? originUrl : path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
                         }
                     } else {
                         saveImageToLocal(ivZoom, media, isGif, isHttp, isOriginal);
@@ -339,7 +339,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                     saveImageFromCacheFile(cacheFile, ivZoom);
                 } else {
-                    downloadOriginImage(media.getPath(), null, null, ivZoom, null, true, isGif);
+                    downloadOriginImage(!TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath(), null, null, ivZoom, null, true, isGif);
                 }
             } else {
                 if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())) {
@@ -347,7 +347,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                 } else if (PictureFileUtils.hasImageCache(media.getCompressPath(), media.getSize())) {
                     saveImageFromCacheFile(media.getCompressPath(), ivZoom);
                 } else {
-                    downloadOriginImage(media.getPath(), null, null, ivZoom, null, true, isGif);
+                    downloadOriginImage(!TextUtils.isEmpty(media.getPath()) ? media.getPath() : media.getCompressPath(), null, null, ivZoom, null, true, isGif);
                 }
             }
         } else {
@@ -696,6 +696,9 @@ public class AdapterPreviewImage extends PagerAdapter {
      * 下载原图
      * */
     private void downloadOriginImage(String originUrl, TextView tvViewOrigin, ImageView ivDownload, ZoomImageView ivZoom, LargeImageView ivLarge, boolean needSave, boolean isGif) {
+        if (TextUtils.isEmpty(originUrl)) {
+            return;
+        }
         final String filePath = context.getExternalCacheDir().getAbsolutePath() + "/Image/";
         final String fileName = originUrl.substring(originUrl.lastIndexOf("/") + 1);
         File fileSave = new File(filePath + "/" + fileName);//原图保存路径
@@ -746,7 +749,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                     @Override
                     public void onDownloading(final int progress) {
 //                        Log.d(TAG, "onDownloading: " + progress);
-                        if (isGif){
+                        if (isGif) {
                             return;
                         }
                         ((Activity) context).runOnUiThread(new Runnable() {
