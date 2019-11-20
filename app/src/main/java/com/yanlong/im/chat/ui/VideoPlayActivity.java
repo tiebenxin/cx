@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +14,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -26,7 +26,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.nim_lib.util.GlideUtil;
 import com.google.gson.Gson;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
@@ -51,13 +50,21 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.widget.RelativeLayout.CENTER_IN_PARENT;
 
+/**
+ * @version V1.0
+ * @createAuthor yangqing
+ * @createDate 2019-10-16
+ * @updateAuthor（Geoff）
+ * @updateDate 2019-11-01
+ * @description 小视频播放
+ * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
+ */
 public class VideoPlayActivity extends AppActivity implements View.OnClickListener, SurfaceHolder.Callback, MediaPlayer.OnVideoSizeChangedListener {
     private InputMethodManager manager;
     private SurfaceView textureView;
@@ -74,8 +81,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private int surfaceWidth;
     private int surfaceHeight;
     private MediaPlayer mMediaPlayer;
+
     private int mHour, mMin, mSecond;
-    private int tempTime = 0;
+    private int mTempTime = 0;
+    private int mCurrentTime = 0;
+    private int mLastTime = 0;
+    private Timer mTimer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +174,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void showDialog(String name) {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(VideoPlayActivity.this, null, "\""+name+"\""+"撤回了一条消息",
+        alertYesNo.init(VideoPlayActivity.this, null, "\"" + name + "\"" + "撤回了一条消息",
                 "确定", null, new AlertYesNo.Event() {
                     @Override
                     public void onON() {
@@ -179,26 +191,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void initEvent() {
         findViewById(R.id.rl_video_play_con).setOnClickListener(this);
-//        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
-//            @Override
-//            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-//                surfaceTexture = surface;
-//                initMediaPlay(surface);
-//            }
-//            @Override
-//            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-//
-//            }
-//            @Override
-//            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-//                return false;
-//            }
-//            @Override
-//            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-//
-//            }
-//        });
-//        textureView.set
+
         textureView.setOnClickListener(this);
         textureView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -207,17 +200,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 return false;
             }
         });
-//        textureView.setOnClickListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (activity_video_rel_con.getVisibility()==View.VISIBLE){
-//                    activity_video_rel_con.setVisibility(View.INVISIBLE);
-//                }else{
-//                    activity_video_rel_con.setVisibility(View.VISIBLE);
-//                }
-//                return true;
-//            }
-//        });
         activity_video_img_con.setOnClickListener(this);
         activity_video_big_con.setOnClickListener(this);
         activity_video_img_close.setOnClickListener(this);
@@ -242,48 +224,57 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 //        initMediaPlay(textureView);
     }
 
+    @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            NumberFormat numberFormat = NumberFormat.getPercentInstance();
-            numberFormat.setMinimumFractionDigits(0);
-            DecimalFormat df = new DecimalFormat("0.00");
-            String result = df.format((double) currentTime / mMediaPlayer.getDuration());
-            activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
+            if (!isFinishing() && mMediaPlayer != null) {
+                DecimalFormat df = new DecimalFormat("0.00");
+                String result = df.format((double) mCurrentTime / mMediaPlayer.getDuration());
 
-            currentTime = currentTime / 1000;
-            mHour = currentTime / 3600;
-            mMin = currentTime % 3600 / 60;
-            mSecond = currentTime % 60;
+                activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
 
-            if (mHour > 0) {
-                activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
-            } else {
-                activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                mCurrentTime = mCurrentTime / 1000;
+                mHour = mCurrentTime / 3600;
+                mMin = mCurrentTime % 3600 / 60;
+                mSecond = mCurrentTime % 60;
+
+                if (mHour > 0) {
+                    activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                } else {
+                    activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                }
             }
         }
     };
-    private int currentTime = 0;
-    private Timer timer;
 
     private void getProgress() {
-
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
+        mTimer = new Timer();
+        mTimer.schedule(new TimerTask() {
 
             @Override
             public void run() {
 
                 if (null != mMediaPlayer) {
                     try {
-                        currentTime = mMediaPlayer.getCurrentPosition();
-                        handler.sendEmptyMessage(419);
+                        // TODO OPPO等个别手机获取不到最后一秒
+                        mCurrentTime = mMediaPlayer.getCurrentPosition();
+                        // TODO 处理OPPO手机无法播放到最后一秒问题
+                        if (mLastTime >= mCurrentTime) {
+                            if ((mMediaPlayer.getDuration() - mCurrentTime) < 1000) {
+                                mCurrentTime = mMediaPlayer.getDuration();
+                                activity_video_seek.setProgress(1);
+                            }
+                        }
+                        mLastTime = mCurrentTime;
+                        if (!isFinishing()) {
+                            handler.sendEmptyMessage(0);
+                        }
                     } catch (Exception e) {
-                        if (null != timer)
-                            timer.cancel();
+                        if (null != mTimer)
+                            mTimer.cancel();
                     }
                 }
-//                activity_video_seek.setProgress(p);
             }
         }, 0, 1000);
     }
@@ -303,7 +294,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_rel_con.setVisibility(View.INVISIBLE);
     }
 
-    //    private void initMediaPlay(SurfaceTexture surface){
     private void initMediaPlay(SurfaceHolder surfaceHolder) {
 
         try {
@@ -332,10 +322,10 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                         downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
                     }
                     // 转成秒
-                    tempTime = mMediaPlayer.getDuration() / 1000;
-                    mHour = tempTime / 3600;
-                    mMin = tempTime % 3600 / 60;
-                    mSecond = tempTime % 60;
+                    mTempTime = mMediaPlayer.getDuration() / 1000;
+                    mHour = mTempTime / 3600;
+                    mMin = mTempTime % 3600 / 60;
+                    mSecond = mTempTime % 60;
                     if (mHour > 0) {
                         activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
                     } else {
@@ -374,8 +364,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             @Override
             public void onCompletion(MediaPlayer mp) {
                 mMediaPlayer.pause();
-                activity_video_big_con.setVisibility(View.VISIBLE);
-                activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                if (!isFinishing()) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity_video_big_con.setVisibility(View.VISIBLE);
+                            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                        }
+                    }, 500);
+                }
             }
         });
     }
@@ -387,9 +384,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             mMediaPlayer.pause();
             activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
         }
-        if (null != timer) {
-            timer.cancel();
-            timer = null;
+        if (null != mTimer) {
+            mTimer.cancel();
+            mTimer = null;
         }
     }
 
@@ -401,8 +398,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 //        if (null!=mMediaPlayer){
 //            mMediaPlayer.start();
 //        }
-//        if (null!=timer){
-//            timer.purge();
+//        if (null!=mTimer){
+//            mTimer.purge();
 //        }
     }
 
@@ -419,9 +416,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
-        if (null != timer) {
-            timer.cancel();
-            timer = null;
+        if (null != mTimer) {
+            mTimer.cancel();
+            mTimer = null;
         }
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
@@ -430,7 +427,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if(DoubleUtils.isFastDoubleClick()){
+        if (DoubleUtils.isFastDoubleClick()) {
             return;
         }
         switch (v.getId()) {
