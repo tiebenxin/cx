@@ -13,10 +13,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 
 import net.cb.cb.library.R;
 import net.cb.cb.library.utils.ClickFilter;
@@ -37,12 +40,14 @@ public class ActionbarView extends LinearLayout {
     private TextView txtTitleMore;
     private TextView txtLeft;
     private TextView txtRight;
+    private TextView tvNumber;//消息数群聊人数
 
     private ImageView btnBack;
     private ImageView btnRight;
     private View ViewLeft;
     private LinearLayout ViewRight;
-    private ProgressBar loadBar;
+    private ImageView ivLoadBar;//普通聊天离线圆形加载条->显示标题右侧
+    private ImageView ivGroupLoadBar;//群聊离线圆形加载条->显示标题底部
 
     private Context context;
     private ListenEvent listenEvent;
@@ -62,6 +67,16 @@ public class ActionbarView extends LinearLayout {
      */
     public void setTitle(String title) {
         txtTitle.setText(title);
+    }
+
+    /**
+     * 新增-> 单独显示群聊人数/消息数 (避免标题过长挤压)
+     * @param number 显示则传具体数字，不显示则传0或其他随意值
+     * @param ifShow 控制是否显示
+     */
+    public void setNumber(int number,boolean ifShow){
+        tvNumber.setText("("+number+")");
+        tvNumber.setVisibility(ifShow ? VISIBLE : GONE);
     }
 
     public void setTitleMore(String title) {
@@ -223,8 +238,12 @@ public class ActionbarView extends LinearLayout {
 
     }
 
-    public ProgressBar getLoadBar() {
-        return loadBar;
+    public ImageView getLoadBar() {
+        return ivLoadBar;
+    }
+
+    public ImageView getGroupLoadBar() {
+        return ivGroupLoadBar;
     }
 
 
@@ -235,12 +254,14 @@ public class ActionbarView extends LinearLayout {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = inflater.inflate(R.layout.view_actionbar, this);
         txtTitle = rootView.findViewById(R.id.txt_title);
+        tvNumber = rootView.findViewById(R.id.tv_number);
         txtTitleMore = rootView.findViewById(R.id.txt_title_more);
         btnBack = rootView.findViewById(R.id.btn_icon);
         btnRight = rootView.findViewById(R.id.btn_icon_right);
         ViewLeft = rootView.findViewById(R.id.action_left);
         ViewRight = rootView.findViewById(R.id.action_right);
-        loadBar = rootView.findViewById(R.id.load_bar);
+        ivLoadBar = rootView.findViewById(R.id.iv_load_bar);
+        ivGroupLoadBar = rootView.findViewById(R.id.iv_group_load_bar);
         iv_disturb = rootView.findViewById(R.id.iv_disturb);
         actionRightRight = rootView.findViewById(R.id.action_right_right);
         txtRightRight = rootView.findViewById(R.id.txt_right_right);
@@ -309,6 +330,11 @@ public class ActionbarView extends LinearLayout {
                     listenEvent.onBack();
             }
         });
+        //断网加载圆圈改为gif
+        RequestOptions options = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+        Glide.with(context).load(R.drawable.offline_loading).apply(options).into(ivLoadBar);
+        Glide.with(context).load(R.drawable.offline_loading).apply(options).into(ivGroupLoadBar);
 
         // int color = typedArray.getColor(
         // R.styleable.ActionbarView_backgroundColor, Integer.MAX_VALUE);

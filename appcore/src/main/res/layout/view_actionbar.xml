@@ -37,23 +37,31 @@
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
                     android:ellipsize="end"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true"
-                    android:marqueeRepeatLimit="marquee_forever"
-                    android:maxWidth="175dp"
-                    android:scrollHorizontally="true"
+                    android:maxWidth="158dp"
                     android:text="titlte"
                     android:visibility="visible"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/white" />
 
-                <ProgressBar
-                    android:id="@+id/load_bar"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:layout_marginLeft="6dp"
-                    android:indeterminateBehavior="repeat"
-                    android:indeterminateDrawable="@drawable/anim_load"
+                <TextView
+                    android:id="@+id/tv_number"
+                    style="@style/app_txt_title_1"
+                    android:layout_toLeftOf="@+id/iv_load_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="(0)"
+                    android:visibility="gone"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/white" />
+
+                <ImageView
+                    android:id="@+id/iv_load_bar"
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toLeftOf="@+id/iv_disturb"
+                    android:layout_centerVertical="true"
                     android:visibility="gone" />
 
                 <ImageView
@@ -72,6 +80,12 @@
                 android:layout_height="wrap_content"
                 android:text="xxx"
                 android:textColor="@color/white"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/iv_group_load_bar"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
                 android:visibility="gone" />
         </LinearLayout>
 
