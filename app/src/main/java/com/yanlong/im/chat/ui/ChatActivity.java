@@ -2538,7 +2538,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 });
             }
-            holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
+            holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time,isGroup());
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type()) {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), false);

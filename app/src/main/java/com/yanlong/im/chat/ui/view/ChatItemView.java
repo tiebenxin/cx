@@ -309,7 +309,7 @@ public class ChatItemView extends LinearLayout {
      * @param type
      * @param isMe
      */
-    public void setShowType(int type, boolean isMe, String headUrl, String nikeName, String time) {
+    public void setShowType(int type, boolean isMe, String headUrl, String nikeName, String time, boolean isGroup) {
 
         this.isMe = isMe;
         if (isMe) {
@@ -421,7 +421,7 @@ public class ChatItemView extends LinearLayout {
             Glide.with(this).load(headUrl)
                     .apply(GlideOptionsUtil.headImageOptions()).into(imgOtHead);
         }
-        if (nikeName != null) {
+        if (nikeName != null && isGroup) {
             txtMeName.setText(nikeName);
             txtOtName.setText(nikeName);
             txtOtName.setVisibility(VISIBLE);
