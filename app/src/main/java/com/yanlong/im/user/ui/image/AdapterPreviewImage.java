@@ -159,11 +159,14 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
 
         //下载
-        boolean finalHasRead = hasRead;
         ivDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ivDownload.setEnabled(false);
+                boolean finalHasRead = false;
+                if (isOriginal && !TextUtils.isEmpty(originUrl)) {//重新获取已读数据
+                    finalHasRead = msgDao.ImgReadStatGet(originUrl);
+                }
                 if (isGif) {
                     if (isHttp) {
                         String cacheFile = PictureFileUtils.getFilePathOfImage(media.getPath(), context);
