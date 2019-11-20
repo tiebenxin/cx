@@ -170,7 +170,7 @@ public class AdapterPreviewImage extends PagerAdapter {
                         if (PictureFileUtils.hasImageCache(cacheFile, media.getSize())) {
                             saveImageFromCacheFile(cacheFile, ivZoom);
                         } else {
-                            downloadOriginImage(originUrl, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
+                            downloadOriginImage(!TextUtils.isEmpty(originUrl)?originUrl:path, tvViewOrigin, ivDownload, ivZoom, ivLarge, true, isGif);
                         }
                     } else {
                         if (PictureFileUtils.hasImageCache(media.getPath(), media.getSize())) {
