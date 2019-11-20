@@ -9,6 +9,7 @@ import com.yanlong.im.utils.DaoUtil;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
+import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
@@ -594,7 +595,16 @@ public class SocketUtil {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    LogUtil.getLog().d(TAG, ">>>接收异常run: " + e.getMessage());
+                    LogUtil.getLog().e(TAG, "==getClass=="+e.getClass()+"===>>>接收异常run:===" + e.getMessage()+"===getLocalizedMessage="+e.getLocalizedMessage());
+                    //java.io.EOFException: Read error
+                    if(e!=null&&e.getMessage()!=null&&e.getMessage().contains("EOFException")){
+                        EventLoginOut4Conflict eventLoginOut4Conflict = new EventLoginOut4Conflict();
+                        // 登录冲突
+                        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
+                        eventLoginOut4Conflict.setMsg("您的账号" + phone + "已经在另一台设备上登录。如果不是您本人操作,请尽快修改密码");
+                        EventBus.getDefault().post(eventLoginOut4Conflict);
+                        return;
+                    }
 
                     stop();
 
