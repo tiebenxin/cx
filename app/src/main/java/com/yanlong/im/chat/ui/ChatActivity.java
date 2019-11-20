@@ -2820,8 +2820,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 case ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME:
                     LogUtil.getLog().d("CHANGE_SURVIVAL_TIME", msgbean.getMsg_id() + "------" + msgbean.getChangeSurvivalTimeMessage().getSurvival_time());
                     if (msgbean.getMsgCancel() != null) {
-                        holder.viewChatItem.setReadDestroy(toGid, msgbean.getFrom_uid(),
-                                msgbean.getChangeSurvivalTimeMessage().getSurvival_time(), msgbean.getMsgCancel().getNote());
+                        holder.viewChatItem.setReadDestroy(msgbean.getMsgCancel().getNote());
                     }
                     break;
             }
@@ -4296,6 +4295,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (response.body().isOk()) {
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateReadDestroy(friend, survivalTime);
+                    msgDao.noteMsgAddSurvivaltime(toUId,null);
                 }
             }
         });
@@ -4315,6 +4315,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (response.body().isOk()) {
                     ChatActivity.this.survivaltime = survivalTime;
                     userDao.updateGroupReadDestroy(gid, survivalTime);
+                    msgDao.noteMsgAddSurvivaltime(groupInfo.getUsers().get(0).getUid(),gid);
                 }
             }
         });

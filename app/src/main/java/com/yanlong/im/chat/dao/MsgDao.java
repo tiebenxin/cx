@@ -32,9 +32,13 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.utils.StringUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -189,7 +193,7 @@ public class MsgDao {
         RealmResults list = realm.where(MsgAllBean.class)
                 .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                 .and().beginGroup().equalTo("to_uid", userid).endGroup()
-                .and().greaterThan("survival_time",0)
+                .and().greaterThan("survival_time", 0)
                 .and().greaterThan("read", 0)
                 .findAll();
         beans = realm.copyFromRealm(list);
@@ -615,6 +619,8 @@ public class MsgDao {
                         msg.getTransfer().deleteFromRealm();
                     if (msg.getVoiceMessage() != null)
                         msg.getVoiceMessage().deleteFromRealm();
+                    if (msg.getChangeSurvivalTimeMessage() != null)
+                        msg.getChangeSurvivalTimeMessage().deleteFromRealm();
                 }
                 list.deleteAllFromRealm();
             }
@@ -661,7 +667,8 @@ public class MsgDao {
                         msg.getMsgCancel().deleteFromRealm();
                     if (msg.getVoiceMessage() != null)
                         msg.getVoiceMessage().deleteFromRealm();
-
+                    if (msg.getChangeSurvivalTimeMessage() != null)
+                        msg.getChangeSurvivalTimeMessage().deleteFromRealm();
 
                 }
                 list.deleteAllFromRealm();
@@ -674,7 +681,6 @@ public class MsgDao {
             DaoUtil.reportException(e);
         }
     }
-
 
 
     /**
@@ -705,7 +711,7 @@ public class MsgDao {
                 cancel.setGid(bean.getGid());
                 cancel.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
 
-                int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(),bean.getGid());
+                int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(), bean.getGid());
                 MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgid);
                 msgCel.setNote("你撤回了一条消息");
@@ -2211,7 +2217,7 @@ public class MsgDao {
 
         }
 
-       int survivaltime = new UserDao().getReadDestroy(toUid,gid);
+        int survivaltime = new UserDao().getReadDestroy(toUid, gid);
 
         msgAllBean.setSurvival_time(survivaltime);
         msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
@@ -2224,8 +2230,52 @@ public class MsgDao {
         realm.close();
 
         return ret;
-
     }
+
+
+    /**
+     * 自己修改退出即焚系统消息
+     * */
+    public MsgAllBean noteMsgAddSurvivaltime(Long toUid, String gid) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+        String msgid = SocketData.getUUID();
+        MsgAllBean msgAllBean = new MsgAllBean();
+        msgAllBean.setMsg_id(msgid);
+        msgAllBean.setGid(gid);
+        UserInfo userinfo = UserAction.getMyInfo();
+        msgAllBean.setFrom_uid(toUid);
+        msgAllBean.setTo_uid(userinfo.getUid());
+        int survivaltime = new UserDao().getReadDestroy(toUid, gid);
+        msgAllBean.setSurvival_time(survivaltime);
+        String survivaNotice = "";
+        if (survivaltime == -1) {
+            survivaNotice = "您设置了退出即焚.";
+        } else if (survivaltime == 0) {
+            survivaNotice = "您取消了阅后即焚.";
+        } else {
+            survivaNotice = "您设置了消息" +
+                    new ReadDestroyUtil().getDestroyTimeContent(survivaltime) + "后消失.";
+        }
+        MsgCancel survivaMsgCel = new MsgCancel();
+        survivaMsgCel.setMsgid(msgid);
+        survivaMsgCel.setNote(survivaNotice);
+        msgAllBean.setMsgCancel(survivaMsgCel);
+        ChangeSurvivalTimeMessage changeSurvivalTimeMessage = new ChangeSurvivalTimeMessage();
+        changeSurvivalTimeMessage.setSurvival_time(survivaltime);
+        changeSurvivalTimeMessage.setMsgid(msgid);
+        msgAllBean.setChangeSurvivalTimeMessage(changeSurvivalTimeMessage);
+        msgAllBean.setMsg_type(ChatEnum.EMessageType.CHANGE_SURVIVAL_TIME);
+        msgAllBean.setMsgCancel(survivaMsgCel);
+        msgAllBean.setTimestamp(new Date().getTime());
+        realm.insertOrUpdate(msgAllBean);
+
+        realm.commitTransaction();
+        realm.close();
+        EventBus.getDefault().post(new EventRefreshChat());
+        return msgAllBean;
+    }
+
 
     /***
      * 把发送中的状态修改为发送失败
