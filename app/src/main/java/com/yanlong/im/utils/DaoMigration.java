@@ -164,6 +164,10 @@ public class DaoMigration implements RealmMigration {
         schema.get("Group")
                 .addField("survivaltime", int.class);
 
+        schema.create("ChangeSurvivalTimeMessage")
+                .addField("msgid",String.class,FieldAttribute.PRIMARY_KEY)
+                .addField("survival_time",int.class);
+
         schema.get("MsgAllBean")
                 .addField("survival_time", int.class)
                 .addField("serverTime",long.class)
@@ -177,10 +181,6 @@ public class DaoMigration implements RealmMigration {
                 .addField("masterRead", int.class)
                 .addField("myRead", int.class)
                 .addField("friendRead", int.class);
-
-        schema.create("ChangeSurvivalTimeMessage")
-                .addField("msgid",String.class,FieldAttribute.PRIMARY_KEY)
-                .addField("survival_time",int.class);
     }
 
     private void updateV9(RealmSchema schema) {
