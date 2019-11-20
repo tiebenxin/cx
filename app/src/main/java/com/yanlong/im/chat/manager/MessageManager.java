@@ -148,7 +148,7 @@ public class MessageManager {
      * */
     public boolean dealWithMsg(MsgBean.UniversalMessage.WrapMessage wrapMessage, boolean isList, boolean canNotify) {
         LogUtil.getLog().d("a=", TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
-//        System.out.println("a=" + TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
+        System.out.println("a=" + TAG + " dealWithMsg--msgId=" + wrapMessage.getMsgId() + "--msgType=" + wrapMessage.getMsgType());
         if (wrapMessage.getMsgType() == MsgBean.MessageType.UNRECOGNIZED) {
             return true;
         }
@@ -222,16 +222,21 @@ public class MessageManager {
                     hasNotified = true;
                 }
                 break;
-            case OUT_GROUP://退出群聊
+            case OUT_GROUP://退出群聊，如果该群是已保存群聊，需要改为未保存
                 if (wrapMessage.getFromUid() != UserAction.getMyId()) {//不是自己退群，才更新（自己退群，session信息已经被删除）
                     if (bean != null) {
                         result = saveMessageNew(bean, isList);
                         refreshGroupInfo(bean.getGid());
                         hasNotified = true;
                     }
+                } else {
+                    MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());
+                    msgDao.removeGroupMember(bean.getGid(), memberUser);
+                    notifyGroupChange(false);
+                    hasNotified = true;
                 }
                 break;
-            case REMOVE_GROUP_MEMBER://自己被移除群聊
+            case REMOVE_GROUP_MEMBER://自己被移除群聊，如果该群是已保存群聊，需要改为未保存
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                     MemberUser memberUser = userToMember(UserAction.getMyInfo(), bean.getGid());
@@ -241,7 +246,7 @@ public class MessageManager {
                     hasNotified = true;
                 }
                 break;
-            case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊，可能会有群主退群，涉及群主迭代
+            case REMOVE_GROUP_MEMBER2://其他群成员被移除群聊，可能会有群主退群，涉及群主迭代,所以需要从服务器重新拉取数据
                 removeGroupMember(wrapMessage);
                 refreshGroupInfo(wrapMessage.getGid());
                 notifyGroupChange(false);

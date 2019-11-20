@@ -86,6 +86,9 @@ public class MsgAction {
                 if (response.body().isOk()) {
                     dao.sessionDel(null, id);
                     dao.msgDel(null, id);
+                    //删除群成员及秀阿贵群保存逻辑
+                    MemberUser memberUser = MessageManager.getInstance().userToMember(UserAction.getMyInfo(), id);
+                    dao.removeGroupMember(id, memberUser);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, -1L, id, CoreEnum.ESessionRefreshTag.DELETE, null);
                 }
                 callback.onResponse(call, response);

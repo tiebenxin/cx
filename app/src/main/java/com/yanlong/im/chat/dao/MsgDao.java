@@ -189,7 +189,7 @@ public class MsgDao {
         RealmResults list = realm.where(MsgAllBean.class)
                 .beginGroup().equalTo("gid", "").or().isNull("gid").endGroup()
                 .and().beginGroup().equalTo("to_uid", userid).endGroup()
-                .and().greaterThan("survival_time",0)
+                .and().greaterThan("survival_time", 0)
                 .and().greaterThan("read", 0)
                 .findAll();
         beans = realm.copyFromRealm(list);
@@ -676,7 +676,6 @@ public class MsgDao {
     }
 
 
-
     /**
      * 撤回消息
      *
@@ -705,7 +704,7 @@ public class MsgDao {
                 cancel.setGid(bean.getGid());
                 cancel.setMsg_type(ChatEnum.EMessageType.MSG_CENCAL);
 
-                int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(),bean.getGid());
+                int survivaltime = new UserDao().getReadDestroy(bean.getTo_uid(), bean.getGid());
                 MsgCancel msgCel = new MsgCancel();
                 msgCel.setMsgid(msgid);
                 msgCel.setNote("你撤回了一条消息");
@@ -2211,7 +2210,7 @@ public class MsgDao {
 
         }
 
-       int survivaltime = new UserDao().getReadDestroy(toUid,gid);
+        int survivaltime = new UserDao().getReadDestroy(toUid, gid);
 
         msgAllBean.setSurvival_time(survivaltime);
         msgAllBean.setMsg_type(ChatEnum.EMessageType.NOTICE);
@@ -2894,7 +2893,7 @@ public class MsgDao {
         }
     }
 
-    //移出群成员
+    //适用：自己被移出群成员
     public void removeGroupMember(String gid, MemberUser user) {
         Realm realm = DaoUtil.open();
         try {
@@ -2904,6 +2903,9 @@ public class MsgDao {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
                     list.remove(user);
+                }
+                if (group.getSaved() != null && group.getSaved().intValue() == 1) {//已保存设置为非保存群
+                    group.setSaved(0);
                 }
             }
             realm.commitTransaction();
