@@ -13,18 +13,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,7 +39,6 @@ import com.yanlong.im.chat.bean.Session;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.ui.chat.ChatActivity3;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
@@ -61,7 +55,6 @@ import com.yanlong.im.utils.socket.SocketUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -76,6 +69,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -295,37 +289,48 @@ public class MsgMainFragment extends Fragment {
             }
         });
 
-        edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//        edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+//                    taskSearch();
+//                } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
+//                    taskSearch();
+//                }
+//                return false;
+//            }
+//        });
+//        edtSearch.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                if (edtSearch.getText().toString().length() == 0) {
+//                    isSearchMode = false;
+//                    taskListData();
+//                }
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//            }
+//        });
+
+        edtSearch.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
-                    taskSearch();
-                } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
-                    taskSearch();
-                }
-                return false;
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(),MsgSearchActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("conversation_data", (Serializable) listData);//携带会话列表数据
+                bundle.putBoolean("online_state",onlineState);
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
-        edtSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (edtSearch.getText().toString().length() == 0) {
-                    isSearchMode = false;
-                    taskListData();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
     }
 
 
@@ -967,9 +972,9 @@ public class MsgMainFragment extends Fragment {
 
     @SuppressLint("CheckResult")
     private void taskListData() {
-        if (isSearchMode) {
-            return;
-        }
+//        if (isSearchMode) {
+//            return;
+//        }
 //        LogUtil.getLog().d("a=", "MsgMainFragment --开始获取session数据" + System.currentTimeMillis());
         Observable.just(0)
                 .map(new Function<Integer, List<Session>>() {
@@ -1066,52 +1071,52 @@ public class MsgMainFragment extends Fragment {
     /***
      * 搜索模式
      */
-    private boolean isSearchMode = false;
+//    private boolean isSearchMode = false;
 
-    private void taskSearch() {
-        isSearchMode = true;
-        InputUtil.hideKeyboard(edtSearch);
-        String key = edtSearch.getText().toString();
-        if (key.length() <= 0)
-            return;
-        List<Session> temp = new ArrayList<>();
-        for (Session bean : listData) {
-            String title = "";
-            String info = "";
-            MsgAllBean msginfo;
-            if (bean.getType() == 0) {//单人
-
-
-                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-
-                title = finfo.getName4Show();
-
-                //获取最后一条消息
-                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-                if (msginfo != null) {
-                    info = msginfo.getMsg_typeStr();
-                }
-
-            } else if (bean.getType() == 1) {//群
-                Group ginfo = msgDao.getGroup4Id(bean.getGid());
-
-                //获取最后一条群消息
-                msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-                title = /*ginfo.getName()*/msgDao.getGroupName(bean.getGid());
-                if (msginfo != null) {
-                    info = msginfo.getMsg_typeStr();
-                }
-            }
-
-            if (title.contains(key) || info.contains(key)) {
-                bean.setUnread_count(0);
-                temp.add(bean);
-            }
-        }
-        listData = temp;
-
-        mtListView.notifyDataSetChange();
-    }
+//    private void taskSearch() {
+//        isSearchMode = true;
+//        InputUtil.hideKeyboard(edtSearch);
+//        String key = edtSearch.getText().toString();
+//        if (key.length() <= 0)
+//            return;
+//        List<Session> temp = new ArrayList<>();
+//        for (Session bean : listData) {
+//            String title = "";
+//            String info = "";
+//            MsgAllBean msginfo;
+//            if (bean.getType() == 0) {//单人
+//
+//
+//                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
+//
+//                title = finfo.getName4Show();
+//
+//                //获取最后一条消息
+//                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
+//                if (msginfo != null) {
+//                    info = msginfo.getMsg_typeStr();
+//                }
+//
+//            } else if (bean.getType() == 1) {//群
+//                Group ginfo = msgDao.getGroup4Id(bean.getGid());
+//
+//                //获取最后一条群消息
+//                msginfo = msgDao.msgGetLast4Gid(bean.getGid());
+//                title = /*ginfo.getName()*/msgDao.getGroupName(bean.getGid());
+//                if (msginfo != null) {
+//                    info = msginfo.getMsg_typeStr();
+//                }
+//            }
+//
+//            if (title.contains(key) || info.contains(key)) {
+//                bean.setUnread_count(0);
+//                temp.add(bean);
+//            }
+//        }
+//        listData = temp;
+//
+//        mtListView.notifyDataSetChange();
+//    }
 
 
     private void taskDelSession(Long from_uid, String gid) {

@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -7,7 +9,7 @@ import io.realm.annotations.PrimaryKey;
  * @创建人 shenxin
  * @创建时间 2019/10/11 0011 11:53
  */
-public class ChangeSurvivalTimeMessage extends RealmObject implements IMsgContent {
+public class ChangeSurvivalTimeMessage extends RealmObject implements IMsgContent, Serializable {
     @PrimaryKey
     private String msgid;
     //阅后即焚开关通知(-1:退出即焚|0:关 1消息有效时间(秒))

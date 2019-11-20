@@ -1,5 +1,7 @@
 package com.yanlong.im.chat.bean;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -12,7 +14,7 @@ import io.realm.annotations.PrimaryKey;
  * @description 音视频通话对象
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class P2PAuVideoMessage extends RealmObject implements IMsgContent{
+public class P2PAuVideoMessage extends RealmObject implements IMsgContent, Serializable {
 
     @PrimaryKey
     private String msgId;
