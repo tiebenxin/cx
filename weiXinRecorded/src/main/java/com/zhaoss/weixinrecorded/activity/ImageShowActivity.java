@@ -171,6 +171,7 @@ public class ImageShowActivity  extends BaseActivity {
         rl_text_cut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ll_color.setVisibility(View.INVISIBLE);
                 if (activity_img_show_cut.getVisibility()==View.VISIBLE){
                     activity_img_show_cut.setVisibility(View.GONE);
                 }else{

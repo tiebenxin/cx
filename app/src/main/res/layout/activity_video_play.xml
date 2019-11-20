@@ -28,6 +28,17 @@
         android:visibility="invisible"
         />
 
+    <ImageView
+        android:id="@+id/img_progress"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:clickable="true"
+        android:background="@mipmap/ic_net_load"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="300dp"
+        android:visibility="visible"/>
+
+
     <RelativeLayout
         android:id="@+id/activity_video_rel_con"
         android:layout_width="match_parent"
