@@ -2944,7 +2944,7 @@ public class MsgDao {
         }
     }
 
-    //移出群成员
+    //适用：自己被移出群成员
     public void removeGroupMember(String gid, MemberUser user) {
         Realm realm = DaoUtil.open();
         try {
@@ -2954,6 +2954,9 @@ public class MsgDao {
                 RealmList<MemberUser> list = group.getUsers();
                 if (list != null) {
                     list.remove(user);
+                }
+                if (group.getSaved() != null && group.getSaved().intValue() == 1) {//已保存设置为非保存群
+                    group.setSaved(0);
                 }
             }
             realm.commitTransaction();

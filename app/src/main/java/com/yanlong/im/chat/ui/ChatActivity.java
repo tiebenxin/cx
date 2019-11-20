@@ -60,6 +60,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
+import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.EmojiAdapter;
@@ -156,8 +157,6 @@ import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
-
-import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -418,7 +417,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //离线就禁止发送之类的
                     // ToastUtil.show(getContext(), "离线就禁止发送之类的");
                     //  btnSend.setEnabled(state);
-                    actionbar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+                    if(isGroup()){ //群聊离线加载条改为标题底部显示，其他聊天保持不变
+                        actionbar.getGroupLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+                    }else {
+                        actionbar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+                    }
                 }
             });
         }
@@ -541,7 +544,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
         //预先网络监听
-        actionbar.getLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
+        if(isGroup()){ //群聊离线加载条改为标题底部显示，其他聊天保持不变
+            actionbar.getGroupLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
+        }else {
+            actionbar.getLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
+        }
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
@@ -2531,7 +2538,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                 });
             }
-            holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time);
+            holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time,isGroup());
             //发送状态处理
             if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type()) {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), false);
@@ -3549,7 +3556,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     memberCount = groupInfo.getUsers().size();
                 }
                 if (memberCount > 0) {
-                    title = title + "(" + memberCount + ")";
+                    actionbar.setNumber(memberCount,true);
+//                    title = title + "(" + memberCount + ")";
+                }else {
+                    actionbar.setNumber(0,false);//消息数为0则不显示
                 }
 
                 //如果自己不在群里面
