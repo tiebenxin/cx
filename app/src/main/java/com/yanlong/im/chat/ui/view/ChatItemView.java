@@ -476,8 +476,8 @@ public class ChatItemView extends LinearLayout {
     }
 
     //已读消息
-    public void setDataRead(long time) {
-        if (time == 0) {
+    public void setDataRead(int sendState,long time) {
+        if (sendState!= ChatEnum.ESendStatus.NORMAL||time == 0) {
             viewRead.setVisibility(GONE);
         } else {
             viewRead.setVisibility(VISIBLE);

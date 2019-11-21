@@ -14,11 +14,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -70,7 +73,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private SurfaceView textureView;
     private SurfaceTexture surfaceTexture;
     private ImageView img_bg;
-    private String path;
+    private ImageView img_progress;
+    private String mPath;
     private String bgUrl;
     private String msg_id;
     private String msgAllBean;
@@ -99,12 +103,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             EventBus.getDefault().register(this);
         }
 
-        path = getIntent().getExtras().getString("videopath");
+        mPath = getIntent().getExtras().getString("videopath");
         msgAllBean = (String) getIntent().getExtras().get("videomsg");
         msg_id = getIntent().getExtras().getString("msg_id");
         bgUrl = getIntent().getExtras().getString("bg_url");
+        Log.i("1212", mPath);
         initView();
         initEvent();
+        Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+        img_progress.startAnimation(rotateAnimation);
         if (!TextUtils.isEmpty(bgUrl)) {
             Glide.with(this).load(bgUrl).into(img_bg);
         }
@@ -118,30 +125,16 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
         final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
-//        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
         new Thread() {
             @Override
             public void run() {
                 try {
-
                     DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
                         @Override
                         public void onDownloadSuccess(File file) {
-//                            Intent intent = new Intent(VideoPlayActivity.this, VideoPlayActivity.class);
-//                            intent.putExtra("videopath", fileVideo.getAbsolutePath());
-//                            Message message = new Message();
-//                            Bundle bundle = new Bundle();
-//                            bundle.putString("msgid", msgAllBean.getVideoMessage().getMsgId());
-//                            bundle.putString("url", fileVideo.getAbsolutePath());
-//                            message.setData(bundle);
-//                            handler.sendMessage(message);
                             videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
                             MsgDao dao = new MsgDao();
                             dao.fixVideoLocalUrl(msgAllBean.getVideoMessage().getMsgId(), fileVideo.getAbsolutePath());
-//                        msgAllBean.setVideoMessage(videoMessage);
-//                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
-//                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
-//                            startActivity(intent);
                             MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
                         }
 
@@ -152,14 +145,12 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
                         @Override
                         public void onDownloadFailed(Exception e) {
-
                         }
                     });
 
                 } catch (Exception e) {
 
                 }
-
             }
         }.start();
 
@@ -290,6 +281,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_count_time = findViewById(R.id.activity_video_count_time);
         activity_video_current_time = findViewById(R.id.activity_video_current_time);
         img_bg = findViewById(R.id.img_bg);
+        img_progress = findViewById(R.id.img_progress);
 
         activity_video_rel_con.setVisibility(View.INVISIBLE);
     }
@@ -298,27 +290,16 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
         try {
             mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setDataSource(path);
-//            mMediaPlayer.setSurface(new Surface(surface));
+            mMediaPlayer.setDataSource(mPath);
             mMediaPlayer.setDisplay(surfaceHolder);
-//            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             mMediaPlayer.setLooping(false);
 
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     mMediaPlayer.start();
-//                    int duration=mMediaPlayer.getDuration();
-//                    if (duration<=0){
-//                        ToastUtil.show(getApplicationContext(),"文件损坏，请退出重新点击进入");
-//                        File file=new File(path);
-//                        if (null!=file&&file.exists()){
-//                            file.delete();
-//                        }
-//                        finish();
-//                    }
                     MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
-                    if (path.contains("http://")) {
+                    if (mPath.contains("http://")) {
                         downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
                     }
                     // 转成秒
@@ -339,6 +320,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 @Override
                 public boolean onInfo(MediaPlayer mp, int what, int extra) {
                     if (what == mp.MEDIA_INFO_VIDEO_RENDERING_START) {
+                        img_progress.clearAnimation();
+                        img_progress.setVisibility(View.GONE);
                         //隐藏缩略图
                         img_bg.setVisibility(View.GONE);
                     }
@@ -395,12 +378,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         super.onRestart();
         activity_video_big_con.setVisibility(View.INVISIBLE);
         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-//        if (null!=mMediaPlayer){
-//            mMediaPlayer.start();
-//        }
-//        if (null!=mTimer){
-//            mTimer.purge();
-//        }
     }
 
     @Override
@@ -490,7 +467,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 if (postsion == 0) {
                     onRetransmission(msgAllBean);
                 } else if (postsion == 1) {
-                    insertVideoToMediaStore(getContext(), path, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
+                    insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
                     ToastUtil.show(VideoPlayActivity.this, "保存成功");
                 } else {
 
@@ -532,7 +509,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         if (mFile.exists()) {
             result = true;
         }
-        LogUtil.getLog().e("TAG", "文件不存在 path = " + filePath);
+        LogUtil.getLog().e("TAG", "文件不存在 mPath = " + filePath);
         return result;
     }
 

@@ -2387,7 +2387,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 //如果是群聊不打开阅读
                 if(!isGroup()){
                     if (msgbean.getRead() == 1 && checkIsRead() && msgbean.isMe()) {
-                        holder.viewChatItem.setDataRead(msgbean.getReadTime());
+                        holder.viewChatItem.setDataRead(msgbean.getSend_state(),msgbean.getReadTime());
                     }
                 }
 
@@ -2462,9 +2462,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //            LogUtil.getLog().i(ChatActivity.class.getSimpleName(), "onBindViewHolder--position=" + position);
             viewMap.put(position, holder.itemView);
             final MsgAllBean msgbean = msgListData.get(position);
-            if(msgbean!=null&&msgbean.getChat()!=null){
-                LogUtil.getLog().e(position+"======getMsg="+msgbean.getChat().getMsg());
-            }
+//            if(msgbean!=null&&msgbean.getChat()!=null){
+//                LogUtil.getLog().e(position+"======getMsg="+msgbean.getChat().getMsg());
+//            }
 
             if (!isGroup()) {
                 if (msgbean.isMe()) {
@@ -2551,7 +2551,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             //设置已读
             if(!isGroup()){
                 if (msgbean.getRead() == 1 && checkIsRead() && msgbean.isMe()) {
-                    holder.viewChatItem.setDataRead(msgbean.getReadTime());
+                    holder.viewChatItem.setDataRead(msgbean.getSend_state(),msgbean.getReadTime());
                 }
             }
 
