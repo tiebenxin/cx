@@ -85,7 +85,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.UP_PATH = "development";
                 break;
             case "release"://正式服
-                AppConfig.DEBUG = false; // false true
+                AppConfig.DEBUG = true; // false true
                 //---------------------------
                 AppConfig.SOCKET_IP = "im-app.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
