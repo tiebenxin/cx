@@ -90,24 +90,18 @@ public class ActionbarView extends LinearLayout {
         tvNumber.setVisibility(ifShow ? VISIBLE : GONE);
     }
 
-    public void setTitleMore(String title) {
-        if (StringUtil.isNotNull(title)) {
-            txtTitleMore.setText(title);
-            txtTitleMore.setVisibility(VISIBLE);
-        } else {
-            txtTitleMore.setVisibility(GONE);
-        }
-
-    }
-
-    public void setTitleMore(Spanned title) {
+    /**
+     * 优化-> 标题底部文字显示(在线状态/几小时前)
+     * @param title 文字内容
+     * @param ifShow 控制是否显示
+     */
+    public void setTitleMore(Spanned title,boolean ifShow) {
         if (StringUtil.isNotNull(title.toString())) {
             txtTitleMore.setText(title);
-            txtTitleMore.setVisibility(VISIBLE);
-        } else {
-            txtTitleMore.setVisibility(GONE);
+        }else {
+            ifShow = false;
         }
-
+        txtTitleMore.setVisibility(ifShow ? VISIBLE : GONE);
     }
 
     public TextView getTxtTitleMore() {
@@ -252,7 +246,7 @@ public class ActionbarView extends LinearLayout {
 
 
     }
-
+    //普通界面->离线加载条
     public ImageView getLoadBar() {
         if(ivGroupLoadBar.getVisibility() == VISIBLE){
             ivGroupLoadBar.setVisibility(GONE);
@@ -260,7 +254,7 @@ public class ActionbarView extends LinearLayout {
         return ivLoadBar;
     }
 
-    //聊天界面与普通界面仅允许显示一种离线加载条
+    //聊天界面->离线加载条
     public ImageView getGroupLoadBar() {
         if(ivLoadBar.getVisibility() == VISIBLE){
             ivLoadBar.setVisibility(GONE);

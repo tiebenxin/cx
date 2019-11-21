@@ -54,6 +54,7 @@ import net.cb.cb.library.base.BaseMvpActivity;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
@@ -860,11 +861,10 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             UserInfo info = mChatModel.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
-                if(actionbar.getGroupLoadBar().getVisibility() == GONE){
-                    actionbar.getTxtTitleMore().setVisibility(VISIBLE);
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+                if(NetUtil.isNetworkConnected()){
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),true);
                 }else {
-                    actionbar.getTxtTitleMore().setVisibility(GONE);
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),false);
                 }
             }
         }
@@ -878,11 +878,10 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             UserInfo info = mChatModel.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
-                if(actionbar.getGroupLoadBar().getVisibility() == GONE){
-                    actionbar.getTxtTitleMore().setVisibility(VISIBLE);
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+                if(NetUtil.isNetworkConnected()){
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),true);
                 }else {
-                    actionbar.getTxtTitleMore().setVisibility(GONE);
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),false);
                 }
             }
             actionbar.setTitle(title);
