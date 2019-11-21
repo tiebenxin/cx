@@ -610,8 +610,9 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(UserInfoActivity.this, response.body().getMsg());
                 //刷新好友和退出
                 if (response.body().isOk()) {
-//                    userDao.updateUserUtype(id, 0);
-//                    MessageManager.getInstance().deleteSessionAndMsg(id, "");
+                    //删除好友后 取消阅后即焚状态
+                    userDao.updateReadDestroy(id,0);
+
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.DELETE, null);
                     notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
