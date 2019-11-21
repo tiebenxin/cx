@@ -1,7 +1,5 @@
 package com.yanlong.im.chat.bean;
 
-import java.io.Serializable;
-
 import io.realm.RealmObject;
 
 /**
@@ -13,7 +11,7 @@ import io.realm.RealmObject;
  * @description
  * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
-public class P2PAuVideoDialMessage extends RealmObject implements Serializable {
+public class P2PAuVideoDialMessage extends RealmObject {
     private int av_type; // Audio = 0; // 语音  Vedio = 1; // 视频
 
     public int getAv_type() {

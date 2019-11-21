@@ -6,12 +6,11 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 
 import java.io.File;
-import java.io.Serializable;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class ImageMessage extends RealmObject implements IMsgContent, Serializable {
+public class ImageMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
     private String origin; //原图
