@@ -68,24 +68,28 @@ public class MsgConversionBean {
         msgAllBean.setTo_uid(bean.getToUid());
 
         msgAllBean.setGid(bean.getGid());
-        if (!TextUtils.isEmpty(bean.getGid())) {//群聊
-            if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
-                msgAllBean.setRead(true);
-            } else {
-                if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CENCAL) {
+        if (bean.getFromUid() == UserAction.getMyId().intValue()){//自己发的
+            msgAllBean.setRead(true);
+        }else {
+            if (!TextUtils.isEmpty(bean.getGid())) {//群聊
+                if (!TextUtils.isEmpty(MessageManager.SESSION_GID) && MessageManager.SESSION_GID.equals(bean.getGid())) {
                     msgAllBean.setRead(true);
                 } else {
-                    msgAllBean.setRead(false);
+                    if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CENCAL) {
+                        msgAllBean.setRead(true);
+                    } else {
+                        msgAllBean.setRead(false);
+                    }
                 }
-            }
-        } else {//私聊
-            if (MessageManager.SESSION_FUID != null && MessageManager.SESSION_FUID.equals(bean.getFromUid())) {
-                msgAllBean.setRead(true);
-            } else {
-                if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CENCAL) {
+            } else {//私聊
+                if (MessageManager.SESSION_FUID != null && MessageManager.SESSION_FUID.equals(bean.getFromUid())) {
                     msgAllBean.setRead(true);
                 } else {
-                    msgAllBean.setRead(false);
+                    if (bean.getMsgTypeValue() == ChatEnum.EMessageType.MSG_CENCAL) {
+                        msgAllBean.setRead(true);
+                    } else {
+                        msgAllBean.setRead(false);
+                    }
                 }
             }
         }

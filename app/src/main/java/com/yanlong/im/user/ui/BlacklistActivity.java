@@ -12,11 +12,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
@@ -111,6 +113,7 @@ public class BlacklistActivity extends AppActivity {
                 if (response.body().isOk()) {
                     updateUserStatus(uid);
                     blacklist.remove(postion);
+                    MessageManager.getInstance().notifyRefreshFriend(true, uid, CoreEnum.ERosterAction.BLACK);
                     mMtListView.notifyDataSetChange();
                 }
             }
