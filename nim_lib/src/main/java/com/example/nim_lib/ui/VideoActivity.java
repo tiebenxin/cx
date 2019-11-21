@@ -1,10 +1,12 @@
 package com.example.nim_lib.ui;
 
 import android.Manifest;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -15,6 +17,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -43,8 +47,10 @@ import com.example.nim_lib.net.CallBack;
 import com.example.nim_lib.net.RunUtils;
 import com.example.nim_lib.permission.BaseMPermission;
 import com.example.nim_lib.receiver.PhoneCallStateObserver;
+import com.example.nim_lib.util.AlertYesNo;
 import com.example.nim_lib.util.GlideUtil;
 import com.example.nim_lib.util.LogUtil;
+import com.example.nim_lib.util.PermissionsUtil;
 import com.example.nim_lib.util.ScreenUtil;
 import com.example.nim_lib.util.SharedPreferencesUtil;
 import com.example.nim_lib.util.ToastUtil;
@@ -230,9 +236,17 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private CheckBox cbMute;
     private RelativeLayout layoutVoice;
 
+    private AlertYesNo mAlertYesNo;
+    private boolean mIsCheckPersion = false;// 是否检查悬浮窗权限
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED //锁屏状态下显示
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD //解锁
+                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON //保持屏幕长亮
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON); //打开屏幕
+
         EventBus.getDefault().register(this);
         setContentView(R.layout.activity_video);
         setStatusBarColor(R.color.color_707);
@@ -318,17 +332,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         } else if (v.getId() == R.id.cb_change_voice) {// 视频切换到语音
             mAVChatController.switchVideoToAudio(avChatData.getChatId(), this);
         } else if (v.getId() == R.id.img_minimize) {// 语音最小化
-            AVChatProfile.getInstance().setAVMinimize(true);
-            sendVoiceMinimizeEventBus();
-            // 退到后台不显
-            moveTaskToBack(true);
+            permissionCheck(true);
         } else if (v.getId() == R.id.cb_convert_camera) {// 摄像头切换
             mAVChatController.switchCamera();
         } else if (v.getId() == R.id.img_minimize_video) {// 视频最小化
-            AVChatProfile.getInstance().setAVMinimize(true);
-            sendVoiceMinimizeEventBus();
-            // 退到后台不显
-            moveTaskToBack(true);
+            permissionCheck(true);
         } else if (v.getId() == R.id.cb_mute) {// 音频开关
             mAVChatController.toggleMute();
         }
@@ -1290,6 +1298,9 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
         EventBus.getDefault().post(new EventFactory.StopJPushResumeEvent());
         mAVChatController.taskClearNotification(this);
+        if (mIsCheckPersion) {
+            permissionCheck(false);
+        }
     }
 
     @Override
@@ -1768,6 +1779,90 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 });
             }
         }).run();
+    }
+
+    private void showMinimizeButton() {
+        mIsCheckPersion = false;
+        AVChatProfile.getInstance().setAVMinimize(true);
+        sendVoiceMinimizeEventBus();
+        // 退到后台不显
+        moveTaskToBack(true);
+    }
+
+    /**
+     * 检查是否开启悬浮窗权限
+     *
+     * @param flg
+     */
+    private void permissionCheck(boolean flg) {
+        mIsCheckPersion = flg;
+        if (mAlertYesNo != null && mAlertYesNo.isShowing()) {
+            mAlertYesNo.dismiss();
+        }
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!Settings.canDrawOverlays(this)) {
+                showPermissionDialog();
+                return;
+            } else {
+                showMinimizeButton();
+            }
+        } else {
+            String brand = android.os.Build.BRAND;
+            brand = brand.toUpperCase();
+            if (brand.equals("HUAWEI")) {
+                if (!PermissionsUtil.checkHuaWeiFloatWindowPermission(this)) {
+                    showPermissionDialog();
+                } else {
+                    showMinimizeButton();
+                }
+            } else if (brand.equals("MEIZU")) {
+                if (!PermissionsUtil.checkMeiZuFloatWindowPermission(this)) {
+                    showPermissionDialog();
+                } else {
+                    showMinimizeButton();
+                }
+            } else {
+                showMinimizeButton();
+            }
+        }
+    }
+
+    /**
+     * 显示权限对话框
+     */
+    public void showPermissionDialog() {
+        final String title = "权限申请";
+        final String content = "在设置-应用-常信-权限中开启悬浮窗权限，以保证功能的正常使用";
+        if (mAlertYesNo == null) {
+            mAlertYesNo = new AlertYesNo();
+            mAlertYesNo.init(this, title, content, "去设置", null, new AlertYesNo.Event() {
+                @Override
+                public void onON() {
+
+                }
+
+                @Override
+                public void onYes() {
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    } else {
+                        String brand = android.os.Build.BRAND;
+                        brand = brand.toUpperCase();
+                        if (brand.equals("HUAWEI")) {
+                            PermissionsUtil.applyHuaWeiPermission(VideoActivity.this);
+                        } else if (brand.equals("MEIZU")) {
+                            PermissionsUtil.applyMeiZuOpPermission(VideoActivity.this);
+                        }
+                    }
+                }
+            });
+        }
+        if (mAlertYesNo.isShowing()) {
+            mAlertYesNo.dismiss();
+        }
+        mAlertYesNo.show();
     }
 }
 
