@@ -647,10 +647,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             isSendingHypertext = false;
                             MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
                             showSendObj(msgAllbean);
-                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
-                                    toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                            edtChat.getText().clear();
                             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                            edtChat.getText().clear();
                         } else {
                             isSendingHypertext = true;//正在分段发送长文本
                             if (totalSize > per * MIN_TEXT) {
