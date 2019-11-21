@@ -419,11 +419,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //离线就禁止发送之类的
                     // ToastUtil.show(getContext(), "离线就禁止发送之类的");
                     //  btnSend.setEnabled(state);
-                    if(isGroup()){ //群聊离线加载条改为标题底部显示，其他聊天保持不变
-                        actionbar.getGroupLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
-                    }else {
-                        actionbar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
-                    }
+                    actionbar.getGroupLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+
                 }
             });
         }
@@ -546,11 +543,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
         //预先网络监听
-        if(isGroup()){ //群聊离线加载条改为标题底部显示，其他聊天保持不变
-            actionbar.getGroupLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
-        }else {
-            actionbar.getLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
-        }
+        actionbar.getGroupLoadBar().setVisibility(onlineState ? View.GONE : View.VISIBLE);
         toUId = toUId == 0 ? null : toUId;
         taskSessionInfo();
         if (!TextUtils.isEmpty(toGid)) {
@@ -3587,10 +3580,15 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
+                if(actionbar.getGroupLoadBar().getVisibility() == GONE){
+                    actionbar.getTxtTitleMore().setVisibility(VISIBLE);
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
+                }else {
+                    actionbar.getTxtTitleMore().setVisibility(GONE);
+                }
             }
         }
-        actionbar.setTitle(title);
+        actionbar.setChatTitle(title);
         setDisturb();
     }
 
@@ -3612,7 +3610,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
+                if(actionbar.getGroupLoadBar().getVisibility() == GONE){
+                    actionbar.getTxtTitleMore().setVisibility(VISIBLE);
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true));
+                }else {
+                    actionbar.getTxtTitleMore().setVisibility(GONE);
+                }
             }
             actionbar.setTitle(title);
         }

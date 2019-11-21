@@ -30,7 +30,6 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
@@ -861,10 +860,15 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             UserInfo info = mChatModel.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+                if(actionbar.getGroupLoadBar().getVisibility() == GONE){
+                    actionbar.getTxtTitleMore().setVisibility(VISIBLE);
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+                }else {
+                    actionbar.getTxtTitleMore().setVisibility(GONE);
+                }
             }
         }
-        actionbar.setTitle(title);
+        actionbar.setChatTitle(title);
     }
 
     @Override
@@ -874,7 +878,12 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             UserInfo info = mChatModel.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+                if(actionbar.getGroupLoadBar().getVisibility() == GONE){
+                    actionbar.getTxtTitleMore().setVisibility(VISIBLE);
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+                }else {
+                    actionbar.getTxtTitleMore().setVisibility(GONE);
+                }
             }
             actionbar.setTitle(title);
         }
