@@ -820,6 +820,7 @@ public class MsgDao {
             realm.where(VoiceMessage.class).findAll().deleteAllFromRealm();
             realm.where(AtMessage.class).findAll().deleteAllFromRealm();
             realm.where(AssistantMessage.class).findAll().deleteAllFromRealm();
+            realm.where(VideoMessage.class).findAll().deleteAllFromRealm();
 
             //清理角标
             RealmResults<Session> sessions = realm.where(Session.class).findAll();

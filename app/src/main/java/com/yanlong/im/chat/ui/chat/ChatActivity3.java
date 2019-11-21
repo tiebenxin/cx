@@ -30,7 +30,6 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.manager.MessageManager;
-import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.server.UpLoadService;
 import com.yanlong.im.chat.ui.ChatInfoActivity;
 import com.yanlong.im.chat.ui.GroupInfoActivity;
@@ -55,6 +54,7 @@ import net.cb.cb.library.base.BaseMvpActivity;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.InputUtil;
+import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.ScreenUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.SoftKeyBoardListener;
@@ -861,10 +861,14 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             UserInfo info = mChatModel.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+                if(NetUtil.isNetworkConnected()){
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),true);
+                }else {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),false);
+                }
             }
         }
-        actionbar.setTitle(title);
+        actionbar.setChatTitle(title);
     }
 
     @Override
@@ -874,7 +878,11 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
             UserInfo info = mChatModel.getUserInfo();
             title = info.getName4Show();
             if (info.getLastonline() > 0) {
-                actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true));
+                if(NetUtil.isNetworkConnected()){
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),true);
+                }else {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(info.getLastonline(), info.getActiveType(), true),false);
+                }
             }
             actionbar.setTitle(title);
         }

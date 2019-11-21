@@ -350,6 +350,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private void setItemShow(int type) {
+        System.out.println(UserInfoActivity.class.getSimpleName() + "--stat=" + type);
         viewComplaint.setVisibility(View.VISIBLE);
         if (type == 0) {
             mLayoutMsg.setVisibility(View.VISIBLE);
@@ -371,9 +372,9 @@ public class UserInfoActivity extends AppActivity {
             }
             viewIntroduce.setVisibility(View.GONE);
         } else if (type == 2) {
-            mLayoutMsg.setVisibility(View.VISIBLE);
-            btnMsg.setVisibility(View.VISIBLE);
-            mBtnAdd.setVisibility(View.GONE);
+            mLayoutMsg.setVisibility(View.GONE);
+            btnMsg.setVisibility(View.GONE);
+            mBtnAdd.setVisibility(View.VISIBLE);
             mViewSettingName.setVisibility(View.VISIBLE);
             tvBlack.setText("解除黑名单");
             viewIntroduce.setVisibility(View.GONE);
@@ -439,7 +440,7 @@ public class UserInfoActivity extends AppActivity {
         txtNkname.setText("昵称: " + info.getName());
         name = info.getName();
 
-        if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
+        if (/*(info.getuType() != null && info.getuType() == 3) ||*/ (info.getStat() != null && info.getStat() == 2)) {
             type = 2;
         }
         if (info.getStat() != 9) {//不是常信小助手

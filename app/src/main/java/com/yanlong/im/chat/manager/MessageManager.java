@@ -33,6 +33,7 @@ import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
+import net.cb.cb.library.bean.EventSwitchDisturb;
 import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
@@ -846,6 +847,11 @@ public class MessageManager {
             }
         }
         EventBus.getDefault().post(eventRefreshMainMsg);
+    }
+
+    public void notifySwitchDisturb(){
+        EventBus.getDefault().post(new EventSwitchDisturb());
+
     }
 
     /*

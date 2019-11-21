@@ -110,7 +110,7 @@ public class MsgMainFragment extends Fragment {
         @Override
         public void run() {
             //解决断网后又马上连网造成的提示显示异常问题
-            if(!NetUtil.isNetworkConnected()){
+            if (!NetUtil.isNetworkConnected()) {
                 viewNetwork.setVisibility(View.VISIBLE);
             }
         }
@@ -323,10 +323,10 @@ public class MsgMainFragment extends Fragment {
         edtSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getContext(),MsgSearchActivity.class);
+                Intent intent = new Intent(getContext(), MsgSearchActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("conversation_data", (Serializable) listData);//携带会话列表数据
-                bundle.putBoolean("online_state",onlineState);
+                bundle.putBoolean("online_state", onlineState);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
@@ -835,7 +835,7 @@ public class MsgMainFragment extends Fragment {
                     startActivity(new Intent(getContext(), ChatActivity.class)
                             .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
                             .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
-                            .putExtra(ChatActivity.ONLINE_STATE,onlineState)
+                            .putExtra(ChatActivity.ONLINE_STATE, onlineState)
                     );
 //                    if (bean.getUnread_count() > 0) {
 //                        MessageManager.getInstance().setMessageChange(true);
@@ -1117,8 +1117,6 @@ public class MsgMainFragment extends Fragment {
 //
 //        mtListView.notifyDataSetChange();
 //    }
-
-
     private void taskDelSession(Long from_uid, String gid) {
         MessageManager.getInstance().deleteSessionAndMsg(from_uid, gid);
         MessageManager.getInstance().notifyRefreshMsg();

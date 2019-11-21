@@ -172,7 +172,7 @@ public class ChatInfoActivity extends AppActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 fUserInfo.setMyRead(isChecked ? 1 : 0);
                 taskSaveInfo();
-                taskFriendsSetRead(fuid,isChecked ? 1 : 0);
+                taskFriendsSetRead(fuid, isChecked ? 1 : 0);
             }
         });
 
@@ -372,6 +372,7 @@ public class ChatInfoActivity extends AppActivity {
                     }
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, fuid, "", CoreEnum.ESessionRefreshTag.SINGLE, session, true);
+                    MessageManager.getInstance().notifySwitchDisturb();
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
 
@@ -390,7 +391,7 @@ public class ChatInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateReadDestroy(fuid, survivalTime);
-                    msgDao.noteMsgAddSurvivaltime(fuid,null);
+                    msgDao.noteMsgAddSurvivaltime(fuid, null);
                 }
             }
         });
@@ -399,8 +400,8 @@ public class ChatInfoActivity extends AppActivity {
 
     /**
      * 设置已读
-     * */
-    private void taskFriendsSetRead(long uid, int read){
+     */
+    private void taskFriendsSetRead(long uid, int read) {
         new UserAction().friendsSetRead(uid, read, new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {

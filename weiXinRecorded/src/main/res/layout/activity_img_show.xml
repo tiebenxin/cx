@@ -3,10 +3,27 @@
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <RelativeLayout
+        android:id="@+id/activity_show_rl_big"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+        android:id="@+id/activity_img_show_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"/>
+
+    <com.zhaoss.weixinrecorded.view.MyPaintView
+        android:id="@+id/activity_show_mypaintview"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent"/>
+    </RelativeLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#dd2B2B2B"
-        >
+        android:background="#dd2B2B2B">
         <RelativeLayout
             android:id="@+id/rl_close"
             android:layout_width="50dp"
@@ -26,52 +43,6 @@
             android:layout_centerInParent="true"
             android:text="编辑照片"/>
     </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/activity_show_rl_big"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <ImageView
-        android:id="@+id/activity_img_show_img"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"
-        android:scaleType="fitXY"/>
-
-    <com.zhaoss.weixinrecorded.view.MyPaintView
-        android:id="@+id/activity_show_mypaintview"
-        android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="match_parent"/>
-    </RelativeLayout>
-<!--    <RelativeLayout-->
-<!--        android:id="@+id/rl_record_button"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_marginBottom="50dp">-->
-
-<!--        <ImageView-->
-<!--            android:id="@+id/iv_show_delete"-->
-<!--            android:layout_width="29dp"-->
-<!--            android:layout_height="23dp"-->
-<!--            android:layout_marginLeft="61dp"-->
-<!--            android:layout_centerVertical="true"-->
-<!--            android:scaleType="fitXY"-->
-<!--            android:clickable="true"-->
-<!--            android:background="@mipmap/video_cancle"/>-->
-<!--        <ImageView-->
-<!--            android:id="@+id/iv_show_next"-->
-<!--            android:layout_width="33dp"-->
-<!--            android:layout_height="24dp"-->
-<!--            android:layout_centerVertical="true"-->
-<!--            android:layout_marginRight="65dp"-->
-<!--            android:layout_alignParentRight="true"-->
-<!--            android:clickable="true"-->
-<!--            android:background="@mipmap/video_sure"/>-->
-<!--    </RelativeLayout>-->
-
-
 
     <LinearLayout
         android:id="@+id/ll_bottom"
@@ -216,7 +187,6 @@
 
     </LinearLayout>
 
-
     <LinearLayout
         android:id="@+id/ll_color"
         android:layout_width="match_parent"
@@ -241,7 +211,6 @@
                 android:src="@mipmap/edit_delete"/>
         </RelativeLayout>
     </LinearLayout>
-
 
     <RelativeLayout
         android:id="@+id/rl_edit_text"
@@ -290,6 +259,7 @@
             android:textColor="#fff"
             android:visibility="invisible" />
     </RelativeLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -302,6 +272,7 @@
             android:layout_centerInParent="true"
             android:layout_margin="10dp"/>
     </RelativeLayout>
+
     <com.zhaoss.weixinrecorded.view.CutView
         android:layout_marginBottom="50dp"
         android:id="@+id/activity_img_show_cut"

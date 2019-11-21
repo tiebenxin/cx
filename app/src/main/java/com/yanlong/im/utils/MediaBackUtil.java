@@ -6,6 +6,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
 
+import com.example.nim_lib.controll.PlayerManager;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.dao.MsgDao;
 
@@ -35,12 +36,12 @@ public class MediaBackUtil {
             return;
         }
 
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Ringtone r = RingtoneManager.getRingtone(context, notification);
-        r.play();
-
-//        PlayerManager.getManager().init(context, PlayerManager.MESSAGE_TYPE);
-//        PlayerManager.getManager().play(PlayerManager.MODE_SPEAKER);
+//        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//        Ringtone r = RingtoneManager.getRingtone(context, notification);
+//        r.play();
+        // 播放自定义铃声
+        PlayerManager.getManager().init(context, PlayerManager.MESSAGE_TYPE);
+        PlayerManager.getManager().play(PlayerManager.MODE_SPEAKER);
 
     }
 }

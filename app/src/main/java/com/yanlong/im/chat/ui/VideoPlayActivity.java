@@ -1,5 +1,6 @@
 package com.yanlong.im.chat.ui;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -26,7 +29,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.nim_lib.util.GlideUtil;
 import com.google.gson.Gson;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
@@ -51,19 +53,28 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.widget.RelativeLayout.CENTER_IN_PARENT;
 
+/**
+ * @version V1.0
+ * @createAuthor yangqing
+ * @createDate 2019-10-16
+ * @updateAuthor（Geoff）
+ * @updateDate 2019-11-01
+ * @description 小视频播放
+ * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
+ */
 public class VideoPlayActivity extends AppActivity implements View.OnClickListener, SurfaceHolder.Callback, MediaPlayer.OnVideoSizeChangedListener {
     private InputMethodManager manager;
     private SurfaceView textureView;
     private SurfaceTexture surfaceTexture;
     private ImageView img_bg;
-    private String path;
+    private ImageView img_progress;
+    private String mPath;
     private String bgUrl;
     private String msg_id;
     private String msgAllBean;
@@ -74,8 +85,13 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
     private int surfaceWidth;
     private int surfaceHeight;
     private MediaPlayer mMediaPlayer;
+
     private int mHour, mMin, mSecond;
-    private int tempTime = 0;
+    private int mTempTime = 0;
+    private int mCurrentTime = 0;
+    private int mLastTime = 0;
+    private Timer mTimer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,12 +103,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             EventBus.getDefault().register(this);
         }
 
-        path = getIntent().getExtras().getString("videopath");
+        mPath = getIntent().getExtras().getString("videopath");
         msgAllBean = (String) getIntent().getExtras().get("videomsg");
         msg_id = getIntent().getExtras().getString("msg_id");
         bgUrl = getIntent().getExtras().getString("bg_url");
+        Log.i("1212", mPath);
         initView();
         initEvent();
+        Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);
+        img_progress.startAnimation(rotateAnimation);
         if (!TextUtils.isEmpty(bgUrl)) {
             Glide.with(this).load(bgUrl).into(img_bg);
         }
@@ -106,30 +125,16 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         }
         final String fileName = MyDiskCache.getFileNmae(msgAllBean.getVideoMessage().getUrl()) + ".mp4";
         final File fileVideo = new File(appDir, fileName);
-//        videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
         new Thread() {
             @Override
             public void run() {
                 try {
-
                     DownloadUtil.get().download(msgAllBean.getVideoMessage().getUrl(), appDir.getAbsolutePath(), fileName, new DownloadUtil.OnDownloadListener() {
                         @Override
                         public void onDownloadSuccess(File file) {
-//                            Intent intent = new Intent(VideoPlayActivity.this, VideoPlayActivity.class);
-//                            intent.putExtra("videopath", fileVideo.getAbsolutePath());
-//                            Message message = new Message();
-//                            Bundle bundle = new Bundle();
-//                            bundle.putString("msgid", msgAllBean.getVideoMessage().getMsgId());
-//                            bundle.putString("url", fileVideo.getAbsolutePath());
-//                            message.setData(bundle);
-//                            handler.sendMessage(message);
                             videoMessage.setLocalUrl(fileVideo.getAbsolutePath());
                             MsgDao dao = new MsgDao();
                             dao.fixVideoLocalUrl(msgAllBean.getVideoMessage().getMsgId(), fileVideo.getAbsolutePath());
-//                        msgAllBean.setVideoMessage(videoMessage);
-//                        MsgAllBean imgMsgBean = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, reMsg.getTimestamp(), image, ChatEnum.EMessageType.IMAGE);
-//                        VideoMessage videoMessageSD = SocketData.createVideoMessage(imgMsgId, "file://" + file, videoMessage.getBg_url(),false,videoMessage.getDuration(),videoMessage.getWidth(),videoMessage.getHeight(),file);
-//                            startActivity(intent);
                             MyDiskCacheUtils.getInstance().putFileNmae(appDir.getAbsolutePath(), fileVideo.getAbsolutePath());
                         }
 
@@ -140,14 +145,12 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
                         @Override
                         public void onDownloadFailed(Exception e) {
-
                         }
                     });
 
                 } catch (Exception e) {
 
                 }
-
             }
         }.start();
 
@@ -162,7 +165,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void showDialog(String name) {
         AlertYesNo alertYesNo = new AlertYesNo();
-        alertYesNo.init(VideoPlayActivity.this, null, "\""+name+"\""+"撤回了一条消息",
+        alertYesNo.init(VideoPlayActivity.this, null, "\"" + name + "\"" + "撤回了一条消息",
                 "确定", null, new AlertYesNo.Event() {
                     @Override
                     public void onON() {
@@ -179,26 +182,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     private void initEvent() {
         findViewById(R.id.rl_video_play_con).setOnClickListener(this);
-//        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
-//            @Override
-//            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-//                surfaceTexture = surface;
-//                initMediaPlay(surface);
-//            }
-//            @Override
-//            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-//
-//            }
-//            @Override
-//            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-//                return false;
-//            }
-//            @Override
-//            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-//
-//            }
-//        });
-//        textureView.set
+
         textureView.setOnClickListener(this);
         textureView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -207,17 +191,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 return false;
             }
         });
-//        textureView.setOnClickListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (activity_video_rel_con.getVisibility()==View.VISIBLE){
-//                    activity_video_rel_con.setVisibility(View.INVISIBLE);
-//                }else{
-//                    activity_video_rel_con.setVisibility(View.VISIBLE);
-//                }
-//                return true;
-//            }
-//        });
         activity_video_img_con.setOnClickListener(this);
         activity_video_big_con.setOnClickListener(this);
         activity_video_img_close.setOnClickListener(this);
@@ -242,48 +215,57 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 //        initMediaPlay(textureView);
     }
 
+    @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            NumberFormat numberFormat = NumberFormat.getPercentInstance();
-            numberFormat.setMinimumFractionDigits(0);
-            DecimalFormat df = new DecimalFormat("0.00");
-            String result = df.format((double) currentTime / mMediaPlayer.getDuration());
-            activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
+            if (!isFinishing() && mMediaPlayer != null) {
+                DecimalFormat df = new DecimalFormat("0.00");
+                String result = df.format((double) mCurrentTime / mMediaPlayer.getDuration());
 
-            currentTime = currentTime / 1000;
-            mHour = currentTime / 3600;
-            mMin = currentTime % 3600 / 60;
-            mSecond = currentTime % 60;
+                activity_video_seek.setProgress((int) (Double.parseDouble(result) * 100));
 
-            if (mHour > 0) {
-                activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
-            } else {
-                activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                mCurrentTime = mCurrentTime / 1000;
+                mHour = mCurrentTime / 3600;
+                mMin = mCurrentTime % 3600 / 60;
+                mSecond = mCurrentTime % 60;
+
+                if (mHour > 0) {
+                    activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
+                } else {
+                    activity_video_current_time.setText(String.format(Locale.CHINESE, "%02d:%02d", mMin, mSecond));
+                }
             }
         }
     };
-    private int currentTime = 0;
-    private Timer timer;
 
     private void getProgress() {
-
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
+        mTimer = new Timer();
+        mTimer.schedule(new TimerTask() {
 
             @Override
             public void run() {
 
                 if (null != mMediaPlayer) {
                     try {
-                        currentTime = mMediaPlayer.getCurrentPosition();
-                        handler.sendEmptyMessage(419);
+                        // TODO OPPO等个别手机获取不到最后一秒
+                        mCurrentTime = mMediaPlayer.getCurrentPosition();
+                        // TODO 处理OPPO手机无法播放到最后一秒问题
+                        if (mLastTime >= mCurrentTime) {
+                            if ((mMediaPlayer.getDuration() - mCurrentTime) < 1000) {
+                                mCurrentTime = mMediaPlayer.getDuration();
+                                activity_video_seek.setProgress(1);
+                            }
+                        }
+                        mLastTime = mCurrentTime;
+                        if (!isFinishing()) {
+                            handler.sendEmptyMessage(0);
+                        }
                     } catch (Exception e) {
-                        if (null != timer)
-                            timer.cancel();
+                        if (null != mTimer)
+                            mTimer.cancel();
                     }
                 }
-//                activity_video_seek.setProgress(p);
             }
         }, 0, 1000);
     }
@@ -299,43 +281,32 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         activity_video_count_time = findViewById(R.id.activity_video_count_time);
         activity_video_current_time = findViewById(R.id.activity_video_current_time);
         img_bg = findViewById(R.id.img_bg);
+        img_progress = findViewById(R.id.img_progress);
 
         activity_video_rel_con.setVisibility(View.INVISIBLE);
     }
 
-    //    private void initMediaPlay(SurfaceTexture surface){
     private void initMediaPlay(SurfaceHolder surfaceHolder) {
 
         try {
             mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setDataSource(path);
-//            mMediaPlayer.setSurface(new Surface(surface));
+            mMediaPlayer.setDataSource(mPath);
             mMediaPlayer.setDisplay(surfaceHolder);
-//            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
             mMediaPlayer.setLooping(false);
 
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     mMediaPlayer.start();
-//                    int duration=mMediaPlayer.getDuration();
-//                    if (duration<=0){
-//                        ToastUtil.show(getApplicationContext(),"文件损坏，请退出重新点击进入");
-//                        File file=new File(path);
-//                        if (null!=file&&file.exists()){
-//                            file.delete();
-//                        }
-//                        finish();
-//                    }
                     MsgAllBean msgAllBeanForm = new Gson().fromJson(msgAllBean, MsgAllBean.class);
-                    if (path.contains("http://")) {
+                    if (mPath.contains("http://")) {
                         downVideo(msgAllBeanForm, msgAllBeanForm.getVideoMessage());
                     }
                     // 转成秒
-                    tempTime = mMediaPlayer.getDuration() / 1000;
-                    mHour = tempTime / 3600;
-                    mMin = tempTime % 3600 / 60;
-                    mSecond = tempTime % 60;
+                    mTempTime = mMediaPlayer.getDuration() / 1000;
+                    mHour = mTempTime / 3600;
+                    mMin = mTempTime % 3600 / 60;
+                    mSecond = mTempTime % 60;
                     if (mHour > 0) {
                         activity_video_count_time.setText(String.format(Locale.CHINESE, "%02d:%02d:%02d", mHour, mMin, mSecond));
                     } else {
@@ -349,6 +320,8 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 @Override
                 public boolean onInfo(MediaPlayer mp, int what, int extra) {
                     if (what == mp.MEDIA_INFO_VIDEO_RENDERING_START) {
+                        img_progress.clearAnimation();
+                        img_progress.setVisibility(View.GONE);
                         //隐藏缩略图
                         img_bg.setVisibility(View.GONE);
                     }
@@ -374,8 +347,15 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             @Override
             public void onCompletion(MediaPlayer mp) {
                 mMediaPlayer.pause();
-                activity_video_big_con.setVisibility(View.VISIBLE);
-                activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                if (!isFinishing()) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity_video_big_con.setVisibility(View.VISIBLE);
+                            activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
+                        }
+                    }, 500);
+                }
             }
         });
     }
@@ -387,9 +367,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             mMediaPlayer.pause();
             activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_play));
         }
-        if (null != timer) {
-            timer.cancel();
-            timer = null;
+        if (null != mTimer) {
+            mTimer.cancel();
+            mTimer = null;
         }
     }
 
@@ -398,12 +378,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         super.onRestart();
         activity_video_big_con.setVisibility(View.INVISIBLE);
         activity_video_img_con.setBackground(getDrawable(R.mipmap.video_play_con_pause));
-//        if (null!=mMediaPlayer){
-//            mMediaPlayer.start();
-//        }
-//        if (null!=timer){
-//            timer.purge();
-//        }
     }
 
     @Override
@@ -419,9 +393,9 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
-        if (null != timer) {
-            timer.cancel();
-            timer = null;
+        if (null != mTimer) {
+            mTimer.cancel();
+            mTimer = null;
         }
         if (EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().unregister(this);
@@ -430,7 +404,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if(DoubleUtils.isFastDoubleClick()){
+        if (DoubleUtils.isFastDoubleClick()) {
             return;
         }
         switch (v.getId()) {
@@ -493,7 +467,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
                 if (postsion == 0) {
                     onRetransmission(msgAllBean);
                 } else if (postsion == 1) {
-                    insertVideoToMediaStore(getContext(), path, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
+                    insertVideoToMediaStore(getContext(), mPath, System.currentTimeMillis(), mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight(), mMediaPlayer.getDuration());
                     ToastUtil.show(VideoPlayActivity.this, "保存成功");
                 } else {
 
@@ -535,7 +509,7 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         if (mFile.exists()) {
             result = true;
         }
-        LogUtil.getLog().e("TAG", "文件不存在 path = " + filePath);
+        LogUtil.getLog().e("TAG", "文件不存在 mPath = " + filePath);
         return result;
     }
 

@@ -1,5 +1,6 @@
 package com.yanlong.im;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -20,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
+import com.example.nim_lib.util.PermissionsUtil;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
@@ -33,6 +35,7 @@ import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
+import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
@@ -475,13 +478,6 @@ public class MainActivity extends AppActivity {
     public void voiceMinimizeEvent(EventFactory.VoiceMinimizeEvent event) {
         mPassedTime = event.passedTime;
         mVoiceMinimizeEvent = event;
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (!Settings.canDrawOverlays(context)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-                startActivity(intent);
-                return;
-            }
-        }
         showMinimizeVoiceView(true);
     }
 

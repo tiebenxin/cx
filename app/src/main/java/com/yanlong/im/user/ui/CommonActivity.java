@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
+import com.lansosdk.videoeditor.LanSongFileUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.yanlong.im.R;
@@ -33,6 +34,8 @@ import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.io.File;
 
 public class CommonActivity extends AppActivity implements View.OnClickListener {
 
@@ -224,6 +227,11 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 msgAction.msgDelAll();
                 MessageManager.getInstance().setMessageChange(true);
                 MessageManager.getInstance().notifyRefreshMsg();
+                // 清空本地小视频
+                File file = new File(LanSongFileUtil.DEFAULT_DIR);
+                if(file.exists()){
+                    LanSongFileUtil.deleteDir(file);
+                }
             }
         });
         alertYesNo.show();

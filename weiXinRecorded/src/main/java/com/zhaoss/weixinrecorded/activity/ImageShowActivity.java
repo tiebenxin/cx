@@ -112,10 +112,10 @@ public class ImageShowActivity  extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-//                Bitmap bitmap= loadBitmapFromView(activity_show_rl_big);
-//                String savePath= saveImage(bitmap,100);
+                Bitmap bitmap= loadBitmapFromView(activity_show_rl_big);
+                String savePath= saveImage(bitmap,100);
                 intent.putExtra("showResult", true);
-                intent.putExtra("showPath", path);
+                intent.putExtra("showPath", savePath);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -171,6 +171,7 @@ public class ImageShowActivity  extends BaseActivity {
         rl_text_cut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ll_color.setVisibility(View.INVISIBLE);
                 if (activity_img_show_cut.getVisibility()==View.VISIBLE){
                     activity_img_show_cut.setVisibility(View.GONE);
                 }else{
@@ -366,8 +367,8 @@ public class ImageShowActivity  extends BaseActivity {
             Canvas c = new Canvas(bmp);
 
             c.drawColor(Color.WHITE);
-            /** 如果不设置canvas画布为白色，则生成透明 */
-
+//            /** 如果不设置canvas画布为白色，则生成透明 */
+//
             v.layout(0, 0, w, h);
             v.draw(c);
             return bmp;
