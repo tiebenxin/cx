@@ -56,6 +56,8 @@ public class GroupCreateActivity extends AppActivity {
     private PySortView viewType;
     public static final String AGM_SELECT_UID = "select_uid";
     private String select_uid;
+    private List<UserInfo> listDataTop = new ArrayList<>();
+
 
     //自动寻找控件
     private void findViews() {
@@ -88,8 +90,10 @@ public class GroupCreateActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 alert.show();
-                actionbar.getViewRight().setEnabled(false);
-                actionbar.getViewRight().setClickable(false);
+                if (listDataTop != null && listDataTop.size() >= 2) {
+                    actionbar.getViewRight().setEnabled(false);
+                    actionbar.getViewRight().setClickable(false);
+                }
                 taskCreate();
             }
         });
@@ -240,7 +244,6 @@ public class GroupCreateActivity extends AppActivity {
         }
     }
 
-    private List<UserInfo> listDataTop = new ArrayList<>();
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewTopAdapter extends RecyclerView.Adapter<RecyclerViewTopAdapter.RCViewTopHolder> {
@@ -372,8 +375,11 @@ public class GroupCreateActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
                 actionbar.getViewRight().setEnabled(true);
                 alert.dismiss();
-                if (response.body() == null)
+                if (response.body() == null) {
+                    actionbar.getViewRight().setEnabled(true);
+                    actionbar.getViewRight().setClickable(true);
                     return;
+                }
                 if (response.body().isOk()) {
                     MsgDao msgDao = new MsgDao();
                     msgDao.groupHeadImgCreate(response.body().getData().getGid(), fileImg.getAbsolutePath());
@@ -382,6 +388,8 @@ public class GroupCreateActivity extends AppActivity {
                     startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOGID, response.body().getData().getGid()).putExtra(ChatActivity.GROUP_CREAT, "creat"));
                     finish();
                 } else {
+                    actionbar.getViewRight().setEnabled(true);
+                    actionbar.getViewRight().setClickable(true);
                     ToastUtil.show(getContext(), response.body().getMsg());
 
                 }

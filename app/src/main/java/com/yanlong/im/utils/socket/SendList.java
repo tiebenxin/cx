@@ -135,7 +135,7 @@ public class SendList {
     /*
      * 将消息添加到发送队列
      * */
-    public void addMsgToSendSequence(MsgAllBean msg) {
+    public static void addMsgToSendSequence(MsgAllBean msg) {
         if (sendSequence == null) {
             sendSequence = new HashMap<>();
         }
@@ -145,7 +145,7 @@ public class SendList {
     /*
      * 从发送队列获取消息
      * */
-    public MsgAllBean getMsgFromSendSequence(String msgId) {
+    public static MsgAllBean getMsgFromSendSequence(String msgId) {
         if (sendSequence != null) {
             return sendSequence.get(msgId);
         }

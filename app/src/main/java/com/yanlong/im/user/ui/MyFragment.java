@@ -323,26 +323,6 @@ public class MyFragment extends Fragment {
     }
 
 
-    private void taskGetUserInfo4Id(Long uid) {
-        new UserAction().getUserInfo4Id(uid, new CallBack<ReturnBean<UserInfo>>() {
-            @Override
-            public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
-                super.onResponse(call, response);
-                if (response.body() == null) {
-                    return;
-                }
-                UserInfo userInfo = response.body().getData();
-                Glide.with(MyFragment.this).load(userInfo.getHead() + "")
-                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
-
-                txtName.setText(userInfo.getName());
-                mTvInfo.setText("常信号: " + userInfo.getImid() + "");
-
-            }
-        });
-    }
-
-
     private void taskAddFriend(Long id) {
         if (NetUtil.isNetworkConnected()) {
             new UserAction().friendApply(id, "", null, new CallBack<ReturnBean>() {
