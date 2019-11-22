@@ -2380,6 +2380,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                     replaceListDataAndNotify(imgMsgBeanReSend);
 //                    msgListData.add(imgMsgBeanReSend);
+
+                    if (!TextUtils.isEmpty(videoMessage.getBg_url())) {
+                        // 当预览图清空掉时重新获取
+                        File file = new File(videoMessage.getBg_url());
+                        if (file == null || !file.exists()) {
+                            videoMessage.setBg_url(getVideoAttBitmap(url));
+                        }
+                    }
                     UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
                     startService(new Intent(getContext(), UpLoadService.class));
 
