@@ -1191,11 +1191,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
-                        util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
-                        if (isGroup()) {
-                            changeSurvivalTime(toGid, survivaltime);
-                        } else {
-                            taskSurvivalTime(toUId, survivaltime);
+                        if(ChatActivity.this.survivaltime != survivaltime){
+                            util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
+                            if (isGroup()) {
+                                changeSurvivalTime(toGid, survivaltime);
+                            } else {
+                                taskSurvivalTime(toUId, survivaltime);
+                            }
                         }
                     }
                 });

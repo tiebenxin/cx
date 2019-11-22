@@ -53,7 +53,6 @@ public class DestroyTimeView implements View.OnClickListener {
                 content = (String) leftValue;
                 tvContent.setText(content);
                 survivaltime = getSurvivaltime(content);
-
             }
         });
         pickString.setValueData(valueStr, valueStr[0]);
