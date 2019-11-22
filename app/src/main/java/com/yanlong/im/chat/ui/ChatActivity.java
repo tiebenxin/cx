@@ -2009,10 +2009,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
                         }
 
+                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(),envelopeInfo.getEnvelopesID(),envelopeInfo.getEnvelopeMessage(),MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY.getNumber(),style.getNumber());
+                        sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
 
-                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
-                        showSendObj(msgAllbean);
-                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+//                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
+//                        showSendObj(msgAllbean);
+//                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                     }
                     break;
                 case GroupSelectUserActivity.RET_CODE_SELECTUSR:

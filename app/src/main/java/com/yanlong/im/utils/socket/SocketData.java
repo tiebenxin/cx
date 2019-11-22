@@ -1091,14 +1091,30 @@ public class SocketData {
                 type = MsgBean.MessageType.STAMP;
                 break;
             case ChatEnum.EMessageType.TRANSFER://转账
+                TransferMessage transfer = bean.getTransfer();
+                MsgBean.TransferMessage.Builder transferBuild = MsgBean.TransferMessage.newBuilder();
+                transferBuild.setTransactionAmount(transfer.getTransaction_amount());
+                transferBuild.setComment(transfer.getComment());
+                transferBuild.setId(transfer.getId());
+                value = transferBuild.build();
+                type = MsgBean.MessageType.TRANSFER;
                 break;
             case ChatEnum.EMessageType.RED_ENVELOPE://红包
+                RedEnvelopeMessage red = bean.getRed_envelope();
+                MsgBean.RedEnvelopeMessage.Builder redBuild = MsgBean.RedEnvelopeMessage.newBuilder()
+                        .setId(red.getId())
+                        .setComment(red.getComment())
+                        .setReType(MsgBean.RedEnvelopeMessage.RedEnvelopeType.forNumber(red.getRe_type()))
+                        .setStyle(MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.forNumber(red.getStyle()));
+                value = redBuild.build();
+                type = MsgBean.MessageType.RED_ENVELOPER;
                 break;
             case ChatEnum.EMessageType.READ://已读消息，不需要保存
 
                 needSave = false;
                 break;
-            case ChatEnum.EMessageType.MSG_CENCAL://撤销消息
+            case ChatEnum.EMessageType.MSG_CENCAL://
+
                 break;
         }
         if (needSave) {
@@ -1558,7 +1574,24 @@ public class SocketData {
         message.setComment(comment);
         message.setId(rowId);
         message.setTransaction_amount(money);
+        return message;
+    }
 
+    //
+
+    /**
+     * 创建发送红包消息
+     *
+     * @param reType, 红包运营商，如支付宝红包，魔方红包
+     * @param style   红包玩法风格，0 普通玩法 ； 1 拼手气玩法
+     */
+    public static RedEnvelopeMessage createRbMessage(String msgId, String rid, String info, int reType, int style) {
+        RedEnvelopeMessage message = new RedEnvelopeMessage();
+        message.setMsgid(msgId);
+        message.setId(rid);
+        message.setComment(info);
+        message.setRe_type(reType);
+        message.setStyle(style);
         return message;
     }
 
