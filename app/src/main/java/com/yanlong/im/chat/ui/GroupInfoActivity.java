@@ -322,8 +322,8 @@ public class GroupInfoActivity extends AppActivity {
         viewDestroyTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isAdmin()){
-                    ToastUtil.show(context,"只有群主才能修改该选项");
+                if (!isAdmin()) {
+                    ToastUtil.show(context, "只有群主才能修改该选项");
                     return;
                 }
                 DestroyTimeView destroyTimeView = new DestroyTimeView(GroupInfoActivity.this);
@@ -334,14 +334,13 @@ public class GroupInfoActivity extends AppActivity {
                     public void onClickItem(String content, int survivaltime) {
                         destroyTime = survivaltime;
                         tvDestroyTime.setText(content);
-                        changeSurvivalTime(gid,survivaltime);
+                        changeSurvivalTime(gid, survivaltime);
                     }
                 });
             }
         });
 
     }
-
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -616,7 +615,7 @@ public class GroupInfoActivity extends AppActivity {
                 }
             }
         };
-        msgAction.groupQuit(gid,UserAction.getMyInfo().getName(), callBack);
+        msgAction.groupQuit(gid, UserAction.getMyInfo().getName(), callBack);
     }
 
     private boolean isAdmin() {
@@ -907,7 +906,7 @@ public class GroupInfoActivity extends AppActivity {
                 }
                 if (response.body().isOk()) {
                     userDao.updateGroupReadDestroy(gid, survivalTime);
-                    msgDao.noteMsgAddSurvivaltime(ginfo.getUsers().get(0).getUid(),gid);
+                    msgDao.noteMsgAddSurvivaltime(ginfo.getUsers().get(0).getUid(), gid);
                 }
             }
         });
@@ -981,7 +980,7 @@ public class GroupInfoActivity extends AppActivity {
             return;
         }
 //        MsgAllBean bean = SocketData.createMessageBean(gid, "@所有人 \r\n" + ginfo.getAnnouncement(), ginfo);
-        AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + ginfo.getAnnouncement(), ChatEnum.EAtType.ALL);
+        AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + ginfo.getAnnouncement(), ChatEnum.EAtType.ALL, null);
         MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
         if (bean != null) {
             SocketData.saveMessage(bean);

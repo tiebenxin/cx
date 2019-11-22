@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.RobotInfoBean;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.bean.ReturnBean;
@@ -180,7 +181,7 @@ public class GroupRobotActivity extends AppActivity {
             btnConfig.setVisibility(View.VISIBLE);
         }
 
-       // imgInfoIcon.setImageURI(Uri.parse(infoBean.getAvatar()));
+        // imgInfoIcon.setImageURI(Uri.parse(infoBean.getAvatar()));
 
         Glide.with(this).load(infoBean.getAvatar())
                 .apply(GlideOptionsUtil.defImageOptions()).into(imgInfoIcon);
@@ -228,7 +229,7 @@ public class GroupRobotActivity extends AppActivity {
                 if (response.body().isOk()) {
                     showType = 0;
                     taskInfo();
-
+                    MessageManager.getInstance().notifyGroupChange(true);
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }
@@ -247,6 +248,7 @@ public class GroupRobotActivity extends AppActivity {
                     showType = 0;
                     infoBean = null;
                     initData();
+                    MessageManager.getInstance().notifyGroupChange(true);
                 } else {
                     ToastUtil.show(getContext(), response.body().getMsg());
                 }

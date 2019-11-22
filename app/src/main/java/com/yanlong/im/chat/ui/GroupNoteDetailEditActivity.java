@@ -144,7 +144,8 @@ public class GroupNoteDetailEditActivity extends AppActivity {
         if (TextUtils.isEmpty(gid)) {
             return;
         }
-        AtMessage atMessage = SocketData.createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + note, ChatEnum.EAtType.ALL);
+        AtMessage atMessage = SocketData.
+                createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + note, ChatEnum.EAtType.ALL,null);
         MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
         if (bean != null) {
             SocketData.saveMessage(bean);

@@ -23,7 +23,7 @@ public class MsgNotice extends RealmObject implements IMsgContent, Serializable 
         return msgType;
     }
 
-    //7,8,17为红包消息类型
+    //7,8,17为红包消息类型, 通知消息类型
     public void setMsgType(Integer msgType) {
         this.msgType = msgType;
     }
