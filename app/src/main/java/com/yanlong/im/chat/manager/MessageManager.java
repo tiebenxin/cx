@@ -849,7 +849,7 @@ public class MessageManager {
         EventBus.getDefault().post(eventRefreshMainMsg);
     }
 
-    public void notifySwitchDisturb(){
+    public void notifySwitchDisturb() {
         EventBus.getDefault().post(new EventSwitchDisturb());
 
     }
@@ -996,8 +996,11 @@ public class MessageManager {
             for (int i = 0; i < list.size(); i++) {
                 if (uid.equals(list.get(i))) {
                     LogUtil.getLog().e(TAG, "有人@我" + uid);
-                    msgDao.atMessage(gid, message, atType);
-                    playDingDong();
+                    if (!gid.equals(SESSION_GID)) {
+                        msgDao.atMessage(gid, message, atType);
+                        playDingDong();
+                    }
+
                     isAt = true;
                 }
             }
@@ -1006,8 +1009,10 @@ public class MessageManager {
                 refreshGroupInfo(msg.getGid());
             }
             LogUtil.getLog().e(TAG, "@所有人");
-            msgDao.atMessage(gid, message, atType);
-            playDingDong();
+            if (!gid.equals(SESSION_GID)) {
+                msgDao.atMessage(gid, message, atType);
+                playDingDong();
+            }
             isAt = true;
         }
         return isAt;
