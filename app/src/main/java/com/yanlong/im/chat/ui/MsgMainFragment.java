@@ -191,7 +191,6 @@ public class MsgMainFragment extends Fragment {
         };
 
         viewSearch.post(uiRun);
-        actionBar.getLoadBar().setVisibility(View.VISIBLE);
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
