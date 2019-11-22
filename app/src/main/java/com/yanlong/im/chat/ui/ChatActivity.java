@@ -358,6 +358,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                         //8.7 是属于这个会话就刷新
                         if (!needRefresh) {
+                            sendRead();
                             //收到消息加入阅后即焚队列
                             //MsgAllBean msgAllBean = msgDao.getMsgById(msg.getMsgId());
                             // addSurvivalTime(msgAllBean);
@@ -1754,6 +1755,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         clickAble = true;
         //更新阅后即焚状态
         initSurvivaltimeState();
+        sendRead();
     }
 
     @Override
@@ -3698,6 +3700,23 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private String msgid;
 
+    public void sendRead(){
+        //发送已读回执
+        if (TextUtils.isEmpty(toGid)) {
+            MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
+            if (bean != null) {
+                if ((TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) && bean.getRead() == 0) {
+                    msgid = bean.getMsg_id();
+                    LogUtil.getLog().d("taskRefreshMessage", bean.getMsg_id());
+                    SocketData.send4Read(toUId, bean.getTimestamp());
+                    msgDao.setRead(msgid);
+                }
+            }
+        }
+    }
+
+
+
     /***
      * 获取最新的
      */
@@ -3708,17 +3727,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
         dismissPop();
-        //发送已读回执
-        if (TextUtils.isEmpty(toGid)) {
-            MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
-            if (bean != null) {
-                if (TextUtils.isEmpty(msgid) || !msgid.equals(bean.getMsg_id())) {
-                    msgid = bean.getMsg_id();
-                    LogUtil.getLog().d("taskRefreshMessage", bean.getMsg_id());
-                    SocketData.send4Read(toUId, bean.getTimestamp());
-                }
-            }
-        }
         long time = -1L;
         int length = 0;
         if (msgListData != null && msgListData.size() > 0) {

@@ -1645,6 +1645,31 @@ public class MsgDao {
     }
 
 
+    /**
+     * 设置已读
+     */
+    public void setRead(String msgid) {
+        Realm realm = DaoUtil.open();
+        realm.beginTransaction();
+
+        try {
+            MsgAllBean msgAllBean = realm.where(MsgAllBean.class)
+                    .equalTo("msg_id", msgid).findFirst();
+            if (msgAllBean != null) {
+                msgAllBean.setRead(1);
+                realm.insertOrUpdate(msgAllBean);
+            }
+
+            realm.commitTransaction();
+            realm.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            DaoUtil.close(realm);
+        }
+
+    }
+
+
     /***
      * 保存群状态
      * @param gid
