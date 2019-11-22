@@ -1,8 +1,6 @@
 package com.yanlong.im.chat.bean;
 
 
-import java.io.Serializable;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -10,7 +8,7 @@ import io.realm.annotations.PrimaryKey;
  * 类型为0的
  * 通知消息
  */
-public class MsgNotice extends RealmObject implements IMsgContent, Serializable {
+public class MsgNotice extends RealmObject implements IMsgContent {
     public static final int MSG_TYPE_DEFAULT = 7897;
 
     @PrimaryKey

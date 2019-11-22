@@ -78,7 +78,7 @@ public class PlayerManager {
         if (mType == PlayerManager.VOICE_TYPE) {
             file = context.getResources().openRawResourceFd(R.raw.audio_video_hint);
         } else {
-            file = context.getResources().openRawResourceFd(R.raw.receive_news);
+            file = context.getResources().openRawResourceFd(R.raw.news_push);
         }
         try {
             mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());

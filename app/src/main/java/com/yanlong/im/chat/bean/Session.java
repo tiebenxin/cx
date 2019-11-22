@@ -2,8 +2,6 @@ package com.yanlong.im.chat.bean;
 
 import androidx.annotation.Nullable;
 
-import java.io.Serializable;
-
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -11,7 +9,7 @@ import io.realm.annotations.PrimaryKey;
 /***
  * 会话
  */
-public class Session extends RealmObject implements Comparable<Session>, Serializable {
+public class Session extends RealmObject implements Comparable<Session> {
     @PrimaryKey
     private String sid;
     //会话类型,0:单人,1群

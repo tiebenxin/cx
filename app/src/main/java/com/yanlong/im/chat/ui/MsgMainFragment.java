@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
@@ -69,7 +70,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -324,10 +324,8 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), MsgSearchActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("conversation_data", (Serializable) listData);//携带会话列表数据
-                bundle.putBoolean("online_state", onlineState);
-                intent.putExtras(bundle);
+                intent.putExtra("online_state", onlineState);
+                intent.putExtra("conversition_data", new Gson().toJson(listData));
                 startActivity(intent);
             }
         });

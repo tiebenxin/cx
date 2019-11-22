@@ -619,8 +619,6 @@ public class MsgDao {
                         msg.getTransfer().deleteFromRealm();
                     if (msg.getVoiceMessage() != null)
                         msg.getVoiceMessage().deleteFromRealm();
-                    if (msg.getChangeSurvivalTimeMessage() != null)
-                        msg.getChangeSurvivalTimeMessage().deleteFromRealm();
                 }
                 list.deleteAllFromRealm();
             }
@@ -667,8 +665,6 @@ public class MsgDao {
                         msg.getMsgCancel().deleteFromRealm();
                     if (msg.getVoiceMessage() != null)
                         msg.getVoiceMessage().deleteFromRealm();
-                    if (msg.getChangeSurvivalTimeMessage() != null)
-                        msg.getChangeSurvivalTimeMessage().deleteFromRealm();
 
                 }
                 list.deleteAllFromRealm();
@@ -2236,7 +2232,7 @@ public class MsgDao {
 
     /**
      * 自己修改退出即焚系统消息
-     * */
+     */
     public MsgAllBean noteMsgAddSurvivaltime(Long toUid, String gid) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();

@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -70,8 +72,8 @@ public class MsgSearchActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_frd_grp);
         findViews();
+        getIntentData();
         initEvent();
-        getBundle();
     }
 
     private void findViews() {
@@ -137,15 +139,12 @@ public class MsgSearchActivity extends AppActivity {
     }
 
     //页面跳转->数据传递
-    private void getBundle() {
+    private void getIntentData() {
         if (getIntent() != null) {
-            if (getIntent().getExtras() != null) {
-                if (getIntent().getExtras().containsKey("conversation_data")) {
-                    totalData.addAll((List<Session>) getIntent().getExtras().getSerializable("conversation_data"));
-                }
-                if (getIntent().getExtras().containsKey("online_state")) {
-                    onlineState = getIntent().getExtras().containsKey("online_state");
-                }
+            onlineState = getIntent().getBooleanExtra("online_state",true);
+            if(getIntent().getStringExtra("conversition_data")!=null){
+                String json = getIntent().getStringExtra("conversition_data");
+                totalData.addAll(new Gson().fromJson(json,new TypeToken<List<Session>>(){}.getType()));
             }
         }
     }

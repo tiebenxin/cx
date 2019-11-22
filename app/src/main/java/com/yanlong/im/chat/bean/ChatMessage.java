@@ -1,12 +1,10 @@
 package com.yanlong.im.chat.bean;
 
 
-import java.io.Serializable;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class ChatMessage extends RealmObject implements IMsgContent, Serializable {
+public class ChatMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgid;
 

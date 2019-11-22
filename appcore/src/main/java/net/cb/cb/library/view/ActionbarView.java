@@ -41,6 +41,7 @@ public class ActionbarView extends LinearLayout {
     private TextView txtLeft;
     private TextView txtRight;
     private TextView tvNumber;//消息数群聊人数
+    private TextView tvChatTitle;//聊天界面标题加粗
 
     private ImageView btnBack;
     private ImageView btnRight;
@@ -52,8 +53,6 @@ public class ActionbarView extends LinearLayout {
     private Context context;
     private ListenEvent listenEvent;
     private ImageView iv_disturb;
-    private LinearLayout actionRightRight;
-    private TextView txtRightRight;
     private ImageView btnIconRightRight;
 
     public void setOnListenEvent(ListenEvent listenEvent) {
@@ -67,11 +66,23 @@ public class ActionbarView extends LinearLayout {
      */
     public void setTitle(String title) {
         txtTitle.setText(title);
+        txtTitle.setVisibility(VISIBLE);
+        tvChatTitle.setVisibility(GONE);
+    }
+
+    /**
+     * 新增-> 设置聊天标题 (单独加粗效果)
+     * @param title
+     */
+    public void setChatTitle(String title) {
+        tvChatTitle.setText(title);
+        tvChatTitle.setVisibility(VISIBLE);
+        txtTitle.setVisibility(GONE);
     }
 
     /**
      * 新增-> 单独显示群聊人数/消息数 (避免标题过长挤压)
-     * @param number 显示则传具体数字，不显示则传0或其他随意值
+     * @param number 具体数字
      * @param ifShow 控制是否显示
      */
     public void setNumber(int number,boolean ifShow){
@@ -79,24 +90,22 @@ public class ActionbarView extends LinearLayout {
         tvNumber.setVisibility(ifShow ? VISIBLE : GONE);
     }
 
-    public void setTitleMore(String title) {
-        if (StringUtil.isNotNull(title)) {
-            txtTitleMore.setText(title);
-            txtTitleMore.setVisibility(VISIBLE);
-        } else {
-            txtTitleMore.setVisibility(GONE);
-        }
-
-    }
-
-    public void setTitleMore(Spanned title) {
+    /**
+     * 优化-> 标题底部文字显示(在线状态/几小时前)
+     * @param title 文字内容
+     * @param ifShow 控制是否显示
+     */
+    public void setTitleMore(Spanned title,boolean ifShow) {
         if (StringUtil.isNotNull(title.toString())) {
             txtTitleMore.setText(title);
-            txtTitleMore.setVisibility(VISIBLE);
-        } else {
-            txtTitleMore.setVisibility(GONE);
+        }else {
+            ifShow = false;
         }
+        txtTitleMore.setVisibility(ifShow ? VISIBLE : GONE);
+    }
 
+    public TextView getTxtTitleMore() {
+        return txtTitleMore;
     }
 
     public String getTitle() {
@@ -208,10 +217,10 @@ public class ActionbarView extends LinearLayout {
     /**
      * 阅后即焚图标
      * */
-    public void setImageShow(int image){
-        actionRightRight.setVisibility(View.VISIBLE);
-        btnIconRightRight.setImageResource(image);
-    }
+//    public void setImageShow(int image){
+//        actionRightRight.setVisibility(View.VISIBLE);
+//        btnIconRightRight.setImageResource(image);
+//    }
 
     public ImageView getRightImage(){
         return btnIconRightRight;
@@ -237,12 +246,19 @@ public class ActionbarView extends LinearLayout {
 
 
     }
-
+    //普通界面->离线加载条
     public ImageView getLoadBar() {
+        if(ivGroupLoadBar.getVisibility() == VISIBLE){
+            ivGroupLoadBar.setVisibility(GONE);
+        }
         return ivLoadBar;
     }
 
+    //聊天界面->离线加载条
     public ImageView getGroupLoadBar() {
+        if(ivLoadBar.getVisibility() == VISIBLE){
+            ivLoadBar.setVisibility(GONE);
+        }
         return ivGroupLoadBar;
     }
 
@@ -254,6 +270,7 @@ public class ActionbarView extends LinearLayout {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = inflater.inflate(R.layout.view_actionbar, this);
         txtTitle = rootView.findViewById(R.id.txt_title);
+        tvChatTitle = rootView.findViewById(R.id.tv_chat_title);
         tvNumber = rootView.findViewById(R.id.tv_number);
         txtTitleMore = rootView.findViewById(R.id.txt_title_more);
         btnBack = rootView.findViewById(R.id.btn_icon);
@@ -263,8 +280,7 @@ public class ActionbarView extends LinearLayout {
         ivLoadBar = rootView.findViewById(R.id.iv_load_bar);
         ivGroupLoadBar = rootView.findViewById(R.id.iv_group_load_bar);
         iv_disturb = rootView.findViewById(R.id.iv_disturb);
-        actionRightRight = rootView.findViewById(R.id.action_right_right);
-        txtRightRight = rootView.findViewById(R.id.txt_right_right);
+//        actionRightRight = rootView.findViewById(R.id.action_right_right);
         btnIconRightRight = rootView.findViewById(R.id.btn_icon_right_right);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ActionbarView);
