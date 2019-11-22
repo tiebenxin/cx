@@ -12,12 +12,10 @@ import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.utils.StringUtil;
 
-import java.io.Serializable;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class MsgAllBean extends RealmObject implements IChatModel, Serializable {
+public class MsgAllBean extends RealmObject implements IChatModel {
     @PrimaryKey
     private String msg_id;
     private Long timestamp;

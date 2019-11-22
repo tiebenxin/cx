@@ -1,6 +1,5 @@
 package com.yanlong.im.chat.bean;
 
-import java.io.Serializable;
 import java.util.List;
 
 import io.realm.RealmList;
@@ -11,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
  * @创建人 shenxin
  * @创建时间 2019/7/25 0025 10:45
  */
-public class AtMessage extends RealmObject implements IMsgContent, Serializable {
+public class AtMessage extends RealmObject implements IMsgContent {
     @PrimaryKey
     private String msgId;
 

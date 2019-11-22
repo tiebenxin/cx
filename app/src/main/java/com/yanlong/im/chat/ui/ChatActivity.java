@@ -63,6 +63,7 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.umeng.commonsdk.debug.E;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.adapter.EmojiAdapter;
@@ -71,8 +72,10 @@ import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
+import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupConfig;
+import com.yanlong.im.chat.bean.IMsgContent;
 import com.yanlong.im.chat.bean.ImageMessage;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -82,6 +85,7 @@ import com.yanlong.im.chat.bean.ReadDestroyBean;
 import com.yanlong.im.chat.bean.RedEnvelopeMessage;
 import com.yanlong.im.chat.bean.ScrollConfig;
 import com.yanlong.im.chat.bean.Session;
+import com.yanlong.im.chat.bean.StampMessage;
 import com.yanlong.im.chat.bean.TransferMessage;
 import com.yanlong.im.chat.bean.UserSeting;
 import com.yanlong.im.chat.bean.VideoMessage;
@@ -642,15 +646,20 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         return;
                     }
                     if (edtChat.isAtAll()) {
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList());
-                        showSendObj(msgAllbean);
+                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, edtChat.getUserIdList());
+                        sendMessage(message, ChatEnum.EMessageType.AT);
+//                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList());
+//                        showSendObj(msgAllbean);
+//                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                         edtChat.getText().clear();
-                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+
                     } else {
-                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, edtChat.getUserIdList());
-                        showSendObj(msgAllbean);
+                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, edtChat.getUserIdList());
+                        sendMessage(message, ChatEnum.EMessageType.AT);
+//                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, edtChat.getUserIdList());
+//                        showSendObj(msgAllbean);
+//                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                         edtChat.getText().clear();
-                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                     }
                 } else {
                     //发送普通消息
@@ -663,9 +672,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         }
                         if (totalSize <= MIN_TEXT) {//非长文本
                             isSendingHypertext = false;
-                            MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
-                            showSendObj(msgAllbean);
-                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+//                            MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
+                            ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), text);
+                            sendMessage(message, ChatEnum.EMessageType.TEXT);
                             edtChat.getText().clear();
                         } else {
                             isSendingHypertext = true;//正在分段发送长文本
@@ -727,12 +736,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (viewFunc.getVisibility() == View.VISIBLE) {
-                    InputUtil.showKeyboard(edtChat);
-                    hideBt();
-                } else {
-                    showBtType(0);
-                }
+                btnFunc.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (viewFunc.getVisibility() == View.VISIBLE) {
+                            InputUtil.showKeyboard(edtChat);
+                            hideBt();
+                        } else {
+                            showBtType(0);
+                        }
+                    }
+                },100);
+
 
             }
         });
@@ -869,9 +884,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     public void onYes(String content) {
                         if (!TextUtils.isEmpty(content)) {
                             //发送戳一戳消息
-                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
-                            showSendObj(msgAllbean);
-                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+//                            MsgAllBean msgAllbean = SocketData.send4action(toUId, toGid, content);
+//                            showSendObj(msgAllbean);
+//                            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                            StampMessage message = SocketData.createStampMessage(SocketData.getUUID(), content);
+                            sendMessage(message, ChatEnum.EMessageType.STAMP);
                         } else {
                             ToastUtil.show(getContext(), "留言不能为空");
                         }
@@ -1183,6 +1200,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         //9.17 进去后就清理会话的阅读数量
         taskCleanRead();
+    }
+
+    //消息发送
+    private void sendMessage(IMsgContent message, @ChatEnum.EMessageType int msgType) {
+        MsgAllBean msgAllBean = SocketData.createMessageBean(toUId, toGid, msgType, ChatEnum.ESendStatus.SENDING, SocketData.getSysTime(), message);
+        if (msgAllBean != null) {
+            SocketData.sendAndSaveMessage(msgAllBean);
+            showSendObj(msgAllBean);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllBean);
+        }
     }
 
 
@@ -1999,9 +2026,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             String json = data.getStringExtra(SelectUserActivity.RET_JSON);
             UserInfo userInfo = gson.fromJson(json, UserInfo.class);
-            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), userInfo.getImid());
-            showSendObj(msgAllbean);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+//            MsgAllBean msgAllbean = SocketData.send4card(toUId, toGid, userInfo.getUid(), userInfo.getHead(), userInfo.getName(), userInfo.getImid());
+//            showSendObj(msgAllbean);
+//            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+
+            BusinessCardMessage cardMessage = SocketData.createCardMessage(SocketData.getUUID(), userInfo.getHead(), userInfo.getName(), userInfo.getImid(), userInfo.getUid());
+            sendMessage(cardMessage, ChatEnum.EMessageType.BUSINESS_CARD);
         }
     }
 
@@ -3994,9 +4024,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                     String info = transAccountBean.getTransferDesc();
                                     String money = transAccountBean.getTransferAmount();
                                     //设置转账消息
-                                    MsgAllBean msgAllbean = SocketData.send4Trans(toUId, rid, info, money);
-                                    showSendObj(msgAllbean);
-                                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+//                                    MsgAllBean msgAllbean = SocketData.send4Trans(toUId, rid, info, money);
+//                                    showSendObj(msgAllbean);
+//                                    MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                                    TransferMessage message = SocketData.createTransferMessage(SocketData.getUUID(), rid, money, info);
+                                    sendMessage(message, ChatEnum.EMessageType.TRANSFER);
                                 }
                             });
                 }
@@ -4295,11 +4327,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             isSendingHypertext = false;
         }
         textPosition = position;
-        MsgAllBean msgAllbean;
-        msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
-        showSendObj(msgAllbean);
-        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
-                toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+        ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), list.get(position));
+        sendMessage(message, ChatEnum.EMessageType.TEXT);
+
+//        MsgAllBean msgAllbean;
+//        msgAllbean = SocketData.send4Chat(toUId, toGid, list.get(position));
+//        showSendObj(msgAllbean);
+//        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE,
+//                toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
     }
 
     private void fixSendTime(String msgId) {
