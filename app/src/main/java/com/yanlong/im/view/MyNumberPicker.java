@@ -1,5 +1,6 @@
 package com.yanlong.im.view;
 
+import android.support.v4.content.ContextCompat;
 import android.widget.NumberPicker;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -14,6 +15,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
+import com.yanlong.im.R;
 
 import java.lang.reflect.Field;
 
@@ -249,7 +252,25 @@ public class MyNumberPicker extends NumberPicker {
             if (field.getName().equals("mSelectionDivider")) {
                 try {
                     mSelectionDivider = (Drawable) field.get(picker);
+                    //圆角
+                    // mSelectionDivider.setBounds(0, 5, mRight, 5);
+                    //设置分割线的颜色值
+//                    field.set(this, new ColorDrawable(ContextCompat.getColor(mContext, R.color.red_600)));
                 } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
+
+        for (Field field : pickerFields) {
+            field.setAccessible(true);
+            if (field.getName().equals("mSelectionDividerHeight")) {
+                try {
+                    int result = 1;
+                    //设置分割线的高度
+                    field.set(picker, result);
+                } catch (Exception e){
                     e.printStackTrace();
                 }
                 break;
