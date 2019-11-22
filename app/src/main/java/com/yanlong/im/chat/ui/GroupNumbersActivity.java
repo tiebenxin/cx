@@ -80,11 +80,11 @@ public class GroupNumbersActivity extends AppActivity {
 
     //自动寻找控件
     private void findViews() {
-        headView =  findViewById(R.id.headView);
+        headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
-        viewSearch =  findViewById(R.id.view_search);
-        topListView =  findViewById(R.id.topListView);
-        mtListView =  findViewById(R.id.mtListView);
+        viewSearch = findViewById(R.id.view_search);
+        topListView = findViewById(R.id.topListView);
+        mtListView = findViewById(R.id.mtListView);
         viewType = findViewById(R.id.view_type);
     }
 
@@ -105,7 +105,7 @@ public class GroupNumbersActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                if(isClickble == 0){
+                if (isClickble == 0) {
                     taskOption();
                 }
             }
@@ -150,14 +150,14 @@ public class GroupNumbersActivity extends AppActivity {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(RCViewHolder hd,final int position) {
+        public void onBindViewHolder(RCViewHolder hd, final int position) {
 
             final UserInfo bean = listData.get(position);
 
 
             hd.txtType.setText(bean.getTag());
-           // hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
-            Glide.with(context).load( bean.getHead())
+            // hd.imgHead.setImageURI(Uri.parse("" + bean.getHead()));
+            Glide.with(context).load(bean.getHead())
                     .apply(GlideOptionsUtil.headImageOptions()).into(hd.imgHead);
 
             hd.txtName.setText(bean.getName4Show());
@@ -211,11 +211,11 @@ public class GroupNumbersActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
                 super(convertView);
-                viewType =  convertView.findViewById(R.id.view_type);
-                txtType =  convertView.findViewById(R.id.txt_type);
-                imgHead =  convertView.findViewById(R.id.img_head);
-                txtName =  convertView.findViewById(R.id.txt_name);
-                ckSelect =  convertView.findViewById(R.id.ck_select);
+                viewType = convertView.findViewById(R.id.view_type);
+                txtType = convertView.findViewById(R.id.txt_type);
+                imgHead = convertView.findViewById(R.id.img_head);
+                txtName = convertView.findViewById(R.id.txt_name);
+                ckSelect = convertView.findViewById(R.id.ck_select);
             }
 
         }
@@ -235,9 +235,9 @@ public class GroupNumbersActivity extends AppActivity {
         @Override
         public void onBindViewHolder(RCViewTopHolder holder, int position) {
 
-          //  holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
+            //  holder.imgHead.setImageURI(Uri.parse(listDataTop.get(position).getHead()));
 
-            Glide.with(context).load( listDataTop.get(position).getHead())
+            Glide.with(context).load(listDataTop.get(position).getHead())
                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
         }
 
@@ -257,7 +257,7 @@ public class GroupNumbersActivity extends AppActivity {
             //自动寻找ViewHold
             public RCViewTopHolder(View convertView) {
                 super(convertView);
-                imgHead =  convertView.findViewById(R.id.img_head);
+                imgHead = convertView.findViewById(R.id.img_head);
             }
 
         }
@@ -270,7 +270,7 @@ public class GroupNumbersActivity extends AppActivity {
     private void taskListData() {
 
         // 升序
-        Collections.sort(listData,new Comparator<UserInfo>() {
+        Collections.sort(listData, new Comparator<UserInfo>() {
             @Override
             public int compare(UserInfo o1, UserInfo o2) {
                 return o1.getTag().hashCode() - o2.getTag().hashCode();
@@ -304,28 +304,33 @@ public class GroupNumbersActivity extends AppActivity {
             return;
         }
         isClickble = 1;
-        LogUtil.getLog().e("GroupNumbersActivity","taskOption");
+        LogUtil.getLog().e("GroupNumbersActivity", "taskOption");
         alert.show();
+        MsgDao dao = new MsgDao();
+        List<MemberUser> list = new ArrayList<>();
+        List<Long> listLong = new ArrayList<>();
+//        Group group= dao.getGroup4Id(gid);
+        List<MemberUser> mem = dao.getGroup4Id(gid).getUsers();
         CallBack<ReturnBean> callback = new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 try {
                     Thread.sleep(1000);
                     alert.dismiss();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 GroupHeadImageUtil.creatAndSaveImg(GroupNumbersActivity.this, gid);
-                if (response.body() == null){
+                if (response.body() == null) {
                     isClickble = 0;
                     return;
                 }
 
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
-//                    if(type != TYPE_ADD){
-//                        EventBus.getDefault().post(new EventRefreshChat());
-//                    }
+                    if (type != TYPE_DEL) {
+                        dao.removeGroupMember(gid, listLong);
+                    }
                     MessageManager.getInstance().notifyGroupChange(true);
 
                     finish();
@@ -339,20 +344,16 @@ public class GroupNumbersActivity extends AppActivity {
                 alert.dismiss();
             }
         };
-        MsgDao dao=new MsgDao();
-        List<MemberUser> list =new ArrayList<>();
-        List<Long> listLong =new ArrayList<>();
-        Group group= dao.getGroup4Id(gid);
-        List<MemberUser> mem= dao.getGroup4Id(gid).getUsers();
-        for (int k=0;k<listDataTop.size();k++){
-            MessageManager msg=new MessageManager();
-            list.add(msg.userToMember(listDataTop.get(k),gid));
+
+        for (int k = 0; k < listDataTop.size(); k++) {
+            MessageManager msg = new MessageManager();
+            list.add(msg.userToMember(listDataTop.get(k), gid));
         }
 
-        for (int i=0;i<listDataTop.size();i++){
+        for (int i = 0; i < listDataTop.size(); i++) {
 //            dao.addGroupMember(gid,listDataTop)
-            for (int j=0;j<mem.size();j++){
-                if (listDataTop.get(i).getUid()==mem.get(j).getUid()){
+            for (int j = 0; j < mem.size(); j++) {
+                if (listDataTop.get(i).getUid() == mem.get(j).getUid()) {
 //                    list.add(mem.get(j));
                     listLong.add(listDataTop.get(i).getUid());
                 }
@@ -361,11 +362,11 @@ public class GroupNumbersActivity extends AppActivity {
 
         if (type == TYPE_ADD) {
             msgACtion.groupAdd(gid, listDataTop, UserAction.getMyInfo().getName(), callback);
-            dao.addGroupMember(gid,list);
+//            dao.addGroupMember(gid,list);
         } else {
             msgACtion.groupRemove(gid, listDataTop, callback);
-            dao.removeGroupMember(gid,listLong);
         }
+
 
 //        GroupHeadImageUtil.creatAndSaveImg(GroupNumbersActivity.this, gid);
     }
