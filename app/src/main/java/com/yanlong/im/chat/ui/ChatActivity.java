@@ -735,12 +735,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (viewFunc.getVisibility() == View.VISIBLE) {
-                    InputUtil.showKeyboard(edtChat);
-                    hideBt();
-                } else {
-                    showBtType(0);
-                }
+                btnFunc.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (viewFunc.getVisibility() == View.VISIBLE) {
+                            InputUtil.showKeyboard(edtChat);
+                            hideBt();
+                        } else {
+                            showBtType(0);
+                        }
+                    }
+                },100);
+
 
             }
         });
