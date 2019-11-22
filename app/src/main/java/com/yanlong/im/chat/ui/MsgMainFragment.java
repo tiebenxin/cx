@@ -191,8 +191,6 @@ public class MsgMainFragment extends Fragment {
         };
 
         viewSearch.post(uiRun);
-        //未收到IM消息前默认显示
-        actionBar.getLoadBar().setVisibility(View.VISIBLE);
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
@@ -206,12 +204,7 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onMsg(MsgBean.UniversalMessage bean) {
-                getActivityMe().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        actionBar.getLoadBar().setVisibility(View.GONE);
-                    }
-                });
+
             }
 
             @Override
@@ -222,21 +215,15 @@ public class MsgMainFragment extends Fragment {
             @Override
             public void onLine(final boolean state) {
                 //离线 且 不在当前界面，就停止继续执行，节约性能消耗
-                if (!state && getActivityMe().isActivityStop()) {
-//                    System.out.println(MsgMainFragment.class.getSimpleName() + "--MainActivity当前是stop");
-                    return;
-                }
-
                 getActivityMe().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         LogUtil.getLog().d("tyad", "run: state=" + state);
-                        // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
-                        actionBar.setTitle(state ? "消息" : "消息");
-                        resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
-                        if(!state){
-                            actionBar.getLoadBar().setVisibility(View.VISIBLE);
+                        actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
+                        if (!state && getActivityMe().isActivityStop()) {
+                            return;
                         }
+                        resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
                         onlineState = state;
                     }
                 });
