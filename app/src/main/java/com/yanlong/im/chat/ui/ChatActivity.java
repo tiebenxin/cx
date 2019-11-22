@@ -424,16 +424,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     //离线就禁止发送之类的
                     // ToastUtil.show(getContext(), "离线就禁止发送之类的");
                     //  btnSend.setEnabled(state);
-                    if(state){
+                    if (state) {
                         actionbar.getGroupLoadBar().setVisibility(GONE);
                         //联网后，显示单聊标题底部在线状态
-                        if(!isGroup()){
+                        if (!isGroup()) {
                             actionbar.getTxtTitleMore().setVisibility(VISIBLE);
                         }
-                    }else {
+                    } else {
                         actionbar.getGroupLoadBar().setVisibility(VISIBLE);
                         //断网后，隐藏单聊标题底部在线状态
-                        if(!isGroup()){
+                        if (!isGroup()) {
                             actionbar.getTxtTitleMore().setVisibility(GONE);
                         }
                     }
@@ -545,9 +545,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     //发送并滑动到列表底部
     private void showSendObj(MsgAllBean msgAllbean) {
-        //    msgListData.add(msgAllbean);
-        //    notifyData2Bottom();
-        taskRefreshMessage(false);
+        if (msgAllbean.getMsg_type() != ChatEnum.EMessageType.MSG_CENCAL) {
+            int size = msgListData.size();
+            msgListData.add(msgAllbean);
+            mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
+        } else {
+            taskRefreshMessage(false);
+        }
 
     }
 
@@ -559,16 +563,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         toUId = getIntent().getLongExtra(AGM_TOUID, 0);
         onlineState = getIntent().getBooleanExtra(ONLINE_STATE, true);
         //预先网络监听
-        if(onlineState){
+        if (onlineState) {
             actionbar.getGroupLoadBar().setVisibility(GONE);
             //联网后，显示单聊标题底部在线状态
-            if(!isGroup()){
+            if (!isGroup()) {
                 actionbar.getTxtTitleMore().setVisibility(VISIBLE);
             }
-        }else {
+        } else {
             actionbar.getGroupLoadBar().setVisibility(VISIBLE);
             //断网后，隐藏单聊标题底部在线状态
-            if(!isGroup()){
+            if (!isGroup()) {
                 actionbar.getTxtTitleMore().setVisibility(GONE);
             }
         }
@@ -745,7 +749,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             showBtType(0);
                         }
                     }
-                },100);
+                }, 100);
 
 
             }
@@ -3638,10 +3642,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                if(onlineState){
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true),true);
-                }else {
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true),false);
+                if (onlineState) {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
+                } else {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
                 }
             }
         }
@@ -3680,10 +3684,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                if(onlineState){
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true),true);
-                }else {
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true),false);
+                if (onlineState) {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
+                } else {
+                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
                 }
             }
             actionbar.setChatTitle(title);
