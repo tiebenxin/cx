@@ -2009,10 +2009,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
                         }
 
+                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(),envelopeInfo.getEnvelopesID(),envelopeInfo.getEnvelopeMessage(),MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY.getNumber(),style.getNumber());
+                        sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
 
-                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
-                        showSendObj(msgAllbean);
-                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+//                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
+//                        showSendObj(msgAllbean);
+//                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
                     }
                     break;
                 case GroupSelectUserActivity.RET_CODE_SELECTUSR:
@@ -2380,6 +2382,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     MsgAllBean imgMsgBeanReSend = SocketData.sendFileUploadMessagePre(reMsg.getMsg_id(), toUId, toGid, SocketData.getFixTime(), videoMessageSD, ChatEnum.EMessageType.MSG_VIDEO);
                     replaceListDataAndNotify(imgMsgBeanReSend);
 //                    msgListData.add(imgMsgBeanReSend);
+
+                    if (!TextUtils.isEmpty(videoMessage.getBg_url())) {
+                        // 当预览图清空掉时重新获取
+                        File file = new File(videoMessage.getBg_url());
+                        if (file == null || !file.exists()) {
+                            videoMessage.setBg_url(getVideoAttBitmap(url));
+                        }
+                    }
                     UpLoadService.onAddVideo(this.context, reMsg.getMsg_id(), url, videoMessage.getBg_url(), false, toUId, toGid, videoMessage.getDuration(), videoMessageSD);
                     startService(new Intent(getContext(), UpLoadService.class));
 

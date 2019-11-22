@@ -8,13 +8,13 @@ public class RedEnvelopeMessage extends RealmObject implements IMsgContent {
     private String msgid;
 
     private String id;
-    // ALIPAY = 0; // 支付宝红包
+    // ALIPAY = 0; // 支付宝红包,红包类型——运营商
     private Integer re_type;
     private String comment;
 
     //红包的状态0:没拆,1拆了
     private int isInvalid = 0;
-    //类型:0普通1拼手气
+    //红包玩法种类:0普通1拼手气
     private int style = 0;
 
     public int getStyle() {
