@@ -43,8 +43,6 @@ import com.example.nim_lib.controll.PlayerManager;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.module.AVSwitchListener;
 import com.example.nim_lib.module.SimpleAVChatStateObserver;
-import com.example.nim_lib.net.CallBack;
-import com.example.nim_lib.net.RunUtils;
 import com.example.nim_lib.permission.BaseMPermission;
 import com.example.nim_lib.receiver.PhoneCallStateObserver;
 import com.example.nim_lib.util.AlertYesNo;
@@ -77,6 +75,8 @@ import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nrtc.video.render.IVideoRender;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.RunUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
