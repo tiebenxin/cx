@@ -361,11 +361,12 @@ public class GroupNumbersActivity extends AppActivity {
 
         if (type == TYPE_ADD) {
             msgACtion.groupAdd(gid, listDataTop, UserAction.getMyInfo().getName(), callback);
-            dao.addGroupMember(gid,list);
+//            dao.addGroupMember(gid,list);
         } else {
             msgACtion.groupRemove(gid, listDataTop, callback);
-            dao.removeGroupMember(gid,listLong);
+//            dao.removeGroupMember(gid,listLong);
         }
+
 
 //        GroupHeadImageUtil.creatAndSaveImg(GroupNumbersActivity.this, gid);
     }
