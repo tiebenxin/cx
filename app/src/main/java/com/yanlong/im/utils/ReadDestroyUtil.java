@@ -2,8 +2,6 @@ package com.yanlong.im.utils;
 
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import com.yanlong.im.R;
 
@@ -52,7 +50,7 @@ public class ReadDestroyUtil {
                 imageView.setVisibility(View.VISIBLE);
                 imageView.setImageResource(R.mipmap.icon_1_h);
                 break;
-            case 21000:
+            case 21600:
                 imageView.setVisibility(View.VISIBLE);
                 imageView.setImageResource(R.mipmap.icon_6_h);
                 break;
@@ -90,11 +88,13 @@ public class ReadDestroyUtil {
                 return "30秒";
             case 60:
                 return "1分钟";
+            case 300:
+                return "5分钟";
             case 1800:
                 return "30分钟";
             case 3600:
                 return "1小时";
-            case 21000:
+            case 21600:
                 return "6小时";
             case 43200:
                 return "12小时";

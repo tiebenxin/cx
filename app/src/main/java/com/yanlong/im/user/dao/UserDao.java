@@ -82,7 +82,7 @@ public class UserDao {
     }
 
     /***
-     * 更新阅后即焚状态
+     * 更新单聊阅后即焚状态
      */
     public void updateReadDestroy(Long uid, int type) {
         Realm realm = DaoUtil.open();
