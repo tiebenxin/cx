@@ -20,7 +20,7 @@ public class ReadDestroyUtil {
                 imageView.setImageResource(R.mipmap.icon_colse);
                 break;
             case 0:
-                imageView.setVisibility(View.GONE);
+                imageView.setVisibility(View.INVISIBLE);//标题栏改版，需要默认占位，Gone改为Invisible
                 break;
             case 5:
                 imageView.setVisibility(View.VISIBLE);
@@ -67,7 +67,7 @@ public class ReadDestroyUtil {
                 imageView.setImageResource(R.mipmap.icon_1_week);
                 break;
             default:
-                imageView.setVisibility(View.GONE);
+                imageView.setVisibility(View.INVISIBLE);
                 break;
         }
     }
