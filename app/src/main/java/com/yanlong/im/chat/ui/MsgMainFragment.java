@@ -191,6 +191,8 @@ public class MsgMainFragment extends Fragment {
         };
 
         viewSearch.post(uiRun);
+        //未收到IM消息前默认显示
+        actionBar.getLoadBar().setVisibility(View.VISIBLE);
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
@@ -204,7 +206,12 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onMsg(MsgBean.UniversalMessage bean) {
-
+                getActivityMe().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        actionBar.getLoadBar().setVisibility(View.GONE);
+                    }
+                });
             }
 
             @Override
@@ -224,10 +231,12 @@ public class MsgMainFragment extends Fragment {
                     @Override
                     public void run() {
                         LogUtil.getLog().d("tyad", "run: state=" + state);
-                        actionBar.getLoadBar().setVisibility(state ? View.GONE : View.VISIBLE);
                         // actionBar.setTitle(state ? "消息" : "消息(连接中...)");
                         actionBar.setTitle(state ? "消息" : "消息");
                         resetNetWorkView(state ? CoreEnum.ENetStatus.SUCCESS_ON_SERVER : CoreEnum.ENetStatus.ERROR_ON_SERVER);
+                        if(!state){
+                            actionBar.getLoadBar().setVisibility(View.VISIBLE);
+                        }
                         onlineState = state;
                     }
                 });
@@ -321,6 +330,15 @@ public class MsgMainFragment extends Fragment {
 //        });
 
         edtSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), MsgSearchActivity.class);
+                intent.putExtra("online_state", onlineState);
+                intent.putExtra("conversition_data", new Gson().toJson(listData));
+                startActivity(intent);
+            }
+        });
+        viewSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), MsgSearchActivity.class);

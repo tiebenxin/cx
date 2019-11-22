@@ -332,9 +332,11 @@ public class GroupInfoActivity extends AppActivity {
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
-                        destroyTime = survivaltime;
-                        tvDestroyTime.setText(content);
-                        changeSurvivalTime(gid, survivaltime);
+                        if(destroyTime != survivaltime){
+                            destroyTime = survivaltime;
+                            tvDestroyTime.setText(content);
+                            changeSurvivalTime(gid, survivaltime);
+                        }
                     }
                 });
             }
