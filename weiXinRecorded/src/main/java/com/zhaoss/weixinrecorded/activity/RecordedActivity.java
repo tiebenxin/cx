@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -59,6 +60,7 @@ public class RecordedActivity extends BaseActivity {
     public static final int REQUEST_CODE_PREVIEW = 200;
     public static final float MAX_VIDEO_TIME = 18f * 1000;  //最大录制时间
     public static final float MIN_VIDEO_TIME = 1f * 1000;  //最小录制时间
+    public static final float MIN_VIDEO_TIME_MEIZU = 3f * 1000;  //最小录制时间
 
     private final int TYPE_EDIT = 2;// 编辑
     private final int TYPE_PREVIEW = 3;// 预览
@@ -85,6 +87,7 @@ public class RecordedActivity extends BaseActivity {
     private SurfaceHolder mSurfaceHolder;
     private MyVideoEditor mVideoEditor = new MyVideoEditor();
     private RecordUtil mRecordUtil;
+    private boolean mPhotoFlg = false;// 小于1秒进入拍照判断
 
     private int mExecuteCount;//总编译次数
     private float mExecuteProgress;//编译进度
@@ -143,11 +146,18 @@ public class RecordedActivity extends BaseActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPhotoFlg = false;
+    }
+
     private void initMediaRecorder() {
         mCameraHelp.setPreviewCallback(new Camera.PreviewCallback() {
             @Override
             public void onPreviewFrame(byte[] data, Camera camera) {
                 if (isShotPhoto.get()) {
+                    mPhotoFlg = true;
                     isShotPhoto.set(false);
                     shotPhoto(data);
                 } else {
@@ -269,8 +279,16 @@ public class RecordedActivity extends BaseActivity {
 
             @Override
             public void onUp() {
-                if ((System.currentTimeMillis() - mLastClickTime) < MIN_VIDEO_TIME) {
-                    isShotPhoto.set(true);
+                if (android.os.Build.BRAND.toUpperCase().equals("MEIZU")) {
+                    Log.i(TAG,"MEIZU 进来了");
+                    if ((System.currentTimeMillis() - mLastClickTime) < MIN_VIDEO_TIME_MEIZU) {
+                        Log.i(TAG,"MEIZU 1111");
+                        isShotPhoto.set(true);
+                    }
+                } else {
+                    if ((System.currentTimeMillis() - mLastClickTime) < MIN_VIDEO_TIME) {
+                        isShotPhoto.set(true);
+                    }
                 }
                 if (isRecordVideo.get()) {
                     isRecordVideo.set(false);
@@ -536,7 +554,9 @@ public class RecordedActivity extends BaseActivity {
                 initRecorderState(false);
                 if (!isShotPhoto.get()) {
                     // 录制完成后进入预览视频
-                    iv_next.callOnClick();
+                    if (!mPhotoFlg) {
+                        iv_next.callOnClick();
+                    }
                 }
             }
 

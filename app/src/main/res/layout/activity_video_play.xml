@@ -33,7 +33,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:clickable="true"
-        android:background="@mipmap/ic_net_load"
+        android:background="@mipmap/img_video_load"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="300dp"
         android:visibility="visible"/>
