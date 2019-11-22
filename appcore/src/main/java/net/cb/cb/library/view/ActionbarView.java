@@ -436,7 +436,7 @@ public class ActionbarView extends LinearLayout {
         if (iv_disturb == null) {
             return;
         }
-        iv_disturb.setVisibility(isShow ? VISIBLE : INVISIBLE);
+        iv_disturb.setVisibility(isShow ? VISIBLE : GONE);
     }
 
 }

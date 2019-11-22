@@ -23,7 +23,7 @@
             android:layout_toRightOf="@id/action_left"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="12dp"
@@ -44,8 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:layout_toRightOf="@+id/layout_temp_left"
-            android:layout_toLeftOf="@+id/action_right_right"
+            android:paddingLeft="110dp"
+            android:paddingRight="110dp"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -73,7 +73,7 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal">
+                    android:gravity="center">
                     <TextView
                         android:id="@+id/tv_chat_title"
                         android:layout_width="wrap_content"
@@ -84,6 +84,7 @@
                         android:text="聊天标题"
                         android:textSize="16sp"
                         android:visibility="gone"
+                        android:layout_marginTop="1dp"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/white" />
                     <TextView
@@ -201,14 +202,14 @@
                 android:src="@mipmap/ic_disturb_new"
                 android:layout_marginRight="5dp"
                 android:layout_marginLeft="5dp"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/btn_icon_right_right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_temp_one"
-                android:visibility="invisible" />
+                android:visibility="gone" />
         </LinearLayout>
     </RelativeLayout>
 
