@@ -98,7 +98,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="00:10"
+                    android:text="00:00"
                     android:textColor="#fff"
                     android:textSize="10sp"
                     android:layout_alignParentRight="true"

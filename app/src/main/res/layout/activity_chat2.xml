@@ -138,9 +138,9 @@
                         <!--layout="@layout/part_chat_emoji"-->
                         <!--android:visibility="gone" />-->
 
-                        <include
-                            android:id="@+id/view_emoji_pager"
-                            layout="@layout/item_emoji_pager" />
+<!--                        <include-->
+<!--                            android:id="@+id/view_emoji_pager"-->
+<!--                            layout="@layout/item_emoji_pager" />-->
                     </LinearLayout>
 
                     <TextView

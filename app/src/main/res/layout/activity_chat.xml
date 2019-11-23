@@ -62,8 +62,8 @@
                             android:layout_marginRight="@dimen/app_margin_item"
                             android:layout_weight="1">
 
-                            <net.cb.cb.library.view.MsgEditText
-                                android:id="@+id/edt_chat"
+                            <com.yanlong.im.view.CustomerEditText
+                                android:id="@+id/edit_chat"
                                 style="@style/app_txt_title_2"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -121,14 +121,16 @@
 
 
                     <include layout="@layout/part_chat_func" />
-
-                    <include
-                        layout="@layout/part_chat_emoji"
+                    <!-- 表情-->
+                    <com.yanlong.im.view.face.FaceView
+                        android:id="@+id/chat_view_faceview"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginTop="20dp"
+                        android:background="@null"
                         android:visibility="gone" />
 
-                    <include layout="@layout/item_emoji_pager" />
                 </LinearLayout>
-
 
                 <TextView
                     android:id="@+id/tv_ban"

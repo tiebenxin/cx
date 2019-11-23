@@ -635,6 +635,7 @@
                     <LinearLayout
                         android:id="@+id/view_me_touch_child"
                         android:layout_width="wrap_content"
+                        tool:ignore="MissingConstraints"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <!-- 普通消息-->

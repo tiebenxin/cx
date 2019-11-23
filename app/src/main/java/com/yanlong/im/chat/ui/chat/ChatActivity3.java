@@ -12,19 +12,13 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.GridLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.baoyz.widget.PullRefreshLayout;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.yanlong.im.R;
-import com.yanlong.im.adapter.EmojiAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.ScrollConfig;
@@ -42,7 +36,6 @@ import com.yanlong.im.databinding.ActivityChat2Binding;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.audio.AudioRecordManager;
@@ -64,7 +57,6 @@ import net.cb.cb.library.view.ActionbarView;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
@@ -279,44 +271,44 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
         ui.btnEmj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ui.viewEmojiPager.emojiPagerCon.getVisibility() == View.VISIBLE) {
-                    hideBt();
-                    InputUtil.showKeyboard(ui.edtChat);
-                    ui.btnEmj.setImageLevel(0);
-                } else {
-                    showBtType(1);
-                    ui.btnEmj.setImageLevel(1);
-                }
+//                if (ui.viewEmojiPager.emojiPagerCon.getVisibility() == View.VISIBLE) {
+//                    hideBt();
+//                    InputUtil.showKeyboard(ui.edtChat);
+//                    ui.btnEmj.setImageLevel(0);
+//                } else {
+//                    showBtType(1);
+//                    ui.btnEmj.setImageLevel(1);
+//                }
             }
         });
 
         //todo  emoji表情处理
-        for (int j = 0; j < emojiLayout.size(); j++) {
-
-            GridLayout viewEmojiItem = (GridLayout) emojiLayout.get(j).findViewById(R.id.view_emoji);
-            for (int i = 0; i < viewEmojiItem.getChildCount(); i++) {
-                if (viewEmojiItem.getChildAt(i) instanceof TextView) {
-                    final TextView tv = (TextView) viewEmojiItem.getChildAt(i);
-                    tv.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            ui.edtChat.getText().insert(ui.edtChat.getSelectionEnd(), tv.getText());
-                        }
-                    });
-                } else {
-                    viewEmojiItem.getChildAt(i).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            int keyCode = KeyEvent.KEYCODE_DEL;
-                            KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
-                            KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
-                            ui.edtChat.onKeyDown(keyCode, keyEventDown);
-                            ui.edtChat.onKeyUp(keyCode, keyEventUp);
-                        }
-                    });
-                }
-            }
-        }
+//        for (int j = 0; j < emojiLayout.size(); j++) {
+//
+//            GridLayout viewEmojiItem = (GridLayout) emojiLayout.get(j).findViewById(R.id.view_emoji);
+//            for (int i = 0; i < viewEmojiItem.getChildCount(); i++) {
+//                if (viewEmojiItem.getChildAt(i) instanceof TextView) {
+//                    final TextView tv = (TextView) viewEmojiItem.getChildAt(i);
+//                    tv.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            ui.edtChat.getText().insert(ui.edtChat.getSelectionEnd(), tv.getText());
+//                        }
+//                    });
+//                } else {
+//                    viewEmojiItem.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            int keyCode = KeyEvent.KEYCODE_DEL;
+//                            KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
+//                            KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
+//                            ui.edtChat.onKeyDown(keyCode, keyEventDown);
+//                            ui.edtChat.onKeyUp(keyCode, keyEventUp);
+//                        }
+//                    });
+//                }
+//            }
+//        }
 
         //处理键盘
         SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
@@ -596,18 +588,18 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
      */
     private void hideBt() {
         ui.viewFuncRoot.viewFunc.setVisibility(View.GONE);
-        ui.viewEmojiPager.emojiPagerCon.setVisibility(View.GONE);
+//        ui.viewEmojiPager.emojiPagerCon.setVisibility(View.GONE);
     }
 
 
     private void addViewPagerEvent() {
-        emojiLayout = new ArrayList<>();
-        View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
-        View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
-        emojiLayout.add(view1);
-        emojiLayout.add(view2);
-        ui.viewEmojiPager.emojiPager.setAdapter(new EmojiAdapter(emojiLayout, ui.edtChat));
-        ui.viewEmojiPager.emojiPager.addOnPageChangeListener(new PageIndicator(this, (LinearLayout) findViewById(R.id.dot_hor), 2));
+//        emojiLayout = new ArrayList<>();
+//        View view1 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji, null);
+//        View view2 = LayoutInflater.from(this).inflate(R.layout.part_chat_emoji2, null);
+//        emojiLayout.add(view1);
+//        emojiLayout.add(view2);
+//        ui.viewEmojiPager.emojiPager.setAdapter(new EmojiAdapter(emojiLayout, ui.edtChat));
+//        ui.viewEmojiPager.emojiPager.addOnPageChangeListener(new PageIndicator(this, (LinearLayout) findViewById(R.id.dot_hor), 2));
     }
 
     /***
@@ -627,7 +619,7 @@ public class ChatActivity3 extends BaseMvpActivity<ChatModel, ChatView, ChatPres
                         ui.viewFuncRoot.viewFunc.setVisibility(View.VISIBLE);
                         break;
                     case 1://emoji面板
-                        ui.viewEmojiPager.emojiPagerCon.setVisibility(View.VISIBLE);
+//                        ui.viewEmojiPager.emojiPagerCon.setVisibility(View.VISIBLE);
                         break;
                     case 2://语音
                         showVoice(true);

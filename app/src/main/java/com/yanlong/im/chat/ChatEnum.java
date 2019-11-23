@@ -301,4 +301,15 @@ public class ChatEnum {
         int FRIEND = 2; // 通讯录好友界面
         int GROUP = 3; // 群详情界面
     }
+
+    /*
+     *from
+     * */
+    @IntDef({EShowType.FUNCTION, EShowType.EMOJI, EShowType.VOICE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EShowType {
+        int FUNCTION = 0; // 主功能
+        int EMOJI = 1; // emoji
+        int VOICE = 2; // 语音
+    }
 }

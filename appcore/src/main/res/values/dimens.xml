@@ -18,6 +18,7 @@
 
     <dimen name="app_item_width">56sp</dimen>-->
 
-
+    <dimen name="emoji_width">20dp</dimen>
+    <dimen name="emoji_height">20dp</dimen>
 
 </resources>

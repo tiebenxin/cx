@@ -1,4 +1,4 @@
-<resources>
+<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">常信</string>
     <string name="group_note_tip">只有群主及管理员可以编辑</string>
 
@@ -28,6 +28,10 @@
     <item name="type_system" type="id"/>
 
     <item name="tag_img" type="id"/>
+
+    <string name="view_emoji">表情</string>
+    <string name="view_animo">传情动漫</string>
+    <string name="view_custom">收藏表情</string>
 
 
 </resources>
