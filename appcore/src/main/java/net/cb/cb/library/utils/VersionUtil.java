@@ -56,13 +56,13 @@ public class VersionUtil {
                 String[] oldVer = OldVerName.split("\\.");
                 //这里因为服务器和本地版本号的格式一样，所以随便哪个的长度都可以使用
                 for (int i = 0; i < newVer.length; i++) {
-                    int s = Integer.parseInt(newVer[i]);
-                    int c = Integer.parseInt(oldVer[i]);
-                    if(c>s){
+                    int newNumber = Integer.parseInt(newVer[i]);
+                    int oldNumber = Integer.parseInt(oldVer[i]);
+                    if(oldNumber>newNumber){
                         isNeed = false;
                         break;
                     }
-                    if (c < s) {
+                    if (oldNumber < newNumber) {
                         isNeed = true;
                         break;
                     }
