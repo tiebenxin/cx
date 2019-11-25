@@ -12,7 +12,6 @@ public class EventRefreshMainMsg {
     private int type;//聊天类型，单聊还是群聊
     private Long uid;//刷新用户session
     private String gid;//刷新群聊session
-    private String refreshItem;
     private MsgAllBean msgAllBean;//需要刷新最后一条消息
     private Session session;//需要刷新整个session
     private boolean isRefreshTop;//是否刷新置顶
@@ -46,14 +45,6 @@ public class EventRefreshMainMsg {
 
     public void setGid(String gid) {
         this.gid = gid;
-    }
-
-    public String getRefreshItem() {
-        return refreshItem;
-    }
-
-    public void setRefreshItem(String refreshItem) {
-        this.refreshItem = refreshItem;
     }
 
     public int getRefreshTag() {
