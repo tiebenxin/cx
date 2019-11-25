@@ -214,7 +214,6 @@ public class MsgMainFragment extends Fragment {
 
             @Override
             public void onLine(final boolean state) {
-                //离线 且 不在当前界面，就停止继续执行，节约性能消耗
                 getActivityMe().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
