@@ -36,7 +36,6 @@
     <style name="app_txt_content_emoji" parent="app_txt_title_2">
         <item name="android:textSize">24dp</item>
         <item name="android:clickable">true</item>
-        <item name="android:fontFamily">@font/emoji_font</item>
     </style>
 
     <!--启动页的主题,给个默认背景-->
