@@ -1,12 +1,10 @@
 package com.example.nim_lib.net;
-
-
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
-import net.cb.cb.library.AppConfig;
+import com.example.nim_lib.config.AppConfig;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;

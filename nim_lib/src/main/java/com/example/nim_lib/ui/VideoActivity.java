@@ -17,7 +17,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
@@ -33,6 +32,7 @@ import com.example.nim_lib.action.VideoAction;
 import com.example.nim_lib.bean.ReturnBean;
 import com.example.nim_lib.bean.TokenBean;
 import com.example.nim_lib.config.AVChatConfigs;
+import com.example.nim_lib.config.AppConfig;
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.constant.AVChatExitCode;
 import com.example.nim_lib.constant.CoreEnum;
@@ -75,8 +75,6 @@ import com.netease.nimlib.sdk.avchat.model.AVChatNetworkStats;
 import com.netease.nimlib.sdk.avchat.model.AVChatVideoFrame;
 import com.netease.nimlib.sdk.avchat.video.AVChatSurfaceViewRenderer;
 import com.netease.nrtc.video.render.IVideoRender;
-
-import net.cb.cb.library.AppConfig;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

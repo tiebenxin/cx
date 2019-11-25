@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -46,6 +47,7 @@ import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
 import com.yanlong.im.utils.DaoUtil;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.QRCodeManage;
@@ -713,13 +715,15 @@ public class MsgMainFragment extends Fragment {
             if (bean.getType() == 0) {//单人
                 if (StringUtil.isNotNull(bean.getDraft())) {
                     //                    info = "草稿:" + bean.getDraft();
-                    SpannableStringBuilder style = new SpannableStringBuilder();
-                    style.append("[草稿]" + bean.getDraft());
+                    SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
+//                    style.append("[草稿]" + bean.getDraft());
                     ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
                     style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    holder.txtInfo.setText(style);
+//                    holder.txtInfo.setText(style);
+                    showMessage(holder.txtInfo, bean.getDraft(), style);
                 } else {
-                    holder.txtInfo.setText(info);
+//                    holder.txtInfo.setText(info);
+                    showMessage(holder.txtInfo, info, null);
                 }
 
                 Glide.with(getActivity()).load(icon)
@@ -875,6 +879,20 @@ public class MsgMainFragment extends Fragment {
                 holder.sb.setVisibility(View.VISIBLE);
                 holder.sb.setNum(bean.getUnread_count(), false);
             }
+        }
+
+        /**
+         * 显示草稿内容
+         *
+         * @param message
+         */
+        protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
+            if (spannableString == null) {
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, message);
+            } else {
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, message, spannableString);
+            }
+            txtInfo.setText(spannableString);
         }
 
         private void creatAndSaveImg(Session bean, ImageView imgHead) {

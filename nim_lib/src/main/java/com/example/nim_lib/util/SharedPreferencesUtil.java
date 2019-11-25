@@ -4,9 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.example.nim_lib.config.AppConfig;
 import com.google.gson.Gson;
-
-import net.cb.cb.library.AppConfig;
 
 import java.lang.reflect.Type;
 

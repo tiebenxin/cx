@@ -23,6 +23,7 @@ import com.yanlong.im.utils.LogcatHelper;
 import com.yanlong.im.utils.MyDiskCacheController;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.MyException;
+import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.MainApplication;
@@ -124,6 +125,8 @@ public class MyAppLication extends MainApplication {
         initUploadUtils();
         initBugly();
         initCache();
+        // 初始化表情
+        FaceView.initFaceMap();
     }
 
     /**

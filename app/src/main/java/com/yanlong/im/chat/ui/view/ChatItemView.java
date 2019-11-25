@@ -17,7 +17,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,12 +50,11 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.view.CountDownView;
-import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -465,8 +463,9 @@ public class ChatItemView extends LinearLayout {
 
     //普通消息
     public void setData1(String msg) {
-        txtMe1.setText(msg);
-        txtOt1.setText(msg);
+        SpannableString spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
+        txtMe1.setText(spannableString);
+        txtOt1.setText(spannableString);
     }
 
     //AT消息

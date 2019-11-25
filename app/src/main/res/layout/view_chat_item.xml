@@ -158,14 +158,15 @@
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/view_ot_touch"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:id="@+id/view_ot_touch_child"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    tool:ignore="MissingConstraints">
                     <!-- 普通消息-->
                     <LinearLayout
                         android:id="@+id/view_ot_1"
@@ -173,7 +174,7 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_chat_other_touch"
                         android:gravity="left|center_vertical"
-                        android:visibility="gone">
+                        android:visibility="visible">
 
                         <android.support.v7.widget.AppCompatTextView
                             android:id="@+id/txt_ot_1"
@@ -182,7 +183,7 @@
                             android:fontFamily="normal"
                             android:maxWidth="200dp"
                             android:selectAllOnFocus="true"
-                            android:text="我----已经添加你为好友啦"
+                            android:text="我"
                             android:textColor="@color/black"
                             android:textIsSelectable="false"
                             android:textSize="15sp" />
@@ -361,7 +362,7 @@
                         android:layout_height="90dp"
                         android:background="@drawable/selector_card_other_touch"
                         android:orientation="vertical"
-                        android:visibility="visible">
+                        android:visibility="gone">
                         <!--selector_card_other_touch-->
                         <!--bg_chat_other_card-->
 
@@ -634,6 +635,7 @@
                     <LinearLayout
                         android:id="@+id/view_me_touch_child"
                         android:layout_width="wrap_content"
+                        tool:ignore="MissingConstraints"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <!-- 普通消息-->

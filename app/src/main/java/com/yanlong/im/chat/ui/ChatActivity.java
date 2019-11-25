@@ -6,30 +6,36 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
-import android.media.MediaPlayer;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,10 +69,8 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.view.PopupSelectView;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
-import com.umeng.commonsdk.debug.E;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
-import com.yanlong.im.adapter.EmojiAdapter;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -105,16 +109,16 @@ import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
-import com.yanlong.im.user.ui.MyViewPager;
-import com.yanlong.im.user.ui.PageIndicator;
 import com.yanlong.im.user.ui.SelectUserActivity;
 import com.yanlong.im.user.ui.UserInfoActivity;
 import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.HtmlTransitonUtils;
 import com.yanlong.im.utils.MyDiskCache;
 import com.yanlong.im.utils.MyDiskCacheUtils;
+import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.AudioRecordManager;
@@ -125,6 +129,10 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
+import com.yanlong.im.view.CustomerEditText;
+import com.yanlong.im.view.face.FaceView;
+import com.yanlong.im.view.face.FaceViewPager;
+import com.yanlong.im.view.face.bean.FaceBean;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
 
@@ -162,7 +170,6 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertTouch;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
-import net.cb.cb.library.view.MsgEditText;
 import net.cb.cb.library.view.MultiListView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -203,11 +210,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
     private ImageView btnVoice;
-    private MsgEditText edtChat;
+    private CustomerEditText editChat;
     private ImageView btnEmj;
     private ImageView btnFunc;
     private GridLayout viewFunc;
-    private GridLayout viewEmoji;
     private LinearLayout viewPic;
     private LinearLayout viewCamera;
     private LinearLayout viewRb;
@@ -219,10 +225,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private LinearLayout llChatVideoCall;
     private View viewChatBottom;
     private View viewChatBottomc;
-    private View imgEmojiDel;
     private Button btnSend;
     private Button txtVoice;
-    private MyViewPager emoji_pager;
+    // 表情控件视图
+    protected FaceView viewFaceView;
 
     private Integer font_size;
 
@@ -248,9 +254,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
     public static final int REQ_TRANS = 9653;
-    // 浮动窗口
-    private final int REQUEST_CODE = 100;
-
 
     private MessageAdapter messageAdapter;
     private int lastOffset = -1;
@@ -265,7 +268,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private int contactIntimately;
     private String master;
     private TextView tv_ban;
-    private ConstraintLayout emoji_pager_con;
     private String draft;
     private int isFirst;
 
@@ -344,7 +346,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
         @Override
         public void onMsg(final com.yanlong.im.utils.socket.MsgBean.UniversalMessage msgBean) {
-
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -482,23 +483,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
-
-    private List<View> emojiLayout;
-    private MediaPlayer mMediaPlayer;
-
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
         actionbar = headView.getActionbar();
         mtListView = findViewById(R.id.mtListView);
         btnVoice = findViewById(R.id.btn_voice);
-        edtChat = findViewById(R.id.edt_chat);
+        editChat = findViewById(R.id.edit_chat);
         btnEmj = findViewById(R.id.btn_emj);
         btnFunc = findViewById(R.id.btn_func);
         viewFunc = findViewById(R.id.view_func);
-        viewEmoji = findViewById(R.id.view_emoji);
-        emoji_pager_con = findViewById(R.id.emoji_pager_con);
-        emoji_pager = findViewById(R.id.emoji_pager);
         viewPic = findViewById(R.id.view_pic);
         viewCamera = findViewById(R.id.view_camera);
         viewRb = findViewById(R.id.view_rb);
@@ -511,31 +505,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewChatRobot = findViewById(R.id.view_chat_robot);
         ll_part_chat_video = findViewById(R.id.ll_part_chat_video);
         llChatVideoCall = findViewById(R.id.ll_chat_video_call);
-        imgEmojiDel = findViewById(R.id.img_emoji_del);
         btnSend = findViewById(R.id.btn_send);
         txtVoice = findViewById(R.id.txt_voice);
         tv_ban = findViewById(R.id.tv_ban);
+        viewFaceView = findViewById(R.id.chat_view_faceview);
         setChatImageBackground();
-        addViewPagerEvent();
-    }
-
-    private void addViewPagerEvent() {
-        emojiLayout = new ArrayList<>();
-        View view6 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji6, null);
-        View view7 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji7, null);
-        View view8 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji8, null);
-        View view9 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji9, null);
-        View view10 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji10, null);
-        View view11 = LayoutInflater.from(ChatActivity.this).inflate(R.layout.part_chat_emoji11, null);
-        emojiLayout.add(view6);
-        emojiLayout.add(view7);
-        emojiLayout.add(view8);
-        emojiLayout.add(view9);
-        emojiLayout.add(view10);
-        emojiLayout.add(view11);
-        emoji_pager.setAdapter(new EmojiAdapter(emojiLayout, edtChat));
-        emoji_pager.addOnPageChangeListener(new PageIndicator(ChatActivity.this, (LinearLayout) findViewById(R.id.dot_hor), 6));
-
     }
 
     @Override
@@ -553,9 +527,68 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         } else {
             taskRefreshMessage(false);
         }
-
     }
 
+    /**
+     * 添加表情
+     *
+     * @version 1.0
+     * @createTime 2013-10-22,下午2:16:54
+     * @updateTime 2013-10-22,下午2:16:54
+     * @createAuthor liujingguo
+     * @updateAuthor liujingguo
+     * @updateInfo 增加参数 group 表情资源所属组
+     */
+    protected void addFace(FaceBean bean) {
+        if (FaceView.face_animo.equals(bean.getGroup())) {
+//            saveChat(bean.getName(), MessageType.TYPE_ISANIMO, TApplication.SEND_ING, "");
+        } else if (FaceView.face_emoji.equals(bean.getGroup())) {
+            Bitmap bitmap = getBitmapFromDrawable(this, bean.getResId());
+            ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
+            String str = bean.getName();
+            SpannableString spannableString = new SpannableString(str);
+            spannableString.setSpan(imageSpan, 0, PatternUtil.FACE_EMOJI_LENGTH, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            editChat.append(spannableString);
+        } else if (FaceView.face_custom.equals(bean.getGroup())) {
+            // file_type = MessageType.TYPE_ISIMAGE;
+//            saveChat(bean.getPath(), MessageType.TYPE_ISIMAGE, TApplication.SEND_ING, "");
+//            upLoadFile(bean.getPath(), 1, 3);
+//            saveImage(bean.getPath());
+        }
+    }
+
+    /**
+     * 显示草稿内容
+     * @param message
+     */
+    protected void showDraftContent(String message){
+        SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, message);
+        editChat.setText(spannableString);
+    }
+
+    /**
+     * 失量图转Bitmap
+     *
+     * @param context
+     * @param drawableId
+     * @return
+     */
+    public static Bitmap getBitmapFromDrawable(Context context, @DrawableRes int drawableId) {
+        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        } else if (drawable instanceof VectorDrawable || drawable instanceof VectorDrawableCompat) {
+            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+
+            return bitmap;
+        } else {
+            throw new IllegalArgumentException("unsupported drawable type");
+        }
+    }
 
     //自动生成的控件事件
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -630,10 +663,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     return;
                 }
                 //test 8.
-                String text = edtChat.getText().toString().trim();
+                String text = editChat.getText().toString().trim();
                 if (TextUtils.isEmpty(text)) {
                     ToastUtil.show(ChatActivity.this, "不能发送空白消息");
-                    edtChat.getText().clear();
+                    editChat.getText().clear();
                     return;
                 }
                 if (text.startsWith("@000")) {
@@ -643,27 +676,27 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
 
                 int totalSize = text.length();
-                if (isGroup() && edtChat.getUserIdList() != null && edtChat.getUserIdList().size() > 0) {
+                if (isGroup() && editChat.getUserIdList() != null && editChat.getUserIdList().size() > 0) {
                     if (totalSize > MIN_TEXT) {
                         ToastUtil.show(ChatActivity.this, "@消息长度不能超过" + MIN_TEXT);
-                        edtChat.getText().clear();
+                        editChat.getText().clear();
                         return;
                     }
-                    if (edtChat.isAtAll()) {
-                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, edtChat.getUserIdList());
+                    if (editChat.isAtAll()) {
+                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.ALL, editChat.getUserIdList());
                         sendMessage(message, ChatEnum.EMessageType.AT);
-//                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, edtChat.getUserIdList());
+//                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 1, editChat.getUserIdList());
 //                        showSendObj(msgAllbean);
 //                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                        edtChat.getText().clear();
+                        editChat.getText().clear();
 
                     } else {
-                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, edtChat.getUserIdList());
+                        AtMessage message = SocketData.createAtMessage(SocketData.getUUID(), text, ChatEnum.EAtType.MULTIPLE, editChat.getUserIdList());
                         sendMessage(message, ChatEnum.EMessageType.AT);
-//                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, edtChat.getUserIdList());
+//                        MsgAllBean msgAllbean = SocketData.send4At(toUId, toGid, text, 0, editChat.getUserIdList());
 //                        showSendObj(msgAllbean);
 //                        MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
-                        edtChat.getText().clear();
+                        editChat.getText().clear();
                     }
                 } else {
                     //发送普通消息
@@ -671,7 +704,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         int per = totalSize / MIN_TEXT;
                         if (per > 10) {
                             ToastUtil.show(ChatActivity.this, "文本长度不能超过" + 10 * MIN_TEXT);
-                            edtChat.getText().clear();
+                            editChat.getText().clear();
                             return;
                         }
                         if (totalSize <= MIN_TEXT) {//非长文本
@@ -679,7 +712,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 //                            MsgAllBean msgAllbean = SocketData.send4Chat(toUId, toGid, text);
                             ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), text);
                             sendMessage(message, ChatEnum.EMessageType.TEXT);
-                            edtChat.getText().clear();
+                            editChat.getText().clear();
                         } else {
                             isSendingHypertext = true;//正在分段发送长文本
                             if (totalSize > per * MIN_TEXT) {
@@ -694,15 +727,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                                 }
                             }
                             sendHypertext(sendTexts, 0);
-                            edtChat.getText().clear();
+                            editChat.getText().clear();
                         }
                     }
                 }
             }
         });
 
-
-        edtChat.addTextChangedListener(new TextWatcher() {
+        editChat.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -732,10 +764,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void afterTextChanged(Editable s) {
 
-
             }
         });
-
 
         btnFunc.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -744,10 +774,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public void run() {
                         if (viewFunc.getVisibility() == View.VISIBLE) {
-                            InputUtil.showKeyboard(edtChat);
+                            InputUtil.showKeyboard(editChat);
                             hideBt();
                         } else {
-                            showBtType(0);
+                            showBtType(ChatEnum.EShowType.FUNCTION);
                         }
                     }
                 }, 100);
@@ -759,53 +789,45 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         btnEmj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (emoji_pager_con.getVisibility() == View.VISIBLE) {
-
+                if (viewFaceView.getVisibility() == View.VISIBLE) {
                     hideBt();
-                    InputUtil.showKeyboard(edtChat);
-
-
+                    editChat.requestFocus();
+                    InputUtil.showKeyboard(editChat);
                     btnEmj.setImageLevel(0);
                 } else {
-
-
-                    showBtType(1);
+                    showBtType(ChatEnum.EShowType.EMOJI);
                     btnEmj.setImageLevel(1);
                 }
-
-
             }
         });
 
-        //todo  emoji表情处理
-        for (int j = 0; j < emojiLayout.size(); j++) {
+        // 表情点击事件
+        viewFaceView.setOnItemClickListener(new FaceViewPager.FaceClickListener() {
 
-            GridLayout viewEmojiItem = (GridLayout) emojiLayout.get(j).findViewById(R.id.view_emoji);
-            for (int i = 0; i < viewEmojiItem.getChildCount(); i++) {
-                if (viewEmojiItem.getChildAt(i) instanceof TextView) {
-                    final TextView tv = (TextView) viewEmojiItem.getChildAt(i);
-                    tv.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            edtChat.getText().insert(edtChat.getSelectionEnd(), tv.getText());
+            @Override
+            public void OnItemClick(FaceBean bean) {
+                addFace(bean);
+            }
+        });
+        // 删除表情按钮
+        viewFaceView.setOnDeleteListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                int selection = editChat.getSelectionStart();
+                String msg = editChat.getText().toString().trim();
+                if (selection >= 1) {
+                    if (selection >= PatternUtil.FACE_EMOJI_LENGTH) {
+                        String emoji = msg.substring(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
+                        if (PatternUtil.isExpression(emoji)) {
+                            editChat.getText().delete(selection - PatternUtil.FACE_EMOJI_LENGTH, selection);
+                            return;
                         }
-                    });
-                } else {
-                    viewEmojiItem.getChildAt(i).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            int keyCode = KeyEvent.KEYCODE_DEL;
-                            KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
-                            KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
-                            edtChat.onKeyDown(keyCode, keyEventDown);
-                            edtChat.onKeyUp(keyCode, keyEventUp);
-                        }
-                    });
+                    }
+                    editChat.getText().delete(selection - 1, selection);
                 }
             }
-        }
-
+        });
 
         viewCamera.setOnClickListener(new View.OnClickListener() {
 
@@ -836,7 +858,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
                     }
                 }, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO});
-
 
             }
         });
@@ -966,7 +987,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }));
 
-
         AudioRecordManager.getInstance(this).setAudioRecordListener(new IAudioRecord(this, headView, new IAudioRecord.UrlCallback() {
             @Override
             public void completeRecord(String file, int duration) {
@@ -1047,7 +1067,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
             //viewFunc.removeView(viewTransfer);
@@ -1105,7 +1124,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         if (isRun == 1) {
                             isRun = 2;
                             //7.5
-                            InputUtil.hideKeyboard(edtChat);
+                            InputUtil.hideKeyboard(editChat);
                             hideBt();
                             btnEmj.setImageLevel(0);
                         } else if (isRun == 0) {
@@ -1142,7 +1161,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         });
 
-
         //处理键盘
         SoftKeyBoardListener kbLinst = new SoftKeyBoardListener(this);
         kbLinst.setOnSoftKeyBoardChangeListener(new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
@@ -1164,7 +1182,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 dismissPop();
             }
         });
-
 
         //6.15 先加载完成界面,后刷数据
         actionbar.post(new Runnable() {
@@ -1400,12 +1417,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             open = txtVoice.getVisibility() == View.GONE ? true : false;
         }
         if (open) {
-            showBtType(2);
+            showBtType(ChatEnum.EShowType.VOICE);
         } else {
             showVoice(false);
             hideBt();
-            InputUtil.showKeyboard(edtChat);
-            edtChat.requestFocus();
+            InputUtil.showKeyboard(editChat);
+            editChat.requestFocus();
         }
     }
 
@@ -1413,14 +1430,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (show) {//开启语音
             txtVoice.setVisibility(View.VISIBLE);
             btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_kb));
-            edtChat.setVisibility(View.GONE);
+            editChat.setVisibility(View.GONE);
             btnSend.setVisibility(GONE);
             btnFunc.setVisibility(VISIBLE);
         } else {//关闭语音
             txtVoice.setVisibility(View.GONE);
             btnVoice.setImageDrawable(getResources().getDrawable(R.mipmap.ic_chat_vio));
-            edtChat.setVisibility(View.VISIBLE);
-            if (StringUtil.isNotNull(edtChat.getText().toString())) {
+            editChat.setVisibility(View.VISIBLE);
+            if (StringUtil.isNotNull(editChat.getText().toString())) {
                 btnSend.setVisibility(VISIBLE);
             } else {
                 btnSend.setVisibility(GONE);
@@ -1435,23 +1452,21 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void showBtType(final int type) {
 
         btnEmj.setImageLevel(0);
-        InputUtil.hideKeyboard(edtChat);
+        InputUtil.hideKeyboard(editChat);
         showVoice(false);
         viewFunc.postDelayed(new Runnable() {
             @Override
             public void run() {
                 hideBt();
                 switch (type) {
-                    case 0://功能面板
+                    case ChatEnum.EShowType.FUNCTION://功能面板
                         //第二种解决方案
-
                         viewFunc.setVisibility(View.VISIBLE);
-
                         break;
-                    case 1://emoji面板
-                        emoji_pager_con.setVisibility(View.VISIBLE);
+                    case ChatEnum.EShowType.EMOJI://emoji面板
+                        viewFaceView.setVisibility(View.VISIBLE);
                         break;
-                    case 2://语音
+                    case ChatEnum.EShowType.VOICE://语音
                         showVoice(true);
                         break;
                 }
@@ -1527,8 +1542,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     private void hideBt() {
         viewFunc.setVisibility(View.GONE);
-        emoji_pager_con.setVisibility(View.GONE);
-
+        viewFaceView.setVisibility(View.GONE);
     }
 
     @Override
@@ -1537,8 +1551,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.setVisibility(View.GONE);
             return;
         }
-        if (emoji_pager_con.getVisibility() == View.VISIBLE) {
-            emoji_pager_con.setVisibility(View.GONE);
+        if (viewFaceView.getVisibility() == View.VISIBLE) {
+            viewFaceView.setVisibility(View.GONE);
             btnEmj.setImageLevel(0);
             return;
         }
@@ -2023,7 +2037,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     String uid = data.getStringExtra(GroupSelectUserActivity.UID);
                     String name = data.getStringExtra(GroupSelectUserActivity.MEMBERNAME);
                     if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(name)) {
-                        edtChat.addAtSpan(null, name, Long.valueOf(uid));
+                        editChat.addAtSpan(null, name, Long.valueOf(uid));
                     }
                     break;
 
@@ -2305,7 +2319,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 resendMessage(message);
                 break;
             case ChatEnum.ECellEventType.AVATAR_LONG_CLICK:
-                edtChat.addAtSpan("@", message.getFrom_nickname(), message.getFrom_uid());
+                editChat.addAtSpan("@", message.getFrom_nickname(), message.getFrom_uid());
                 break;
             case ChatEnum.ECellEventType.VOICE_CLICK:
 //                playVoice();
@@ -2577,13 +2591,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     @Override
                     public boolean onLongClick(View v) {
                         String name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
-                        String txt = edtChat.getText().toString().trim();
+                        String txt = editChat.getText().toString().trim();
                         if (!txt.contains("@" + name)) {
                             if (!TextUtils.isEmpty(name)) {
-                                edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                                editChat.addAtSpan("@", name, msgbean.getFrom_uid());
                             } else {
                                 name = TextUtils.isEmpty(msgbean.getFrom_group_nickname()) ? msgbean.getFrom_nickname() : msgbean.getFrom_group_nickname();
-                                edtChat.addAtSpan("@", name, msgbean.getFrom_uid());
+                                editChat.addAtSpan("@", name, msgbean.getFrom_uid());
                             }
                             scrollListView(true);
                         }
@@ -2944,10 +2958,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         ToastUtil.show(ChatActivity.this, "重新编辑不能超过5分钟");
                     } else {
                         showVoice(false);
-                        InputUtil.showKeyboard(edtChat);
-                        edtChat.setText(edtChat.getText().toString() + restContent);
-                        edtChat.requestFocus();
-                        edtChat.setSelection(edtChat.getText().length());
+                        InputUtil.showKeyboard(editChat);
+//                        editChat.setText(editChat.getText().toString() + restContent);
+                        showDraftContent(editChat.getText().toString() + restContent);
+                        editChat.requestFocus();
+                        editChat.setSelection(editChat.getText().length());
                     }
                 }
 
@@ -3712,7 +3727,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     private String msgid;
 
-    public void sendRead(){
+    public void sendRead() {
         //发送已读回执
         if (TextUtils.isEmpty(toGid)) {
             MsgAllBean bean = msgDao.msgGetLast4FromUid(toUId);
@@ -3726,7 +3741,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             }
         }
     }
-
 
 
     /***
@@ -3946,8 +3960,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         draft = session.getDraft();
         if (StringUtil.isNotNull(draft)) {
             //设置完草稿之后清理掉草稿 防止@功能不能及时弹出
-            edtChat.setText(session.getDraft());
-//            dao.sessionDraft(toGid, toUId, "");`
+            showDraftContent(session.getDraft());
 
         }
         // isFirst解决第一次进来草稿中会有@符号的内容
@@ -3971,7 +3984,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (isGroup() && !MessageManager.getInstance().isGroupValid(groupInfo)) {//无效群，不存草稿
             return false;
         }
-        String df = edtChat.getText().toString().trim();
+        String df = editChat.getText().toString().trim();
         boolean hasChange = false;
         if (!TextUtils.isEmpty(draft)) {
             if (TextUtils.isEmpty(df) || !draft.equals(df)) {

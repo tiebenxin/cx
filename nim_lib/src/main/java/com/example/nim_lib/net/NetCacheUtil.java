@@ -1,11 +1,8 @@
 package com.example.nim_lib.net;
-
 import android.util.Log;
 
-
+import com.example.nim_lib.config.AppConfig;
 import com.example.nim_lib.util.SharedPreferencesUtil;
-
-import net.cb.cb.library.AppConfig;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
