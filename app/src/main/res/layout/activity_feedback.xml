@@ -73,7 +73,8 @@
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/dimen_5"
             android:layout_marginBottom="@dimen/dimen_10"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
             <TextView
                 style="@style/app_txt_title_4"
                 android:layout_width="wrap_content"
