@@ -71,9 +71,9 @@ public class UserInfoActivity extends AppActivity {
     private ActionbarView actionbar;
     private LinearLayout viewHead;
     private ImageView imgHead;
-    private TextView txtMkname;
-    private TextView txtNkname;
-    private TextView txtPrNo;
+    private TextView tvFirstName;
+    private TextView tvSecondName;
+    private TextView tvThirdName;
     private TextView mTvRemark;
     private LinearLayout viewMkname;
     private LinearLayout viewBlack;
@@ -128,9 +128,9 @@ public class UserInfoActivity extends AppActivity {
         actionbar = headView.getActionbar();
         viewHead = findViewById(R.id.view_head);
         imgHead = findViewById(R.id.img_head);
-        txtMkname = findViewById(R.id.txt_mkname);
-        txtNkname = findViewById(R.id.txt_nkname);
-        txtPrNo = findViewById(R.id.txt_pr_no);
+        tvFirstName = findViewById(R.id.txt_mkname);
+        tvSecondName = findViewById(R.id.txt_nkname);
+        tvThirdName = findViewById(R.id.txt_pr_no);
         viewMkname = findViewById(R.id.view_mkname);
         viewBlack = findViewById(R.id.view_black);
         viewDel = findViewById(R.id.view_del);
@@ -146,29 +146,6 @@ public class UserInfoActivity extends AppActivity {
         tv_introduce = findViewById(R.id.tv_introduce);
         tvJoinGroupName = findViewById(R.id.tv_join_group_name);
 
-    }
-
-    private void resetLayout() {
-        if (id == 1L) {//是常信小助手
-            txtMkname.setVisibility(View.VISIBLE);
-            txtNkname.setVisibility(View.GONE);
-            txtPrNo.setVisibility(View.GONE);
-            mViewSettingName.setVisibility(View.GONE);
-            mLayoutMsg.setVisibility(View.GONE);
-            btnMsg.setVisibility(View.GONE);
-            viewIntroduce.setVisibility(View.VISIBLE);
-            mBtnAdd.setVisibility(View.GONE);
-            viewComplaint.setVisibility(View.GONE);
-        } else {
-            txtMkname.setVisibility(View.VISIBLE);
-            txtNkname.setVisibility(View.VISIBLE);
-            txtPrNo.setVisibility(View.VISIBLE);
-            mViewSettingName.setVisibility(View.VISIBLE);
-            mLayoutMsg.setVisibility(View.VISIBLE);
-            btnMsg.setVisibility(View.VISIBLE);
-            viewIntroduce.setVisibility(View.GONE);
-            viewComplaint.setVisibility(View.VISIBLE);
-        }
     }
 
     //自动生成的控件事件
@@ -436,19 +413,16 @@ public class UserInfoActivity extends AppActivity {
 
         doGetAndSetName(info);
         mkName = info.getMkName();
-        txtPrNo.setText("常信号: " + info.getImid());
-        txtNkname.setText("昵称: " + info.getName());
         name = info.getName();
-
         if ((info.getuType() != null && info.getuType() == 3) || (info.getStat() != null && info.getStat() == 2)) {
             type = 2;
         }
         if (info.getStat() != 9) {//不是常信小助手
             setItemShow(type);
         } else {
-            txtMkname.setVisibility(View.VISIBLE);
-            txtNkname.setVisibility(View.GONE);
-            txtPrNo.setVisibility(View.GONE);
+            tvFirstName.setVisibility(View.VISIBLE);
+            tvSecondName.setVisibility(View.GONE);
+            tvThirdName.setVisibility(View.GONE);
             mViewSettingName.setVisibility(View.GONE);
             mLayoutMsg.setVisibility(View.GONE);
             btnMsg.setVisibility(View.GONE);
@@ -612,7 +586,7 @@ public class UserInfoActivity extends AppActivity {
                 //刷新好友和退出
                 if (response.body().isOk()) {
                     //删除好友后 取消阅后即焚状态
-                    userDao.updateReadDestroy(id,0);
+                    userDao.updateReadDestroy(id, 0);
 
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.DELETE, null);
@@ -689,14 +663,51 @@ public class UserInfoActivity extends AppActivity {
         }
     }
 
+    /*
+     * 设置名字
+     * */
     private void doGetAndSetName(UserInfo userInfo) {
         String userRemark = "";
+        String userNick = "";
+        String imId = "";
         if (userInfo != null) {
             userRemark = userInfo.getMkName();
+            userNick = userInfo.getName();
+            imId = userInfo.getImid();
+
         }
-        txtMkname.setText(StringUtil.getUserName(userRemark, mucNick, userInfo.getName(), userInfo.getUid()));
-
+        if (userInfo.getuType() == ChatEnum.EUserType.FRIEND || userInfo.getStat() == 0) {//有好友关系
+            if (!TextUtils.isEmpty(userRemark)) {
+                if (!TextUtils.isEmpty(mucNick)) {
+                    tvFirstName.setText(userRemark);
+                    tvSecondName.setText("昵称: " + userNick);
+                    tvThirdName.setText("群昵称: " + mucNick);
+                } else {
+                    tvFirstName.setText(userRemark);
+                    tvSecondName.setText("昵称: " + userNick);
+                    tvThirdName.setText("常信号: " + imId);
+                }
+            } else {
+                if (!TextUtils.isEmpty(mucNick)) {
+                    tvFirstName.setText(userNick);
+                    tvSecondName.setText("常信号: " + imId);
+                    tvThirdName.setText("群昵称: " + mucNick);
+                } else {
+                    tvFirstName.setText(userNick);
+                    tvSecondName.setText("昵称: " + userNick);
+                    tvThirdName.setText("常信号: " + imId);
+                }
+            }
+        } else {//无好友关系
+            if (!TextUtils.isEmpty(mucNick)) {
+                tvFirstName.setText(userNick);
+                tvSecondName.setText("群昵称: " + mucNick);
+                tvThirdName.setText("常信号: " + imId);
+            } else {
+                tvFirstName.setText(userNick);
+                tvSecondName.setText("昵称: " + userNick);
+                tvThirdName.setText("常信号: " + imId);
+            }
+        }
     }
-
-
 }
