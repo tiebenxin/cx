@@ -43,7 +43,6 @@ public class DaoMigration implements RealmMigration {
             }
             if (newVersion > oldVersion && oldVersion == 7) {
                 updateV8(schema);
-                updateV9(schema);
                 oldVersion++;
             }
             if (newVersion > oldVersion && oldVersion == 8) {
