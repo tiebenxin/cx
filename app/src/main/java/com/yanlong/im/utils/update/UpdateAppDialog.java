@@ -5,12 +5,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -27,7 +25,6 @@ public class UpdateAppDialog {
     private Context context;
     private TextView txtAlertMsg;
     private TextView tvVersionNumber;
-    private LinearLayout viewNo;
     private Button btnCl;
     private Button btnUpdate;
     private ProgressBar mProgressNum;
@@ -37,7 +34,6 @@ public class UpdateAppDialog {
     //自动寻找控件
     private void findViews(View rootview) {
         txtAlertMsg = rootview.findViewById(R.id.txt_alert_msg);
-        viewNo = rootview.findViewById(R.id.view_no);
         btnCl = rootview.findViewById(R.id.btn_cl);
         btnUpdate = rootview.findViewById(R.id.btn_update);
         mProgressNum =  rootview.findViewById(R.id.progress_num);
@@ -113,7 +109,7 @@ public class UpdateAppDialog {
 
     public void updateStop(){
         mProgressNum.setVisibility(View.GONE);
-        tvUpdatePercent.setVisibility(View.GONE);
+//        tvUpdatePercent.setVisibility(View.GONE);
         btnUpdate.setClickable(true);
     }
 
@@ -136,12 +132,6 @@ public class UpdateAppDialog {
         mProgressNum.setProgress(progress);
         tvUpdatePercent.setText(progress+"%");
         setPos();
-    }
-
-
-
-    public void enforcementUpate() {
-        viewNo.setVisibility(View.GONE);
     }
 
 

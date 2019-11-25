@@ -6,11 +6,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.luck.picture.lib.tools.Constant;
 import com.yanlong.im.user.bean.NewVersionBean;
 import com.yanlong.im.user.bean.VersionBean;
 
@@ -38,6 +35,7 @@ public class UpdateManage {
     private static final int LOADING = 200;
     private static final int COMPLETE = 300;
     private static final int EROE = 400;
+    private static final int OVERTIME = 500;
 
     private Context context;
     private Activity activity;
@@ -56,7 +54,6 @@ public class UpdateManage {
         int month = calendar.get(Calendar.MONTH) + 1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         String newData = month + "-" + day;
-
         VersionBean versionBean = new VersionBean();
         versionBean.setTime(newData);
         versionBean.setVersion(newVersionBean.getVersion());
@@ -144,6 +141,11 @@ public class UpdateManage {
                                 downloadListener.complete(String.valueOf(file.getAbsoluteFile()));
                             } catch (Exception e) {
                                 e.printStackTrace();
+                                //监听断网导致的超时
+                                if(e.getMessage().contains("Connection timed out")){
+                                    handler.sendEmptyMessageDelayed(OVERTIME,7000);
+                                    return;
+                                }
                                 downloadListener.loadfail(e.getMessage());
                             } finally {
                                 try {
@@ -169,9 +171,6 @@ public class UpdateManage {
                     installAppUtil.install(activity, installAppUtil.getApkPath());
                 }
             });
-            if (isEnforcement) {
-                dialog.enforcementUpate();
-            }
             dialog.show();
         }
     }
@@ -258,7 +257,7 @@ public class UpdateManage {
 
         @Override
         public void loadfail(String message) {
-//            handler.sendEmptyMessage(EROE);
+//            handler.sendEmptyMessage(OVERTIME);
         }
     };
 
@@ -290,6 +289,12 @@ public class UpdateManage {
                     ToastUtil.show(activity, "下载失败,请重试");
                     if (dialog != null) {
                         dialog.updateStop();
+                    }
+                    break;
+                case OVERTIME:
+                    //下载超时弹框延迟7秒显示，避免内存泄漏，需要判断activity是否销毁
+                    if(activity != null){
+
                     }
                     break;
             }
