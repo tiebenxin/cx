@@ -7,19 +7,14 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -524,6 +519,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             int size = msgListData.size();
             msgListData.add(msgAllbean);
             mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
+            // 处理发送失败时位置错乱问题
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size()-1);
+            scrollListView(true);
         } else {
             taskRefreshMessage(false);
         }
@@ -543,7 +541,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (FaceView.face_animo.equals(bean.getGroup())) {
 //            saveChat(bean.getName(), MessageType.TYPE_ISANIMO, TApplication.SEND_ING, "");
         } else if (FaceView.face_emoji.equals(bean.getGroup())) {
-            Bitmap bitmap = getBitmapFromDrawable(this, bean.getResId());
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
+            bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this,ExpressionUtil.DEFAULT_SIZE),
+                    ExpressionUtil.dip2px(this,ExpressionUtil.DEFAULT_SIZE), true);
             ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
             String str = bean.getName();
             SpannableString spannableString = new SpannableString(str);
@@ -565,30 +565,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     protected void showDraftContent(String message) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, message);
         editChat.setText(spannableString);
-    }
-
-    /**
-     * 失量图转Bitmap
-     *
-     * @param context
-     * @param drawableId
-     * @return
-     */
-    public static Bitmap getBitmapFromDrawable(Context context, @DrawableRes int drawableId) {
-        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        } else if (drawable instanceof VectorDrawable || drawable instanceof VectorDrawableCompat) {
-            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-
-            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            drawable.draw(canvas);
-
-            return bitmap;
-        } else {
-            throw new IllegalArgumentException("unsupported drawable type");
-        }
     }
 
     //自动生成的控件事件
@@ -2415,14 +2391,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage(false);
-
-//                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-//                    // upProgress.setProgress(100);
-//                    eventUpImgLoadEvent.setMsgid(reMsg.getMsg_id());
-//                    eventUpImgLoadEvent.setState(1);
-//                    eventUpImgLoadEvent.setUrl(url);
-//                    EventBus.getDefault().post(eventUpImgLoadEvent);
-
                 }
             } else {
                 //点击发送的时候如果要改变成发送中的状态
