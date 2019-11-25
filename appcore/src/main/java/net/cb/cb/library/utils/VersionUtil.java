@@ -4,10 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class VersionUtil {
     /**
      * 获取当前本地apk的版本
@@ -51,27 +47,32 @@ public class VersionUtil {
      * 比较新版本
      */
     public static boolean isNewVersion(Context context, String newVerName) {
-        List<String> newVerNames;
-        List<String> OldVerNames;
-        if (TextUtils.isEmpty(newVerName)) {
-            return false;
-        } else {
-            newVerNames = Arrays.asList(newVerName.split("\\."));
-        }
-        String OldVerName = getVerName(context);
-        OldVerNames = Arrays.asList(OldVerName.split("\\."));
-
-        if ((newVerNames == null || newVerNames.size() != 3) || (OldVerNames == null || OldVerNames.size() != 3)) {
-            return false;
-        } else {
-            int newVerNum = Integer.valueOf(newVerNames.get(0)) * 100 + Integer.valueOf(newVerNames.get(1)) * 10 + Integer.valueOf(newVerNames.get(2));
-            int oldVerNum = Integer.valueOf(OldVerNames.get(0)) * 100 + Integer.valueOf(OldVerNames.get(1)) * 10 + Integer.valueOf(OldVerNames.get(2));
-            if (oldVerNum < newVerNum) {
-                return true;
-            } else {
-                return false;
+        boolean isNeed = false;
+        try {
+            //获取当前版本
+            String OldVerName = getVerName(context);
+            if (!TextUtils.isEmpty(newVerName) && !TextUtils.isEmpty(OldVerName)) {
+                String[] newVer = newVerName.split("\\.");
+                String[] oldVer = OldVerName.split("\\.");
+                //这里因为服务器和本地版本号的格式一样，所以随便哪个的长度都可以使用
+                for (int i = 0; i < newVer.length; i++) {
+                    int s = Integer.parseInt(newVer[i]);
+                    int c = Integer.parseInt(oldVer[i]);
+                    if(c>s){
+                        isNeed = false;
+                        break;
+                    }
+                    if (c < s) {
+                        isNeed = true;
+                        break;
+                    }
+                }
             }
+        }catch (Exception e){
+            e.printStackTrace();
+            LogUtil.getLog().e("比较版本号时出错");
         }
+        return isNeed;
     }
 
 
