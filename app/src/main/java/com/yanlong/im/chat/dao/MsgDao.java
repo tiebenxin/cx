@@ -47,6 +47,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -919,6 +920,8 @@ public class MsgDao {
 
     /***
      * 根据key查询消息
+     *
+     * 备注：新增不区分大小写模糊查询
      */
     public List<MsgAllBean> searchMsg4key(String key, String gid, Long uid) {
 
@@ -931,12 +934,12 @@ public class MsgDao {
             if (StringUtil.isNotNull(gid)) {//群
                 msg = realm.where(MsgAllBean.class)
                         .equalTo("gid", gid).and().equalTo("msg_type", 1).and()
-                        .contains("chat.msg", key)
+                        .contains("chat.msg", key, Case.INSENSITIVE)
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();
             } else {//单人
                 msg = realm.where(MsgAllBean.class).equalTo("gid", "").equalTo("msg_type", 1)
-                        .contains("chat.msg", key).beginGroup()
+                        .contains("chat.msg", key,Case.INSENSITIVE).beginGroup()
                         .equalTo("from_uid", uid).or().equalTo("to_uid", uid).endGroup()
                         .sort("timestamp", Sort.DESCENDING)
                         .findAll();

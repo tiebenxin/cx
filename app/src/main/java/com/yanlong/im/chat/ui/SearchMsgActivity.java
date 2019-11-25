@@ -115,9 +115,11 @@ public class SearchMsgActivity extends AppActivity {
 
 
             if (StringUtil.isNotNull(msgbean.getGid())) {
-                Group g = msgbean.getGroup();
-                url = g.getAvatar();
-                name = g.getName();
+//                Group g = msgbean.getGroup();
+//                url = g.getFrom_avatar();
+//                name = g.getName();
+                url = msgbean.getFrom_avatar();
+                name = msgbean.getFrom_nickname();
             } else {
                 UserInfo u = msgbean.getShow_user();
                 url = msgbean.getFrom_avatar(); //u.getHead();
@@ -139,7 +141,6 @@ public class SearchMsgActivity extends AppActivity {
 
             holder.txtContext.setText(Html.fromHtml(msg));
 
-           //p holder.imgHead.setImageURI(Uri.parse("" + url));
             Glide.with(context).load(url)
                     .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
