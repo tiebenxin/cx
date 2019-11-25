@@ -7,19 +7,14 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -524,6 +519,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             int size = msgListData.size();
             msgListData.add(msgAllbean);
             mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
+            // 处理发送失败时位置错乱问题
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size()-1);
+            scrollListView(true);
         } else {
             taskRefreshMessage(false);
         }
@@ -543,7 +541,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (FaceView.face_animo.equals(bean.getGroup())) {
 //            saveChat(bean.getName(), MessageType.TYPE_ISANIMO, TApplication.SEND_ING, "");
         } else if (FaceView.face_emoji.equals(bean.getGroup())) {
-            Bitmap bitmap = getBitmapFromDrawable(this, bean.getResId());
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
+            bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this,ExpressionUtil.DEFAULT_SIZE),
+                    ExpressionUtil.dip2px(this,ExpressionUtil.DEFAULT_SIZE), true);
             ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
             String str = bean.getName();
             SpannableString spannableString = new SpannableString(str);
@@ -559,35 +559,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     /**
      * 显示草稿内容
+     *
      * @param message
      */
-    protected void showDraftContent(String message){
+    protected void showDraftContent(String message) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(this, ExpressionUtil.DEFAULT_SIZE, message);
         editChat.setText(spannableString);
-    }
-
-    /**
-     * 失量图转Bitmap
-     *
-     * @param context
-     * @param drawableId
-     * @return
-     */
-    public static Bitmap getBitmapFromDrawable(Context context, @DrawableRes int drawableId) {
-        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
-        if (drawable instanceof BitmapDrawable) {
-            return ((BitmapDrawable) drawable).getBitmap();
-        } else if (drawable instanceof VectorDrawable || drawable instanceof VectorDrawableCompat) {
-            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-
-            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            drawable.draw(canvas);
-
-            return bitmap;
-        } else {
-            throw new IllegalArgumentException("unsupported drawable type");
-        }
     }
 
     //自动生成的控件事件
@@ -1208,7 +1185,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
-                        if(ChatActivity.this.survivaltime != survivaltime){
+                        if (ChatActivity.this.survivaltime != survivaltime) {
                             util.setImageViewShow(survivaltime, headView.getActionbar().getRightImage());
                             if (isGroup()) {
                                 changeSurvivalTime(toGid, survivaltime);
@@ -1222,7 +1199,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         });
 
         //9.17 进去后就清理会话的阅读数量
-        taskCleanRead();
+        taskCleanRead(true);
     }
 
     //消息发送
@@ -1547,6 +1524,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Override
     public void onBackPressed() {
+        //清理会话数量
+//        taskCleanRead(false);//不一定执行
+        LogUtil.getLog().e(TAG, "onBackPressed");
+        clearScrollPosition();
+        super.onBackPressed();
         if (viewFunc.getVisibility() == View.VISIBLE) {
             viewFunc.setVisibility(View.GONE);
             return;
@@ -1556,14 +1538,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             btnEmj.setImageLevel(0);
             return;
         }
-
-        //清理会话数量
-        taskCleanRead();
-        LogUtil.getLog().e(TAG, "onBackPressed");
-        clearScrollPosition();
-        super.onBackPressed();
         //oppo 手机 调用 onBackPressed不会finish
         finish();
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -1646,14 +1623,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         if (currentPlayBean != null) {
             updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
         }
+        boolean hasClear = taskCleanRead(false);
         boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
         boolean hasChange = updateSessionDraftAndAtMessage();
-        if (hasUpdate || hasChange) {
+        if (hasClear || hasUpdate || hasChange) {
             MessageManager.getInstance().setMessageChange(true);
             MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-        } /*else {
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-        }*/
+        }
     }
 
     @Override
@@ -2025,7 +2001,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             style = MsgBean.RedEnvelopeMessage.RedEnvelopeStyle.LUCK;
                         }
 
-                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(),envelopeInfo.getEnvelopesID(),envelopeInfo.getEnvelopeMessage(),MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY.getNumber(),style.getNumber());
+                        RedEnvelopeMessage message = SocketData.createRbMessage(SocketData.getUUID(), envelopeInfo.getEnvelopesID(), envelopeInfo.getEnvelopeMessage(), MsgBean.RedEnvelopeMessage.RedEnvelopeType.MFPAY.getNumber(), style.getNumber());
                         sendMessage(message, ChatEnum.EMessageType.RED_ENVELOPE);
 
 //                        MsgAllBean msgAllbean = SocketData.send4Rb(toUId, toGid, rid, info, style);
@@ -2415,14 +2391,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     MsgBean.UniversalMessage.Builder bean = MsgBean.UniversalMessage.parseFrom(reMsg.getSend_data()).toBuilder();
                     SocketUtil.getSocketUtil().sendData4Msg(bean);
                     taskRefreshMessage(false);
-
-//                    EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
-//                    // upProgress.setProgress(100);
-//                    eventUpImgLoadEvent.setMsgid(reMsg.getMsg_id());
-//                    eventUpImgLoadEvent.setState(1);
-//                    eventUpImgLoadEvent.setUrl(url);
-//                    EventBus.getDefault().post(eventUpImgLoadEvent);
-
                 }
             } else {
                 //点击发送的时候如果要改变成发送中的状态
@@ -2590,7 +2558,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 holder.viewChatItem.setHeadOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        String name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        //TODO:优先显示群备注
+                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
+                        if (TextUtils.isEmpty(name)) {
+                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        }
                         String txt = editChat.getText().toString().trim();
                         if (!txt.contains("@" + name)) {
                             if (!TextUtils.isEmpty(name)) {
@@ -3885,13 +3857,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             String k = msg.getFrom_uid() + "";
             String nkname = "";
             String head = "";
-
             UserInfo userInfo;
             if (mks.containsKey(k)) {
                 userInfo = mks.get(k);
             } else {
                 userInfo = msg.getFrom_user();
-
                 if (userInfo == null) {
                     userInfo = new UserInfo();
                     userInfo.setName(StringUtil.isNotNull(msg.getFrom_group_nickname()) ? msg.getFrom_group_nickname() : msg.getFrom_nickname());
@@ -3903,8 +3873,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         if (gmsg != null) {
                             gname = gmsg.getFrom_group_nickname();
                         }
-
-
                         if (StringUtil.isNotNull(gname)) {
                             userInfo.setName(gname);
                         }
@@ -3912,12 +3880,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 }
                 mks.put(k, userInfo);
             }
-
-
             nkname = userInfo.getName();
-
-
-            if (StringUtil.isNotNull(userInfo.getMkName())) {
+            if (/*!isGroup() &&*/ StringUtil.isNotNull(userInfo.getMkName())) {
                 nkname = userInfo.getMkName();
             }
 
@@ -3940,14 +3904,18 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     /***
      * 清理已读
      */
-    private void taskCleanRead() {
+    private boolean taskCleanRead(boolean isFirst) {
         Session session = StringUtil.isNotNull(toGid) ? DaoUtil.findOne(Session.class, "gid", toGid) :
                 DaoUtil.findOne(Session.class, "from_uid", toUId);
         if (session != null && session.getUnread_count() > 0) {
             dao.sessionReadClean(session);
-            MessageManager.getInstance().setMessageChange(true);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+            if (isFirst) {
+                MessageManager.getInstance().setMessageChange(true);
+                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+            }
+            return true;
         }
+        return false;
     }
 
     /***

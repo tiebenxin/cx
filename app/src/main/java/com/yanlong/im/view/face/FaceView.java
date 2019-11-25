@@ -68,23 +68,23 @@ public class FaceView extends RelativeLayout {
 	public static String face_custom = "custom";
 
 	/** emoji表情ID列表 */
-	private static int[] face_EmojiIds = { R.drawable.emoji_000, R.drawable.emoji_001, R.drawable.emoji_002, R.drawable.emoji_003,
-			R.drawable.emoji_004, R.drawable.emoji_005, R.drawable.emoji_006, R.drawable.emoji_007, R.drawable.emoji_008, R.drawable.emoji_009,
-			R.drawable.emoji_010, R.drawable.emoji_011, R.drawable.emoji_012, R.drawable.emoji_013, R.drawable.emoji_014, R.drawable.emoji_015,
-			R.drawable.emoji_016, R.drawable.emoji_017, R.drawable.emoji_018, R.drawable.emoji_019, R.drawable.emoji_020, R.drawable.emoji_021,
-			R.drawable.emoji_022, R.drawable.emoji_023, R.drawable.emoji_024, R.drawable.emoji_025, R.drawable.emoji_026, R.drawable.emoji_027,
-			R.drawable.emoji_028, R.drawable.emoji_029, R.drawable.emoji_030, R.drawable.emoji_031, R.drawable.emoji_032, R.drawable.emoji_033,
-			R.drawable.emoji_034, R.drawable.emoji_035, R.drawable.emoji_036, R.drawable.emoji_037, R.drawable.emoji_038, R.drawable.emoji_039,
-			R.drawable.emoji_040, R.drawable.emoji_041, R.drawable.emoji_042, R.drawable.emoji_043, R.drawable.emoji_044, R.drawable.emoji_045,
-			R.drawable.emoji_046, R.drawable.emoji_047, R.drawable.emoji_048, R.drawable.emoji_049, R.drawable.emoji_050, R.drawable.emoji_051,
-			R.drawable.emoji_052, R.drawable.emoji_053, R.drawable.emoji_054, R.drawable.emoji_055, R.drawable.emoji_056, R.drawable.emoji_057,
-			R.drawable.emoji_058, R.drawable.emoji_059, R.drawable.emoji_060, R.drawable.emoji_061, R.drawable.emoji_062, R.drawable.emoji_063,
-			R.drawable.emoji_064, R.drawable.emoji_065, R.drawable.emoji_066, R.drawable.emoji_067, R.drawable.emoji_068, R.drawable.emoji_069,
-			R.drawable.emoji_070, R.drawable.emoji_071, R.drawable.emoji_072, R.drawable.emoji_073, R.drawable.emoji_074, R.drawable.emoji_075,
-			R.drawable.emoji_076, R.drawable.emoji_077, R.drawable.emoji_078, R.drawable.emoji_079, R.drawable.emoji_080, R.drawable.emoji_081,
-			R.drawable.emoji_082, R.drawable.emoji_083, R.drawable.emoji_084, R.drawable.emoji_085, R.drawable.emoji_086, R.drawable.emoji_087,
-			R.drawable.emoji_088, R.drawable.emoji_089, R.drawable.emoji_090, R.drawable.emoji_091, R.drawable.emoji_092, R.drawable.emoji_093,
-			R.drawable.emoji_094, R.drawable.emoji_095, R.drawable.emoji_096, R.drawable.emoji_097, R.drawable.emoji_098, R.drawable.emoji_099,};
+	private static int[] face_EmojiIds = { R.mipmap.emoji_000, R.mipmap.emoji_001, R.mipmap.emoji_002, R.mipmap.emoji_003,
+			R.mipmap.emoji_004, R.mipmap.emoji_005, R.mipmap.emoji_006, R.mipmap.emoji_007, R.mipmap.emoji_008, R.mipmap.emoji_009,
+			R.mipmap.emoji_010, R.mipmap.emoji_011, R.mipmap.emoji_012, R.mipmap.emoji_013, R.mipmap.emoji_014, R.mipmap.emoji_015,
+			R.mipmap.emoji_016, R.mipmap.emoji_017, R.mipmap.emoji_018, R.mipmap.emoji_019, R.mipmap.emoji_020, R.mipmap.emoji_021,
+			R.mipmap.emoji_022, R.mipmap.emoji_023, R.mipmap.emoji_024, R.mipmap.emoji_025, R.mipmap.emoji_026, R.mipmap.emoji_027,
+			R.mipmap.emoji_028, R.mipmap.emoji_029, R.mipmap.emoji_030, R.mipmap.emoji_031, R.mipmap.emoji_032, R.mipmap.emoji_033,
+			R.mipmap.emoji_034, R.mipmap.emoji_035, R.mipmap.emoji_036, R.mipmap.emoji_037, R.mipmap.emoji_038, R.mipmap.emoji_039,
+			R.mipmap.emoji_040, R.mipmap.emoji_041, R.mipmap.emoji_042, R.mipmap.emoji_043, R.mipmap.emoji_044, R.mipmap.emoji_045,
+			R.mipmap.emoji_046, R.mipmap.emoji_047, R.mipmap.emoji_048, R.mipmap.emoji_049, R.mipmap.emoji_050, R.mipmap.emoji_051,
+			R.mipmap.emoji_052, R.mipmap.emoji_053, R.mipmap.emoji_054, R.mipmap.emoji_055, R.mipmap.emoji_056, R.mipmap.emoji_057,
+			R.mipmap.emoji_058, R.mipmap.emoji_059, R.mipmap.emoji_060, R.mipmap.emoji_061, R.mipmap.emoji_062, R.mipmap.emoji_063,
+			R.mipmap.emoji_064, R.mipmap.emoji_065, R.mipmap.emoji_066, R.mipmap.emoji_067, R.mipmap.emoji_068, R.mipmap.emoji_069,
+			R.mipmap.emoji_070, R.mipmap.emoji_071, R.mipmap.emoji_072, R.mipmap.emoji_073, R.mipmap.emoji_074, R.mipmap.emoji_075,
+			R.mipmap.emoji_076, R.mipmap.emoji_077, R.mipmap.emoji_078, R.mipmap.emoji_079, R.mipmap.emoji_080, R.mipmap.emoji_081,
+			R.mipmap.emoji_082, R.mipmap.emoji_083, R.mipmap.emoji_084, R.mipmap.emoji_085, R.mipmap.emoji_086, R.mipmap.emoji_087,
+			R.mipmap.emoji_088, R.mipmap.emoji_089, R.mipmap.emoji_090, R.mipmap.emoji_091, R.mipmap.emoji_092, R.mipmap.emoji_093,
+			R.mipmap.emoji_094, R.mipmap.emoji_095, R.mipmap.emoji_096, R.mipmap.emoji_097, R.mipmap.emoji_098, R.mipmap.emoji_099,};
 
 	/** emoji表情名称 */
 	private static String[] face_EmojiNames = { "[emoji_000]", "[emoji_001]", "[emoji_002]", "[emoji_003]", "[emoji_004]", "[emoji_005]",

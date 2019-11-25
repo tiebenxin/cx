@@ -2,6 +2,7 @@ package com.yanlong.im.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
 public class ExpressionUtil {
 
 	/** 默认大小 */
-	public static int DEFAULT_SIZE = 25;
+	public static int DEFAULT_SIZE = 20;
 
 	/**
 	 * 对spanableString进行正则判断，如果符合要求，则以表情图片代替
@@ -45,9 +46,9 @@ public class ExpressionUtil {
 			}
 			Bitmap bitmap = null;
 			if (FaceView.map_FaceEmoji.containsKey(key)) {
-//				bitmap = BitmapFactory.decodeResource(context.getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
-//				bitmap = Bitmap.createScaledBitmap(bitmap, ScreenUtil.dip2px( size), ScreenUtil.dip2px( size), true);
-				bitmap = getBitmapFromDrawable(context, Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
+				bitmap = BitmapFactory.decodeResource(context.getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
+				bitmap = Bitmap.createScaledBitmap(bitmap, dip2px( context,size), dip2px( context,size), true);
+//				bitmap = getBitmapFromDrawable(context, Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
 			}
 			if (bitmap != null) {
 				ImageSpan imageSpan = new ImageSpan(context, bitmap);
@@ -63,6 +64,11 @@ public class ExpressionUtil {
 				break;
 			}
 		}
+	}
+
+	public static int dip2px(Context context, float dpValue) {
+		final float scale = context.getResources().getDisplayMetrics().density;
+		return (int) (dpValue * scale + 0.5f);
 	}
 
 	/**

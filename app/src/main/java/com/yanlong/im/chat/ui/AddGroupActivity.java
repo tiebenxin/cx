@@ -84,6 +84,7 @@ public class AddGroupActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 taskAddGroup(gid, inviter, inviterName);
+                mBtnAddGroup.setEnabled(false);
             }
         });
     }
@@ -150,6 +151,7 @@ public class AddGroupActivity extends AppActivity {
             public void onResponse(Call<ReturnBean<GroupJoinBean>> call, Response<ReturnBean<GroupJoinBean>> response) {
                 if (response.body() == null) {
                     ToastUtil.show(AddGroupActivity.this, "加群失败");
+                    mBtnAddGroup.setEnabled(true);
                     return;
                 }
                 if (response.body().isOk()) {
@@ -164,6 +166,8 @@ public class AddGroupActivity extends AppActivity {
                         ToastUtil.show(AddGroupActivity.this, "加群成功,等待群主验证");
                     }
                     finish();
+                }else {
+                    mBtnAddGroup.setEnabled(true);
                 }
             }
         });

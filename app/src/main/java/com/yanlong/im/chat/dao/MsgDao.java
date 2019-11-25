@@ -3050,5 +3050,32 @@ public class MsgDao {
         }
     }
 
+    /*
+     * 动态获取用户群昵称
+     * */
+    public String getGroupMemberName(String gid, long uid) {
+        Realm realm = DaoUtil.open();
+        String result = "";
+        try {
+            realm.beginTransaction();
+            Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+            if (group == null) {
+                return "";
+            }
+            RealmList<MemberUser> users = group.getUsers();
+            if (users != null) {
+                MemberUser memberUser = users.where().equalTo("uid", uid).findFirst();
+                if (memberUser != null) {
+                    result = !TextUtils.isEmpty(memberUser.getMembername()) ? memberUser.getMembername() : memberUser.getName();
+                }
+            }
+            realm.commitTransaction();
+        } catch (Exception e) {
+            DaoUtil.close(realm);
+            DaoUtil.reportException(e);
+        }
+        return result;
+    }
+
 
 }
