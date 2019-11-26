@@ -805,7 +805,16 @@ public class MsgMainFragment extends Fragment {
                             showMessage(holder.txtInfo, bean.getDraft(), style);
                         } else {
 //                            holder.txtInfo.setText(info);
-                            showMessage(holder.txtInfo, info, null);
+//                            showMessage(holder.txtInfo, info, null);
+                            // 判断是否是动画表情
+                            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                            Matcher matcher = patten.matcher(info);
+                            if (matcher.find()) {
+                                info = info.substring(0, info.indexOf("["));
+                                holder.txtInfo.setText(info + " " + TYPE_FACE);
+                            } else {
+                                showMessage(holder.txtInfo, info, null);
+                            }
                         }
                         break;
                     default:
