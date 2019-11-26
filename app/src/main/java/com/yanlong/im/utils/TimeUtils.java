@@ -65,32 +65,17 @@ public class TimeUtils {
     //更新会话列表消息
     private void updateSession(MsgAllBean msgAllBean) {
         String gid = msgAllBean.getGid();
-        Long uid = msgAllBean.isMe() ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
-        Session session = msgDao.sessionGet(gid, uid);
-        EventRefreshMainMsg mainMsg = new EventRefreshMainMsg();
         if (TextUtils.isEmpty(gid)) {
+            Long uid = msgAllBean.isMe() ? msgAllBean.getTo_uid() : msgAllBean.getFrom_uid();
             MsgAllBean uidMsgAllBean = msgDao.msgGetLast4FUid(uid);
-//            mainMsg.setRefreshTop(false);
-//            mainMsg.setRefreshTag(CoreEnum.ESessionRefreshTag.SINGLE);
-//            mainMsg.setGid(gid);
-//            mainMsg.setUid(uid);
-//            mainMsg.setSession(session);
-//            mainMsg.setMsgAllBean(uidMsgAllBean);
             MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, uidMsgAllBean);
-
+            LogUtil.getLog().e("=单聊=="+CoreEnum.EChatType.PRIVATE+"==="+uid+"==="+ gid+"==="+ CoreEnum.ESessionRefreshTag.SINGLE+"==="+ uidMsgAllBean);
         } else {
             MsgAllBean gidMsgAllBean = msgDao.msgGetLast4Gid(gid);
-//            mainMsg.setRefreshTop(false);
-//            mainMsg.setRefreshTag(CoreEnum.ESessionRefreshTag.SINGLE);
-//            mainMsg.setGid(gid);
-//            mainMsg.setUid(uid);
-//            mainMsg.setSession(session);
-//            mainMsg.setMsgAllBean(gidMsgAllBean);
-//            MessageManager.getInstance().setMessageChange(true);
+            Long uid = msgAllBean.isMe() ? msgAllBean.getTo_uid() : msgAllBean.getTo_uid();
             MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.GROUP, uid, gid, CoreEnum.ESessionRefreshTag.SINGLE, gidMsgAllBean);
-
+            LogUtil.getLog().e("=群聊=="+CoreEnum.EChatType.PRIVATE+"==="+uid+"==="+ gid+"==="+ CoreEnum.ESessionRefreshTag.SINGLE+"==="+ gidMsgAllBean);
         }
-        EventBus.getDefault().post(mainMsg);
     }
 
 
