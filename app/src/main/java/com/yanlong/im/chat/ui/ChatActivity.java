@@ -432,8 +432,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         //断网后，隐藏单聊标题底部在线状态
                         if (!isGroup()) {
                             actionbar.getTxtTitleMore().setVisibility(GONE);
+
                         }
                     }
+                    onlineState = state;
                 }
             });
         }
