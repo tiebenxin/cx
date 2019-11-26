@@ -478,7 +478,7 @@ public class ChatItemView extends LinearLayout {
     }
 
     //普通消息
-    public void setData1(String msg) {
+    public void setData1(String msg,final EventPic eventPic) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
         if(spannableString.length() == PatternUtil.FACE_CUSTOMER_LENGTH){// 自定义表情
             Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
@@ -492,6 +492,7 @@ public class ChatItemView extends LinearLayout {
                     viewOt1.setVisibility(GONE);
                     imgMeCustomerFace.setImageBitmap(bitmap);
                     imgOtCustomerFace.setImageBitmap(bitmap);
+//                    eventPic.onClick();
                 }
             }else{// 普通消息
                 viewMeCustomerFace.setVisibility(GONE);

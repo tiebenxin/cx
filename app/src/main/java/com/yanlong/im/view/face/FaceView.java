@@ -159,33 +159,33 @@ public class FaceView extends RelativeLayout {
      * 动态表情ID列表
      */
     private static int[] animo_emojiIds = {R.mipmap.animation_emoti_000, R.mipmap.animation_emoti_001, R.mipmap.animation_emoti_002,
-            R.mipmap.animation_emoti_003, R.mipmap.animation_emoti_004, R.mipmap.animation_emoti_005, R.mipmap.animation_emoti_006,};
+            R.mipmap.animation_emoti_003, R.mipmap.animation_emoti_004, R.mipmap.animation_emoti_005, R.mipmap.animation_emoti_006, R.mipmap.animation_emoti_007,};
     /**
      * 动态表情名称
      */
     private static String[] animo_emojiNames = {"[animation_emoti_000]", "[animation_emoti_001]", "[animation_emoti_002]", "[animation_emoti_003]",
-            "[animation_emoti_004]", "[animation_emoti_005]", "[animation_emoti_006]",};
+            "[animation_emoti_004]", "[animation_emoti_005]", "[animation_emoti_006]","[animation_emoti_007]",};
     /**
      * 动态表情ID列表
      */
     private static int[] animo_mamonIds = {R.mipmap.animation_mamon_000, R.mipmap.animation_mamon_001, R.mipmap.animation_mamon_002,
-            R.mipmap.animation_mamon_003, R.mipmap.animation_mamon_004, R.mipmap.animation_mamon_005, R.mipmap.animation_mamon_006,};
+            R.mipmap.animation_mamon_003, R.mipmap.animation_mamon_004, R.mipmap.animation_mamon_005, R.mipmap.animation_mamon_006,R.mipmap.animation_mamon_007,};
     /**
      * 动态表情名称
      */
     private static String[] animo_mamonNames = {"[animation_mamon_000]", "[animation_mamon_001]", "[animation_mamon_002]", "[animation_mamon_003]",
-            "[animation_mamon_004]", "[animation_mamon_005]", "[animation_mamon_006]",};
+            "[animation_mamon_004]", "[animation_mamon_005]", "[animation_mamon_006]", "[animation_mamon_007]",};
 
     /**
      * 动态表情ID列表
      */
     private static int[] animo_pandaIds = {R.mipmap.animation_panda_000, R.mipmap.animation_panda_001, R.mipmap.animation_panda_002,
-            R.mipmap.animation_panda_003, R.mipmap.animation_panda_004, R.mipmap.animation_panda_005, R.mipmap.animation_panda_006,};
+            R.mipmap.animation_panda_003, R.mipmap.animation_panda_004, R.mipmap.animation_panda_005, R.mipmap.animation_panda_006,R.mipmap.animation_panda_007,};
     /**
      * 动态表情名称
      */
     private static String[] animo_pandaNames = {"[animation_panda_000]", "[animation_panda_001]", "[animation_panda_002]", "[animation_panda_003]",
-            "[animation_panda_004]", "[animation_panda_005]", "[animation_panda_006]",};
+            "[animation_panda_004]", "[animation_panda_005]", "[animation_panda_006]","[animation_panda_007]",};
 
     /**
      * 自定义表情

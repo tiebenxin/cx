@@ -177,6 +177,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -520,7 +522,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             msgListData.add(msgAllbean);
             mtListView.getListView().getAdapter().notifyItemRangeInserted(size, 1);
             // 处理发送失败时位置错乱问题
-            mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size()-1);
+            mtListView.getListView().getAdapter().notifyItemRangeChanged(size + 1, msgListData.size() - 1);
             scrollListView(true);
         } else {
             taskRefreshMessage(false);
@@ -544,14 +546,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             sendMessage(message, ChatEnum.EMessageType.TEXT);
         } else if (FaceView.face_emoji.equals(bean.getGroup())) {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
-            bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this,ExpressionUtil.DEFAULT_SIZE),
-                    ExpressionUtil.dip2px(this,ExpressionUtil.DEFAULT_SIZE), true);
+            bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE),
+                    ExpressionUtil.dip2px(this, ExpressionUtil.DEFAULT_SIZE), true);
             ImageSpan imageSpan = new ImageSpan(ChatActivity.this, bitmap);
             String str = bean.getName();
             SpannableString spannableString = new SpannableString(str);
             spannableString.setSpan(imageSpan, 0, PatternUtil.FACE_EMOJI_LENGTH, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             // 插入到光标后位置
-            editChat.getText().insert(editChat.getSelectionStart(),spannableString);
+            editChat.getText().insert(editChat.getSelectionStart(), spannableString);
         } else if (FaceView.face_custom.equals(bean.getGroup())) {
             // file_type = MessageType.TYPE_ISIMAGE;
 //            saveChat(bean.getPath(), MessageType.TYPE_ISIMAGE, TApplication.SEND_ING, "");
@@ -2208,7 +2210,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
-    //显示大图
+    /**
+     * 显示大图
+     *
+     * @param msgid
+     * @param uri
+     */
     private void showBigPic(String msgid, String uri) {
         List<LocalMedia> selectList = new ArrayList<>();
         int pos = 0;
@@ -2654,9 +2661,17 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         long minutes = (mss % (1000 * 60 * 60)) / (1000 * 60);
                         String content = msgbean.getMsgCancel().getCancelContent();
                         Integer msgType = msgbean.getMsgCancel().getCancelContentType();
+                        boolean isCustoerFace = false;
+                        if (!TextUtils.isEmpty(content) && content.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {// 自定义表情不给重新编辑
+                            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                            Matcher matcher = patten.matcher(content);
+                            if (matcher.matches()) {
+                                isCustoerFace = true;
+                            }
+                        }
                         // 是文本且小于5分钟 显示重新编辑
                         if (msgType != null && (msgType == ChatEnum.EMessageType.TEXT || msgType == ChatEnum.EMessageType.AT)
-                                && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content)) {
+                                && minutes < RELINQUISH_TIME && !TextUtils.isEmpty(content) && !isCustoerFace) {
                             onRestEdit(holder, msgbean.getMsgCancel().getNote(), content, msgbean.getTimestamp());
                         } else {
                             if (msgbean.getMsgCancel().getMsgType() == MsgNotice.MSG_TYPE_DEFAULT) {
@@ -2672,7 +2687,12 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     menus.add(new OptionMenu("复制"));
                     menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
-                    holder.viewChatItem.setData1(msgbean.getChat().getMsg());
+                    holder.viewChatItem.setData1(msgbean.getChat().getMsg(), new ChatItemView.EventPic() {
+                        @Override
+                        public void onClick(String uri) {
+
+                        }
+                    });
                     break;
                 case ChatEnum.EMessageType.STAMP:
 

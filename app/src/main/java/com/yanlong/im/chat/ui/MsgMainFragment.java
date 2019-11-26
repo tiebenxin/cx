@@ -810,14 +810,11 @@ public class MsgMainFragment extends Fragment {
                         break;
                     default:
                         // 判断是否是动画表情
-                        if (info.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {
-                            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
-                            Matcher matcher = patten.matcher(info);
-                            if (matcher.matches()) {
-                                holder.txtInfo.setText(TYPE_FACE);
-                            } else {
-                                showMessage(holder.txtInfo, info, null);
-                            }
+                        Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                        Matcher matcher = patten.matcher(info);
+                        if (matcher.find()) {
+                            info = info.substring(0, info.indexOf("["));
+                            holder.txtInfo.setText(info + " " + TYPE_FACE);
                         } else {
                             showMessage(holder.txtInfo, info, null);
                         }
