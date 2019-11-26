@@ -21,4 +21,8 @@
     <dimen name="emoji_width">20dp</dimen>
     <dimen name="emoji_height">20dp</dimen>
 
+    <dimen name="emoji_bottom_width">28dp</dimen>
+    <dimen name="emoji_bottom_height">28dp</dimen>
+    <dimen name="emoji_layout_width">50dp</dimen>
+
 </resources>

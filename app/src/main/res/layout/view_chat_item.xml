@@ -545,7 +545,21 @@
 
                     </LinearLayout>
 
+                    <!-- 自定义表情-->
+                    <LinearLayout
+                        android:id="@+id/view_ot_customer_face"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="left|center_vertical"
+                        android:visibility="gone">
+                        <ImageView
+                            android:id="@+id/img_ot_customer_face"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_centerInParent="true" />
 
+                    </LinearLayout>
                 </LinearLayout>
 
                 <com.yanlong.im.view.CountDownView
@@ -1022,6 +1036,22 @@
                                 android:textColor="@color/black"
                                 android:textIsSelectable="false"
                                 android:textSize="15sp" />
+
+                        </LinearLayout>
+
+                        <!-- 自定义表情-->
+                        <LinearLayout
+                            android:id="@+id/view_me_customer_face"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="right|center_vertical"
+                            android:visibility="gone">
+                            <ImageView
+                                android:id="@+id/img_me_customer_face"
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:layout_centerInParent="true"/>
 
                         </LinearLayout>
 

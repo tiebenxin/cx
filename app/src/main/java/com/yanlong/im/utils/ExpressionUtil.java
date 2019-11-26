@@ -12,9 +12,9 @@ import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.style.ImageSpan;
 
 import com.yanlong.im.view.face.FaceView;
+import com.yanlong.im.view.face.wight.HotelListImageSpan;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,8 +22,11 @@ import java.util.regex.Pattern;
 
 public class ExpressionUtil {
 
-	/** 默认大小 */
+	/** emoji表情默认大小 */
 	public static int DEFAULT_SIZE = 20;
+
+	/** 自定义表情默认大小 */
+	public static int DEFAULT_CUSTOMER_SIZE = 60;
 
 	/**
 	 * 对spanableString进行正则判断，如果符合要求，则以表情图片代替
@@ -51,7 +54,7 @@ public class ExpressionUtil {
 //				bitmap = getBitmapFromDrawable(context, Integer.parseInt(FaceView.map_FaceEmoji.get(key).toString()));
 			}
 			if (bitmap != null) {
-				ImageSpan imageSpan = new ImageSpan(context, bitmap);
+				HotelListImageSpan imageSpan = new HotelListImageSpan(context, bitmap);
 				// 通过图片资源id来得到bitmap，用一个ImageSpan来包装
 				int end = matcher.start() + key.length();
 				// 计算该图片名字的长度，也就是要替换的字符串的长度
@@ -130,8 +133,8 @@ public class ExpressionUtil {
 	 * updateTime 2014-3-23 下午2:47:18 updateAuthor 健兴 updateInfo
 	 * 
 	 * @param context
-	 * @param size
-	 * @param str
+	 * @param size 表情大小
+	 * @param str 表情资源id
 	 * @return
 	 */
 	public static SpannableString getExpressionString(Context context, int size, String str) {
@@ -140,6 +143,9 @@ public class ExpressionUtil {
 		try {
 			Pattern sinaPatten = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
 			dealExpression(context, size, spannableString, sinaPatten, 0);
+
+			sinaPatten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE);// 自定义表情
+			dealExpression(context, ExpressionUtil.DEFAULT_CUSTOMER_SIZE, spannableString, sinaPatten, 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -152,6 +158,9 @@ public class ExpressionUtil {
 		try {
 			Pattern sinaPatten = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
 			dealExpression(context, size, spannableString, sinaPatten, 0);
+
+			sinaPatten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE);// 自定义表情
+			dealExpression(context, ExpressionUtil.DEFAULT_CUSTOMER_SIZE, spannableString, sinaPatten, 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

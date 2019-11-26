@@ -528,7 +528,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     /**
-     * 添加表情
+     * 添加表情、发送自定义表情
      *
      * @version 1.0
      * @createTime 2013-10-22,下午2:16:54
@@ -539,7 +539,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      */
     protected void addFace(FaceBean bean) {
         if (FaceView.face_animo.equals(bean.getGroup())) {
-//            saveChat(bean.getName(), MessageType.TYPE_ISANIMO, TApplication.SEND_ING, "");
+            isSendingHypertext = false;
+            ChatMessage message = SocketData.createChatMessage(SocketData.getUUID(), bean.getName());
+            sendMessage(message, ChatEnum.EMessageType.TEXT);
         } else if (FaceView.face_emoji.equals(bean.getGroup())) {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), bean.getResId());
             bitmap = Bitmap.createScaledBitmap(bitmap, ExpressionUtil.dip2px(this,ExpressionUtil.DEFAULT_SIZE),
@@ -548,7 +550,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             String str = bean.getName();
             SpannableString spannableString = new SpannableString(str);
             spannableString.setSpan(imageSpan, 0, PatternUtil.FACE_EMOJI_LENGTH, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            editChat.append(spannableString);
+            // 插入到光标后位置
+            editChat.getText().insert(editChat.getSelectionStart(),spannableString);
         } else if (FaceView.face_custom.equals(bean.getGroup())) {
             // file_type = MessageType.TYPE_ISIMAGE;
 //            saveChat(bean.getPath(), MessageType.TYPE_ISIMAGE, TApplication.SEND_ING, "");
