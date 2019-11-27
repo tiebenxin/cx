@@ -6,39 +6,29 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
-import com.yanlong.im.chat.ui.TranslucentNavigationUtils;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.TokenBean;
-
+import com.yanlong.im.utils.ApkUtils;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AppActivity;
-
-
 import java.util.ArrayList;
 import java.util.List;
-
-import cn.jpush.android.api.JPluginPlatformInterface;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -68,6 +58,9 @@ public class SplashActivity extends AppActivity {
         //透明导航栏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
+        //外部app启动本应用本解析参数  分享到本app
+        ApkUtils.startThisApp(this);
+
         //6.27 如果已经启动则不在启动这个页面
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
             finish();
@@ -79,6 +72,7 @@ public class SplashActivity extends AppActivity {
         initView();
         initEvent();
         showPage();
+
 
     }
 

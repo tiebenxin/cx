@@ -5,9 +5,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,19 +17,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
 import com.bumptech.glide.Glide;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ui.forward.ForwardListAdapter;
-import com.yanlong.im.chat.ui.forward.MoreSessionBean;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
+import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.StringUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /***
  * 对话框
@@ -112,9 +108,9 @@ public class AlertForward {
             recyclerview.setAdapter(forwardListAdapter);
         }
 
-
         if(StringUtil.isNotNull(txt)){
-            txtMsg.setText(txt);
+            SpannableString spannableString = ExpressionUtil.getExpressionString(context, ExpressionUtil.DEFAULT_SIZE, txt);
+            txtMsg.setText(spannableString);
             txtMsg.setVisibility(View.VISIBLE);
         }else{
             txtMsg.setVisibility(View.GONE);

@@ -16,6 +16,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
+import net.cb.cb.library.manager.Constants;
 
 
 import java.util.ArrayList;
@@ -202,7 +203,7 @@ public class UserDao {
      * 所有好友
      * @return
      */
-    public List<UserInfo> friendGetAll() {
+    public List<UserInfo> friendGetAll(Boolean isNeedKefu) {
         List<UserInfo> res = null;
         Realm realm = DaoUtil.open();
         try {
@@ -213,6 +214,14 @@ public class UserDao {
             e.printStackTrace();
             DaoUtil.close(realm);
             DaoUtil.reportException(e);
+        }
+        if(res!=null&&!isNeedKefu){
+            for (int i = 0; i < res.size(); i++) {
+                if(Constants.CX888_UID==res.get(i).getUid()){
+                    res.remove(i);
+                    break;
+                }
+            }
         }
         return res;
 

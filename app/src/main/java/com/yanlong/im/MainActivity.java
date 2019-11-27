@@ -1,14 +1,11 @@
 package com.yanlong.im;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -21,11 +18,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.util.PermissionsUtil;
-import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -35,7 +31,6 @@ import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
@@ -48,9 +43,9 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
+import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
-import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.CoreEnum;
@@ -61,6 +56,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
@@ -400,6 +396,7 @@ public class MainActivity extends AppActivity {
     public void eventNetStatus(EventNetStatus event) {
         EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
         EventBus.getDefault().post(eventNetStatus);
+        System.out.println(MainActivity.class.getSimpleName() + "---" + NetWorkUtils.getLocalIpAddress(this));
     }
 
     @Override
@@ -770,13 +767,13 @@ public class MainActivity extends AppActivity {
     }
 
 
-    private void getSurvivalTimeData(){
+    private void getSurvivalTimeData() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 //查询所有阅后即焚消息加入定时器
                 List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-                if(list != null){
+                if (list != null) {
                     timeUtils.addMsgAllBeans(list);
                 }
             }
@@ -784,10 +781,10 @@ public class MainActivity extends AppActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
-    public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd){
-        if(survivalTimeAdd.msgAllBean != null){
+    public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
+        if (survivalTimeAdd.msgAllBean != null) {
             timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
-        }else if(survivalTimeAdd.list != null){
+        } else if (survivalTimeAdd.list != null) {
             timeUtils.addMsgAllBeans(survivalTimeAdd.list);
         }
     }

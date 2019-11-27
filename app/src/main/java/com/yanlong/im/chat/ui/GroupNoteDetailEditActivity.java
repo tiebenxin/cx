@@ -14,15 +14,21 @@ import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
+import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.databinding.ActivityGroupNoteDetailBinding;
 import com.yanlong.im.databinding.ActivityGroupNoteDetailEditBinding;
 import com.yanlong.im.utils.socket.SocketData;
 
+import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -112,23 +118,37 @@ public class GroupNoteDetailEditActivity extends AppActivity {
             ToastUtil.show(this, "群信息为空");
             return;
         }
-        new MsgAction().changeGroupAnnouncement(gid, announcement, masterName, new CallBack<ReturnBean>() {
+
+        AlertYesNo alertYesNo = new AlertYesNo();
+        alertYesNo.init(GroupNoteDetailEditActivity.this, "提示", "该公告会通知全部成员，是否发布？", "发布", "取消", new AlertYesNo.Event() {
             @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null) {
-                    return;
-                }
-                ToastUtil.show(getContext(), response.body().getMsg());
-                if (response.body().isOk()) {
-                    updateAndGetGroup(announcement);
-//                    createAndSaveMsg();
-                    Intent intent = new Intent();
-                    intent.putExtra(CONTENT, announcement);
-                    setResult(RESULT_OK, intent);
-                    finish();
-                }
+            public void onON() {
+
+            }
+
+            @Override
+            public void onYes() {
+                new MsgAction().changeGroupAnnouncement(gid, announcement, masterName, new CallBack<ReturnBean>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                        if (response.body() == null) {
+                            return;
+                        }
+                        ToastUtil.show(getContext(), response.body().getMsg());
+                        if (response.body().isOk()) {
+                            updateAndGetGroup(announcement);
+                            Intent intent = new Intent();
+                            intent.putExtra(CONTENT, announcement);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        }
+                    }
+                });
             }
         });
+        alertYesNo.show();
+
+
     }
 
     private void updateAndGetGroup(String note) {
@@ -145,7 +165,7 @@ public class GroupNoteDetailEditActivity extends AppActivity {
             return;
         }
         AtMessage atMessage = SocketData.
-                createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + note, ChatEnum.EAtType.ALL,null);
+                createAtMessage(SocketData.getUUID(), "@所有人 \r\n" + note, ChatEnum.EAtType.ALL, null);
         MsgAllBean bean = SocketData.createMessageBean(null, gid, ChatEnum.EMessageType.AT, ChatEnum.ESendStatus.NORMAL, -1L, atMessage);
         if (bean != null) {
             SocketData.saveMessage(bean);

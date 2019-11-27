@@ -7,11 +7,12 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <SurfaceView
             android:id="@+id/surfaceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
     </FrameLayout>
     <com.zhaoss.weixinrecorded.view.LineProgressView
         android:id="@+id/lineProgressView"
@@ -27,38 +28,31 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/basic_activity_margin2"
         android:paddingRight="@dimen/basic_activity_margin2"
-        android:layout_marginTop="49dp"
-        >
-<!--        <ImageView-->
-<!--            android:id="@+id/iv_recorded_edit"-->
-<!--            android:layout_width="17dp"-->
-<!--            android:layout_height="29dp"-->
-<!--            android:layout_marginLeft="55dp"-->
-<!--            android:background="@mipmap/activity_video_shine"/>-->
-        <ImageView
-            android:id="@+id/iv_flash_video"
-            android:layout_width="17dp"
-            android:layout_height="29dp"
+        android:layout_marginTop="39dp">
+        <RelativeLayout
+            android:id="@+id/layout_flash_video"
+            android:layout_width="wrap_content"
             android:layout_marginLeft="55dp"
-            android:background="@mipmap/activity_video_shine"/>
+            android:padding="10dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="29dp"
+                android:background="@mipmap/activity_video_shine"/>
+        </RelativeLayout>
 
-<!--        <ImageView-->
-<!--            android:id="@+id/iv_camera_mode"-->
-<!--            android:layout_width="@dimen/title_bar_hei"-->
-<!--            android:layout_height="@dimen/title_bar_hei"-->
-<!--            android:layout_alignParentRight="true"-->
-<!--            android:padding="@dimen/basic_activity_margin2"-->
-<!--            android:src="@mipmap/video_camera"/>-->
-
-        <ImageView
-            android:id="@+id/iv_camera_mode"
-            android:layout_width="30dp"
-            android:layout_height="24dp"
-            android:layout_alignParentRight="true"
+        <RelativeLayout
+            android:id="@+id/layout_camera_mode"
+            android:layout_width="wrap_content"
             android:layout_marginRight="45dp"
-            android:padding="@dimen/basic_activity_margin2"
-            android:background="@mipmap/activity_video_swich"/>
-
+            android:layout_alignParentRight="true"
+            android:padding="10dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="24dp"
+                android:background="@mipmap/activity_video_swich"/>
+        </RelativeLayout>
     </RelativeLayout>
 
     <RelativeLayout

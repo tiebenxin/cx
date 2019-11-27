@@ -1,7 +1,5 @@
 package com.yanlong.im.view.face.adapter;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +9,8 @@ import android.widget.ImageView;
 
 import com.yanlong.im.R;
 import com.yanlong.im.view.face.bean.FaceBean;
+
+import java.util.ArrayList;
 
 /**
  * 表情列表适配器

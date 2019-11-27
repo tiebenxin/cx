@@ -2,6 +2,8 @@ package com.yanlong.im.chat.ui.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -52,9 +54,11 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.view.CountDownView;
+import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -62,8 +66,12 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import me.kareluo.ui.OptionMenu;
 
 public class ChatItemView extends LinearLayout {
     private final int DEFAULT_W = 120;
@@ -158,6 +166,10 @@ public class ChatItemView extends LinearLayout {
 
     private LinearLayout viewMeVoiceVideo;
     private LinearLayout viewOtVoiceVideo;
+    private LinearLayout viewMeCustomerFace;
+    private LinearLayout viewOtCustomerFace;
+    private ImageView imgMeCustomerFace;
+    private ImageView imgOtCustomerFace;
     private TextView txtMeVoiceVideo;
     private TextView txtOtVoiceVideo;
     private LinearLayout viewRead;
@@ -167,6 +179,18 @@ public class ChatItemView extends LinearLayout {
     private CountDownView viewMeSurvivalTime;
 
     private int mHour, mMin, mSecond;
+
+    //游戏分享
+    private View viewOtGameShare;
+    private View viewMeGameShare;
+    private TextView tvOtGameTitle;
+    private TextView tvOtGameInfo;
+    private ImageView ivOtGameIcon;
+    private ImageView ivOtAppIcon;
+    private TextView tvMeGameTitle;
+    private TextView tvMeGameInfo;
+    private ImageView ivMeGameIcon;
+    private ImageView ivMeAppIcon;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -262,6 +286,11 @@ public class ChatItemView extends LinearLayout {
         viewOtVoiceVideo = rootView.findViewById(R.id.view_ot_voice_video);
         txtMeVoiceVideo = rootView.findViewById(R.id.txt_me_voice_video);
         txtOtVoiceVideo = rootView.findViewById(R.id.txt_ot_voice_video);
+        viewMeCustomerFace = rootView.findViewById(R.id.view_me_customer_face);
+        viewOtCustomerFace = rootView.findViewById(R.id.view_ot_customer_face);
+        imgMeCustomerFace = rootView.findViewById(R.id.img_me_customer_face);
+        imgOtCustomerFace = rootView.findViewById(R.id.img_ot_customer_face);
+
         //阅后即焚
         viewReadDestroy = rootView.findViewById(R.id.view_read_destroy);
         txtReadDestroy = rootView.findViewById(R.id.txt_read_destroy);
@@ -272,6 +301,20 @@ public class ChatItemView extends LinearLayout {
         viewRead = rootView.findViewById(R.id.view_read);
         tvRead = rootView.findViewById(R.id.tv_read);
         tvReadTime = rootView.findViewById(R.id.tv_read_time);
+
+        //游戏分享
+        viewOtGameShare = rootView.findViewById(R.id.view_ot_game_share);
+        tvOtGameTitle = rootView.findViewById(R.id.tv_ot_game_title);
+        tvOtGameInfo = rootView.findViewById(R.id.tv_ot_game_info);
+        ivOtGameIcon = rootView.findViewById(R.id.iv_ot_game_icon);
+        ivOtAppIcon = rootView.findViewById(R.id.iv_ot_app_icon);
+
+        viewMeGameShare = rootView.findViewById(R.id.view_me_game_share);
+        tvMeGameTitle = rootView.findViewById(R.id.tv_me_game_title);
+        tvMeGameInfo = rootView.findViewById(R.id.tv_me_game_info);
+        ivMeGameIcon = rootView.findViewById(R.id.iv_me_game_icon);
+        ivMeAppIcon = rootView.findViewById(R.id.iv_me_app_icon);
+
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -346,6 +389,10 @@ public class ChatItemView extends LinearLayout {
         img_ot_4_play.setVisibility(View.GONE);
         viewMeVoiceVideo.setVisibility(GONE);
         viewOtVoiceVideo.setVisibility(GONE);
+        viewMeCustomerFace.setVisibility(GONE);
+        viewOtCustomerFace.setVisibility(GONE);
+        viewMeGameShare.setVisibility(GONE);
+        viewOtGameShare.setVisibility(GONE);
         switch (type) {
             case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告
@@ -461,22 +508,65 @@ public class ChatItemView extends LinearLayout {
             imgBroadcast.setImageResource(rid);
     }
 
-    //普通消息
-    public void setData1(String msg) {
+    /**
+     * 普通消息
+     * @param msg
+     * @param menus
+     */
+    public void setData1(String msg,List<OptionMenu> menus) {
+        SpannableString spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
+        if (spannableString.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {// 自定义表情
+            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+            Matcher matcher = patten.matcher(spannableString);
+            if (matcher.matches()) {
+                if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(msg) != null) {
+                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString()));
+                    if (bitmap != null) {
+                        viewMeCustomerFace.setVisibility(VISIBLE);
+                        viewOtCustomerFace.setVisibility(VISIBLE);
+                        viewMe1.setVisibility(GONE);
+                        viewOt1.setVisibility(GONE);
+                        imgMeCustomerFace.setImageBitmap(bitmap);
+                        imgOtCustomerFace.setImageBitmap(bitmap);
+                    }
+                }
+                menus.add(new OptionMenu("转发"));
+                menus.add(new OptionMenu("删除"));
+            } else {// 普通消息
+                showCommonMessage(spannableString,menus);
+            }
+        } else {// 普通消息
+            showCommonMessage(spannableString,menus);
+        }
+    }
+
+    /**
+     * 显示普通消息
+     * @param spannableString
+     * @param menus
+     */
+    private void showCommonMessage(SpannableString spannableString,List<OptionMenu> menus){
+        viewMeCustomerFace.setVisibility(GONE);
+        viewOtCustomerFace.setVisibility(GONE);
+        viewMe1.setVisibility(VISIBLE);
+        viewOt1.setVisibility(VISIBLE);
+        txtMe1.setText(spannableString);
+        txtOt1.setText(spannableString);
+        menus.add(new OptionMenu("复制"));
+        menus.add(new OptionMenu("转发"));
+        menus.add(new OptionMenu("删除"));
+    }
+
+    //AT消息
+    public void setDataAt(String msg) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
         txtMe1.setText(spannableString);
         txtOt1.setText(spannableString);
     }
 
-    //AT消息
-    public void setDataAt(String msg) {
-        txtMe1.setText(msg);
-        txtOt1.setText(msg);
-    }
-
     //已读消息
-    public void setDataRead(int sendState,long time) {
-        if (sendState!= ChatEnum.ESendStatus.NORMAL||time == 0) {
+    public void setDataRead(int sendState, long time) {
+        if (sendState != ChatEnum.ESendStatus.NORMAL || time == 0) {
             viewRead.setVisibility(GONE);
         } else {
             viewRead.setVisibility(VISIBLE);

@@ -18,8 +18,12 @@ public class PatternUtil {
 
 	/** Emoji表情正则表达式 */
 	public static final String PATTERN_FACE_EMOJI = "\\[emoji_[0-9]{3}\\]";
+	/** 自定义表情正则表达式 */
+	public static final String PATTERN_FACE_CUSTOMER = "\\[animation_[a-z]{5}_[0-9]{3}\\]";
 	/** Emoji表情名字长度 */
 	public static final int FACE_EMOJI_LENGTH = 11;
+	/** 自定义表情名字长度 */
+	public static final int FACE_CUSTOMER_LENGTH = 21;
 
 	/**
 	 * 正则校验手机号码

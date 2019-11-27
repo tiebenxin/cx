@@ -58,6 +58,15 @@ public class GroupCreateActivity extends AppActivity {
     private String select_uid;
     private List<UserInfo> listDataTop = new ArrayList<>();
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_create);
+        findViews();
+        initEvent();
+        initData();
+    }
+
 
     //自动寻找控件
     private void findViews() {
@@ -117,15 +126,6 @@ public class GroupCreateActivity extends AppActivity {
         topListView.setLayoutManager(linearLayoutManager);
         topListView.setAdapter(new RecyclerViewTopAdapter());
 
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_create);
-        findViews();
-        initEvent();
-        initData();
     }
 
     private void initData() {
@@ -313,7 +313,7 @@ public class GroupCreateActivity extends AppActivity {
 
     private void taskListData() {
 
-        listData = userDao.friendGetAll();
+        listData = userDao.friendGetAll(false);
         // 升序
         Collections.sort(listData, new Comparator<UserInfo>() {
             @Override

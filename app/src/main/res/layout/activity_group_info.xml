@@ -375,7 +375,9 @@
             </LinearLayout>
 
 
-            <LinearLayout style="@style/app_layout_list2">
+            <LinearLayout
+                style="@style/app_layout_list2"
+                android:background="@color/white">
 
                 <LinearLayout
                     android:id="@+id/view_destroy_time"
@@ -400,16 +402,16 @@
                         android:layout_height="wrap_content"
                         android:src="@mipmap/ic_btn_goto" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="@dimen/app_margin_main"
+                    android:paddingRight="@dimen/app_margin_main"
+                    android:text="如果设置该选项,该聊天里面发送和接受消息将在阅读后指定时间内消失" />
+
             </LinearLayout>
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:paddingLeft="@dimen/app_margin_main"
-                android:paddingRight="@dimen/app_margin_main"
-                android:text="如果设置该选项,该聊天里面发送和接受消息将在阅读后指定时间内消失" />
 
             <LinearLayout style="@style/app_layout_list2">
 

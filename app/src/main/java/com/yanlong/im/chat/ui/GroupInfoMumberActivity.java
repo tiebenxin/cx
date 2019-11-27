@@ -55,6 +55,22 @@ public class GroupInfoMumberActivity extends AppActivity {
      */
     private boolean isSearchMode = false;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_info_number);
+        findViews();
+        initEvent();
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initEvent();
+    }
+
+
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -116,20 +132,7 @@ public class GroupInfoMumberActivity extends AppActivity {
 
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_info_number);
-        findViews();
-        initEvent();
-    }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        initEvent();
-    }
 
     private void initData() {
         //顶部处理
@@ -173,6 +176,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, gid)
+                                .putExtra(UserInfoActivity.MUC_NICK, number.getMembername())
 
                         );
                     }
@@ -274,7 +278,7 @@ public class GroupInfoMumberActivity extends AppActivity {
      * @return
      */
     private List<UserInfo> taskGetFriends() {
-        List<UserInfo> userInfos = userDao.friendGetAll();
+        List<UserInfo> userInfos = userDao.friendGetAll(false);
         userInfos = userInfos == null ? new ArrayList() : userInfos;
 
         return userInfos;
@@ -352,7 +356,7 @@ public class GroupInfoMumberActivity extends AppActivity {
         for (UserInfo a : friendsUser) {
             boolean isEx = false;
             for (MemberUser u : userInfos) {
-                if (u.getUid()== a.getUid().longValue()) {
+                if (u.getUid() == a.getUid().longValue()) {
                     isEx = true;
                 }
             }

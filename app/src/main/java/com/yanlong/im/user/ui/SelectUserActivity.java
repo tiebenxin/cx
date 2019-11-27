@@ -38,6 +38,15 @@ public class SelectUserActivity extends AppActivity {
     private net.cb.cb.library.view.MultiListView mtListView;
     private PySortView viewType;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_select_user);
+        findViews();
+        initEvent();
+        initData();
+    }
+
     //自动寻找控件
     private void findViews() {
         headView = findViewById(R.id.headView);
@@ -72,14 +81,7 @@ public class SelectUserActivity extends AppActivity {
         viewType.setListView(mtListView.getListView());
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_user);
-        findViews();
-        initEvent();
-        initData();
-    }
+
 
     private void initData() {
         taskListData();
@@ -189,7 +191,7 @@ public class SelectUserActivity extends AppActivity {
     private List<UserInfo> tempData = new ArrayList<>();
 
     private void taskListData() {
-        listData = userDao.friendGetAll();
+        listData = userDao.friendGetAll(true);
         // 升序
         Collections.sort(listData,new Comparator<UserInfo>() {
             @Override
