@@ -11,7 +11,6 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.yanlong.im.R;
-import com.yanlong.im.pay.ui.RedpacketRecordActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.IdCardBean;
 

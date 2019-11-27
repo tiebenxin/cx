@@ -1,4 +1,4 @@
-package com.hm.cxpay;
+package com.hm.cxpay.ui;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.hm.cxpay.R;
 
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;

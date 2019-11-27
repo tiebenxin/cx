@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">cxpay</string>
+    <string name="my_red_envelope">我的红包</string>
+    <string name="account_info">账号信息</string>
+    <string name="record_of_transaction">交易记录</string>
+    <string name="settings_of_bank">银行卡设置</string>
+    <string name="settings_of_psw">密码设置</string>
 </resources>

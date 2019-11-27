@@ -1,4 +1,4 @@
-package com.hm.cxpay;
+package com.hm.cxpay.ui;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,7 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.yanlong.im.R;
+
+import com.hm.cxpay.R;
 
 import net.cb.cb.library.view.MultiListView;
 

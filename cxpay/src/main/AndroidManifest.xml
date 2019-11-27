@@ -1,2 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hm.cxpay" />
+    package="com.hm.cxpay" >
+
+    <application>
+        <activity android:name=".ui.LooseChangeActivity" />
+    </application>
+</manifest>

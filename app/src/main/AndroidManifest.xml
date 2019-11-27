@@ -398,7 +398,7 @@
 
         <!--红包记录-->
         <activity
-            android:name="com.hm.cxpay.RedpacketRecordActivity"
+            android:name="com.hm.cxpay.ui.RedpacketRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
