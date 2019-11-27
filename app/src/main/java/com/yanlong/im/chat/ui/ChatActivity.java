@@ -4484,7 +4484,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
             LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
-        LogUtil.getLog().e("=1=msgbean.toString===2=="+msgbean.toString());
+//        LogUtil.getLog().e("=1=msgbean.toString===2=="+msgbean.toString());
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
@@ -4499,7 +4499,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
             LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
-        LogUtil.getLog().e("=1=msgbean.toString===3=="+msgbean.toString());
+//        LogUtil.getLog().e("=1=msgbean.toString===3=="+msgbean.toString());
     }
 
 
