@@ -252,6 +252,7 @@ public class UpdateManage {
 
         @Override
         public void fail(String message) {
+            asd
             handler.sendEmptyMessage(EROE);
         }
 
