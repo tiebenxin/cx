@@ -65,6 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_gravity="center"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:text="如需联系在线客服，请添加客服常信号。" />
 
         <LinearLayout
