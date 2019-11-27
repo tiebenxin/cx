@@ -21,45 +21,72 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
             android:padding="5dp" />
 
         <RadioGroup
             android:id="@+id/view_face_select"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:layout_height="45dp"
+            android:background="@color/white"
+            android:visibility="visible"
             android:orientation="horizontal" >
 
-            <RadioButton
+            <com.yanlong.im.view.CustomRadioButton
                 android:id="@+id/face_emoji"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
                 android:button="@null"
+                android:checked="true"
+                android:background="@drawable/rb_face_selector"
                 android:gravity="center"
-                android:padding="5dp"
-                android:text="@string/view_emoji" />"
+                android:drawableStart="@mipmap/img_chat_face" />
 
-            <RadioButton
+            <com.yanlong.im.view.CustomRadioButton
                 android:id="@+id/animo_emoji"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
                 android:button="@null"
                 android:gravity="center"
-                android:padding="5dp"
-                android:text="@string/view_animo" />
+                android:visibility="gone"
+                android:background="@drawable/rb_face_selector"
+                android:drawableStart="@mipmap/img_chat_time" />
 
-            <RadioButton
+            <com.yanlong.im.view.CustomRadioButton
                 android:id="@+id/custom_emoji"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
                 android:button="@null"
                 android:gravity="center"
-                android:padding="5dp"
-                android:text="@string/view_custom" />
+                android:visibility="gone"
+                android:background="@drawable/rb_face_selector"
+                android:drawableStart="@mipmap/img_chat_collection" />
+
+            <com.yanlong.im.view.CustomRadioButton
+                android:id="@+id/cb_face_pig"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:button="@null"
+                android:gravity="center"
+                android:background="@drawable/rb_face_selector"
+                android:drawableStart="@mipmap/img_chat_pig" />
+
+            <com.yanlong.im.view.CustomRadioButton
+                android:id="@+id/cb_face_mammon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:button="@null"
+                android:gravity="center"
+                android:background="@drawable/rb_face_selector"
+                android:drawableStart="@mipmap/img_chat_mammon" />
+
+            <com.yanlong.im.view.CustomRadioButton
+                android:id="@+id/cb_face_panda"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:button="@null"
+                android:gravity="center"
+                android:background="@drawable/rb_face_selector"
+                android:drawableStart="@mipmap/img_chat_panda" />
         </RadioGroup>
     </LinearLayout>
 

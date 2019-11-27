@@ -88,8 +88,9 @@ public class FaceViewPager extends RelativeLayout {
 			mGridView.setNumColumns(7);
 			imgBtn_Del.setVisibility(View.VISIBLE);
 			break;
-		case FaceAdapter.FACE_TYPE_ANIMO:
-		case FaceAdapter.FACE_TYPE_CUSTOM:
+//			case FaceAdapter.FACE_TYPE_ANIMO:
+//			case FaceAdapter.FACE_TYPE_CUSTOM:
+		default:
 			mGridView.setNumColumns(4);
 			imgBtn_Del.setVisibility(View.GONE);
 			break;
@@ -159,8 +160,9 @@ public class FaceViewPager extends RelativeLayout {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-				// TODO Auto-generated method stub
-				listener.onItemLongClick(list_FaceBeans.get(position));
+				if(listener!=null){
+					listener.onItemLongClick(list_FaceBeans.get(position));
+				}
 				return false;
 			}
 		});

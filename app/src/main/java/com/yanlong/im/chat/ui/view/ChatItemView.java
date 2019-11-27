@@ -2,6 +2,8 @@ package com.yanlong.im.chat.ui.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -52,9 +54,11 @@ import com.yanlong.im.chat.bean.VoiceMessage;
 import com.yanlong.im.chat.ui.RoundTransform;
 import com.yanlong.im.utils.ExpressionUtil;
 import com.yanlong.im.utils.GlideOptionsUtil;
+import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.view.CountDownView;
+import com.yanlong.im.view.face.FaceView;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.LogUtil;
@@ -64,6 +68,7 @@ import net.cb.cb.library.view.WebPageActivity;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatItemView extends LinearLayout {
     private final int DEFAULT_W = 120;
@@ -158,6 +163,10 @@ public class ChatItemView extends LinearLayout {
 
     private LinearLayout viewMeVoiceVideo;
     private LinearLayout viewOtVoiceVideo;
+    private LinearLayout viewMeCustomerFace;
+    private LinearLayout viewOtCustomerFace;
+    private ImageView imgMeCustomerFace;
+    private ImageView imgOtCustomerFace;
     private TextView txtMeVoiceVideo;
     private TextView txtOtVoiceVideo;
     private LinearLayout viewRead;
@@ -274,6 +283,11 @@ public class ChatItemView extends LinearLayout {
         viewOtVoiceVideo = rootView.findViewById(R.id.view_ot_voice_video);
         txtMeVoiceVideo = rootView.findViewById(R.id.txt_me_voice_video);
         txtOtVoiceVideo = rootView.findViewById(R.id.txt_ot_voice_video);
+        viewMeCustomerFace = rootView.findViewById(R.id.view_me_customer_face);
+        viewOtCustomerFace= rootView.findViewById(R.id.view_ot_customer_face);
+        imgMeCustomerFace = rootView.findViewById(R.id.img_me_customer_face);
+        imgOtCustomerFace = rootView.findViewById(R.id.img_ot_customer_face);
+
         //阅后即焚
         viewReadDestroy = rootView.findViewById(R.id.view_read_destroy);
         txtReadDestroy = rootView.findViewById(R.id.txt_read_destroy);
@@ -372,6 +386,8 @@ public class ChatItemView extends LinearLayout {
         img_ot_4_play.setVisibility(View.GONE);
         viewMeVoiceVideo.setVisibility(GONE);
         viewOtVoiceVideo.setVisibility(GONE);
+        viewMeCustomerFace.setVisibility(GONE);
+        viewOtCustomerFace.setVisibility(GONE);
         viewMeGameShare.setVisibility(GONE);
         viewOtGameShare.setVisibility(GONE);
         switch (type) {
@@ -490,16 +506,45 @@ public class ChatItemView extends LinearLayout {
     }
 
     //普通消息
-    public void setData1(String msg) {
+    public void setData1(String msg,final EventPic eventPic) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
-        txtMe1.setText(spannableString);
-        txtOt1.setText(spannableString);
+        if(spannableString.length() == PatternUtil.FACE_CUSTOMER_LENGTH){// 自定义表情
+            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+            Matcher matcher = patten.matcher(spannableString);
+            if(matcher.matches()){
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString()));
+                if(bitmap!=null){
+                    viewMeCustomerFace.setVisibility(VISIBLE);
+                    viewOtCustomerFace.setVisibility(VISIBLE);
+                    viewMe1.setVisibility(GONE);
+                    viewOt1.setVisibility(GONE);
+                    imgMeCustomerFace.setImageBitmap(bitmap);
+                    imgOtCustomerFace.setImageBitmap(bitmap);
+//                    eventPic.onClick();
+                }
+            }else{// 普通消息
+                viewMeCustomerFace.setVisibility(GONE);
+                viewOtCustomerFace.setVisibility(GONE);
+                viewMe1.setVisibility(VISIBLE);
+                viewOt1.setVisibility(VISIBLE);
+                txtMe1.setText(spannableString);
+                txtOt1.setText(spannableString);
+            }
+        }else{// 普通消息
+            viewMeCustomerFace.setVisibility(GONE);
+            viewOtCustomerFace.setVisibility(GONE);
+            viewMe1.setVisibility(VISIBLE);
+            viewOt1.setVisibility(VISIBLE);
+            txtMe1.setText(spannableString);
+            txtOt1.setText(spannableString);
+        }
     }
 
     //AT消息
     public void setDataAt(String msg) {
-        txtMe1.setText(msg);
-        txtOt1.setText(msg);
+        SpannableString spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
+        txtMe1.setText(spannableString);
+        txtOt1.setText(spannableString);
     }
 
     //已读消息
