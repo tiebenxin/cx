@@ -1,14 +1,11 @@
 package com.yanlong.im;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -21,11 +18,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.nim_lib.controll.AVChatProfile;
-import com.example.nim_lib.util.PermissionsUtil;
-import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
+import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MsgAllBean;
@@ -35,7 +31,6 @@ import com.yanlong.im.chat.eventbus.EventRefreshMainMsg;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.chat.server.ChatServer;
 import com.yanlong.im.chat.task.TaskLoadSavedGroup;
-import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.chat.ui.MsgMainFragment;
 import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
@@ -48,9 +43,9 @@ import com.yanlong.im.user.ui.FriendMainFragment;
 import com.yanlong.im.user.ui.LoginActivity;
 import com.yanlong.im.user.ui.MyFragment;
 import com.yanlong.im.user.ui.SplashActivity;
+import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
-import com.yanlong.im.utils.TimeUtils;
 import com.yanlong.im.utils.update.UpdateManage;
 
 import net.cb.cb.library.CoreEnum;

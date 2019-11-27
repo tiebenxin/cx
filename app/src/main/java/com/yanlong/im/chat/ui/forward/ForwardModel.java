@@ -45,7 +45,7 @@ public class ForwardModel implements IModel {
                 if (userDao == null) {
                     userDao = new UserDao();
                 }
-                List<UserInfo> list = userDao.friendGetAll();
+                List<UserInfo> list = userDao.friendGetAll(true);
                 e.onNext(list);
             }
         });

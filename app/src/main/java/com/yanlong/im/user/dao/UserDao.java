@@ -16,6 +16,7 @@ import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
+import net.cb.cb.library.manager.Constants;
 
 
 import java.util.ArrayList;
@@ -105,7 +106,7 @@ public class UserDao {
     /***
      * 更新群阅后即焚状态
      */
-    public void updateGroupReadDestroy(String gid, int type){
+    public void updateGroupReadDestroy(String gid, int type) {
         Realm realm = DaoUtil.open();
         try {
             realm.beginTransaction();
@@ -125,25 +126,25 @@ public class UserDao {
 
     /**
      * 获取阅后即焚状态
-     * */
+     */
     public int getReadDestroy(Long uid, String gid) {
         Realm realm = DaoUtil.open();
         int survivaltime;
         try {
             if (TextUtils.isEmpty(gid)) {
                 UserInfo userInfo = realm.where(UserInfo.class).equalTo("uid", uid).findFirst();
-                if(userInfo == null){
+                if (userInfo == null) {
                     return 0;
-                }else{
+                } else {
                     survivaltime = userInfo.getDestroy();
 
                     return survivaltime;
                 }
             } else {
                 Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-                if(group == null){
+                if (group == null) {
                     return 0;
-                }else{
+                } else {
                     survivaltime = group.getSurvivaltime();
                     return survivaltime;
                 }
@@ -151,10 +152,10 @@ public class UserDao {
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
-        }finally {
+        } finally {
             realm.close();
         }
-     }
+    }
 
 
     /***
@@ -202,11 +203,20 @@ public class UserDao {
      * 所有好友
      * @return
      */
-    public List<UserInfo> friendGetAll() {
+    public List<UserInfo> friendGetAll(Boolean isNeedKefu) {
         List<UserInfo> res = null;
         Realm realm = DaoUtil.open();
         try {
-            RealmResults<UserInfo> ls = realm.where(UserInfo.class).equalTo("uType", 2).sort("tag", Sort.ASCENDING).findAll();
+            RealmResults<UserInfo> ls;
+            if (!isNeedKefu) {
+                ls = realm.where(UserInfo.class)
+                        .beginGroup().equalTo("uType", 2).endGroup()
+                        .and()
+                        .beginGroup().notEqualTo("uid", Constants.CX888_UID).endGroup()
+                        .sort("tag", Sort.ASCENDING).findAll();
+            } else {
+                ls = realm.where(UserInfo.class).equalTo("uType", 2).sort("tag", Sort.ASCENDING).findAll();
+            }
             res = realm.copyFromRealm(ls);
             realm.close();
         } catch (Exception e) {
@@ -312,10 +322,10 @@ public class UserDao {
                         }
 
                         //如果是自己只更新在线状态
-                        if(userInfo.getUid().equals(myUserInfo.getUid())){
+                        if (userInfo.getUid().equals(myUserInfo.getUid())) {
                             myUserInfo.setActiveType(userInfo.getActiveType());
                             realm.copyToRealmOrUpdate(myUserInfo);
-                        }else{
+                        } else {
                             realm.copyToRealmOrUpdate(userInfo);
                         }
                     }
@@ -344,10 +354,10 @@ public class UserDao {
                     }
 
                     //如果是自己只更新在线状态
-                    if(userInfo.getUid().equals(myUserInfo.getUid())){
+                    if (userInfo.getUid().equals(myUserInfo.getUid())) {
                         myUserInfo.setActiveType(userInfo.getActiveType());
                         realm.insertOrUpdate(myUserInfo);
-                    }else{
+                    } else {
                         realm.insertOrUpdate(userInfo);
                     }
                 }

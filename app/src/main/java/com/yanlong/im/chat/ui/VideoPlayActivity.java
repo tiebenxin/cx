@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -107,7 +106,6 @@ public class VideoPlayActivity extends AppActivity implements View.OnClickListen
         msgAllBean = (String) getIntent().getExtras().get("videomsg");
         msg_id = getIntent().getExtras().getString("msg_id");
         bgUrl = getIntent().getExtras().getString("bg_url");
-        Log.i("1212", mPath);
         initView();
         initEvent();
         Animation rotateAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.anim_circle_rotate);

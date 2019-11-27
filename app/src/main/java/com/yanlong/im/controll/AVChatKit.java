@@ -167,7 +167,11 @@ public class AVChatKit {
                         intent.putExtra(Preferences.AVCHATDATA, data);
                         if (userInfo != null) {
                             intent.putExtra(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
-                            intent.putExtra(Preferences.USER_NAME, userInfo.getName());
+                            if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                                intent.putExtra(Preferences.USER_NAME, userInfo.getMkName());
+                            } else {
+                                intent.putExtra(Preferences.USER_NAME, userInfo.getName());
+                            }
                         }
                         if (!TextUtils.isEmpty(extra)) {
                             try {

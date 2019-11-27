@@ -810,7 +810,13 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         } else if (operationType == AVChatExitCode.REJECT) {
             event.txt = "对方已拒绝";
         } else if (operationType == AVChatExitCode.HANGUP) {
-            event.txt = "聊天时长 " + txtVideoTime.getText().toString();
+            // 小于1秒挂断的情况处理
+            if (TextUtils.isEmpty(txtVideoTime.getText().toString())) {
+                txtVideoTime.setText("00:01");
+                event.txt = "聊天时长 00:01";
+            } else {
+                event.txt = "聊天时长 " + txtVideoTime.getText().toString();
+            }
         }
         event.toGid = toGid;
         event.toUId = toUId;
