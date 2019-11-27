@@ -28,7 +28,7 @@ public class LooseChangeActivity extends BasePayActivity {
         ui = DataBindingUtil.setContentView(this, R.layout.activity_loose_change);
         setContentView(R.layout.activity_loose_change);
         initToolBar(ui.viewTitleBar, true);
-        ui.viewTitleBar.setTitleText("我的钱包");
+        ui.viewTitleBar.setTitleText("零钱");
         initView();
         initEvent();
     }
