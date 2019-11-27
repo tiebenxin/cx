@@ -173,6 +173,7 @@ public class GroupInfoMumberActivity extends AppActivity {
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, gid)
+                                .putExtra(UserInfoActivity.MUC_NICK, number.getMembername())
 
                         );
                     }
@@ -352,7 +353,7 @@ public class GroupInfoMumberActivity extends AppActivity {
         for (UserInfo a : friendsUser) {
             boolean isEx = false;
             for (MemberUser u : userInfos) {
-                if (u.getUid()== a.getUid().longValue()) {
+                if (u.getUid() == a.getUid().longValue()) {
                     isEx = true;
                 }
             }

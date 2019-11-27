@@ -168,6 +168,18 @@ public class ChatItemView extends LinearLayout {
 
     private int mHour, mMin, mSecond;
 
+    //游戏分享
+    private View viewOtGameShare;
+    private View viewMeGameShare;
+    private TextView tvOtGameTitle;
+    private TextView tvOtGameInfo;
+    private ImageView ivOtGameIcon;
+    private ImageView ivOtAppIcon;
+    private TextView tvMeGameTitle;
+    private TextView tvMeGameInfo;
+    private ImageView ivMeGameIcon;
+    private ImageView ivMeAppIcon;
+
     //自动寻找控件
     private void findViews(View rootView) {
 
@@ -272,6 +284,20 @@ public class ChatItemView extends LinearLayout {
         viewRead = rootView.findViewById(R.id.view_read);
         tvRead = rootView.findViewById(R.id.tv_read);
         tvReadTime = rootView.findViewById(R.id.tv_read_time);
+
+        //游戏分享
+        viewOtGameShare = rootView.findViewById(R.id.view_ot_game_share);
+        tvOtGameTitle = rootView.findViewById(R.id.tv_ot_game_title);
+        tvOtGameInfo = rootView.findViewById(R.id.tv_ot_game_info);
+        ivOtGameIcon = rootView.findViewById(R.id.iv_ot_game_icon);
+        ivOtAppIcon = rootView.findViewById(R.id.iv_ot_app_icon);
+
+        viewMeGameShare = rootView.findViewById(R.id.view_me_game_share);
+        tvMeGameTitle = rootView.findViewById(R.id.tv_me_game_title);
+        tvMeGameInfo = rootView.findViewById(R.id.tv_me_game_info);
+        ivMeGameIcon = rootView.findViewById(R.id.iv_me_game_icon);
+        ivMeAppIcon = rootView.findViewById(R.id.iv_me_app_icon);
+
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClick) {
@@ -346,6 +372,8 @@ public class ChatItemView extends LinearLayout {
         img_ot_4_play.setVisibility(View.GONE);
         viewMeVoiceVideo.setVisibility(GONE);
         viewOtVoiceVideo.setVisibility(GONE);
+        viewMeGameShare.setVisibility(GONE);
+        viewOtGameShare.setVisibility(GONE);
         switch (type) {
             case ChatEnum.EMessageType.MSG_CENCAL://撤回的消息
             case 0://公告
@@ -475,8 +503,8 @@ public class ChatItemView extends LinearLayout {
     }
 
     //已读消息
-    public void setDataRead(int sendState,long time) {
-        if (sendState!= ChatEnum.ESendStatus.NORMAL||time == 0) {
+    public void setDataRead(int sendState, long time) {
+        if (sendState != ChatEnum.ESendStatus.NORMAL || time == 0) {
             viewRead.setVisibility(GONE);
         } else {
             viewRead.setVisibility(VISIBLE);
