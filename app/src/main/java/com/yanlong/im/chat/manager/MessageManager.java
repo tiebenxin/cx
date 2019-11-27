@@ -204,7 +204,7 @@ public class MessageManager {
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
-                notifyRefreshFriend(false, wrapMessage.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
+                notifyRefreshFriend(false, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
                 break;
             case REQUEST_FRIEND://请求添加为好友
                 if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
