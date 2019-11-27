@@ -345,7 +345,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -588,7 +587,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
 
     }
-
 
 
     @Override
@@ -1340,7 +1338,11 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             EventBus.getDefault().post(event);
                             Bundle bundle = new Bundle();
                             bundle.putString(Preferences.USER_HEAD_SCULPTURE, userInfo.getHead());
-                            bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                            if (!TextUtils.isEmpty(userInfo.getMkName())) {
+                                bundle.putString(Preferences.USER_NAME, userInfo.getMkName());
+                            } else {
+                                bundle.putString(Preferences.USER_NAME, userInfo.getName());
+                            }
                             bundle.putString(Preferences.NETEASEACC_ID, userInfo.getNeteaseAccid());
                             bundle.putInt(Preferences.VOICE_TYPE, CoreEnum.VoiceType.WAIT);
                             bundle.putInt(Preferences.AVCHA_TTYPE, aVChatType);
@@ -3421,7 +3423,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             onRecall(msgbean);
         } else if ("扬声器播放".equals(value)) {
             msgDao.userSetingVoicePlayer(0);
-        }else  if ("回复".equals(value)) {
+        } else if ("回复".equals(value)) {
             onAnswer(msgbean);
         }
     }
@@ -3498,9 +3500,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
 
     //回复
-    private void onAnswer(MsgAllBean msgbean){
+    private void onAnswer(MsgAllBean msgbean) {
         LogUtil.getLog().e("===回复=====");
-        switch (msgbean.getMsg_type()){
+        switch (msgbean.getMsg_type()) {
             case ChatEnum.EMessageType.TEXT:
                 break;
             case ChatEnum.EMessageType.IMAGE:
