@@ -62,7 +62,6 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
-import com.luck.picture.lib.view.PopupSelectView;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yanlong.im.R;
@@ -143,6 +142,7 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.ICustomerItemClick;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -363,17 +363,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         initUnreadCount();
         initPopupWindow();
-
         // 只有Vip才显示视频通话
         UserInfo userInfo = UserAction.getMyInfo();
-        if (userInfo != null && !IS_VIP.equals(userInfo.getVip())) {
+        if (userInfo != null && !IS_VIP.equals(userInfo.getVip()) || toUId == Constants.CX_HELPER_UID ||
+                toUId == Constants.CX888_UID || toUId == Constants.CX999_UID) {
             viewFunc.removeView(llChatVideoCall);
         }
     }
-
-
-
-
 
     //自动寻找控件
     private void findViews() {
@@ -1680,35 +1676,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
     }
 
-    private String[] strings = new String[]{"拍照", "录制视频"};
-
-    private void showDownLoadDialog() {
-        final PopupSelectView popupSelectView = new PopupSelectView(this, strings);
-        popupSelectView.setListener(new PopupSelectView.OnClickItemListener() {
-            @Override
-            public void onItem(String string, int postsion) {
-                if (postsion == 0) {
-                    PictureSelector.create(ChatActivity.this)
-                            .openCamera(PictureMimeType.ofImage())
-                            .compress(true)
-                            .forResult(PictureConfig.REQUEST_CAMERA);
-                } else if (postsion == 1) {
-                    Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
-                    startActivityForResult(intent, VIDEO_RP);
-                } else {
-
-                }
-                popupSelectView.dismiss();
-
-            }
-        });
-        popupSelectView.showAtLocation(findViewById(R.id.ll_big_bg), Gravity.BOTTOM, 0, 0);
-
-    }
-
-
-
-
     //单聊获取已读阅后即焚消息
     private void initSurvivaltime4Uid() {
         if (!isGroup()) {
@@ -2071,7 +2038,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void FreshUserStateEvent(net.cb.cb.library.event.EventFactory.FreshUserStateEvent event) {
+    public void freshUserStateEvent(net.cb.cb.library.event.EventFactory.FreshUserStateEvent event) {
         // 只有Vip才显示视频通话
         if (event != null && !IS_VIP.equals(event.vip)) {
             viewFunc.removeView(llChatVideoCall);
@@ -2696,16 +2663,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     break;
                 case ChatEnum.EMessageType.TEXT:
-                    menus.add(new OptionMenu("复制"));
-//                    menus.add(new OptionMenu("回复"));
-                    menus.add(new OptionMenu("转发"));
-                    menus.add(new OptionMenu("删除"));
-                    holder.viewChatItem.setData1(msgbean.getChat().getMsg(), new ChatItemView.EventPic() {
-                        @Override
-                        public void onClick(String uri) {
-
-                        }
-                    });
+                    holder.viewChatItem.setData1(msgbean.getChat().getMsg(), menus);
                     break;
                 case ChatEnum.EMessageType.STAMP:
 

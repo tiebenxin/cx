@@ -10,7 +10,6 @@ import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.VideoMessage;
 import com.yanlong.im.chat.dao.MsgDao;
-import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.utils.socket.SocketData;
 
 import net.cb.cb.library.bean.EventUpImgLoadEvent;
@@ -187,7 +186,6 @@ public class UpLoadService extends Service {
                         //                String gid = getIntent().getExtras().getString("gid");
                         //                taskGroupInfoSet(gid, url, null, null);
 //                        doUpVideoPro(id,url,netBgUrl,isOriginal,toUId,toGid,time,videoMessage);
-                        Log.i("1212","url:"+url);
                         EventUpImgLoadEvent eventUpImgLoadEvent = new EventUpImgLoadEvent();
                         // upProgress.setProgress(100);
                         updateProgress(id, 100);

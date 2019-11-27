@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,9 +70,9 @@ public class RecordedActivity extends BaseActivity {
     private RecordView recordView;
     private ImageView iv_delete;
     private ImageView iv_next;
-    private ImageView iv_change_camera;
+    private RelativeLayout layout_change_camera, layout_flash_video;
     private LineProgressView lineProgressView;
-    private ImageView iv_flash_video, iv_delete_back;
+    private ImageView  iv_delete_back;
     private TextView iv_recorded_edit;
     private TextView editorTextView;
     private TextView tv_hint;
@@ -119,10 +120,10 @@ public class RecordedActivity extends BaseActivity {
         iv_delete = findViewById(R.id.iv_delete);
         iv_next = findViewById(R.id.iv_next);
         iv_recorded_edit = findViewById(R.id.iv_recorded_edit);
-        iv_change_camera = findViewById(R.id.iv_camera_mode);
+        layout_change_camera = findViewById(R.id.layout_camera_mode);
         lineProgressView = findViewById(R.id.lineProgressView);
         tv_hint = findViewById(R.id.tv_hint);
-        iv_flash_video = findViewById(R.id.iv_flash_video);
+        layout_flash_video = findViewById(R.id.layout_flash_video);
         iv_delete_back = findViewById(R.id.iv_delete_back);
         view_back = findViewById(R.id.layout_back);
 
@@ -272,6 +273,7 @@ public class RecordedActivity extends BaseActivity {
                 mLastClickTime = System.currentTimeMillis();
                 //长按录像
                 isRecordVideo.set(true);
+                view_back.setVisibility(View.INVISIBLE);
                 startRecord();
                 goneRecordLayout();
 
@@ -319,9 +321,11 @@ public class RecordedActivity extends BaseActivity {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                editorTextView = showProgressDialog();
-                mExecuteCount = mSegmentList.size() + 4;
-                finishVideo(TYPE_PREVIEW);
+                if(!isFinishing()){
+                    editorTextView = showProgressDialog();
+                    mExecuteCount = mSegmentList.size() + 4;
+                    finishVideo(TYPE_PREVIEW);
+                }
             }
         });
         iv_delete.setOnClickListener(new View.OnClickListener() {
@@ -330,29 +334,37 @@ public class RecordedActivity extends BaseActivity {
                 finish();
             }
         });
-        iv_flash_video.setOnClickListener(new View.OnClickListener() {
+        layout_flash_video.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
                 mCameraHelp.changeFlash();
                 if (mCameraHelp.isFlashOpen()) {
-//                    iv_flash_video.setImageResource(R.mipmap.video_flash_open);
+//                    layout_flash_video.setImageResource(R.mipmap.video_flash_open);
                 } else {
-//                    iv_flash_video.setImageResource(R.mipmap.video_flash_close);
+//                    layout_flash_video.setImageResource(R.mipmap.video_flash_close);
                 }
             }
         });
 
-        iv_change_camera.setOnClickListener(new View.OnClickListener() {
+        layout_change_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                    mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_FRONT, mSurfaceHolder);
-                    mRecordUtil.setRotation(270);
-                } else {
-                    mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
-                    mRecordUtil.setRotation(90);
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
                 }
-//                iv_flash_video.setImageResource(R.mipmap.video_flash_close);
+                if(mRecordUtil!=null){
+                    if (mCameraHelp.getCameraId() == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                        mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_FRONT, mSurfaceHolder);
+                        mRecordUtil.setRotation(270);
+                    } else {
+                        mCameraHelp.openCamera(mContext, Camera.CameraInfo.CAMERA_FACING_BACK, mSurfaceHolder);
+                        mRecordUtil.setRotation(90);
+                    }
+                }
+//                layout_flash_video.setImageResource(R.mipmap.video_flash_close);
             }
         });
     }
@@ -586,7 +598,7 @@ public class RecordedActivity extends BaseActivity {
         } else {
             tv_hint.setVisibility(View.GONE);
         }
-
+        view_back.setVisibility(View.VISIBLE);
         if (lineProgressView.getProgress() * MAX_VIDEO_TIME < MIN_VIDEO_TIME) {
             iv_recorded_edit.setVisibility(View.GONE);
             iv_delete_back.setVisibility(View.VISIBLE);
@@ -614,7 +626,7 @@ public class RecordedActivity extends BaseActivity {
         iv_delete.setVisibility(View.INVISIBLE);
         iv_next.setVisibility(View.INVISIBLE);
         iv_recorded_edit.setVisibility(View.INVISIBLE);
-//        iv_flash_video.setVisibility(View.VISIBLE);
+//        layout_flash_video.setVisibility(View.VISIBLE);
     }
 
     @Override

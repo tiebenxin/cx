@@ -66,9 +66,12 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.WebPageActivity;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import me.kareluo.ui.OptionMenu;
 
 public class ChatItemView extends LinearLayout {
     private final int DEFAULT_W = 120;
@@ -284,7 +287,7 @@ public class ChatItemView extends LinearLayout {
         txtMeVoiceVideo = rootView.findViewById(R.id.txt_me_voice_video);
         txtOtVoiceVideo = rootView.findViewById(R.id.txt_ot_voice_video);
         viewMeCustomerFace = rootView.findViewById(R.id.view_me_customer_face);
-        viewOtCustomerFace= rootView.findViewById(R.id.view_ot_customer_face);
+        viewOtCustomerFace = rootView.findViewById(R.id.view_ot_customer_face);
         imgMeCustomerFace = rootView.findViewById(R.id.img_me_customer_face);
         imgOtCustomerFace = rootView.findViewById(R.id.img_ot_customer_face);
 
@@ -505,39 +508,53 @@ public class ChatItemView extends LinearLayout {
             imgBroadcast.setImageResource(rid);
     }
 
-    //普通消息
-    public void setData1(String msg,final EventPic eventPic) {
+    /**
+     * 普通消息
+     * @param msg
+     * @param menus
+     */
+    public void setData1(String msg,List<OptionMenu> menus) {
         SpannableString spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
-        if(spannableString.length() == PatternUtil.FACE_CUSTOMER_LENGTH){// 自定义表情
+        if (spannableString.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {// 自定义表情
             Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
             Matcher matcher = patten.matcher(spannableString);
-            if(matcher.matches()){
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString()));
-                if(bitmap!=null){
-                    viewMeCustomerFace.setVisibility(VISIBLE);
-                    viewOtCustomerFace.setVisibility(VISIBLE);
-                    viewMe1.setVisibility(GONE);
-                    viewOt1.setVisibility(GONE);
-                    imgMeCustomerFace.setImageBitmap(bitmap);
-                    imgOtCustomerFace.setImageBitmap(bitmap);
-//                    eventPic.onClick();
+            if (matcher.matches()) {
+                if (FaceView.map_FaceEmoji != null && FaceView.map_FaceEmoji.get(msg) != null) {
+                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), Integer.parseInt(FaceView.map_FaceEmoji.get(msg).toString()));
+                    if (bitmap != null) {
+                        viewMeCustomerFace.setVisibility(VISIBLE);
+                        viewOtCustomerFace.setVisibility(VISIBLE);
+                        viewMe1.setVisibility(GONE);
+                        viewOt1.setVisibility(GONE);
+                        imgMeCustomerFace.setImageBitmap(bitmap);
+                        imgOtCustomerFace.setImageBitmap(bitmap);
+                    }
                 }
-            }else{// 普通消息
-                viewMeCustomerFace.setVisibility(GONE);
-                viewOtCustomerFace.setVisibility(GONE);
-                viewMe1.setVisibility(VISIBLE);
-                viewOt1.setVisibility(VISIBLE);
-                txtMe1.setText(spannableString);
-                txtOt1.setText(spannableString);
+                menus.add(new OptionMenu("转发"));
+                menus.add(new OptionMenu("删除"));
+            } else {// 普通消息
+                showCommonMessage(spannableString,menus);
             }
-        }else{// 普通消息
-            viewMeCustomerFace.setVisibility(GONE);
-            viewOtCustomerFace.setVisibility(GONE);
-            viewMe1.setVisibility(VISIBLE);
-            viewOt1.setVisibility(VISIBLE);
-            txtMe1.setText(spannableString);
-            txtOt1.setText(spannableString);
+        } else {// 普通消息
+            showCommonMessage(spannableString,menus);
         }
+    }
+
+    /**
+     * 显示普通消息
+     * @param spannableString
+     * @param menus
+     */
+    private void showCommonMessage(SpannableString spannableString,List<OptionMenu> menus){
+        viewMeCustomerFace.setVisibility(GONE);
+        viewOtCustomerFace.setVisibility(GONE);
+        viewMe1.setVisibility(VISIBLE);
+        viewOt1.setVisibility(VISIBLE);
+        txtMe1.setText(spannableString);
+        txtOt1.setText(spannableString);
+        menus.add(new OptionMenu("复制"));
+        menus.add(new OptionMenu("转发"));
+        menus.add(new OptionMenu("删除"));
     }
 
     //AT消息
