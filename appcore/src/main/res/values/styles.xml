@@ -582,4 +582,12 @@
         <item name="android:windowExitAnimation">@anim/popup_out</item>
     </style>
 
+    <style name="FGToolbarStyleWithNoOverflow">
+        <item name="android:layout_height">?attr/actionBarSize</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/bg_action</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="popupTheme">?attr/colorPrimary</item>
+    </style>
+
 </resources>

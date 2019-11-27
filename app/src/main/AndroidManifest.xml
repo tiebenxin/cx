@@ -319,10 +319,6 @@
             android:screenOrientation="portrait" />
 
         <!--零钱-->
-        <activity
-            android:name=".pay.ui.LooseChangeActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
         <!--登录-->
         <activity
             android:name=".user.ui.LoginActivity"
@@ -402,7 +398,7 @@
 
         <!--红包记录-->
         <activity
-            android:name=".pay.ui.RedpacketRecordActivity"
+            android:name="com.hm.cxpay.RedpacketRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
