@@ -292,6 +292,119 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private int survivaltime;
     private DestroyTimeView destroyTimeView;
 
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat);
+
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        //标题栏
+        window.setStatusBarColor(getResources().getColor(R.color.blue_title));
+        //底部导航栏
+//        window.setNavigationBarColor(getResources().getColor(R.color.red_100));
+
+
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+        findViews();
+        initEvent();
+        initSurvivaltime4Uid();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        AudioPlayManager.getInstance().stopPlay();
+        if (currentPlayBean != null) {
+            updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
+        }
+        boolean hasClear = taskCleanRead(false);
+        boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
+        boolean hasChange = updateSessionDraftAndAtMessage();
+        if (hasClear || hasUpdate || hasChange) {
+            MessageManager.getInstance().setMessageChange(true);
+            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        List<MsgAllBean> list = msgDao.getMsg4SurvivalTimeAndExit(toGid, toUId);
+        EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
+        //取消监听
+        SocketUtil.getSocketUtil().removeEvent(msgEvent);
+        EventBus.getDefault().unregister(this);
+        LogUtil.getLog().e(TAG, "onDestroy");
+        super.onDestroy();
+
+    }
+
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!msgDao.isMsgLockExist(toGid, toUId)) {
+            msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
+        }
+        Log.i(TAG, "onStart");
+        initData();
+
+    }
+
+    private void initData() {
+        if (!isLoadHistory) {
+            taskRefreshMessage(false);
+        }
+        initUnreadCount();
+        initPopupWindow();
+
+        // 只有Vip才显示视频通话
+        UserInfo userInfo = UserAction.getMyInfo();
+        if (userInfo != null && !IS_VIP.equals(userInfo.getVip())) {
+            viewFunc.removeView(llChatVideoCall);
+        }
+    }
+
+
+
+
+
+    //自动寻找控件
+    private void findViews() {
+        headView = findViewById(R.id.headView);
+        actionbar = headView.getActionbar();
+        mtListView = findViewById(R.id.mtListView);
+        btnVoice = findViewById(R.id.btn_voice);
+        editChat = findViewById(R.id.edit_chat);
+        btnEmj = findViewById(R.id.btn_emj);
+        btnFunc = findViewById(R.id.btn_func);
+        viewFunc = findViewById(R.id.view_func);
+        viewPic = findViewById(R.id.view_pic);
+        viewCamera = findViewById(R.id.view_camera);
+        viewRb = findViewById(R.id.view_rb);
+        viewRbZfb = findViewById(R.id.view_rb_zfb);
+        viewAction = findViewById(R.id.view_action);
+        viewTransfer = findViewById(R.id.view_transfer);
+        viewCard = findViewById(R.id.view_card);
+        viewChatBottom = findViewById(R.id.view_chat_bottom);
+        viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
+        viewChatRobot = findViewById(R.id.view_chat_robot);
+        ll_part_chat_video = findViewById(R.id.ll_part_chat_video);
+        llChatVideoCall = findViewById(R.id.ll_chat_video_call);
+        btnSend = findViewById(R.id.btn_send);
+        txtVoice = findViewById(R.id.txt_voice);
+        tv_ban = findViewById(R.id.tv_ban);
+        viewFaceView = findViewById(R.id.chat_view_faceview);
+        setChatImageBackground();
+    }
+
+
     private boolean isGroup() {
         return StringUtil.isNotNull(toGid);
     }
@@ -480,34 +593,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     }
 
-    //自动寻找控件
-    private void findViews() {
-        headView = findViewById(R.id.headView);
-        actionbar = headView.getActionbar();
-        mtListView = findViewById(R.id.mtListView);
-        btnVoice = findViewById(R.id.btn_voice);
-        editChat = findViewById(R.id.edit_chat);
-        btnEmj = findViewById(R.id.btn_emj);
-        btnFunc = findViewById(R.id.btn_func);
-        viewFunc = findViewById(R.id.view_func);
-        viewPic = findViewById(R.id.view_pic);
-        viewCamera = findViewById(R.id.view_camera);
-        viewRb = findViewById(R.id.view_rb);
-        viewRbZfb = findViewById(R.id.view_rb_zfb);
-        viewAction = findViewById(R.id.view_action);
-        viewTransfer = findViewById(R.id.view_transfer);
-        viewCard = findViewById(R.id.view_card);
-        viewChatBottom = findViewById(R.id.view_chat_bottom);
-        viewChatBottomc = findViewById(R.id.view_chat_bottom_c);
-        viewChatRobot = findViewById(R.id.view_chat_robot);
-        ll_part_chat_video = findViewById(R.id.ll_part_chat_video);
-        llChatVideoCall = findViewById(R.id.ll_chat_video_call);
-        btnSend = findViewById(R.id.btn_send);
-        txtVoice = findViewById(R.id.txt_voice);
-        tv_ban = findViewById(R.id.tv_ban);
-        viewFaceView = findViewById(R.id.chat_view_faceview);
-        setChatImageBackground();
-    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1621,81 +1707,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     }
 
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        AudioPlayManager.getInstance().stopPlay();
-        if (currentPlayBean != null) {
-            updatePlayStatus(currentPlayBean, 0, ChatEnum.EPlayStatus.NO_PLAY);
-        }
-        boolean hasClear = taskCleanRead(false);
-        boolean hasUpdate = dao.updateMsgRead(toUId, toGid, true);
-        boolean hasChange = updateSessionDraftAndAtMessage();
-        if (hasClear || hasUpdate || hasChange) {
-            MessageManager.getInstance().setMessageChange(true);
-            MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, null);
-        }
-    }
 
-    @Override
-    protected void onDestroy() {
-
-        List<MsgAllBean> list = msgDao.getMsg4SurvivalTimeAndExit(toGid, toUId);
-        EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));
-        //取消监听
-        SocketUtil.getSocketUtil().removeEvent(msgEvent);
-        EventBus.getDefault().unregister(this);
-        LogUtil.getLog().e(TAG, "onDestroy");
-        super.onDestroy();
-
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
-
-        Window window = getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        //标题栏
-        window.setStatusBarColor(getResources().getColor(R.color.blue_title));
-        //底部导航栏
-//        window.setNavigationBarColor(getResources().getColor(R.color.red_100));
-
-
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
-        findViews();
-        initEvent();
-        initSurvivaltime4Uid();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (!msgDao.isMsgLockExist(toGid, toUId)) {
-            msgDao.insertOrUpdateMessage(SocketData.createMessageLock(toGid, toUId));
-        }
-        Log.i(TAG, "onStart");
-        initData();
-
-    }
-
-    private void initData() {
-        if (!isLoadHistory) {
-            taskRefreshMessage(false);
-        }
-        initUnreadCount();
-        initPopupWindow();
-
-        // 只有Vip才显示视频通话
-        UserInfo userInfo = UserAction.getMyInfo();
-        if (userInfo != null && !IS_VIP.equals(userInfo.getVip())) {
-            viewFunc.removeView(llChatVideoCall);
-        }
-    }
 
     //单聊获取已读阅后即焚消息
     private void initSurvivaltime4Uid() {
