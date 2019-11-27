@@ -214,7 +214,7 @@ public class MessageManager {
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
                 break;
             case REMOVE_FRIEND:
-                notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
+                notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
                 break;
             case CHANGE_GROUP_MASTER://转让群主
                 if (bean != null) {
