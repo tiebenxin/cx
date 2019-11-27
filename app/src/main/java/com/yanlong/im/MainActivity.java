@@ -61,6 +61,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
 import net.cb.cb.library.utils.CallBack;
@@ -400,6 +401,7 @@ public class MainActivity extends AppActivity {
     public void eventNetStatus(EventNetStatus event) {
         EventFactory.EventNetStatus eventNetStatus = new EventFactory.EventNetStatus(event.getStatus());
         EventBus.getDefault().post(eventNetStatus);
+        System.out.println(MainActivity.class.getSimpleName() + "---" + NetWorkUtils.getLocalIpAddress(this));
     }
 
     @Override
@@ -770,13 +772,13 @@ public class MainActivity extends AppActivity {
     }
 
 
-    private void getSurvivalTimeData(){
+    private void getSurvivalTimeData() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 //查询所有阅后即焚消息加入定时器
                 List<MsgAllBean> list = new MsgDao().getMsg4SurvivalTime();
-                if(list != null){
+                if (list != null) {
                     timeUtils.addMsgAllBeans(list);
                 }
             }
@@ -784,10 +786,10 @@ public class MainActivity extends AppActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
-    public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd){
-        if(survivalTimeAdd.msgAllBean != null){
+    public void addSurvivalTimeList(EventSurvivalTimeAdd survivalTimeAdd) {
+        if (survivalTimeAdd.msgAllBean != null) {
             timeUtils.addMsgAllBean(survivalTimeAdd.msgAllBean);
-        }else if(survivalTimeAdd.list != null){
+        } else if (survivalTimeAdd.list != null) {
             timeUtils.addMsgAllBeans(survivalTimeAdd.list);
         }
     }

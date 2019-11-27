@@ -14,6 +14,7 @@ import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -42,25 +43,18 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         if (messages != null) {
             int length = messages.size();
             taskCount = length;
-//            LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数=" + taskCount + "--当前时间-1=" + System.currentTimeMillis());
             for (int i = 0; i < length; i++) {
                 MsgBean.UniversalMessage.WrapMessage wrapMessage = messages.get(i);
-//                LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--gid=" + wrapMessage.getGid() + "--uid=" + wrapMessage.getFromUid() + "--msgId=" + wrapMessage.getMsgId());
                 boolean result = MessageManager.getInstance().dealWithMsg(wrapMessage, true, i == length - 1);//最后一条消息，发出通知声音
                 if (result) {
                     taskCount--;
-//                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--更新一次任务数 taskCount=" + taskCount + "--msgId=" + wrapMessage.getMsgId());
                 } else {
-//                    LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--更新任务数失败" + "--msgId=" + wrapMessage.getMsgId());
                 }
             }
-//            LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--总任务数=" + taskCount + "--当前时间-2=" + System.currentTimeMillis());
         }
         if (taskCount == 0) {
-//            LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理完成YES");
             return true;
         } else {
-//            LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理未完成NO");
             return false;
         }
     }
@@ -69,10 +63,8 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     protected void onPostExecute(Boolean aBoolean) {
         super.onPostExecute(aBoolean);
         if (aBoolean) {
-//            LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理pending完毕onPostExecute" + "--当前时间=" + System.currentTimeMillis());
             doPendingData();
             notifyUIRefresh();
-            LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕onPostExecute，刷新页面=" + System.currentTimeMillis());
         }
     }
 
@@ -99,12 +91,9 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
      * */
     public void updateTaskCount() {
         taskCount--;
-//        LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--异步更新一次任务数 taskCount=" + taskCount);
         if (taskCount == 0) {
-//            LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--任务批量处理pending完毕updateTaskCount" + "--当前时间=" + System.currentTimeMillis());
             doPendingData();
             notifyUIRefresh();
-            LogUtil.getLog().d("a=", TaskDealWithMsgList.class.getSimpleName() + "--任务批量更新完毕updateTaskCount，刷新页面=" + System.currentTimeMillis());
         }
     }
 
@@ -134,20 +123,6 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
     private void clearIds() {
         uids.clear();
         gids.clear();
-    }
-
-    private void addMsg(MsgAllBean bean) {
-        totalMsgList.put(bean.getMsg_id(), bean);
-    }
-
-    private void cancelMsg(String msgId) {
-//        totalMsgList.put(bean.getMsg_id(), bean);
-        MsgAllBean bean = totalMsgList.get(msgId);
-
-    }
-
-    private void clearMsgList() {
-        totalMsgList.clear();
     }
 
     private void doPendingData() {
@@ -180,13 +155,21 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
         if (msgList != null) {
             msgDao.insertOrUpdateMsgList(msgList);
         }
-        Map<String, MsgAllBean> mapCancel = MessageManager.getInstance().getPendingCancelMap();
-        if (mapCancel != null && mapCancel.size() > 0) {
-            for (Map.Entry<String, MsgAllBean> entry : mapCancel.entrySet()) {
-                MsgAllBean bean = entry.getValue();
-                msgDao.msgDel4Cancel(bean.getMsg_id(), bean.getMsgCancel().getMsgidCancel());
+
+        //有崩溃风险
+        try {
+            Map<String, MsgAllBean> mapCancel = MessageManager.getInstance().getPendingCancelMap();
+            if (mapCancel != null && mapCancel.size() > 0) {
+                Iterator iterator = mapCancel.keySet().iterator();
+                while (iterator.hasNext()) {
+                    MsgAllBean bean = (MsgAllBean) iterator.next();
+                    msgDao.msgDel4Cancel(bean.getMsg_id(), bean.getMsgCancel().getMsgidCancel());
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         MessageManager.getInstance().clearPendingList();
     }
 }
