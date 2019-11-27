@@ -2667,6 +2667,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     break;
                 case ChatEnum.EMessageType.TEXT:
                     menus.add(new OptionMenu("复制"));
+//                    menus.add(new OptionMenu("回复"));
                     menus.add(new OptionMenu("转发"));
                     menus.add(new OptionMenu("删除"));
                     holder.viewChatItem.setData1(msgbean.getChat().getMsg());
@@ -3427,6 +3428,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             onRecall(msgbean);
         } else if ("扬声器播放".equals(value)) {
             msgDao.userSetingVoicePlayer(0);
+        }else  if ("回复".equals(value)) {
+            onAnswer(msgbean);
         }
     }
 
@@ -3477,6 +3480,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
      * @param msgbean
      */
     private void onRetransmission(final MsgAllBean msgbean) {
+
         startActivity(new Intent(getContext(), MsgForwardActivity.class)
                 .putExtra(MsgForwardActivity.AGM_JSON, new Gson().toJson(msgbean)));
     }
@@ -3498,6 +3502,19 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         MsgAllBean msgAllbean = SocketData.send4CancelMsg(toUId, toGid, msgbean.getMsg_id(), msg, msgType);
         MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
     }
+
+
+    //回复
+    private void onAnswer(MsgAllBean msgbean){
+        LogUtil.getLog().e("===回复=====");
+        switch (msgbean.getMsg_type()){
+            case ChatEnum.EMessageType.TEXT:
+                break;
+            case ChatEnum.EMessageType.IMAGE:
+                break;
+        }
+    }
+
 
     /**
      * 设置不同的消息类型弹出对应气泡
@@ -4430,8 +4447,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
             msgbean.setStartTime(date);
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
-            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间1----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
+        LogUtil.getLog().e("=1=msgbean.toString===2=="+msgbean.toString());
     }
 
     public void addSurvivalTimeAndRead(MsgAllBean msgbean) {
@@ -4444,8 +4462,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
             msgbean.setStartTime(date);
             EventBus.getDefault().post(new EventSurvivalTimeAdd(msgbean, null));
-            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+            LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间2----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
         }
+        LogUtil.getLog().e("=1=msgbean.toString===3=="+msgbean.toString());
     }
 
 
@@ -4461,7 +4480,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 msgDao.setMsgEndTime((date + msgbean.getSurvival_time() * 1000), date, msgbean.getMsg_id());
                 msgbean.setEndTime(date + msgbean.getSurvival_time() * 1000);
                 msgbean.setStartTime(date);
-                LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
+                LogUtil.getLog().d("SurvivalTime", "设置阅后即焚消息时间3----> end:" + (date + msgbean.getSurvival_time() * 1000) + "---msgid:" + msgbean.getMsg_id());
             }
         }
         EventBus.getDefault().post(new EventSurvivalTimeAdd(null, list));

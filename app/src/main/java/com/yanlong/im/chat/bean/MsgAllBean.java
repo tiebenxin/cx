@@ -12,6 +12,8 @@ import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.utils.StringUtil;
 
+import java.util.Arrays;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -590,6 +592,48 @@ public class MsgAllBean extends RealmObject implements IChatModel {
             }
         }
         return false;
+    }
+
+
+    @Override
+    public String toString() {
+        return "MsgAllBean{" +
+                "msg_id='" + msg_id + '\'' +
+                ", timestamp=" + timestamp +
+                ", send_state=" + send_state +
+                ", send_data=" + Arrays.toString(send_data) +
+                ", isRead=" + isRead +
+                ", request_id='" + request_id + '\'' +
+                ", from_uid=" + from_uid +
+                ", from_nickname='" + from_nickname + '\'' +
+                ", from_avatar='" + from_avatar + '\'' +
+                ", from_group_nickname='" + from_group_nickname + '\'' +
+                ", to_uid=" + to_uid +
+                ", gid='" + gid + '\'' +
+                ", read=" + read +
+                ", msg_type=" + msg_type +
+                ", survival_time=" + survival_time +
+                ", endTime=" + endTime +
+                ", readTime=" + readTime +
+                ", startTime=" + startTime +
+                ", serverTime=" + serverTime +
+                ", chat=" + chat +
+                ", image=" + image +
+                ", videoMessage=" + videoMessage +
+                ", red_envelope=" + red_envelope +
+                ", receive_red_envelope=" + receive_red_envelope +
+                ", transfer=" + transfer +
+                ", stamp=" + stamp +
+                ", business_card=" + business_card +
+                ", msgNotice=" + msgNotice +
+                ", msgCancel=" + msgCancel +
+                ", voiceMessage=" + voiceMessage +
+                ", atMessage=" + atMessage +
+                ", assistantMessage=" + assistantMessage +
+                ", changeSurvivalTimeMessage=" + changeSurvivalTimeMessage +
+                ", p2PAuVideoMessage=" + p2PAuVideoMessage +
+                ", p2PAuVideoDialMessage=" + p2PAuVideoDialMessage +
+                '}';
     }
 }
 
