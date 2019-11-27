@@ -91,7 +91,6 @@ public class UpdateManage {
 
     public void uploadApp(String versions, final String content, final String url, boolean isEnforcement) {
         if (check(versions)) {
-            startsPoint = getFileStart();
             updateURL = url;
             dialog = new UpdateAppDialog();
             dialog.init(activity, versions, content, new UpdateAppDialog.Event() {
@@ -106,6 +105,7 @@ public class UpdateManage {
 
                 @Override
                 public void onUpdate() {
+                    startsPoint = getFileStart() > 0 ? getFileStart()-1 : getFileStart();
                     download(url, downloadListener, startsPoint, new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -149,11 +149,11 @@ public class UpdateManage {
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 //监听断网导致的超时
-                                if(!NetUtil.isNetworkConnected() && e.getMessage().contains("Connection timed out")){
-                                    handler.sendEmptyMessageDelayed(OVERTIME,7000);
-                                    return;
+                                if(e.getMessage().contains("Connection timed out")){
+                                    handler.sendEmptyMessageDelayed(OVERTIME,5000);
+                                }else {
+                                    downloadListener.loadfail(e.getMessage());
                                 }
-                                downloadListener.loadfail(e.getMessage());
                             } finally {
                                 try {
                                      if (is != null) {
@@ -352,6 +352,7 @@ public class UpdateManage {
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     if(NetUtil.isNetworkConnected()){
                                         //TODO zjy 断点续传
+                                        startsPoint = getFileStart() > 0 ? getFileStart()-1 : getFileStart();
                                         download(updateURL, downloadListener, startsPoint, new okhttp3.Callback() {
                                             @Override
                                             public void onFailure(Call call, IOException e) {
