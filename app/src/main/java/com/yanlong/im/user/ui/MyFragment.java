@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hm.cxpay.ui.LooseChangeActivity;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -177,7 +178,8 @@ public class MyFragment extends Fragment {
             public void onClick(View v) {
                 String value = SpUtil.getSpUtil().getSPValue("ServieAgreement", "");
                 if (StringUtil.isNotNull(value)) {
-                    taskWallet();
+//                    taskWallet();
+                    IntentUtil.gotoActivity(getActivity(), LooseChangeActivity.class);
                 } else {
                     IntentUtil.gotoActivity(getActivity(), ServiceAgreementActivity.class);
                 }

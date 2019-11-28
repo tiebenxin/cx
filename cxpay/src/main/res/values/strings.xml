@@ -5,4 +5,5 @@
     <string name="record_of_transaction">交易记录</string>
     <string name="settings_of_bank">银行卡设置</string>
     <string name="settings_of_psw">密码设置</string>
+    <string name="common_net_error_default">遇到错误了，请稍后再试</string>
 </resources>

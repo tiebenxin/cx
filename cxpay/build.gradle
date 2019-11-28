@@ -1,13 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.1"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.1"
 
 
     defaultConfig {
-        minSdkVersion 28
-        targetSdkVersion 29
+        minSdkVersion 22
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -30,9 +30,20 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+//    implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+//    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation project(':appcore')
+
+    // retrofit2
+//    api "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
+//    api "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofitVersion"
+//    api "com.squareup.retrofit2:adapter-rxjava2:$rootProject.ext.retrofitVersion"
+//    // okhttp
+//    api "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
+//    api "com.squareup.okhttp3:logging-interceptor:$rootProject.ext.okhttpVersion"
+//    // rxjava
+//    api "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxandroidVersion"
+//    api "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxjavaVersion"
 }

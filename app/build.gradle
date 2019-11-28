@@ -203,5 +203,6 @@ dependencies {
     implementation 'com.tencent.bugly:nativecrashreport:latest.release'
     // 网易云信音视频通话
     implementation project(':nim_lib')
+    implementation project(':cxpay')
 
 }
