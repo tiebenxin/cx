@@ -30,6 +30,7 @@ import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.Installation;
 import net.cb.cb.library.utils.LogUtil;
@@ -359,6 +360,7 @@ public class UserAction {
         token.setValidTime(validTime);
         new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).save2Json(token);
         NetIntrtceptor.headers = Headers.of("X-Access-Token", token.getAccessToken());
+        TokenManager.initToken(token.getAccessToken());
     }
 
 

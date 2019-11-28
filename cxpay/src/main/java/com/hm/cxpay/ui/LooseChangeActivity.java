@@ -8,8 +8,16 @@ import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.controller.ControllerPaySetting;
 import com.hm.cxpay.databinding.ActivityLooseChangeBinding;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.view.AppActivity;
+
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /*
  * 零钱首页
@@ -49,7 +57,7 @@ public class LooseChangeActivity extends BasePayActivity {
         viewAccountInfo.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-
+                authUser("400100192201012233", "李白");
             }
         });
         //我的银行卡
@@ -101,6 +109,23 @@ public class LooseChangeActivity extends BasePayActivity {
 
             }
         });
+    }
+
+    public void authUser(String idNum, String realName) {
+        PayHttpUtils.getInstance().authUserInfo(idNum, realName)
+                .compose(RxSchedulers.<BaseResponse>compose())
+                .compose(RxSchedulers.<BaseResponse>handleResult())
+                .subscribe(new FGObserver<BaseResponse>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse baseResponse) {
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                    }
+                });
     }
 
 }

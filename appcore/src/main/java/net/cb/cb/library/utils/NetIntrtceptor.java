@@ -1,21 +1,14 @@
 package net.cb.cb.library.utils;
 
-import android.text.TextUtils;
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
-import net.cb.cb.library.bean.EventLoginOut4Conflict;
-import net.cb.cb.library.utils.encrypt.AESEncrypt;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

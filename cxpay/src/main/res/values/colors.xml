@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="common_bg_transparent_dialog">#00ffffff</color>
+    <color name="btn_text_color">#517da2</color>
+
+</resources>
