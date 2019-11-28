@@ -44,13 +44,13 @@ import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.TimeToString;
-import net.cb.cb.library.utils.ToastUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -1358,8 +1358,9 @@ public class MessageManager {
         List<MsgAllBean> list = null;
         if (pendingMessages != null && pendingMessages.size() > 0) {
             list = new ArrayList<>();
-            for (Map.Entry<String, MsgAllBean> entry : pendingMessages.entrySet()) {
-                list.add(entry.getValue());
+            Iterator iterator = pendingMessages.keySet().iterator();
+            while (iterator.hasNext()) {
+                list.add(pendingMessages.get(iterator.next().toString()));
             }
         }
         return list;
