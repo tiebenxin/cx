@@ -178,6 +178,8 @@ public class FriendApplyAcitvity extends AppActivity {
                 holder.btnComit.setText("接受");
             }else if(bean.getStat()==2){
                 holder.btnComit.setText("已接受");
+                holder.btnComit.setTextColor(getResources().getColor(R.color.gray_300));
+                holder.btnComit.setBackgroundColor(getResources().getColor(R.color.transparent));
                 holder.btnComit.setEnabled(false);
             }
 //            else if(bean.getStat()==3){
