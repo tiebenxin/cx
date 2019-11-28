@@ -364,8 +364,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         initPopupWindow();
         // 只有Vip才显示视频通话
         UserInfo userInfo = UserAction.getMyInfo();
-        if (userInfo != null && !IS_VIP.equals(userInfo.getVip()) || toUId == Constants.CX_HELPER_UID ||
-                toUId == Constants.CX888_UID || toUId == Constants.CX999_UID) {
+        if (userInfo != null && !IS_VIP.equals(userInfo.getVip())) {
             viewFunc.removeView(llChatVideoCall);
         }
     }

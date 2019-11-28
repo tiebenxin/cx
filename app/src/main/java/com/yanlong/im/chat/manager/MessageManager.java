@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.action.MsgAction;
+import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.ChatMessage;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -38,6 +39,7 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -51,7 +53,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -207,9 +211,29 @@ public class MessageManager {
                 notifyRefreshFriend(false, wrapMessage.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
                 break;
             case REQUEST_FRIEND://请求添加为好友
-                if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
-                    msgDao.userAcceptAdd(wrapMessage.getFromUid(), wrapMessage.getRequestFriend().getContactName());
-                }
+//                if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
+                    UserAction userAction = new UserAction();
+                    userAction.friendGet4Apply(new CallBack<ReturnBean<List<ApplyBean>>>() {
+                        @Override
+                        public void onResponse(Call<ReturnBean<List<ApplyBean>>> call, Response<ReturnBean<List<ApplyBean>>> response) {
+                            if (response.body() == null || !response.body().isOk()) {
+                                return;
+                            }
+                            List<ApplyBean> applyBeanList=response.body().getData();
+                            for (int i = 0; i < applyBeanList.size(); i++) {
+                                ApplyBean applyBean=applyBeanList.get(i);
+                                applyBeanList.get(i).setAid(applyBean.getUid()+"");
+                                applyBeanList.get(i).setChatType(CoreEnum.EChatType.PRIVATE);
+                                if(!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())){
+                                    applyBeanList.get(i).setAlias(wrapMessage.getRequestFriend().getContactName());
+                                }
+                                applyBeanList.get(i).setStat(1);
+
+                                msgDao.applyFriend(applyBean);
+                            }
+                        }
+                    });
+//                }
                 msgDao.remidCount("friend_apply");
                 notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
                 break;
@@ -262,9 +286,33 @@ public class MessageManager {
                 notifyGroupChange(true);
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
+//                LogUtil.getLog().e("==wrapMessage=json="+GsonUtils.optObject(wrapMessage));
                 msgDao.remidCount("friend_apply");
                 for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
-                    msgDao.groupAcceptAdd(wrapMessage.getRequestGroup().getJoinType().getNumber(), wrapMessage.getRequestGroup().getInviter(), wrapMessage.getRequestGroup().getInviterName(), wrapMessage.getGid(), ntm.getUid(), ntm.getNickname(), ntm.getAvatar());
+
+                    ApplyBean applyBean=new ApplyBean();
+                    applyBean.setAid(wrapMessage.getGid()+ntm.getUid());
+                    applyBean.setChatType(CoreEnum.EChatType.GROUP);
+
+                    applyBean.setGid(wrapMessage.getGid());
+
+                    Realm realm = DaoUtil.open();
+                    realm.beginTransaction();
+                    Group group = realm.where(Group.class).equalTo("gid", wrapMessage.getGid()).findFirst();
+                    if (group != null) {
+                        applyBean.setGroupName(group.getName());
+                    }
+                    realm.close();
+
+                    applyBean.setJoinType(wrapMessage.getRequestGroup().getJoinType().getNumber());
+                    applyBean.setInviter(wrapMessage.getRequestGroup().getInviter());
+                    applyBean.setInviterName(wrapMessage.getRequestGroup().getInviterName());
+                    applyBean.setUid(ntm.getUid());
+                    applyBean.setNickname(ntm.getNickname());
+                    applyBean.setAvatar( ntm.getAvatar());
+                    applyBean.setStat(1);
+
+                    msgDao.applyGroup(applyBean);
                 }
                 notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);
                 break;

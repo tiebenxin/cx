@@ -13,6 +13,7 @@ import io.realm.RealmModel;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 
+// 1.建bean  继承 RealmObject 2.DaoMigration 写schema 升级updateVxx  3. DaoUtil 升级dbVer
 
 public class DaoUtil {
     private static final String TAG = "DaoUtil";
@@ -26,7 +27,7 @@ public class DaoUtil {
         // 1.dbVer的版本号+1
         // 2.DaoMigration类中migrate()处理升级之后的字段
         //-------------------------------------------
-        long dbVer = 10;
+        long dbVer = 11;
         if (AppConfig.DEBUG) {//debug版本就直接清理数据
 //            config = new RealmConfiguration.Builder()
 //                    .name(dbName + ".realm")//指定数据库的名称。如不指定默认名为default。

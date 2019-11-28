@@ -14,6 +14,7 @@ import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.manager.MessageManager;
 import com.yanlong.im.pay.action.PayAction;
 import com.yanlong.im.pay.bean.SignatureBean;
@@ -454,7 +455,7 @@ public class UserAction {
     /***
      * 申请列表
      */
-    public void friendGet4Apply(CallBack<ReturnBean<List<UserInfo>>> callback) {
+    public void friendGet4Apply(CallBack<ReturnBean<List<ApplyBean>>> callback) {
         NetUtil.getNet().exec(server.requestFriendsGet(), callback);
     }
 

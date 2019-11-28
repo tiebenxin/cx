@@ -16,7 +16,6 @@ public class GroupAccept extends RealmObject {
     //被要求人
     private Long inviter;
     private String inviterName;
-
     private Long time;
 
     public String getInviterName() {

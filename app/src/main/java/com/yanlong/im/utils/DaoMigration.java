@@ -7,6 +7,7 @@ import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
 import io.realm.RealmSchema;
 
+// 1.建bean  继承 RealmObject 2.DaoMigration 写schema 升级updateVxx  3. DaoUtil 升级dbVer
 public class DaoMigration implements RealmMigration {
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
@@ -54,6 +55,11 @@ public class DaoMigration implements RealmMigration {
                 updateV10(schema);
                 oldVersion++;
             }
+
+            if (newVersion > oldVersion && oldVersion == 10) {
+                updateV11(schema);
+                oldVersion++;
+            }
         }
     }
 
@@ -66,16 +72,6 @@ public class DaoMigration implements RealmMigration {
                 .addField("imgHeadUrl", String.class);
     }
 
-    /*
-     * 新增群头像表
-     * */
-    private void updateV4(RealmSchema schema) {
-        schema.get("MsgAllBean")
-                .addRealmObjectField("videoMessage", schema.get("VideoMessage"));
-        schema.get("VideoMessage")
-                .addField("localUrl", String.class);
-
-    }
 
     /*
      *UserInfo 新增字段  lockCloudRedEnvelope，destroy
@@ -99,6 +95,17 @@ public class DaoMigration implements RealmMigration {
                 .addField("isReadOrigin", boolean.class)
                 .addField("url", String.class);
 //                .addField("localUrl", String.class);
+    }
+
+    /*
+     * 新增群头像表
+     * */
+    private void updateV4(RealmSchema schema) {
+        schema.get("MsgAllBean")
+                .addRealmObjectField("videoMessage", schema.get("VideoMessage"));
+        schema.get("VideoMessage")
+                .addField("localUrl", String.class);
+
     }
 
     private void updateV5(RealmSchema schema) {
@@ -158,6 +165,14 @@ public class DaoMigration implements RealmMigration {
                 .addRealmObjectField("p2PAuVideoDialMessage", schema.get("P2PAuVideoDialMessage"));
     }
 
+
+    private void updateV9(RealmSchema schema) {
+        schema.get("MsgCancel")
+                .addField("cancelContent", String.class)
+                .addField("cancelContentType", Integer.class);
+    }
+
+
     //新增群阅后即焚
     private void updateV10(RealmSchema schema) {
         schema.get("Group")
@@ -182,10 +197,28 @@ public class DaoMigration implements RealmMigration {
                 .addField("friendRead", int.class);
     }
 
-    private void updateV9(RealmSchema schema) {
-        schema.get("MsgCancel")
-                .addField("cancelContent", String.class)
-                .addField("cancelContentType", Integer.class);
+
+    //
+    private void updateV11(RealmSchema schema) {
+        schema.create("ApplyBean")
+                .addField("aid", String.class, FieldAttribute.PRIMARY_KEY)
+                .addField("chatType", int.class)
+
+                .addField("uid", long.class)
+                .addField("nickname", String.class)
+                .addField("alias", String.class)
+                .addField("avatar", String.class)
+                .addField("sayHi", String.class)
+                .addField("stat", int.class)
+
+                .addField("gid", String.class)
+                .addField("groupName", String.class)
+                .addField("joinType", int.class)
+                .addField("inviter", long.class)
+                .addField("inviterName", String.class)
+                .addField("time", long.class);
+
+        schema.get("Group") .addField("merchantEntry", String.class);
     }
 
 
