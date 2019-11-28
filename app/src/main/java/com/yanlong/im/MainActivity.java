@@ -11,7 +11,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -499,15 +498,18 @@ public class MainActivity extends AppActivity {
             mBtnMinimizeVoice.close(this);
             mHandler.removeCallbacks(runnable);
             if (event != null) {
+                MsgAllBean msgAllbean = null;
                 if (event.avChatType == AVChatType.AUDIO.getValue()) {
-                    SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
+                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Audio, event.operation);
                 } else if (event.avChatType == AVChatType.VIDEO.getValue()) {
-                    SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
+                    msgAllbean = SocketData.send4VoiceOrVideo(event.toUId, event.toGid, event.txt, MsgBean.AuVideoType.Vedio, event.operation);
                 }
                 EventRefreshChat eventRefreshChat = new EventRefreshChat();
                 eventRefreshChat.isScrollBottom = true;
                 EventBus.getDefault().post(eventRefreshChat);
-//                MessageManager.getInstance().notifyRefreshMsg(isGroup() ? CoreEnum.EChatType.GROUP : CoreEnum.EChatType.PRIVATE, toUId, toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                if (msgAllbean != null) {
+                    MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, event.toUId, event.toGid, CoreEnum.ESessionRefreshTag.SINGLE, msgAllbean);
+                }
             }
         }
     }
