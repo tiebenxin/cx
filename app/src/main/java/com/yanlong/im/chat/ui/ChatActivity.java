@@ -364,9 +364,16 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         initPopupWindow();
         // 只有Vip才显示视频通话
         UserInfo userInfo = UserAction.getMyInfo();
-        if (userInfo != null && !IS_VIP.equals(userInfo.getVip())) {
+        if (userInfo != null && !IS_VIP.equals(userInfo.getVip()) || isSystemUser()) {
             viewFunc.removeView(llChatVideoCall);
         }
+    }
+
+    public boolean isSystemUser() {
+        if (toUId != null && (toUId.intValue() == Constants.CX_HELPER_UID || toUId.intValue() == Constants.CX888_UID || toUId.intValue() == Constants.CX999_UID)) {
+            return true;
+        }
+        return false;
     }
 
     //自动寻找控件
@@ -541,8 +548,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         //断网后，隐藏单聊标题底部在线状态
                         if (!isGroup()) {
                             actionbar.getTxtTitleMore().setVisibility(GONE);
+
                         }
                     }
+                    onlineState = state;
                 }
             });
         }

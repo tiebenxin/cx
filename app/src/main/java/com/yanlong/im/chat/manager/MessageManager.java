@@ -208,7 +208,7 @@ public class MessageManager {
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }
-                notifyRefreshFriend(false, wrapMessage.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
+                notifyRefreshFriend(false, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
                 break;
             case REQUEST_FRIEND://请求添加为好友
 //                if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
@@ -235,10 +235,10 @@ public class MessageManager {
                     });
 //                }
                 msgDao.remidCount("friend_apply");
-                notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
+                notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
                 break;
             case REMOVE_FRIEND:
-                notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
+                notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REMOVE_FRIEND);
                 break;
             case CHANGE_GROUP_MASTER://转让群主
                 if (bean != null) {
@@ -355,7 +355,7 @@ public class MessageManager {
                 break;
             case ACTIVE_STAT_CHANGE://在线状态改变
                 updateUserOnlineStatus(wrapMessage);
-                notifyRefreshFriend(true, wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
+                notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.UPDATE_INFO);
                 notifyOnlineChange(wrapMessage.getFromUid());
                 break;
             case CANCEL://撤销消息
@@ -413,19 +413,19 @@ public class MessageManager {
                 if (!TextUtils.isEmpty(wrapMessage.getGid())) {
                     userDao.updateGroupReadDestroy(wrapMessage.getGid(), survivalTime);
                 } else {
-                    userDao.updateReadDestroy(wrapMessage.getFromUid(), survivalTime);
+                    userDao.updateReadDestroy(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), survivalTime);
                 }
                 EventBus.getDefault().post(new ReadDestroyBean(survivalTime, wrapMessage.getGid(), wrapMessage.getFromUid()));
                 break;
             case READ://已读消息
-                msgDao.setUpdateRead(wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
+                msgDao.setUpdateRead(isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), wrapMessage.getRead().getTimestamp());
                 LogUtil.getLog().d(TAG, "已读消息:" + wrapMessage.getRead().getTimestamp());
                 break;
             case SWITCH_CHANGE: //开关变更
                 LogUtil.getLog().d(TAG, "开关变更:" + wrapMessage.getSwitchChange().getSwitchType());
                 int switchType = wrapMessage.getSwitchChange().getSwitchType().getNumber();
                 int switchValue = wrapMessage.getSwitchChange().getSwitchValue();
-                long uid = wrapMessage.getFromUid();
+                long uid = isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid();
                 UserInfo userInfo = userDao.findUserInfo(uid);
                 if (userInfo == null) {
                     break;

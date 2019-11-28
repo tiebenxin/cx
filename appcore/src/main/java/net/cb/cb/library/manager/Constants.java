@@ -7,9 +7,9 @@ package net.cb.cb.library.manager;
  */
 public class Constants {
     // 常信客服
-    public static final long CX888_UID = 100121L;
+    public static final Long CX888_UID = 100121L;
     // 常信客服
-    public static final long CX999_UID = 100303L;
+    public static final Long CX999_UID = 100303L;
     // 常信小助手
-    public static final long CX_HELPER_UID = 1;
+    public static final Long CX_HELPER_UID = 1L;
 }
