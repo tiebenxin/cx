@@ -300,7 +300,11 @@ public class MessageManager {
                     realm.beginTransaction();
                     Group group = realm.where(Group.class).equalTo("gid", wrapMessage.getGid()).findFirst();
                     if (group != null) {
-                        applyBean.setGroupName(group.getName());
+                        if(StringUtil.isNotNull(group.getName())){
+                            applyBean.setGroupName(group.getName());
+                        }else {
+                            applyBean.setGroupName(msgDao.getGroupName(group));
+                        }
                     }
                     realm.close();
 

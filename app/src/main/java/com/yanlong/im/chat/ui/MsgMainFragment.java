@@ -866,6 +866,9 @@ public class MsgMainFragment extends Fragment {
                 //系统会话
                 holder.txtName.setTextColor(getResources().getColor(R.color.blue_title));
                 holder.usertype_tv.setVisibility(View.VISIBLE);
+            }else {
+                holder.txtName.setTextColor(getResources().getColor(R.color.black));
+                holder.usertype_tv.setVisibility(View.GONE);
             }
             setUnreadCountOrDisturb(holder, bean, msginfo);
 

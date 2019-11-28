@@ -241,6 +241,10 @@ public class FriendMainFragment extends Fragment {
                     hd.txtTime.setVisibility(View.GONE);
                     hd.usertype_tv.setVisibility(View.VISIBLE);
                 } else {
+                    hd.txtName.setTextColor(getResources().getColor(R.color.black));
+                    hd.txtTime.setVisibility(View.VISIBLE);
+                    hd.usertype_tv.setVisibility(View.GONE);
+
                     if (bean.getLastonline() > 0) {
                         hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
                         hd.txtTime.setVisibility(View.VISIBLE);
