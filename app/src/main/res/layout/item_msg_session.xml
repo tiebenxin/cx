@@ -90,14 +90,38 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/txt_name"
-                            style="@style/app_txt_title_2"
+                        <LinearLayout
+                            android:layout_width="wrap_content"
                             android:layout_height="0dp"
-                            android:layout_gravity="center_vertical"
                             android:layout_weight="1"
                             android:paddingTop="8dp"
-                            android:text="xxxx" />
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/txt_name"
+                                style="@style/app_txt_title_2"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_vertical"
+                                android:layout_weight="1"
+                                android:text="xxxx" />
+
+                            <TextView
+                                android:visibility="gone"
+                                android:id="@+id/usertype_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="5dp"
+                                android:paddingTop="2dp"
+                                android:paddingBottom="2dp"
+                                android:paddingLeft="5dp"
+                                android:paddingRight="5dp"
+                                android:background="@drawable/shape_stroke_bule5"
+                                android:textSize="@dimen/font_size8"
+                                android:textColor="@color/blue_title"
+                                android:text="官方" />
+
+                        </LinearLayout>
+
 
                         <TextView
                             android:id="@+id/txt_info"

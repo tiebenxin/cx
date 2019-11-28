@@ -236,8 +236,10 @@ public class FriendMainFragment extends Fragment {
 
                 hd.txtName.setText(bean.getName4Show());
 
-                if (bean.getUid().equals(Constants.CX888_UID)) {
+                if (bean.isSystemUser()) {
+                    hd.txtName.setTextColor(getResources().getColor(R.color.blue_title));
                     hd.txtTime.setVisibility(View.GONE);
+                    hd.usertype_tv.setVisibility(View.VISIBLE);
                 } else {
                     if (bean.getLastonline() > 0) {
                         hd.txtTime.setText(TimeToString.getTimeOnline(bean.getLastonline(), bean.getActiveType(), false));
@@ -305,6 +307,7 @@ public class FriendMainFragment extends Fragment {
             private TextView txtName;
             private TextView txtTime;
             private View viewType;
+            private TextView usertype_tv;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -314,7 +317,7 @@ public class FriendMainFragment extends Fragment {
                 txtName = convertView.findViewById(R.id.txt_name);
                 txtTime = convertView.findViewById(R.id.txt_time);
                 viewType = convertView.findViewById(R.id.view_type);
-
+                usertype_tv = convertView.findViewById(R.id.usertype_tv);
             }
 
         }

@@ -25,4 +25,19 @@
     <dimen name="emoji_bottom_height">28dp</dimen>
     <dimen name="emoji_layout_width">50dp</dimen>
 
+    <dimen name="font_size8">8sp</dimen>
+    <dimen name="font_size10">10sp</dimen>
+    <dimen name="font_size12">12sp</dimen>
+    <dimen name="font_size14">14sp</dimen>
+    <dimen name="font_size16">16sp</dimen>
+    <dimen name="font_size18">18sp</dimen>
+    <dimen name="font_size20">20sp</dimen>
+
+    <dimen name="dimen_my5">5dp</dimen>
+    <dimen name="dimen_my10">10dp</dimen>
+    <dimen name="dimen_my15">15dp</dimen>
+    <dimen name="dimen_my20">20dp</dimen>
+    <dimen name="dimen_my25">25dp</dimen>
+    <dimen name="dimen_my30">30dp</dimen>
+
 </resources>

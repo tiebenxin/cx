@@ -862,6 +862,11 @@ public class MsgMainFragment extends Fragment {
 
 
             holder.txtName.setText(title);
+            if(bean.isSystemUser()){
+                //系统会话
+                holder.txtName.setTextColor(getResources().getColor(R.color.blue_title));
+                holder.usertype_tv.setVisibility(View.VISIBLE);
+            }
             setUnreadCountOrDisturb(holder, bean, msginfo);
 
             holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
@@ -969,6 +974,7 @@ public class MsgMainFragment extends Fragment {
             private TextView txtTime;
             private final ImageView iv_disturb, iv_disturb_unread;
 //            private final TextView tv_num;
+            private TextView usertype_tv;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -984,6 +990,7 @@ public class MsgMainFragment extends Fragment {
                 iv_disturb = convertView.findViewById(R.id.iv_disturb);
 //                tv_num = convertView.findViewById(R.id.tv_num);
                 iv_disturb_unread = convertView.findViewById(R.id.iv_disturb_unread);
+                usertype_tv = convertView.findViewById(R.id.usertype_tv);
             }
 
         }
