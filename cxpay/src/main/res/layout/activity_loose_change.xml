@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <data>
-
-    </data>
+<net.cb.cb.library.view.HeadView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/headView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:headview_title="零钱">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <net.cb.cb.library.view.toolbar.CXToolbar
-            android:id="@+id/viewTitleBar"
-            style="@style/FGToolbarStyleWithNoOverflow" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,7 +40,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="$ 500.00"
+                    android:text="¥ 0.00"
                     android:textColor="@color/white"
                     android:textSize="27sp"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -102,16 +98,16 @@
 
             <View style="@style/app_line" />
 
-            <!--交易记录-->
+            <!--银行卡设置-->
             <include
-                android:id="@+id/viewRecordOfTransaction"
+                android:id="@+id/viewBankSetting"
                 layout="@layout/layout_pay_main_item" />
 
             <View style="@style/app_line" />
 
-            <!--银行卡设置-->
+            <!--交易记录-->
             <include
-                android:id="@+id/viewBankSetting"
+                android:id="@+id/viewRecordOfTransaction"
                 layout="@layout/layout_pay_main_item" />
 
             <View style="@style/app_line" />
@@ -123,7 +119,7 @@
 
         </LinearLayout>
     </LinearLayout>
-</layout>
+</net.cb.cb.library.view.HeadView>
 
 
 

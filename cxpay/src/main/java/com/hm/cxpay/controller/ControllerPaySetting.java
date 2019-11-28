@@ -36,7 +36,7 @@ public class ControllerPaySetting {
     }
 
     public void init(int icon, int string, String right) {
-        ivIcon.setBackgroundResource(icon);
+        ivIcon.setImageResource(icon);
         tvTitle.setText(string);
         if (!TextUtils.isEmpty(right)) {
             tvRight.setVisibility(View.VISIBLE);
