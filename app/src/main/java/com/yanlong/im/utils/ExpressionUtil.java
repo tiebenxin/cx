@@ -23,7 +23,10 @@ import java.util.regex.Pattern;
 public class ExpressionUtil {
 
 	/** emoji表情默认大小 */
-	public static int DEFAULT_SIZE = 20;
+	public static int DEFAULT_SMALL_SIZE = 14;
+
+	/** emoji表情默认大小 */
+	public static int DEFAULT_SIZE = 18;
 
 	/** 自定义表情默认大小 */
 	public static int DEFAULT_CUSTOMER_SIZE = 60;
@@ -153,7 +156,7 @@ public class ExpressionUtil {
 		return spannableString;
 	}
 
-	public static SpannableString getExpressionString(Context context, int size, String str,SpannableString spannableString) {
+	public static SpannableString getExpressionString(Context context, int size,SpannableString spannableString) {
 		String pattern = PatternUtil.PATTERN_FACE_EMOJI; // 正则表达式，用来判断消息内是否有表情
 		try {
 			Pattern sinaPatten = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern

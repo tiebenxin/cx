@@ -4,24 +4,23 @@ package net.cb.cb.library.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.telephony.TelephonyManager;
 import android.util.Log;
-
 
 import net.cb.cb.library.AppConfig;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
-import retrofit2.CallAdapter;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.TELEPHONY_SERVICE;
 
 
 /**
@@ -187,9 +186,61 @@ public class NetUtil {
     public static boolean isNetworkConnected() {
         Context context = AppConfig.APP_CONTEXT;
         ConnectivityManager cm = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
+                .getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
         return info != null && info.isConnected();
+    }
+
+    /**
+     * 判断网络连接类型
+     * @param context
+     * @return
+     */
+    public static String getNetworkType(Context context){
+        String netWorkState = "";
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
+        ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE));
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isAvailable()){
+            if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI){
+                //网络状态为wifi
+                netWorkState = "WIFI";
+                return netWorkState;
+            } else if(networkInfo.getType() == ConnectivityManager.TYPE_MOBILE){
+                //网络状态为手机
+                //判断手机网络类型是2g , 3g, 以及4g
+                int type = telephonyManager.getNetworkType();
+                switch (type){
+                    case TelephonyManager.NETWORK_TYPE_GPRS:
+                    case TelephonyManager.NETWORK_TYPE_EDGE:
+                    case TelephonyManager.NETWORK_TYPE_CDMA:
+                    case TelephonyManager.NETWORK_TYPE_1xRTT:
+                    case TelephonyManager.NETWORK_TYPE_IDEN:
+                        netWorkState = "2G";
+                        return netWorkState;
+                    case TelephonyManager.NETWORK_TYPE_UMTS:
+                    case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                    case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                    case TelephonyManager.NETWORK_TYPE_HSDPA:
+                    case TelephonyManager.NETWORK_TYPE_HSUPA:
+                    case TelephonyManager.NETWORK_TYPE_HSPA:
+                    case TelephonyManager.NETWORK_TYPE_EVDO_B:
+                    case TelephonyManager.NETWORK_TYPE_EHRPD:
+                    case TelephonyManager.NETWORK_TYPE_HSPAP:
+                        netWorkState = "3G";
+                        return netWorkState;
+                    case TelephonyManager.NETWORK_TYPE_LTE:
+                        netWorkState = "4G";
+                        return netWorkState;
+                    case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+                    default:
+                        netWorkState = "unknown network type";
+                        return netWorkState;
+                }
+
+            }
+        }
+        return "";
     }
 
 }

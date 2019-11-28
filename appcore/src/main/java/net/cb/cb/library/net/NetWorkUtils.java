@@ -7,6 +7,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
 import net.cb.cb.library.AppConfig;
+import net.cb.cb.library.MainApplication;
 
 /**
  * @anthor Liszt
@@ -14,6 +15,50 @@ import net.cb.cb.library.AppConfig;
  * Description
  */
 public class NetWorkUtils {
+
+    /**
+     * 获取当前网络类型
+     *
+     * @return 0：没有网络   1：WIFI网络   2：WAP网络    3：NET网络
+     */
+    public static final int NETTYPE_WIFI = 0x01;
+    public static final int NETTYPE_CMWAP = 0x02;
+    public static final int NETTYPE_CMNET = 0x03;
+
+    /**
+     * (获取网络类型.)
+     * <h3>Version</h3>1.0
+     * <h3>CreateTime</h3> 2016/7/20,10:00
+     * <h3>UpdateTime</h3> 2016/7/20,10:00
+     * <h3>CreateAuthor</h3>（Geoff）
+     * <h3>UpdateAuthor</h3>
+     * <h3>UpdateInfo</h3> (此处输入修改内容,若无修改可不写.)
+     *
+     * @return
+     */
+    public static int getNetworkType() {
+        int netType = 0;
+        ConnectivityManager connectivityManager = (ConnectivityManager) MainApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo == null) {
+            return netType;
+        }
+        int nType = networkInfo.getType();
+        if (nType == ConnectivityManager.TYPE_MOBILE) {
+            String extraInfo = networkInfo.getExtraInfo();
+            if (extraInfo != null && extraInfo != "") {
+                if (extraInfo.toLowerCase().equals("cmnet")) {
+                    netType = NETTYPE_CMNET;
+                } else {
+                    netType = NETTYPE_CMWAP;
+                }
+            }
+        } else if (nType == ConnectivityManager.TYPE_WIFI) {
+            netType = NETTYPE_WIFI;
+        }
+        return netType;
+    }
+
     /***
      * 网络连接检测
      *

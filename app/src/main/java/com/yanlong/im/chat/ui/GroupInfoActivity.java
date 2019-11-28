@@ -596,7 +596,7 @@ public class GroupInfoActivity extends AppActivity {
      * @return
      */
     private List<UserInfo> taskGetFriends() {
-        List<UserInfo> userInfos = userDao.friendGetAll();
+        List<UserInfo> userInfos = userDao.friendGetAll(false);
         userInfos = userInfos == null ? new ArrayList() : userInfos;
         return userInfos;
     }

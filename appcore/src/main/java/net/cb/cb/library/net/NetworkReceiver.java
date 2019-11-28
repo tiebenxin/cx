@@ -39,9 +39,8 @@ public class NetworkReceiver extends BroadcastReceiver {
         if (!ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
             return;
         }
-        NetworkInfo networkInfo = intent
-                .getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
-        if (networkInfo != null && networkInfo.isConnected()) {
+        NetworkInfo networkInfo = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+        if (networkInfo != null && NetWorkUtils.getNetworkType() != 0) {
             updateNetStatus(CoreEnum.ENetStatus.SUCCESS_ON_NET);
             LogUtil.getLog().i("NetworkReceiver", "有网络了");
 

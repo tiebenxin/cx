@@ -920,9 +920,9 @@ public class MsgMainFragment extends Fragment {
          */
         protected void showMessage(TextView txtInfo, String message, SpannableString spannableString) {
             if (spannableString == null) {
-                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, message);
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, message);
             } else {
-                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, message, spannableString);
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE,  spannableString);
             }
             txtInfo.setText(spannableString);
         }
