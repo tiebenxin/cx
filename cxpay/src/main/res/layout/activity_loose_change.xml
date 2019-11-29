@@ -102,13 +102,6 @@
 
             <View style="@style/app_line" />
 
-            <!--交易记录-->
-            <include
-                android:id="@+id/viewRecordOfTransaction"
-                layout="@layout/layout_pay_main_item" />
-
-            <View style="@style/app_line" />
-
             <!--银行卡设置-->
             <include
                 android:id="@+id/viewBankSetting"
@@ -116,7 +109,14 @@
 
             <View style="@style/app_line" />
 
-            <!--安全设置-->
+            <!--交易记录-->
+            <include
+                android:id="@+id/viewRecordOfTransaction"
+                layout="@layout/layout_pay_main_item" />
+
+            <View style="@style/app_line" />
+
+            <!--密码管理-->
             <include
                 android:id="@+id/viewSettingOfPsw"
                 layout="@layout/layout_pay_main_item" />

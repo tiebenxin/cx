@@ -53,7 +53,7 @@ public class LooseChangeActivity extends BasePayActivity {
         });
         //账户信息 icon?
         ControllerPaySetting viewAccountInfo = new ControllerPaySetting(findViewById(R.id.viewAccountInfo));
-        viewAccountInfo.init(R.mipmap.ic_loose_change_info, R.string.account_info, "");
+        viewAccountInfo.init(R.mipmap.ic_account_info, R.string.account_info, "");
         viewAccountInfo.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
@@ -72,7 +72,7 @@ public class LooseChangeActivity extends BasePayActivity {
         });
         //交易记录
         viewRecordOfTransaction = new ControllerPaySetting(findViewById(R.id.viewRecordOfTransaction));
-        viewRecordOfTransaction.init(R.mipmap.ic_loose_change_info, R.string.record_of_transaction, "");
+        viewRecordOfTransaction.init(R.mipmap.ic_pay_record, R.string.record_of_transaction, "");
         viewRecordOfTransaction.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
@@ -81,7 +81,7 @@ public class LooseChangeActivity extends BasePayActivity {
         });
         //支付密码管理 icon?
         viewSettingOfPsw = new ControllerPaySetting(findViewById(R.id.viewSettingOfPsw));
-        viewSettingOfPsw.init(R.mipmap.ic_bank_card, R.string.settings_of_psw, "");
+        viewSettingOfPsw.init(R.mipmap.ic_psw_manage, R.string.settings_of_psw, "");
         viewSettingOfPsw.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
