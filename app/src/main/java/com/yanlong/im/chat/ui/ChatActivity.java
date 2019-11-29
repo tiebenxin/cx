@@ -114,6 +114,7 @@ import com.yanlong.im.utils.MyDiskCache;
 import com.yanlong.im.utils.MyDiskCacheUtils;
 import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
+import com.yanlong.im.utils.UserUtil;
 import com.yanlong.im.utils.audio.AudioPlayManager;
 import com.yanlong.im.utils.audio.AudioRecordManager;
 import com.yanlong.im.utils.audio.IAdioTouch;
@@ -372,10 +373,10 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     private void checkUserPower(){
         // 只有Vip才显示视频通话
         UserInfo userInfo = UserAction.getMyInfo();
-        if (userInfo != null && !IS_VIP.equals(userInfo.getVip()) || isSystemUser()) {
+        if (userInfo != null && !IS_VIP.equals(userInfo.getVip()) || UserUtil.isSystemUser(toUId)) {
             viewFunc.removeView(llChatVideoCall);
         }
-        if(isSystemUser()){
+        if(UserUtil.isSystemUser(toUId)){
             viewFunc.removeView(viewRbZfb);
             viewFunc.removeView(viewAction);
             viewFunc.removeView(viewCard);
@@ -392,17 +393,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewFunc.removeView(viewRb);
         //test 6.26
         viewFunc.removeView(viewTransfer);
-    }
-
-    /**
-     * 是否是常信客服、常信小助手
-     * @return
-     */
-    public boolean isSystemUser() {
-        if (toUId != null && (toUId.intValue() == Constants.CX_HELPER_UID || toUId.intValue() == Constants.CX888_UID || toUId.intValue() == Constants.CX999_UID)) {
-            return true;
-        }
-        return false;
     }
 
     //自动寻找控件
