@@ -7,12 +7,14 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.controller.ControllerPaySetting;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
+import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
@@ -20,7 +22,7 @@ import net.cb.cb.library.view.HeadView;
 /*
  * 零钱首页
  * */
-public class LooseChangeActivity extends AppActivity {
+public class LooseChangeActivity extends BasePayActivity {
 
     private ControllerPaySetting viewSettingOfPsw;
     private ControllerPaySetting viewRecordOfTransaction;
@@ -91,7 +93,7 @@ public class LooseChangeActivity extends AppActivity {
         viewAccountInfo.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-//                authUser("400100192201012233", "李白");
+                IntentUtil.gotoActivity(LooseChangeActivity.this, IdentificationInfoActivity.class);
             }
         });
         //我的银行卡
@@ -122,23 +124,6 @@ public class LooseChangeActivity extends AppActivity {
 
             }
         });
-    }
-
-    public void authUser(String idNum, String realName) {
-        PayHttpUtils.getInstance().authUserInfo(idNum, realName)
-                .compose(RxSchedulers.<BaseResponse>compose())
-                .compose(RxSchedulers.<BaseResponse>handleResult())
-                .subscribe(new FGObserver<BaseResponse>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse baseResponse) {
-
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
-                    }
-                });
     }
 
 }

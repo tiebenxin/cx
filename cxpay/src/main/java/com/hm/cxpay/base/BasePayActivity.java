@@ -18,11 +18,11 @@ public class BasePayActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        StatusBarUtils.with(this)
-                .setIsActionBar(false)
-                .clearActionBarShadow()
-                .setDrawable(getResources().getDrawable(R.drawable.bg_action))
-                .init();
+//        StatusBarUtils.with(this)
+//                .setIsActionBar(false)
+//                .clearActionBarShadow()
+//                .setDrawable(getResources().getDrawable(R.drawable.bg_action))
+//                .init();
     }
 
     /*

@@ -13,16 +13,16 @@ import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.hm.cxpay.R;
+import com.hm.cxpay.base.BasePayActivity;
 
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AppActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class RedpacketRecordActivity extends AppActivity {
+public class RedpacketRecordActivity extends BasePayActivity {
 
 
     private ActionbarView mActionBar;
