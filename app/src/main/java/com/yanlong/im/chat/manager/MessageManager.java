@@ -39,7 +39,6 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.event.EventFactory;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.GsonUtils;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.StringUtil;
@@ -53,7 +52,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import io.realm.Realm;
 import retrofit2.Call;
@@ -212,27 +210,27 @@ public class MessageManager {
                 break;
             case REQUEST_FRIEND://请求添加为好友
 //                if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
-                    UserAction userAction = new UserAction();
-                    userAction.friendGet4Apply(new CallBack<ReturnBean<List<ApplyBean>>>() {
-                        @Override
-                        public void onResponse(Call<ReturnBean<List<ApplyBean>>> call, Response<ReturnBean<List<ApplyBean>>> response) {
-                            if (response.body() == null || !response.body().isOk()) {
-                                return;
-                            }
-                            List<ApplyBean> applyBeanList=response.body().getData();
-                            for (int i = 0; i < applyBeanList.size(); i++) {
-                                ApplyBean applyBean=applyBeanList.get(i);
-                                applyBeanList.get(i).setAid(applyBean.getUid()+"");
-                                applyBeanList.get(i).setChatType(CoreEnum.EChatType.PRIVATE);
-                                if(!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())){
-                                    applyBeanList.get(i).setAlias(wrapMessage.getRequestFriend().getContactName());
-                                }
-                                applyBeanList.get(i).setStat(1);
-
-                                msgDao.applyFriend(applyBean);
-                            }
+                UserAction userAction = new UserAction();
+                userAction.friendGet4Apply(new CallBack<ReturnBean<List<ApplyBean>>>() {
+                    @Override
+                    public void onResponse(Call<ReturnBean<List<ApplyBean>>> call, Response<ReturnBean<List<ApplyBean>>> response) {
+                        if (response.body() == null || !response.body().isOk()) {
+                            return;
                         }
-                    });
+                        List<ApplyBean> applyBeanList = response.body().getData();
+                        for (int i = 0; i < applyBeanList.size(); i++) {
+                            ApplyBean applyBean = applyBeanList.get(i);
+                            applyBeanList.get(i).setAid(applyBean.getUid() + "");
+                            applyBeanList.get(i).setChatType(CoreEnum.EChatType.PRIVATE);
+                            if (!TextUtils.isEmpty(wrapMessage.getRequestFriend().getContactName())) {
+                                applyBeanList.get(i).setAlias(wrapMessage.getRequestFriend().getContactName());
+                            }
+                            applyBeanList.get(i).setStat(1);
+
+                            msgDao.applyFriend(applyBean);
+                        }
+                    }
+                });
 //                }
                 msgDao.remidCount("friend_apply");
                 notifyRefreshFriend(true, isFromSelf ? wrapMessage.getToUid() : wrapMessage.getFromUid(), CoreEnum.ERosterAction.REQUEST_FRIEND);
@@ -290,8 +288,8 @@ public class MessageManager {
                 msgDao.remidCount("friend_apply");
                 for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
 
-                    ApplyBean applyBean=new ApplyBean();
-                    applyBean.setAid(wrapMessage.getGid()+ntm.getUid());
+                    ApplyBean applyBean = new ApplyBean();
+                    applyBean.setAid(wrapMessage.getGid() + ntm.getUid());
                     applyBean.setChatType(CoreEnum.EChatType.GROUP);
 
                     applyBean.setGid(wrapMessage.getGid());
@@ -313,7 +311,7 @@ public class MessageManager {
                     applyBean.setInviterName(wrapMessage.getRequestGroup().getInviterName());
                     applyBean.setUid(ntm.getUid());
                     applyBean.setNickname(ntm.getNickname());
-                    applyBean.setAvatar( ntm.getAvatar());
+                    applyBean.setAvatar(ntm.getAvatar());
                     applyBean.setStat(1);
 
                     msgDao.applyGroup(applyBean);
@@ -1360,12 +1358,16 @@ public class MessageManager {
 
     public List<MsgAllBean> getPendingMsgList() {
         List<MsgAllBean> list = null;
-        if (pendingMessages != null && pendingMessages.size() > 0) {
-            list = new ArrayList<>();
-            Iterator iterator = pendingMessages.keySet().iterator();
-            while (iterator.hasNext()) {
-                list.add(pendingMessages.get(iterator.next().toString()));
+        try {
+            if (pendingMessages != null && pendingMessages.size() > 0) {
+                list = new ArrayList<>();
+                Iterator iterator = pendingMessages.keySet().iterator();
+                while (iterator.hasNext()) {
+                    list.add(pendingMessages.get(iterator.next().toString()));
+                }
             }
+        } catch (Exception e) {
+
         }
         return list;
     }

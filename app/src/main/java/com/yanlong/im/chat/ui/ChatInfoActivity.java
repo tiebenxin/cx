@@ -112,13 +112,6 @@ public class ChatInfoActivity extends AppActivity {
         viewDisturb = findViewById(R.id.view_disturb);
         ckDisturb = findViewById(R.id.ck_disturb);
         viewLogClean = findViewById(R.id.view_log_clean);
-        topListView = findViewById(R.id.topListView);
-        viewLog = findViewById(R.id.view_log);
-        viewTop = findViewById(R.id.view_top);
-        ckTop = findViewById(R.id.ck_top);
-        viewDisturb = findViewById(R.id.view_disturb);
-        ckDisturb = findViewById(R.id.ck_disturb);
-        viewLogClean = findViewById(R.id.view_log_clean);
         viewDestroyTime = findViewById(R.id.view_destroy_time);
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
         ckSetRead = findViewById(R.id.ck_set_read);
@@ -130,7 +123,7 @@ public class ChatInfoActivity extends AppActivity {
     private void initEvent() {
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
         taskGetInfo();
-        if(Constants.CX888_UID==fuid){
+        if (Constants.CX888_UID == fuid) {
             read_destroy_ll.setVisibility(View.GONE);
         }
 
@@ -220,7 +213,7 @@ public class ChatInfoActivity extends AppActivity {
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
-                        if(ChatInfoActivity.this.destroyTime != survivaltime){
+                        if (ChatInfoActivity.this.destroyTime != survivaltime) {
                             destroyTime = survivaltime;
                             tvDestroyTime.setText(content);
                             taskSurvivalTime(fuid, survivaltime);
@@ -333,7 +326,7 @@ public class ChatInfoActivity extends AppActivity {
             session = msgDao.sessionCreate(null, fuid);
         }*/
         fUserInfo = DaoUtil.findOne(UserInfo.class, "uid", fuid);
-        if (fUserInfo.getuType() != 2) {//非好友不能设置开关等
+        if (fUserInfo != null && fUserInfo.getuType() != 2) {//非好友不能设置开关等
             ckDisturb.setEnabled(false);
             ckTop.setEnabled(false);
 

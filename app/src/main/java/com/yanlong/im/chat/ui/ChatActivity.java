@@ -129,6 +129,7 @@ import com.yanlong.im.view.face.FaceViewPager;
 import com.yanlong.im.view.face.bean.FaceBean;
 import com.zhaoss.weixinrecorded.activity.RecordedActivity;
 import com.zhaoss.weixinrecorded.util.ActivityForwordEvent;
+import com.zhaoss.weixinrecorded.util.ViewUtils;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
@@ -312,6 +313,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         findViews();
         initEvent();
+        checkUserPower();
         initSurvivaltime4Uid();
     }
 
@@ -362,13 +364,40 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         }
         initUnreadCount();
         initPopupWindow();
+    }
+
+    /**
+     * 检查用户权限
+     */
+    private void checkUserPower(){
         // 只有Vip才显示视频通话
         UserInfo userInfo = UserAction.getMyInfo();
         if (userInfo != null && !IS_VIP.equals(userInfo.getVip()) || isSystemUser()) {
             viewFunc.removeView(llChatVideoCall);
         }
+        if(isSystemUser()){
+            viewFunc.removeView(viewRbZfb);
+            viewFunc.removeView(viewAction);
+            viewFunc.removeView(viewCard);
+        }
+        if (isGroup()) {//去除群的控件
+            viewFunc.removeView(viewAction);
+            //viewFunc.removeView(viewTransfer);
+            viewChatRobot.setVisibility(View.INVISIBLE);
+            viewFunc.removeView(llChatVideoCall);
+        } else {
+            viewFunc.removeView(viewChatRobot);
+        }
+        viewFunc.removeView(ll_part_chat_video);
+        viewFunc.removeView(viewRb);
+        //test 6.26
+        viewFunc.removeView(viewTransfer);
     }
 
+    /**
+     * 是否是常信客服、常信小助手
+     * @return
+     */
     public boolean isSystemUser() {
         if (toUId != null && (toUId.intValue() == Constants.CX_HELPER_UID || toUId.intValue() == Constants.CX888_UID || toUId.intValue() == Constants.CX999_UID)) {
             return true;
@@ -1136,19 +1165,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 });
             }
         });
-
-        if (isGroup()) {//去除群的控件
-            viewFunc.removeView(viewAction);
-            //viewFunc.removeView(viewTransfer);
-            viewChatRobot.setVisibility(View.INVISIBLE);
-            viewFunc.removeView(llChatVideoCall);
-        } else {
-            viewFunc.removeView(viewChatRobot);
-        }
-        viewFunc.removeView(ll_part_chat_video);
-        viewFunc.removeView(viewRb);
-        //test 6.26
-        viewFunc.removeView(viewTransfer);
 
         if (!isNewAdapter) {
             mtListView.init(new RecyclerViewAdapter());
@@ -2669,7 +2685,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     break;
                 case ChatEnum.EMessageType.TEXT:
-                    holder.viewChatItem.setData1(msgbean.getChat().getMsg(), menus);
+                    holder.viewChatItem.setData1(msgbean.getChat().getMsg(), menus,font_size);
                     break;
                 case ChatEnum.EMessageType.STAMP:
 
@@ -2929,6 +2945,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (minutes >= RELINQUISH_TIME) {
                         ToastUtil.show(ChatActivity.this, "重新编辑不能超过5分钟");
                     } else {
+                        if(ViewUtils.isFastDoubleClick()){
+                            return ;
+                        }
                         showVoice(false);
                         InputUtil.showKeyboard(editChat);
 //                        editChat.setText(editChat.getText().toString() + restContent);

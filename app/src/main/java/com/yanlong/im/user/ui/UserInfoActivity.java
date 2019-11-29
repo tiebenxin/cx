@@ -32,7 +32,6 @@ import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -587,6 +586,8 @@ public class UserInfoActivity extends AppActivity {
                 if (response.body().isOk()) {
                     //删除好友后 取消阅后即焚状态
                     userDao.updateReadDestroy(id, 0);
+                    // 删除好友后，取消置顶状态
+                    msgDao.updateUserSessionTop(id, 0);
 
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.DELETE, null);
@@ -644,6 +645,7 @@ public class UserInfoActivity extends AppActivity {
 
 
     private UserDao userDao = new UserDao();
+    private MsgDao msgDao = new MsgDao();
 
     /***
      * 判断用户是否在好友里面

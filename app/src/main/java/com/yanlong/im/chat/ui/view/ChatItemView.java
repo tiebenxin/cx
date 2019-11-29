@@ -522,12 +522,19 @@ public class ChatItemView extends LinearLayout {
 
     /**
      * 普通消息
+     *
      * @param msg
      * @param menus
+     * @param fontSize
      */
-    public void setData1(String msg,List<OptionMenu> menus) {
-        SpannableString spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
-        if (spannableString.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {// 自定义表情
+    public void setData1(String msg, List<OptionMenu> menus, Integer fontSize) {
+        SpannableString spannableString = null;
+        if (fontSize != null) {
+            spannableString = ExpressionUtil.getExpressionString(getContext(), fontSize.intValue(), msg);
+        } else {
+            spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SIZE, msg);
+        }
+        if (spannableString != null && spannableString.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {// 自定义表情
             Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
             Matcher matcher = patten.matcher(spannableString);
             if (matcher.matches()) {
@@ -545,19 +552,20 @@ public class ChatItemView extends LinearLayout {
                 menus.add(new OptionMenu("转发"));
                 menus.add(new OptionMenu("删除"));
             } else {// 普通消息
-                showCommonMessage(spannableString,menus);
+                showCommonMessage(spannableString, menus);
             }
         } else {// 普通消息
-            showCommonMessage(spannableString,menus);
+            showCommonMessage(spannableString, menus);
         }
     }
 
     /**
      * 显示普通消息
+     *
      * @param spannableString
      * @param menus
      */
-    private void showCommonMessage(SpannableString spannableString,List<OptionMenu> menus){
+    private void showCommonMessage(SpannableString spannableString, List<OptionMenu> menus) {
         viewMeCustomerFace.setVisibility(GONE);
         viewOtCustomerFace.setVisibility(GONE);
         viewMe1.setVisibility(VISIBLE);
