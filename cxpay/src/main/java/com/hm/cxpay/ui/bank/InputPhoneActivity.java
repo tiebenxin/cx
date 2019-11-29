@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.hm.cxpay.ui.bank;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.view.View;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.databinding.ActivityIdentificationCentreBinding;
+import com.hm.cxpay.databinding.ActivityInputPhoneBinding;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -18,33 +19,32 @@ import net.cb.cb.library.view.ActionbarView;
 
 
 /**
- * 用户认证界面
- * */
-public class IdentificationUserActivity extends BasePayActivity {
+ * 添加需要绑定银行卡的预留手机号
+ */
+public class InputPhoneActivity extends BasePayActivity {
 
-    private ActivityIdentificationCentreBinding ui;
+    private ActivityInputPhoneBinding ui;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ui = DataBindingUtil.setContentView(this, R.layout.activity_identification_centre);
+        ui = DataBindingUtil.setContentView(this, R.layout.activity_input_phone);
         initView();
         initEvent();
     }
 
     private void initView() {
-        ui.headView.setTitle("实名认证");
         ui.tvNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String idCard = ui.etIdcard.getText().toString().trim();
                 String name = ui.etName.getText().toString().trim();
                 if (TextUtils.isEmpty(idCard)) {
-                    ToastUtil.show(IdentificationUserActivity.this, "身份证号码不能为空");
+                    ToastUtil.show(InputPhoneActivity.this, "身份证号码不能为空");
                     return;
                 }
                 if (TextUtils.isEmpty(name)) {
-                    ToastUtil.show(IdentificationUserActivity.this, "真实姓名不能为空");
+                    ToastUtil.show(InputPhoneActivity.this, "真实姓名不能为空");
                     return;
                 }
                 //TODO:检测身份证号码是否正确
@@ -79,10 +79,10 @@ public class IdentificationUserActivity extends BasePayActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         if (baseResponse.isSuccess()) {
-                            ToastUtil.show(IdentificationUserActivity.this, "认证成功");
+                            ToastUtil.show(InputPhoneActivity.this, "认证成功");
                         } else {
                             ui.tvNext.setEnabled(true);
-                            ToastUtil.show(IdentificationUserActivity.this, baseResponse.getMessage());
+                            ToastUtil.show(InputPhoneActivity.this, baseResponse.getMessage());
                         }
                     }
 

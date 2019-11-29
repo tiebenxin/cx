@@ -6,5 +6,7 @@
         <activity android:name=".ui.IdentificationUserActivity" />
         <activity android:name=".ui.IdentificationInfoActivity" />
         <activity android:name=".ui.RechargeActivity" />
+        <activity android:name=".ui.bank.InputPhoneActivity" />
+        <activity android:name=".ui.bank.BindBankActivity" />
     </application>
 </manifest>

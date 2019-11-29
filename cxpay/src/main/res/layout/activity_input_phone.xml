@@ -2,15 +2,12 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-
-    </data>
 
     <net.cb.cb.library.view.HeadView
         android:id="@+id/headView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:headview_title="实名认证">
+        app:headview_title="添加银行卡">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,7 +19,7 @@
                 android:layout_marginLeft="@dimen/app_margin_main"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:text="请确定您本人，验证完后不可更改"
+                android:text="请添加账户本人银行卡"
                 android:textSize="12sp" />
 
 
@@ -30,12 +27,9 @@
 
                 <TextView
                     style="@style/app_txt_title_2"
-                    android:layout_width="wrap_content"
-                    android:text="真实姓名" />
+                    android:layout_width="100dp"
+                    android:text="持卡人" />
 
-                <!--            <TextView-->
-                <!--                android:id="@+id/tv_name"-->
-                <!--                style="@style/app_txt_content_1"/>-->
                 <net.cb.cb.library.view.ClearEditText
                     android:id="@+id/et_name"
                     style="@style/app_txt_title_2"
@@ -44,40 +38,21 @@
                     android:layout_marginLeft="15dp"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:hint="请填写真实姓名"
+                    android:hint="请输入持卡人姓名"
                     android:textColorHint="@color/gray_300"
                     app:layout_constraintRight_toRightOf="parent" />
 
 
             </LinearLayout>
 
-            <View style="@style/app_line" />
-
-            <LinearLayout style="@style/app_layout_list2_item">
-
-                <TextView
-                    style="@style/app_txt_title_2"
-                    android:layout_width="wrap_content"
-                    android:text="证件类型" />
-
-                <TextView
-                    android:id="@+id/tv_id_type"
-                    style="@style/app_txt_title_2"
-                    android:layout_marginLeft="15dp"
-                    android:text="身份证" />
-
-            </LinearLayout>
-
-            <View style="@style/app_line" />
-
             <LinearLayout
                 style="@style/app_layout_list2_item"
-                android:layout_height="53dp">
+                android:layout_marginTop="3dp">
 
                 <TextView
                     style="@style/app_txt_title_2"
-                    android:layout_width="wrap_content"
-                    android:text="证件号码" />
+                    android:layout_width="100dp"
+                    android:text="银行卡号" />
 
                 <net.cb.cb.library.view.ClearEditText
                     android:id="@+id/et_idcard"
@@ -87,13 +62,28 @@
                     android:layout_marginLeft="15dp"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:hint="请填写证件号码"
+                    android:hint="请输入银行卡号"
                     android:textColorHint="@color/gray_300"
                     app:layout_constraintRight_toRightOf="parent" />
-
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right">
 
+                <TextView
+                    android:id="@+id/tv_view_support"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginRight="10dp"
+                    android:text="查看支持银行"
+                    android:textColor="#374882"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_next"
