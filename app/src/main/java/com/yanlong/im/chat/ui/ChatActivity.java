@@ -144,7 +144,6 @@ import net.cb.cb.library.bean.EventUserOnlineChange;
 import net.cb.cb.library.bean.EventVoicePlay;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.inter.ICustomerItemClick;
-import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.CheckPermission2Util;
 import net.cb.cb.library.utils.DensityUtil;
@@ -377,10 +376,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             viewFunc.removeView(llChatVideoCall);
         }
         if(UserUtil.isSystemUser(toUId)){
-            viewFunc.removeView(viewRbZfb);
-            viewFunc.removeView(viewAction);
+            viewRbZfb.setVisibility(View.INVISIBLE);
+            viewAction.setVisibility(View.INVISIBLE);
+//            viewFunc.removeView(viewRbZfb);
+//            viewFunc.removeView(viewAction);
             viewFunc.removeView(viewCard);
         }
+
         if (isGroup()) {//去除群的控件
             viewFunc.removeView(viewAction);
             //viewFunc.removeView(viewTransfer);
