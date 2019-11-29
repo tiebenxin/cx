@@ -74,6 +74,7 @@
     <!--零钱模块-->
     <color name="c_0f0f0f">#0f0f0f</color>
     <color name="c_0f000000">#0f000000</color>
+    <color name="c_f0f0f0">#f0f0f0</color>
     <color name="c_868686">#868686</color>
     <color name="c_517da2">#517da2</color>
     <color name="c_32b053">#32b053</color>

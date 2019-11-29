@@ -10,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -85,7 +87,7 @@ public class RechargeActivity extends AppActivity {
                 if(!TextUtils.isEmpty(etRecharge.getText().toString())){
                     if(Double.valueOf(etRecharge.getText().toString()) >=1.0){
                         //TODO 判断是否添加过银行卡
-                        boolean ifAddBankcard = false;
+                        boolean ifAddBankcard = true;
                         //1 已经添加过银行卡
                         if(ifAddBankcard){
                             showRechargeDialog(2);
@@ -184,10 +186,9 @@ public class RechargeActivity extends AppActivity {
     }
 
     /**
-     * 三种类型弹框
+     *   两种类型弹框
      * 1 添加银行卡->没绑定过
      * 2 输入支付密码->绑定过
-     * 3 选择银行卡->换卡充值
      */
     public void showRechargeDialog(int type) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
@@ -229,37 +230,54 @@ public class RechargeActivity extends AppActivity {
         }else if(type==2){
             final AlertDialog dialog = dialogBuilder.create();
             View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_pay_psw, null);
-            //初始化控件
             ImageView ivClose = dialogView.findViewById(R.id.iv_close);
             TextView tvRechargeValue = dialogView.findViewById(R.id.tv_recharge_value);
-            LinearLayout layoutAddBankcard = dialogView.findViewById(R.id.layout_add_bankcard);
-            //显示和点击事件
+            LinearLayout layoutChangeBankcard = dialogView.findViewById(R.id.layout_change_bankcard);
+            final PswView pswView = dialogView.findViewById(R.id.psw_view);
+            //充值金额
             tvRechargeValue.setText("￥"+etRecharge.getText().toString());
+            //关闭弹框
             ivClose.setOnClickListener(new android.view.View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     dialog.dismiss();
                 }
             });
-            layoutAddBankcard.setOnClickListener(new View.OnClickListener() {
+            //输入支付密码
+            pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
+                @Override
+                public void setPasswordChanged(String password) {
+                    //TODO 验证支付密码 + 充值成功1 失败2
+                    ToastUtil.show(activity,"支付密码是"+password);
+                }
+            });
+            //切换其他银行卡来支付
+            layoutChangeBankcard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO 跳 添加银行卡
-                    ToastUtil.show(activity,"添加银行卡");
+                    //TODO 跳 我的银行卡
+                    ToastUtil.show(activity,"切换其他银行卡来支付");
                 }
             });
             dialog.show();
+            //强制唤起软键盘
+            if(pswView!=null){
+                pswView.setFocusable(true);
+                pswView.setFocusableInTouchMode(true);
+                pswView.requestFocus();
+                InputMethodManager inputManager = (InputMethodManager) pswView
+                        .getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputManager.showSoftInput(pswView, 0);
+            }
+            //解决dialog里edittext不响应键盘的问题
+            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
             Window window = dialog.getWindow();
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            //设置宽高
             WindowManager.LayoutParams lp = window.getAttributes();
-            lp.height = DensityUtil.dip2px(activity, 195);
+            lp.height = DensityUtil.dip2px(activity, 277);
             lp.width = DensityUtil.dip2px(activity, 277);
             dialog.getWindow().setAttributes(lp);
             dialog.setContentView(dialogView);
-
-        }else if(type==3){
-
         }
     }
 
