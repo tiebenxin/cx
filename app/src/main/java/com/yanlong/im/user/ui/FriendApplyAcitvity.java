@@ -266,7 +266,8 @@ public class FriendApplyAcitvity extends AppActivity {
 
 
     private void taskFriendAgree(ApplyBean bean) {
-        userAction.friendAgree(bean.getUid(), bean.getNickname(), new CallBack<ReturnBean>() {
+//        bean.getNickname()
+        userAction.friendAgree(bean.getUid(), "", new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
