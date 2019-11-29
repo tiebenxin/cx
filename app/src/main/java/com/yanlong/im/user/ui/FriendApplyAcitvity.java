@@ -10,29 +10,23 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.action.MsgAction;
-import com.yanlong.im.chat.bean.ContactNameBean;
-import com.yanlong.im.chat.bean.GroupAccept;
+import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.user.action.UserAction;
-import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.GlideOptionsUtil;
-
+import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -43,8 +37,26 @@ public class FriendApplyAcitvity extends AppActivity {
     private net.cb.cb.library.view.HeadView headView;
     private ActionbarView actionbar;
     private net.cb.cb.library.view.MultiListView mtListView;
-    private List listData;
+    private List<ApplyBean> listData;
+    private UserAction userAction = new UserAction();
+    private MsgAction msgAction = new MsgAction();
+    private MsgDao msgDao = new MsgDao();
 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_friend_apply);
+        findViews();
+        initEvent();
+
+        initData();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
     //自动寻找控件
     private void findViews() {
@@ -72,22 +84,10 @@ public class FriendApplyAcitvity extends AppActivity {
 
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friend_apply);
-        findViews();
-        initEvent();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        initData();
-    }
 
     private void initData() {
-        taskGetList();
+        listData=msgDao.getApplyBeanList();
+        mtListView.notifyDataSetChange();
     }
 
     //自动生成RecyclerViewAdapter
@@ -102,12 +102,11 @@ public class FriendApplyAcitvity extends AppActivity {
         //自动生成控件事件
         @Override
         public void onBindViewHolder(final RCViewHolder holder, int position) {
-
-            if (listData.get(position) instanceof UserInfo) {
-                final UserInfo bean = (UserInfo) listData.get(position);
-                holder.txtName.setText(bean.getName4Show());
-               // holder.imgHead.setImageURI(bean.getHead());
-                Glide.with(context).load(bean.getHead())
+            ApplyBean bean=listData.get(position);
+            if (CoreEnum.EChatType.PRIVATE==bean.getChatType()) {
+                holder.txtName.setText(bean.getNickname());
+                // holder.imgHead.setImageURI(bean.getHead());
+                Glide.with(context).load(bean.getAvatar())
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
                 if (TextUtils.isEmpty(bean.getSayHi())) {
@@ -118,14 +117,8 @@ public class FriendApplyAcitvity extends AppActivity {
 
                 holder.btnComit.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        //  ToastUtil.show(context, "准了");
-                        ContactNameBean contactNameBean = msgDao.getContactName(bean.getUid());
-                        if(contactNameBean != null && !TextUtils.isEmpty(contactNameBean.getContactName())){
-                            taskFriendAgree(bean.getUid(),contactNameBean.getContactName());
-                        }else{
-                            taskFriendAgree(bean.getUid(),null);
-                        }
-
+                        //同意
+                        taskFriendAgree(bean);
                     }
                 });
 
@@ -142,18 +135,16 @@ public class FriendApplyAcitvity extends AppActivity {
                 holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        //拒绝
                         holder.mSwipeLayout.quickClose();
-                        taskDelRequestFriend(bean.getUid());
+                        taskDelRequestFriend(bean);
                     }
                 });
 
 
-            } else if (listData.get(position) instanceof GroupAccept) {
-                final GroupAccept bean = (GroupAccept) listData.get(position);
-                holder.txtName.setText(bean.getUname());
-               // holder.imgHead.setImageURI(bean.getHead());
-
-                Glide.with(context).load(bean.getHead())
+            } else if (CoreEnum.EChatType.GROUP==bean.getChatType()) {
+                holder.txtName.setText(bean.getNickname());
+                Glide.with(context).load(bean.getAvatar())
                         .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
                 holder.txtInfo.setText("申请进群:" + bean.getGroupName());
@@ -161,15 +152,19 @@ public class FriendApplyAcitvity extends AppActivity {
 
                 holder.btnComit.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        //  ToastUtil.show(context, "准了");
+                        //  同意
                         taskRequest(bean);
                     }
                 });
                 holder.mBtnDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        //拒绝
                         holder.mSwipeLayout.quickClose();
-                        taskGroupRequestDelect(bean);
+//                        bean.setStat(3);
+//                        msgDao.applyGroup(bean);
+                        msgDao.applyRemove(bean.getAid());
+                        initData();
                     }
                 });
             }
@@ -179,6 +174,18 @@ public class FriendApplyAcitvity extends AppActivity {
             holder.btnComit.setVisibility(View.VISIBLE);
             holder.txtState.setVisibility(View.GONE);
 
+            if(bean.getStat()==1){
+                holder.btnComit.setText("接受");
+            }else if(bean.getStat()==2){
+                holder.btnComit.setText("已接受");
+                holder.btnComit.setTextColor(getResources().getColor(R.color.gray_300));
+                holder.btnComit.setBackgroundColor(getResources().getColor(R.color.transparent));
+                holder.btnComit.setEnabled(false);
+            }
+//            else if(bean.getStat()==3){
+//                holder.btnComit.setText("已拒绝");
+//                holder.btnComit.setEnabled(false);
+//            }
         }
 
 
@@ -217,56 +224,40 @@ public class FriendApplyAcitvity extends AppActivity {
         }
     }
 
-    private UserAction userAction = new UserAction();
-    private MsgAction msgAction = new MsgAction();
-    private MsgDao msgDao = new MsgDao();
+    private void taskDelRequestFriend(ApplyBean bean) {
+        if(bean.getStat()==2){
+            msgDao.applyRemove(bean.getAid());
+            initData();
+        }else {
+            userAction.delRequestFriend(bean.getUid(), new CallBack<ReturnBean>() {
+                @Override
+                public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
+                    if (response.body() == null) {
+                        return;
+                    }
+                    ToastUtil.show(getContext(), response.body().getMsg());
+                    if (response.body().isOk()) {
+//                    bean.setStat(3);
+//                   msgDao.applyFriend(bean);
+                        msgDao.applyRemove(bean.getAid());
 
-    private void taskGetList() {
+                        initData();
+                    }
 
-
-        userAction.friendGet4Apply(new CallBack<ReturnBean<List<UserInfo>>>(mtListView) {
-            @Override
-            public void onResponse(Call<ReturnBean<List<UserInfo>>> call, Response<ReturnBean<List<UserInfo>>> response) {
-                if (response.body() == null || !response.body().isOk()) {
-                    return;
                 }
-                //群申请
-                listData = msgDao.groupAccept();
-                listData.addAll(response.body().getData());
-                mtListView.notifyDataSetChange(response);
-            }
-        });
+            });
+        }
     }
 
-    private void taskGroupRequestDelect(GroupAccept bean) {
-        msgAction.groupRequestDelect(bean.getAid());
-        taskGetList();
-    }
-
-    private void taskDelRequestFriend(Long uid) {
-        userAction.delRequestFriend(uid, new CallBack<ReturnBean>() {
-            @Override
-            public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
-                if (response.body() == null) {
-                    return;
-                }
-                ToastUtil.show(getContext(), response.body().getMsg());
-                if (response.body().isOk()) {
-                    taskGetList();
-                }
-
-            }
-        });
-    }
-
-    private void taskRequest(GroupAccept accept) {
-        msgAction.groupRequest(accept.getAid(), accept.getGid(), accept.getUid() + "", accept.getUname(),accept.getHead(),
-                accept.getJoinType(), accept.getInviter() + "",accept.getInviterName(),new CallBack<ReturnBean>() {
+    private void taskRequest(ApplyBean bean) {
+        msgAction.groupRequest(bean.getAid(), bean.getGid(), bean.getUid() + "", bean.getNickname(), bean.getAvatar(),
+                bean.getJoinType(), bean.getInviter() + "", bean.getInviterName(), new CallBack<ReturnBean>() {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         if (response.body().isOk()) {
-                            taskGetList();
-
+                            bean.setStat(2);
+                            msgDao.applyGroup(bean);
+                            initData();
                         }
                         ToastUtil.show(getContext(), response.body().getMsg());
                     }
@@ -274,8 +265,8 @@ public class FriendApplyAcitvity extends AppActivity {
     }
 
 
-    private void taskFriendAgree(Long uid,String contactName) {
-        userAction.friendAgree(uid,contactName, new CallBack<ReturnBean>() {
+    private void taskFriendAgree(ApplyBean bean) {
+        userAction.friendAgree(bean.getUid(), bean.getNickname(), new CallBack<ReturnBean>() {
             @Override
             public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                 if (response.body() == null) {
@@ -285,7 +276,11 @@ public class FriendApplyAcitvity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     EventBus.getDefault().post(new EventRefreshFriend());
-                    taskGetList();
+//                    taskGetList();
+
+                    bean.setStat(2);
+                    msgDao.applyFriend(bean);
+                    initData();
                 } else {
                     // ToastUtil.show(getContext(),response.body().getMsg());
                 }

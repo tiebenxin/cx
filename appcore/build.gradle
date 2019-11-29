@@ -49,6 +49,7 @@ android {
             jcenter()
         }
     }
+
     allprojects {
         repositories {
             google()
@@ -57,6 +58,13 @@ android {
         }
     }
 
+    // 解决重复引用问题
+    packagingOptions {
+        exclude 'AndroidManifest.xml'
+        exclude 'R.txt'
+        exclude 'res/values/values.xml'
+        exclude 'classes.jar'
+    }
 
     buildTypes {
         release {

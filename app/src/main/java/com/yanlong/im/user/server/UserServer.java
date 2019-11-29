@@ -1,6 +1,7 @@
 package com.yanlong.im.user.server;
 
 
+import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.IdCardBean;
 import com.yanlong.im.user.bean.LoginBean;
@@ -93,7 +94,7 @@ public interface UserServer {
     Call<ReturnBean<List<UserInfo>>> normalFriendsGet();
 
     @POST("/friends/get-request-friends")
-    Call<ReturnBean<List<UserInfo>>> requestFriendsGet();
+    Call<ReturnBean<List<ApplyBean>>> requestFriendsGet();
 
     @POST("/friends/get-black-list-friends")
     Call<ReturnBean<List<UserInfo>>> blackListFriendsGet();

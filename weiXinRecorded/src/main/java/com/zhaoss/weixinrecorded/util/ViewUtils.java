@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +23,7 @@ public class ViewUtils {
     private static final String TAG = "ViewUtils";
     private static final int TOUCH_OFFSET = 20;     // 触摸区域（左、上、右、下）的偏移量。数值越大，触摸区域越大
     private static long lastClickTime;
+    private static long lastClickTime2;
 
     /**
      * 检测是否点击了EditText输入控件之外的区域
@@ -110,6 +110,22 @@ public class ViewUtils {
             return false;
         }
         lastClickTime = time;
+        return true;
+    }
+
+    /**
+     * 防止快速点击
+     *
+     * @return
+     */
+    public static boolean isFastDoubleClick2() {
+        long time = System.currentTimeMillis();
+        long timeD = time - lastClickTime2;
+        if (500 < timeD) {
+            lastClickTime2 = time;
+            return false;
+        }
+        lastClickTime2 = time;
         return true;
     }
 

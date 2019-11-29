@@ -566,9 +566,9 @@ public class MsgAction {
                 if (response.body() == null)
                     return;
                 callback.onResponse(call, response);
-                if (response.body().isOk()) {
-                    dao.groupAcceptRemove(aid);
-                }
+//                if (response.body().isOk()) {
+//                    dao.groupAcceptRemove(aid);
+//                }
             }
 
             @Override
@@ -579,12 +579,12 @@ public class MsgAction {
     }
 
 
-    /**
-     * 删除群申请
-     */
-    public void groupRequestDelect(String aid) {
-        dao.groupAcceptRemove(aid);
-    }
+//    /**
+//     * 删除群申请
+//     */
+//    public void groupRequestDelect(String aid) {
+//        dao.groupAcceptRemove(aid);
+//    }
 
 
     /**

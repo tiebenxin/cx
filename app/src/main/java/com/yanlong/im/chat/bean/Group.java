@@ -50,6 +50,15 @@ public class Group extends RealmObject {
     private MemberUser keyUser;//符合搜索条件key的群成员
 
     private int survivaltime;  // 阅后即焚时间
+    private String merchantEntry;// 群机器人网址
+
+
+
+
+
+
+
+
 
     public int getSurvivaltime() {
         return survivaltime;
@@ -231,5 +240,13 @@ public class Group extends RealmObject {
             }
         }
         return false;
+    }
+
+    public String getMerchantEntry() {
+        return merchantEntry;
+    }
+
+    public void setMerchantEntry(String merchantEntry) {
+        this.merchantEntry = merchantEntry;
     }
 }

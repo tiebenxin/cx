@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.StringUtil;
 import net.sourceforge.pinyin4j.PinyinHelper;
 
@@ -503,6 +504,17 @@ public class UserInfo extends RealmObject implements Comparable<UserInfo> {
             if (((UserInfo) obj).uid.equals(this.uid)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    //判断该用户是否官方系统用户
+    public boolean isSystemUser(){
+        if(uid == null){
+            return false;
+        }
+        if(uid.equals(Constants.CX888_UID)||uid.equals(Constants.CX999_UID)||uid.equals(Constants.CX_HELPER_UID)){
+            return true;
         }
         return false;
     }

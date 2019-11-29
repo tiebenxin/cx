@@ -1586,7 +1586,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                         ScrollConfig config = sp.get4Json(ScrollConfig.class, "scroll_config");
                         if (config != null) {
                             if (config.getUserId() == UserAction.getMyId()) {
-                                if (toUId != null && config.getUid() > 0 && config.getUid() == toUId) {
+                                if (toUId != null && config.getUid() > 0 && config.getUid() == toUId.intValue()) {
                                     lastPosition = config.getLastPosition();
                                     lastOffset = config.getLastOffset();
                                 } else if (!TextUtils.isEmpty(config.getChatId()) && !TextUtils.isEmpty(toGid) && config.getChatId().equals(toGid)) {
@@ -1647,7 +1647,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventRefresh(EventUserOnlineChange event) {
-        if (!isGroup() && event.getUid() == toUId) {
+        if (toUId != null && !isGroup() && event.getUid() == toUId.intValue()) {
             updateUserOnlineStatus();
         }
     }
@@ -1731,10 +1731,6 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             MessageManager.getInstance().setSessionGroup(toGid);
         } else {
             MessageManager.getInstance().setSessionSolo(toUId);
-        }
-        // 打开浮动窗口权限时，重新显示音视频浮动按钮
-        if (AVChatProfile.getInstance().isCallIng()) {
-            EventBus.getDefault().post(new EventFactory.ShowVoiceMinimizeEvent());
         }
         //刷新群资料
         taskSessionInfo();
@@ -3661,12 +3657,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 finfo.setUid(100121L);
                 finfo.setName("常信客服");
             }
-            title = finfo.getName4Show();
-            if (finfo.getLastonline() > 0) {
-                if (onlineState) {
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
-                } else {
-                    actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
+            if (finfo != null) {
+                title = finfo.getName4Show();
+                if (finfo.getLastonline() > 0) {
+                    if (onlineState) {
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
+                    } else {
+                        actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
+                    }
                 }
             }
         }
