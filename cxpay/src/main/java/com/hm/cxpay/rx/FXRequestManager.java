@@ -8,7 +8,7 @@ public class FXRequestManager extends RequestManager {
     public static <T> T getRequest(Class<T> clazz) {
         T t = (T) sRequestManager.get(clazz);
         if (t == null) {
-            t = FXRetrofitClient.createApi(clazz, PayHostUtils.getHttpUrl());
+            t = FXRetrofitClient.createApi(clazz, PayHostUtils.getHttpsUrl());
             sRequestManager.put(clazz, t);
         }
         return t;

@@ -35,6 +35,7 @@ import com.yanlong.im.notify.NotifySettingDialog;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.EventCheckVersionBean;
 import com.yanlong.im.user.bean.NewVersionBean;
+import com.yanlong.im.user.bean.TokenBean;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.user.dao.UserDao;
@@ -55,6 +56,7 @@ import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.TokenManager;
 import net.cb.cb.library.net.NetWorkUtils;
 import net.cb.cb.library.net.NetworkReceiver;
 import net.cb.cb.library.utils.BadgeUtil;
@@ -405,6 +407,16 @@ public class MainActivity extends AppActivity {
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
+        checkToken();
+    }
+
+    private void checkToken() {
+        if (TextUtils.isEmpty(TokenManager.getToken())) {
+            TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
+            if (token != null) {
+                TokenManager.initToken(token.getAccessToken());
+            }
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
