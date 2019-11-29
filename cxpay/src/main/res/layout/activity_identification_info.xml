@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <net.cb.cb.library.view.HeadView
+        android:id="@+id/headView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:headview_title="账户信息">
+
+        <LinearLayout style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_width="80dp"
+                android:text="姓名" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                style="@style/app_txt_content_1"
+                android:layout_weight="1"
+                android:text="" />
+
+        </LinearLayout>
+
+        <View style="@style/app_line" />
+
+        <LinearLayout
+            android:id="@+id/ll_identity_card"
+            style="@style/app_layout_list2_item">
+
+            <TextView
+                style="@style/app_txt_title_2"
+                android:layout_width="80dp"
+                android:text="身份证号" />
+
+            <TextView
+                android:id="@+id/tv_id"
+                style="@style/app_txt_content_1"
+                android:layout_weight="1" />
+
+
+        </LinearLayout>
+
+    </net.cb.cb.library.view.HeadView>
+</layout>

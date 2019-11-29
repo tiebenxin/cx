@@ -3,5 +3,7 @@
 
     <application>
         <activity android:name=".ui.LooseChangeActivity" />
+        <activity android:name=".ui.IdentificationUserActivity" />
+        <activity android:name=".ui.IdentificationInfoActivity" />
     </application>
 </manifest>

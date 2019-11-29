@@ -382,25 +382,25 @@
 
         <!--实名认证-->
         <activity
-            android:name=".user.ui.IdentificationCentreActivity"
+            android:name="com.hm.cxpay.ui.IdentificationUserActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <!--单个红包-->
         <activity
-            android:name=".pay.ui.SingleRedPacketActivity"
+            android:name="com.hm.cxpay.ui.SingleRedPacketActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
         <!--群红包-->
         <activity
-            android:name=".pay.ui.MultiRedPacketActivity"
+            android:name="com.hm.cxpay.ui.MultiRedPacketActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
         <!--红包详情-->
         <activity
-            android:name=".pay.ui.RedPacketDetailsActivity"
+            android:name="com.hm.cxpay.ui.RedPacketDetailsActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />

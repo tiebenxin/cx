@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_100"
+    android:orientation="vertical">
+
+    <net.cb.cb.library.view.ActionbarView
+        android:id="@+id/action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/red_200"
+        app:actionbar_txtTitle="发红包" />
+
+    <LinearLayout
+        style="@style/app_layout_list3_item"
+        android:layout_marginTop="11dp"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/app_txt_title_2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="单个金额" />
+
+        <net.cb.cb.library.view.CursorEditText
+            android:id="@+id/ed_money"
+            style="@style/app_edt1"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="5dp"
+            android:gravity="right|center_vertical"
+            android:inputType="numberDecimal"
+            android:hint="0.00" />
+
+        <TextView
+            style="@style/app_txt_title_2"
+            android:text="元" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/app_layout_list3_item"
+        android:layout_height="64dp"
+        android:layout_marginTop="11dp"
+        android:orientation="horizontal">
+
+
+        <EditText
+            android:id="@+id/ed_content"
+            style="@style/app_edt1"
+            android:layout_width="match_parent"
+            android:layout_marginRight="5dp"
+            android:hint="恭喜发财,大吉大利" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="47dp"
+        android:gravity="center_vertical|center"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/app_txt_title_2"
+            android:text="¥"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/tv_money"
+            style="@style/app_txt_title_2"
+            android:layout_marginLeft="3dp"
+            android:text="0.00"
+            android:textSize="40sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_commit"
+        style="@style/app_btn_red"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="32dp"
+        android:text="塞钱进红包" />
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+
+    <TextView
+        style="@style/app_txt_content_1"
+        android:layout_gravity="center_horizontal"
+        android:text="对方可领的金额为0.01~200元"
+        android:textSize="10sp" />
+
+
+    <TextView
+        style="@style/app_txt_content_1"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="11dp"
+        android:text="未领取的红包将于24小时后自动退回"
+        android:textSize="10sp" />
+
+    <TextView
+        style="@style/app_txt_content_1"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16sp"
+        android:text="你发出的支付宝账户，最晚48小时到账"
+        android:textSize="10sp" />
+
+</LinearLayout>

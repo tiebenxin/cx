@@ -202,7 +202,7 @@ public class MyselfInfoActivity extends AppActivity implements View.OnClickListe
 //                    startActivityForResult(identityIntent, IDENTITY);
 //
 //                } else {
-//                    Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentificationCentreActivity.class);
+//                    Intent identityIntent = new Intent(MyselfInfoActivity.this, IdentificationUserActivity.class);
 //                    startActivity(identityIntent);
 //                }
                 break;

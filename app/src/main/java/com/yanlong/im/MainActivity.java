@@ -19,6 +19,8 @@ import android.widget.TextView;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.global.PayEnvironment;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;
 import com.yanlong.im.chat.EventSurvivalTimeAdd;
 import com.yanlong.im.chat.action.MsgAction;
@@ -48,6 +50,7 @@ import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketData;
 import com.yanlong.im.utils.update.UpdateManage;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.bean.EventLoginOut4Conflict;
@@ -407,7 +410,25 @@ public class MainActivity extends AppActivity {
         taskGetMsgNum();
         //taskClearNotification();
         checkNotificationOK();
+        checkPayEnvironmentInit();
+    }
+
+    //检测支付环境的初始化
+    private void checkPayEnvironmentInit() {
         checkToken();
+        UserInfo info = UserAction.getMyInfo();
+        if (info != null) {
+            UserBean bean = PayEnvironment.getIntance().getUser();
+            if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
+                bean = new UserBean();
+                bean.setUid(info.getUid());
+                bean.setIsVerify(0);
+                bean.setCardId("5*********6");
+                bean.setRealName("*白");
+                PayEnvironment.getIntance().setUser(bean);
+            }
+        }
+        PayEnvironment.getIntance().setContext(AppConfig.getContext());
     }
 
     private void checkToken() {
@@ -415,6 +436,7 @@ public class MainActivity extends AppActivity {
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
             if (token != null) {
                 TokenManager.initToken(token.getAccessToken());
+                PayEnvironment.getIntance().setToken(token.getAccessToken());
             }
         }
     }
