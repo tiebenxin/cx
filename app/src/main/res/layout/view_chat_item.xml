@@ -213,6 +213,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="normal"
+                            android:maxWidth="200dp"
                             android:text="我已经添加你为好友啦"
                             android:textColor="@color/black"
                             android:textSize="15sp" />

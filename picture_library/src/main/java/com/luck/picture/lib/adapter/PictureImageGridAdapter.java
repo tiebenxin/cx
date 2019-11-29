@@ -332,6 +332,11 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             return;
         }
 
+        if(passMaxWidthAndHight(image)){
+            ToastManage.s(context, "图片尺寸过大");
+            return;
+        }
+
         if (selectImages.size() >= maxVideoSelectNum && !isChecked && pictureType.startsWith(PictureConfig.VIDEO)) {
             @SuppressLint("StringFormatMatches") String str = context.getString(R.string.picture_message_video_max_num, maxVideoSelectNum);
             ToastManage.s(context, str);
@@ -443,5 +448,20 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             set.setDuration(DURATION);
             set.start();
         }
+    }
+
+    //检测图片是否超过最大尺寸  宽高4096*4096 单边4096*4
+    private boolean passMaxWidthAndHight(LocalMedia localMedia){
+        String pictureType =localMedia.getPictureType();
+        int width=localMedia.getWidth();
+        int hight=localMedia.getHeight();
+        if(!"image/jpeg".equals(pictureType)){
+            return false;
+        }
+        // ||width*hight>=4096*4096
+        if(width>=4096*4||hight>=4096*4){
+            return true;
+        }
+        return false;
     }
 }

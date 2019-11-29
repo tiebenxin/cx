@@ -192,6 +192,18 @@ public class ChatItemView extends LinearLayout {
     private ImageView ivMeGameIcon;
     private ImageView ivMeAppIcon;
 
+
+    public ChatItemView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mContext = context;
+        options = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View viewRoot = inflater.inflate(R.layout.view_chat_item, this);
+        findViews(viewRoot);
+        initEvent();
+    }
+
     //自动寻找控件
     private void findViews(View rootView) {
 
@@ -838,6 +850,9 @@ public class ChatItemView extends LinearLayout {
     public void setFont(Integer size) {
         txtMe1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
         txtOt1.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+
+        txtMe2.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+        txtOt2.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
     }
 
 
@@ -1140,16 +1155,7 @@ public class ChatItemView extends LinearLayout {
     }
 
 
-    public ChatItemView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mContext = context;
-        options = new RequestOptions().centerCrop().transform(new RoundTransform(mContext, 10));
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View viewRoot = inflater.inflate(R.layout.view_chat_item, this);
-        findViews(viewRoot);
-        initEvent();
-    }
 
     private int netState;
 
