@@ -43,6 +43,9 @@ public class CommonInterceptor implements Interceptor {
                 .method(oldRequest.method(), oldRequest.body())
                 .url(authorizedUrlBuilder.build());
 
+        requestBuilder.header("Content-Type", "application/json;charset=utf-8");
+
+
         /**
          * 已经登陆的用户 带上X-Access-Token
          */

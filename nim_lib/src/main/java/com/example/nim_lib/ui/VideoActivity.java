@@ -403,7 +403,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
                 if (mAVChatType == AVChatType.AUDIO.getValue()) {
                     auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.AUDIO);
                 } else {
-                    imgMinimize.setVisibility(View.GONE);
+//                    imgMinimize.setVisibility(View.GONE);
                     auVideoDial(toUId, mAVChatType, mRoomId = AVChatController.getUUID(), AVChatType.VIDEO);
                 }
                 break;

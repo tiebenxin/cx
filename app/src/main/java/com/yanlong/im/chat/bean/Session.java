@@ -2,6 +2,8 @@ package com.yanlong.im.chat.bean;
 
 import androidx.annotation.Nullable;
 
+import net.cb.cb.library.manager.Constants;
+
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
@@ -244,5 +246,17 @@ public class Session extends RealmObject implements Comparable<Session> {
         } else {
             return 0;
         }
+    }
+
+
+    //判断该用户是否官方系统用户
+    public boolean isSystemUser(){
+        if(type != 0||from_uid==null){
+            return false;
+        }
+        if(from_uid.equals(Constants.CX888_UID)||from_uid.equals(Constants.CX999_UID)||from_uid.equals(Constants.CX_HELPER_UID)){
+            return true;
+        }
+        return false;
     }
 }

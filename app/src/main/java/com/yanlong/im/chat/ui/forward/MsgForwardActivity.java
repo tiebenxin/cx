@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.view.View;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -78,7 +79,14 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed();
+                if(isSingleSelected){
+                    onBackPressed();
+                }else {
+                    isSingleSelected=true;
+                    resetRightText();
+
+                    EventBus.getDefault().post(new SingleOrMoreEvent(isSingleSelected));
+                }
             }
 
             @Override
@@ -116,13 +124,15 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
 
     private void resetRightText() {
         if (isSingleSelected) {
+            actionbar.getBtnLeft().setVisibility(View.VISIBLE);
+            actionbar.setTxtLeft("");
+
             actionbar.setTxtRight("多选");
         } else {
-            if(moreSessionBeanList.size()>0){
-                actionbar.setTxtRight("完成("+moreSessionBeanList.size()+")");
-            }else {
-                actionbar.setTxtRight("完成(0)");
-            }
+            actionbar.getBtnLeft().setVisibility(View.GONE);
+            actionbar.setTxtLeft("取消");
+
+            actionbar.setTxtRight("完成("+moreSessionBeanList.size()+")");
         }
     }
 

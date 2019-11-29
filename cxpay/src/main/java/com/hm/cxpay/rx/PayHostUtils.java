@@ -6,13 +6,17 @@ package com.hm.cxpay.rx;
  * Description
  */
 public class PayHostUtils {
-//    private static final String PORT_8888 = ":8888";//http端口
-    private static final String PORT_8888 = ":9898";//http端口
-//    private static final String HOST = "192.168.10.112";//http路径  测试服地址
-    private static final String HOST = "192.168.10.229";//http路径
+    //    private static final String PORT_8888 = ":8888";//http端口
+    private static final String PORT_9898 = ":9898";//http端口
+    //    private static final String HOST = "192.168.10.112";//http路径  测试服地址
+    private static final String HOST_TEST = "192.168.10.229";//http路径
     private static final String HTTP = "http://";
+    private static final String HTTPS = "https://";
+    private static final String HOST = "test.zhixun6.com";//https 路径
 
-    public static String getHttpUrl() {
-        return HTTP + HOST + PORT_8888;
+    //外网正式服  https
+    public static String getHttpsUrl() {
+        return HTTPS + HOST + PORT_9898;
     }
+
 }

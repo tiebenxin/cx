@@ -33,6 +33,7 @@ import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventIsShowRead;
 import net.cb.cb.library.bean.EventRefreshChat;
 import net.cb.cb.library.bean.ReturnBean;
+import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -56,6 +57,7 @@ public class ChatInfoActivity extends AppActivity {
     private RecyclerView topListView;
     private LinearLayout viewLog;
     private LinearLayout viewTop;
+    private LinearLayout read_destroy_ll;
     private CheckBox ckTop;
     private LinearLayout viewDisturb;
     private CheckBox ckDisturb;
@@ -120,6 +122,7 @@ public class ChatInfoActivity extends AppActivity {
         viewDestroyTime = findViewById(R.id.view_destroy_time);
         tvDestroyTime = findViewById(R.id.tv_destroy_time);
         ckSetRead = findViewById(R.id.ck_set_read);
+        read_destroy_ll = findViewById(R.id.read_destroy_ll);
     }
 
 
@@ -127,6 +130,9 @@ public class ChatInfoActivity extends AppActivity {
     private void initEvent() {
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
         taskGetInfo();
+        if(Constants.CX888_UID==fuid){
+            read_destroy_ll.setVisibility(View.GONE);
+        }
 
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -223,6 +229,8 @@ public class ChatInfoActivity extends AppActivity {
                 });
             }
         });
+
+
     }
 
     @Override

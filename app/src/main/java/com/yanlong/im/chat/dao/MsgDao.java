@@ -3,6 +3,7 @@ package com.yanlong.im.chat.dao;
 import android.text.TextUtils;
 
 import com.yanlong.im.chat.ChatEnum;
+import com.yanlong.im.chat.bean.ApplyBean;
 import com.yanlong.im.chat.bean.AssistantMessage;
 import com.yanlong.im.chat.bean.AtMessage;
 import com.yanlong.im.chat.bean.BusinessCardMessage;
@@ -1808,80 +1809,36 @@ public class MsgDao {
     }
 
 
-    /**
-     * 通讯录好友申请添加好友
-     */
-    public void userAcceptAdd(Long uid, String contactName) {
+
+
+    //申请加好友
+    public void applyFriend(ApplyBean bean) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-
-        ContactNameBean contactNameBean = realm.where(ContactNameBean.class).equalTo("uid", uid).findFirst();
-        if (contactNameBean == null) {
-            contactNameBean = new ContactNameBean();
-            contactNameBean.setUid(uid);
-            contactNameBean.setContactName(contactName);
-        } else {
-            contactNameBean.setContactName(contactName);
-        }
-
-        realm.insertOrUpdate(contactNameBean);
+        bean.setTime(System.currentTimeMillis());
+        realm.insertOrUpdate(bean);
         realm.commitTransaction();
         realm.close();
     }
 
-    /**
-     * 获取contactName
-     */
-    public ContactNameBean getContactName(Long uid) {
-        Realm realm = DaoUtil.open();
-        ContactNameBean contactNameBean = realm.where(ContactNameBean.class).equalTo("uid", uid).findFirst();
-
-        return contactNameBean;
-    }
-
-
-    /***
-     * 群申请
-     * @param gid
-     * @param fromUid
-     * @param nickname
-     */
-    public void groupAcceptAdd(int joinType, long inviter, String inviterName, String gid, long fromUid, String nickname, String head) {
+    //申请加群
+    public void applyGroup(ApplyBean bean) {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-
-
-        GroupAccept accept = realm.where(GroupAccept.class).equalTo("gid", gid).equalTo("uid", fromUid).findFirst();
-        if (accept == null) {
-            accept = new GroupAccept();
-            accept.setAid(UUID.randomUUID().toString());
-            accept.setGid(gid);
-        }
-        accept.setTime(System.currentTimeMillis());
-
-        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
-        if (group != null) {
-            accept.setGroupName(group.getName());
-        }
-
-        accept.setUid(fromUid);
-        accept.setUname(nickname);
-        accept.setHead(head);
-        accept.setInviter(inviter);
-        accept.setInviterName(inviterName);
-        accept.setJoinType(joinType);
-
-        realm.insertOrUpdate(accept);
-
+        bean.setTime(System.currentTimeMillis());
+        realm.insertOrUpdate(bean);
         realm.commitTransaction();
         realm.close();
     }
 
-    public List<GroupAccept> groupAccept() {
+
+    //查询申请列表
+    public List<ApplyBean> getApplyBeanList() {
         Realm realm = DaoUtil.open();
         realm.beginTransaction();
-        List<GroupAccept> beans = new ArrayList<>();
-        RealmResults<GroupAccept> res = realm.where(GroupAccept.class).sort("time", Sort.DESCENDING).findAll();
+        List<ApplyBean> beans = new ArrayList<>();
+//        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).notEqualTo("stat", 3).sort("time", Sort.DESCENDING).findAll();
+        RealmResults<ApplyBean> res = realm.where(ApplyBean.class).sort("stat",Sort.ASCENDING,"time", Sort.DESCENDING).findAll();
         if (res != null) {
             beans = realm.copyFromRealm(res);
         }
@@ -1889,6 +1846,122 @@ public class MsgDao {
         realm.close();
         return beans;
     }
+
+    //根据aid查询申请人
+    public ApplyBean getApplyBean(String aid) {
+        Realm realm = DaoUtil.open();
+        ApplyBean applyBean = realm.where(ApplyBean.class).equalTo("aid", aid).findFirst();
+        return applyBean;
+    }
+
+    // 移除这条群申请
+    public void applyRemove(String aid) {
+        DaoUtil.deleteOne(ApplyBean.class, "aid", aid);
+
+    }
+
+
+
+
+
+//
+//    /**
+//     * 通讯录好友申请添加好友
+//     */
+//    public void userAcceptAdd(Long uid, String contactName) {
+//        Realm realm = DaoUtil.open();
+//        realm.beginTransaction();
+//
+//        ContactNameBean contactNameBean = realm.where(ContactNameBean.class).equalTo("uid", uid).findFirst();
+//        if (contactNameBean == null) {
+//            contactNameBean = new ContactNameBean();
+//            contactNameBean.setUid(uid);
+//            contactNameBean.setContactName(contactName);
+//        } else {
+//            contactNameBean.setContactName(contactName);
+//        }
+//
+//        realm.insertOrUpdate(contactNameBean);
+//        realm.commitTransaction();
+//        realm.close();
+//    }
+//
+//    /**
+//     * 获取contactName
+//     */
+//    public ContactNameBean getContactName(Long uid) {
+//        Realm realm = DaoUtil.open();
+//        ContactNameBean contactNameBean = realm.where(ContactNameBean.class).equalTo("uid", uid).findFirst();
+//
+//        return contactNameBean;
+//    }
+//
+//
+//    /***
+//     * 群申请
+//     * @param gid
+//     * @param fromUid
+//     * @param nickname
+//     */
+//    public void groupAcceptAdd(int joinType, long inviter, String inviterName, String gid, long fromUid, String nickname, String head) {
+//        Realm realm = DaoUtil.open();
+//        realm.beginTransaction();
+//
+//
+//        GroupAccept accept = realm.where(GroupAccept.class).equalTo("gid", gid).equalTo("uid", fromUid).findFirst();
+//        if (accept == null) {
+//            accept = new GroupAccept();
+//            accept.setAid(UUID.randomUUID().toString());
+//            accept.setGid(gid);
+//        }
+//        accept.setTime(System.currentTimeMillis());
+//
+//        Group group = realm.where(Group.class).equalTo("gid", gid).findFirst();
+//        if (group != null) {
+//            accept.setGroupName(group.getName());
+//        }
+//
+//        accept.setUid(fromUid);
+//        accept.setUname(nickname);
+//        accept.setHead(head);
+//        accept.setInviter(inviter);
+//        accept.setInviterName(inviterName);
+//        accept.setJoinType(joinType);
+//
+//        realm.insertOrUpdate(accept);
+//
+//        realm.commitTransaction();
+//        realm.close();
+//    }
+//
+//    public List<GroupAccept> groupAccept() {
+//        Realm realm = DaoUtil.open();
+//        realm.beginTransaction();
+//        List<GroupAccept> beans = new ArrayList<>();
+//        RealmResults<GroupAccept> res = realm.where(GroupAccept.class).sort("time", Sort.DESCENDING).findAll();
+//        if (res != null) {
+//            beans = realm.copyFromRealm(res);
+//        }
+//        realm.commitTransaction();
+//        realm.close();
+//        return beans;
+//    }
+//
+//
+//    /**
+//     * 移除这条群申请
+//     *
+//     * @param aid
+//     */
+//    public void groupAcceptRemove(String aid) {
+//        DaoUtil.deleteOne(GroupAccept.class, "aid", aid);
+//
+//    }
+
+
+
+
+
 
     /***
      * 修改群名
@@ -1909,15 +1982,6 @@ public class MsgDao {
         });
     }
 
-    /**
-     * 移除这条群申请
-     *
-     * @param aid
-     */
-    public void groupAcceptRemove(String aid) {
-        DaoUtil.deleteOne(GroupAccept.class, "aid", aid);
-
-    }
 
     /***
      * 群解散,退出的配置

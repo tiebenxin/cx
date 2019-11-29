@@ -112,7 +112,7 @@
 
             <View style="@style/app_line" />
 
-            <!--安全设置-->
+            <!--密码管理-->
             <include
                 android:id="@+id/viewSettingOfPsw"
                 layout="@layout/layout_pay_main_item" />

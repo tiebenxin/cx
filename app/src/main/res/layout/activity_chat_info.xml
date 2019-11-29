@@ -118,6 +118,7 @@
 
 
         <LinearLayout
+            android:id="@+id/read_destroy_ll"
             style="@style/app_layout_list2"
             android:background="@color/white">
 

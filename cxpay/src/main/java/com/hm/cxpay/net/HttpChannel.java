@@ -2,7 +2,7 @@ package com.hm.cxpay.net;
 
 import com.hm.cxpay.BuildConfig;
 import com.hm.cxpay.rx.PayHostUtils;
-import com.hm.cxpay.rx.api.PayApi;
+import com.hm.cxpay.rx.interceptor.CommonInterceptor;
 
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -56,7 +56,7 @@ public class HttpChannel {
     private Retrofit createRetrofit() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(PayHostUtils.getHttpUrl())
+                    .baseUrl(PayHostUtils.getHttpsUrl())
                     .addConverterFactory(GsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) // 支持RxJava
                     .client(okHttpClient) // 打印请求参数
@@ -83,7 +83,8 @@ public class HttpChannel {
             }
         });
         builder.addInterceptor(httpLoggingInterceptor);
-
+        CommonInterceptor commonInterceptor = new CommonInterceptor();
+        builder.addInterceptor(commonInterceptor);
         if (BuildConfig.DEBUG) {
 //            builder.addNetworkInterceptor(new StethoInterceptor());
         }

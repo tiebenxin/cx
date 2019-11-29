@@ -54,6 +54,7 @@ public class CXToolbar extends Toolbar {
 
         //默认为隐藏
         mTvTitle.setVisibility(GONE);
+        ll_title_right.setVisibility(GONE);
     }
 
     public CXToolbar setTitleText(String title) {

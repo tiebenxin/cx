@@ -9,7 +9,7 @@ public class RequestManager {
     public static <T> T getRequest(Class<T> clazz) {
         T t = (T) sRequestManager.get(clazz);
         if (t == null) {
-            t = RetrofitClient.createApi(clazz, PayHostUtils.getHttpUrl());
+            t = RetrofitClient.createApi(clazz, PayHostUtils.getHttpsUrl());
             sRequestManager.put(clazz, t);
         }
         return t;

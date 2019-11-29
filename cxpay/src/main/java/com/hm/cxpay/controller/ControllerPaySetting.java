@@ -6,6 +6,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.utils.UIUtils;
+
+import net.cb.cb.library.AppConfig;
 
 /**
  * @anthor Liszt
@@ -36,7 +39,7 @@ public class ControllerPaySetting {
     }
 
     public void init(int icon, int string, String right) {
-        ivIcon.setImageResource(icon);
+        ivIcon.setBackground(UIUtils.getDrawable(AppConfig.getContext(), icon));
         tvTitle.setText(string);
         if (!TextUtils.isEmpty(right)) {
             tvRight.setVisibility(View.VISIBLE);

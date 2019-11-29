@@ -40,7 +40,8 @@ public class DownloadResponseBody extends ResponseBody {
             public long read(Buffer sink, long byteCount) throws IOException {
                 long bytesRead = super.read(sink, byteCount);
                 bytesReaded += bytesRead == -1 ? 0 : bytesRead;
-                Long size = originalResponse.body().contentLength();
+                // (当前读取的字节+已下载过的字节) / 总字节数 * 100 = 当前已下载的百分比
+                Long size = originalResponse.body().contentLength()+oldPoint;
                 if (downloadListener != null) {
                     Long num = bytesReaded + oldPoint;
                     downloadListener.loading((int) ((num.doubleValue()/size.doubleValue())*100));

@@ -318,7 +318,7 @@ public class RecordedActivity extends BaseActivity {
         iv_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ViewUtils.isFastDoubleClick()) {
+                if (ViewUtils.isFastDoubleClick2()) {
                     return;
                 }
                 if(!isFinishing()){

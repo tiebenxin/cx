@@ -10,7 +10,6 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.utils.socket.MsgBean;
 
 import net.cb.cb.library.CoreEnum;
-import net.cb.cb.library.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,18 +155,17 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
             msgDao.insertOrUpdateMsgList(msgList);
         }
 
-        //有崩溃风险
         try {
             Map<String, MsgAllBean> mapCancel = MessageManager.getInstance().getPendingCancelMap();
             if (mapCancel != null && mapCancel.size() > 0) {
                 Iterator iterator = mapCancel.keySet().iterator();
                 while (iterator.hasNext()) {
-                    MsgAllBean bean = (MsgAllBean) iterator.next();
+                    MsgAllBean bean = mapCancel.get(iterator.next().toString());
                     msgDao.msgDel4Cancel(bean.getMsg_id(), bean.getMsgCancel().getMsgidCancel());
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
 
         MessageManager.getInstance().clearPendingList();
