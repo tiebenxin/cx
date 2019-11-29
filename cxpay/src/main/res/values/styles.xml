@@ -12,4 +12,11 @@
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:backgroundDimAmount">0.5</item>
     </style>
+
+    <!--零钱模块通用小横线-->
+    <style name="money_change_line">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">@color/c_0f000000</item>
+    </style>
 </resources>

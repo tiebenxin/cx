@@ -3,5 +3,6 @@
 
     <application>
         <activity android:name=".ui.LooseChangeActivity" />
+        <activity android:name=".ui.RechargeActivity" />
     </application>
 </manifest>

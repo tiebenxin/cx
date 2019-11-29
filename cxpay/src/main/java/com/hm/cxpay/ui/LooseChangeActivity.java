@@ -1,5 +1,6 @@
 package com.hm.cxpay.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -64,7 +65,8 @@ public class LooseChangeActivity extends AppActivity {
         btnRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startActivity(new Intent(LooseChangeActivity.this,RechargeActivity.class)
+                        .putExtra("balance",1));
             }
         });
         //提现
