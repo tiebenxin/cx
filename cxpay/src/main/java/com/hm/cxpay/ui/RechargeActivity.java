@@ -107,12 +107,11 @@ public class RechargeActivity extends AppActivity {
         tvSelectOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                go(CheckPayPswActivity.class);
-//                etRecharge.setText("10");
-//                etRecharge.setSelection(etRecharge.getText().length());
-//                clearSelectedStatus();
-//                tvSelectOne.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
-//                tvSelectOne.setTextColor(getResources().getColor(R.color.white));
+                etRecharge.setText("10");
+                etRecharge.setSelection(etRecharge.getText().length());
+                clearSelectedStatus();
+                tvSelectOne.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvSelectOne.setTextColor(getResources().getColor(R.color.white));
             }
         });
         tvSelectTwo.setOnClickListener(new View.OnClickListener() {

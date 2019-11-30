@@ -16,10 +16,11 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <android.support.constraint.ConstraintLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="189dp"
-                android:background="@drawable/bg_action">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/c_c85749">
 
                 <TextView
                     android:id="@+id/tv_title"
@@ -30,10 +31,8 @@
                     android:drawablePadding="6dp"
                     android:text="账户余额"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tv_money"
@@ -42,46 +41,61 @@
                     android:layout_marginTop="20dp"
                     android:text="¥ 0.00"
                     android:textColor="@color/white"
-                    android:textSize="27sp"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_title" />
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="27sp" />
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="23dp"
+                    android:layout_height="47dp"
+                    android:background="@color/c_c05042">
 
-                <Button
-                    android:id="@+id/btn_recharge"
-                    style="@style/app_btn_white_radius"
-                    android:layout_width="145dp"
-                    android:layout_height="39dp"
-                    android:layout_marginLeft="@dimen/app_margin_main"
-                    android:layout_marginTop="20dp"
-                    android:drawableLeft="@mipmap/ic_recharge"
-                    android:gravity="center"
-                    android:paddingLeft="35dp"
-                    android:paddingRight="35dp"
-                    android:text="充值"
-                    android:textColor="@color/btn_text_color"
-                    android:textSize="16sp"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_money" />
+                    <LinearLayout
+                        android:id="@+id/layout_recharge"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:gravity="center">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="15dp"
+                            android:src="@mipmap/ic_recharge"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="充值"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"/>
+                    </LinearLayout>
 
-                <Button
-                    android:id="@+id/btn_withdraw_deposit"
-                    style="@style/app_btn_white_radius"
-                    android:layout_width="145dp"
-                    android:layout_height="39dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginRight="@dimen/app_margin_main"
-                    android:drawableLeft="@mipmap/ic_withdraw_deposit"
-                    android:paddingLeft="35dp"
-                    android:paddingRight="35dp"
-                    android:text="提现"
-                    android:textColor="@color/btn_text_color"
-                    android:textSize="16sp"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_money" />
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="13dp"
+                        android:layout_marginBottom="11dp"
+                        android:background="@color/white"/>
 
-            </android.support.constraint.ConstraintLayout>
+                    <LinearLayout
+                        android:id="@+id/layout_withdraw_deposit"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:gravity="center">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="15dp"
+                            android:src="@mipmap/ic_withdraw_deposit"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="提现"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
 
             <!--我的红包-->
             <include
@@ -105,12 +119,6 @@
 
             <View style="@style/app_line" />
 
-            <!--交易记录-->
-            <include
-                android:id="@+id/viewRecordOfTransaction"
-                layout="@layout/layout_pay_main_item" />
-
-            <View style="@style/app_line" />
 
             <!--密码管理-->
             <include

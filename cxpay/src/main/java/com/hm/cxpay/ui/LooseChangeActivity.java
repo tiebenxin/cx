@@ -3,20 +3,16 @@ package com.hm.cxpay.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.controller.ControllerPaySetting;
-import com.hm.cxpay.net.FGObserver;
-import com.hm.cxpay.net.PayHttpUtils;
-import com.hm.cxpay.rx.RxSchedulers;
-import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.utils.IntentUtil;
+import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
 /*
@@ -25,14 +21,13 @@ import net.cb.cb.library.view.HeadView;
 public class LooseChangeActivity extends BasePayActivity {
 
     private ControllerPaySetting viewSettingOfPsw;
-    private ControllerPaySetting viewRecordOfTransaction;
     private ControllerPaySetting viewMyCard;
     private ControllerPaySetting viewMyRedEnvelope;
 
     private HeadView mHeadView;
     private TextView tvMoney;//余额
-    private Button btnRecharge;//充值
-    private Button btnWithdrawDeposit;//提现
+    private LinearLayout layoutRecharge;//充值
+    private LinearLayout layoutWithdrawDeposit;//提现
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +40,15 @@ public class LooseChangeActivity extends BasePayActivity {
     private void initView() {
         mHeadView = findViewById(R.id.headView);
         tvMoney = findViewById(R.id.tv_money);
-        btnRecharge = findViewById(R.id.btn_recharge);
-        btnWithdrawDeposit = findViewById(R.id.btn_withdraw_deposit);
+        layoutRecharge = findViewById(R.id.layout_recharge);
+        layoutWithdrawDeposit = findViewById(R.id.layout_withdraw_deposit);
     }
 
 
     private void initEvent() {
+        mHeadView.getActionbar().setChangeStyleBg();
+        mHeadView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
+        mHeadView.getActionbar().setTxtRight("账单");
         //标题栏事件
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -60,11 +58,12 @@ public class LooseChangeActivity extends BasePayActivity {
 
             @Override
             public void onRight() {
+                ToastUtil.show(context,"账单");
 
             }
         });
         //充值
-        btnRecharge.setOnClickListener(new View.OnClickListener() {
+        layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(LooseChangeActivity.this,RechargeActivity.class)
@@ -72,7 +71,7 @@ public class LooseChangeActivity extends BasePayActivity {
             }
         });
         //提现
-        btnWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
+        layoutWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -101,15 +100,6 @@ public class LooseChangeActivity extends BasePayActivity {
         int count = 0;
         viewMyCard.init(R.mipmap.ic_bank_card, R.string.settings_of_bank, count + "张");
         viewMyCard.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
-            @Override
-            public void onClick() {
-
-            }
-        });
-        //交易记录
-        viewRecordOfTransaction = new ControllerPaySetting(findViewById(R.id.viewRecordOfTransaction));
-        viewRecordOfTransaction.init(R.mipmap.ic_trade_record, R.string.record_of_transaction, "");
-        viewRecordOfTransaction.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
 
