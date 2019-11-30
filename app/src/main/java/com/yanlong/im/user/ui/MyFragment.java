@@ -1,18 +1,24 @@
 package com.yanlong.im.user.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,6 +44,7 @@ import com.yanlong.im.utils.update.UpdateManage;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
@@ -74,6 +81,7 @@ public class MyFragment extends Fragment {
     private LinearLayout mViewHelp;
     private TextView tvNewVersions;
     private LinearLayout viewService;
+    private Context context;
 
     //自动寻找控件
     private void findViews(View rootView) {
@@ -176,12 +184,15 @@ public class MyFragment extends Fragment {
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String value = SpUtil.getSpUtil().getSPValue("ServieAgreement", "");
-                if (StringUtil.isNotNull(value)) {
-//                    taskWallet();
+//                String ifAgree = SpUtil.getSpUtil().getSPValue("ServieAgreement", "");
+                //TODO 缓存或接口 取是否实名认证字段
+                String ifIdentify = SpUtil.getSpUtil().getSPValue("if_dentify", "");
+                //1 已经实名认证，可以使用零钱
+                if (StringUtil.isNotNull(ifIdentify)) {
                     IntentUtil.gotoActivity(getActivity(), LooseChangeActivity.class);
                 } else {
-                    IntentUtil.gotoActivity(getActivity(), ServiceAgreementActivity.class);
+                    //2 没有过实名认证（第一次进），弹框提示需要先同意协议并实名认证
+                    showIdentifyDialog();
                 }
             }
         });
@@ -253,7 +264,7 @@ public class MyFragment extends Fragment {
         ViewGroup.LayoutParams layparm = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         rootView.setLayoutParams(layparm);
         findViews(rootView);
-
+        context = getActivity();
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
@@ -349,6 +360,44 @@ public class MyFragment extends Fragment {
     private void toChatActivity() {
         //CX888 uid=100121
         startActivity(new Intent(getContext(), ChatActivity.class).putExtra(ChatActivity.AGM_TOUID, Constants.CX888_UID));
+    }
+
+    /**
+     * 实名认证提示弹框
+     */
+    private void showIdentifyDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
+        final AlertDialog dialog = dialogBuilder.create();
+        View dialogView = LayoutInflater.from(context).inflate(com.hm.cxpay.R.layout.dialog_identify, null);
+        TextView tvCancel = dialogView.findViewById(com.hm.cxpay.R.id.tv_cancel);
+        TextView tvIdentify = dialogView.findViewById(com.hm.cxpay.R.id.tv_identify);
+        //取消
+        tvCancel.setOnClickListener(new android.view.View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        //去认证(需要先同意协议)
+        tvIdentify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                context.startActivity(new Intent(context,ServiceAgreementActivity.class));
+                dialog.dismiss();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(context, 139);
+        lp.width = DensityUtil.dip2px(context, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
     }
 
 }
