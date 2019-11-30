@@ -12,7 +12,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 
-import com.jrmf360.walletlib.JrmfWalletClient;
+import com.hm.cxpay.ui.IdentificationUserActivity;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.yanlong.im.R;
 import com.yanlong.im.databinding.ActivityServiceAgreementBinding;
@@ -127,8 +127,9 @@ public class ServiceAgreementActivity extends AppActivity {
         mBinding.txtAgree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                taskWallet();
+                go(IdentificationUserActivity.class);
                 finish();
-                taskWallet();
             }
         });
         mBinding.txtNoAgree.setOnClickListener(new View.OnClickListener() {
@@ -154,13 +155,12 @@ public class ServiceAgreementActivity extends AppActivity {
                 if (response.body() == null)
                     return;
                 if (response.body().isOk()) {
-                    // 记录第一次
+                    //缓存用户已同意的状态
                     SpUtil spUtil = SpUtil.getSpUtil();
                     spUtil.putSPValue("ServieAgreement", "true");
-
-                    String token = response.body().getData().getSign();
-                    UserInfo minfo = UserAction.getMyInfo();
-                    JrmfWalletClient.intentWallet(ServiceAgreementActivity.this, "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
+//                    String token = response.body().getData().getSign();
+//                    UserInfo minfo = UserAction.getMyInfo();
+//                    JrmfWalletClient.intentWallet(ServiceAgreementActivity.this, "" + UserAction.getMyId(), token, minfo.getName(), minfo.getHead());
                 }
             }
         });

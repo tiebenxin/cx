@@ -32,5 +32,9 @@
         <activity
             android:name=".ui.bank.BindBankFinishActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.WithdrawActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 </manifest>

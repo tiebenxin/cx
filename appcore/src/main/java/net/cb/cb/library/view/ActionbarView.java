@@ -439,4 +439,12 @@ public class ActionbarView extends LinearLayout {
         iv_disturb.setVisibility(isShow ? VISIBLE : GONE);
     }
 
+    /**
+     * 零钱顶部背景样式
+     */
+    public void setChangeStyleBg(){
+        rootView.findViewById(R.id.ll_main).setBackgroundColor(Color.parseColor("#c85749"));
+
+    }
+
 }

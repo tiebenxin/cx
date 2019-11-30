@@ -87,7 +87,7 @@ public class RechargeActivity extends AppActivity {
                 if(!TextUtils.isEmpty(etRecharge.getText().toString())){
                     if(Double.valueOf(etRecharge.getText().toString()) >=1.0){
                         //TODO 判断是否添加过银行卡
-                        boolean ifAddBankcard = true;
+                        boolean ifAddBankcard = false;
                         //1 已经添加过银行卡
                         if(ifAddBankcard){
                             showRechargeDialog(2);
@@ -107,12 +107,11 @@ public class RechargeActivity extends AppActivity {
         tvSelectOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                go(CheckPayPswActivity.class);
-//                etRecharge.setText("10");
-//                etRecharge.setSelection(etRecharge.getText().length());
-//                clearSelectedStatus();
-//                tvSelectOne.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
-//                tvSelectOne.setTextColor(getResources().getColor(R.color.white));
+                etRecharge.setText("10");
+                etRecharge.setSelection(etRecharge.getText().length());
+                clearSelectedStatus();
+                tvSelectOne.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
+                tvSelectOne.setTextColor(getResources().getColor(R.color.white));
             }
         });
         tvSelectTwo.setOnClickListener(new View.OnClickListener() {
@@ -248,7 +247,7 @@ public class RechargeActivity extends AppActivity {
             pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
                 @Override
                 public void setPasswordChanged(String password) {
-                    //TODO 验证支付密码 + 充值成功1 失败2
+                    //TODO 验证支付密码 + 充值成功/失败
                     ToastUtil.show(activity,"支付密码是"+password);
                 }
             });
