@@ -19,4 +19,10 @@
         <item name="android:layout_height">1px</item>
         <item name="android:background">@color/c_0f000000</item>
     </style>
+
+    <style name="payword_line">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">@color/c_f0f0f0</item>
+    </style>
 </resources>

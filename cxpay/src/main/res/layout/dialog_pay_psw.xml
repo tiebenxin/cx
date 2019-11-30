@@ -101,7 +101,7 @@
         app:borderWidth="1dp"
         app:borderColor="@color/c_f0f0f0"
         app:borderRadius="5dp"
-        app:passwordWidth="8dp"
+        app:passwordWidth="5dp"
         app:passwordColor="@color/c_000000"/>
 
 
