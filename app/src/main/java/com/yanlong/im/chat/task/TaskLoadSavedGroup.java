@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import com.google.gson.JsonArray;
 import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.manager.MessageManager;
 
@@ -95,19 +94,26 @@ public class TaskLoadSavedGroup extends AsyncTask<Void, Integer, Boolean> {
         });
     }
 
-    /*
-     * 创建群聊头像
-     * */
+    /**
+     *  创建群聊头像
+     * @param groupList
+     */
     private void createGroupHead(List<Group> groupList) {
-        int len = groupList.size();
-        for (int i = 0; i < len; i++) {
-            Group group = groupList.get(i);
-            if (TextUtils.isEmpty(group.getAvatar())) {
-                String avatar = msgDao.groupHeadImgGet(group.getGid());
-                if (TextUtils.isEmpty(avatar)) {
-                    MessageManager.getInstance().doImgHeadChange(group.getGid(), group);
+        // TODO 创建头像时需要异步处理，否则用户快速点击会出现ANR
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int len = groupList.size();
+                for (int i = 0; i < len; i++) {
+                    Group group = groupList.get(i);
+                    if (TextUtils.isEmpty(group.getAvatar())) {
+                        String avatar = msgDao.groupHeadImgGet(group.getGid());
+                        if (TextUtils.isEmpty(avatar)) {
+                            MessageManager.getInstance().doImgHeadChange(group.getGid(), group);
+                        }
+                    }
                 }
             }
-        }
+        }).start();
     }
 }

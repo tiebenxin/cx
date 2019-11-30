@@ -67,7 +67,7 @@ public class SelectUserActivity extends AppActivity {
 
             @Override
             public void onRight() {
-                if(getSelectItem() != null){
+                if (getSelectItem() != null) {
                     String json = new Gson().toJson(getSelectItem());
                     setResult(RET_CODE_SELECTUSR, new Intent().putExtra(RET_JSON, json));
                 }
@@ -80,7 +80,6 @@ public class SelectUserActivity extends AppActivity {
         //联动
         viewType.setListView(mtListView.getListView());
     }
-
 
 
     private void initData() {
@@ -193,7 +192,7 @@ public class SelectUserActivity extends AppActivity {
     private void taskListData() {
         listData = userDao.friendGetAll(true);
         // 升序
-        Collections.sort(listData,new Comparator<UserInfo>() {
+        Collections.sort(listData, new Comparator<UserInfo>() {
             @Override
             public int compare(UserInfo o1, UserInfo o2) {
                 return o1.getTag().hashCode() - o2.getTag().hashCode();
@@ -211,9 +210,13 @@ public class SelectUserActivity extends AppActivity {
         }
         listData.addAll(tempData);
 
-        for (int i = 0; i < listData.size(); i++) {
-            //UserInfo infoBean:
-            viewType.putTag(listData.get(i).getTag(), i);
+        for (int i = listData.size() - 1; i >= 0; i--) {
+            // 推荐名片不显示客服号
+            if (UserUtil.isSystemUser(listData.get(i).getUid())) {
+                listData.remove(i);
+            } else {
+                viewType.putTag(listData.get(i).getTag(), i);
+            }
         }
         // 添加存在用户的首字母列表
         viewType.addItemView(UserUtil.userParseString(listData));

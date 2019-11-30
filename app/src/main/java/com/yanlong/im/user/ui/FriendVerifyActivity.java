@@ -74,6 +74,7 @@ public class FriendVerifyActivity extends AppActivity {
                 }
                 ToastUtil.show(FriendVerifyActivity.this, response.body().getMsg());
                 if (response.body().isOk()) {
+                    ToastUtil.show(context,"好友请求发送成功");
                     setResult(RESULT_OK);
                     finish();
                 }
