@@ -32,7 +32,7 @@ public class BaseResponse<T> implements IRespose, Serializable{
 
     @Override
     public boolean isSuccess() {
-        return code ==10;
+        return code ==0;
     }
 
     @Override

@@ -39,6 +39,12 @@ public class BindBankActivity extends BasePayActivity {
         initEvent();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ui.tvNext.setEnabled(true);
+    }
+
     private void initView() {
         user = PayEnvironment.getIntance().getUser();
         if (user != null) {
@@ -84,7 +90,7 @@ public class BindBankActivity extends BasePayActivity {
 
     }
 
-    public void checkBankCard(String bankCardNo) {
+    public void checkBankCard(final String bankCardNo) {
         ui.tvNext.setEnabled(false);
         PayHttpUtils.getInstance().checkBankCard(bankCardNo)
                 .compose(RxSchedulers.<BaseResponse<BankInfo>>compose())
@@ -97,6 +103,7 @@ public class BindBankActivity extends BasePayActivity {
                             if (user != null) {
                                 info.setOwnerName(user.getRealName());
                                 info.setOwnerId(user.getCardId());
+                                info.setBankNumber(bankCardNo);
                             }
                             Bundle bundle = new Bundle();
                             bundle.putParcelable("bank", info);
@@ -111,6 +118,7 @@ public class BindBankActivity extends BasePayActivity {
                     public void onHandleError(BaseResponse baseResponse) {
                         super.onHandleError(baseResponse);
                         ui.tvNext.setEnabled(true);
+                        ToastUtil.show(BindBankActivity.this, baseResponse.getMessage());
                     }
                 });
     }

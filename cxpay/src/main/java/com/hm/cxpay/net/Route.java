@@ -23,4 +23,7 @@ public class Route {
 
     //获取绑定银行卡
     public static final String GET_BIND_BANK_CARD = "/user/get_my_bank_cards";
+
+    //绑定银行卡
+    public static final String BIND_BANK = "/user/bind_bank_card";
 }

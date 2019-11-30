@@ -76,4 +76,18 @@ public class PayHttpUtils {
     }
 
 
+    //绑定银行卡
+    public Observable<BaseResponse> bindBank(String applySign, String bankCardNo, String bankName, String phone, String tranceNum, String transDate, String verificationCode) {
+        Map<String, String> map = new HashMap<>();
+        map.put("applySign", applySign);
+        map.put("bankCardNo", bankCardNo);
+        map.put("bankName", bankName);
+        map.put("phone", phone);
+        map.put("tranceNum", tranceNum);
+        map.put("transDate", transDate);
+        map.put("verificationCode", verificationCode);
+        return HttpChannel.getInstance().getPayService().bindBank(getRequestBody(map));
+    }
+
+
 }

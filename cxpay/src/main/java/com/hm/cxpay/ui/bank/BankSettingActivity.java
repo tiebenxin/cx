@@ -1,5 +1,6 @@
 package com.hm.cxpay.ui.bank;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,8 +14,10 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
+import net.cb.cb.library.base.AbstractRecyclerAdapter;
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.ActionbarView;
 
 import java.util.List;
 
@@ -40,11 +43,38 @@ public class BankSettingActivity extends BasePayActivity {
         ui.llAddCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentUtil.gotoActivity(BankSettingActivity.this,BindBankActivity.class);
+                IntentUtil.gotoActivity(BankSettingActivity.this, BindBankActivity.class);
             }
         });
 
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+
+            }
+        });
         getBankList();
+
+        adapter.setItemClickListener(new AbstractRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Object bean) {
+                if (bean instanceof BankBean) {
+                    BankBean bankBean = (BankBean) bean;
+                    Intent intent = new Intent(BankSettingActivity.this, BankDetailActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("bank", bankBean);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+
+                }
+
+            }
+        });
 
     }
 
