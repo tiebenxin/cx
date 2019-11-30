@@ -186,7 +186,7 @@ public class MyFragment extends Fragment {
             public void onClick(View v) {
 //                String ifAgree = SpUtil.getSpUtil().getSPValue("ServieAgreement", "");
                 //TODO 缓存或接口 取是否实名认证字段
-                String ifIdentify = SpUtil.getSpUtil().getSPValue("if_dentify", "");
+                String ifIdentify = SpUtil.getSpUtil().getSPValue("if_dentify", "1");
                 //1 已经实名认证，可以使用零钱
                 if (StringUtil.isNotNull(ifIdentify)) {
                     IntentUtil.gotoActivity(getActivity(), LooseChangeActivity.class);
