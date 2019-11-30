@@ -14,6 +14,7 @@ public class BankInfo implements Parcelable {
     int cardType;//银行卡类别，目前只支持储蓄卡，不支持信用卡
     String cardTypeLabel;//银行卡类别标签，目前只支持储蓄卡，不支持信用卡
     String ownerName;//持卡人姓名
+    String ownerId;//持卡人身份证号
 
     protected BankInfo(Parcel in) {
         bankCode = in.readString();
@@ -21,6 +22,7 @@ public class BankInfo implements Parcelable {
         cardType = in.readInt();
         cardTypeLabel = in.readString();
         ownerName = in.readString();
+        ownerId = in.readString();
     }
 
     public static final Creator<BankInfo> CREATOR = new Creator<BankInfo>() {
@@ -75,6 +77,14 @@ public class BankInfo implements Parcelable {
         this.ownerName = ownerName;
     }
 
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -87,5 +97,6 @@ public class BankInfo implements Parcelable {
         dest.writeInt(cardType);
         dest.writeString(cardTypeLabel);
         dest.writeString(ownerName);
+        dest.writeString(ownerId);
     }
 }

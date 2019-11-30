@@ -111,14 +111,17 @@ public class AlertWait {
 
         alert.setView(v);
         dialog = alert.create();
-        dialog.setOnCancelListener(dismissListener);
+        //设置背景透明
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-        dialog.show();
         WindowManager.LayoutParams p = dialog.getWindow().getAttributes();
         // p.height = DensityUtil.dip2px(activity, 226);
         p.width = DensityUtil.dip2px(AppConfig.APP_CONTEXT,200);
-
         dialog.getWindow().setAttributes(p);
+
+        dialog.setOnCancelListener(dismissListener);
+
+        dialog.show();
     }
 
     public boolean isShown() {

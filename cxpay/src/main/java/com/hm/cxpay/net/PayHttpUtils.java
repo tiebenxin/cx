@@ -3,9 +3,12 @@ package com.hm.cxpay.net;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
+import com.hm.cxpay.ui.bank.BindBankInfo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -28,6 +31,19 @@ public class PayHttpUtils {
         return instance;
     }
 
+    private static RequestBody getRequestBody(Map<String, String> map) {
+        return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), mapToJSON(map));
+    }
+
+    /**
+     * 将Map转化为Json
+     */
+    private static String mapToJSON(Map<String, String> map) {
+        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
+        return gson.toJson(map);
+    }
+
+
     //用户认证
     public Observable<BaseResponse> authUserInfo(String idNum, String realName) {
         Map<String, String> map = new HashMap<>();
@@ -45,15 +61,19 @@ public class PayHttpUtils {
     }
 
 
-    private static RequestBody getRequestBody(Map<String, String> map) {
-        return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), mapToJSON(map));
+    //申请绑定银行卡 银行卡号，银行预留手机号
+    public Observable<BaseResponse<BindBankInfo>> applyBindBank(String bankCardNo, String phone) {
+        Map<String, String> map = new HashMap<>();
+        map.put("bankCardNo", bankCardNo);
+        map.put("phone", phone);
+        return HttpChannel.getInstance().getPayService().applyBindBankCard(getRequestBody(map));
     }
 
-    /**
-     * 将Map转化为Json
-     */
-    private static String mapToJSON(Map<String, String> map) {
-        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().create();
-        return gson.toJson(map);
+
+    //申请绑定银行卡 银行卡号，银行预留手机号
+    public Observable<BaseResponse<List<BankBean>>> getBankList() {
+        return HttpChannel.getInstance().getPayService().getBindBankCardList();
     }
+
+
 }

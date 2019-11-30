@@ -81,7 +81,7 @@
                                 style="@style/app_edt1"
                                 android:background="@drawable/bg_edt_chat"
                                 android:gravity="center"
-                                android:text="按住说话"
+                                android:text="按住 说话"
                                 android:visibility="gone" />
                         </FrameLayout>
 

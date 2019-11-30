@@ -1,9 +1,9 @@
 package com.yanlong.im.utils;
 
-import android.content.Context;
-
 import com.yanlong.im.user.bean.FriendInfoBean;
 import com.yanlong.im.user.bean.UserInfo;
+
+import net.cb.cb.library.manager.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,4 +58,15 @@ public class UserUtil {
         return list;
 
     }
+    /**
+     * 是否是常信客服、常信小助手
+     * @return
+     */
+    public static boolean isSystemUser(Long toUId) {
+        if (toUId != null && (toUId.intValue() == Constants.CX_HELPER_UID || toUId.intValue() == Constants.CX888_UID || toUId.intValue() == Constants.CX999_UID)) {
+            return true;
+        }
+        return false;
+    }
+
 }
