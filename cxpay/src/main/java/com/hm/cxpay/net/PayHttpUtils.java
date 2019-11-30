@@ -3,6 +3,7 @@ package com.hm.cxpay.net;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bank.BankInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,12 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().authUserInfo(getRequestBody(map));
     }
 
-
+    //银行卡检测
+    public Observable<BaseResponse<BankInfo>> checkBankCard(String bankCardNo) {
+        Map<String, String> map = new HashMap<>();
+        map.put("bankCardNo", bankCardNo);
+        return HttpChannel.getInstance().getPayService().checkBankCard(getRequestBody(map));
+    }
 
 
     private static RequestBody getRequestBody(Map<String, String> map) {

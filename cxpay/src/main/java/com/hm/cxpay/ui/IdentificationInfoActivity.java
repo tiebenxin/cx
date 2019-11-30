@@ -9,6 +9,8 @@ import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.databinding.ActivityIdentificationInfoBinding;
 import com.hm.cxpay.global.PayEnvironment;
 
+import net.cb.cb.library.view.ActionbarView;
+
 /**
  * @anthor Liszt
  * @data 2019/11/29
@@ -27,6 +29,18 @@ public class IdentificationInfoActivity extends BasePayActivity {
             ui.tvName.setText(userBean.getRealName());
             ui.tvId.setText(userBean.getCardId());
         }
+
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+
+            }
+        });
 
 
     }
