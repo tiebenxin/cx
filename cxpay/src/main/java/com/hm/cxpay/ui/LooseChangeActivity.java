@@ -75,7 +75,8 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startActivity(new Intent(LooseChangeActivity.this,WithdrawActivity.class)
+                        .putExtra("balance",1));
             }
         });
         //红包明细

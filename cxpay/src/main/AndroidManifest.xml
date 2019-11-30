@@ -7,6 +7,7 @@
         <activity android:name=".ui.IdentificationInfoActivity" />
         <activity android:name=".ui.RechargeActivity" />
         <activity android:name=".ui.CheckPayPswActivity" />
+        <activity android:name=".ui.WithdrawActivity" />
         <activity android:name=".ui.bank.InputPhoneActivity" />
         <activity android:name=".ui.bank.BindBankActivity" />
         <activity android:name=".ui.bank.BankSettingActivity" />
