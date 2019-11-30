@@ -1,16 +1,10 @@
 package net.cb.cb.library.view;
 
-import java.util.ArrayList;
-import java.util.Locale;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.LocaleList;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -93,6 +87,9 @@ public class WebPageActivity extends AppActivity {
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
                 progressBar.setProgress(newProgress);
+                if (newProgress == 100) {
+                    progressBar.setVisibility(View.GONE);
+                }
             }
         });
         webView.setOnLongClickListener(new OnLongClickListener() {

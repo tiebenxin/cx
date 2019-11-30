@@ -21,6 +21,7 @@ import com.yanlong.im.pay.bean.SignatureBean;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.SpUtil;
@@ -72,7 +73,7 @@ public class ServiceAgreementActivity extends AppActivity {
                     return;
                 }
                 Intent intent = new Intent(ServiceAgreementActivity.this, WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL, "https://changxin.zhixun6.com/yhxy.html");
+                intent.putExtra(WebPageActivity.AGM_URL, AppConfig.USER_AGREEMENT);
                 startActivity(intent);
             }
 
@@ -88,7 +89,7 @@ public class ServiceAgreementActivity extends AppActivity {
                     return;
                 }
                 Intent intent = new Intent(ServiceAgreementActivity.this, WebPageActivity.class);
-                intent.putExtra(WebPageActivity.AGM_URL, "https://changxin.zhixun6.com/yszc.html");
+                intent.putExtra(WebPageActivity.AGM_URL, AppConfig.USER_PRIVACY);
                 startActivity(intent);
             }
 

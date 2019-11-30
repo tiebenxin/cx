@@ -23,6 +23,11 @@ public class AppConfig {
     public static float FONT = 1.0f;
     public static String UP_PATH = "";
 
+    // 用户服务协议
+    public static final String USER_AGREEMENT = "https://changxin.zhixun6.com/yhxy.html";
+    // 隐私政策
+    public static final String USER_PRIVACY = "https://changxin.zhixun6.com/yszc.html";
+
     //设置全局字体
     public static void setFont(float font) {
         FONT = font;

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
 import com.lansosdk.videoeditor.LanSongFileUtil;
+import com.luck.picture.lib.tools.DoubleUtils;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.yanlong.im.R;
@@ -25,6 +26,7 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.VersionBean;
 import com.yanlong.im.utils.update.UpdateManage;
 
+import net.cb.cb.library.AppConfig;
 import net.cb.cb.library.bean.EventLoginOut;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
 import net.cb.cb.library.utils.VersionUtil;
@@ -32,6 +34,7 @@ import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+import net.cb.cb.library.view.WebPageActivity;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -44,6 +47,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
     private LinearLayout mViewSecurityPrivacy;
     private LinearLayout mViewSetingFont;
     private LinearLayout mViewClear;
+    private LinearLayout mviewPrivacy;
     private Button mBtnExit;
     private HeadView mHeadView;
     private LinearLayout mViewAboutAs;
@@ -77,6 +81,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         cbVoice = findViewById(R.id.cb_voice);
         viewSelectBackground = findViewById(R.id.view_select_background);
         tvNewVersions = findViewById(R.id.tv_new_versions);
+        mviewPrivacy = findViewById(R.id.view_privacy);
 
         SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.NEW_VESRSION);
         VersionBean bean = sharedPreferencesUtil.get4Json(VersionBean.class);
@@ -98,6 +103,7 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
         mViewClear.setOnClickListener(this);
         mBtnExit.setOnClickListener(this);
         mViewAboutAs.setOnClickListener(this);
+        mviewPrivacy.setOnClickListener(this);
         viewSelectBackground.setOnClickListener(this);
         mHeadView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -167,6 +173,14 @@ public class CommonActivity extends AppActivity implements View.OnClickListener 
                 break;
             case R.id.view_select_background:
                 go(BackgroundImageActivity.class);
+                break;
+            case R.id.view_privacy:
+                if (DoubleUtils.isFastDoubleClick()) {//防止快速点击弹出两个界面
+                    return;
+                }
+                Intent intent = new Intent(this, WebPageActivity.class);
+                intent.putExtra(WebPageActivity.AGM_URL, AppConfig.USER_PRIVACY);
+                startActivity(intent);
                 break;
         }
     }

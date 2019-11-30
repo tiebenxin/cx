@@ -33,7 +33,6 @@ import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.EventRunState;
 import net.cb.cb.library.bean.OnlineBean;
 import net.cb.cb.library.bean.ReturnBean;
-import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.view.ActionbarView;
@@ -467,6 +466,10 @@ public class FriendMainFragment extends Fragment {
 
     private void taskRemoveUser(long uid) {
         userDao.updateUserUtype(uid, 0);
+        // 更新置顶状态
+        msgDao.updateUserSessionTop(uid, 0);
+        // 刷新列表
+        MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, uid, "", CoreEnum.ESessionRefreshTag.ALL, null);
         taskListData();
     }
 
