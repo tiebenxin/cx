@@ -114,6 +114,40 @@ public class MainActivity extends AppActivity {
     private EventFactory.VoiceMinimizeEvent mVoiceMinimizeEvent;
     private boolean isActivityStop;
 
+    private UserAction userAction = new UserAction();
+    private boolean testMe = true;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        EventBus.getDefault().register(this);
+        findViews();
+        initEvent();
+        uploadApp();
+        getSurvivalTimeData();
+        checkRosters();
+        doRegisterNetReceiver();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            reTryExit();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+
+
     //自动寻找控件
     private void findViews() {
         viewPage = findViewById(R.id.viewPage);
@@ -254,37 +288,6 @@ public class MainActivity extends AppActivity {
             }
         });
 
-    }
-
-    private UserAction userAction = new UserAction();
-    private boolean testMe = true;
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        EventBus.getDefault().register(this);
-        findViews();
-        initEvent();
-        uploadApp();
-        getSurvivalTimeData();
-        checkRosters();
-        doRegisterNetReceiver();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            reTryExit();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     /**
@@ -465,7 +468,8 @@ public class MainActivity extends AppActivity {
     public void eventRefreshFriend(EventRefreshFriend event) {
         if (event.getRosterAction() == CoreEnum.ERosterAction.LOAD_ALL_SUCCESS) {
             taskLoadSavedGroups();
-        } else if (event.getRosterAction() == CoreEnum.ERosterAction.REQUEST_FRIEND) {//请求添加为好友
+        } else if (event.getRosterAction() == CoreEnum.ERosterAction.REQUEST_FRIEND
+                ||event.getRosterAction() == CoreEnum.ERosterAction.DEFAULT) {//请求添加为好友 申请进群
             taskGetFriendNum();
         }
     }

@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.zxing.WriterException;
+import com.luck.picture.lib.tools.DateUtils;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareListener;
@@ -75,6 +76,7 @@ public class MyselfQRCodeActivity extends AppActivity {
     private ImgSizeUtil.ImageSize imgsize;//获取图片大小
     private ImageView imageCodeHead;
     private View viewQrCode;
+    private TextView valid_time_tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +97,9 @@ public class MyselfQRCodeActivity extends AppActivity {
         mHeadView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
         mViewMyQrcode = findViewById(R.id.view_my_qrcode);
         viewQrCode = findViewById(R.id.view_qr_code);
+        valid_time_tv = findViewById(R.id.valid_time_tv);
+
+
         type = getIntent().getIntExtra(TYPE, 0);
         UMShareAPI.get(this);
     }
@@ -156,9 +161,15 @@ public class MyselfQRCodeActivity extends AppActivity {
             qrCodeBean.setFunction(QRCodeManage.ADD_GROUP_FUNCHTION);
             qrCodeBean.setParameterValue(QRCodeManage.ID, groupId);
             qrCodeBean.setParameterValue(QRCodeManage.UID, userInfo.getUid() + "");
-            qrCodeBean.setParameterValue(QRCodeManage.TIME, QRCodeManage.getTime(7));
+            String timeTemp=QRCodeManage.getTime(7);
+            qrCodeBean.setParameterValue(QRCodeManage.TIME, timeTemp);
             qrCodeBean.setParameterValue(QRCodeManage.NICK_NAME, userInfo.getName());
             QRCode = QRCodeManage.getQRcodeStr(qrCodeBean);
+
+            valid_time_tv.setVisibility(View.VISIBLE);
+            long timeLong=Long.valueOf(timeTemp);
+            String timeStr=DateUtils.timeStamp2Date(timeLong ,"yyyy-MM-dd HH:mm");
+            valid_time_tv.setText("该二维码 "+timeStr+" 前有效");
         }
         try {
             if (type == 0) {
