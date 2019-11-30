@@ -10,14 +10,12 @@ import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.databinding.ActivityBindBankBinding;
-import com.hm.cxpay.databinding.ActivityIdentificationCentreBinding;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.net.Route;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
-import com.hm.cxpay.ui.IdentificationUserActivity;
 
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -95,10 +93,10 @@ public class BindBankActivity extends BasePayActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<BankInfo> baseResponse) {
                         if (baseResponse.isSuccess()) {
-//                            ToastUtil.show(BindBankActivity.this, "认证成功");
                             BankInfo info = baseResponse.getData();
                             if (user != null) {
                                 info.setOwnerName(user.getRealName());
+                                info.setOwnerId(user.getCardId());
                             }
                             Bundle bundle = new Bundle();
                             bundle.putParcelable("bank", info);

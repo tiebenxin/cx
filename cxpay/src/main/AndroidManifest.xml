@@ -8,5 +8,6 @@
         <activity android:name=".ui.RechargeActivity" />
         <activity android:name=".ui.bank.InputPhoneActivity" />
         <activity android:name=".ui.bank.BindBankActivity" />
+        <activity android:name=".ui.bank.BankSettingActivity" />
     </application>
 </manifest>

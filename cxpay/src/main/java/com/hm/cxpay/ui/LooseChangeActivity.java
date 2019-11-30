@@ -9,14 +9,10 @@ import android.widget.TextView;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.controller.ControllerPaySetting;
-import com.hm.cxpay.net.FGObserver;
-import com.hm.cxpay.net.PayHttpUtils;
-import com.hm.cxpay.rx.RxSchedulers;
-import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bank.BankSettingActivity;
 
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.view.ActionbarView;
-import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
 /*
@@ -67,8 +63,8 @@ public class LooseChangeActivity extends BasePayActivity {
         btnRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(LooseChangeActivity.this,RechargeActivity.class)
-                        .putExtra("balance",1));
+                startActivity(new Intent(LooseChangeActivity.this, RechargeActivity.class)
+                        .putExtra("balance", 1));
             }
         });
         //提现
@@ -103,7 +99,7 @@ public class LooseChangeActivity extends BasePayActivity {
         viewMyCard.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-
+                IntentUtil.gotoActivity(LooseChangeActivity.this, BankSettingActivity.class);
             }
         });
         //交易记录

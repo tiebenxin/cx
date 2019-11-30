@@ -14,34 +14,101 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
-                style="@style/app_txt_content_1"
-                android:layout_marginLeft="@dimen/app_margin_main"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:text="请添加账户本人银行卡"
-                android:textSize="12sp" />
-
 
             <LinearLayout style="@style/app_layout_list2_item">
 
                 <TextView
                     style="@style/app_txt_title_2"
                     android:layout_width="100dp"
-                    android:text="持卡人" />
+                    android:text="银行" />
 
-                <net.cb.cb.library.view.ClearEditText
-                    android:id="@+id/et_name"
+                <TextView
+                    android:id="@+id/tv_bank_name"
                     style="@style/app_txt_title_2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:hint="请输入持卡人姓名"
-                    android:textColorHint="@color/gray_300"
-                    app:layout_constraintRight_toRightOf="parent" />
+                    android:text="中国银行" />
 
+                <View
+                    style="@style/app_line"
+                    android:paddingLeft="@dimen/app_margin_main" />
+
+
+            </LinearLayout>
+
+            <LinearLayout style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_width="100dp"
+                    android:text="卡类型" />
+
+                <TextView
+                    android:id="@+id/tv_bank_type"
+                    style="@style/app_txt_title_2"
+                    android:layout_marginLeft="15dp"
+                    android:text="储蓄卡" />
+
+                <View
+                    style="@style/app_line"
+                    android:paddingLeft="@dimen/app_margin_main" />
+
+
+            </LinearLayout>
+
+            <LinearLayout style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_width="100dp"
+                    android:text="卡号" />
+
+                <TextView
+                    android:id="@+id/tv_bank_num"
+                    style="@style/app_txt_title_2"
+                    android:layout_marginLeft="15dp"
+                    android:text="******" />
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                style="@style/app_layout_list2_item"
+                android:layout_marginTop="3dp">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_width="130dp"
+                    android:text="持卡人姓名" />
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    style="@style/app_txt_title_2"
+                    android:layout_marginLeft="15dp"
+                    android:text="**" />
+
+                <View
+                    style="@style/app_line"
+                    android:paddingLeft="@dimen/app_margin_main" />
+
+            </LinearLayout>
+
+            <LinearLayout style="@style/app_layout_list2_item">
+
+                <TextView
+                    style="@style/app_txt_title_2"
+                    android:layout_width="130dp"
+                    android:text="持卡人身份证号" />
+
+                <TextView
+                    android:id="@+id/tv_card_id"
+                    style="@style/app_txt_title_2"
+                    android:layout_marginLeft="15dp"
+                    android:text="**" />
+
+                <View
+                    style="@style/app_line"
+                    android:paddingLeft="@dimen/app_margin_main" />
 
             </LinearLayout>
 
@@ -52,36 +119,53 @@
                 <TextView
                     style="@style/app_txt_title_2"
                     android:layout_width="100dp"
-                    android:text="银行卡号" />
+                    android:text="手机号" />
 
                 <net.cb.cb.library.view.ClearEditText
-                    android:id="@+id/et_idcard"
+                    android:id="@+id/et_phone_num"
                     style="@style/app_txt_title_2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:hint="请输入银行卡号"
+                    android:hint="银行预留手机号"
                     android:textColorHint="@color/gray_300"
                     app:layout_constraintRight_toRightOf="parent" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="10dp"
                 android:background="@color/transparent"
-                android:gravity="right">
+                android:gravity="center_vertical|left"
+                android:paddingLeft="30dp">
 
-                <TextView
-                    android:id="@+id/tv_view_support"
+                <ImageView
+                    android:id="@+id/iv_check"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:layout_marginRight="10dp"
-                    android:text="查看支持银行"
+                    android:padding="5dp"
+                    android:src="@drawable/selector_check_box" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="同意"
+                    android:textColor="#868686"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_agreement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="《用户协议》"
                     android:textColor="#374882"
-                    android:textSize="14sp" />
+                    android:textSize="12sp" />
 
             </LinearLayout>
 
