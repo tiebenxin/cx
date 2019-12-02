@@ -5,7 +5,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.TextView;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
@@ -17,8 +16,8 @@ import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.utils.CheckUtil;
 import net.cb.cb.library.utils.CountDownUtil;
-import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.ActionbarView;
 
 /**
  * @anthor Liszt
@@ -55,6 +54,23 @@ public class BindBankFinishActivity extends BasePayActivity {
             }
         });
 
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+//                onBackPressed();
+                Intent intent = new Intent();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("bank", bankInfo);
+                intent.putExtras(bundle);
+                setResult(RESULT_CANCELED, intent);
+                finish();
+            }
+
+            @Override
+            public void onRight() {
+
+            }
+        });
     }
 
     private void initCountDownUtil() {
@@ -122,7 +138,9 @@ public class BindBankFinishActivity extends BasePayActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         if (baseResponse.isSuccess()) {
-                            IntentUtil.gotoActivity(BindBankFinishActivity.this, BankSettingActivity.class);
+//                            IntentUtil.gotoActivity(BindBankFinishActivity.this, BankSettingActivity.class);
+                            setResult(RESULT_OK);
+                            finish();
                         } else {
                             ui.tvNext.setEnabled(true);
                             ToastUtil.show(BindBankFinishActivity.this, baseResponse.getMessage());
@@ -138,4 +156,5 @@ public class BindBankFinishActivity extends BasePayActivity {
                 });
 
     }
+
 }

@@ -1,6 +1,8 @@
 package com.example.nim_lib.ui;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
@@ -471,6 +473,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         Log.i(TAG, "onDestroy");
         returnVideoActivity = false;
         isCallEstablished = false;
+        moveAppToFront();
         stopPlayer();
         AVChatProfile.getInstance().setCallEstablished(false);
         AVChatProfile.getInstance().setCallIng(false);
@@ -485,6 +488,24 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             mHandler.removeCallbacks(runnableOutWait);
             if (EventBus.getDefault().isRegistered(this)) {
                 EventBus.getDefault().unregister(this);
+            }
+        }
+    }
+
+    /**
+     * 这个方法，让我们的应用恢复到任务栈栈顶，到前台。recentList.remove(0)是为了去除掉音视频activity所占的地方,
+     * 解决了在后台调起应用，用户挂断后栈顶没有恢复问题
+     */
+    private void moveAppToFront() {
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> recentList = am.getRunningTasks(30);
+        recentList.remove(0);//去掉锁屏本身
+        for (ActivityManager.RunningTaskInfo info : recentList) {
+            if (info.topActivity.getPackageName().equals(getPackageName())) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    am.moveTaskToFront(info.id,0);
+                }
+                return;
             }
         }
     }

@@ -163,7 +163,7 @@ public class AddGroupActivity extends AppActivity {
                         new MsgDao().sessionCreate(gid, null);
                         MessageManager.getInstance().setMessageChange(true);
                     } else {
-                        ToastUtil.show(AddGroupActivity.this, "加群成功,等待群主验证");
+                        ToastUtil.show(AddGroupActivity.this, "申请成功,等待群主验证");
                     }
                     finish();
                 }else {

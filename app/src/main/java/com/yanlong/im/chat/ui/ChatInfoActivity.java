@@ -27,6 +27,7 @@ import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.DestroyTimeView;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import com.yanlong.im.utils.ReadDestroyUtil;
+import com.yanlong.im.utils.UserUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
@@ -248,7 +249,11 @@ public class ChatInfoActivity extends AppActivity {
         @Override
         public int getItemCount() {
             // return listDataTop == null ? 0 : listDataTop.size();
-            return 2;
+            if(UserUtil.isSystemUser(fuid)){
+                return 1;
+            }else{
+                return 2;
+            }
         }
 
         //自动生成控件事件

@@ -3,6 +3,7 @@ package com.hm.cxpay.ui.bank;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -107,7 +108,10 @@ public class BindBankActivity extends BasePayActivity {
                             }
                             Bundle bundle = new Bundle();
                             bundle.putParcelable("bank", info);
-                            IntentUtil.gotoActivity(BindBankActivity.this, InputPhoneActivity.class, bundle);
+//                            IntentUtil.gotoActivity(BindBankActivity.this, InputPhoneActivity.class, bundle);
+                            Intent intent = new Intent(BindBankActivity.this, InputPhoneActivity.class);
+                            intent.putExtras(bundle);
+                            startActivityForResult(intent, BankSettingActivity.REQUEST_BIND);
                         } else {
                             ui.tvNext.setEnabled(true);
                             ToastUtil.show(BindBankActivity.this, baseResponse.getMessage());
@@ -123,7 +127,32 @@ public class BindBankActivity extends BasePayActivity {
                 });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BankSettingActivity.REQUEST_BIND) {
+            if (resultCode == RESULT_OK) {
+                setResult(RESULT_OK);
+                finish();
+            } else if (resultCode == RESULT_CANCELED) {
+                if (data != null) {
+                    BankInfo info = data.getParcelableExtra("bank");
+                    if (info != null) {
+                        initBankInfo(info);
+                    }
+                }
+            }
+        }
+    }
 
+    private void initBankInfo(BankInfo info) {
+        if (info == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(info.getBankNumber())) {
+            ui.etBank.setText(info.getBankNumber());
+        }
+    }
 }
 
 

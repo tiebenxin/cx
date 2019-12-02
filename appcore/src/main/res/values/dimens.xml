@@ -9,6 +9,8 @@
 
     <dimen name="app_margin_bottom">5dp</dimen>
 
+    <dimen name="zxing_message_font_size">14dp</dimen>
+
     <!--项的间隔顶部-->
     <dimen name="app_margin_item_top">7dp</dimen>
     <!-- 每项的高度 -->
