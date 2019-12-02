@@ -3725,7 +3725,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
                 // 客服不显示时间状态
-                if (onlineState&& !UserUtil.isSystemUser(toUId)) {
+                if (onlineState && !UserUtil.isSystemUser(toUId)) {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
                 } else {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
@@ -4256,8 +4256,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         msgAction.groupInfo(toGid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                if (response.body() == null)
-                    return;
+//                if (response.body() == null)
+//                    return;
 
 //                groupInfo = response.body().getData();
                 groupInfo = msgDao.getGroup4Id(toGid);
@@ -4266,6 +4266,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     master = groupInfo.getMaster();
                 }
 
+                if (groupInfo == null) {//取不到群信息了
+                    groupInfo = new Group();
+                    groupInfo.setMaster("");
+                    groupInfo.setUsers(new RealmList<MemberUser>());
+                }
+
+                if (groupInfo.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
+                    viewChatRobot.setVisibility(View.VISIBLE);
+                } else {
+                    viewFunc.removeView(viewChatRobot);
+                }
+                taskSessionInfo();
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                super.onFailure(call, t);
+                groupInfo = msgDao.getGroup4Id(toGid);
+                if (groupInfo != null) {
+                    contactIntimately = groupInfo.getContactIntimately();
+                    master = groupInfo.getMaster();
+                }
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();
                     groupInfo.setMaster("");
