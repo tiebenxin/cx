@@ -17,6 +17,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.ui.bank.BindBankActivity;
+import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -24,6 +32,9 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @类名：零钱->充值
@@ -41,10 +52,12 @@ public class RechargeActivity extends AppActivity {
     private TextView tvSelectOne;//选中10
     private TextView tvSelectTwo;//选中20
     private TextView tvSelectThree;//选中30
-    private TextView tvSelectFour;//选中50
-    private TextView tvSelectFive;//选中100
-    private TextView tvSelectSix;//选中200
+    private TextView tvSelectFour;//选中100
+    private TextView tvSelectFive;//选中200
+    private TextView tvSelectSix;//选中500
     private Context activity;
+    private boolean ifAddBankcard = false;//判断是否添加过银行卡
+    private List<BankBean> bankList = null;//我所绑定的所有银行卡列表数据
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +66,7 @@ public class RechargeActivity extends AppActivity {
         setContentView(R.layout.activity_recharge);
         initView();
         initData();
+        getBankList();
     }
 
     private void initView() {
@@ -81,25 +95,28 @@ public class RechargeActivity extends AppActivity {
 
             }
         });
+        //显示余额
+        tvBalance.setText("当前零钱余额  ¥ " + PayEnvironment.getIntance().getUser().getBalance());
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!TextUtils.isEmpty(etRecharge.getText().toString())){
-                    if(Double.valueOf(etRecharge.getText().toString()) >=1.0){
-                        //TODO 判断是否添加过银行卡
-                        boolean ifAddBankcard = false;
-                        //1 已经添加过银行卡
-                        if(ifAddBankcard){
+                //1 充值金额不能为空
+                if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
+                    //2 最低充值1元
+                    if (Double.valueOf(etRecharge.getText().toString()) >= 1.0) {
+                        //3-1 已经添加过银行卡
+                        if (ifAddBankcard) {
                             showRechargeDialog(2);
-                        }else {
-                            //2 没有添加过银行卡
+                        } else {
+                            //3-2 没有添加过银行卡
                             showRechargeDialog(1);
                         }
-                    }else {
-                        ToastUtil.show(context,"最低充值金额1元");
+
+                    } else {
+                        ToastUtil.show(context, "最低充值金额1元");
                     }
-                }else {
-                    ToastUtil.show(context,"充值金额不能为空");
+                } else {
+                    ToastUtil.show(context, "充值金额不能为空");
                 }
 
             }
@@ -137,7 +154,7 @@ public class RechargeActivity extends AppActivity {
         tvSelectFour.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etRecharge.setText("50");
+                etRecharge.setText("100");
                 etRecharge.setSelection(etRecharge.getText().length());
                 clearSelectedStatus();
                 tvSelectFour.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
@@ -147,7 +164,7 @@ public class RechargeActivity extends AppActivity {
         tvSelectFive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etRecharge.setText("100");
+                etRecharge.setText("200");
                 etRecharge.setSelection(etRecharge.getText().length());
                 clearSelectedStatus();
                 tvSelectFive.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
@@ -157,7 +174,7 @@ public class RechargeActivity extends AppActivity {
         tvSelectSix.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etRecharge.setText("200");
+                etRecharge.setText("500");
                 etRecharge.setSelection(etRecharge.getText().length());
                 clearSelectedStatus();
                 tvSelectSix.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
@@ -170,7 +187,7 @@ public class RechargeActivity extends AppActivity {
     /**
      * 清除其他选中状态
      */
-    public void clearSelectedStatus(){
+    public void clearSelectedStatus() {
         tvSelectOne.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
         tvSelectTwo.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
         tvSelectThree.setBackgroundResource(R.drawable.shape_5radius_stroke_517da2);
@@ -186,14 +203,14 @@ public class RechargeActivity extends AppActivity {
     }
 
     /**
-     *   两种类型弹框
+     * 两种类型弹框
      * 1 添加银行卡->没绑定过
      * 2 输入支付密码->绑定过
      */
     public void showRechargeDialog(int type) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
-        if(type==1){
+        if (type == 1) {
             final AlertDialog dialog = dialogBuilder.create();
             //获取界面
             View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_add_bankcard, null);
@@ -202,7 +219,7 @@ public class RechargeActivity extends AppActivity {
             TextView tvRechargeValue = dialogView.findViewById(R.id.tv_recharge_value);
             LinearLayout layoutAddBankcard = dialogView.findViewById(R.id.layout_add_bankcard);
             //显示和点击事件
-            tvRechargeValue.setText("￥"+etRecharge.getText().toString());
+            tvRechargeValue.setText("￥" + etRecharge.getText().toString());
             ivClose.setOnClickListener(new android.view.View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -212,8 +229,8 @@ public class RechargeActivity extends AppActivity {
             layoutAddBankcard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO 跳 添加银行卡
-                    ToastUtil.show(activity,"添加银行卡");
+                    go(BindBankActivity.class);
+                    finish();
                 }
             });
             //展示界面
@@ -227,15 +244,30 @@ public class RechargeActivity extends AppActivity {
             lp.width = DensityUtil.dip2px(activity, 277);
             dialog.getWindow().setAttributes(lp);
             dialog.setContentView(dialogView);
-        }else if(type==2){
+        } else if (type == 2) {
             final AlertDialog dialog = dialogBuilder.create();
             View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_pay_psw, null);
             ImageView ivClose = dialogView.findViewById(R.id.iv_close);
             TextView tvRechargeValue = dialogView.findViewById(R.id.tv_recharge_value);
+            TextView tvBankName = dialogView.findViewById(R.id.tv_bank_name);
+            ImageView ivBankIcon = dialogView.findViewById(R.id.iv_bank_icon);
             LinearLayout layoutChangeBankcard = dialogView.findViewById(R.id.layout_change_bankcard);
             final PswView pswView = dialogView.findViewById(R.id.psw_view);
             //充值金额
-            tvRechargeValue.setText("￥"+etRecharge.getText().toString());
+            tvRechargeValue.setText("￥" + etRecharge.getText().toString());
+            StringBuilder builder = new StringBuilder();
+            //默认取第一张银行卡信息展示
+            if(!TextUtils.isEmpty(bankList.get(0).getBankName())){
+                builder.append(bankList.get(0).getBankName());
+                if(!TextUtils.isEmpty(bankList.get(0).getCardNo())){
+                    int length = bankList.get(0).getCardNo().length();
+                    builder.append("(");
+                    builder.append(bankList.get(0).getCardNo().substring(length-4,length));
+                    builder.append(")");
+                }
+                tvBankName.setText(builder);//银行卡名称尾号
+                ivBankIcon.setImageDrawable(BankUtils.getBankIcon(bankList.get(0).getBankName()));//银行卡Logo
+            }
             //关闭弹框
             ivClose.setOnClickListener(new android.view.View.OnClickListener() {
                 @Override
@@ -248,7 +280,7 @@ public class RechargeActivity extends AppActivity {
                 @Override
                 public void setPasswordChanged(String password) {
                     //TODO 验证支付密码 + 充值成功/失败
-                    ToastUtil.show(activity,"支付密码是"+password);
+                    ToastUtil.show(activity, "支付密码是" + password);
                 }
             });
             //切换其他银行卡来支付
@@ -256,12 +288,12 @@ public class RechargeActivity extends AppActivity {
                 @Override
                 public void onClick(View v) {
                     //TODO 跳 我的银行卡
-                    ToastUtil.show(activity,"切换其他银行卡来支付");
+                    ToastUtil.show(activity, "切换其他银行卡来支付");
                 }
             });
             dialog.show();
             //强制唤起软键盘
-            if(pswView!=null){
+            if (pswView != null) {
                 pswView.setFocusable(true);
                 pswView.setFocusableInTouchMode(true);
                 pswView.requestFocus();
@@ -279,6 +311,36 @@ public class RechargeActivity extends AppActivity {
             dialog.getWindow().setAttributes(lp);
             dialog.setContentView(dialogView);
         }
+    }
+
+    /**
+     * 请求->绑定的银行卡列表
+     */
+    private void getBankList() {
+        PayHttpUtils.getInstance().getBankList()
+                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            if (baseResponse.getData() != null) {
+                                bankList.addAll(baseResponse.getData());
+                            } else {
+                                bankList = new ArrayList<>();
+                            }
+                            ifAddBankcard = bankList.size() != 0 ? true : false;
+                        } else {
+                            ToastUtil.show(activity, baseResponse.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(activity, baseResponse.getMessage());
+                    }
+                });
     }
 
 
