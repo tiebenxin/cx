@@ -15,7 +15,7 @@
             android:name=".ui.RechargeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.CheckPayPswActivity"
+            android:name=".ui.CheckPaywordActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.bank.InputPhoneActivity"
@@ -36,7 +36,10 @@
             android:name=".ui.WithdrawActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.SetPayPswActivity"
+            android:name=".ui.SetPaywordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.ManagePaywordActivity"
             android:screenOrientation="portrait" />
 
     </application>

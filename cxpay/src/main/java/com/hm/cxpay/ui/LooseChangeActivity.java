@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.controller.ControllerPaySetting;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 
 import net.cb.cb.library.utils.IntentUtil;
@@ -63,6 +64,8 @@ public class LooseChangeActivity extends BasePayActivity {
 
             }
         });
+        //显示余额
+        tvMoney.setText("¥ "+PayEnvironment.getIntance().getUser().getBalance());
         //充值
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override

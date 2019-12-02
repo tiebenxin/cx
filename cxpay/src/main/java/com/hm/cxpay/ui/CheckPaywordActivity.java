@@ -26,7 +26,7 @@ import net.cb.cb.library.view.HeadView;
  * @by zjy
  * @备注：
  */
-public class CheckPayPswActivity extends AppActivity {
+public class CheckPaywordActivity extends AppActivity {
 
     private HeadView headView;
     private ActionbarView actionbar;
@@ -65,7 +65,7 @@ public class CheckPayPswActivity extends AppActivity {
         pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
             @Override
             public void setPasswordChanged(String password) {
-                ToastUtil.show(CheckPayPswActivity.this, "支付密码是" + password);
+                ToastUtil.show(CheckPaywordActivity.this, "支付密码是" + password);
                 //TODO 判断是支付密码是否正确
                 boolean pswIsTrue = false;
                 if (pswIsTrue) {

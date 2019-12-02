@@ -31,7 +31,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.LooseChangeActivity;
-import com.hm.cxpay.ui.SetPayPswActivity;
+import com.hm.cxpay.ui.SetPaywordActivity;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -429,7 +429,7 @@ public class MyFragment extends Fragment {
     }
 
     /**
-     * 新增三层判断：是否同意->是否实名认证->是否设置支付密码
+     * 新增三层判断：是否同意隐私协议->是否实名认证->是否设置支付密码
      */
     private void checkUserStatus(UserBean userBean){
         //1 已实名认证
@@ -440,7 +440,7 @@ public class MyFragment extends Fragment {
             }else {
                 //1-2 未设置支付密码
                 ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
-                context.startActivity(new Intent(context, SetPayPswActivity.class));
+                context.startActivity(new Intent(context, SetPaywordActivity.class));
             }
         }else {
             //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 设置支付密码)
