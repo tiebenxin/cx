@@ -35,4 +35,8 @@ public interface PayService {
     @POST(Route.GET_BIND_BANK_CARD)
     Observable<BaseResponse<List<BankBean>>> getBindBankCardList();
 
+    //绑定银行卡
+    @POST(Route.BIND_BANK)
+    Observable<BaseResponse> bindBank(@Body RequestBody body);
+
 }

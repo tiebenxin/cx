@@ -8,13 +8,8 @@ import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
-import com.hm.cxpay.databinding.ActivityIdentificationCentreBinding;
 import com.hm.cxpay.databinding.ActivityInputPhoneBinding;
-import com.hm.cxpay.net.FGObserver;
-import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.net.Route;
-import com.hm.cxpay.rx.RxSchedulers;
-import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -38,10 +33,16 @@ public class InputPhoneActivity extends BasePayActivity {
         initEvent();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ui.tvNext.setEnabled(true);
+    }
+
     private void initView() {
         if (bankInfo != null) {
             ui.tvBankName.setText(bankInfo.getBankName());
-            ui.tvBankNum.setText(bankInfo.getBankCode());
+            ui.tvBankNum.setText(bankInfo.getBankNumber());
             ui.tvName.setText(bankInfo.getOwnerName());
             ui.tvCardId.setText(bankInfo.getOwnerId());
         }
@@ -54,10 +55,16 @@ public class InputPhoneActivity extends BasePayActivity {
                     ToastUtil.show(InputPhoneActivity.this, "手机号不能为空");
                     return;
                 }
-                if (bankInfo == null || TextUtils.isEmpty(bankInfo.getBankCode())) {
+                if (bankInfo == null || TextUtils.isEmpty(bankInfo.getBankNumber())) {
                     ToastUtil.show(InputPhoneActivity.this, "银行卡号不能为空");
+                    return;
                 }
-                applyBindBank(bankInfo.getBankCode(), phone);
+                bankInfo.setPhone(phone);
+                Intent intent = new Intent(InputPhoneActivity.this, BindBankFinishActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("bank", bankInfo);
+                intent.putExtras(bundle);
+                startActivity(intent);
 
             }
         });
@@ -94,33 +101,6 @@ public class InputPhoneActivity extends BasePayActivity {
             }
         });
 
-    }
-
-    public void applyBindBank(String bankCardNo, String phone) {
-        ui.tvNext.setEnabled(false);
-        PayHttpUtils.getInstance().applyBindBank(bankCardNo, phone)
-                .compose(RxSchedulers.<BaseResponse<BindBankInfo>>compose())
-                .compose(RxSchedulers.<BaseResponse<BindBankInfo>>handleResult())
-                .subscribe(new FGObserver<BaseResponse<BindBankInfo>>() {
-                    @Override
-                    public void onHandleSuccess(BaseResponse<BindBankInfo> baseResponse) {
-                        if (baseResponse.isSuccess()) {
-                            BindBankInfo info = baseResponse.getData();
-                            if (info != null) {
-
-                            }
-                        } else {
-                            ui.tvNext.setEnabled(true);
-                            ToastUtil.show(InputPhoneActivity.this, baseResponse.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onHandleError(BaseResponse baseResponse) {
-                        super.onHandleError(baseResponse);
-                        ui.tvNext.setEnabled(true);
-                    }
-                });
     }
 
 

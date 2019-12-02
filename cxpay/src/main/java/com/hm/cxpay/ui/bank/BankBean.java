@@ -1,16 +1,39 @@
 package com.hm.cxpay.ui.bank;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * @anthor Liszt
  * @data 2019/11/30
  * Description  绑定银行卡基本数据
  */
-public class BankBean {
+public class BankBean  implements Parcelable {
     String bankName;//银行名
     String cardNo;//银行卡号
     int id;//id
     String logo;//银行logo
     int seqNo;//排序号，升序
+
+    protected BankBean(Parcel in) {
+        bankName = in.readString();
+        cardNo = in.readString();
+        id = in.readInt();
+        logo = in.readString();
+        seqNo = in.readInt();
+    }
+
+    public static final Creator<BankBean> CREATOR = new Creator<BankBean>() {
+        @Override
+        public BankBean createFromParcel(Parcel in) {
+            return new BankBean(in);
+        }
+
+        @Override
+        public BankBean[] newArray(int size) {
+            return new BankBean[size];
+        }
+    };
 
     public String getBankName() {
         return bankName;
@@ -50,5 +73,19 @@ public class BankBean {
 
     public void setSeqNo(int seqNo) {
         this.seqNo = seqNo;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(bankName);
+        dest.writeString(cardNo);
+        dest.writeInt(id);
+        dest.writeString(logo);
+        dest.writeInt(seqNo);
     }
 }

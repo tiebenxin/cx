@@ -1,7 +1,6 @@
 package com.hm.cxpay.rx;
 
 
-
 import com.hm.cxpay.rx.data.IRespose;
 import com.hm.cxpay.rx.exeception.ServerException;
 
@@ -36,7 +35,6 @@ public class RxSchedulers {
     }
 
     /**
-     *
      * @param <T>
      * @return
      */
@@ -52,7 +50,6 @@ public class RxSchedulers {
     }
 
     /**
-     *
      * @param <T>
      * @return
      */
@@ -64,11 +61,11 @@ public class RxSchedulers {
                     @Override
                     public ObservableSource<T> apply(T response) throws Exception {
                         if (response instanceof IRespose) {
-                            if (((IRespose) response).isSuccess()) {
-                                return createData(response);
-                            } else {
-                                return Observable.error(new ServerException(((IRespose) response).getIStatus(), ((IRespose) response).getMessage(), response));
-                            }
+//                            if (((IRespose) response).isSuccess()) {
+                            return createData(response);
+//                            } else {
+//                                return Observable.error(new ServerException(((IRespose) response).getIStatus(), ((IRespose) response).getMessage(), response));
+//                            }
                         }
                         return createData(response);
                     }

@@ -103,14 +103,5 @@ public abstract class BaseObserver<T> implements Observer<T> {
     }
 
 
-
-//    public interface RequestListener {
-//        void noNetwork();
-//        void start(boolean isShowProgress);
-//        void end();
-//        void interruptedNetwork();
-//    }
-
-
 }
 
