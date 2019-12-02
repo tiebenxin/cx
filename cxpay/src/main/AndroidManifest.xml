@@ -35,6 +35,9 @@
         <activity
             android:name=".ui.WithdrawActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.SetPayPswActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 </manifest>

@@ -185,7 +185,7 @@ public class MyFragment extends Fragment {
             @Override
             public void onClick(View v) {
 //                String ifAgree = SpUtil.getSpUtil().getSPValue("ServieAgreement", "");
-                //TODO 缓存或接口 取是否实名认证字段
+                //TODO 新增三层判断，实名认证 是否同意 是否设置支付密码
                 String ifIdentify = SpUtil.getSpUtil().getSPValue("if_dentify", "1");
                 //1 已经实名认证，可以使用零钱
                 if (StringUtil.isNotNull(ifIdentify)) {
