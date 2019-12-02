@@ -24,6 +24,8 @@ import retrofit2.Response;
 
 public class GroupAddActivity extends AppActivity {
     private Button btn_commit_groupadd;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

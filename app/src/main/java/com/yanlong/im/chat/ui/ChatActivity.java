@@ -369,13 +369,13 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     /**
      * 检查用户权限
      */
-    private void checkUserPower(){
+    private void checkUserPower() {
         // 只有Vip才显示视频通话
         UserInfo userInfo = UserAction.getMyInfo();
         if (userInfo != null && !IS_VIP.equals(userInfo.getVip()) || UserUtil.isSystemUser(toUId)) {
             viewFunc.removeView(llChatVideoCall);
         }
-        if(UserUtil.isSystemUser(toUId)){
+        if (UserUtil.isSystemUser(toUId)) {
             viewRbZfb.setVisibility(View.INVISIBLE);
             viewAction.setVisibility(View.INVISIBLE);
 //            viewFunc.removeView(viewRbZfb);
@@ -939,6 +939,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                             if (!checkNetConnectStatus()) {
                                 return;
                             }
+                            if (ViewUtils.isFastDoubleClick()) {
+                                return;
+                            }
                             Intent intent = new Intent(ChatActivity.this, RecordedActivity.class);
                             startActivityForResult(intent, VIDEO_RP);
                         }
@@ -974,6 +977,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         viewRbZfb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
                 taskPayRb();
             }
         });
@@ -1019,6 +1025,9 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             @Override
             public void onClick(View v) {
                 // go(SelectUserActivity.class);
+                if (ViewUtils.isFastDoubleClick()) {
+                    return;
+                }
                 startActivityForResult(new Intent(getContext(), SelectUserActivity.class), SelectUserActivity.RET_CODE_SELECTUSR);
             }
         });
@@ -2677,7 +2686,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     }
                     break;
                 case ChatEnum.EMessageType.TEXT:
-                    holder.viewChatItem.setData1(msgbean.getChat().getMsg(), menus,font_size);
+                    holder.viewChatItem.setData1(msgbean.getChat().getMsg(), menus, font_size);
                     break;
                 case ChatEnum.EMessageType.STAMP:
 
@@ -2937,8 +2946,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     if (minutes >= RELINQUISH_TIME) {
                         ToastUtil.show(ChatActivity.this, "重新编辑不能超过5分钟");
                     } else {
-                        if(ViewUtils.isFastDoubleClick()){
-                            return ;
+                        if (ViewUtils.isFastDoubleClick()) {
+                            return;
                         }
                         showVoice(false);
                         InputUtil.showKeyboard(editChat);
@@ -3671,7 +3680,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             if (finfo != null) {
                 title = finfo.getName4Show();
                 if (finfo.getLastonline() > 0) {
-                    if (onlineState) {
+                    // 客服不显示时间状态
+                    if (onlineState && !UserUtil.isSystemUser(toUId)) {
                         actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
                     } else {
                         actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
@@ -3714,7 +3724,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
             UserInfo finfo = userDao.findUserInfo(toUId);
             title = finfo.getName4Show();
             if (finfo.getLastonline() > 0) {
-                if (onlineState) {
+                // 客服不显示时间状态
+                if (onlineState && !UserUtil.isSystemUser(toUId)) {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), true);
                 } else {
                     actionbar.setTitleMore(TimeToString.getTimeOnline(finfo.getLastonline(), finfo.getActiveType(), true), false);
@@ -4245,8 +4256,8 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
         msgAction.groupInfo(toGid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-                if (response.body() == null)
-                    return;
+//                if (response.body() == null)
+//                    return;
 
 //                groupInfo = response.body().getData();
                 groupInfo = msgDao.getGroup4Id(toGid);
@@ -4255,6 +4266,28 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     master = groupInfo.getMaster();
                 }
 
+                if (groupInfo == null) {//取不到群信息了
+                    groupInfo = new Group();
+                    groupInfo.setMaster("");
+                    groupInfo.setUsers(new RealmList<MemberUser>());
+                }
+
+                if (groupInfo.getMaster().equals(UserAction.getMyId().toString())) {//本人群主
+                    viewChatRobot.setVisibility(View.VISIBLE);
+                } else {
+                    viewFunc.removeView(viewChatRobot);
+                }
+                taskSessionInfo();
+            }
+
+            @Override
+            public void onFailure(Call<ReturnBean<Group>> call, Throwable t) {
+                super.onFailure(call, t);
+                groupInfo = msgDao.getGroup4Id(toGid);
+                if (groupInfo != null) {
+                    contactIntimately = groupInfo.getContactIntimately();
+                    master = groupInfo.getMaster();
+                }
                 if (groupInfo == null) {//取不到群信息了
                     groupInfo = new Group();
                     groupInfo.setMaster("");

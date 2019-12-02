@@ -14,23 +14,27 @@ import com.yanlong.im.databinding.FragmentForwardSessionBinding;
 import com.yanlong.im.user.bean.UserInfo;
 
 import net.cb.cb.library.base.BaseMvpFragment;
+import net.cb.cb.library.utils.LogUtil;
+import net.cb.cb.library.utils.StringUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @anthor Liszt
  * @data 2019/8/10
- * Description  转发roster选择列表
+ * Description  转发roster选择列表 通讯录
  */
 public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, ForwardView, ForwardPresenter> implements ForwardView {
 
     private FragmentForwardSessionBinding ui;
     private AdapterForwardRoster adapter;
     private IForwardRosterListener listener;
+    private List<UserInfo> userlist;
 
     @Nullable
     @Override
@@ -94,11 +98,43 @@ public class ForwardRosterFragment extends BaseMvpFragment<ForwardModel, Forward
         if (list == null) {
             return;
         }
-        adapter.bindData(list);
+
+        userlist=list;
+
+        List<UserInfo> temp=searchSessionBykey(userlist,MsgForwardActivity.searchKey);
+        adapter.bindData(temp);
+        ui.listView.init(adapter);
     }
+
+
+    private List<UserInfo> searchSessionBykey(List<UserInfo> list,String key){
+        LogUtil.getLog().e("======转发搜索====通讯录====key=="+key);
+        if(!StringUtil.isNotNull(key)){
+            return list;
+        }
+
+        List<UserInfo> temp=new ArrayList<>();
+        for (UserInfo bean : list) {
+            String name=bean.getName4Show();
+            if (StringUtil.isNotNull(name)&&(name.contains(key))) {
+//                LogUtil.getLog().e("====name==="+name);
+                temp.add(bean);
+            }
+        }
+//        LogUtil.getLog().e("====temp==="+temp.size());
+        return  temp;
+    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void posting(SingleOrMoreEvent event) {
+        ui.listView.init(adapter);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void posting(SearchKeyEvent event) {
+        List<UserInfo> temp=searchSessionBykey(userlist,MsgForwardActivity.searchKey);
+        adapter.bindData(temp);
         ui.listView.init(adapter);
     }
 }

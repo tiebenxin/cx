@@ -3,13 +3,18 @@ package com.yanlong.im.chat.ui.forward;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
+
+import androidx.annotation.RequiresApi;
 
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -31,6 +36,7 @@ import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
+import net.cb.cb.library.view.ClearEditText;
 import net.cb.cb.library.view.CustomTabView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -43,10 +49,13 @@ import java.util.List;
 /***
  * 消息转换
  */
+
 public class MsgForwardActivity extends AppActivity implements IForwardListener {
     public static final String AGM_JSON = "JSON";
     private ActionbarView actionbar;
     private ActivityMsgForwardBinding ui;
+    private ClearEditText edtSearch;
+
     //    private UserDao userDao = new UserDao();
     private MsgDao msgDao = new MsgDao();
     private MsgAllBean msgAllBean;
@@ -60,21 +69,45 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
     public static boolean isSingleSelected = true;//转发单人 转发多人
     public static List<MoreSessionBean> moreSessionBeanList=new ArrayList<>();//转发多人集合
     public static int maxNumb=9;
+    public static String searchKey=null;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ui = DataBindingUtil.setContentView(this, R.layout.activity_msg_forward);
+        EventBus.getDefault().register(this);
+
+        findViews();
+        initEvent();
+        showFragment(currentPager);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 
 
     //自动寻找控件
     private void findViews() {
         actionbar = ui.headView.getActionbar();
+        edtSearch = findViewById(R.id.edt_search);
     }
 
 
     //自动生成的控件事件
     private void initEvent() {
+        searchKey=null;
+        isSingleSelected=true;
+        moreSessionBeanList=new ArrayList<>();
+
         json = getIntent().getStringExtra(AGM_JSON);
         msgAllBean = GsonUtils.getObject(json, MsgAllBean.class);
 
-        isSingleSelected=true;
-        moreSessionBeanList=new ArrayList<>();
         resetRightText();
         actionbar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -110,6 +143,29 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
             @Override
             public void onRight() {
                 showFragment(CustomTabView.ETabPosition.RIGHT);
+            }
+        });
+
+        edtSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (edtSearch.getText().toString().length() == 0) {
+                    searchKey=null;
+                    EventBus.getDefault().post(new SearchKeyEvent());
+                }else {
+                    searchKey=s.toString();
+                    EventBus.getDefault().post(new SearchKeyEvent());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }
@@ -185,24 +241,6 @@ public class MsgForwardActivity extends AppActivity implements IForwardListener 
                 return new ForwardRosterFragment();
         }
         return null;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ui = DataBindingUtil.setContentView(this, R.layout.activity_msg_forward);
-        EventBus.getDefault().register(this);
-
-        findViews();
-        initEvent();
-        showFragment(currentPager);
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override

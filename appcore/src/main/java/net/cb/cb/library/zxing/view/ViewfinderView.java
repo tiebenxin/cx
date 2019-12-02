@@ -35,7 +35,7 @@ import android.view.View;
 import com.google.zxing.ResultPoint;
 
 import net.cb.cb.library.R;
-import net.cb.cb.library.utils.DensityUtil;
+import net.cb.cb.library.utils.ViewUtils;
 import net.cb.cb.library.zxing.camera.CameraManager;
 
 import java.util.Collection;
@@ -170,7 +170,7 @@ public final class ViewfinderView extends View {
     //绘制文本
     private void drawTextInfo(Canvas canvas, Rect frame) {
         paint.setColor(labelTextColor);
-        paint.setTextSize(labelTextSize);
+        paint.setTextSize(ViewUtils.getDimenPx(R.dimen.zxing_message_font_size));
         paint.setTextAlign(Paint.Align.CENTER);
         canvas.drawText(labelText, frame.left + frame.width() / 2, frame.bottom + CORNER_RECT_HEIGHT * 1.5f, paint);
     }

@@ -285,7 +285,6 @@ public class MessageManager {
                 break;
             case REQUEST_GROUP://群主会收到成员进群的请求的通知
 //                LogUtil.getLog().e("==wrapMessage=json="+GsonUtils.optObject(wrapMessage));
-                msgDao.remidCount("friend_apply");
                 for (MsgBean.GroupNoticeMessage ntm : wrapMessage.getRequestGroup().getNoticeMessageList()) {
 
                     ApplyBean applyBean = new ApplyBean();
@@ -316,7 +315,9 @@ public class MessageManager {
 
                     msgDao.applyGroup(applyBean);
                 }
-                notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);
+                msgDao.remidCount("friend_apply");
+                notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.DEFAULT);//刷新首页 通讯录底部小红点
+//                notifyRefreshFriend(true, -1L, CoreEnum.ERosterAction.REQUEST_FRIEND);//假动作
                 break;
             case CHANGE_GROUP_META://修改群属性
                 MsgBean.ChangeGroupMetaMessage.RealMsgCase realMsgCase = wrapMessage.getChangeGroupMeta().getRealMsgCase();
