@@ -25,4 +25,12 @@
         <item name="android:layout_height">1px</item>
         <item name="android:background">@color/c_f0f0f0</item>
     </style>
+
+    <style name="WheelDialog" parent="android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@null</item>
+    </style>
 </resources>

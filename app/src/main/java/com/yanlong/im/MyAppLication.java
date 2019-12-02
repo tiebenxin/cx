@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.controll.AVChatSoundPlayer;
 import com.example.nim_lib.event.EventFactory;
@@ -127,6 +128,7 @@ public class MyAppLication extends MainApplication {
         initCache();
         // 初始化表情
         FaceView.initFaceMap();
+        initARouter();//初始化路由
     }
 
     /**
@@ -306,6 +308,15 @@ public class MyAppLication extends MainApplication {
                 }
             }
         });
+    }
+
+    public void initARouter(){
+        if (BuildConfig.DEBUG) {
+            ARouter.openLog();
+            ARouter.openDebug();
+        }
+        ARouter.init(this);
+
     }
 
 }

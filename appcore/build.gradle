@@ -97,8 +97,12 @@ dependencies {
     api 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.22'//万能适配器
 
     //网络库
-    api 'com.squareup.okhttp3:okhttp:3.4.2'
-    api 'com.squareup.okhttp3:logging-interceptor:3.4.2'
+//    api 'com.squareup.okhttp3:okhttp:3.4.2'
+//    api 'com.squareup.okhttp3:logging-interceptor:3.4.2'
+
+    //    // okhttp
+    api "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
+    api "com.squareup.okhttp3:logging-interceptor:$rootProject.ext.okhttpVersion"
 
 //    api 'com.squareup.retrofit2:retrofit:2.1.0'
 //    api 'com.squareup.retrofit2:converter-gson:2.1.0'

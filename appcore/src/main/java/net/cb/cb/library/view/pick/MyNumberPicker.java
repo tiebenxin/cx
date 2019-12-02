@@ -1,7 +1,5 @@
-package com.yanlong.im.view;
+package net.cb.cb.library.view.pick;
 
-import android.support.v4.content.ContextCompat;
-import android.widget.NumberPicker;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,8 +13,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-
-import com.yanlong.im.R;
+import android.widget.NumberPicker;
 
 import java.lang.reflect.Field;
 

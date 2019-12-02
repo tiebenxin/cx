@@ -47,7 +47,7 @@
         android:layout_height="0.5dp"
         android:background="@color/line_color"/>
 
-    <com.yanlong.im.view.PickValueView
+    <net.cb.cb.library.view.pick.PickValueView
         android:id="@+id/pickString"
         android:layout_width="match_parent"
         android:layout_height="170dp"

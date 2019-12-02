@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.controller.ControllerPaySetting;
@@ -59,7 +60,7 @@ public class LooseChangeActivity extends BasePayActivity {
 
             @Override
             public void onRight() {
-                ToastUtil.show(context,"账单");
+                ToastUtil.show(context, "账单");
 
             }
         });
@@ -67,16 +68,16 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(LooseChangeActivity.this,RechargeActivity.class)
-                        .putExtra("balance",1));
+                startActivity(new Intent(LooseChangeActivity.this, RechargeActivity.class)
+                        .putExtra("balance", 1));
             }
         });
         //提现
         layoutWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(LooseChangeActivity.this,WithdrawActivity.class)
-                        .putExtra("balance",1));
+                startActivity(new Intent(LooseChangeActivity.this, WithdrawActivity.class)
+                        .putExtra("balance", 1));
             }
         });
         //红包明细
@@ -85,7 +86,7 @@ public class LooseChangeActivity extends BasePayActivity {
         viewMyRedEnvelope.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-
+                ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
             }
         });
         //账户信息

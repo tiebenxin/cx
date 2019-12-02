@@ -566,6 +566,7 @@
         <activity android:name=".chat.ui.VideoPlayActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
+        <activity android:name=".pay.ui.RedEnvelopeDetailsActivity" />
 
 
     </application>
