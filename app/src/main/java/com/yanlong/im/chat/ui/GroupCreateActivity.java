@@ -333,9 +333,12 @@ public class GroupCreateActivity extends AppActivity {
         }
         listData.addAll(tempData);
 
-        for (int i = 0; i < listData.size(); i++) {
-            //UserInfo infoBean:
-            viewType.putTag(listData.get(i).getTag(), i);
+        for (int i = listData.size() - 1; i >= 0; i--) {
+            if (UserUtil.isSystemUser(listData.get(i).getUid())) {
+                listData.remove(i);
+            } else {
+                viewType.putTag(listData.get(i).getTag(), i);
+            }
         }
         // 添加存在用户的首字母列表
         viewType.addItemView(UserUtil.userParseString(listData));

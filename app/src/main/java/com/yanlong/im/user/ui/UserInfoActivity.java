@@ -705,12 +705,13 @@ public class UserInfoActivity extends AppActivity {
             tvFirstName.setText(userNick);
             if (!TextUtils.isEmpty(mucNick)) {
                 tvSecondName.setText("群昵称: " + mucNick);
+            } else if (!TextUtils.isEmpty(userRemark)) {// 拉黑名单后需要优先显示备注名称
+                tvFirstName.setText(userRemark);
+                tvSecondName.setText("昵称: " + userNick);
             } else {
                 tvSecondName.setText("昵称: " + userNick);
             }
-
             tvThirdName.setText("常信号: " + DataUtils.getHideData(imId,3));
-
         }
     }
 }
