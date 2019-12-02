@@ -24,7 +24,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hm.cxpay.bean.UserBean;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.LooseChangeActivity;
+import com.hm.cxpay.ui.SetPayPswActivity;
 import com.jrmf360.walletlib.JrmfWalletClient;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
@@ -45,12 +52,9 @@ import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.manager.Constants;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.DensityUtil;
-import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.NetUtil;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
-import net.cb.cb.library.utils.SpUtil;
-import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.zxing.activity.CaptureActivity;
 
@@ -184,16 +188,7 @@ public class MyFragment extends Fragment {
         viewWallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                String ifAgree = SpUtil.getSpUtil().getSPValue("ServieAgreement", "");
-                //TODO 新增三层判断，实名认证 是否同意 是否设置支付密码
-                String ifIdentify = SpUtil.getSpUtil().getSPValue("if_dentify", "1");
-                //1 已经实名认证，可以使用零钱
-                if (StringUtil.isNotNull(ifIdentify)) {
-                    IntentUtil.gotoActivity(getActivity(), LooseChangeActivity.class);
-                } else {
-                    //2 没有过实名认证（第一次进），弹框提示需要先同意协议并实名认证
-                    showIdentifyDialog();
-                }
+                httpGetUserInfo();
             }
         });
 
@@ -398,6 +393,60 @@ public class MyFragment extends Fragment {
         lp.width = DensityUtil.dip2px(context, 277);
         dialog.getWindow().setAttributes(lp);
         dialog.setContentView(dialogView);
+    }
+
+    /**
+     * 请求->获取用户信息
+     */
+    private void httpGetUserInfo() {
+        PayHttpUtils.getInstance().getUserInfo()
+                .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UserBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
+                        if(baseResponse.isSuccess()){
+                            UserBean userBean = null;
+                            if(baseResponse.getData()!=null){
+                                userBean = baseResponse.getData();
+                            }else {
+                                userBean = new UserBean();
+                            }
+                            PayEnvironment.getIntance().setUser(userBean);
+                            checkUserStatus(userBean);
+                        }else {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<UserBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+    }
+
+    /**
+     * 新增三层判断：是否同意->是否实名认证->是否设置支付密码
+     */
+    private void checkUserStatus(UserBean userBean){
+        //1 已实名认证
+        if(userBean.getRealNameStat()==1){
+            //1-1 已设置支付密码
+            if(userBean.getPayPwdStat()==1){
+                context.startActivity(new Intent(context,LooseChangeActivity.class));
+            }else {
+                //1-2 未设置支付密码
+                ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
+                context.startActivity(new Intent(context, SetPayPswActivity.class));
+            }
+        }else {
+            //2 未实名认证->分三步走流程(1 同意->2 实名认证->3 设置支付密码)
+            showIdentifyDialog();
+        }
+
     }
 
 }

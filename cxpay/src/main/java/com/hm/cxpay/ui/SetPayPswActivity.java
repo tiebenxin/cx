@@ -2,14 +2,21 @@ package com.hm.cxpay.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TransformationMethod;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
@@ -29,6 +36,8 @@ public class SetPayPswActivity extends AppActivity {
     private EditText etPassword;//密码输入框
     private EditText etConfirmPassword;//确认密码输入框
     private TextView tvSubmit;//确认提交
+    private ImageView ivClearPaywordOne;//清除支付密码
+    private ImageView ivClearPaywordTwo;//清除确认支付密码
     private Context activity;
 
     @Override
@@ -45,6 +54,8 @@ public class SetPayPswActivity extends AppActivity {
         etPassword = findViewById(R.id.et_payword);
         etConfirmPassword = findViewById(R.id.et_confirm_payword);
         tvSubmit = findViewById(R.id.tv_submit);
+        ivClearPaywordOne = findViewById(R.id.iv_clear_payword_one);
+        ivClearPaywordTwo = findViewById(R.id.iv_clear_payword_two);
         actionbar = headView.getActionbar();
 
     }
@@ -75,8 +86,30 @@ public class SetPayPswActivity extends AppActivity {
                     if (etPassword.getText().toString().length() == 6) {
                         //3. 密码和确认密码必须一致
                         if (etPassword.getText().toString().equals(etConfirmPassword.getText().toString())) {
-                            //TODO 发请求
-//                            sendAddChangePayWordRequest();
+                            //TODO 发请求->设置支付密码
+                            PayHttpUtils.getInstance().setPayword(etPassword.getText().toString())
+                                    .compose(RxSchedulers.<BaseResponse>compose())
+                                    .compose(RxSchedulers.<BaseResponse>handleResult())
+                                    .subscribe(new FGObserver<BaseResponse>() {
+                                        @Override
+                                        public void onHandleSuccess(BaseResponse baseResponse) {
+                                            if(baseResponse.isSuccess()){
+                                                ToastUtil.show(activity, "设置成功!");
+                                                go(LooseChangeActivity.class);
+                                                finish();
+                                            }else {
+                                                ToastUtil.show(context, baseResponse.getMessage());
+                                            }
+
+                                        }
+
+                                        @Override
+                                        public void onHandleError(BaseResponse baseResponse) {
+                                            super.onHandleError(baseResponse);
+                                            ToastUtil.show(context, baseResponse.getMessage());
+                                        }
+                                    });
+
                         } else {
                             ToastUtil.show(activity,"两次输入密码必须一致");
                         }
@@ -88,7 +121,62 @@ public class SetPayPswActivity extends AppActivity {
                 }
             }
         });
+        etPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.toString().length()>0){
+                    ivClearPaywordOne.setVisibility(View.VISIBLE);
+                }else {
+                    ivClearPaywordOne.setVisibility(View.INVISIBLE);
+                }
+
+            }
+        });
+        etConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.toString().length()>0){
+                    ivClearPaywordTwo.setVisibility(View.VISIBLE);
+                }else {
+                    ivClearPaywordTwo.setVisibility(View.INVISIBLE);
+                }
+
+            }
+        });
+        ivClearPaywordOne.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etPassword.setText("");
+                ivClearPaywordOne.setVisibility(View.INVISIBLE);
+            }
+        });
+        ivClearPaywordTwo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etConfirmPassword.setText("");
+                ivClearPaywordTwo.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
 }

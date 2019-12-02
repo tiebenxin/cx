@@ -2,10 +2,13 @@ package com.hm.cxpay.net;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
+
+import net.cb.cb.library.utils.encrypt.MD5;
 
 import java.util.HashMap;
 import java.util.List;
@@ -87,6 +90,18 @@ public class PayHttpUtils {
         map.put("transDate", transDate);
         map.put("verificationCode", verificationCode);
         return HttpChannel.getInstance().getPayService().bindBank(getRequestBody(map));
+    }
+
+    //获取用户信息
+    public Observable<BaseResponse<UserBean>> getUserInfo() {
+        return HttpChannel.getInstance().getPayService().getUserInfo();
+    }
+
+    //设置支付密码
+    public Observable<BaseResponse> setPayword(String pwd) {
+        Map<String, String> map = new HashMap<>();
+        map.put("pwd", MD5.md5(pwd));
+        return HttpChannel.getInstance().getPayService().setPayword(getRequestBody(map));
     }
 
 

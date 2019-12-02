@@ -1,5 +1,6 @@
 package com.hm.cxpay.net;
 
+import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
@@ -23,6 +24,10 @@ public interface PayService {
     @POST(Route.URL_USER_AUTH)
     Observable<BaseResponse> authUserInfo(@Body RequestBody body);
 
+    //获取用户信息接口
+    @POST(Route.GET_USER_INFO)
+    Observable<BaseResponse<UserBean>> getUserInfo();
+
     //银行卡检测接口
     @POST(Route.CHECK_BANK_CARD)
     Observable<BaseResponse<BankInfo>> checkBankCard(@Body RequestBody body);
@@ -38,5 +43,11 @@ public interface PayService {
     //绑定银行卡
     @POST(Route.BIND_BANK)
     Observable<BaseResponse> bindBank(@Body RequestBody body);
+
+    //设置支付密码接口 [参数]pwd
+    @POST(Route.SET_PAYWORD)
+    Observable<BaseResponse> setPayword(@Body RequestBody body);
+
+
 
 }

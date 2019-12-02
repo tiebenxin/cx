@@ -80,6 +80,8 @@ public class IdentificationUserActivity extends BasePayActivity {
                     public void onHandleSuccess(BaseResponse baseResponse) {
                         if (baseResponse.isSuccess()) {
                             ToastUtil.show(IdentificationUserActivity.this, "认证成功");
+                            go(SetPayPswActivity.class);
+                            finish();
                         } else {
                             ui.tvNext.setEnabled(true);
                             ToastUtil.show(IdentificationUserActivity.this, baseResponse.getMessage());

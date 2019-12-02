@@ -26,4 +26,10 @@ public class Route {
 
     //绑定银行卡
     public static final String BIND_BANK = "/user/bind_bank_card";
+
+    //获取用户信息
+    public static final String GET_USER_INFO = "/user/get_user_info";
+
+    //设置支付密码
+    public static final String SET_PAYWORD = "/user/set_pay_pwd";
 }

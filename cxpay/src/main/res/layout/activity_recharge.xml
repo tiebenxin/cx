@@ -106,7 +106,7 @@
                     android:gravity="center"
                     android:layout_marginBottom="14dp"
                     android:background="@drawable/shape_5radius_stroke_517da2"
-                    android:text="50元" />
+                    android:text="100元" />
 
             </LinearLayout>
             <LinearLayout
@@ -145,7 +145,7 @@
                     android:gravity="center"
                     android:layout_marginBottom="14dp"
                     android:background="@drawable/shape_5radius_stroke_517da2"
-                    android:text="100元" />
+                    android:text="200元" />
 
             </LinearLayout>
             <LinearLayout
@@ -184,7 +184,7 @@
                     android:gravity="center"
                     android:layout_marginBottom="14dp"
                     android:background="@drawable/shape_5radius_stroke_517da2"
-                    android:text="200元" />
+                    android:text="500元" />
 
             </LinearLayout>
 

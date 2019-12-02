@@ -35,8 +35,11 @@
                 android:layout_toLeftOf="@+id/iv_clear_payword_one"
                 android:background="@null"
                 android:hint="密码为6位数"
+                android:inputType="number"
+                android:maxLength="6"
                 android:textSize="14sp"
-                android:textColor="@color/c_868686"
+                android:textColorHint="@color/c_868686"
+                android:textColor="@color/c_0f0f0f"
                 />
 
             <ImageView
@@ -47,6 +50,7 @@
                 android:paddingLeft="15dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
+                android:visibility="invisible"
                 android:src="@mipmap/ic_clear_psw"/>
         </RelativeLayout>
 
@@ -77,8 +81,11 @@
                 android:layout_toLeftOf="@+id/iv_clear_payword_two"
                 android:background="@null"
                 android:hint="请再次输入支付密码"
+                android:inputType="number"
+                android:maxLength="6"
                 android:textSize="14sp"
-                android:textColor="@color/c_868686"
+                android:textColorHint="@color/c_868686"
+                android:textColor="@color/c_0f0f0f"
                 />
 
             <ImageView
@@ -87,6 +94,7 @@
                 android:layout_height="match_parent"
                 android:paddingRight="26dp"
                 android:paddingLeft="15dp"
+                android:visibility="invisible"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:src="@mipmap/ic_clear_psw"/>

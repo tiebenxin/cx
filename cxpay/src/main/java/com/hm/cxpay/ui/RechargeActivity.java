@@ -41,9 +41,9 @@ public class RechargeActivity extends AppActivity {
     private TextView tvSelectOne;//选中10
     private TextView tvSelectTwo;//选中20
     private TextView tvSelectThree;//选中30
-    private TextView tvSelectFour;//选中50
-    private TextView tvSelectFive;//选中100
-    private TextView tvSelectSix;//选中200
+    private TextView tvSelectFour;//选中100
+    private TextView tvSelectFive;//选中200
+    private TextView tvSelectSix;//选中500
     private Context activity;
 
     @Override
@@ -137,7 +137,7 @@ public class RechargeActivity extends AppActivity {
         tvSelectFour.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etRecharge.setText("50");
+                etRecharge.setText("100");
                 etRecharge.setSelection(etRecharge.getText().length());
                 clearSelectedStatus();
                 tvSelectFour.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
@@ -147,7 +147,7 @@ public class RechargeActivity extends AppActivity {
         tvSelectFive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etRecharge.setText("100");
+                etRecharge.setText("200");
                 etRecharge.setSelection(etRecharge.getText().length());
                 clearSelectedStatus();
                 tvSelectFive.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
@@ -157,7 +157,7 @@ public class RechargeActivity extends AppActivity {
         tvSelectSix.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etRecharge.setText("200");
+                etRecharge.setText("500");
                 etRecharge.setSelection(etRecharge.getText().length());
                 clearSelectedStatus();
                 tvSelectSix.setBackgroundResource(R.drawable.shape_5radius_solid_517da2);
