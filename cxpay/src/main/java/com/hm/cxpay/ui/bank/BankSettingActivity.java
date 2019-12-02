@@ -3,6 +3,7 @@ package com.hm.cxpay.ui.bank;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 
@@ -28,6 +29,8 @@ import java.util.List;
  */
 public class BankSettingActivity extends BasePayActivity {
 
+    public static final int REQUEST_BIND = 1;
+
     private ActivityBankSettingBinding ui;
     private AdapterBankList adapter;
 
@@ -43,7 +46,9 @@ public class BankSettingActivity extends BasePayActivity {
         ui.llAddCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentUtil.gotoActivity(BankSettingActivity.this, BindBankActivity.class);
+//                IntentUtil.gotoActivity(BankSettingActivity.this, BindBankActivity.class);
+                Intent intent = new Intent(BankSettingActivity.this, BindBankActivity.class);
+                startActivityForResult(intent, REQUEST_BIND);
             }
         });
 
@@ -102,5 +107,15 @@ public class BankSettingActivity extends BasePayActivity {
                         super.onHandleError(baseResponse);
                     }
                 });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_BIND) {
+            if (resultCode == RESULT_OK) {
+                getBankList();//重新获取银行列表
+            }
+        }
     }
 }

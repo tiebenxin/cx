@@ -3,6 +3,7 @@ package com.hm.cxpay.ui.bank;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -64,7 +65,7 @@ public class InputPhoneActivity extends BasePayActivity {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("bank", bankInfo);
                 intent.putExtras(bundle);
-                startActivity(intent);
+                startActivityForResult(intent, BankSettingActivity.REQUEST_BIND);
 
             }
         });
@@ -92,7 +93,13 @@ public class InputPhoneActivity extends BasePayActivity {
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
-                onBackPressed();
+//                onBackPressed();
+                Intent intent = new Intent();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("bank", bankInfo);
+                intent.putExtras(bundle);
+                setResult(RESULT_CANCELED, intent);
+                finish();
             }
 
             @Override
@@ -103,7 +110,39 @@ public class InputPhoneActivity extends BasePayActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BankSettingActivity.REQUEST_BIND) {
+            if (resultCode == RESULT_OK) {
+                setResult(RESULT_OK);
+                finish();
+            } else if (resultCode == RESULT_CANCELED) {
+                if (data != null) {
+                    BankInfo info = data.getParcelableExtra("bank");
+                    if (info != null) {
+                        bankInfo = info;
+                        initBankInfo(info);
+                    }
+                }
+            }
+        }
+    }
 
+    private void initBankInfo(BankInfo info) {
+        if (info == null) {
+            return;
+        }
+        if (!TextUtils.isEmpty(info.getBankNumber())) {
+            ui.tvBankName.setText(bankInfo.getBankName());
+            ui.tvBankNum.setText(bankInfo.getBankNumber());
+            ui.tvName.setText(bankInfo.getOwnerName());
+            ui.tvCardId.setText(bankInfo.getOwnerId());
+            if (!TextUtils.isEmpty(bankInfo.getPhone())) {
+                ui.etPhoneNum.setText(bankInfo.getPhone());
+            }
+        }
+    }
 }
 
 
