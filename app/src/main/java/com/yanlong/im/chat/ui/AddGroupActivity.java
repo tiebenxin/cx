@@ -33,6 +33,7 @@ import java.io.File;
 import retrofit2.Call;
 import retrofit2.Response;
 
+//申请 加入群聊
 public class AddGroupActivity extends AppActivity {
     public static final String GID = "gid";
     public static final String INVITER = "inviter";
@@ -167,6 +168,7 @@ public class AddGroupActivity extends AppActivity {
                     }
                     finish();
                 }else {
+                    ToastUtil.show(context,response.body().getMsg());
                     mBtnAddGroup.setEnabled(true);
                 }
             }

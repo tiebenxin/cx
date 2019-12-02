@@ -25,6 +25,7 @@ import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
@@ -701,15 +702,15 @@ public class UserInfoActivity extends AppActivity {
                 }
             }
         } else {//无好友关系
+            tvFirstName.setText(userNick);
             if (!TextUtils.isEmpty(mucNick)) {
-                tvFirstName.setText(userNick);
                 tvSecondName.setText("群昵称: " + mucNick);
-                tvThirdName.setText("常信号: " + imId);
             } else {
-                tvFirstName.setText(userNick);
                 tvSecondName.setText("昵称: " + userNick);
-                tvThirdName.setText("常信号: " + imId);
             }
+
+            tvThirdName.setText("常信号: " + DataUtils.getHideData(imId,3));
+
         }
     }
 }
