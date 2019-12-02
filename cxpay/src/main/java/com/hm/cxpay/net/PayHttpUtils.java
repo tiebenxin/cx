@@ -104,5 +104,12 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().setPayword(getRequestBody(map));
     }
 
+    //检查支付密码
+    public Observable<BaseResponse> checkPayword(String pwd) {
+        Map<String, String> map = new HashMap<>();
+        map.put("pwd", MD5.md5(pwd));
+        return HttpChannel.getInstance().getPayService().checkPayword(getRequestBody(map));
+    }
+
 
 }

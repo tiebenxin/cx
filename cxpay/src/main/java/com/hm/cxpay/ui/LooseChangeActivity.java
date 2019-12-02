@@ -116,7 +116,7 @@ public class LooseChangeActivity extends BasePayActivity {
         viewSettingOfPsw.setOnClickListener(new ControllerPaySetting.OnControllerClickListener() {
             @Override
             public void onClick() {
-
+                IntentUtil.gotoActivity(LooseChangeActivity.this, ManagePaywordActivity.class);
             }
         });
     }

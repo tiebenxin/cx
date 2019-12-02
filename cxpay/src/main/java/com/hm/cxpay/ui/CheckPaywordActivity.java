@@ -12,6 +12,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -36,7 +40,7 @@ public class CheckPaywordActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_checkpsw);
+        setContentView(R.layout.activity_check_psw);
         activity = this;
         initView();
         initData();
@@ -65,52 +69,76 @@ public class CheckPaywordActivity extends AppActivity {
         pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
             @Override
             public void setPasswordChanged(String password) {
-                ToastUtil.show(CheckPaywordActivity.this, "支付密码是" + password);
-                //TODO 判断是支付密码是否正确
-                boolean pswIsTrue = false;
-                if (pswIsTrue) {
-                    //1 密码正确
-                    ToastUtil.show(activity, "密码正确");
-                } else {
-                    //2 密码不正确
-                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-                    dialogBuilder.setCancelable(false);
-                    final AlertDialog dialog = dialogBuilder.create();
-                    //获取界面
-                    View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_payword_error, null);
-                    //初始化控件
-                    TextView tvTryAgain = dialogView.findViewById(R.id.tv_try_again);
-                    TextView tvForgetPsw = dialogView.findViewById(R.id.tv_forget_psw);
-                    //重试
-                    tvTryAgain.setOnClickListener(new android.view.View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dialog.dismiss();
-                            pswView.setText("");
-                        }
-                    });
-                    //忘记密码
-                    tvForgetPsw.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            //TODO 跳 忘记密码
-                            ToastUtil.show(activity, "忘记密码");
-                        }
-                    });
-                    //展示界面
-                    dialog.show();
-                    //解决圆角shape背景无效问题
-                    Window window = dialog.getWindow();
-                    window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    //设置宽高
-                    WindowManager.LayoutParams lp = window.getAttributes();
-                    lp.height = DensityUtil.dip2px(activity, 139);
-                    lp.width = DensityUtil.dip2px(activity, 277);
-                    dialog.getWindow().setAttributes(lp);
-                    dialog.setContentView(dialogView);
-                }
+                httpCheckPayword(password);
             }
         });
+    }
+
+    /**
+     * 发请求->检查支付密码（是否正确）
+     */
+    private void httpCheckPayword(String payword){
+        PayHttpUtils.getInstance().checkPayword(payword)
+                .compose(RxSchedulers.<BaseResponse>compose())
+                .compose(RxSchedulers.<BaseResponse>handleResult())
+                .subscribe(new FGObserver<BaseResponse>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse baseResponse) {
+                        if(baseResponse.isSuccess()){
+                            //1 密码正确
+                            ToastUtil.show(activity, "密码正确");
+                            finish();
+                        }else {
+                            //2 密码不正确
+                            if(baseResponse.getCode()==(-21000)){
+                                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+                                dialogBuilder.setCancelable(false);
+                                final AlertDialog dialog = dialogBuilder.create();
+                                //获取界面
+                                View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_payword_error, null);
+                                //初始化控件
+                                TextView tvTryAgain = dialogView.findViewById(R.id.tv_try_again);
+                                TextView tvForgetPsw = dialogView.findViewById(R.id.tv_forget_psw);
+                                //重试
+                                tvTryAgain.setOnClickListener(new android.view.View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        dialog.dismiss();
+                                        pswView.setText("");
+                                    }
+                                });
+                                //忘记密码
+                                tvForgetPsw.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //TODO 跳 忘记密码
+                                        ToastUtil.show(activity, "忘记密码");
+                                    }
+                                });
+                                //展示界面
+                                dialog.show();
+                                //解决圆角shape背景无效问题
+                                Window window = dialog.getWindow();
+                                window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                //设置宽高
+                                WindowManager.LayoutParams lp = window.getAttributes();
+                                lp.height = DensityUtil.dip2px(activity, 139);
+                                lp.width = DensityUtil.dip2px(activity, 277);
+                                dialog.getWindow().setAttributes(lp);
+                                dialog.setContentView(dialogView);
+                            }else {
+                                ToastUtil.show(context, baseResponse.getMessage());
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
     }
 
 }

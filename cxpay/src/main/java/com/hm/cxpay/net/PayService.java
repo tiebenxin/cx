@@ -48,6 +48,10 @@ public interface PayService {
     @POST(Route.SET_PAYWORD)
     Observable<BaseResponse> setPayword(@Body RequestBody body);
 
+    //设置检查密码接口 [参数]pwd
+    @POST(Route.CHECK_PAYWORD)
+    Observable<BaseResponse> checkPayword(@Body RequestBody body);
+
 
 
 }

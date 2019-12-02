@@ -32,4 +32,7 @@ public class Route {
 
     //设置支付密码
     public static final String SET_PAYWORD = "/user/set_pay_pwd";
+
+    //检查支付密码
+    public static final String CHECK_PAYWORD = "/user/check_pay_pwd";
 }

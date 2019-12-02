@@ -86,30 +86,7 @@ public class SetPaywordActivity extends AppActivity {
                     if (etPassword.getText().toString().length() == 6) {
                         //3. 密码和确认密码必须一致
                         if (etPassword.getText().toString().equals(etConfirmPassword.getText().toString())) {
-                            //TODO 发请求->设置支付密码
-                            PayHttpUtils.getInstance().setPayword(etPassword.getText().toString())
-                                    .compose(RxSchedulers.<BaseResponse>compose())
-                                    .compose(RxSchedulers.<BaseResponse>handleResult())
-                                    .subscribe(new FGObserver<BaseResponse>() {
-                                        @Override
-                                        public void onHandleSuccess(BaseResponse baseResponse) {
-                                            if(baseResponse.isSuccess()){
-                                                ToastUtil.show(activity, "设置成功!");
-                                                go(LooseChangeActivity.class);
-                                                finish();
-                                            }else {
-                                                ToastUtil.show(context, baseResponse.getMessage());
-                                            }
-
-                                        }
-
-                                        @Override
-                                        public void onHandleError(BaseResponse baseResponse) {
-                                            super.onHandleError(baseResponse);
-                                            ToastUtil.show(context, baseResponse.getMessage());
-                                        }
-                                    });
-
+                            httpSetPayword();
                         } else {
                             ToastUtil.show(activity,"两次输入密码必须一致");
                         }
@@ -179,4 +156,31 @@ public class SetPaywordActivity extends AppActivity {
         });
     }
 
+    /**
+     * 发请求->设置支付密码
+     */
+    private void httpSetPayword(){
+        PayHttpUtils.getInstance().setPayword(etPassword.getText().toString())
+                .compose(RxSchedulers.<BaseResponse>compose())
+                .compose(RxSchedulers.<BaseResponse>handleResult())
+                .subscribe(new FGObserver<BaseResponse>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse baseResponse) {
+                        if(baseResponse.isSuccess()){
+                            ToastUtil.show(activity, "设置成功!");
+                            go(LooseChangeActivity.class);
+                            finish();
+                        }else {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+    }
 }
