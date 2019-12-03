@@ -46,6 +46,17 @@
             android:name=".ui.ManagePaywordActivity"
             android:screenOrientation="portrait" />
 
+        <!-- 发送单个红包-->
+        <activity
+            android:name=".ui.SingleRedPacketActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <!-- 发送群红包-->
+        <activity
+            android:name=".ui.MultiRedPacketActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
     </application>
 </manifest>

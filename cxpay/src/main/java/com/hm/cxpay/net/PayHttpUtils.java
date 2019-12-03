@@ -9,6 +9,7 @@ import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
+import com.hm.cxpay.ui.redenvelope.RedSendBean;
 
 import net.cb.cb.library.utils.encrypt.MD5;
 
@@ -126,11 +127,43 @@ public class PayHttpUtils {
     //获取红包明细  type—— 7：收到红包； 2 —— 发出红包
     public Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(int pageNum, long startTime, int type) {
         Map<String, String> map = new HashMap<>();
-        map.put("pageNum", pageNum+"");
-        map.put("pageSize", 20+"");
-        map.put("startTime", startTime+"");
-        map.put("type", type+"");
+        map.put("pageNum", pageNum + "");
+        map.put("pageSize", 20 + "");
+        map.put("startTime", startTime + "");
+        map.put("type", type + "");
         return HttpChannel.getInstance().getPayService().getRedEnvelopeDetails(getRequestBody(map));
+    }
+
+    /**
+     * 发送红包给单人:
+     * amt——发送金额，单位：分；count——发送个数；payPwd——支付密码；type——红包类型，拼手气或者普通红包，
+     * bankCardId——当发送金额大于零钱余额，必填；note——恭喜发财，大吉大利，uid-红包发送给谁
+     */
+    public Observable<BaseResponse<RedSendBean>> sendRedEnvelopeToUser(long amt, int count, String payPwd, int type, long bankCardId, String note, long uid) {
+        Map<String, String> map = new HashMap<>();
+        map.put("amt", amt + "");
+        map.put("cnt", count + "");
+        map.put("payPwd", MD5.md5(payPwd));
+        if (bankCardId > 0) {
+            map.put("bankCardId", bankCardId + "");
+        }
+        map.put("note", note);
+        map.put("type", type + "");
+        map.put("toUid", uid + "");
+        return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map));
+    }
+
+    //发送红包给群
+    public Observable<BaseResponse<RedSendBean>> sendRedEnvelopeToGroup(long amt, int count, String payPwd, int type, long bankCardId, String note, String gid) {
+        Map<String, String> map = new HashMap<>();
+        map.put("amt", amt + "");
+        map.put("cnt", count + "");
+        map.put("payPwd", MD5.md5(payPwd));
+        map.put("bankCardId", bankCardId + "");
+        map.put("note", note);
+        map.put("type", type + "");
+        map.put("toGid", gid);
+        return HttpChannel.getInstance().getPayService().sendRedEnvelope(getRequestBody(map));
     }
 
 

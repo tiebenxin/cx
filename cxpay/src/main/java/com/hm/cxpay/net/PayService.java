@@ -7,6 +7,7 @@ import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
+import com.hm.cxpay.ui.redenvelope.RedSendBean;
 
 import java.util.List;
 
@@ -62,6 +63,9 @@ public interface PayService {
     @POST(Route.GET_RED_ENVELOPE_DETAILS)
     Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(@Body RequestBody body);
 
+    //发红包
+    @POST(Route.SEND_RED_ENVELOPE)
+    Observable<BaseResponse<RedSendBean>> sendRedEnvelope(@Body RequestBody body);
 
 
 }

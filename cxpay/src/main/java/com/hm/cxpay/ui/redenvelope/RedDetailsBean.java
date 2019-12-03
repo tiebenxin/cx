@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * @anthor Liszt
  * @data 2019/12/2
- * Description
+ * Description 红包明细详情
  */
 public class RedDetailsBean implements Parcelable {
 

@@ -1,5 +1,6 @@
 package com.yanlong.im.pay.ui.record;
 
+import android.annotation.SuppressLint;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -7,13 +8,17 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.databinding.ActivityRedEnvelopeDetailBinding;
+import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 import com.hm.cxpay.widget.wheel.DateTimeWheelDialog;
 
 import net.cb.cb.library.utils.TimeToString;
@@ -40,6 +45,7 @@ public class RedEnvelopeDetailsActivity extends AppActivity {
     private int month;
     private List<Fragment> fragments;
     String[] tabTiles = new String[]{"收到的红包", "发出的红包"};
+    private int currentTab = 0;//默认收到红包界面
 
 
     @Override
@@ -76,6 +82,7 @@ public class RedEnvelopeDetailsActivity extends AppActivity {
         ui.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                currentTab = tab.getPosition();
                 ui.viewPager.setCurrentItem(tab.getPosition());
             }
 
@@ -95,7 +102,7 @@ public class RedEnvelopeDetailsActivity extends AppActivity {
 
     private void initViewpager() {
         fragments = new ArrayList<>();
-        fragments.add(FragmentRedEnvelopeSend.newInstance());
+        fragments.add(FragmentRedEnvelopeReceived.newInstance());
         fragments.add(FragmentRedEnvelopeSend.newInstance());
         ui.viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -215,5 +222,29 @@ public class RedEnvelopeDetailsActivity extends AppActivity {
             currentCalendar = Calendar.getInstance();
         }
         return currentCalendar.getTimeInMillis();
+    }
+
+    public int getCurrentTab() {
+        return currentTab;
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void initDetails(RedDetailsBean bean, boolean isReceive) {
+        if (bean != null) {
+            UserBean user = PayEnvironment.getIntance().getUser();
+            String name = "";
+            if (user != null) {
+                name = !TextUtils.isEmpty(user.getRealName()) ? user.getRealName() : "";
+            }
+            if (isReceive && currentTab == 0) {//收到红包
+                ui.tvName.setText(name + "共收到红包");
+                ui.tvMoney.setText("￥" + bean.getSumAmt() + "元");
+                ui.tvTotal.setText("共收到红包" + bean.getTotal() + "个");
+            } else if (!isReceive && currentTab == 1) {//发出红包
+                ui.tvName.setText(name + "共发出红包");
+                ui.tvMoney.setText("￥" + bean.getSumAmt() + "元");
+                ui.tvTotal.setText("共发出红包" + bean.getTotal() + "个");
+            }
+        }
     }
 }
