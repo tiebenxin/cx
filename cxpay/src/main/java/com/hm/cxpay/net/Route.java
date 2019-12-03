@@ -36,6 +36,9 @@ public class Route {
     //检查支付密码
     public static final String CHECK_PAYWORD = "/user/check_pay_pwd";
 
+    //充值
+    public static final String TO_RECHARGE = "/order/deposit";
+
     //获取红包明细
     public static final String GET_RED_ENVELOPE_DETAILS = "/user/get_red_envelope_list";
 }

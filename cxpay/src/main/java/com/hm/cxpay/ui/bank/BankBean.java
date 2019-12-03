@@ -11,14 +11,14 @@ import android.os.Parcelable;
 public class BankBean  implements Parcelable {
     String bankName;//银行名
     String cardNo;//银行卡号
-    int id;//id
+    long id;//id
     String logo;//银行logo
     int seqNo;//排序号，升序
 
     protected BankBean(Parcel in) {
         bankName = in.readString();
         cardNo = in.readString();
-        id = in.readInt();
+        id = in.readLong();
         logo = in.readString();
         seqNo = in.readInt();
     }
@@ -51,7 +51,7 @@ public class BankBean  implements Parcelable {
         this.cardNo = cardNo;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -84,7 +84,7 @@ public class BankBean  implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(bankName);
         dest.writeString(cardNo);
-        dest.writeInt(id);
+        dest.writeLong(id);
         dest.writeString(logo);
         dest.writeInt(seqNo);
     }
