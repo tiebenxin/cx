@@ -3,7 +3,9 @@ package com.hm.cxpay.ui.bank;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.View;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
@@ -18,6 +20,8 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
 import java.util.List;
+
+import static com.hm.cxpay.ui.RechargeActivity.SELECT_BANKCARD;
 
 
 /**
@@ -41,6 +45,13 @@ public class SelectBankCardActivity extends BasePayActivity {
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         ui.rcBankcardList.setLayoutManager(manager);
         ui.rcBankcardList.setAdapter(adapter);
+        ui.llAddCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SelectBankCardActivity.this, BindBankActivity.class);
+                startActivityForResult(intent, SELECT_BANKCARD);
+            }
+        });
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
             public void onBack() {
@@ -96,5 +107,15 @@ public class SelectBankCardActivity extends BasePayActivity {
                         super.onHandleError(baseResponse);
                     }
                 });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SELECT_BANKCARD) {
+            if (resultCode == RESULT_OK) {
+                getBankList();//重新获取银行列表
+            }
+        }
     }
 }
