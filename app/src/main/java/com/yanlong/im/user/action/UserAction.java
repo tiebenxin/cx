@@ -156,6 +156,8 @@ public class UserAction {
                     }
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
+                    //如果是手机号码登录，则删除上次常信号登陆的账号
+                    new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json("");
                     getMyInfo4Web(response.body().getData().getUid(),"");
                 }
 
