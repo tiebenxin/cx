@@ -2595,17 +2595,25 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 holder.viewChatItem.setOnHead(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (ViewUtils.isFastDoubleClick()) {
+                            return;
+                        }
+                        //TODO:优先显示群备注、查询最新的在本群的昵称
+                        String name = msgDao.getGroupMemberName(toGid, msgbean.getFrom_uid());
+                        if (TextUtils.isEmpty(name)) {
+                            name = msgDao.getUsername4Show(toGid, msgbean.getFrom_uid());
+                        }
                         startActivity(new Intent(getContext(), UserInfoActivity.class)
                                 .putExtra(UserInfoActivity.ID, msgbean.getFrom_uid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, toGid)
-                                .putExtra(UserInfoActivity.MUC_NICK, finalNikeName));
+                                .putExtra(UserInfoActivity.MUC_NICK, name));
                     }
                 });
             }
             holder.viewChatItem.setShowType(msgbean.getMsg_type(), msgbean.isMe(), headico, nikeName, time, isGroup());
             //发送状态处理
-            if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type()||
+            if (ChatEnum.EMessageType.MSG_VIDEO == msgbean.getMsg_type() || ChatEnum.EMessageType.IMAGE == msgbean.getMsg_type() ||
                     Constants.CX_HELPER_UID.equals(toUId)) {
                 holder.viewChatItem.setErr(msgbean.getSend_state(), false);
             } else {
@@ -2763,7 +2771,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                     pgVideo = UpLoadService.getProgress(msgbean.getMsg_id());
                     // 等于常信小助手
                     if (Constants.CX_HELPER_UID.equals(toUId)) {
-                        pgVideo=100;
+                        pgVideo = 100;
                     }
 
                     holder.viewChatItem.setDataVideo(msgbean.getVideoMessage(), msgbean.getVideoMessage().getUrl(), new ChatItemView.EventPic() {

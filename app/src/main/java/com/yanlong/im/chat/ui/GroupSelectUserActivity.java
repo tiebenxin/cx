@@ -334,6 +334,7 @@ public class GroupSelectUserActivity extends AppActivity {
             hd.ckSelect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mUserBean = bean;
                     onItemClick(bean);
                 }
             });

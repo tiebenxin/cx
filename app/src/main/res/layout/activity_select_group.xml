@@ -4,7 +4,7 @@
     android:id="@+id/headView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:headview_title="选择联系人">
+    app:headview_title="选择提醒的人">
 
 
     <FrameLayout
