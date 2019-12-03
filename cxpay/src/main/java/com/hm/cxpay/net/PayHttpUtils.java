@@ -2,6 +2,7 @@ package com.hm.cxpay.net;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
@@ -111,6 +112,15 @@ public class PayHttpUtils {
         Map<String, String> map = new HashMap<>();
         map.put("pwd", MD5.md5(pwd));
         return HttpChannel.getInstance().getPayService().checkPayword(getRequestBody(map));
+    }
+
+    //充值
+    public Observable<BaseResponse<CommonBean>> toRecharge(int amt, long bankCardId, String payPwd) {
+        Map<String, String> map = new HashMap<>();
+        map.put("amt", amt+"");
+        map.put("bankCardId", bankCardId+"");
+        map.put("payPwd", MD5.md5(payPwd));
+        return HttpChannel.getInstance().getPayService().toRecharge(getRequestBody(map));
     }
 
 

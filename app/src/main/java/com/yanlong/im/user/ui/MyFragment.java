@@ -434,11 +434,11 @@ public class MyFragment extends Fragment {
     private void checkUserStatus(UserBean userBean){
         //1 已实名认证
         if(userBean.getRealNameStat()==1){
-            //1-1 已设置支付密码
+            //1-1 已设置支付密码 -> 允许使用零钱
             if(userBean.getPayPwdStat()==1){
                 context.startActivity(new Intent(context,LooseChangeActivity.class));
             }else {
-                //1-2 未设置支付密码
+                //1-2 未设置支付密码 -> 需要先设置
                 ToastUtil.show(context, "检测到您还未设置支付密码，请先设置");
                 context.startActivity(new Intent(context, SetPaywordActivity.class));
             }

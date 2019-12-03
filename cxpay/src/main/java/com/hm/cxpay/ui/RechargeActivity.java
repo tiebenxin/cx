@@ -1,9 +1,11 @@
 package com.hm.cxpay.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
@@ -24,6 +27,7 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
+import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.widget.PswView;
 
@@ -59,6 +63,13 @@ public class RechargeActivity extends AppActivity {
     private boolean ifAddBankcard = false;//判断是否添加过银行卡
     private List<BankBean> bankList = null;//我所绑定的所有银行卡列表数据
 
+    private AlertDialog dialogOne;//添加银行卡弹框
+    private AlertDialog dialogTwo;//充值支付弹框
+
+    public static final int SELECT_BANKCARD = 99;
+    private BankBean selectBankcard;//选中的银行卡
+    private StringBuilder builder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +77,11 @@ public class RechargeActivity extends AppActivity {
         setContentView(R.layout.activity_recharge);
         initView();
         initData();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         getBankList();
     }
 
@@ -95,15 +111,16 @@ public class RechargeActivity extends AppActivity {
 
             }
         });
+        bankList = new ArrayList<>();
         //显示余额
-        tvBalance.setText("当前零钱余额  ¥ " + PayEnvironment.getIntance().getUser().getBalance());
+        tvBalance.setText("当前零钱余额  ¥ " + PayEnvironment.getIntance().getUser().getBalance()+"");
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //1 充值金额不能为空
                 if (!TextUtils.isEmpty(etRecharge.getText().toString())) {
                     //2 最低充值1元
-                    if (Double.valueOf(etRecharge.getText().toString()) >= 1.0) {
+                    if (Integer.valueOf(etRecharge.getText().toString()) >= 1) {
                         //3-1 已经添加过银行卡
                         if (ifAddBankcard) {
                             showRechargeDialog(2);
@@ -211,7 +228,7 @@ public class RechargeActivity extends AppActivity {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
         dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
         if (type == 1) {
-            final AlertDialog dialog = dialogBuilder.create();
+            dialogOne = dialogBuilder.create();
             //获取界面
             View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_add_bankcard, null);
             //初始化控件
@@ -223,29 +240,29 @@ public class RechargeActivity extends AppActivity {
             ivClose.setOnClickListener(new android.view.View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    dialog.dismiss();
+                    dialogOne.dismiss();
                 }
             });
             layoutAddBankcard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     go(BindBankActivity.class);
-                    finish();
+                    dialogOne.dismiss();
                 }
             });
             //展示界面
-            dialog.show();
+            dialogOne.show();
             //解决圆角shape背景无效问题
-            Window window = dialog.getWindow();
+            Window window = dialogOne.getWindow();
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             //设置宽高
             WindowManager.LayoutParams lp = window.getAttributes();
             lp.height = DensityUtil.dip2px(activity, 195);
             lp.width = DensityUtil.dip2px(activity, 277);
-            dialog.getWindow().setAttributes(lp);
-            dialog.setContentView(dialogView);
+            dialogOne.getWindow().setAttributes(lp);
+            dialogOne.setContentView(dialogView);
         } else if (type == 2) {
-            final AlertDialog dialog = dialogBuilder.create();
+            dialogTwo = dialogBuilder.create();
             View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_pay_psw, null);
             ImageView ivClose = dialogView.findViewById(R.id.iv_close);
             TextView tvRechargeValue = dialogView.findViewById(R.id.tv_recharge_value);
@@ -255,43 +272,47 @@ public class RechargeActivity extends AppActivity {
             final PswView pswView = dialogView.findViewById(R.id.psw_view);
             //充值金额
             tvRechargeValue.setText("￥" + etRecharge.getText().toString());
-            StringBuilder builder = new StringBuilder();
+            builder = new StringBuilder();
             //默认取第一张银行卡信息展示
-            if(!TextUtils.isEmpty(bankList.get(0).getBankName())){
-                builder.append(bankList.get(0).getBankName());
-                if(!TextUtils.isEmpty(bankList.get(0).getCardNo())){
-                    int length = bankList.get(0).getCardNo().length();
+            selectBankcard = bankList.get(0);
+            if(!TextUtils.isEmpty(selectBankcard.getBankName())){
+                builder.append(selectBankcard.getBankName());
+                if(!TextUtils.isEmpty(selectBankcard.getCardNo())){
+                    int length = selectBankcard.getCardNo().length();
                     builder.append("(");
-                    builder.append(bankList.get(0).getCardNo().substring(length-4,length));
+                    builder.append(selectBankcard.getCardNo().substring(length-4,length));
                     builder.append(")");
                 }
                 tvBankName.setText(builder);//银行卡名称尾号
-                ivBankIcon.setImageDrawable(BankUtils.getBankIcon(bankList.get(0).getBankName()));//银行卡Logo
+                ivBankIcon.setImageDrawable(BankUtils.getBankIcon(selectBankcard.getBankName()));//银行卡Logo
             }
             //关闭弹框
             ivClose.setOnClickListener(new android.view.View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    dialog.dismiss();
+                    dialogTwo.dismiss();
                 }
             });
             //输入支付密码
             pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
                 @Override
-                public void setPasswordChanged(String password) {
-                    //TODO 验证支付密码 + 充值成功/失败
-                    ToastUtil.show(activity, "支付密码是" + password);
+                public void setPasswordChanged(String payword) {
+                    httpRecharge(payword,selectBankcard.getId());
+                    if(dialogTwo!=null){
+                        dialogTwo.dismiss();
+                    }
+
                 }
             });
             //切换其他银行卡来支付
             layoutChangeBankcard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO 跳 我的银行卡
-                    ToastUtil.show(activity, "切换其他银行卡来支付");
+                    startActivityForResult(new Intent(activity,SelectBankCardActivity.class),SELECT_BANKCARD);
+
                 }
             });
-            dialog.show();
+            dialogTwo.show();
             //强制唤起软键盘
             if (pswView != null) {
                 pswView.setFocusable(true);
@@ -302,14 +323,14 @@ public class RechargeActivity extends AppActivity {
                 inputManager.showSoftInput(pswView, 0);
             }
             //解决dialog里edittext不响应键盘的问题
-            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-            Window window = dialog.getWindow();
+            dialogTwo.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+            Window window = dialogTwo.getWindow();
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             WindowManager.LayoutParams lp = window.getAttributes();
             lp.height = DensityUtil.dip2px(activity, 277);
             lp.width = DensityUtil.dip2px(activity, 277);
-            dialog.getWindow().setAttributes(lp);
-            dialog.setContentView(dialogView);
+            dialogTwo.getWindow().setAttributes(lp);
+            dialogTwo.setContentView(dialogView);
         }
     }
 
@@ -324,10 +345,9 @@ public class RechargeActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
                         if (baseResponse.isSuccess()) {
+                            bankList.clear();
                             if (baseResponse.getData() != null) {
                                 bankList.addAll(baseResponse.getData());
-                            } else {
-                                bankList = new ArrayList<>();
                             }
                             ifAddBankcard = bankList.size() != 0 ? true : false;
                         } else {
@@ -341,6 +361,61 @@ public class RechargeActivity extends AppActivity {
                         ToastUtil.show(activity, baseResponse.getMessage());
                     }
                 });
+    }
+    /**
+     * 发请求->充值接口
+     */
+    private void httpRecharge(String payword,long bankId){
+        PayHttpUtils.getInstance().toRecharge(
+                Integer.valueOf(etRecharge.getText().toString())
+                ,bankId,payword)
+                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
+                        if(baseResponse.isSuccess()){
+                            if(baseResponse.getData()!=null){
+                                if(baseResponse.getData().getCode()==1){
+                                    ToastUtil.show(activity, "充值成功!");
+                                }else {
+                                    ToastUtil.show(activity, baseResponse.getMessage());
+                                }
+                            }
+                        }else {
+                            ToastUtil.show(activity, baseResponse.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == SELECT_BANKCARD){
+            if(resultCode == RESULT_OK){
+                selectBankcard = data.getParcelableExtra("bank_card");
+                if(!TextUtils.isEmpty(selectBankcard.getBankName())){
+                    builder.append(selectBankcard.getBankName());
+                    if(!TextUtils.isEmpty(selectBankcard.getCardNo())){
+                        int length = selectBankcard.getCardNo().length();
+                        builder.append("(");
+                        builder.append(selectBankcard.getCardNo().substring(length-4,length));
+                        builder.append(")");
+                    }
+//                    tvBankName.setText(builder);//银行卡名称尾号
+//                    ivBankIcon.setImageDrawable(BankUtils.getBankIcon(selectBankcard.getBankName()));//银行卡Logo
+                }
+            }
+        }
     }
 
 
