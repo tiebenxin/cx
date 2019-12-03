@@ -20,12 +20,16 @@ import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.utils.GlideOptionsUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventRefreshFriend;
+import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -47,6 +51,7 @@ public class FriendApplyAcitvity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_apply);
+        EventBus.getDefault().register(this);
         findViews();
         initEvent();
 
@@ -56,6 +61,12 @@ public class FriendApplyAcitvity extends AppActivity {
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     //自动寻找控件
@@ -290,4 +301,15 @@ public class FriendApplyAcitvity extends AppActivity {
     }
 
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void refreshApplyEvent(RefreshApplyEvent event) {
+        for (int i = 0; i < listData.size(); i++) {
+            ApplyBean bean=listData.get(i);
+            if(bean.getUid()==event.uid&&bean.getChatType()==event.chatType&&bean.getStat()==event.stat){
+                bean.setStat(2);
+                msgDao.applyFriend(bean);
+                initData();
+            }
+        }
+    }
 }

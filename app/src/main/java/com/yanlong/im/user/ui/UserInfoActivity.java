@@ -31,6 +31,7 @@ import com.yanlong.im.utils.GlideOptionsUtil;
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
+import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -638,6 +639,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     notifyRefreshRoster(uid, CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
+                    EventBus.getDefault().post(new RefreshApplyEvent(uid, CoreEnum.EChatType.PRIVATE,1));
                     finish();
                 }
             }

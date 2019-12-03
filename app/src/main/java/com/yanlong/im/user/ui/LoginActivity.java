@@ -25,6 +25,7 @@ import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
@@ -94,6 +95,11 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
     private void initData() {
         phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
         String imageHead = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).get4Json(String.class);
+
+        String imid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
+        if(StringUtil.isNotNull(imid)){
+            phone=imid;
+        }
         mTvPhoneNumber.setText(phone);
         Glide.with(this).load(imageHead).apply(GlideOptionsUtil.headImageOptions()).into(mImgHead);
     }
@@ -169,10 +175,10 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
             return;
         }
 
-        if (!CheckUtil.isMobileNO(phone)) {
-            ToastUtil.show(this, "手机号格式不正确");
-            return;
-        }
+//        if (!CheckUtil.isMobileNO(phone)) {
+//            ToastUtil.show(this, "手机号格式不正确");
+//            return;
+//        }
 
         LogUtil.getLog().i("youmeng", "LoginActivity------->getDevId");
         new RunUtils(new RunUtils.Enent() {
@@ -185,38 +191,76 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
 
             @Override
             public void onMain() {
-                new UserAction().login(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
-                    @Override
-                    public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                        LogUtil.getLog().i("youmeng", "LoginActivity------->login-------->onResp");
-                        if (response.body() == null) {
-                            ToastUtil.show(context, "登录异常");
-                            return;
-                        }
-                        if (response.body().isOk()) {
-                            Intent intent = new Intent(getContext(), MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            intent.putExtra(MainActivity.IS_LOGIN, true);
-                            startActivity(intent);
-                        }
-                        if (response.body().getCode().longValue() == 10002) {
-                            if (count == 0) {
-                                ToastUtil.show(context, "密码错误");
-                            } else {
-                                initDialog();
+                UserAction userAction=new UserAction();
+                if (CheckUtil.isMobileNO(phone)) {
+                    userAction.login(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
+                        @Override
+                        public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                            LogUtil.getLog().i("youmeng", "LoginActivity------->login-------->onResp");
+                            if (response.body() == null) {
+                                ToastUtil.show(context, "登录异常");
+                                return;
                             }
-                            count += 1;
-                        } else {
-                            ToastUtil.show(getContext(), response.body().getMsg());
+                            if (response.body().isOk()) {
+                                Intent intent = new Intent(getContext(), MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                intent.putExtra(MainActivity.IS_LOGIN, true);
+                                startActivity(intent);
+                            }
+                            if (response.body().getCode().longValue() == 10002) {
+                                if (count == 0) {
+                                    ToastUtil.show(context, "密码错误");
+                                } else {
+                                    initDialog();
+                                }
+                                count += 1;
+                            } else {
+                                ToastUtil.show(getContext(), response.body().getMsg());
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
-                        super.onFail(call, t);
-                        LogUtil.getLog().i("youmeng", "LoginActivity------->login-------->onFail");
-                    }
-                });
+                        @Override
+                        public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                            super.onFail(call, t);
+                            LogUtil.getLog().i("youmeng", "LoginActivity------->login------phone-->onFail");
+                        }
+                    });
+                }else {
+                    userAction.login4Imid(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
+
+                        @Override
+                        public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
+                            LogUtil.getLog().i("youmeng", "PasswordLoginActivity------->login--imid-->onResp");
+                            if (response.body() == null) {
+                                ToastUtil.show(context, "登录异常");
+                                return;
+                            }
+                            if (response.body().isOk()) {
+                                Intent intent = new Intent(getContext(), MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                intent.putExtra(MainActivity.IS_LOGIN, true);
+                                startActivity(intent);
+                            }
+                            if (response.body().getCode().longValue() == 10002) {
+                                if (count == 0) {
+                                    ToastUtil.show(context, "密码错误");
+                                } else {
+                                    initDialog();
+                                }
+                                count += 1;
+                            } else {
+                                ToastUtil.show(getContext(), response.body().getMsg());
+                            }
+                        }
+
+                        @Override
+                        public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
+                            super.onFail(call, t);
+                            LogUtil.getLog().i("youmeng", "PasswordLoginActivity------->login---->onFail");
+                        }
+                    });
+                }
+
             }
         }).run();
     }

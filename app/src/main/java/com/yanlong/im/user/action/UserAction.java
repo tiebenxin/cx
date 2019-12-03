@@ -156,7 +156,7 @@ public class UserAction {
                     }
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid());
+                    getMyInfo4Web(response.body().getData().getUid(),"");
                 }
 
                 callback.onResponse(call, response);
@@ -183,7 +183,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid());
+                    getMyInfo4Web(response.body().getData().getUid(),imid);
                 }
 
                 callback.onResponse(call, response);
@@ -201,13 +201,17 @@ public class UserAction {
     /***
      * 拉取服务器的自己的信息到数据库
      */
-    private void getMyInfo4Web(Long usrid) {
+    private void getMyInfo4Web(Long usrid,String imid) {
         NetUtil.getNet().exec(server.getUserInfo(usrid), new CallBack<ReturnBean<UserInfo>>() {
             @Override
             public void onResponse(Call<ReturnBean<UserInfo>> call, Response<ReturnBean<UserInfo>> response) {
                 if (response.body() != null && response.body().isOk()) {
                     UserInfo userInfo = response.body().getData();
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IMAGE_HEAD).save2Json(userInfo.getHead() + "");
+                    //保存手机或常信号登录
+                    if(StringUtil.isNotNull(imid)){
+                        new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).save2Json(imid);
+                    }
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).save2Json(userInfo.getPhone());
                     new SharedPreferencesUtil(SharedPreferencesUtil.SPName.UID).save2Json(userInfo.getUid());
                     userInfo.toTag();
@@ -309,7 +313,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid());
+                    getMyInfo4Web(response.body().getData().getUid(),"");
                     callback.onResponse(call, response);
                 } else {
                     callback.onFailure(call, null);
@@ -568,7 +572,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid());
+                    getMyInfo4Web(response.body().getData().getUid(),"");
                 }
                 callback.onResponse(call, response);
             }
@@ -593,7 +597,7 @@ public class UserAction {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
-                    getMyInfo4Web(response.body().getData().getUid());
+                    getMyInfo4Web(response.body().getData().getUid(),"");
                 }
                 callback.onResponse(call, response);
             }
