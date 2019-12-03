@@ -24,7 +24,7 @@ public class IdentificationInfoActivity extends BasePayActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ui = DataBindingUtil.setContentView(this, R.layout.activity_identification_info);
-        UserBean userBean = PayEnvironment.getIntance().getUser();
+        UserBean userBean = PayEnvironment.getInstance().getUser();
         if (userBean != null) {
             ui.tvName.setText(userBean.getRealName());
             ui.tvId.setText(userBean.getCardId());

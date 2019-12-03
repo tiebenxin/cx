@@ -10,6 +10,7 @@ import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
 import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 import com.hm.cxpay.ui.redenvelope.RedSendBean;
+import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.encrypt.MD5;
 
@@ -117,8 +118,8 @@ public class PayHttpUtils {
     //充值
     public Observable<BaseResponse<CommonBean>> toRecharge(int amt, long bankCardId, String payPwd) {
         Map<String, String> map = new HashMap<>();
-        map.put("amt", amt+"");
-        map.put("bankCardId", bankCardId+"");
+        map.put("amt", amt + "");
+        map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
         return HttpChannel.getInstance().getPayService().toRecharge(getRequestBody(map));
     }
@@ -141,6 +142,7 @@ public class PayHttpUtils {
      */
     public Observable<BaseResponse<RedSendBean>> sendRedEnvelopeToUser(long amt, int count, String payPwd, int type, long bankCardId, String note, long uid) {
         Map<String, String> map = new HashMap<>();
+        map.put("actionId", UIUtils.getUUID());
         map.put("amt", amt + "");
         map.put("cnt", count + "");
         map.put("payPwd", MD5.md5(payPwd));
@@ -156,6 +158,7 @@ public class PayHttpUtils {
     //发送红包给群
     public Observable<BaseResponse<RedSendBean>> sendRedEnvelopeToGroup(long amt, int count, String payPwd, int type, long bankCardId, String note, String gid) {
         Map<String, String> map = new HashMap<>();
+        map.put("actionId", UIUtils.getUUID());
         map.put("amt", amt + "");
         map.put("cnt", count + "");
         map.put("payPwd", MD5.md5(payPwd));

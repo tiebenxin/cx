@@ -16,7 +16,9 @@ import androidx.annotation.RequiresApi;
 
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.dailog.DialogInputPayPassword;
 import com.hm.cxpay.databinding.ActivitySingleRedPacketBinding;
+import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
@@ -105,8 +107,10 @@ public class SingleRedPacketActivity extends BasePayActivity {
         ui.btnCommit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                ToastUtil.show(SingleRedPacketActivity.this, "发红包");
-                String note = UIUtils.getRedEnvelopeContent(ui.edContent);
+                String money = ui.edMoney.getText().toString();
+                if (!TextUtils.isEmpty(money)) {
+                    showInputPasswordDialog(UIUtils.getFen(money));
+                }
             }
         });
 
@@ -147,10 +151,12 @@ public class SingleRedPacketActivity extends BasePayActivity {
                             RedSendBean sendBean = baseResponse.getData();
                             if (sendBean != null && sendBean.getCode() == 1) {//code  1表示成功，2失败，99处理中
 
+                            } else if (sendBean.getCode() == -21000) {//密码错误
+                                showPswErrorDialog();
                             } else {
+                                ToastUtil.show(getContext(), baseResponse.getMessage());
 
                             }
-
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
                         }
@@ -163,6 +169,25 @@ public class SingleRedPacketActivity extends BasePayActivity {
                         ToastUtil.show(getContext(), baseResponse.getMessage());
                     }
                 });
+    }
+
+    //输入密码弹窗
+    private void showInputPasswordDialog(final long money) {
+        DialogInputPayPassword dialogPayPassword = new DialogInputPayPassword(getContext(), R.style.MyDialogNoFadedTheme);
+        dialogPayPassword.init(money, PayEnum.EPayStyle.LOOSE, null);
+        dialogPayPassword.setPswListener(new DialogInputPayPassword.IPswListener() {
+            @Override
+            public void onCompleted(String psw, long bankCardId) {
+                String note = UIUtils.getRedEnvelopeContent(ui.edContent);
+                sendRedEnvelope(money, psw, note, bankCardId);
+            }
+        });
+        dialogPayPassword.show();
+    }
+
+    private void showPswErrorDialog() {
+
+
     }
 
 }

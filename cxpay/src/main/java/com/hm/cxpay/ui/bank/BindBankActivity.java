@@ -18,7 +18,6 @@ import com.hm.cxpay.net.Route;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
-import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.WebPageActivity;
@@ -47,7 +46,7 @@ public class BindBankActivity extends BasePayActivity {
     }
 
     private void initView() {
-        user = PayEnvironment.getIntance().getUser();
+        user = PayEnvironment.getInstance().getUser();
         if (user != null) {
             ui.tvName.setText(user.getRealName());
         }

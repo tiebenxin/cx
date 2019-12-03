@@ -231,7 +231,7 @@ public class RedEnvelopeDetailsActivity extends AppActivity {
     @SuppressLint("SetTextI18n")
     public void initDetails(RedDetailsBean bean, boolean isReceive) {
         if (bean != null) {
-            UserBean user = PayEnvironment.getIntance().getUser();
+            UserBean user = PayEnvironment.getInstance().getUser();
             String name = "";
             if (user != null) {
                 name = !TextUtils.isEmpty(user.getRealName()) ? user.getRealName() : "";

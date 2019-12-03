@@ -412,7 +412,7 @@ public class MyFragment extends Fragment {
                             }else {
                                 userBean = new UserBean();
                             }
-                            PayEnvironment.getIntance().setUser(userBean);
+                            PayEnvironment.getInstance().setUser(userBean);
                             checkUserStatus(userBean);
                         }else {
                             ToastUtil.show(context, baseResponse.getMessage());
