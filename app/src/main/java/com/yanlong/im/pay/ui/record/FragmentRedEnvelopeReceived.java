@@ -23,11 +23,19 @@ import net.cb.cb.library.view.MultiListView;
  * @data 2019/12/2
  * Description 接收到的红包
  */
-public class FragmentRedEnvelopeReceviced extends Fragment {
+public class FragmentRedEnvelopeReceived extends Fragment {
 
     private View rootView;
     private MultiListView recyclerView;
     int currentPage = 0;
+    private AdapterRedEnvelopeReceived adapter;
+
+    public static FragmentRedEnvelopeReceived newInstance() {
+        FragmentRedEnvelopeReceived fragment = new FragmentRedEnvelopeReceived();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Nullable
     @Override
@@ -40,6 +48,9 @@ public class FragmentRedEnvelopeReceviced extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        adapter = new AdapterRedEnvelopeReceived(getActivity());
+        recyclerView.init(adapter);
+        getRedEnvelopeDetails();
     }
 
 
@@ -56,6 +67,10 @@ public class FragmentRedEnvelopeReceviced extends Fragment {
                     public void onHandleSuccess(BaseResponse<RedDetailsBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
                             RedDetailsBean details = baseResponse.getData();
+                            if (((RedEnvelopeDetailsActivity) getActivity()).getCurrentTab() == 0) {
+                                ((RedEnvelopeDetailsActivity) getActivity()).initDetails(details, true);
+                            }
+                            adapter.bindData(details.getItems());
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
                         }

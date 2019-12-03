@@ -6,10 +6,10 @@ import android.os.Parcelable;
 /**
  * @anthor Liszt
  * @data 2019/12/2
- * Description
+ * Description 红包明细item bean
  */
 public class RedEnvelopeItemBean implements Parcelable {
-    long amt;//交易金额
+    long amt;//交易金额，单位：分
     FromUserBean fromUser;
     long time;
     long tradeId;
