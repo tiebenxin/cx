@@ -15,7 +15,7 @@ public class PayEnvironment {
     private String token;
     private Context context;
 
-    public static PayEnvironment getIntance() {
+    public static PayEnvironment getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new PayEnvironment();
         }

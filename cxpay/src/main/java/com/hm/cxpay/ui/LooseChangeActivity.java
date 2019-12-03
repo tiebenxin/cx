@@ -66,7 +66,7 @@ public class LooseChangeActivity extends BasePayActivity {
             }
         });
         //显示余额
-        tvMoney.setText("¥ "+PayEnvironment.getIntance().getUser().getBalance());
+        tvMoney.setText("¥ "+PayEnvironment.getInstance().getUser().getBalance());
         //充值
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override

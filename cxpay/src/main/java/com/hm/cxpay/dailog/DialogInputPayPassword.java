@@ -1,17 +1,16 @@
 package com.hm.cxpay.dailog;
 
 import android.content.Context;
-import android.media.Image;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.hm.cxpay.R;
 import com.hm.cxpay.global.PayEnum;
 import com.hm.cxpay.ui.bank.BankBean;
-import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 
@@ -31,6 +30,8 @@ public class DialogInputPayPassword extends BaseDialog {
     private IPswListener listener;
     private int payStyle;
     private BankBean bankBean;
+    private ImageView ivClose;
+    private LinearLayout llPayStyle;
 
     public DialogInputPayPassword(Context context, int theme) {
         super(context, theme);
@@ -39,38 +40,48 @@ public class DialogInputPayPassword extends BaseDialog {
     @Override
     public void initView() {
         setContentView(R.layout.dialog_input_pay_pwd);
+        ivClose = findViewById(R.id.iv_close);
         tvMoney = findViewById(R.id.tv_money);
         tvPayer = findViewById(R.id.tv_payer);
         ivIcon = findViewById(R.id.iv_icon);
         pswView = findViewById(R.id.psw_view);
+        llPayStyle = findViewById(R.id.ll_pay_style);
         pswView.setOnPasswordChangedListener(new PswView.onPasswordChangedListener() {
             @Override
             public void setPasswordChanged(String password) {
                 if (!TextUtils.isEmpty(password)) {
                     if (listener != null) {
-                        if (payStyle == PayEnum.EPayStyle.LOOSE){
-                            listener.onCompleted(password,-1);
-                        }else if (payStyle == PayEnum.EPayStyle.BANK && bankBean != null){
-//                            listener.onCompleted(password,bankBean.getCardNo());
-
+                        if (payStyle == PayEnum.EPayStyle.LOOSE) {
+                            listener.onCompleted(password, -1);
+                        } else if (payStyle == PayEnum.EPayStyle.BANK && bankBean != null) {
+                            listener.onCompleted(password, bankBean.getId());
                         }
                     }
                 }
             }
         });
+
+        ivClose.setOnClickListener(this);
+        llPayStyle.setOnClickListener(this);
+
     }
 
     @Override
     public void processClick(View view) {
-
+        int id = view.getId();
+        if (id == R.id.iv_close) {
+            dismiss();
+        } else if (id == R.id.ll_pay_style) {
+            dismiss();
+        }
     }
 
-    public void init(String money, @PayEnum.EPayStyle int payStyle, BankBean info) {
+    public void init(long money, @PayEnum.EPayStyle int payStyle, BankBean info) {
         this.payStyle = payStyle;
         if (info != null) {
             bankBean = info;
         }
-        tvMoney.setText("￥" + money);
+        tvMoney.setText("￥" + UIUtils.getYuan(money));
         if (payStyle == PayEnum.EPayStyle.LOOSE) {
             tvPayer.setText("零钱");
             ivIcon.setImageDrawable(UIUtils.getDrawable(getContext(), R.mipmap.ic_loose));
@@ -89,6 +100,7 @@ public class DialogInputPayPassword extends BaseDialog {
     public interface IPswListener {
         /**
          * 支付密码完成
+         * 注意：bankCardId 银行卡id，不是卡号
          */
         void onCompleted(String psw, long bankCardId);
     }

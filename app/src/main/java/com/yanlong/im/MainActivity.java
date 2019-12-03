@@ -421,17 +421,17 @@ public class MainActivity extends AppActivity {
         checkToken();
         UserInfo info = UserAction.getMyInfo();
         if (info != null) {
-            UserBean bean = PayEnvironment.getIntance().getUser();
+            UserBean bean = PayEnvironment.getInstance().getUser();
             if (bean == null || (bean != null && bean.getUid() != info.getUid().intValue())) {
                 bean = new UserBean();
                 bean.setUid(info.getUid());
                 bean.setIsVerify(0);
                 bean.setCardId("5*********6");
                 bean.setRealName("*白");
-                PayEnvironment.getIntance().setUser(bean);
+                PayEnvironment.getInstance().setUser(bean);
             }
         }
-        PayEnvironment.getIntance().setContext(AppConfig.getContext());
+        PayEnvironment.getInstance().setContext(AppConfig.getContext());
     }
 
     private void checkToken() {
@@ -439,7 +439,7 @@ public class MainActivity extends AppActivity {
             TokenBean token = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.TOKEN).get4Json(TokenBean.class);
             if (token != null) {
                 TokenManager.initToken(token.getAccessToken());
-                PayEnvironment.getIntance().setToken(token.getAccessToken());
+                PayEnvironment.getInstance().setToken(token.getAccessToken());
             }
         }
     }

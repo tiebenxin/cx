@@ -113,7 +113,7 @@ public class RechargeActivity extends AppActivity {
         });
         bankList = new ArrayList<>();
         //显示余额
-        tvBalance.setText("当前零钱余额  ¥ " + PayEnvironment.getIntance().getUser().getBalance()+"");
+        tvBalance.setText("当前零钱余额  ¥ " + PayEnvironment.getInstance().getUser().getBalance()+"");
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
