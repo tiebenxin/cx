@@ -5,6 +5,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
+import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 
 import java.util.List;
 
@@ -51,6 +52,10 @@ public interface PayService {
     //设置检查密码接口 [参数]pwd
     @POST(Route.CHECK_PAYWORD)
     Observable<BaseResponse> checkPayword(@Body RequestBody body);
+
+    //获取红包明细
+    @POST(Route.GET_RED_ENVELOPE_DETAILS)
+    Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(@Body RequestBody body);
 
 
 

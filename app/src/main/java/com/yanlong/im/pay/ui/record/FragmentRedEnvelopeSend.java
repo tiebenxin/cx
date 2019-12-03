@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.yanlong.im.pay.ui.record;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,19 +16,20 @@ import net.cb.cb.library.view.MultiListView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RedpacketRecordFragment extends Fragment {
+//发出的红包
+public class FragmentRedEnvelopeSend extends Fragment {
     private View rootView;
     private MultiListView mMtListView;
 
     private List<String> list = new ArrayList<>();
 
-    public RedpacketRecordFragment() {
+    public FragmentRedEnvelopeSend() {
 
     }
 
 
-    public static RedpacketRecordFragment newInstance() {
-        RedpacketRecordFragment fragment = new RedpacketRecordFragment();
+    public static FragmentRedEnvelopeSend newInstance() {
+        FragmentRedEnvelopeSend fragment = new FragmentRedEnvelopeSend();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -46,7 +47,7 @@ public class RedpacketRecordFragment extends Fragment {
 
     private void initView() {
         mMtListView = rootView.findViewById(R.id.mtListView);
-        mMtListView.init(new RedpacketRecordFragment.RedPacketAdapter());
+        mMtListView.init(new FragmentRedEnvelopeSend.RedPacketAdapter());
         mMtListView.getLoadView().setStateNormal();
     }
 
@@ -97,6 +98,8 @@ public class RedpacketRecordFragment extends Fragment {
             }
         }
     }
+
+
 
 
 }

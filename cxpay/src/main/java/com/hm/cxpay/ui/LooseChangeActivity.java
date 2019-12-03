@@ -90,6 +90,7 @@ public class LooseChangeActivity extends BasePayActivity {
             @Override
             public void onClick() {
                 ARouter.getInstance().build("/app/redEnvelopeDetailsActivity").navigation();
+//                ARouter.getInstance().build("/app/redpacketRecordActivity").navigation();
             }
         });
         //账户信息

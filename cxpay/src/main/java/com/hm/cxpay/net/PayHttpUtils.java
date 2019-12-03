@@ -7,6 +7,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankInfo;
 import com.hm.cxpay.ui.bank.BindBankInfo;
+import com.hm.cxpay.ui.redenvelope.RedDetailsBean;
 
 import net.cb.cb.library.utils.encrypt.MD5;
 
@@ -109,6 +110,17 @@ public class PayHttpUtils {
         Map<String, String> map = new HashMap<>();
         map.put("pwd", MD5.md5(pwd));
         return HttpChannel.getInstance().getPayService().checkPayword(getRequestBody(map));
+    }
+
+
+    //获取红包明细  type—— 7：收到红包； 2 —— 发出红包
+    public Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(int pageNum, long startTime, int type) {
+        Map<String, String> map = new HashMap<>();
+        map.put("pageNum", pageNum+"");
+        map.put("pageSize", 20+"");
+        map.put("startTime", startTime+"");
+        map.put("type", type+"");
+        return HttpChannel.getInstance().getPayService().getRedEnvelopeDetails(getRequestBody(map));
     }
 
 

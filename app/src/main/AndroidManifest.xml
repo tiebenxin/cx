@@ -407,7 +407,7 @@
 
         <!--红包记录-->
         <activity
-            android:name="com.hm.cxpay.ui.RedpacketRecordActivity"
+            android:name=".pay.ui.record.RedpacketRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/RedAppThrme" />
@@ -566,7 +566,7 @@
         <activity android:name=".chat.ui.VideoPlayActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
-        <activity android:name=".pay.ui.RedEnvelopeDetailsActivity" />
+        <activity android:name=".pay.ui.record.RedEnvelopeDetailsActivity" />
 
 
     </application>

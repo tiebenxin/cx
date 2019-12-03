@@ -21,7 +21,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:background="@color/red_400">
+                android:background="@color/c_c85749">
 
 
                 <TextView
@@ -32,6 +32,7 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginRight="10dp"
                     android:drawableBottom="@mipmap/ic_down"
+                    android:drawablePadding="5dp"
                     android:text="2010年4月"
                     android:textColor="@color/white"
                     android:textSize="14sp" />
@@ -77,38 +78,20 @@
 
             </RelativeLayout>
 
-            <LinearLayout
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tab_layout"
                 android:layout_width="match_parent"
-                android:layout_height="50dp">
+                android:layout_height="40dp"
+                android:layout_marginTop="9dp"
+                android:background="@color/white"
+                app:tabIndicatorColor="@color/red_200"
+                app:tabSelectedTextColor="@color/red_200"
+                app:tabTextColor="@color/black" />
 
-                <TextView
-                    android:id="@+id/tv_left"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="收到的红包"
-                    android:textColor="#c85749"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tv_right"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="发出的红包"
-                    android:textColor="#000"
-                    android:textSize="16sp" />
-
-
-            </LinearLayout>
-
-            <FrameLayout
-                android:id="@+id/fl_content"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/view_pager"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_height="match_parent" />
 
         </LinearLayout>
 

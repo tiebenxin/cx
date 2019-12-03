@@ -1,0 +1,219 @@
+package com.yanlong.im.pay.ui.record;
+
+import android.databinding.DataBindingUtil;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.view.View;
+
+import com.alibaba.android.arouter.facade.annotation.Route;
+import com.bigkoo.pickerview.builder.TimePickerBuilder;
+import com.bigkoo.pickerview.listener.OnTimeSelectListener;
+import com.bigkoo.pickerview.view.TimePickerView;
+import com.hm.cxpay.databinding.ActivityRedEnvelopeDetailBinding;
+import com.hm.cxpay.widget.wheel.DateTimeWheelDialog;
+
+import net.cb.cb.library.utils.TimeToString;
+import net.cb.cb.library.utils.ToastUtil;
+import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AppActivity;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @anthor Liszt
+ * @data 2019/12/2
+ * Description 红包明细界面
+ */
+@Route(path = "/app/redEnvelopeDetailsActivity")
+public class RedEnvelopeDetailsActivity extends AppActivity {
+
+    private ActivityRedEnvelopeDetailBinding ui;
+    private Calendar currentCalendar;
+    private int year;
+    private int month;
+    private List<Fragment> fragments;
+    String[] tabTiles = new String[]{"收到的红包", "发出的红包"};
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ui = DataBindingUtil.setContentView(this, com.hm.cxpay.R.layout.activity_red_envelope_detail);
+        getSystemDate();
+        initViewpager();
+        ui.headView.getActionbar().setChangeStyleBg();
+        ui.headView.getAppBarLayout().setBackgroundResource(com.hm.cxpay.R.color.c_c85749);
+        //标题栏事件
+        ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
+            @Override
+            public void onRight() {
+                ToastUtil.show(context, "账单");
+
+            }
+        });
+
+        ui.tvTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                DateTimeWheelDialog timeWheelDialog = createDialog(2);
+//                timeWheelDialog.show();
+                initTimePicker();
+
+            }
+        });
+        ui.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                ui.viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+
+    }
+
+    private void initViewpager() {
+        fragments = new ArrayList<>();
+        fragments.add(FragmentRedEnvelopeSend.newInstance());
+        fragments.add(FragmentRedEnvelopeSend.newInstance());
+        ui.viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                return fragments.get(position);
+            }
+
+            @Override
+            public int getCount() {
+                return fragments.size();
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                return tabTiles[position];
+            }
+        });
+        ui.tabLayout.setupWithViewPager(ui.viewPager);
+    }
+
+
+    private void getSystemDate() {
+        Calendar calendar = Calendar.getInstance();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH) + 1;
+        ui.tvTime.setText(year + "年" + month + "月");
+    }
+
+    private void initTimePicker() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, Calendar.DAY_OF_MONTH);
+
+        Calendar start = Calendar.getInstance();
+        start.set(2019, 11, 1);//2019-12-1
+        Calendar end = Calendar.getInstance();
+        end.set(2100, 11, 31);//2100-12-31
+
+        //时间选择器
+        TimePickerView pvTime = new TimePickerBuilder(RedEnvelopeDetailsActivity.this, new OnTimeSelectListener() {
+            @Override
+            public void onTimeSelect(Date date, View v) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                year = calendar.get(Calendar.YEAR);
+                month = calendar.get(Calendar.MONTH) + 1;
+                ui.tvTime.setText(year + "年" + month + "月");
+            }
+        })
+                .setType(new boolean[]{true, true, false, false, false, false})
+                .setDate(calendar)
+                .setRangDate(start, end)
+                .setCancelText("取消")
+                .setCancelColor(Color.parseColor("#878787"))
+                .setSubmitText("确定")
+                .setSubmitColor(Color.parseColor("#32b152"))
+                .build();
+
+        pvTime.show();
+    }
+
+    private DateTimeWheelDialog createDialog(int type) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, 2019);
+        calendar.set(Calendar.MONTH, 0);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        Date startDate = calendar.getTime();
+        calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, 2099);
+        Date endDate = calendar.getTime();
+
+        DateTimeWheelDialog dialog = new DateTimeWheelDialog(this);
+//        dialog.setShowCount(7);
+//        dialog.setItemVerticalSpace(24);
+        dialog.show();
+        dialog.setTitle("选择时间");
+        int config = DateTimeWheelDialog.SHOW_YEAR_MONTH_DAY_HOUR_MINUTE;
+        switch (type) {
+            case 1:
+                config = DateTimeWheelDialog.SHOW_YEAR;
+                break;
+            case 2:
+                config = DateTimeWheelDialog.SHOW_YEAR_MONTH;
+                break;
+            case 3:
+                config = DateTimeWheelDialog.SHOW_YEAR_MONTH_DAY;
+                break;
+            case 4:
+                config = DateTimeWheelDialog.SHOW_YEAR_MONTH_DAY_HOUR;
+                break;
+            case 5:
+                config = DateTimeWheelDialog.SHOW_YEAR_MONTH_DAY_HOUR_MINUTE;
+                break;
+        }
+        dialog.configShowUI(config);
+        dialog.setCancelButton("取消", null);
+        dialog.setOKButton("确定", new DateTimeWheelDialog.OnClickCallBack() {
+            @Override
+            public boolean callBack(View v, @NonNull Date selectedDate) {
+                currentCalendar = Calendar.getInstance();
+                currentCalendar.setTime(selectedDate);
+                ui.tvTime.setText(TimeToString.getSelectMouth(selectedDate.getTime()));
+                return false;
+            }
+        });
+        dialog.setDateArea(startDate, endDate, true);
+        if (currentCalendar == null) {
+            currentCalendar = Calendar.getInstance();
+        }
+        dialog.updateSelectedDate(currentCalendar.getTime());
+        return dialog;
+    }
+
+    public long getCurrentCalendar() {
+        if (currentCalendar == null) {
+            currentCalendar = Calendar.getInstance();
+        }
+        return currentCalendar.getTimeInMillis();
+    }
+}

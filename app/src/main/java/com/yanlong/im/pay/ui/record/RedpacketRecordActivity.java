@@ -1,4 +1,4 @@
-package com.hm.cxpay.ui;
+package com.yanlong.im.pay.ui.record;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
@@ -22,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+@Route(path = "/app/redpacketRecordActivity")
 public class RedpacketRecordActivity extends BasePayActivity {
 
 
@@ -59,8 +61,8 @@ public class RedpacketRecordActivity extends BasePayActivity {
 
     private void initViewpager() {
         fragments = new ArrayList<>();
-        fragments.add(RedpacketRecordFragment.newInstance());
-        fragments.add(RedpacketRecordFragment.newInstance());
+        fragments.add(FragmentRedEnvelopeSend.newInstance());
+        fragments.add(FragmentRedEnvelopeSend.newInstance());
         mViewPage.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -113,7 +115,12 @@ public class RedpacketRecordActivity extends BasePayActivity {
 
     private void initTimePicker() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year,month-1,Calendar.DAY_OF_MONTH);
+        calendar.set(year, month - 1, Calendar.DAY_OF_MONTH);
+
+        Calendar start = Calendar.getInstance();
+        start.set(2019, 11, 1);
+        Calendar end = Calendar.getInstance();
+        end.set(2099, 11, 31);
 
         //时间选择器
         TimePickerView pvTime = new TimePickerBuilder(RedpacketRecordActivity.this, new OnTimeSelectListener() {
@@ -128,6 +135,7 @@ public class RedpacketRecordActivity extends BasePayActivity {
         })
                 .setType(new boolean[]{true, true, false, false, false, false})
                 .setDate(calendar)
+                .setRangDate(start, end)
                 .build();
 
         pvTime.show();
