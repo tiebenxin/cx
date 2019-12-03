@@ -36,7 +36,7 @@
                 android:hint="最低充值金额1元"
                 android:maxLines="1"
                 android:paddingRight="18dp"
-                android:inputType="number|numberDecimal"
+                android:inputType="number"
                 android:textColor="@color/c_0f0f0f"
                 android:textSize="16sp" />
 
