@@ -31,6 +31,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import retrofit2.Call;
 import retrofit2.Response;
 
+/**
+ * 群管理
+ */
 public class GroupManageActivity extends AppActivity {
 
     public static final String AGM_GID = "AGM_GID";

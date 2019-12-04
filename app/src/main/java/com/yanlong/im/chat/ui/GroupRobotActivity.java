@@ -21,12 +21,16 @@ import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.TimeToString;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
+import net.cb.cb.library.view.AlertYesNo;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.WebPageActivity;
 
 import retrofit2.Call;
 import retrofit2.Response;
 
+/**
+ * 我的群助手
+ */
 public class GroupRobotActivity extends AppActivity {
     public static final String AGM_SHOW_TYPE = "SHOW_TYPE";
     public static final int AGM_SHOW_TYPE_ADD = 1; //待添加
@@ -53,6 +57,14 @@ public class GroupRobotActivity extends AppActivity {
     private Button btnAdd;
     private RobotInfoBean infoBean;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_robot);
+        findViews();
+        initEvent();
+
+    }
 
     //自动寻找控件
     private void findViews() {
@@ -63,6 +75,7 @@ public class GroupRobotActivity extends AppActivity {
         txtInfoTitle = findViewById(R.id.txt_info_title);
         btnInfoAdd = findViewById(R.id.btn_info_add);
         btnInfoDel = findViewById(R.id.btn_info_del);
+        btnInfoDel.setPressed(true);
         btnInfoChange = findViewById(R.id.btn_info_change);
         txtInfoMore = findViewById(R.id.txt_info_more);
         txtInfoNote = findViewById(R.id.txt_info_note);
@@ -98,7 +111,21 @@ public class GroupRobotActivity extends AppActivity {
 
         btnInfoDel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                taskDel();
+                AlertYesNo alertYesNo = new AlertYesNo();
+                alertYesNo.init(GroupRobotActivity.this, "提示", "确定删除该群助手？", "确定", "取消",
+                        new AlertYesNo.Event() {
+                            @Override
+                            public void onON() {
+
+                            }
+
+                            @Override
+                            public void onYes() {
+                                taskDel();
+                            }
+                        });
+                alertYesNo.show();
+
             }
         });
 
@@ -121,14 +148,7 @@ public class GroupRobotActivity extends AppActivity {
 
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_robot);
-        findViews();
-        initEvent();
 
-    }
 
     @Override
     protected void onNewIntent(Intent intent) {

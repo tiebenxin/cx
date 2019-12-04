@@ -67,6 +67,9 @@ import io.realm.RealmList;
 import retrofit2.Call;
 import retrofit2.Response;
 
+/**
+ * 群信息
+ */
 public class GroupInfoActivity extends AppActivity {
     public static final int GROUP_NAME = 1;
     public static final int GROUP_NICK = 1 << 1;
@@ -107,6 +110,16 @@ public class GroupInfoActivity extends AppActivity {
     private LinearLayout viewDestroyTime;
     private TextView tvDestroyTime;
     private ReadDestroyUtil readDestroyUtil;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_info);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+        findViews();
+    }
 
     //自动寻找控件
     private void findViews() {
@@ -207,7 +220,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
-                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的昵称");
+                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
@@ -348,15 +361,7 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_info);
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
-        findViews();
-    }
+
 
     @Override
     protected void onResume() {
