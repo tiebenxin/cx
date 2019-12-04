@@ -258,7 +258,7 @@ public class GroupInfoActivity extends AppActivity {
         });
 
         final RealmList<MemberUser> list = ginfo.getUsers();
-        if (list.size() < 400||list.size()>500) {
+        if (list.size() < 400) {
             isPercentage = false;
         }
 
