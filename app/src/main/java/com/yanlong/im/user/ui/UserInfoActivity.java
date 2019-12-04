@@ -25,11 +25,13 @@ import com.yanlong.im.chat.ui.ChatActivity;
 import com.yanlong.im.user.action.UserAction;
 import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
+import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
+import net.cb.cb.library.bean.RefreshApplyEvent;
 import net.cb.cb.library.bean.ReturnBean;
 import net.cb.cb.library.utils.CallBack;
 import net.cb.cb.library.utils.ToastUtil;
@@ -140,7 +142,6 @@ public class UserInfoActivity extends AppActivity {
         mTvRemark = findViewById(R.id.tv_remark);
         mViewSettingName = findViewById(R.id.view_setting_name);
         tvBlack = findViewById(R.id.tv_black);
-        mucNick = getIntent().getStringExtra(MUC_NICK);
         viewIntroduce = findViewById(R.id.view_introduce);
         tv_introduce = findViewById(R.id.tv_introduce);
         tvJoinGroupName = findViewById(R.id.tv_join_group_name);
@@ -295,6 +296,7 @@ public class UserInfoActivity extends AppActivity {
     private void initData() {
         userAction = new UserAction();
         Intent intent = getIntent();
+        mucNick = intent.getStringExtra(MUC_NICK);
         id = intent.getLongExtra(ID, 0);
         sayHi = intent.getStringExtra(SAY_HI);
         isApply = intent.getIntExtra(IS_APPLY, 0);
@@ -608,7 +610,7 @@ public class UserInfoActivity extends AppActivity {
                 //6.3
                 if (response.body().isOk()) {
                     updateUserInfo(mark);
-                    notifyRefreshRoster(id, CoreEnum.ERosterAction.UPDATE_INFO);
+                    notifyRefreshRoster(0, CoreEnum.ERosterAction.UPDATE_INFO);// TODO　id改成0 需要全部刷新，改变通讯录的位置
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.SINGLE, null);
                 }
@@ -637,6 +639,7 @@ public class UserInfoActivity extends AppActivity {
                 ToastUtil.show(getContext(), response.body().getMsg());
                 if (response.body().isOk()) {
                     notifyRefreshRoster(uid, CoreEnum.ERosterAction.ACCEPT_BE_FRIENDS);
+                    EventBus.getDefault().post(new RefreshApplyEvent(uid, CoreEnum.EChatType.PRIVATE,1));
                     finish();
                 }
             }
@@ -701,14 +704,24 @@ public class UserInfoActivity extends AppActivity {
                 }
             }
         } else {//无好友关系
-            if (!TextUtils.isEmpty(mucNick)) {
+            if (!TextUtils.isEmpty(userRemark)) {// 拉黑名单后需要优先显示备注名称
+                if (!TextUtils.isEmpty(mucNick)) {
+                    tvFirstName.setText(userRemark);
+                    tvSecondName.setText("昵称: " + userNick);
+                    tvThirdName.setText("群昵称: " + mucNick);
+                } else {
+                    tvFirstName.setText(userRemark);
+                    tvSecondName.setText("昵称: " + userNick);
+                    tvThirdName.setText("常信号: " + DataUtils.getHideData(imId, 3));
+                }
+            } else if (!TextUtils.isEmpty(mucNick)) {
                 tvFirstName.setText(userNick);
                 tvSecondName.setText("群昵称: " + mucNick);
-                tvThirdName.setText("常信号: " + imId);
+                tvThirdName.setText("常信号: " + DataUtils.getHideData(imId, 3));
             } else {
                 tvFirstName.setText(userNick);
                 tvSecondName.setText("昵称: " + userNick);
-                tvThirdName.setText("常信号: " + imId);
+                tvThirdName.setText("常信号: " + DataUtils.getHideData(imId, 3));
             }
         }
     }

@@ -25,18 +25,19 @@
             android:layout_marginTop="15dp"
             android:background="@drawable/bg_edt1"
             android:gravity="top"
+            android:maxLength="300"
             android:hint="请输入申请添加群上限理由"
             android:padding="5dp"
             android:textSize="16sp" />
 
-
-
         <Button
             android:id="@+id/btn_commit_groupadd"
             style="@style/app_btn_green"
+            android:layout_width="146dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="50dp"
             android:layout_marginRight="10dp"
-            android:text="确定" />
+            android:layout_gravity="center_horizontal"
+            android:text="申请" />
     </LinearLayout>
 </net.cb.cb.library.view.HeadView>

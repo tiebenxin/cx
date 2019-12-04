@@ -31,7 +31,6 @@ import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
-import com.yanlong.im.chat.action.MsgAction;
 import com.yanlong.im.chat.bean.Group;
 import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.MemberUser;
@@ -86,28 +85,38 @@ import io.reactivex.schedulers.Schedulers;
 
 import static android.app.Activity.RESULT_OK;
 
-/***
+/**
  * 首页消息
+ *
+ * @version V1.0
+ * @createAuthor （test4j）
+ * @createDate 2019-4-12
+ * @updateAuthor （Geoff）
+ * @updateDate 2019-12-2
+ * @description 视频通话
+ * @copyright copyright(c)2019 ChangSha hm Technology Co., Ltd. Inc. All rights reserved.
  */
 public class MsgMainFragment extends Fragment {
+
     private View rootView;
     private net.cb.cb.library.view.ActionbarView actionBar;
-    private net.cb.cb.library.view.ClearEditText edtSearch;
-    private View viewSearch;
     private net.cb.cb.library.view.MultiListView mtListView;
+    private RecyclerViewAdapter mAdapter;
 
     private LinearLayout viewPopGroup;
     private LinearLayout viewPopAdd;
     private LinearLayout viewPopQr;
     private LinearLayout viewPopHelp;
-    private View viewNetwork;
+    private View mHeadView;
     private boolean onlineState = true;//判断网络状态 true在线 false离线
     private final String TYPE_FACE = "[动画表情]";
 
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            viewNetwork.setVisibility(View.GONE);
+            if (mAdapter.viewNetwork != null) {
+                mAdapter.viewNetwork.setVisibility(View.GONE);
+            }
         }
     };
 
@@ -116,86 +125,40 @@ public class MsgMainFragment extends Fragment {
         public void run() {
             //解决断网后又马上连网造成的提示显示异常问题
             if (!NetUtil.isNetworkConnected()) {
-                viewNetwork.setVisibility(View.VISIBLE);
+                if (mAdapter.viewNetwork != null) {
+                    mAdapter.viewNetwork.setVisibility(View.VISIBLE);
+                }
             }
         }
     };
 
-    //自动寻找控件
     private void findViewsPop(View rootView) {
-        viewPopGroup = (LinearLayout) rootView.findViewById(R.id.view_pop_group);
-        viewPopAdd = (LinearLayout) rootView.findViewById(R.id.view_pop_add);
-        viewPopQr = (LinearLayout) rootView.findViewById(R.id.view_pop_qr);
-        viewPopHelp = (LinearLayout) rootView.findViewById(R.id.view_pop_help);
+        viewPopGroup = rootView.findViewById(R.id.view_pop_group);
+        viewPopAdd = rootView.findViewById(R.id.view_pop_add);
+        viewPopQr = rootView.findViewById(R.id.view_pop_qr);
+        viewPopHelp = rootView.findViewById(R.id.view_pop_help);
 
     }
 
-    //自动寻找控件
     private void findViews(View rootView) {
-        actionBar = (net.cb.cb.library.view.ActionbarView) rootView.findViewById(R.id.actionBar);
-        edtSearch = (net.cb.cb.library.view.ClearEditText) rootView.findViewById(R.id.edt_search);
-        viewSearch = rootView.findViewById(R.id.view_search);
-        mtListView = (net.cb.cb.library.view.MultiListView) rootView.findViewById(R.id.mtListView);
-        viewNetwork = rootView.findViewById(R.id.view_network);
+        actionBar = rootView.findViewById(R.id.actionBar);
+        mtListView = rootView.findViewById(R.id.mtListView);
+
+        mHeadView = View.inflate(getContext(), R.layout.view_head_main_message, null);
 
         View pView = getLayoutInflater().inflate(R.layout.view_pop_main, null);
         findViewsPop(pView);
         popView.init(getContext(), pView);
     }
 
-
     private PopView popView = new PopView();
     private SocketEvent socketEvent;
 
-    //自动生成的控件事件
     private void initEvent() {
-        mtListView.init(new RecyclerViewAdapter());
+        mAdapter = new RecyclerViewAdapter(mHeadView);
+        mtListView.init(mAdapter);
+
         mtListView.getLoadView().setStateNormal();
-
-        //滚动处理-------------------------------------
-        //1. 需要整理成util
-        //2.需要创建一个相对layout,并且改变控件顺序,设置 mtListView底部对齐
-
-        mtListView.getListView().addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView rv, int dx, int dy) {
-                super.onScrolled(rv, dx, dy);
-                int vset = rv.computeVerticalScrollOffset();
-
-                if (viewSearch.getTag() != null && vset > (int) viewSearch.getTag()) {
-                    vset = (int) viewSearch.getTag();
-                }
-
-                viewSearch.setTranslationY(-vset);
-
-
-            }
-        });
-        final Runnable uiRun = new Runnable() {
-            @Override
-            public void run() {
-
-                ViewGroup.LayoutParams lp = viewSearch.getLayoutParams();
-                int h = viewSearch.getMeasuredHeight();
-                if (lp instanceof ViewGroup.MarginLayoutParams) {
-                    ViewGroup.MarginLayoutParams lps = ((ViewGroup.MarginLayoutParams) lp);
-                    h += lps.topMargin + lps.bottomMargin;
-                    viewSearch.setTag(h);
-                }
-                mtListView.getListView().setPadding(0, h, 0, 0);
-                //这里marpin设置为-h
-                ViewGroup.MarginLayoutParams lp2 = (ViewGroup.MarginLayoutParams) mtListView.getLayoutParams();
-                lp2.topMargin = -h;
-                mtListView.setLayoutParams(lp2);
-
-                mtListView.getListView().setClipToPadding(false);
-
-                mtListView.getListView().scrollBy(0, -h);
-
-            }
-        };
-
-        viewSearch.post(uiRun);
         SocketUtil.getSocketUtil().addEvent(socketEvent = new SocketEvent() {
             @Override
             public void onHeartbeat() {
@@ -234,8 +197,6 @@ public class MsgMainFragment extends Fragment {
 
             }
         });
-        //socketEvent.onLine( SocketUtil.getSocketUtil().getOnLineState());
-
 
         actionBar.setOnListenEvent(new ActionbarView.ListenEvent() {
             @Override
@@ -288,58 +249,7 @@ public class MsgMainFragment extends Fragment {
                 popView.dismiss();
             }
         });
-
-//        edtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
-//                    taskSearch();
-//                } else if (event != null && (KeyEvent.KEYCODE_ENTER == event.getKeyCode() || KeyEvent.ACTION_DOWN == event.getAction())) {
-//                    taskSearch();
-//                }
-//                return false;
-//            }
-//        });
-//        edtSearch.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                if (edtSearch.getText().toString().length() == 0) {
-//                    isSearchMode = false;
-//                    taskListData();
-//                }
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//
-//            }
-//        });
-
-        edtSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), MsgSearchActivity.class);
-                intent.putExtra("online_state", onlineState);
-                intent.putExtra("conversition_data", new Gson().toJson(listData));
-                startActivity(intent);
-            }
-        });
-        viewSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), MsgSearchActivity.class);
-                intent.putExtra("online_state", onlineState);
-                intent.putExtra("conversition_data", new Gson().toJson(listData));
-                startActivity(intent);
-            }
-        });
     }
-
 
     public void hidePopView() {
         if (popView != null) {
@@ -347,33 +257,35 @@ public class MsgMainFragment extends Fragment {
         }
     }
 
-
     private void resetNetWorkView(@CoreEnum.ENetStatus int status) {
         LogUtil.getLog().i(MsgMainFragment.class.getSimpleName(), "resetNetWorkView--status=" + status);
+        if (mAdapter == null || mAdapter.viewNetwork == null) {
+            return;
+        }
         switch (status) {
             case CoreEnum.ENetStatus.ERROR_ON_NET:
 //                viewNetwork.setVisibility(View.VISIBLE);
-                if (viewNetwork.getVisibility() == View.GONE) {
-                    viewNetwork.postDelayed(showRunnable, 15 * 1000);
+                if (mAdapter.viewNetwork.getVisibility() == View.GONE) {
+                    mAdapter.viewNetwork.postDelayed(showRunnable, 15 * 1000);
                 }
                 break;
             case CoreEnum.ENetStatus.SUCCESS_ON_NET:
                 if (NetUtil.isNetworkConnected()) {//无网络链接，无效指令
-                    viewNetwork.setVisibility(View.GONE);
+                    mAdapter.viewNetwork.setVisibility(View.GONE);
                 }
                 removeHandler();
                 break;
             case CoreEnum.ENetStatus.ERROR_ON_SERVER:
-                if (viewNetwork.getVisibility() == View.GONE) {
-                    viewNetwork.postDelayed(showRunnable, 10 * 1000);
+                if (mAdapter.viewNetwork.getVisibility() == View.GONE) {
+                    mAdapter.viewNetwork.postDelayed(showRunnable, 10 * 1000);
                 }
                 break;
             case CoreEnum.ENetStatus.SUCCESS_ON_SERVER:
-                viewNetwork.setVisibility(View.GONE);
+                mAdapter.viewNetwork.setVisibility(View.GONE);
                 removeHandler();
                 break;
             default:
-                viewNetwork.setVisibility(View.GONE);
+                mAdapter.viewNetwork.setVisibility(View.GONE);
                 removeHandler();
                 break;
 
@@ -381,16 +293,9 @@ public class MsgMainFragment extends Fragment {
     }
 
     private void removeHandler() {
-        if (viewNetwork != null && runnable != null) {
-            viewNetwork.removeCallbacks(runnable);
+        if (mAdapter.viewNetwork != null && runnable != null) {
+            mAdapter.viewNetwork.removeCallbacks(runnable);
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        //7.18 进来的时候显示有网的状态
-        //  socketEvent.onLine(true);
     }
 
     @Override
@@ -400,10 +305,6 @@ public class MsgMainFragment extends Fragment {
             Bundle bundle = data.getExtras();
             String scanResult = bundle.getString(CaptureActivity.INTENT_EXTRA_KEY_QR_SCAN);
             QRCodeManage.goToPage(getContext(), scanResult);
-
-//            QRCodeBean bean = QRCodeManage.getQRCodeBean(getActivityMe(), scanResult);
-//            QRCodeManage.goToActivity(getActivityMe(), bean);
-            //将扫描出的信息显示出来
         }
     }
 
@@ -424,13 +325,8 @@ public class MsgMainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-/*            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);*/
-        }
         EventBus.getDefault().register(this);
         taskListData();
-//        getSessionsAndRefresh();
     }
 
     @Override
@@ -458,9 +354,9 @@ public class MsgMainFragment extends Fragment {
         }
     }
 
-
     /*
      * 刷新单一位置
+     * TODO　增加文件头，默认的位置都需要加1
      * */
     @SuppressLint("CheckResult")
     private void refreshPosition(String gid, Long uid, MsgAllBean bean, Session s, boolean isRefreshTop) {
@@ -498,7 +394,7 @@ public class MsgMainFragment extends Fragment {
                                     if (session.getIsTop() == 1) {//修改了置顶状态
                                         listData.remove(index);
                                         listData.add(0, session);//放在首位
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(0, index + 1);//范围刷新
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(1, index + 1);//范围刷新
                                         LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "置顶刷新--session=" + session.getSid());
                                     } else {//取消置顶
                                         listData.set(index, session);
@@ -506,21 +402,21 @@ public class MsgMainFragment extends Fragment {
                                         int newIndex = listData.indexOf(session);//获取重排后新位置
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);////范围刷新,刷新旧位置和新位置之间即可
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start+1, count);////范围刷新,刷新旧位置和新位置之间即可
                                         LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "取消置顶刷新--session=" + session.getSid());
 
                                     }
                                 } else {
                                     listData.set(index, session);
                                     if (s != null && s.getUp_time().equals(session.getUp_time())) {//时间未更新，所以不要重新排序
-                                        mtListView.getListView().getAdapter().notifyItemChanged(index, index);
+                                        mtListView.getListView().getAdapter().notifyItemChanged(index+1, index);
                                         LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间未更新--session=" + session.getSid());
                                     } else {//有时间更新,需要重排
                                         sortSession(index == 0);
                                         int newIndex = listData.indexOf(session);
                                         int start = index > newIndex ? newIndex : index;//谁小，取谁
                                         int count = Math.abs(newIndex - index) + 1;
-                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start, count);//范围刷新
+                                        mtListView.getListView().getAdapter().notifyItemRangeChanged(start+1, count);//范围刷新
                                         LogUtil.getLog().d("a=", MsgMainFragment.class.getSimpleName() + "时间更新重排--session=" + session.getSid());
                                     }
                                 }
@@ -530,7 +426,7 @@ public class MsgMainFragment extends Fragment {
                                 if (position == 0) {
                                     mtListView.notifyDataSetChange();
                                 } else {
-                                    mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
+                                    mtListView.getListView().getAdapter().notifyItemRangeInserted(position+1, 1);
                                     mtListView.getListView().scrollToPosition(0);
                                 }
                             }
@@ -540,14 +436,13 @@ public class MsgMainFragment extends Fragment {
                             if (position == 0) {
                                 mtListView.notifyDataSetChange();
                             } else {
-                                mtListView.getListView().getAdapter().notifyItemRangeInserted(position, 1);
+                                mtListView.getListView().getAdapter().notifyItemRangeInserted(position+1, 1);
                                 mtListView.getListView().scrollToPosition(0);
                             }
                         }
                     }
                 });
     }
-
 
     /*
      * 重新排序,置顶和非置顶分别重排
@@ -649,12 +544,6 @@ public class MsgMainFragment extends Fragment {
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-//        taskListData();
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventNetStatus(EventNetStatus event) {
         resetNetWorkView(event.getStatus());
@@ -676,18 +565,32 @@ public class MsgMainFragment extends Fragment {
         return mainActivity;
     }
 
+    class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    //自动生成RecyclerViewAdapter
-    class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> {
+        public static final int TYPE_HEADER = 0;
+        public static final int TYPE_NORMAL = 1;
+        private View mHeaderView;
+        public View viewNetwork;
 
-
-        @Override
-        public int getItemCount() {
-            return listData == null ? 0 : listData.size();
+        public RecyclerViewAdapter(View headerView) {
+            mHeaderView = headerView;
+            notifyItemInserted(0);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RCViewHolder holder, int position, @NonNull List<Object> payloads) {
+        public int getItemViewType(int position) {
+            if (mHeaderView == null) return TYPE_NORMAL;
+            if (position == 0) return TYPE_HEADER;
+            return TYPE_NORMAL;
+        }
+
+        @Override
+        public int getItemCount() { // TODO　增加文件头，默认的位置加1
+            return listData == null ? 1 : listData.size()+1;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
             if (payloads.isEmpty()) {
                 onBindViewHolder(holder, position);
             } else {
@@ -704,108 +607,123 @@ public class MsgMainFragment extends Fragment {
 
         //自动生成控件事件
         @Override
-        public void onBindViewHolder(final RCViewHolder holder, int position) {
-            final Session bean = listData.get(position);
-            String icon = bean.getAvatar();
-            String title = bean.getName();
-            MsgAllBean msginfo = bean.getMessage();
-            String name = bean.getSenderName();
+        public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, int position) {
 
-            String info = "";
-            if (msginfo != null) {
-                info = msginfo.getMsg_typeStr();
-            }
-            if (bean.getType() == 0) {//单人
-                if (StringUtil.isNotNull(bean.getDraft())) {
-                    SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
-                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                    style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    showMessage(holder.txtInfo, bean.getDraft(), style);
-                } else {
-                    // 判断是否是动画表情
-                    if (info.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {
-                        Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
-                        Matcher matcher = patten.matcher(info);
-                        if (matcher.matches()) {
-                            holder.txtInfo.setText(TYPE_FACE);
+            if (viewHolder instanceof RCViewHolder) {
+                RCViewHolder holder = (RCViewHolder) viewHolder;
+                final Session bean = listData.get(position-1);
+                String icon = bean.getAvatar();
+                String title = bean.getName();
+                MsgAllBean msginfo = bean.getMessage();
+                String name = bean.getSenderName();
+
+                String info = "";
+                if (msginfo != null) {
+                    info = msginfo.getMsg_typeStr();
+                }
+                if (bean.getType() == 0) {//单人
+                    if (StringUtil.isNotNull(bean.getDraft())) {
+                        SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
+                        ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                        style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        showMessage(holder.txtInfo, bean.getDraft(), style);
+                    } else {
+                        // 判断是否是动画表情
+                        if (info.length() == PatternUtil.FACE_CUSTOMER_LENGTH) {
+                            Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                            Matcher matcher = patten.matcher(info);
+                            if (matcher.matches()) {
+                                holder.txtInfo.setText(TYPE_FACE);
+                            } else {
+                                showMessage(holder.txtInfo, info, null);
+                            }
                         } else {
                             showMessage(holder.txtInfo, info, null);
                         }
-                    } else {
-                        showMessage(holder.txtInfo, info, null);
                     }
-                }
-                Glide.with(getActivity()).load(icon)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                    Glide.with(getActivity()).load(icon)
+                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
 
-            } else if (bean.getType() == 1) {//群
-                int type = bean.getMessageType();
-                if (type == 0 || type == 1) {
-                    if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
-                        info = name + bean.getAtMessage();
-                    } else {
-                        info = name + info;
-
-                    }
-                } else {//草稿除外
-                    if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
-                        info = name + info;
-                    }
-                }
-                switch (type) {
-                    case 0:
-                        if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableString style = new SpannableString("[有人@你]" + info);
-//                                style.append("[有人@你]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                holder.txtInfo.setText(style);
-                                showMessage(holder.txtInfo, info, style);
-                            } else {
-                                SpannableString style = new SpannableString("[有人@你]" + info);
-//                                style.append("[有人@你]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                holder.txtInfo.setText(style);
-                                showMessage(holder.txtInfo, info, style);
-                            }
-                        }
-                        break;
-                    case 1:
-                        if (StringUtil.isNotNull(bean.getAtMessage())) {
-                            if (msginfo == null || msginfo.getMsg_type() == null) {
-                                return;
-                            }
-                            if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
-                                SpannableString style = new SpannableString("[@所有人]" + info);
-//                                style.append("[@所有人]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                holder.txtInfo.setText(style);
-                                showMessage(holder.txtInfo, info, style);
-                            } else {
-                                SpannableString style = new SpannableString("[@所有人]" + info);
-//                                style.append("[@所有人]" + info);
-                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                                style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                                holder.txtInfo.setText(style);
-                                showMessage(holder.txtInfo, info, style);
-                            }
-                        }
-                        break;
-                    case 2:
-                        if (StringUtil.isNotNull(bean.getDraft())) {
-//                            info = "草稿:" + bean.getDraft();
-                            SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
-//                            style.append("[草稿]" + bean.getDraft());
-                            ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
-                            style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//                            holder.txtInfo.setText(style);
-                            showMessage(holder.txtInfo, bean.getDraft(), style);
+                } else if (bean.getType() == 1) {//群
+                    int type = bean.getMessageType();
+                    if (type == 0 || type == 1) {
+                        if (!TextUtils.isEmpty(bean.getAtMessage()) && !TextUtils.isEmpty(name)) {
+                            info = name + bean.getAtMessage();
                         } else {
+                            info = name + info;
+
+                        }
+                    } else {//草稿除外
+                        if (!TextUtils.isEmpty(info) && !TextUtils.isEmpty(name)) {
+                            info = name + info;
+                        }
+                    }
+                    switch (type) {
+                        case 0:
+                            if (StringUtil.isNotNull(bean.getAtMessage())) {
+                                if (msginfo != null && msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
+                                    SpannableString style = new SpannableString("[有人@你]" + info);
+//                                style.append("[有人@你]" + info);
+                                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                                    style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                holder.txtInfo.setText(style);
+                                    showMessage(holder.txtInfo, info, style);
+                                } else {
+                                    SpannableString style = new SpannableString("[有人@你]" + info);
+//                                style.append("[有人@你]" + info);
+                                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                                    style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                holder.txtInfo.setText(style);
+                                    showMessage(holder.txtInfo, info, style);
+                                }
+                            }
+                            break;
+                        case 1:
+                            if (StringUtil.isNotNull(bean.getAtMessage())) {
+                                if (msginfo == null || msginfo.getMsg_type() == null) {
+                                    return;
+                                }
+                                if (msginfo.getMsg_type() == ChatEnum.EMessageType.AT) {
+                                    SpannableString style = new SpannableString("[@所有人]" + info);
+//                                style.append("[@所有人]" + info);
+                                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                                    style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                holder.txtInfo.setText(style);
+                                    showMessage(holder.txtInfo, info, style);
+                                } else {
+                                    SpannableString style = new SpannableString("[@所有人]" + info);
+//                                style.append("[@所有人]" + info);
+                                    ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                                    style.setSpan(protocolColorSpan, 0, 6, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                holder.txtInfo.setText(style);
+                                    showMessage(holder.txtInfo, info, style);
+                                }
+                            }
+                            break;
+                        case 2:
+                            if (StringUtil.isNotNull(bean.getDraft())) {
+//                            info = "草稿:" + bean.getDraft();
+                                SpannableString style = new SpannableString("[草稿]" + bean.getDraft());
+//                            style.append("[草稿]" + bean.getDraft());
+                                ForegroundColorSpan protocolColorSpan = new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.red_all_notify));
+                                style.setSpan(protocolColorSpan, 0, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                            holder.txtInfo.setText(style);
+                                showMessage(holder.txtInfo, bean.getDraft(), style);
+                            } else {
 //                            holder.txtInfo.setText(info);
 //                            showMessage(holder.txtInfo, info, null);
+                                // 判断是否是动画表情
+                                Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
+                                Matcher matcher = patten.matcher(info);
+                                if (matcher.find()) {
+                                    info = info.substring(0, info.indexOf("["));
+                                    holder.txtInfo.setText(info + " " + TYPE_FACE);
+                                } else {
+                                    showMessage(holder.txtInfo, info, null);
+                                }
+                            }
+                            break;
+                        default:
                             // 判断是否是动画表情
                             Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
                             Matcher matcher = patten.matcher(info);
@@ -815,91 +733,88 @@ public class MsgMainFragment extends Fragment {
                             } else {
                                 showMessage(holder.txtInfo, info, null);
                             }
-                        }
-                        break;
-                    default:
-                        // 判断是否是动画表情
-                        Pattern patten = Pattern.compile(PatternUtil.PATTERN_FACE_CUSTOMER, Pattern.CASE_INSENSITIVE); // 通过传入的正则表达式来生成一个pattern
-                        Matcher matcher = patten.matcher(info);
-                        if (matcher.find()) {
-                            info = info.substring(0, info.indexOf("["));
-                            holder.txtInfo.setText(info + " " + TYPE_FACE);
-                        } else {
-                            showMessage(holder.txtInfo, info, null);
-                        }
-                        break;
-                }
+                            break;
+                    }
 
-                if (StringUtil.isNotNull(icon)) {
-                    Glide.with(getActivity()).load(icon)
-                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                } else {
-                    if (bean.getType() == 1) {
-                        String imgUrl = "";
-                        try {
-                            imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
-                        } catch (Exception e) {
-                            creatAndSaveImg(bean, holder.imgHead);
-                        }
-
-//                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
-                        if (StringUtil.isNotNull(imgUrl)) {
-                            Glide.with(getActivity()).load(imgUrl)
-                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                        } else {
-
-                            creatAndSaveImg(bean, holder.imgHead);
-
-                        }
-                    } else {
+                    if (StringUtil.isNotNull(icon)) {
                         Glide.with(getActivity()).load(icon)
                                 .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                    } else {
+                        if (bean.getType() == 1) {
+                            String imgUrl = "";
+                            try {
+                                imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
+                            } catch (Exception e) {
+                                creatAndSaveImg(bean, holder.imgHead);
+                            }
+
+//                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
+                            if (StringUtil.isNotNull(imgUrl)) {
+                                Glide.with(getActivity()).load(imgUrl)
+                                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                            } else {
+
+                                creatAndSaveImg(bean, holder.imgHead);
+
+                            }
+                        } else {
+                            Glide.with(getActivity()).load(icon)
+                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                        }
                     }
                 }
 
+                holder.txtName.setText(title);
+                if (bean.isSystemUser()) {
+                    //系统会话
+                    holder.txtName.setTextColor(getResources().getColor(R.color.blue_title));
+                    holder.usertype_tv.setVisibility(View.VISIBLE);
+                } else {
+                    holder.txtName.setTextColor(getResources().getColor(R.color.black));
+                    holder.usertype_tv.setVisibility(View.GONE);
+                }
+                setUnreadCountOrDisturb(holder, bean, msginfo);
 
-            }
-
-
-            holder.txtName.setText(title);
-            if(bean.isSystemUser()){
-                //系统会话
-                holder.txtName.setTextColor(getResources().getColor(R.color.blue_title));
-                holder.usertype_tv.setVisibility(View.VISIBLE);
-            }else {
-                holder.txtName.setTextColor(getResources().getColor(R.color.black));
-                holder.usertype_tv.setVisibility(View.GONE);
-            }
-            setUnreadCountOrDisturb(holder, bean, msginfo);
-
-            holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
+                holder.txtTime.setText(TimeToString.getTimeWx(bean.getUp_time()));
 
 
-            holder.viewIt.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(getContext(), ChatActivity.class)
-                            .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
-                            .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
-                            .putExtra(ChatActivity.ONLINE_STATE, onlineState)
-                    );
+                holder.viewIt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(getContext(), ChatActivity.class)
+                                .putExtra(ChatActivity.AGM_TOUID, bean.getFrom_uid())
+                                .putExtra(ChatActivity.AGM_TOGID, bean.getGid())
+                                .putExtra(ChatActivity.ONLINE_STATE, onlineState)
+                        );
 //                    if (bean.getUnread_count() > 0) {
 //                        MessageManager.getInstance().setMessageChange(true);
 //                    }
 
-                }
-            });
-            holder.btnDel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    holder.swipeLayout.quickClose();
-                    taskDelSession(bean.getFrom_uid(), bean.getGid());
-                }
-            });
+                    }
+                });
+                holder.btnDel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.swipeLayout.quickClose();
+                        taskDelSession(bean.getFrom_uid(), bean.getGid());
+                    }
+                });
 //            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#f1f1f1"));
-            holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
-            holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
-
+                holder.viewIt.setBackgroundColor(bean.getIsTop() == 0 ? Color.WHITE : Color.parseColor("#ececec"));
+                holder.iv_disturb.setVisibility(bean.getIsMute() == 0 ? View.GONE : View.VISIBLE);
+            } else if (viewHolder instanceof HeadViewHolder) {
+                HeadViewHolder headHolder = (HeadViewHolder) viewHolder;
+                headHolder.edtSearch.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getContext(), MsgSearchActivity.class);
+                        intent.putExtra("online_state", onlineState);
+                        intent.putExtra("conversition_data", new Gson().toJson(listData));
+                        startActivity(intent);
+                    }
+                });
+                viewNetwork = headHolder.viewNetwork;
+            }
         }
 
         private void setUnreadCountOrDisturb(RCViewHolder holder, Session bean, MsgAllBean msg) {
@@ -930,7 +845,7 @@ public class MsgMainFragment extends Fragment {
             if (spannableString == null) {
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, message);
             } else {
-                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE,  spannableString);
+                spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
             }
             txtInfo.setText(spannableString);
         }
@@ -955,16 +870,14 @@ public class MsgMainFragment extends Fragment {
             }
         }
 
-
-        //自动寻找ViewHold
         @Override
-        public RCViewHolder onCreateViewHolder(ViewGroup view, int i) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup view, int viewType) {
+            if (mHeaderView != null && viewType == TYPE_HEADER)
+                return new HeadViewHolder(mHeaderView);
             RCViewHolder holder = new RCViewHolder(getLayoutInflater().inflate(R.layout.item_msg_session, view, false));
             return holder;
         }
 
-
-        //自动生成ViewHold
         public class RCViewHolder extends RecyclerView.ViewHolder {
             private ImageView imgHead;
             private StrikeButton sb;
@@ -976,7 +889,7 @@ public class MsgMainFragment extends Fragment {
             private TextView txtInfo;
             private TextView txtTime;
             private final ImageView iv_disturb, iv_disturb_unread;
-//            private final TextView tv_num;
+            //            private final TextView tv_num;
             private TextView usertype_tv;
 
             //自动寻找ViewHold
@@ -995,42 +908,25 @@ public class MsgMainFragment extends Fragment {
                 iv_disturb_unread = convertView.findViewById(R.id.iv_disturb_unread);
                 usertype_tv = convertView.findViewById(R.id.usertype_tv);
             }
+        }
 
+        public class HeadViewHolder extends RecyclerView.ViewHolder {
+
+            private net.cb.cb.library.view.ClearEditText edtSearch;
+            private View viewNetwork;
+
+            public HeadViewHolder(View convertView) {
+                super(convertView);
+                edtSearch = convertView.findViewById(R.id.edt_search);
+                viewNetwork = convertView.findViewById(R.id.view_network);
+            }
         }
 
     }
 
-//    private String creatAndSaveImg(String gid) {
-//        Group gginfo = msgDao.getGroup4Id(gid);
-//        int i = gginfo.getUsers().size();
-//        i = i > 9 ? 9 : i;
-//        //头像地址
-//        String url[] = new String[i];
-//        for (int j = 0; j < i; j++) {
-//            UserInfo userInfo = gginfo.getUsers().get(j);
-////            if (j == i - 1) {
-////                name += userInfo.getName();
-////            } else {
-////                name += userInfo.getName() + "、";
-////            }
-//            url[j] = userInfo.getHead();
-//        }
-//        File file = GroupHeadImageUtil.synthesis(getContext(), url);
-//        MsgDao msgDao = new MsgDao();
-//        msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
-//        return file.getAbsolutePath();
-//    }
-
     private MsgDao msgDao = new MsgDao();
     private UserDao userDao = new UserDao();
-    private UserAction userAction = new UserAction();
-    private MsgAction msgAction = new MsgAction();
     private List<Session> listData = new ArrayList<>();
-    private List<Object> groups = new ArrayList<>();
-    private List<MsgAllBean> msgAllBeansList = new ArrayList<>();
-
-    private int didIndex = 0;//当前缓存的顺序
-    private List<String> dids = new ArrayList<>();//缓存所有未缓存的信息
 
     @SuppressLint("CheckResult")
     private void taskListData() {
@@ -1058,12 +954,6 @@ public class MsgMainFragment extends Fragment {
 //                        LogUtil.getLog().d("a=", "MsgMainFragment --获取session数据后刷新" + System.currentTimeMillis());
                     }
                 });
-
-    }
-
-    private void getSessionsAndRefresh() {
-        listData = MessageManager.getInstance().getCacheSession();
-        mtListView.notifyDataSetChange();
 
     }
 
@@ -1130,55 +1020,6 @@ public class MsgMainFragment extends Fragment {
         }
     }
 
-    /***
-     * 搜索模式
-     */
-//    private boolean isSearchMode = false;
-
-//    private void taskSearch() {
-//        isSearchMode = true;
-//        InputUtil.hideKeyboard(edtSearch);
-//        String key = edtSearch.getText().toString();
-//        if (key.length() <= 0)
-//            return;
-//        List<Session> temp = new ArrayList<>();
-//        for (Session bean : listData) {
-//            String title = "";
-//            String info = "";
-//            MsgAllBean msginfo;
-//            if (bean.getType() == 0) {//单人
-//
-//
-//                UserInfo finfo = userDao.findUserInfo(bean.getFrom_uid());
-//
-//                title = finfo.getName4Show();
-//
-//                //获取最后一条消息
-//                msginfo = msgDao.msgGetLast4FUid(bean.getFrom_uid());
-//                if (msginfo != null) {
-//                    info = msginfo.getMsg_typeStr();
-//                }
-//
-//            } else if (bean.getType() == 1) {//群
-//                Group ginfo = msgDao.getGroup4Id(bean.getGid());
-//
-//                //获取最后一条群消息
-//                msginfo = msgDao.msgGetLast4Gid(bean.getGid());
-//                title = /*ginfo.getName()*/msgDao.getGroupName(bean.getGid());
-//                if (msginfo != null) {
-//                    info = msginfo.getMsg_typeStr();
-//                }
-//            }
-//
-//            if (title.contains(key) || info.contains(key)) {
-//                bean.setUnread_count(0);
-//                temp.add(bean);
-//            }
-//        }
-//        listData = temp;
-//
-//        mtListView.notifyDataSetChange();
-//    }
     private void taskDelSession(Long from_uid, String gid) {
         MessageManager.getInstance().deleteSessionAndMsg(from_uid, gid);
         MessageManager.getInstance().notifyRefreshMsg();

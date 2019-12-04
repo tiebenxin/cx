@@ -27,6 +27,7 @@ import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -61,11 +62,15 @@ import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.dao.MsgDao;
 import com.yanlong.im.chat.ui.forward.MsgForwardActivity;
 import com.yanlong.im.utils.MyDiskCacheUtils;
+import com.yanlong.im.utils.QRCodeManage;
 
 import net.cb.cb.library.utils.DownloadUtil;
 import net.cb.cb.library.utils.ImgSizeUtil;
+import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.Hashtable;
@@ -541,6 +546,7 @@ public class AdapterPreviewImage extends PagerAdapter {
 //        System.out.println(TAG + "--loadImage--" + url);
         if (!isOrigin) {
             RequestOptions options = new RequestOptions()
+                    .disallowHardwareConfig()//不使用ARGB_8888这种高质量的解析图片
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .format(DecodeFormat.PREFER_RGB_565);
             Glide.with(ivZoom.getContext())
@@ -813,7 +819,8 @@ public class AdapterPreviewImage extends PagerAdapter {
                 } else if (postsion == 1) {//保存
                     saveImageToLocal(ivZoom, media, FileUtils.isGif(media.getCompressPath()), isHttp, isOriginal);
                 } else if (postsion == 2) {//识别二维码
-                    scanningImage(media.getPath());
+                    // scanningImage(media.getPath());
+                    scanningQrImage(media.getCompressPath(), ivZoom);
                 }
                 popupSelectView.dismiss();
 
@@ -837,7 +844,7 @@ public class AdapterPreviewImage extends PagerAdapter {
      * @param path
      * @return
      */
-    public Result scanningImage(String path) {
+    public Result scanningImage(String path, Bitmap bitmap) {
         if (TextUtils.isEmpty(path)) {
             return null;
         }
@@ -852,7 +859,13 @@ public class AdapterPreviewImage extends PagerAdapter {
 //        if (sampleSize <= 0)
 //            sampleSize = 1;
         //  options.inSampleSize = sampleSize;
-        Bitmap scanBitmap = BitmapFactory.decodeFile(path, options);
+
+        Bitmap scanBitmap = null;
+        if (bitmap != null) {
+            scanBitmap = bitmap;
+        } else {
+            scanBitmap = BitmapFactory.decodeFile(path, options);
+        }
         RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap);
         BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
         QRCodeReader reader = new QRCodeReader();
@@ -867,6 +880,40 @@ public class AdapterPreviewImage extends PagerAdapter {
         }
         return null;
     }
+
+    //扫描二维码图片的方法
+    private void scanningQrImage(String path, ZoomImageView ivZoom) {
+        try {
+            LogUtil.getLog().e("=====path=" + path);
+            boolean isHttp = PictureMimeType.isHttp(path);
+            if (isHttp) {
+                LogUtil.getLog().e("=======网络图片==");
+                //从缓存中读取bitmap
+                ivZoom.setDrawingCacheEnabled(true);
+                ivZoom.buildDrawingCache();
+                Bitmap bitmap = ivZoom.getDrawingCache();
+                if (bitmap != null) {
+                    LogUtil.getLog().e("=======网络图片=bitmap不为空=");
+                    Result result = scanningImage(path, bitmap);
+                    QRCodeManage.toZhifubao(context, result);
+                }
+            } else {
+                LogUtil.getLog().d(TAG, "scanningQrImage: path" + path);
+                // 有可能本地图片
+                if (path.toLowerCase().startsWith("file://")) {
+                    path = path.replace("file://", "");
+                }
+                // LogUtil.getLog().d(TAG, "scanningQrImage: dirPath"+dirPath);
+                Result result = scanningImage(path, null);
+                QRCodeManage.toZhifubao(context, result);
+
+            }
+        } catch (Exception e) {
+            ToastUtil.show(context, "识别二维码失败");
+            e.printStackTrace();
+        }
+    }
+
 
     public void setPopParentView(View view) {
         parentView = view;

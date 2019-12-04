@@ -333,9 +333,12 @@ public class GroupCreateActivity extends AppActivity {
         }
         listData.addAll(tempData);
 
-        for (int i = 0; i < listData.size(); i++) {
-            //UserInfo infoBean:
-            viewType.putTag(listData.get(i).getTag(), i);
+        for (int i = listData.size() - 1; i >= 0; i--) {
+            if (UserUtil.isSystemUser(listData.get(i).getUid())) {
+                listData.remove(i);
+            } else {
+                viewType.putTag(listData.get(i).getTag(), i);
+            }
         }
         // 添加存在用户的首字母列表
         viewType.addItemView(UserUtil.userParseString(listData));
@@ -373,8 +376,14 @@ public class GroupCreateActivity extends AppActivity {
         msgACtion.groupCreate(UserAction.getMyInfo().getName(), "", "", templist, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
+                try {
+                    Thread.sleep(1000);
+                    alert.dismiss();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 actionbar.getViewRight().setEnabled(true);
-                alert.dismiss();
                 if (response.body() == null) {
                     actionbar.getViewRight().setEnabled(true);
                     actionbar.getViewRight().setClickable(true);

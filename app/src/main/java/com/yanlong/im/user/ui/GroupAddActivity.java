@@ -2,7 +2,6 @@ package com.yanlong.im.user.ui;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,12 +32,14 @@ public class GroupAddActivity extends AppActivity {
         initView();
         initEvent();
     }
+
     private HeadView headView_groupadd;
     private EditText ed_content_groupadd;
+
     private void initView() {
-        headView_groupadd=findViewById(R.id.headView_groupadd);
-        btn_commit_groupadd=findViewById(R.id.btn_commit_groupadd);
-        ed_content_groupadd=findViewById(R.id.ed_content_groupadd);
+        headView_groupadd = findViewById(R.id.headView_groupadd);
+        btn_commit_groupadd = findViewById(R.id.btn_commit_groupadd);
+        ed_content_groupadd = findViewById(R.id.ed_content_groupadd);
     }
 
 
@@ -57,30 +58,32 @@ public class GroupAddActivity extends AppActivity {
         btn_commit_groupadd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String textContetn =ed_content_groupadd.getText().toString();
-                if (TextUtils.isEmpty(textContetn)){
-                    ToastUtil.show(getApplicationContext(),"请输入申请描述");
+                String textContetn = ed_content_groupadd.getText().toString();
+                if (TextUtils.isEmpty(textContetn) || textContetn.length() < 8) {
+                    ToastUtil.show(getApplicationContext(), "请输入申请描述不少于8个字");
                     return;
                 }
                 alert.show();
-                LogUtil.getLog().e("TAG",getIntent().getStringExtra("gid")+"---------------"+UserAction.getMyInfo().getPhone());
+                LogUtil.getLog().e("TAG", getIntent().getStringExtra("gid") + "---------------" + UserAction.getMyInfo().getPhone());
                 new MsgAction().changeGroupLimit(getIntent().getStringExtra("gid"), textContetn, UserAction.getMyInfo().getPhone(), new CallBack<ReturnBean>() {
                     @Override
                     public void onResponse(Call<ReturnBean> call, Response<ReturnBean> response) {
                         alert.dismiss();
-                        LogUtil.getLog().e("TAG",response.body().getMsg().toString());
-                        if (response.body() == null) {
-                            return;
+                        if (response.body() != null) {
+                            if (response.body().getCode() == 0) {
+                                ToastUtil.show(GroupAddActivity.this, "申请成功!请等待审核");
+                                finish();
+                            } else {
+                                ToastUtil.show(GroupAddActivity.this, response.body().getMsg());
+                            }
                         }
-                        ToastUtil.show(getApplicationContext(),"申请成功!请等待审核");
-                        finish();
+
                     }
 
                     @Override
                     public void onFailure(Call<ReturnBean> call, Throwable t) {
                         alert.dismiss();
-                        LogUtil.getLog().e("TAG",t.getMessage());
-//                super.onFailure(call, t);
+                        LogUtil.getLog().e("TAG", t.getMessage());
                     }
                 });
             }

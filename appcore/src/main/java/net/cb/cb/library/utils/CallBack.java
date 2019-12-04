@@ -51,7 +51,10 @@ public abstract class CallBack<T> implements Callback<T> {
             listView.getLoadView().setStateNoNet(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    listView.getEvent().onLoadFail();
+                    // 处理空指针问题
+                    if(listView.getEvent()!=null){
+                        listView.getEvent().onLoadFail();
+                    }
                 }
             });
 

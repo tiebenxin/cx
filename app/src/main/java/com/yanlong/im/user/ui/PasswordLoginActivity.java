@@ -22,6 +22,7 @@ import net.cb.cb.library.utils.InputUtil;
 import net.cb.cb.library.utils.LogUtil;
 import net.cb.cb.library.utils.RunUtils;
 import net.cb.cb.library.utils.SharedPreferencesUtil;
+import net.cb.cb.library.utils.StringUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AlertYesNo;
@@ -57,6 +58,13 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
         mBtnLogin = findViewById(R.id.btn_login);
         mHeadView.getActionbar().setTxtRight("注册");
         tvForgetPassword = findViewById(R.id.tv_forget_password);
+
+        String phone = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.PHONE).get4Json(String.class);
+        String imid = new SharedPreferencesUtil(SharedPreferencesUtil.SPName.IM_ID).get4Json(String.class);
+        if(StringUtil.isNotNull(imid)){
+            phone=imid;
+        }
+        mEtPhoneContent.setText(phone);
     }
 
     private void initEvent() {
@@ -148,7 +156,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                     userAction.login4Imid(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
                         @Override
                         public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                            LogUtil.getLog().i("youmeng", "PasswordLoginActivity------->login---->onResp");
+                            LogUtil.getLog().i("youmeng", "PasswordLoginActivity------->login--imid-->onResp");
                             if (response.body() == null) {
                                 ToastUtil.show(context, "登录异常");
                                 return;
@@ -178,7 +186,7 @@ public class PasswordLoginActivity extends AppActivity implements View.OnClickLi
                         @Override
                         public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
                             super.onFail(call, t);
-                            LogUtil.getLog().i("youmeng", "PasswordLoginActivity------->login---->onFail");
+                            LogUtil.getLog().i("youmeng", "PasswordLoginActivity------->login--phone-->onFail");
                         }
                     });
 
