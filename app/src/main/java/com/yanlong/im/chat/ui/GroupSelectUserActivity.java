@@ -9,7 +9,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -57,13 +56,14 @@ public class GroupSelectUserActivity extends AppActivity {
     public static final String MEMBERNAME = "membername";
     private HeadView headView;
     private ActionbarView actionbar;
+    private UserInfo mUserBean;
 
     private MultiListView mtListView;
     private List<UserInfo> listData = new ArrayList<>();
     private List<UserInfo> tempData = new ArrayList<>();
     private PySortView viewType;
     private String gid;
-    private int type;
+    private int type;// 0 表示转让群主选择联系人  1 @用戶
     private ClearEditText edtSearch;
     private RecyclerViewAdapter adapter;
     private LinearLayout llAtAll;
@@ -79,12 +79,6 @@ public class GroupSelectUserActivity extends AppActivity {
         edtSearch = findViewById(R.id.edt_search);
         viewType = findViewById(R.id.view_type);
         llAtAll = findViewById(R.id.ll_at_all);
-//        if(type == 0){
-//            llAtAll.setVisibility(View.GONE);
-//        }else{
-//            llAtAll.setVisibility(View.VISIBLE);
-//        }
-
     }
 
 
@@ -101,7 +95,12 @@ public class GroupSelectUserActivity extends AppActivity {
 
             }
         });
-
+        actionbar.getTxtRight().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialog(mUserBean);
+            }
+        });
         adapter = new RecyclerViewAdapter();
         mtListView.init(adapter);
         mtListView.getLoadView().setStateNormal();
@@ -157,6 +156,10 @@ public class GroupSelectUserActivity extends AppActivity {
 
     private void initData() {
         taskGetInfo();
+        if (type == 0) {
+            actionbar.setTxtRight("确定");
+            actionbar.getTxtRight().setVisibility(View.GONE);
+        }
     }
 
     private void taskGetInfo() {
@@ -174,7 +177,7 @@ public class GroupSelectUserActivity extends AppActivity {
                     }
                     showAtAll(response.body().getData());
                     // 升序
-                    Collections.sort(listData,new Comparator<UserInfo>() {
+                    Collections.sort(listData, new Comparator<UserInfo>() {
                         @Override
                         public int compare(UserInfo o1, UserInfo o2) {
                             return o1.getTag().hashCode() - o2.getTag().hashCode();
@@ -203,31 +206,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 }
             }
         });
-//        new MsgAction().groupInfo4Db(gid, new CallBack<ReturnBean<Group>>() {
-//            @Override
-//            public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
-//                if (response == null) {
-//                    return;
-//                }
-//                if (response.body().isOk()) {
-//                    if (type == 0) {
-//                        listData = delectMaster(response.body().getData());
-//                    } else {
-//                        listData = delectMyslfe(response.body().getData());
-//                    }
-//                    showAtAll(response.body().getData());
-//                    Collections.sort(listData);
-//                    adapter.setList(listData);
-//                    mtListView.notifyDataSetChange();
-//                    for (int i = 0; i < listData.size(); i++) {
-//                        //UserInfo infoBean:
-//                        viewType.putTag(listData.get(i).getTag(), i);
-//                    }
-//                }
-//            }
-//        });
     }
-
 
     private List<UserInfo> delectMaster(Group group) {
         List<MemberUser> list = group.getUsers();
@@ -280,6 +259,27 @@ public class GroupSelectUserActivity extends AppActivity {
 
     }
 
+    private void showDialog(UserInfo bean) {
+        alertYesNo = new AlertYesNo();
+        alertYesNo.init(GroupSelectUserActivity.this, "转让群", bean.getName() + "将成为该群群主，确定后你将立刻失去群主身份",
+                "确定", "取消", new AlertYesNo.Event() {
+                    @Override
+                    public void onON() {
+
+                    }
+
+                    @Override
+                    public void onYes() {
+                        Intent intent = new Intent();
+                        intent.putExtra(UID, bean.getUid() + "");
+                        intent.putExtra(MEMBERNAME, bean.getName());
+                        setResult(RET_CODE_SELECTUSR, intent);
+                        finish();
+                    }
+                });
+        alertYesNo.show();
+    }
+
 
     //自动生成RecyclerViewAdapter
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RCViewHolder> implements Filterable {
@@ -318,45 +318,46 @@ public class GroupSelectUserActivity extends AppActivity {
                     hd.viewType.setVisibility(View.GONE);
                 }
             }
+            if (bean.isChecked()) {
+                hd.ckSelect.setChecked(true);
+            } else {
+                hd.ckSelect.setChecked(false);
+            }
 
-            hd.ckSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            hd.layoutRoot.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    hd.ckSelect.setChecked(false);
-
-
-                    if (type == 0) {
-                        alertYesNo = new AlertYesNo();
-                        alertYesNo.init(GroupSelectUserActivity.this, "转让群", bean.getName() + "将成为该群群主，确定后你将立刻失去群主身份", "确定", "取消", new AlertYesNo.Event() {
-                            @Override
-                            public void onON() {
-
-                            }
-
-                            @Override
-                            public void onYes() {
-                                Intent intent = new Intent();
-                                intent.putExtra(UID, bean.getUid() + "");
-                               /* if (!TextUtils.isEmpty(bean.getMembername())) {
-                                    intent.putExtra(MEMBERNAME, bean.getMembername());
-                                } else {
-                                    intent.putExtra(MEMBERNAME, bean.getName());
-                                }*/
-                                intent.putExtra(MEMBERNAME, bean.getName());
-                                setResult(RET_CODE_SELECTUSR, intent);
-                                finish();
-                            }
-                        });
-                        alertYesNo.show();
-                    } else {
-                        Intent intent = new Intent();
-                        intent.putExtra(UID, bean.getUid() + "");
-                        intent.putExtra(MEMBERNAME, !TextUtils.isEmpty(bean.getMembername()) ? bean.getMembername() : bean.getName());
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }
+                public void onClick(View v) {
+                    mUserBean = bean;
+                    onItemClick(bean);
                 }
             });
+            hd.ckSelect.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mUserBean = bean;
+                    onItemClick(bean);
+                }
+            });
+        }
+
+        private void onItemClick(UserInfo bean){
+            for (UserInfo info : mFilterList) {
+                if (info.getUid().equals(bean.getUid())) {
+                    info.setChecked(!bean.isChecked());
+                } else {
+                    info.setChecked(false);
+                }
+            }
+            mtListView.notifyDataSetChange();
+            if (type == 0) {
+                actionbar.getTxtRight().setVisibility(bean.isChecked() ? View.VISIBLE : View.GONE);
+            } else {
+                Intent intent = new Intent();
+                intent.putExtra(UID, bean.getUid() + "");
+                intent.putExtra(MEMBERNAME, !TextUtils.isEmpty(bean.getMembername()) ? bean.getMembername() : bean.getName());
+                setResult(RESULT_OK, intent);
+                finish();
+            }
         }
 
 
@@ -411,6 +412,7 @@ public class GroupSelectUserActivity extends AppActivity {
             private ImageView imgHead;
             private TextView txtName;
             private CheckBox ckSelect;
+            private View layoutRoot;
 
             //自动寻找ViewHold
             public RCViewHolder(View convertView) {
@@ -420,6 +422,7 @@ public class GroupSelectUserActivity extends AppActivity {
                 imgHead = convertView.findViewById(R.id.img_head);
                 txtName = convertView.findViewById(R.id.txt_name);
                 ckSelect = convertView.findViewById(R.id.ck_select);
+                layoutRoot = convertView.findViewById(R.id.layout_root);
             }
         }
     }

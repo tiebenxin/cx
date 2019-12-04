@@ -195,7 +195,6 @@
                         android:id="@+id/view_ot_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxWidth="200dp"
                         android:background="@drawable/selector_chat_other_touch"
                         android:orientation="horizontal"
                         android:visibility="gone">
@@ -211,6 +210,7 @@
                             android:id="@+id/txt_ot_2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:maxWidth="170dp"
                             android:layout_gravity="center_vertical"
                             android:fontFamily="normal"
                             android:text="我已经添加你为好友啦"
@@ -765,7 +765,6 @@
                             android:id="@+id/view_me_2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:maxWidth="200dp"
                             android:background="@drawable/selector_chat_me_touch"
                             android:orientation="horizontal"
                             android:visibility="gone">
@@ -781,6 +780,7 @@
                                 android:id="@+id/txt_me_2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:maxWidth="170dp"
                                 android:layout_gravity="center_vertical"
                                 android:fontFamily="normal"
                                 android:text="添加你为好友啦"

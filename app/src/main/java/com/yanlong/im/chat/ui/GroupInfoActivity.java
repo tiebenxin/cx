@@ -14,7 +14,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -208,7 +207,7 @@ public class GroupInfoActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GroupInfoActivity.this, CommonSetingActivity.class);
-                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的信息");
+                intent.putExtra(CommonSetingActivity.TITLE, "我在本群的昵称");
                 intent.putExtra(CommonSetingActivity.REMMARK, "设置我在这个群里面的昵称");
                 intent.putExtra(CommonSetingActivity.HINT, "群昵称");
                 intent.putExtra(CommonSetingActivity.SIZE, 16);
@@ -259,7 +258,7 @@ public class GroupInfoActivity extends AppActivity {
         });
 
         final RealmList<MemberUser> list = ginfo.getUsers();
-        if (list.size() < 400) {
+        if (list.size() < 400||list.size()>500) {
             isPercentage = false;
         }
 
@@ -332,7 +331,7 @@ public class GroupInfoActivity extends AppActivity {
                 destroyTimeView.setListener(new DestroyTimeView.OnClickItem() {
                     @Override
                     public void onClickItem(String content, int survivaltime) {
-                        if(destroyTime != survivaltime){
+                        if (destroyTime != survivaltime) {
                             destroyTime = survivaltime;
                             tvDestroyTime.setText(content);
                             changeSurvivalTime(gid, survivaltime);
@@ -344,19 +343,18 @@ public class GroupInfoActivity extends AppActivity {
 
     }
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void setingReadDestroy(ReadDestroyBean bean) {
 
-
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         findViews();
     }
 
@@ -372,8 +370,9 @@ public class GroupInfoActivity extends AppActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
-
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
 
@@ -481,7 +480,7 @@ public class GroupInfoActivity extends AppActivity {
                                 .putExtra(UserInfoActivity.ID, number.getUid())
                                 .putExtra(UserInfoActivity.JION_TYPE_SHOW, 1)
                                 .putExtra(UserInfoActivity.GID, gid)
-                                .putExtra(UserInfoActivity.MUC_NICK, number.getShowName()));
+                                .putExtra(UserInfoActivity.MUC_NICK, number.getMembername()));
 
                     }
                 });

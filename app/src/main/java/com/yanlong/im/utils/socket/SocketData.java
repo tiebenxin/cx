@@ -41,8 +41,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.realm.RealmList;
 
-import static com.yanlong.im.utils.socket.MsgBean.MessageType.ACCEPT_BE_FRIENDS;
-
 public class SocketData {
     private static final String TAG = "SocketData";
 
@@ -1023,6 +1021,16 @@ public class SocketData {
 
     public static void sendAndSaveMessage(MsgAllBean bean) {
         LogUtil.getLog().i(TAG, ">>>---发送到toid" + bean.getTo_uid() + "--gid" + bean.getGid());
+        sendAndSaveMessage(bean, true);
+    }
+
+    /**
+     * 常信小助手发的消息不需要上会服务器
+     *
+     * @param bean
+     * @param isSend 是否需要发送服务器
+     */
+    public static void sendAndSaveMessage(MsgAllBean bean, boolean isSend) {
         int msgType = bean.getMsg_type();
         MsgBean.MessageType type = null;
         Object value = null;
@@ -1120,14 +1128,12 @@ public class SocketData {
         if (needSave) {
             saveMessage(bean);
         }
-        if (type != null && value != null) {
+        if (type != null && value != null && isSend) {
             MsgBean.UniversalMessage.Builder msg = toMsgBuilder(bean.getMsg_id(), bean.getTo_uid(), bean.getGid(), bean.getTimestamp(), type, value);
             //立即发送
             SocketUtil.getSocketUtil().sendData4Msg(msg);
         }
-
     }
-
 
     //消息被拒
     public static MsgAllBean createMsgBeanOfNotice(MsgBean.AckMessage ack, @ChatEnum.ENoticeType int type) {

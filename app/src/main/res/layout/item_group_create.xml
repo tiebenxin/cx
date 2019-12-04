@@ -27,7 +27,9 @@
 
     <LinearLayout style="@style/app_layout_list1">
 
-        <LinearLayout style="@style/app_layout_list1_item">
+        <LinearLayout
+            android:id="@+id/layout_root"
+            style="@style/app_layout_list1_item">
 
             <ImageView
                 android:id="@+id/img_head"
