@@ -25,14 +25,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.mcxtzhang.swipemenulib.SwipeMenuLayout;
 import com.yanlong.im.MainActivity;
 import com.yanlong.im.R;
 import com.yanlong.im.chat.ChatEnum;
 import com.yanlong.im.chat.bean.Group;
-import com.yanlong.im.chat.bean.GroupImageHead;
 import com.yanlong.im.chat.bean.MemberUser;
 import com.yanlong.im.chat.bean.MsgAllBean;
 import com.yanlong.im.chat.bean.Session;
@@ -44,15 +42,13 @@ import com.yanlong.im.user.bean.UserInfo;
 import com.yanlong.im.user.dao.UserDao;
 import com.yanlong.im.user.ui.FriendAddAcitvity;
 import com.yanlong.im.user.ui.HelpActivity;
-import com.yanlong.im.utils.DaoUtil;
 import com.yanlong.im.utils.ExpressionUtil;
-import com.yanlong.im.utils.GlideOptionsUtil;
-import com.yanlong.im.utils.GroupHeadImageUtil;
 import com.yanlong.im.utils.PatternUtil;
 import com.yanlong.im.utils.QRCodeManage;
 import com.yanlong.im.utils.socket.MsgBean;
 import com.yanlong.im.utils.socket.SocketEvent;
 import com.yanlong.im.utils.socket.SocketUtil;
+import com.yanlong.im.wight.avatar.MultiImageView;
 
 import net.cb.cb.library.CoreEnum;
 import net.cb.cb.library.bean.EventNetStatus;
@@ -70,7 +66,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -616,6 +611,8 @@ public class MsgMainFragment extends Fragment {
                 String title = bean.getName();
                 MsgAllBean msginfo = bean.getMessage();
                 String name = bean.getSenderName();
+                // 头像集合
+                List<String> headList = new ArrayList<>();
 
                 String info = "";
                 if (msginfo != null) {
@@ -641,8 +638,10 @@ public class MsgMainFragment extends Fragment {
                             showMessage(holder.txtInfo, info, null);
                         }
                     }
-                    Glide.with(getActivity()).load(icon)
-                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                    Glide.with(getActivity()).load(icon)
+//                            .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                    headList.add(icon);
+                    holder.imgHead.setList(headList);
 
                 } else if (bean.getType() == 1) {//群
                     int type = bean.getMessageType();
@@ -737,30 +736,32 @@ public class MsgMainFragment extends Fragment {
                     }
 
                     if (StringUtil.isNotNull(icon)) {
-                        Glide.with(getActivity()).load(icon)
-                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                        Glide.with(getActivity()).load(icon)
+//                                .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+                        headList.add(icon);
+                        holder.imgHead.setList(headList);
                     } else {
-                        if (bean.getType() == 1) {
-                            String imgUrl = "";
-                            try {
-                                imgUrl = ((GroupImageHead) DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
-                            } catch (Exception e) {
-                                creatAndSaveImg(bean, holder.imgHead);
-                            }
-
-//                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
-                            if (StringUtil.isNotNull(imgUrl)) {
-                                Glide.with(getActivity()).load(imgUrl)
-                                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                            } else {
-
-                                creatAndSaveImg(bean, holder.imgHead);
-
-                            }
-                        } else {
-                            Glide.with(getActivity()).load(icon)
-                                    .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
-                        }
+                        creatAndSaveImg(bean, holder.imgHead);
+//                        if (bean.getType() == 1) {
+//                            String imgUrl = "";
+//                            try {
+//                                imgUrl = ( DaoUtil.findOne(GroupImageHead.class, "gid", bean.getGid())).getImgHeadUrl();
+//                            } catch (Exception e) {
+//                                creatAndSaveImg(bean, holder.imgHead);
+//                            }
+//
+////                        LogUtil.getLog().e("TAG", "----------" + imgUrl.toString());
+//                            if (StringUtil.isNotNull(imgUrl)) {
+////                                Glide.with(getActivity()).load(imgUrl)
+////                                        .apply(GlideOptionsUtil.headImageOptions()).into(holder.imgHead);
+//                                headList.add(imgUrl);
+//                                holder.imgHead.setList(headList);
+//                            } else {
+//
+//                                creatAndSaveImg(bean, holder.imgHead);
+//
+//                            }
+//                        }
                     }
                 }
 
@@ -847,26 +848,27 @@ public class MsgMainFragment extends Fragment {
             } else {
                 spannableString = ExpressionUtil.getExpressionString(getContext(), ExpressionUtil.DEFAULT_SMALL_SIZE, spannableString);
             }
-            txtInfo.setText(spannableString);
+            txtInfo.setText(spannableString,TextView.BufferType.SPANNABLE);
         }
 
-        private void creatAndSaveImg(Session bean, ImageView imgHead) {
+        private void creatAndSaveImg(Session bean, MultiImageView imgHead) {
             Group gginfo = msgDao.getGroup4Id(bean.getGid());
             if (gginfo != null) {
                 int i = gginfo.getUsers().size();
                 i = i > 9 ? 9 : i;
                 //头像地址
-                String url[] = new String[i];
+                List<String> headList = new ArrayList<>();
                 for (int j = 0; j < i; j++) {
                     MemberUser userInfo = gginfo.getUsers().get(j);
-                    url[j] = userInfo.getHead();
+                    headList.add(userInfo.getHead());
                 }
-                File file = GroupHeadImageUtil.synthesis(getContext(), url);
-                Glide.with(getActivity()).load(file)
-                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
+                imgHead.setList(headList);
+//                File file = GroupHeadImageUtil.synthesis(getContext(), url);
+//                Glide.with(getActivity()).load(file)
+//                        .apply(GlideOptionsUtil.headImageOptions()).into(imgHead);
 
-                MsgDao msgDao = new MsgDao();
-                msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
+//                MsgDao msgDao = new MsgDao();
+//                msgDao.groupHeadImgCreate(gginfo.getGid(), file.getAbsolutePath());
             }
         }
 
@@ -879,7 +881,7 @@ public class MsgMainFragment extends Fragment {
         }
 
         public class RCViewHolder extends RecyclerView.ViewHolder {
-            private ImageView imgHead;
+            private MultiImageView imgHead;
             private StrikeButton sb;
 
             private View viewIt;

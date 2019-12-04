@@ -182,7 +182,7 @@ public class MessageManager {
             case BUSINESS_CARD://名片
             case RED_ENVELOPER://红包
             case RECEIVE_RED_ENVELOPER://领取红包
-            case ASSISTANT://小消息
+            case ASSISTANT://小助手消息
                 if (bean != null) {
                     result = saveMessageNew(bean, isList);
                 }

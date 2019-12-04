@@ -49,7 +49,7 @@
 
                 <Button
                     android:id="@+id/btn_info_del"
-                    style="@style/app_btn_green_s"
+                    style="@style/app_btn_gray_s"
                     android:layout_marginLeft="@dimen/app_margin_item"
                     android:text="删除" />
 
@@ -105,8 +105,8 @@
             <Button
                 android:id="@+id/btn_config"
                 style="@style/app_btn_green"
-                android:layout_margin="30dp"
-                android:text="去配置" />
+                android:layout_margin="100dp"
+                android:text="配置群助手" />
 
         </LinearLayout>
 

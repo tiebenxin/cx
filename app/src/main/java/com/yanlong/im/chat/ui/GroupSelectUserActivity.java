@@ -157,7 +157,8 @@ public class GroupSelectUserActivity extends AppActivity {
     private void initData() {
         taskGetInfo();
         if (type == 0) {
-            actionbar.setTxtRight("确定");
+            actionbar.setTxtRight("完成");
+            actionbar.setTitle("选择新群主");
             actionbar.getTxtRight().setVisibility(View.GONE);
         }
     }

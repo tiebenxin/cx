@@ -49,6 +49,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import retrofit2.Call;
 import retrofit2.Response;
 
+/**
+ * 聊天详情
+ */
 public class ChatInfoActivity extends AppActivity {
     public static final String AGM_FUID = "fuid";
     private Long fuid;
@@ -124,7 +127,7 @@ public class ChatInfoActivity extends AppActivity {
     private void initEvent() {
         fuid = getIntent().getLongExtra(AGM_FUID, 0);
         taskGetInfo();
-        if (Constants.CX888_UID == fuid) {
+        if (Constants.CX888_UID.equals(fuid)) {
             read_destroy_ll.setVisibility(View.GONE);
         }
 
