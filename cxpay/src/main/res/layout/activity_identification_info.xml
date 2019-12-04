@@ -16,37 +16,49 @@
             <LinearLayout style="@style/app_layout_list2_item">
 
                 <TextView
-                    style="@style/app_txt_title_2"
                     android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@color/c_0f0f0f"
                     android:text="姓名" />
 
                 <TextView
                     android:id="@+id/tv_name"
-                    style="@style/app_txt_content_1"
                     android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@color/c_868686"
                     android:text="" />
 
             </LinearLayout>
 
-            <View style="@style/app_line" />
+            <View style="@style/money_change_line" />
 
             <LinearLayout
                 android:id="@+id/ll_identity_card"
                 style="@style/app_layout_list2_item">
 
                 <TextView
-                    style="@style/app_txt_title_2"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@color/c_0f0f0f"
                     android:layout_width="80dp"
                     android:text="身份证号" />
 
                 <TextView
                     android:id="@+id/tv_id"
-                    style="@style/app_txt_content_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@color/c_868686"
                     android:layout_weight="1" />
 
 
             </LinearLayout>
+            <View style="@style/money_change_line" />
         </LinearLayout>
+
 
     </net.cb.cb.library.view.HeadView>
 </layout>

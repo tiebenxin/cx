@@ -27,7 +27,7 @@ public class IdentificationInfoActivity extends BasePayActivity {
         UserBean userBean = PayEnvironment.getInstance().getUser();
         if (userBean != null) {
             ui.tvName.setText(userBean.getRealName());
-            ui.tvId.setText(userBean.getCardId());
+            ui.tvId.setText(userBean.getIdentityNo());
         }
 
         ui.headView.getActionbar().setOnListenEvent(new ActionbarView.ListenEvent() {
