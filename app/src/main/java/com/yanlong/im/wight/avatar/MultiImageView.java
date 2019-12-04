@@ -37,6 +37,7 @@ public class MultiImageView extends LinearLayout {
      **/
     private int pxOneMaxWandH;  // 单张图最大允许宽高
     private int pxMoreWandH = 0;// 多张图的宽高
+    private int pxTwoWandH = 0;// 三、四张图的宽高
     private int pxImagePadding = (DensityUtil.dip2px(AppConfig.getContext(), 1));// 图片间的间距
 
     private int MAX_PER_ROW_COUNT = 3;// 每行显示最大数
@@ -44,7 +45,8 @@ public class MultiImageView extends LinearLayout {
     private LayoutParams onePicPara;
     private LayoutParams morePara, moreParaColumnFirst;
     private LayoutParams rowPara;
-
+    private LayoutParams rowTwoPara;
+    private LayoutParams rowTwoParaFirst;
 
     private OnItemClickListener mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
@@ -74,6 +76,7 @@ public class MultiImageView extends LinearLayout {
         if (MAX_WIDTH > 0) {
             pxMoreWandH = (MAX_WIDTH - pxImagePadding * 2) / 3; //解决右侧图片和内容对不齐问题
             pxOneMaxWandH = MAX_WIDTH * 2 / 3;
+            pxTwoWandH = MAX_WIDTH / 2 - 1;
             initImageLayoutParams();
         }
 
@@ -130,6 +133,10 @@ public class MultiImageView extends LinearLayout {
         morePara = new LayoutParams(pxMoreWandH, pxMoreWandH);
         morePara.setMargins(pxImagePadding, 0, 0, 0);
         rowPara = new LayoutParams(match, wrap);
+
+        rowTwoParaFirst = new LayoutParams(pxTwoWandH, pxTwoWandH);
+        rowTwoPara = new LayoutParams(pxTwoWandH, pxTwoWandH);
+        rowTwoPara.setMargins(pxImagePadding, 0, 0, 0);
     }
 
     // 根据imageView的数量初始化不同的View布局,还要为每一个View作点击效果
@@ -156,7 +163,9 @@ public class MultiImageView extends LinearLayout {
             imageviews.put(0, view);
         } else {
             int allCount = imagesList.size();
-            if (allCount < 7) {
+            if (allCount == 2) {
+                MAX_PER_ROW_COUNT = 1;
+            } else if (allCount > 2 && allCount < 7) {
                 MAX_PER_ROW_COUNT = 2;
             } else {
                 MAX_PER_ROW_COUNT = 3;
@@ -181,7 +190,10 @@ public class MultiImageView extends LinearLayout {
                 addView(rowLayout);
                 int rowOffset = rowCursor * MAX_PER_ROW_COUNT;// 行偏移
 
-                if (allCount == 3) {
+                if (allCount == 2) {
+                    columnCount = 2;
+                    rowOffset = 0;
+                } else if (allCount == 3) {
                     columnCount = rowCursor + 1;
                     rowOffset = rowCursor;
                 } else if (allCount == 4) {
@@ -209,7 +221,11 @@ public class MultiImageView extends LinearLayout {
         ImageView imageView = new ColorFilterImageView(getContext());
         if (isMultiImage) {
             imageView.setScaleType(ScaleType.CENTER_CROP);
-            imageView.setLayoutParams(columnCursor == 0 ? moreParaColumnFirst : morePara);
+            if (imagesList.size() == 2 || imagesList.size() == 3 || imagesList.size() == 4) {
+                imageView.setLayoutParams(columnCursor == 0 ? rowTwoParaFirst : rowTwoPara);
+            } else {
+                imageView.setLayoutParams(columnCursor == 0 ? moreParaColumnFirst : morePara);
+            }
         } else {
             imageView.setAdjustViewBounds(true);
             imageView.setScaleType(ScaleType.FIT_START);
