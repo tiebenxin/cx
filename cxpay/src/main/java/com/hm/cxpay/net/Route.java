@@ -40,8 +40,8 @@ public class Route {
     public static final String TO_RECHARGE = "/order/deposit";
 
     //获取红包明细
-    public static final String GET_RED_ENVELOPE_DETAILS = "/user/get_red_envelope_list";
+    public static final String GET_RED_ENVELOPE_DETAILS = "/order/get_red_envelope_list";
 
     //发送红包
-    public static final String SEND_RED_ENVELOPE = "/user/send_red_envelope";
+    public static final String SEND_RED_ENVELOPE = "/order/send_red_envelope";
 }

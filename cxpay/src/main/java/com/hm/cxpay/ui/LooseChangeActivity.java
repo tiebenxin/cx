@@ -11,12 +11,19 @@ import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
 import com.hm.cxpay.controller.ControllerPaySetting;
 import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.HeadView;
+
+import java.util.List;
 
 /*
  * 零钱首页
@@ -38,6 +45,7 @@ public class LooseChangeActivity extends BasePayActivity {
         setContentView(R.layout.activity_loose_change);
         initView();
         initEvent();
+        getBankList();
     }
 
     private void initView() {
@@ -66,7 +74,7 @@ public class LooseChangeActivity extends BasePayActivity {
             }
         });
         //显示余额
-        tvMoney.setText("¥ "+PayEnvironment.getInstance().getUser().getBalance());
+        tvMoney.setText("¥ " + PayEnvironment.getInstance().getUser().getBalance());
         //充值
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +129,30 @@ public class LooseChangeActivity extends BasePayActivity {
                 IntentUtil.gotoActivity(LooseChangeActivity.this, ManagePaywordActivity.class);
             }
         });
+    }
+
+
+    private void getBankList() {
+        PayHttpUtils.getInstance().getBankList()
+                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>compose())
+                .compose(RxSchedulers.<BaseResponse<List<BankBean>>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<List<BankBean>>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<List<BankBean>> baseResponse) {
+                        if (baseResponse.isSuccess()) {
+                            List<BankBean> info = baseResponse.getData();
+                            if (info != null) {
+                                PayEnvironment.getInstance().setBanks(info);
+                                viewMyCard.init(R.mipmap.ic_bank_card, R.string.settings_of_bank, info.size() + "张");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse baseResponse) {
+                        super.onHandleError(baseResponse);
+                    }
+                });
     }
 
 }

@@ -78,6 +78,14 @@ public class PswView extends android.support.v7.widget.AppCompatEditText {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int width = getMeasuredWidth();
+        int height = width / 6;
+        setMeasuredDimension(width, height);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         allPasswordWidth = w;
@@ -93,7 +101,7 @@ public class PswView extends android.support.v7.widget.AppCompatEditText {
         //再画一个白色矩形这种上面的矩形内部，形成假的边框
         mPaint.setColor(Color.WHITE);
         canvas.drawRoundRect(defaultSplitLineWidth, defaultSplitLineWidth,
-                allPasswordWidth - defaultSplitLineWidth, allPasswordHight - defaultSplitLineWidth,borderRadius,borderRadius, mPaint);
+                allPasswordWidth - defaultSplitLineWidth, allPasswordHight - defaultSplitLineWidth, borderRadius, borderRadius, mPaint);
 
         //画分割线
         int lineStartAndEndx = allPasswordWidth / passwordSize;
@@ -137,6 +145,11 @@ public class PswView extends android.support.v7.widget.AppCompatEditText {
 
     //达到六位密码后返回输入值
     public interface onPasswordChangedListener {
-         void setPasswordChanged(String password);
+        void setPasswordChanged(String password);
+    }
+
+    //清空密码，重新输入
+    public void clear() {
+        setText("");
     }
 }

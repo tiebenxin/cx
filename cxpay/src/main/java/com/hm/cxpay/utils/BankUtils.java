@@ -3,6 +3,7 @@ package com.hm.cxpay.utils;
 import android.graphics.drawable.Drawable;
 
 import com.hm.cxpay.R;
+import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.global.PayEnvironment;
 
 import java.util.HashMap;
@@ -48,5 +49,15 @@ public class BankUtils {
 
     public static Drawable getBankIcon(String bankName) {
         return smallBankIconMap.get(bankName);
+    }
+
+
+    //是否默认支付 零钱支付余额足够
+    public static boolean isLooseEnough(long money) {
+        UserBean userBean = PayEnvironment.getInstance().getUser();
+        if (userBean != null && userBean.getBalance() > money) {
+            return true;
+        }
+        return false;
     }
 }

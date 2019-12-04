@@ -11,7 +11,7 @@ import android.os.Parcelable;
 public class BankBean  implements Parcelable {
     String bankName;//银行名
     String cardNo;//银行卡号
-    long id;//id
+    long id;//id,传到后台需要此字段
     String logo;//银行logo
     int seqNo;//排序号，升序
 

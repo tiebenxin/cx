@@ -19,4 +19,11 @@ public class PayEnum {
         int BANK = 1;//银行卡支付
     }
 
+    @IntDef({ERedEnvelopeType.NORMAL, ERedEnvelopeType.LUCK})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ERedEnvelopeType {
+        int NORMAL = 0;//普通红包
+        int LUCK = 1;//拼手气
+    }
+
 }

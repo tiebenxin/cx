@@ -1,6 +1,7 @@
 package com.hm.cxpay.net;
 
 import com.hm.cxpay.BuildConfig;
+import com.hm.cxpay.net.converter.MGsonConverterFactory;
 import com.hm.cxpay.rx.PayHostUtils;
 import com.hm.cxpay.rx.interceptor.CommonInterceptor;
 
@@ -58,6 +59,7 @@ public class HttpChannel {
             retrofit = new Retrofit.Builder()
                     .baseUrl(PayHostUtils.getHttpsUrl())
                     .addConverterFactory(GsonConverterFactory.create())
+//                    .addConverterFactory(MGsonConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) // 支持RxJava
                     .client(okHttpClient) // 打印请求参数
                     .build();

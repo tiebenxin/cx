@@ -15,15 +15,21 @@ import android.view.View;
 import androidx.annotation.RequiresApi;
 
 import com.hm.cxpay.R;
-import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.dailog.DialogErrorPassword;
 import com.hm.cxpay.dailog.DialogInputPayPassword;
+import com.hm.cxpay.dailog.DialogSelectPayStyle;
 import com.hm.cxpay.databinding.ActivitySingleRedPacketBinding;
 import com.hm.cxpay.global.PayEnum;
+import com.hm.cxpay.global.PayEnvironment;
 import com.hm.cxpay.net.FGObserver;
 import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
+import com.hm.cxpay.ui.bank.BankBean;
+import com.hm.cxpay.ui.redenvelope.AdapterSelectPayStyle;
+import com.hm.cxpay.ui.redenvelope.BaseSendRedEnvelopeActivity;
 import com.hm.cxpay.ui.redenvelope.RedSendBean;
+import com.hm.cxpay.utils.BankUtils;
 import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.NumRangeInputFilter;
@@ -31,13 +37,19 @@ import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.PopupSelectView;
 
+import static com.hm.cxpay.global.PayConstants.MAX_AMOUNT;
+
 //发送单个红包界面
-public class SingleRedPacketActivity extends BasePayActivity {
+public class SingleRedPacketActivity extends BaseSendRedEnvelopeActivity {
 
     private String[] strings = {"红包记录", "取消"};
     private PopupSelectView popupSelectView;
     private ActivitySingleRedPacketBinding ui;
     private long uid;
+    private DialogInputPayPassword dialogPayPassword;//支付密码弹窗
+    private String money;
+    private DialogSelectPayStyle dialogSelectPayStyle;//选择支付方式弹窗
+    private DialogErrorPassword dialogErrorPassword;
 
     public static Intent newIntent(Context context, long uid) {
         Intent intent = new Intent(context, SingleRedPacketActivity.class);
@@ -56,14 +68,34 @@ public class SingleRedPacketActivity extends BasePayActivity {
         initEvent();
     }
 
+    @Override
+    protected void onDestroy() {
+        if (dialogPayPassword != null) {
+            dialogPayPassword.dismiss();
+            dialogPayPassword = null;
+        }
+        if (dialogSelectPayStyle != null) {
+            dialogSelectPayStyle.dismiss();
+            dialogSelectPayStyle = null;
+        }
+        if (dialogErrorPassword != null) {
+            dialogErrorPassword.dismiss();
+            dialogErrorPassword = null;
+        }
+        super.onDestroy();
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initView() {
+        ui.headView.getActionbar().setChangeStyleBg();
+        ui.headView.getAppBarLayout().setBackgroundResource(R.color.c_c85749);
         ui.headView.getActionbar().setTxtLeft("取消");
         ui.btnCommit.setEnabled(false);//默认不能点击
         ui.headView.getActionbar().getBtnLeft().setVisibility(View.GONE);
         ui.headView.getActionbar().getBtnRight().setImageResource(R.mipmap.ic_more);
         ui.headView.getActionbar().getBtnRight().setVisibility(View.VISIBLE);
-        ui.edMoney.setFilters(new InputFilter[]{new NumRangeInputFilter(this)});
+        ui.edMoney.setFilters(new InputFilter[]{new NumRangeInputFilter(this, Integer.MAX_VALUE)});
+        ui.tvNotice.setVisibility(View.GONE);
     }
 
     private void initEvent() {
@@ -92,13 +124,20 @@ public class SingleRedPacketActivity extends BasePayActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String string = s.toString();
-                if (!TextUtils.isEmpty(string)) {
-                    ui.edMoney.setEnabled(true);
+                String string = s.toString().trim();
+                long money = UIUtils.getFen(string);
+                if (money > 0 && money <= MAX_AMOUNT) {
+                    ui.btnCommit.setEnabled(true);
                     ui.tvMoney.setText(string);
+                    ui.tvNotice.setVisibility(View.GONE);
+                } else if (money > MAX_AMOUNT) {
+                    ui.btnCommit.setEnabled(false);
+                    ui.tvMoney.setText(string);
+                    ui.tvNotice.setVisibility(View.VISIBLE);
                 } else {
-                    ui.edMoney.setEnabled(false);
+                    ui.btnCommit.setEnabled(false);
                     ui.tvMoney.setText("0.00");
+                    ui.tvNotice.setVisibility(View.GONE);
                 }
 
             }
@@ -107,7 +146,7 @@ public class SingleRedPacketActivity extends BasePayActivity {
         ui.btnCommit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String money = ui.edMoney.getText().toString();
+                money = ui.edMoney.getText().toString();
                 if (!TextUtils.isEmpty(money)) {
                     showInputPasswordDialog(UIUtils.getFen(money));
                 }
@@ -125,8 +164,8 @@ public class SingleRedPacketActivity extends BasePayActivity {
             public void onItem(String string, int postsion) {
                 switch (postsion) {
                     case 0:
-//                        Intent intent = new Intent(SingleRedPacketActivity.this,RedpacketRecordActivity.class);
-//                        startActivity(intent);
+                        Intent intent = new Intent(SingleRedPacketActivity.this, RedPacketDetailsActivity.class);
+                        startActivity(intent);
                         break;
                 }
                 popupSelectView.dismiss();
@@ -137,11 +176,11 @@ public class SingleRedPacketActivity extends BasePayActivity {
     /**
      * 发送单个红包
      */
-    private void sendRedEnvelope(long money, String psw, String note, long bankCardId) {
+    private void sendRedEnvelope(String actionId, long money, String psw, String note, long bankCardId) {
         if (uid <= 0) {
             return;
         }
-        PayHttpUtils.getInstance().sendRedEnvelopeToUser(money, 1, psw, 0, bankCardId, note, uid)
+        PayHttpUtils.getInstance().sendRedEnvelopeToUser(actionId, money, 1, psw, 0, bankCardId, note, uid)
                 .compose(RxSchedulers.<BaseResponse<RedSendBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<RedSendBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<RedSendBean>>() {
@@ -155,7 +194,6 @@ public class SingleRedPacketActivity extends BasePayActivity {
                                 showPswErrorDialog();
                             } else {
                                 ToastUtil.show(getContext(), baseResponse.getMessage());
-
                             }
                         } else {
                             ToastUtil.show(getContext(), baseResponse.getMessage());
@@ -173,21 +211,84 @@ public class SingleRedPacketActivity extends BasePayActivity {
 
     //输入密码弹窗
     private void showInputPasswordDialog(final long money) {
-        DialogInputPayPassword dialogPayPassword = new DialogInputPayPassword(getContext(), R.style.MyDialogNoFadedTheme);
-        dialogPayPassword.init(money, PayEnum.EPayStyle.LOOSE, null);
+        dialogPayPassword = new DialogInputPayPassword(this, R.style.MyDialogTheme);
+        if (BankUtils.isLooseEnough(money)) {
+            dialogPayPassword.init(money, PayEnum.EPayStyle.LOOSE, null);
+        } else {
+            BankBean bank = PayEnvironment.getInstance().getFirstBank();
+            if (bank != null) {
+                dialogPayPassword.init(money, PayEnum.EPayStyle.BANK, bank);
+            } else {
+                dialogPayPassword.init(money, PayEnum.EPayStyle.LOOSE, null);
+            }
+        }
         dialogPayPassword.setPswListener(new DialogInputPayPassword.IPswListener() {
             @Override
             public void onCompleted(String psw, long bankCardId) {
                 String note = UIUtils.getRedEnvelopeContent(ui.edContent);
-                sendRedEnvelope(money, psw, note, bankCardId);
+                String actionId = UIUtils.getUUID();
+                sendRedEnvelope(actionId, money, psw, note, bankCardId);
+            }
+
+            @Override
+            public void selectPayStyle() {
+                showSelectPayStyleDialog();
             }
         });
         dialogPayPassword.show();
+        showSoftKeyword(dialogPayPassword.getPswView());
+    }
+
+    private void showSelectPayStyleDialog() {
+        dialogSelectPayStyle = new DialogSelectPayStyle(this, R.style.MyDialogTheme);
+        dialogSelectPayStyle.bindData(PayEnvironment.getInstance().getBanks());
+        dialogSelectPayStyle.setListener(new AdapterSelectPayStyle.ISelectPayStyleListener() {
+            @Override
+            public void onSelectPay(int style, BankBean bank) {
+                if (dialogPayPassword != null) {
+                    dialogPayPassword.init(UIUtils.getFen(money), style, bank);
+                }
+            }
+
+            @Override
+            public void onAddBank() {
+
+            }
+
+            @Override
+            public void onBack() {
+                resetShowDialogPayPassword();
+            }
+        });
+        dialogSelectPayStyle.show();
+
     }
 
     private void showPswErrorDialog() {
+        dialogErrorPassword = new DialogErrorPassword(this, R.style.MyDialogTheme);
+        dialogErrorPassword.setListener(new DialogErrorPassword.IErrorPasswordListener() {
+            @Override
+            public void onForget() {
 
+            }
 
+            @Override
+            public void onTry() {
+                resetShowDialogPayPassword();
+            }
+        });
+        dialogErrorPassword.show();
     }
+
+    //重新显示输入密码弹窗
+    private void resetShowDialogPayPassword() {
+        if (dialogPayPassword != null) {
+            dialogPayPassword.clearPsw();
+            dialogPayPassword.show();
+            showSoftKeyword(dialogPayPassword.getPswView());
+
+        }
+    }
+
 
 }

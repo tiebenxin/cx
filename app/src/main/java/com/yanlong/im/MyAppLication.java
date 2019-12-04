@@ -89,7 +89,8 @@ public class MyAppLication extends MainApplication {
             case "release"://正式服
                 AppConfig.DEBUG = false; // false true
                 //---------------------------
-                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
+//                AppConfig.SOCKET_IP = "im-app.zhixun6.com";
+                AppConfig.SOCKET_IP = "transfer.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "product-environment";
@@ -97,7 +98,7 @@ public class MyAppLication extends MainApplication {
         }
         //初始化日志
         LogUtil.getLog().init(AppConfig.DEBUG);
-        LSLog.TAG="a===LanSongSDK=";
+        LSLog.TAG = "a===LanSongSDK=";
 //        建议统一使用LogUtil.getLog().d标注频繁日志(如 socket，视频播放，通话，每秒都会有日志)
 //        建议统一使用LogUtil.getLog().e标注一般日志(如 打印个人信息，打印某个参数等)
 //        现在各种格式都有
@@ -310,7 +311,7 @@ public class MyAppLication extends MainApplication {
         });
     }
 
-    public void initARouter(){
+    public void initARouter() {
         if (BuildConfig.DEBUG) {
             ARouter.openLog();
             ARouter.openDebug();

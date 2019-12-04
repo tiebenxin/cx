@@ -50,6 +50,9 @@ import com.example.nim_lib.controll.AVChatProfile;
 import com.example.nim_lib.event.EventFactory;
 import com.example.nim_lib.ui.VideoActivity;
 import com.google.gson.Gson;
+import com.hm.cxpay.global.PayConstants;
+import com.hm.cxpay.ui.MultiRedPacketActivity;
+import com.hm.cxpay.ui.SingleRedPacketActivity;
 import com.jrmf360.rplib.JrmfRpClient;
 import com.jrmf360.rplib.bean.EnvelopeBean;
 import com.jrmf360.rplib.bean.GrabRpBean;
@@ -253,6 +256,7 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
     public static final int REQ_RP = 9653;
     public static final int VIDEO_RP = 9419;
     public static final int REQ_TRANS = 9653;
+    public static final int REQUEST_RED_ENVELOPE = 1<<2;
 
     private MessageAdapter messageAdapter;
     private int lastOffset = -1;
@@ -981,7 +985,14 @@ public class ChatActivity extends AppActivity implements ICellEventListener {
                 if (ViewUtils.isFastDoubleClick()) {
                     return;
                 }
-                taskPayRb();
+//                taskPayRb();
+                if (isGroup()) {
+                    Intent intentMulti = MultiRedPacketActivity.newIntent(ChatActivity.this, toGid, groupInfo.getUsers().size());
+                    startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
+                } else {
+                    Intent intentMulti = SingleRedPacketActivity.newIntent(ChatActivity.this, toUId);
+                    startActivityForResult(intentMulti, REQUEST_RED_ENVELOPE);
+                }
             }
         });
         viewTransfer.setOnClickListener(new View.OnClickListener() {

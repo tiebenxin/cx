@@ -3,6 +3,7 @@ package com.hm.cxpay.dailog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -64,15 +65,32 @@ public class DialogInputPayPassword extends BaseDialog {
         ivClose.setOnClickListener(this);
         llPayStyle.setOnClickListener(this);
 
+//        pswView.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                pswView.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
+//                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//                int width = pswView.getMeasuredWidth();
+//                int height = width / 6;
+//                params.weight = width;
+//                params.height = height;
+//                pswView.setLayoutParams(params);
+//            }
+//        }, 100);
+
+
     }
 
     @Override
     public void processClick(View view) {
         int id = view.getId();
-        if (id == R.id.iv_close) {
+        if (id == ivClose.getId()) {
             dismiss();
-        } else if (id == R.id.ll_pay_style) {
+        } else if (id == llPayStyle.getId()) {
             dismiss();
+            if (listener != null) {
+                listener.selectPayStyle();
+            }
         }
     }
 
@@ -93,6 +111,17 @@ public class DialogInputPayPassword extends BaseDialog {
         }
     }
 
+    //清空密码，重新输入
+    public void clearPsw() {
+        if (pswView != null) {
+            pswView.clear();
+        }
+    }
+
+    public View getPswView() {
+        return pswView;
+    }
+
     public void setPswListener(IPswListener l) {
         listener = l;
     }
@@ -103,5 +132,8 @@ public class DialogInputPayPassword extends BaseDialog {
          * 注意：bankCardId 银行卡id，不是卡号
          */
         void onCompleted(String psw, long bankCardId);
+
+        //选择支付方式
+        void selectPayStyle();
     }
 }
