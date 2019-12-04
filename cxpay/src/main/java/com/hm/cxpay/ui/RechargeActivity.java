@@ -31,6 +31,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
+import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -119,7 +120,8 @@ public class RechargeActivity extends AppActivity {
         bankList = new ArrayList<>();
         options = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
         //显示余额
-        tvBalance.setText("当前零钱余额  ¥ " + PayEnvironment.getInstance().getUser().getBalance()+"");
+        tvBalance.setText("当前零钱余额  ¥ " + UIUtils.getYuan(Long.valueOf(PayEnvironment.getInstance().getUser().getBalance())));
+
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -252,6 +254,8 @@ public class RechargeActivity extends AppActivity {
             layoutAddBankcard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //新增完银行卡后，会回到此界面调用getBankList()，此时bankList已经有数据，且ifAddBankcard为true
+                    //和提现逻辑稍有差别，但影响不大
                     go(BindBankActivity.class);
                     dialogOne.dismiss();
                 }
@@ -388,7 +392,7 @@ public class RechargeActivity extends AppActivity {
                                     ToastUtil.show(activity, "充值成功!");
                                     setResult(RESULT_OK);
                                 }else if(baseResponse.getData().getCode()==2){
-                                    ToastUtil.show(activity, "充值失败!请联系客服");
+                                    ToastUtil.show(activity, "充值失败!如有疑问，请联系客服");
                                 }else if(baseResponse.getData().getCode()==99){
                                     ToastUtil.show(activity, "交易处理中，请耐心等待，稍后会有系统通知...");
                                 }else {

@@ -39,6 +39,9 @@ public class Route {
     //充值
     public static final String TO_RECHARGE = "/order/deposit";
 
+    //提现
+    public static final String TO_WITHDRAW = "/order/withdraw_apply";
+
     //获取红包明细
     public static final String GET_RED_ENVELOPE_DETAILS = "/user/get_red_envelope_list";
 

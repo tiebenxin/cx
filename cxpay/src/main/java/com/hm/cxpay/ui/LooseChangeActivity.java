@@ -18,6 +18,7 @@ import com.hm.cxpay.net.PayHttpUtils;
 import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
+import com.hm.cxpay.utils.UIUtils;
 
 import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
@@ -34,7 +35,7 @@ public class LooseChangeActivity extends BasePayActivity {
     private ControllerPaySetting viewMyRedEnvelope;
 
     private HeadView mHeadView;
-    private TextView tvMoney;//余额
+    private TextView tvBalance;//余额
     private LinearLayout layoutRecharge;//充值
     private LinearLayout layoutWithdrawDeposit;//提现
 
@@ -50,7 +51,7 @@ public class LooseChangeActivity extends BasePayActivity {
 
     private void initView() {
         mHeadView = findViewById(R.id.headView);
-        tvMoney = findViewById(R.id.tv_money);
+        tvBalance = findViewById(R.id.tv_money);
         layoutRecharge = findViewById(R.id.layout_recharge);
         layoutWithdrawDeposit = findViewById(R.id.layout_withdraw_deposit);
     }
@@ -74,21 +75,19 @@ public class LooseChangeActivity extends BasePayActivity {
             }
         });
         //显示余额
-        tvMoney.setText("¥ "+PayEnvironment.getInstance().getUser().getBalance());
+        tvBalance.setText("¥ "+ UIUtils.getYuan(Long.valueOf(PayEnvironment.getInstance().getUser().getBalance())));
         //充值
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivityForResult(new Intent(LooseChangeActivity.this, RechargeActivity.class)
-                        .putExtra("balance", 1),REFRESH_BALANCE);
+                startActivityForResult(new Intent(LooseChangeActivity.this, RechargeActivity.class),REFRESH_BALANCE);
             }
         });
         //提现
         layoutWithdrawDeposit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(LooseChangeActivity.this, WithdrawActivity.class)
-                        .putExtra("balance", 1));
+                startActivityForResult(new Intent(LooseChangeActivity.this, WithdrawActivity.class),REFRESH_BALANCE);
             }
         });
         //红包明细
@@ -158,7 +157,9 @@ public class LooseChangeActivity extends BasePayActivity {
                             }else {
                                 userBean = new UserBean();
                             }
-                            tvMoney.setText("¥ "+ userBean.getBalance());
+                            //刷新最新余额
+                            PayEnvironment.getInstance().getUser().setBalance(userBean.getBalance());
+                            tvBalance.setText("¥ "+ UIUtils.getYuan(Long.valueOf(userBean.getBalance())));
                         }else {
                             ToastUtil.show(context, baseResponse.getMessage());
                         }

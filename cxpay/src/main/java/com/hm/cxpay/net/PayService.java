@@ -47,17 +47,21 @@ public interface PayService {
     @POST(Route.BIND_BANK)
     Observable<BaseResponse> bindBank(@Body RequestBody body);
 
-    //设置支付密码接口 [参数]pwd
+    //设置支付密码接口
     @POST(Route.SET_PAYWORD)
     Observable<BaseResponse> setPayword(@Body RequestBody body);
 
-    //设置检查密码接口 [参数]pwd
+    //设置检查密码接口
     @POST(Route.CHECK_PAYWORD)
     Observable<BaseResponse> checkPayword(@Body RequestBody body);
 
-    //充值接口 [参数]
+    //充值接口
     @POST(Route.TO_RECHARGE)
     Observable<BaseResponse<CommonBean>> toRecharge(@Body RequestBody body);
+
+    //提现接口
+    @POST(Route.TO_WITHDRAW)
+    Observable<BaseResponse<CommonBean>> toWithdraw(@Body RequestBody body);
 
     //获取红包明细
     @POST(Route.GET_RED_ENVELOPE_DETAILS)
