@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.R;
-import com.hm.cxpay.utils.BankUtils;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 
@@ -20,9 +22,11 @@ import net.cb.cb.library.base.AbstractRecyclerAdapter;
  */
 public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
 
+    private Context context;
 
     public AdapterBankList(Context c) {
         super(c);
+        context = c;
     }
 
     @NonNull
@@ -50,6 +54,8 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
         private final TextView tvBankName;
         private final TextView tvBankNum;
         private final View rootView;
+        private RequestOptions options = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         public BankViewHolder(@NonNull View v) {
             super(v);
@@ -62,7 +68,8 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
         }
 
         private void bindData(final BankBean bank) {
-            ivIcon.setImageDrawable(BankUtils.getBankIcon(bank.getBankName()));
+            Glide.with(context).load(bank.getLogo())
+                    .apply(options).into(ivIcon);
             tvBankName.setText(bank.getBankName());
             tvBankNum.setText(bank.getCardNo());
 

@@ -121,6 +121,7 @@ public class PayHttpUtils {
         map.put("amt", amt + "");
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
+        map.put("actionId", UIUtils.getUUID());
         return HttpChannel.getInstance().getPayService().toRecharge(getRequestBody(map));
     }
 
