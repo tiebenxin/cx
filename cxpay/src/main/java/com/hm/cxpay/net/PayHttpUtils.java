@@ -118,10 +118,26 @@ public class PayHttpUtils {
     //充值
     public Observable<BaseResponse<CommonBean>> toRecharge(int amt, long bankCardId, String payPwd) {
         Map<String, String> map = new HashMap<>();
-        map.put("amt", amt + "");
+        map.put("amt", UIUtils.getFen(amt+"")+"");
         map.put("bankCardId", bankCardId + "");
         map.put("payPwd", MD5.md5(payPwd));
+        map.put("actionId", UIUtils.getUUID());
         return HttpChannel.getInstance().getPayService().toRecharge(getRequestBody(map));
+    }
+
+    //提现
+    public Observable<BaseResponse<CommonBean>> toWithdraw(int amt, long bankCardId, String payPwd) {
+        Map<String, String> map = new HashMap<>();
+        map.put("amt", UIUtils.getFen(amt+"")+"");
+        map.put("bankCardId", bankCardId + "");
+        map.put("payPwd", MD5.md5(payPwd));
+        map.put("actionId", UIUtils.getUUID());
+        return HttpChannel.getInstance().getPayService().toWithdraw(getRequestBody(map));
+    }
+
+    //获取系统费率
+    public Observable<BaseResponse<CommonBean>> getRate() {
+        return HttpChannel.getInstance().getPayService().getRate();
     }
 
 

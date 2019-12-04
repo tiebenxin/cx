@@ -56,4 +56,9 @@ public class ControllerPaySetting {
     public interface OnControllerClickListener {
         void onClick();
     }
+
+    //获取右侧文字内容
+    public TextView getRightTitle(){
+        return tvRight;
+    }
 }

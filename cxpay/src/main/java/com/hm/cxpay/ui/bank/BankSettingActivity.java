@@ -16,11 +16,12 @@ import com.hm.cxpay.rx.RxSchedulers;
 import com.hm.cxpay.rx.data.BaseResponse;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
-import net.cb.cb.library.utils.IntentUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 
 import java.util.List;
+
+import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
 
 /**
  * @anthor Liszt
@@ -116,6 +117,14 @@ public class BankSettingActivity extends BasePayActivity {
             if (resultCode == RESULT_OK) {
                 getBankList();//重新获取银行列表
             }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(isFinishing()){
+            setResult(REFRESH_BANKCARD_NUM);
         }
     }
 }

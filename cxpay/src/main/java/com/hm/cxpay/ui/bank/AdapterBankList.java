@@ -3,13 +3,16 @@ package com.hm.cxpay.ui.bank;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.R;
-import com.hm.cxpay.utils.BankUtils;
 
 import net.cb.cb.library.base.AbstractRecyclerAdapter;
 
@@ -20,9 +23,11 @@ import net.cb.cb.library.base.AbstractRecyclerAdapter;
  */
 public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
 
+    private Context context;
 
     public AdapterBankList(Context c) {
         super(c);
+        context = c;
     }
 
     @NonNull
@@ -50,6 +55,8 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
         private final TextView tvBankName;
         private final TextView tvBankNum;
         private final View rootView;
+        private RequestOptions options = new RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         public BankViewHolder(@NonNull View v) {
             super(v);
@@ -62,9 +69,16 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
         }
 
         private void bindData(final BankBean bank) {
-            ivIcon.setImageDrawable(BankUtils.getBankIcon(bank.getBankName()));
-            tvBankName.setText(bank.getBankName());
-            tvBankNum.setText(bank.getCardNo());
+            if(!TextUtils.isEmpty(bank.getLogo())){
+                Glide.with(context).load(bank.getLogo())
+                        .apply(options).into(ivIcon);
+            }
+            if(!TextUtils.isEmpty(bank.getBankName())){
+                tvBankName.setText(bank.getBankName());
+            }
+            if(!TextUtils.isEmpty(bank.getCardNo())){
+                tvBankNum.setText(bank.getCardNo());
+            }
 
             rootView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -18,6 +18,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.hm.cxpay.R;
 import com.hm.cxpay.bean.CommonBean;
 import com.hm.cxpay.global.PayEnvironment;
@@ -28,7 +31,7 @@ import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankBean;
 import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
-import com.hm.cxpay.utils.BankUtils;
+import com.hm.cxpay.utils.UIUtils;
 import com.hm.cxpay.widget.PswView;
 
 import net.cb.cb.library.utils.DensityUtil;
@@ -39,6 +42,8 @@ import net.cb.cb.library.view.HeadView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
 
 /**
  * @类名：零钱->充值
@@ -71,6 +76,7 @@ public class RechargeActivity extends AppActivity {
     public static final int SELECT_BANKCARD = 99;
     private BankBean selectBankcard;//选中的银行卡
     private StringBuilder builder;
+    private RequestOptions options;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,8 +120,10 @@ public class RechargeActivity extends AppActivity {
             }
         });
         bankList = new ArrayList<>();
+        options = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
         //显示余额
-        tvBalance.setText("当前零钱余额  ¥ " + PayEnvironment.getInstance().getUser().getBalance()+"");
+        tvBalance.setText("当前零钱余额  ¥ " + UIUtils.getYuan(Long.valueOf(PayEnvironment.getInstance().getUser().getBalance())));
+
         tvSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,6 +256,8 @@ public class RechargeActivity extends AppActivity {
             layoutAddBankcard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    //新增完银行卡后，会回到此界面调用getBankList()，此时bankList已经有数据，且ifAddBankcard为true
+                    //和提现逻辑稍有差别，但影响不大
                     go(BindBankActivity.class);
                     dialogOne.dismiss();
                 }
@@ -273,9 +283,9 @@ public class RechargeActivity extends AppActivity {
             LinearLayout layoutChangeBankcard = dialogView.findViewById(R.id.layout_change_bankcard);
             final PswView pswView = dialogView.findViewById(R.id.psw_view);
             //充值金额
-            tvRechargeValue.setText("￥" + etRecharge.getText().toString());
+            tvRechargeValue.setText("¥" + etRecharge.getText().toString());
             builder = new StringBuilder();
-            //默认取第一张银行卡信息展示
+            //默认取第一张银行卡信息展示: 银行卡名 银行卡id 银行卡图标
             selectBankcard = bankList.get(0);
             if(!TextUtils.isEmpty(selectBankcard.getBankName())){
                 builder.append(selectBankcard.getBankName());
@@ -286,8 +296,10 @@ public class RechargeActivity extends AppActivity {
                     builder.append(")");
                 }
                 tvBankNameTwo.setText(builder);//银行卡名称尾号
-
-                ivBankIconTwo.setImageDrawable(BankUtils.getBankIcon(selectBankcard.getBankName()));//银行卡Logo
+                if(!TextUtils.isEmpty(selectBankcard.getLogo())){
+                    Glide.with(activity).load(selectBankcard.getLogo())
+                            .apply(options).into(ivBankIconTwo);
+                }
             }
             //关闭弹框
             ivClose.setOnClickListener(new android.view.View.OnClickListener() {
@@ -304,7 +316,6 @@ public class RechargeActivity extends AppActivity {
                     if(dialogTwo!=null){
                         dialogTwo.dismiss();
                     }
-
                 }
             });
             //切换其他银行卡来支付
@@ -381,8 +392,9 @@ public class RechargeActivity extends AppActivity {
                             if(baseResponse.getData()!=null){
                                 if(baseResponse.getData().getCode()==1){
                                     ToastUtil.show(activity, "充值成功!");
+                                    setResult(RESULT_OK);
                                 }else if(baseResponse.getData().getCode()==2){
-                                    ToastUtil.show(activity, "充值失败!请联系客服");
+                                    ToastUtil.show(activity, "充值失败!如有疑问，请联系客服");
                                 }else if(baseResponse.getData().getCode()==99){
                                     ToastUtil.show(activity, "交易处理中，请耐心等待，稍后会有系统通知...");
                                 }else {
@@ -392,6 +404,7 @@ public class RechargeActivity extends AppActivity {
                         }else {
                             ToastUtil.show(activity, baseResponse.getMessage());
                         }
+                        finish();
                     }
 
                     @Override
@@ -420,11 +433,20 @@ public class RechargeActivity extends AppActivity {
                         builder.append(")");
                     }
                     tvBankNameTwo.setText(builder);//银行卡名称尾号
-                    ivBankIconTwo.setImageDrawable(BankUtils.getBankIcon(selectBankcard.getBankName()));//银行卡Logo
+                    if(!TextUtils.isEmpty(selectBankcard.getLogo())){
+                        Glide.with(activity).load(selectBankcard.getLogo())
+                                .apply(options).into(ivBankIconTwo);
+                    }
                 }
             }
         }
     }
 
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(isFinishing()){
+            setResult(REFRESH_BANKCARD_NUM);
+        }
+    }
 }

@@ -25,7 +25,7 @@
                     android:layout_width="47dp"
                     android:layout_height="47dp"
                     android:layout_gravity="center"
-                    android:src="@mipmap/ic_zhaoshang_small" />
+                    android:src="@mipmap/ic_bank_zs" />
             </LinearLayout>
 
             <LinearLayout style="@style/app_layout_list2_item">
