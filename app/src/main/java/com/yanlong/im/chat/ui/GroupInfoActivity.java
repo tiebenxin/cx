@@ -563,6 +563,10 @@ public class GroupInfoActivity extends AppActivity {
                     taskChangeGroupName(gid, content);
                     break;
                 case GROUP_NICK:
+                    // TODO 为空时，跟双武这边统一，传原来的昵称
+                    if (TextUtils.isEmpty(content)) {
+                        content = txtGroupNick.getText().toString();
+                    }
                     taskChangeMemberName(gid, content);
                     break;
                 case GROUP_NOTE:

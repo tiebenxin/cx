@@ -2,7 +2,6 @@ package com.yanlong.im.user.action;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.example.nim_lib.config.Preferences;
 import com.example.nim_lib.controll.AVChatProfile;
@@ -183,6 +182,11 @@ public class UserAction {
             @Override
             public void onResponse(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
                 if (response.body() != null && response.body().isOk() && StringUtil.isNotNull(response.body().getData().getAccessToken())) {//保存token
+                    if (response.body().getData() != null) {
+                        doNeteaseLogin(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
+                        saveNeteaseAccid(response.body().getData().getNeteaseAccid(), response.body().getData().getNeteaseToken());
+                    }
+
                     initDB("" + response.body().getData().getUid());
                     setToken(response.body().getData());
                     getMyInfo4Web(response.body().getData().getUid(),imid);

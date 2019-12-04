@@ -1,8 +1,10 @@
 package com.yanlong.im.wight.avatar;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -21,7 +23,6 @@ import java.util.List;
  * @ClassName MultiImageView.java
  * @Description: 显示1~N张图片的View
  */
-
 public class MultiImageView extends LinearLayout {
 
     public int MAX_WIDTH = 0;
@@ -36,7 +37,7 @@ public class MultiImageView extends LinearLayout {
      **/
     private int pxOneMaxWandH;  // 单张图最大允许宽高
     private int pxMoreWandH = 0;// 多张图的宽高
-    private int pxImagePadding = ((int) DensityUtil.dip2px(AppConfig.getContext(), 3));// 图片间的间距
+    private int pxImagePadding = (DensityUtil.dip2px(AppConfig.getContext(), 1));// 图片间的间距
 
     private int MAX_PER_ROW_COUNT = 3;// 每行显示最大数
 
@@ -124,7 +125,7 @@ public class MultiImageView extends LinearLayout {
         int wrap = LayoutParams.WRAP_CONTENT;
         int match = LayoutParams.MATCH_PARENT;
 
-        onePicPara = new LayoutParams(pxOneMaxWandH, wrap);
+        onePicPara = new LayoutParams(match, match);
         moreParaColumnFirst = new LayoutParams(pxMoreWandH, pxMoreWandH);
         morePara = new LayoutParams(pxMoreWandH, pxMoreWandH);
         morePara.setMargins(pxImagePadding, 0, 0, 0);
@@ -137,6 +138,7 @@ public class MultiImageView extends LinearLayout {
             imageviews = new SparseArray<>();
         }
         this.setOrientation(VERTICAL);
+        this.setGravity(Gravity.CENTER);
         this.removeAllViews();
         if (MAX_WIDTH == 0) {
             //为了触发onMeasure()来测量MultiImageView的最大宽度，MultiImageView的宽设置为match_parent
@@ -149,38 +151,52 @@ public class MultiImageView extends LinearLayout {
         }
 
         if (imagesList.size() == 1) {
-            ImageView view = createImageView(0, false);
+            ImageView view = createImageView(0, 0, false);
             addView(view);
             imageviews.put(0, view);
         } else {
             int allCount = imagesList.size();
-            if (allCount == 4) {
+            if (allCount < 7) {
                 MAX_PER_ROW_COUNT = 2;
             } else {
                 MAX_PER_ROW_COUNT = 3;
             }
-            int rowCount = allCount / MAX_PER_ROW_COUNT
-                    + (allCount % MAX_PER_ROW_COUNT > 0 ? 1 : 0);// 行数
-            for (int rowCursor = 0; rowCursor < rowCount; rowCursor++) {
+//            int rowCount = MAX_PER_ROW_COUNT;
+//                    allCount / MAX_PER_ROW_COUNT
+//                    + (allCount % MAX_PER_ROW_COUNT > 0 ? 1 : 0);// 行数
+            for (int rowCursor = 0; rowCursor < MAX_PER_ROW_COUNT; rowCursor++) {
                 LinearLayout rowLayout = new LinearLayout(getContext());
                 rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+                rowLayout.setGravity(Gravity.CENTER);
 
                 rowLayout.setLayoutParams(rowPara);
                 if (rowCursor != 0) {
                     rowLayout.setPadding(0, pxImagePadding, 0, 0);
                 }
-
                 int columnCount = allCount % MAX_PER_ROW_COUNT == 0 ? MAX_PER_ROW_COUNT
                         : allCount % MAX_PER_ROW_COUNT;//每行的列数
-                if (rowCursor != rowCount - 1) {
+                if (rowCursor != MAX_PER_ROW_COUNT - 1) {
                     columnCount = MAX_PER_ROW_COUNT;
                 }
                 addView(rowLayout);
-
                 int rowOffset = rowCursor * MAX_PER_ROW_COUNT;// 行偏移
+
+                if (allCount == 3) {
+                    columnCount = rowCursor + 1;
+                    rowOffset = rowCursor;
+                } else if (allCount == 4) {
+                    columnCount = 2;
+                    rowOffset = rowCursor * 2;
+                } else if (allCount == 5) {
+                    columnCount = rowCursor + 2;
+                    rowOffset = rowCursor * 2;
+                } else if (allCount == 6) {
+                    columnCount = 3;
+                    rowOffset = rowCursor * 3;
+                }
                 for (int columnCursor = 0; columnCursor < columnCount; columnCursor++) {
                     int position = columnCursor + rowOffset;
-                    ImageView view = createImageView(position, true);
+                    ImageView view = createImageView(position, columnCursor, true);
                     rowLayout.addView(view);
                     imageviews.put(position, view);
                 }
@@ -188,21 +204,21 @@ public class MultiImageView extends LinearLayout {
         }
     }
 
-    private ImageView createImageView(int position, final boolean isMultiImage) {
+    private ImageView createImageView(int position, int columnCursor, final boolean isMultiImage) {
         String url = imagesList.get(position);
         ImageView imageView = new ColorFilterImageView(getContext());
         if (isMultiImage) {
             imageView.setScaleType(ScaleType.CENTER_CROP);
-            imageView.setLayoutParams(
-                    position % MAX_PER_ROW_COUNT == 0 ? moreParaColumnFirst : morePara);
+            imageView.setLayoutParams(columnCursor == 0 ? moreParaColumnFirst : morePara);
         } else {
             imageView.setAdjustViewBounds(true);
             imageView.setScaleType(ScaleType.FIT_START);
-            imageView.setMaxHeight(pxOneMaxWandH);
+//            imageView.setMaxHeight(pxOneMaxWandH);
             imageView.setLayoutParams(onePicPara);
         }
-
-        imageView.setId(url.hashCode());
+        if (!TextUtils.isEmpty(url)) {
+            imageView.setId(url.hashCode());
+        }
         imageView.setOnClickListener(new ImageOnClickListener(position));
         imageView.setOnLongClickListener(new ImageOnLongClickListener(position));
         loadImage(url, imageView);

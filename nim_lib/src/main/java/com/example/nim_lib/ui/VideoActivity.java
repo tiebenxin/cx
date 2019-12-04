@@ -1707,11 +1707,19 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
                     @Override
                     public void onFailed(int code) {
+                        // 接收方通知后端已挂断
+                        if (mFriend != null && mFriend != 0) {
+                            mAVChatController.auVideoHandup(mFriend, mAVChatType, mRoomId);
+                        }
                         Toast.makeText(VideoActivity.this, AVChatExitCode.getCodeString(code), Toast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onException(Throwable throwable) {
+                        // 接收方通知后端已挂断
+                        if (mFriend != null && mFriend != 0) {
+                            mAVChatController.auVideoHandup(mFriend, mAVChatType, mRoomId);
+                        }
                         Toast.makeText(VideoActivity.this, "onException", Toast.LENGTH_LONG).show();
                     }
                 });
