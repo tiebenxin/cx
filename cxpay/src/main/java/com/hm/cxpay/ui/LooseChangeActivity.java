@@ -2,6 +2,7 @@ package com.hm.cxpay.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -9,8 +10,13 @@ import android.widget.TextView;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.hm.cxpay.R;
 import com.hm.cxpay.base.BasePayActivity;
+import com.hm.cxpay.bean.UserBean;
 import com.hm.cxpay.controller.ControllerPaySetting;
 import com.hm.cxpay.global.PayEnvironment;
+import com.hm.cxpay.net.FGObserver;
+import com.hm.cxpay.net.PayHttpUtils;
+import com.hm.cxpay.rx.RxSchedulers;
+import com.hm.cxpay.rx.data.BaseResponse;
 import com.hm.cxpay.ui.bank.BankSettingActivity;
 
 import net.cb.cb.library.utils.IntentUtil;
@@ -31,6 +37,8 @@ public class LooseChangeActivity extends BasePayActivity {
     private TextView tvMoney;//余额
     private LinearLayout layoutRecharge;//充值
     private LinearLayout layoutWithdrawDeposit;//提现
+
+    public static int REFRESH_BALANCE = 98;//获取最新余额展示
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +79,8 @@ public class LooseChangeActivity extends BasePayActivity {
         layoutRecharge.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(LooseChangeActivity.this, RechargeActivity.class)
-                        .putExtra("balance", 1));
+                startActivityForResult(new Intent(LooseChangeActivity.this, RechargeActivity.class)
+                        .putExtra("balance", 1),REFRESH_BALANCE);
             }
         });
         //提现
@@ -123,4 +131,45 @@ public class LooseChangeActivity extends BasePayActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REFRESH_BALANCE){
+            if(resultCode==RESULT_OK){
+                httpGetUserInfo();
+            }
+        }
+    }
+
+    /**
+     * 请求->获取用户信息
+     */
+    private void httpGetUserInfo() {
+        PayHttpUtils.getInstance().getUserInfo()
+                .compose(RxSchedulers.<BaseResponse<UserBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<UserBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<UserBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<UserBean> baseResponse) {
+                        if(baseResponse.isSuccess()){
+                            UserBean userBean = null;
+                            if(baseResponse.getData()!=null){
+                                userBean = baseResponse.getData();
+                            }else {
+                                userBean = new UserBean();
+                            }
+                            tvMoney.setText("¥ "+ userBean.getBalance());
+                        }else {
+                            ToastUtil.show(context, baseResponse.getMessage());
+                        }
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<UserBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+    }
 }

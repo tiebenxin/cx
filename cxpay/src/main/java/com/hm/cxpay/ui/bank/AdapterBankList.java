@@ -3,6 +3,7 @@ package com.hm.cxpay.ui.bank;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -68,10 +69,16 @@ public class AdapterBankList extends AbstractRecyclerAdapter<BankBean> {
         }
 
         private void bindData(final BankBean bank) {
-            Glide.with(context).load(bank.getLogo())
-                    .apply(options).into(ivIcon);
-            tvBankName.setText(bank.getBankName());
-            tvBankNum.setText(bank.getCardNo());
+            if(!TextUtils.isEmpty(bank.getLogo())){
+                Glide.with(context).load(bank.getLogo())
+                        .apply(options).into(ivIcon);
+            }
+            if(!TextUtils.isEmpty(bank.getBankName())){
+                tvBankName.setText(bank.getBankName());
+            }
+            if(!TextUtils.isEmpty(bank.getCardNo())){
+                tvBankNum.setText(bank.getCardNo());
+            }
 
             rootView.setOnClickListener(new View.OnClickListener() {
                 @Override

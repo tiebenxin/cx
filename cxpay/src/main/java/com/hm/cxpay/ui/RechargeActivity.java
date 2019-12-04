@@ -293,8 +293,6 @@ public class RechargeActivity extends AppActivity {
                 if(!TextUtils.isEmpty(selectBankcard.getLogo())){
                     Glide.with(activity).load(selectBankcard.getLogo())
                             .apply(options).into(ivBankIconTwo);
-                }else {
-
                 }
             }
             //关闭弹框
@@ -388,6 +386,7 @@ public class RechargeActivity extends AppActivity {
                             if(baseResponse.getData()!=null){
                                 if(baseResponse.getData().getCode()==1){
                                     ToastUtil.show(activity, "充值成功!");
+                                    setResult(RESULT_OK);
                                 }else if(baseResponse.getData().getCode()==2){
                                     ToastUtil.show(activity, "充值失败!请联系客服");
                                 }else if(baseResponse.getData().getCode()==99){
