@@ -35,6 +35,7 @@ import net.cb.cb.library.view.HeadView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
 import static com.hm.cxpay.ui.RechargeActivity.SELECT_BANKCARD;
 import static com.hm.cxpay.ui.bank.BankSettingActivity.REQUEST_BIND;
 
@@ -318,6 +319,14 @@ public class WithdrawActivity extends AppActivity {
                     }
                 }
                 break;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(isFinishing()){
+            setResult(REFRESH_BANKCARD_NUM);
         }
     }
 }

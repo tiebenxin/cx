@@ -43,6 +43,8 @@ import net.cb.cb.library.view.HeadView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hm.cxpay.ui.LooseChangeActivity.REFRESH_BANKCARD_NUM;
+
 /**
  * @类名：零钱->充值
  * @Date：2019/11/29
@@ -440,5 +442,11 @@ public class RechargeActivity extends AppActivity {
         }
     }
 
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(isFinishing()){
+            setResult(REFRESH_BANKCARD_NUM);
+        }
+    }
 }
