@@ -75,6 +75,7 @@ public class WithdrawActivity extends AppActivity {
         initView();
         initData();
         getBankList();
+        getRates();
     }
 
     private void initView() {
@@ -108,15 +109,15 @@ public class WithdrawActivity extends AppActivity {
         //可提现余额
         final String value = UIUtils.getYuan(Long.valueOf(PayEnvironment.getInstance().getUser().getBalance()));
         balanceValue = Double.valueOf(value);
-        tvBalance.setText("可提现余额  ¥"+ value);
+        tvBalance.setText("可提现余额  ¥" + value);
         //新增或切换银行卡
         layoutChangeBankcard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ifAddBankcard){
-                    startActivityForResult(new Intent(activity, SelectBankCardActivity.class),SELECT_BANKCARD);
-                }else {
-                    startActivityForResult(new Intent(activity, BindBankActivity.class),REQUEST_BIND);
+                if (ifAddBankcard) {
+                    startActivityForResult(new Intent(activity, SelectBankCardActivity.class), SELECT_BANKCARD);
+                } else {
+                    startActivityForResult(new Intent(activity, BindBankActivity.class), REQUEST_BIND);
                 }
             }
         });
@@ -125,25 +126,25 @@ public class WithdrawActivity extends AppActivity {
             @Override
             public void onClick(View v) {
                 //1 金额不能为空
-                if(!TextUtils.isEmpty(etWithdraw.getText().toString())){
+                if (!TextUtils.isEmpty(etWithdraw.getText().toString())) {
                     //2 提现金额不低于10元
-                    if(Double.valueOf(etWithdraw.getText().toString()) >=10){
+                    if (Double.valueOf(etWithdraw.getText().toString()) >= 10) {
                         //3 不能超过余额
-                        if(Double.valueOf(etWithdraw.getText().toString()) <= balanceValue){
+                        if (Double.valueOf(etWithdraw.getText().toString()) <= balanceValue) {
                             //4 有银行卡
-                            if(ifAddBankcard){
-                                startActivityForResult(new Intent(activity,CheckPaywordActivity.class),WITHDRAW);
-                            }else {
-                                ToastUtil.show(context,"请先添加一张银行卡");
+                            if (ifAddBankcard) {
+                                startActivityForResult(new Intent(activity, CheckPaywordActivity.class), WITHDRAW);
+                            } else {
+                                ToastUtil.show(context, "请先添加一张银行卡");
                             }
-                        }else {
-                            ToastUtil.show(context,"您的余额不足");
+                        } else {
+                            ToastUtil.show(context, "您的余额不足");
                         }
-                    }else {
-                        ToastUtil.show(context,"最小提现金额不低于10元");
+                    } else {
+                        ToastUtil.show(context, "最小提现金额不低于10元");
                     }
-                }else {
-                    ToastUtil.show(context,"提现金额不能为空");
+                } else {
+                    ToastUtil.show(context, "提现金额不能为空");
                 }
             }
         });
@@ -164,25 +165,25 @@ public class WithdrawActivity extends AppActivity {
     /**
      * 请求->提现
      */
-    private void httpWithdraw(String payword,long bankId) {
-        PayHttpUtils.getInstance().toWithdraw(Integer.valueOf(etWithdraw.getText().toString()),bankId,payword)
+    private void httpWithdraw(String payword, long bankId) {
+        PayHttpUtils.getInstance().toWithdraw(Integer.valueOf(etWithdraw.getText().toString()), bankId, payword)
                 .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
                 .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
                 .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         if (baseResponse.isSuccess()) {
-                            if(baseResponse.getData()!=null){
-                                if(baseResponse.getData().getCode()==1){
-                                    Toast.makeText(context,"提现申请成功!请耐心等待，稍后会有系统通知...",Toast.LENGTH_LONG).show();
+                            if (baseResponse.getData() != null) {
+                                if (baseResponse.getData().getCode() == 1) {
+                                    Toast.makeText(context, "提现申请成功!请耐心等待，稍后会有系统通知...", Toast.LENGTH_LONG).show();
                                     setResult(RESULT_OK);
                                     finish();
-                                }else if(baseResponse.getData().getCode()==2){
-                                    Toast.makeText(context,"提现失败!如有疑问，请联系客服",Toast.LENGTH_LONG).show();
-                                }else if(baseResponse.getData().getCode()==99){
-                                    Toast.makeText(context,"交易处理中，请耐心等待...",Toast.LENGTH_LONG).show();
+                                } else if (baseResponse.getData().getCode() == 2) {
+                                    Toast.makeText(context, "提现失败!如有疑问，请联系客服", Toast.LENGTH_LONG).show();
+                                } else if (baseResponse.getData().getCode() == 99) {
+                                    Toast.makeText(context, "交易处理中，请耐心等待...", Toast.LENGTH_LONG).show();
                                     finish();
-                                }else {
+                                } else {
                                     ToastUtil.show(context, baseResponse.getMessage());
                                 }
                             }
@@ -217,20 +218,20 @@ public class WithdrawActivity extends AppActivity {
                             }
                             ifAddBankcard = bankList.size() != 0 ? true : false;
                             //若存在银行卡
-                            if(ifAddBankcard){
+                            if (ifAddBankcard) {
                                 builder = new StringBuilder();
                                 //默认取第一张银行卡信息展示: 银行卡名 银行卡id 银行卡图标
                                 selectBankcard = bankList.get(0);
-                                if(!TextUtils.isEmpty(selectBankcard.getBankName())){
+                                if (!TextUtils.isEmpty(selectBankcard.getBankName())) {
                                     builder.append(selectBankcard.getBankName());
-                                    if(!TextUtils.isEmpty(selectBankcard.getCardNo())){
+                                    if (!TextUtils.isEmpty(selectBankcard.getCardNo())) {
                                         int length = selectBankcard.getCardNo().length();
                                         builder.append("(");
-                                        builder.append(selectBankcard.getCardNo().substring(length-4,length));
+                                        builder.append(selectBankcard.getCardNo().substring(length - 4, length));
                                         builder.append(")");
                                     }
                                     tvBankName.setText(builder);//银行卡名称尾号
-                                    if(!TextUtils.isEmpty(selectBankcard.getLogo())){
+                                    if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
                                         Glide.with(activity).load(selectBankcard.getLogo())
                                                 .apply(options).into(ivBankIcon);
                                     }
@@ -249,41 +250,71 @@ public class WithdrawActivity extends AppActivity {
                 });
     }
 
+    /**
+     * 请求->获取系统费率
+     */
+    private void getRates() {
+        PayHttpUtils.getInstance().getRate()
+                .compose(RxSchedulers.<BaseResponse<CommonBean>>compose())
+                .compose(RxSchedulers.<BaseResponse<CommonBean>>handleResult())
+                .subscribe(new FGObserver<BaseResponse<CommonBean>>() {
+                    @Override
+                    public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
+                        CommonBean bean = null;
+                        if (baseResponse.getData() != null) {
+                            bean = baseResponse.getData();
+                        } else {
+                            bean = new CommonBean();
+                        }
+                        //TODO 相关处理
+
+                    }
+
+                    @Override
+                    public void onHandleError(BaseResponse<CommonBean> baseResponse) {
+                        super.onHandleError(baseResponse);
+                        ToastUtil.show(context, baseResponse.getMessage());
+                    }
+                });
+
+
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case SELECT_BANKCARD :
-                if(resultCode == RESULT_OK){
+        switch (requestCode) {
+            case SELECT_BANKCARD:
+                if (resultCode == RESULT_OK) {
                     selectBankcard = data.getParcelableExtra("bank_card");
-                    if(!TextUtils.isEmpty(selectBankcard.getBankName())){
+                    if (!TextUtils.isEmpty(selectBankcard.getBankName())) {
                         builder.setLength(0);
                         builder.append(selectBankcard.getBankName());
-                        if(!TextUtils.isEmpty(selectBankcard.getCardNo())){
+                        if (!TextUtils.isEmpty(selectBankcard.getCardNo())) {
                             int length = selectBankcard.getCardNo().length();
                             builder.append("(");
-                            builder.append(selectBankcard.getCardNo().substring(length-4,length));
+                            builder.append(selectBankcard.getCardNo().substring(length - 4, length));
                             builder.append(")");
                         }
                         tvBankName.setText(builder);//银行卡名称尾号
-                        if(!TextUtils.isEmpty(selectBankcard.getLogo())){
+                        if (!TextUtils.isEmpty(selectBankcard.getLogo())) {
                             Glide.with(activity).load(selectBankcard.getLogo())
                                     .apply(options).into(ivBankIcon);
                         }
                     }
                 }
                 break;
-            case REQUEST_BIND :
+            case REQUEST_BIND:
                 //没卡的情况下，新绑定一张卡后回到此界面，获取并显示新添加的银行卡数据
-                if(requestCode == RESULT_OK){
+                if (requestCode == RESULT_OK) {
                     getBankList();
                 }
                 break;
-            case WITHDRAW :
-                if(resultCode == RESULT_OK){
-                    if(data.getStringExtra("payword")!=null){
-                        httpWithdraw(data.getStringExtra("payword"),selectBankcard.getId());
+            case WITHDRAW:
+                if (resultCode == RESULT_OK) {
+                    if (data.getStringExtra("payword") != null) {
+                        httpWithdraw(data.getStringExtra("payword"), selectBankcard.getId());
                     }
                 }
                 break;

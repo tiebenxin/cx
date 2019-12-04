@@ -42,6 +42,9 @@ public class Route {
     //提现
     public static final String TO_WITHDRAW = "/order/withdraw_apply";
 
+    //提现
+    public static final String GET_RATE = "/user/get_rate";
+
     //获取红包明细
     public static final String GET_RED_ENVELOPE_DETAILS = "/user/get_red_envelope_list";
 

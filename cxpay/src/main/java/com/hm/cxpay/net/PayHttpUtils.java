@@ -135,6 +135,11 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().toWithdraw(getRequestBody(map));
     }
 
+    //获取系统费率
+    public Observable<BaseResponse<CommonBean>> getRate() {
+        return HttpChannel.getInstance().getPayService().getRate();
+    }
+
 
     //获取红包明细  type—— 7：收到红包； 2 —— 发出红包
     public Observable<BaseResponse<RedDetailsBean>> getRedEnvelopeDetails(int pageNum, long startTime, int type) {
