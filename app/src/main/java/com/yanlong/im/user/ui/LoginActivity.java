@@ -196,7 +196,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                     userAction.login(phone, password, devId, new CallBack4Btn<ReturnBean<TokenBean>>(mBtnLogin) {
                         @Override
                         public void onResp(Call<ReturnBean<TokenBean>> call, Response<ReturnBean<TokenBean>> response) {
-                            LogUtil.getLog().i("youmeng", "LoginActivity------->login-------->onResp");
+                            LogUtil.getLog().i("youmeng", "LoginActivity------->login----phone---->onResp");
                             if (response.body() == null) {
                                 ToastUtil.show(context, "登录异常");
                                 return;
@@ -222,7 +222,7 @@ public class LoginActivity extends AppActivity implements View.OnClickListener {
                         @Override
                         public void onFail(Call<ReturnBean<TokenBean>> call, Throwable t) {
                             super.onFail(call, t);
-                            LogUtil.getLog().i("youmeng", "LoginActivity------->login------phone-->onFail");
+                            LogUtil.getLog().i("youmeng", "LoginActivity------->login-------->onFail");
                         }
                     });
                 }else {

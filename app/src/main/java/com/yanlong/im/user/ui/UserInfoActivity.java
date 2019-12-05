@@ -29,6 +29,7 @@ import com.yanlong.im.utils.DataUtils;
 import com.yanlong.im.utils.GlideOptionsUtil;
 
 import net.cb.cb.library.CoreEnum;
+import net.cb.cb.library.bean.CloseActivityEvent;
 import net.cb.cb.library.bean.EventExitChat;
 import net.cb.cb.library.bean.EventRefreshFriend;
 import net.cb.cb.library.bean.RefreshApplyEvent;
@@ -165,6 +166,7 @@ public class UserInfoActivity extends AppActivity {
         btnMsg.setText("发送消息");
         btnMsg.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
                 EventBus.getDefault().post(new EventExitChat());
                 startActivity(new Intent(getContext(), ChatActivity.class)
                         .putExtra(ChatActivity.AGM_TOUID, id));
@@ -594,6 +596,8 @@ public class UserInfoActivity extends AppActivity {
                     MessageManager.getInstance().setMessageChange(true);
                     MessageManager.getInstance().notifyRefreshMsg(CoreEnum.EChatType.PRIVATE, id, "", CoreEnum.ESessionRefreshTag.DELETE, null);
                     notifyRefreshRoster(id, CoreEnum.ERosterAction.REMOVE_FRIEND);
+                    EventBus.getDefault().post(new CloseActivityEvent("ChatInfoActivity,GroupInfoActivity"));
+                    EventBus.getDefault().post(new EventExitChat());
                     finish();
                 }
             }

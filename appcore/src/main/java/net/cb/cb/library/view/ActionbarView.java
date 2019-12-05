@@ -117,9 +117,8 @@ public class ActionbarView extends LinearLayout {
      *
      * @param txt
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
     public void setTxtLeft(String txt) {
-        txtLeft.setBackgroundColor(getContext().getColor(R.color.transparent));
+        txtLeft.setBackgroundColor(getContext().getResources().getColor(R.color.transparent));
         if (!TextUtils.isEmpty(txt)) {
             txtLeft.setText(txt);
             txtLeft.setVisibility(View.VISIBLE);
