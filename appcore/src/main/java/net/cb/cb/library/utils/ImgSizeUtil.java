@@ -1,11 +1,9 @@
 package net.cb.cb.library.utils;
 
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
@@ -15,7 +13,7 @@ import java.text.DecimalFormat;
  */
 public class ImgSizeUtil {
     public static ImageSize getAttribute(String loclUrl) {
-        loclUrl=loclUrl.replace("file://","");
+        loclUrl = loclUrl.replace("file://", "");
         //获取Options对象
         BitmapFactory.Options options = new BitmapFactory.Options();
         //仅做解码处理，不加载到内存
@@ -34,23 +32,19 @@ public class ImgSizeUtil {
 
     }
 
-    public static long getVideoSize(String mUri)
-    {
+    public static long getVideoSize(String mUri) {
         long size = 0;
-        File f= new File(mUri);
-        FileChannel fc= null;
-        FileInputStream fis= null;
-        if (f.exists() && f.isFile()){
-
+        File f = new File(mUri);
+        FileChannel fc = null;
+        FileInputStream fis = null;
+        if (f.exists() && f.isFile()) {
             try {
-
                 fis = new FileInputStream(f);
-                fc= fis.getChannel();
-                size=fc.size();
+                fc = fis.getChannel();
+                size = fc.size();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-            finally {
+            } finally {
                 try {
                     fis.close();
                     fc.close();
@@ -59,11 +53,45 @@ public class ImgSizeUtil {
                 }
             }
 
-        }else{
         }
         return size;
     }
 
+    /**
+     * 转换文件大小
+     *
+     * @param fileS
+     * @return
+     */
+    private static String FormetFileSize(long fileS) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        String fileSizeString = "";
+        String wrongSize = "0B";
+        if (fileS == 0) {
+            return wrongSize;
+        }
+        if (fileS < 1024) {
+            fileSizeString = df.format((double) fileS) + "B";
+        } else if (fileS < 1048576) {
+            fileSizeString = df.format((double) fileS / 1024) + "KB";
+        } else if (fileS < 1073741824) {
+            fileSizeString = df.format((double) fileS / 1048576) + "MB";
+        } else {
+            fileSizeString = df.format((double) fileS / 1073741824) + "GB";
+        }
+        return fileSizeString;
+    }
+
+    /**
+     * 转换文件大小
+     *
+     * @param fileS
+     * @return
+     */
+    public static double formetFileSize(long fileS) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        return Double.valueOf(df.format((double) fileS / 1048576));
+    }
 
     public static String formatFileSize(long fileS) {
         DecimalFormat df = new DecimalFormat("#.0");
@@ -82,7 +110,6 @@ public class ImgSizeUtil {
         } else {
             fileSizeString = df.format((double) fileS / 1073741824) + "G";
         }
-
 
         return fileSizeString;
 

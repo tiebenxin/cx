@@ -336,6 +336,7 @@ public class MessageManager {
                 }
                 break;
             case DESTROY_GROUP://销毁群
+
                 String groupName = wrapMessage.getDestroyGroup().getName();
                 String icon = wrapMessage.getDestroyGroup().getAvatar();
                 msgDao.groupExit(wrapMessage.getGid(), groupName, icon, 1);
@@ -1496,7 +1497,7 @@ public class MessageManager {
     /*
      * 群成员数据变化时，更新群信息
      * */
-    private synchronized void refreshGroupInfo(final String gid) {
+    public synchronized void refreshGroupInfo(final String gid) {
         new MsgAction().loadGroupMember(gid, new CallBack<ReturnBean<Group>>() {
             @Override
             public void onResponse(Call<ReturnBean<Group>> call, Response<ReturnBean<Group>> response) {
