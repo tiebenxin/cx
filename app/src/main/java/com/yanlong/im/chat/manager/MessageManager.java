@@ -297,9 +297,9 @@ public class MessageManager {
                     realm.beginTransaction();
                     Group group = realm.where(Group.class).equalTo("gid", wrapMessage.getGid()).findFirst();
                     if (group != null) {
-                        if(StringUtil.isNotNull(group.getName())){
+                        if (StringUtil.isNotNull(group.getName())) {
                             applyBean.setGroupName(group.getName());
-                        }else {
+                        } else {
                             applyBean.setGroupName(msgDao.getGroupName(group));
                         }
                     }
@@ -456,6 +456,10 @@ public class MessageManager {
                 break;
 
             case P2P_AU_VIDEO_DIAL:// 音视频通知
+                break;
+            case PAY_RESULT://支付结果
+                MsgBean.PayResultMessage payResult = wrapMessage.getPayResult();
+                MsgBean.PayResultMessage.PayResult resultType = payResult.getResult();
                 break;
         }
         //刷新单个,接收到音视频通话消息不需要刷新
