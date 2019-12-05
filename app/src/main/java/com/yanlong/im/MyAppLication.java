@@ -89,6 +89,7 @@ public class MyAppLication extends MainApplication {
                 AppConfig.DEBUG = false; // false true
                 //---------------------------
                 AppConfig.SOCKET_IP = "im-app.zhixun6.com";
+//                AppConfig.SOCKET_IP = "transfer.zhixun6.com";
                 AppConfig.URL_HOST = "https://" + AppConfig.SOCKET_IP + ":8080";
                 AppConfig.SOCKET_PORT = 19991;
                 AppConfig.UP_PATH = "product-environment";

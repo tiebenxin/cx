@@ -165,7 +165,7 @@ public class TaskDealWithMsgList extends AsyncTask<Void, Integer, Boolean> {
                 }
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
         MessageManager.getInstance().clearPendingList();

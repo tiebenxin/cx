@@ -650,6 +650,9 @@ public class SocketUtil {
             switch (type) {
                 case PROTOBUF_MSG:
                     final MsgBean.UniversalMessage pmsg = SocketData.msgConversion(indexData);
+                    if (pmsg == null){
+                        return null;
+                    }
                     LogUtil.getLog().i(TAG, ">>>-----<处理消息 长度:" + indexData.length + " rid:" + pmsg.getRequestId());
                     heartbeatTime = System.currentTimeMillis();
                     //调试时不用吧onMsg放在线程里,这里为了优化分发的效率才如此处理
