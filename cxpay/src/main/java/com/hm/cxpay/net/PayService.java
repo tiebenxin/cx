@@ -51,6 +51,10 @@ public interface PayService {
     @POST(Route.SET_PAYWORD)
     Observable<BaseResponse> setPayword(@Body RequestBody body);
 
+    //修改支付密码
+    @POST(Route.MODIFY_PAYWORD)
+    Observable<BaseResponse> modifyPayword(@Body RequestBody body);
+
     //设置检查密码
     @POST(Route.CHECK_PAYWORD)
     Observable<BaseResponse> checkPayword(@Body RequestBody body);

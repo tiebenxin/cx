@@ -108,6 +108,14 @@ public class PayHttpUtils {
         return HttpChannel.getInstance().getPayService().setPayword(getRequestBody(map));
     }
 
+    //修改支付密码
+    public Observable<BaseResponse> modifyPayword(String oldPayword,String newPayword) {
+        Map<String, String> map = new HashMap<>();
+        map.put("currentPwd", MD5.md5(oldPayword));
+        map.put("newPwd", MD5.md5(newPayword));
+        return HttpChannel.getInstance().getPayService().modifyPayword(getRequestBody(map));
+    }
+
     //检查支付密码
     public Observable<BaseResponse> checkPayword(String pwd) {
         Map<String, String> map = new HashMap<>();

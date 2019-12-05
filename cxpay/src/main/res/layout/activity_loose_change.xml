@@ -97,7 +97,14 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!--我的红包-->
+            <!--零钱明细-->
+            <include
+                android:id="@+id/layout_change_details"
+                layout="@layout/layout_pay_main_item" />
+
+            <View style="@style/app_line" />
+
+            <!--红包明细-->
             <include
                 android:id="@+id/viewMyRedEnvelope"
                 layout="@layout/layout_pay_main_item" />
@@ -108,6 +115,13 @@
             <!--账户信息-->
             <include
                 android:id="@+id/viewAccountInfo"
+                layout="@layout/layout_pay_main_item" />
+
+            <View style="@style/app_line" />
+
+            <!--实名认证-->
+            <include
+                android:id="@+id/layout_auth_realname"
                 layout="@layout/layout_pay_main_item" />
 
             <View style="@style/app_line" />

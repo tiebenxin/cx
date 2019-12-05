@@ -21,8 +21,9 @@ public class ManagePaywordActivity extends AppActivity {
 
     private HeadView headView;
     private ActionbarView actionbar;
-    private LinearLayout layoutSetPayword;//设置支付密码
     private LinearLayout layoutModifyPayword;//修改支付密码
+    private LinearLayout layoutFindbackPayword;//找回支付密码
+
     private Context activity;
 
 
@@ -37,8 +38,8 @@ public class ManagePaywordActivity extends AppActivity {
 
     private void initView() {
         headView = findViewById(R.id.headView);
-        layoutSetPayword = findViewById(R.id.layout_set_payword);
         layoutModifyPayword = findViewById(R.id.layout_modify_payword);
+        layoutFindbackPayword = findViewById(R.id.layout_findback_payword);
         actionbar = headView.getActionbar();
     }
 
@@ -54,16 +55,15 @@ public class ManagePaywordActivity extends AppActivity {
 
             }
         });
-        layoutSetPayword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                go(SetPaywordActivity.class);
-            }
-        });
         layoutModifyPayword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO 修改支付密码UI还没出
+                go(ModifyPaywordActivity.class);
+            }
+        });
+        layoutFindbackPayword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 go(SetPaywordActivity.class);
             }
         });

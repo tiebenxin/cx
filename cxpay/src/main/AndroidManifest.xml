@@ -45,6 +45,9 @@
         <activity
             android:name=".ui.ManagePaywordActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.ModifyPaywordActivity"
+            android:screenOrientation="portrait" />
 
         <!-- 发送单个红包-->
         <activity
