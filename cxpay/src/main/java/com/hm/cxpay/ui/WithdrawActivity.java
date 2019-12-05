@@ -2,12 +2,18 @@ package com.hm.cxpay.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -29,12 +35,12 @@ import com.hm.cxpay.ui.bank.BindBankActivity;
 import com.hm.cxpay.ui.bank.SelectBankCardActivity;
 import com.hm.cxpay.utils.UIUtils;
 
+import net.cb.cb.library.utils.DensityUtil;
 import net.cb.cb.library.utils.ToastUtil;
 import net.cb.cb.library.view.ActionbarView;
 import net.cb.cb.library.view.AppActivity;
 import net.cb.cb.library.view.HeadView;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -304,6 +310,7 @@ public class WithdrawActivity extends AppActivity {
                     @Override
                     public void onHandleSuccess(BaseResponse<CommonBean> baseResponse) {
                         rateBean = null;
+                        showFailDialog();
                         if (baseResponse.getData() != null) {
                             rateBean = baseResponse.getData();
                             minMoney = Double.valueOf(rateBean.getMinAmt());
@@ -320,11 +327,9 @@ public class WithdrawActivity extends AppActivity {
                     @Override
                     public void onHandleError(BaseResponse<CommonBean> baseResponse) {
                         super.onHandleError(baseResponse);
-                        ToastUtil.show(context, baseResponse.getMessage());
+                        showFailDialog();
                     }
                 });
-
-
     }
 
 
@@ -388,13 +393,36 @@ public class WithdrawActivity extends AppActivity {
         return money*rate;
     }
 
+
     /**
-     * 展示百分比的费率
-     * @param rate
+     * 获取费率失败弹框
      */
-    private void showRates(Double rate){
-        BigDecimal rateValue = new BigDecimal(rate);
-        BigDecimal percent = new BigDecimal(100);
-        rateValue.divide(percent, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
+    private void showFailDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+        dialogBuilder.setCancelable(false);//取消点击外部消失弹窗
+        final AlertDialog dialog = dialogBuilder.create();
+        //获取界面
+        View dialogView = LayoutInflater.from(activity).inflate(R.layout.dialog_get_rate_fail, null);
+        //初始化控件
+        TextView tvSure = dialogView.findViewById(R.id.tv_sure);
+        //显示和点击事件
+        tvSure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+        //展示界面
+        dialog.show();
+        //解决圆角shape背景无效问题
+        Window window = dialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        //设置宽高
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.height = DensityUtil.dip2px(activity, 195);
+        lp.width = DensityUtil.dip2px(activity, 277);
+        dialog.getWindow().setAttributes(lp);
+        dialog.setContentView(dialogView);
     }
 }
